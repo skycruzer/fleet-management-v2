@@ -42,14 +42,14 @@ export interface AuditLog {
   user_id: string | null
   user_email: string | null
   user_role: string | null
-  action: 'INSERT' | 'UPDATE' | 'DELETE' | 'RESTORE' | 'SOFT_DELETE'
+  action: string
   table_name: string
   record_id: string
-  old_data: Record<string, any> | null
-  new_data: Record<string, any> | null
+  old_data: any
+  new_data: any
   changed_fields: string[] | null
   description: string | null
-  ip_address: string | null
+  ip_address: any
   user_agent: string | null
   created_at: string
   created_at_png: string | null
@@ -147,17 +147,26 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
     const supabase = await createClient()
 
     // Get current user information
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
     if (userError) {
-      console.warn('createAuditLog: Failed to get user', userError)
+      logWarning('Failed to get user during audit log creation', {
+        source: 'AuditService',
+        metadata: {
+          operation: 'createAuditLog',
+          error: userError?.message || String(userError),
+        },
+      })
     }
 
     // Calculate changed fields if both old and new data provided
     let changedFields: string[] | null = null
     if (params.oldData && params.newData) {
       changedFields = Object.keys(params.newData).filter(
-        key => JSON.stringify(params.oldData![key]) !== JSON.stringify(params.newData![key])
+        (key) => JSON.stringify(params.oldData![key]) !== JSON.stringify(params.newData![key])
       )
     }
 
@@ -174,30 +183,40 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
     }
 
     // Create audit log entry
-    const { error: insertError } = await supabase
-      .from('audit_logs')
-      .insert({
-        user_id: user?.id || null,
-        user_email: user?.email || null,
-        user_role: userRole,
-        action: params.action,
-        table_name: params.tableName,
-        record_id: params.recordId,
-        old_data: params.oldData || null,
-        new_data: params.newData || null,
-        changed_fields: changedFields,
-        description: params.description || null,
-        ip_address: params.ipAddress || null,
-        user_agent: params.userAgent || null,
-        created_at_png: new Date().toISOString(), // PNG timezone
-      })
+    const { error: insertError } = await supabase.from('audit_logs').insert({
+      user_id: user?.id || null,
+      user_email: user?.email || null,
+      user_role: userRole,
+      action: params.action,
+      table_name: params.tableName,
+      record_id: params.recordId,
+      old_data: params.oldData || null,
+      new_data: params.newData || null,
+      changed_fields: changedFields,
+      description: params.description || null,
+      ip_address: params.ipAddress || null,
+      user_agent: params.userAgent || null,
+      created_at_png: new Date().toISOString(), // PNG timezone
+    })
 
     if (insertError) {
-      console.error('createAuditLog: Failed to insert audit log', insertError)
+      logError(insertError as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.LOW,
+        metadata: {
+          operation: 'createAuditLog',
+          action: params.action,
+          tableName: params.tableName,
+        },
+      })
       // Don't throw error - audit logging should not break main operations
     }
   } catch (error) {
-    console.error('createAuditLog: Unexpected error', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.LOW,
+      metadata: { operation: 'createAuditLog' },
+    })
     // Fail silently to not block main operations
   }
 }
@@ -270,7 +289,11 @@ export async function getAuditLogs(filters: AuditLogFilters = {}): Promise<Audit
     const { data, error, count } = await query
 
     if (error) {
-      console.error('Error fetching audit logs', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getAuditLogs' },
+      })
       throw error
     }
 
@@ -284,7 +307,11 @@ export async function getAuditLogs(filters: AuditLogFilters = {}): Promise<Audit
       totalPages,
     }
   } catch (error) {
-    console.error('Error in getAuditLogs', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getAuditLogs' },
+    })
     throw error
   }
 }
@@ -296,20 +323,24 @@ export async function getAuditLogById(id: string): Promise<AuditLog | null> {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase
-      .from('audit_logs')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data, error } = await supabase.from('audit_logs').select('*').eq('id', id).single()
 
     if (error) {
-      console.error('Error fetching audit log', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getAuditLogById' },
+      })
       throw error
     }
 
     return data
   } catch (error) {
-    console.error('Error in getAuditLogById', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getAuditLogById' },
+    })
     return null
   }
 }
@@ -332,13 +363,21 @@ export async function getRecordAuditHistory(
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching record audit history', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getRecordAuditHistory' },
+      })
       throw error
     }
 
     return data || []
   } catch (error) {
-    console.error('Error in getRecordAuditHistory', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getRecordAuditHistory' },
+    })
     return []
   }
 }
@@ -359,13 +398,21 @@ export async function getRecentAuditActivity(days: number = 7): Promise<AuditLog
       .limit(100)
 
     if (error) {
-      console.error('Error fetching recent audit activity', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getRecentAuditActivity' },
+      })
       throw error
     }
 
     return data || []
   } catch (error) {
-    console.error('Error in getRecentAuditActivity', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getRecentAuditActivity' },
+    })
     return []
   }
 }
@@ -395,7 +442,11 @@ export async function getAuditStats(startDate?: Date, endDate?: Date): Promise<A
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching audit stats', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getAuditStats' },
+      })
       throw error
     }
 
@@ -478,7 +529,11 @@ export async function getAuditStats(startDate?: Date, endDate?: Date): Promise<A
       recentActivity,
     }
   } catch (error) {
-    console.error('Error in getAuditStats', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getAuditStats' },
+    })
     throw error
   }
 }
@@ -507,7 +562,11 @@ export async function getUserActivitySummary(
     const { data, error } = await query.order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching user activity summary', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getUserActivitySummary' },
+      })
       throw error
     }
 
@@ -542,7 +601,11 @@ export async function getUserActivitySummary(
       action_breakdown,
     }
   } catch (error) {
-    console.error('Error in getUserActivitySummary', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getUserActivitySummary' },
+    })
     return null
   }
 }
@@ -564,7 +627,11 @@ export async function getTableModificationHistory(
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching table modification history', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getTableModificationHistory' },
+      })
       throw error
     }
 
@@ -591,7 +658,11 @@ export async function getTableModificationHistory(
       recent_changes,
     }
   } catch (error) {
-    console.error('Error in getTableModificationHistory', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getTableModificationHistory' },
+    })
     return null
   }
 }
@@ -644,7 +715,12 @@ export function exportAuditLogsToCSV(logs: AuditLog[]): string {
  */
 export function downloadAuditLogsCSV(logs: AuditLog[], filename?: string): void {
   if (typeof window === 'undefined') {
-    console.warn('downloadAuditLogsCSV can only be called on the client side')
+    logWarning('downloadAuditLogsCSV can only be called on the client side', {
+      source: 'AuditService',
+      metadata: {
+        operation: 'downloadAuditLogsCSV',
+      },
+    })
     return
   }
 
@@ -675,14 +751,22 @@ export async function getAuditedTables(): Promise<string[]> {
     const { data, error } = await supabase.from('audit_logs').select('table_name')
 
     if (error) {
-      console.error('Error fetching audited tables', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getAuditedTables' },
+      })
       throw error
     }
 
     const tables = [...new Set((data || []).map((log) => log.table_name))]
     return tables.sort()
   } catch (error) {
-    console.error('Error in getAuditedTables', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getAuditedTables' },
+    })
     return []
   }
 }
@@ -700,7 +784,11 @@ export async function getAuditedUsers(): Promise<{ email: string; role: string }
       .not('user_email', 'is', null)
 
     if (error) {
-      console.error('Error fetching audited users', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getAuditedUsers' },
+      })
       throw error
     }
 
@@ -719,7 +807,11 @@ export async function getAuditedUsers(): Promise<{ email: string; role: string }
 
     return users.sort((a, b) => a.email.localeCompare(b.email))
   } catch (error) {
-    console.error('Error in getAuditedUsers', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getAuditedUsers' },
+    })
     return []
   }
 }
@@ -755,13 +847,21 @@ export async function getCertificationAuditTrail(
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching certification audit trail', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getCertificationAuditTrail' },
+      })
       throw error
     }
 
     return data || []
   } catch (error) {
-    console.error('Error in getCertificationAuditTrail', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getCertificationAuditTrail' },
+    })
     return []
   }
 }
@@ -798,13 +898,21 @@ export async function getPilotAuditTrail(
     const { data, error } = await query
 
     if (error) {
-      console.error('Error fetching pilot audit trail', error)
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getPilotAuditTrail' },
+      })
       throw error
     }
 
     return data || []
   } catch (error) {
-    console.error('Error in getPilotAuditTrail', error)
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getPilotAuditTrail' },
+    })
     return []
   }
 }

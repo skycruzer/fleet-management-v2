@@ -12,26 +12,35 @@ import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 
 export interface LeaveRequest {
   id: string
-  pilot_id: string
-  request_type: 'RDO' | 'SDO' | 'ANNUAL' | 'SICK' | 'LSL' | 'LWOP' | 'MATERNITY' | 'COMPASSIONATE'
+  pilot_id: string | null
+  request_type:
+    | 'RDO'
+    | 'SDO'
+    | 'ANNUAL'
+    | 'SICK'
+    | 'LSL'
+    | 'LWOP'
+    | 'MATERNITY'
+    | 'COMPASSIONATE'
+    | null
   roster_period: string
   start_date: string
   end_date: string
   days_count: number
   status: 'PENDING' | 'APPROVED' | 'DENIED'
-  reason?: string
-  request_date?: string // Date when the request was made (separate from created_at)
-  request_method?: 'EMAIL' | 'ORACLE' | 'LEAVE_BIDS' | 'SYSTEM' // How the request was submitted
-  is_late_request?: boolean // Flag for requests with less than 21 days advance notice
-  created_at: string
-  reviewed_by?: string
-  reviewed_at?: string
-  review_comments?: string
+  reason?: string | null
+  request_date?: string | null // Date when the request was made (separate from created_at)
+  request_method?: 'EMAIL' | 'ORACLE' | 'LEAVE_BIDS' | 'SYSTEM' | null // How the request was submitted
+  is_late_request?: boolean | null // Flag for requests with less than 21 days advance notice
+  created_at: string | null
+  reviewed_by?: string | null
+  reviewed_at?: string | null
+  review_comments?: string | null
   // Joined data
   pilot_name?: string
   employee_id?: string
-  pilot_role?: 'Captain' | 'First Officer'
-  reviewer_name?: string
+  pilot_role?: 'Captain' | 'First Officer' | null
+  reviewer_name?: string | null
 }
 
 export interface LeaveRequestFormData {
@@ -105,7 +114,7 @@ export async function getAllLeaveRequests(): Promise<LeaveRequest[]> {
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
       reviewer_name: request.reviewer?.name || null,
-    }))
+    })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:getAllLeaveRequests',
@@ -158,7 +167,7 @@ export async function getLeaveRequestById(requestId: string): Promise<LeaveReque
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
       reviewer_name: request.reviewer?.name || null,
-    }
+    } as LeaveRequest
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:getLeaveRequestById',
@@ -204,7 +213,7 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
       reviewer_name: request.reviewer?.name || null,
-    }))
+    })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:getPilotLeaveRequests',
@@ -216,7 +225,9 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
 }
 
 // Create a new leave request (server-side)
-export async function createLeaveRequestServer(requestData: LeaveRequestFormData): Promise<LeaveRequest> {
+export async function createLeaveRequestServer(
+  requestData: LeaveRequestFormData
+): Promise<LeaveRequest> {
   const supabase = await createClient()
 
   try {
@@ -255,7 +266,7 @@ export async function createLeaveRequestServer(requestData: LeaveRequestFormData
       description: `Created ${data.request_type} leave request for pilot ID: ${data.pilot_id} (${data.start_date} to ${data.end_date})`,
     })
 
-    return data
+    return data as LeaveRequest
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:createLeaveRequestServer',
@@ -291,7 +302,7 @@ export async function updateLeaveRequestServer(
 
     if (error) throw error
 
-    return data
+    return data as LeaveRequest
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:updateLeaveRequestServer',
@@ -321,7 +332,7 @@ export async function updateLeaveRequestStatus(
       p_request_id: requestId,
       p_reviewer_id: reviewedBy,
       p_status: status,
-      p_comments: reviewComments || null,
+      p_comments: reviewComments || undefined,
     })
 
     if (error) {
@@ -475,7 +486,7 @@ export async function getPendingLeaveRequests(): Promise<LeaveRequest[]> {
         : 'Unknown Pilot',
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
-    }))
+    })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:getPendingLeaveRequests',
@@ -529,7 +540,7 @@ export async function checkLeaveConflicts(
         : 'Unknown Pilot',
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
-    }))
+    })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:checkLeaveConflicts',
@@ -577,7 +588,7 @@ export async function getLeaveRequestsByRosterPeriod(
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
       reviewer_name: request.reviewer?.name || null,
-    }))
+    })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
       source: 'leave-service:getLeaveRequestsByRosterPeriod',

@@ -414,7 +414,9 @@ export async function getConflictingPendingRequests(
         }
       }
 
-      const isPriority = !isCurrentPilot && pilot.seniority_number < currentPilot.seniority_number
+      const isPriority =
+        !isCurrentPilot &&
+        (pilot.seniority_number ?? Infinity) < (currentPilot.seniority_number ?? Infinity)
 
       let recommendation = ''
       if (isCurrentPilot) {
@@ -839,7 +841,9 @@ export async function checkLeaveEligibility(
                   `     • Employee ID: ${req.employeeId}\n` +
                   `     • Dates: ${new Date(req.startDate).toLocaleDateString('en-AU')} to ${new Date(req.endDate).toLocaleDateString('en-AU')} (${req.overlappingDays} days)\n`
               )
-              .join('\n')}\n🔄 REQUEST TO RESCHEDULE (Lower Seniority - ${mustReschedule.length} pilot${mustReschedule.length > 1 ? 's' : ''}):\n${mustReschedule
+              .join(
+                '\n'
+              )}\n🔄 REQUEST TO RESCHEDULE (Lower Seniority - ${mustReschedule.length} pilot${mustReschedule.length > 1 ? 's' : ''}):\n${mustReschedule
               .map((req, index) => {
                 const spreadingOptions = generateDateSpreadingSuggestions(
                   req.startDate,
@@ -1069,6 +1073,9 @@ export async function checkBulkLeaveEligibility(rosterPeriod: string): Promise<{
 
   // Check each request
   for (const req of requests) {
+    // Skip requests without valid pilot_id or request_type
+    if (!req.pilot_id || !req.request_type) continue
+
     const check = await checkLeaveEligibility({
       requestId: req.id,
       pilotId: req.pilot_id,

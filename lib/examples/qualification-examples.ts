@@ -13,6 +13,7 @@ import {
   sanitizeCaptainQualifications,
   createDefaultCaptainQualifications,
 } from '../utils/type-guards'
+import { logWarning } from '../error-logger'
 import {
   isLineCaptain,
   isTrainingCaptain,
@@ -63,7 +64,13 @@ export function validatePilotDataExample(rawData: unknown) {
   const qualifications = parseCaptainQualifications(data.captain_qualifications)
 
   if (qualifications === null && data.captain_qualifications !== null) {
-    console.warn('Invalid captain qualifications, using defaults')
+    logWarning('Invalid captain qualifications, using defaults', {
+      source: 'QualificationExamples',
+      metadata: {
+        operation: 'sanitizePilotData',
+        qualifications: data.captain_qualifications,
+      },
+    })
     return {
       ...data,
       captain_qualifications: createDefaultCaptainQualifications(),

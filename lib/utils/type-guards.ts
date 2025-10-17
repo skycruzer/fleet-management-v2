@@ -8,6 +8,7 @@
  */
 
 import type { CaptainQualifications } from '../../types/pilot'
+import { logWarning } from '../error-logger'
 
 /**
  * Type guard to check if a value is a valid CaptainQualifications object
@@ -79,7 +80,13 @@ export function parseCaptainQualifications(value: unknown): CaptainQualification
 
   // Validate the structure
   if (!isCaptainQualifications(value)) {
-    console.warn('Invalid captain qualifications structure:', value)
+    logWarning('Invalid captain qualifications structure', {
+      source: 'TypeGuards',
+      metadata: {
+        operation: 'parseCaptainQualifications',
+        value: JSON.stringify(value),
+      },
+    })
     return null
   }
 

@@ -39,7 +39,7 @@ export interface CertificationWithDetails extends PilotCheck {
     id: string
     check_code: string
     check_description: string
-    category: string
+    category: string | null
   }
   status?: {
     color: 'red' | 'yellow' | 'green' | 'gray'
@@ -199,7 +199,11 @@ export async function getCertifications(
       pageSize,
     }
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:getCertifications', severity: ErrorSeverity.HIGH, metadata: { operation: 'fetchCertifications' } })
+    logError(error as Error, {
+      source: 'certification-service:getCertifications',
+      severity: ErrorSeverity.HIGH,
+      metadata: { operation: 'fetchCertifications' },
+    })
     throw error
   }
 }
@@ -256,7 +260,11 @@ export async function getCertificationById(
       status: getCertificationStatus(data.expiry_date ? new Date(data.expiry_date) : null),
     }
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:getCertificationById', severity: ErrorSeverity.MEDIUM, metadata: { certificationId } })
+    logError(error as Error, {
+      source: 'certification-service:getCertificationById',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { certificationId },
+    })
     throw error
   }
 }
@@ -295,7 +303,11 @@ export async function getCertificationsByPilotId(
 
     return certificationsWithStatus
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:getCertificationsByPilotId', severity: ErrorSeverity.MEDIUM, metadata: { pilotId } })
+    logError(error as Error, {
+      source: 'certification-service:getCertificationsByPilotId',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { pilotId },
+    })
     throw error
   }
 }
@@ -355,7 +367,11 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
 
     return expiringCerts
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:getExpiringCertifications', severity: ErrorSeverity.HIGH, metadata: { daysThreshold } })
+    logError(error as Error, {
+      source: 'certification-service:getExpiringCertifications',
+      severity: ErrorSeverity.HIGH,
+      metadata: { daysAhead },
+    })
     throw error
   }
 }
@@ -401,7 +417,11 @@ export async function createCertification(
 
     return data
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:createCertification', severity: ErrorSeverity.HIGH, metadata: { pilotId: certificationData.pilot_id } })
+    logError(error as Error, {
+      source: 'certification-service:createCertification',
+      severity: ErrorSeverity.HIGH,
+      metadata: { pilotId: certificationData.pilot_id },
+    })
     throw error
   }
 }
@@ -450,7 +470,11 @@ export async function updateCertification(
 
     return data
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:updateCertification', severity: ErrorSeverity.HIGH, metadata: { certificationId } })
+    logError(error as Error, {
+      source: 'certification-service:updateCertification',
+      severity: ErrorSeverity.HIGH,
+      metadata: { certificationId },
+    })
     throw error
   }
 }
@@ -484,7 +508,11 @@ export async function deleteCertification(certificationId: string): Promise<void
       })
     }
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:deleteCertification', severity: ErrorSeverity.HIGH, metadata: { certificationId } })
+    logError(error as Error, {
+      source: 'certification-service:deleteCertification',
+      severity: ErrorSeverity.HIGH,
+      metadata: { certificationId },
+    })
     throw error
   }
 }
@@ -506,7 +534,11 @@ export async function bulkDeleteCertifications(
     })
 
     if (error) {
-      logError(new Error(`bulkDeleteCertifications: ${error.message}`), { source: 'certification-service:bulkDeleteCertifications', severity: ErrorSeverity.CRITICAL, metadata: { certificationIds, error } })
+      logError(new Error(`bulkDeleteCertifications: ${error.message}`), {
+        source: 'certification-service:bulkDeleteCertifications',
+        severity: ErrorSeverity.CRITICAL,
+        metadata: { certificationIds, error },
+      })
       throw new Error(`Failed to bulk delete certifications: ${error.message}`)
     }
 
@@ -516,14 +548,21 @@ export async function bulkDeleteCertifications(
       throw new Error('Unexpected response from database function')
     }
 
-    logInfo('Bulk delete certifications completed', { source: 'certification-service:bulkDeleteCertifications', metadata: { message: result.message } })
+    logInfo('Bulk delete certifications completed', {
+      source: 'certification-service:bulkDeleteCertifications',
+      metadata: { message: result.message },
+    })
 
     return {
       deletedCount: result.deleted_count || 0,
       requestedCount: result.requested_count || 0,
     }
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:bulkDeleteCertifications', severity: ErrorSeverity.CRITICAL, metadata: { certificationIds } })
+    logError(error as Error, {
+      source: 'certification-service:bulkDeleteCertifications',
+      severity: ErrorSeverity.CRITICAL,
+      metadata: { certificationIds },
+    })
     throw error
   }
 }
@@ -569,7 +608,11 @@ export async function batchUpdateCertifications(
     })
 
     if (error) {
-      logError(new Error(`batchUpdateCertifications: ${error.message}`), { source: 'certification-service:batchUpdateCertifications', severity: ErrorSeverity.CRITICAL, metadata: { updates, error } })
+      logError(new Error(`batchUpdateCertifications: ${error.message}`), {
+        source: 'certification-service:batchUpdateCertifications',
+        severity: ErrorSeverity.CRITICAL,
+        metadata: { certifications, error: error.message },
+      })
       throw new Error(`Failed to batch update certifications: ${error.message}`)
     }
 
@@ -579,14 +622,21 @@ export async function batchUpdateCertifications(
       throw new Error('Unexpected response from database function')
     }
 
-    logInfo('Batch update certifications completed', { source: 'certification-service:batchUpdateCertifications', metadata: { message: result.message } })
+    logInfo('Batch update certifications completed', {
+      source: 'certification-service:batchUpdateCertifications',
+      metadata: { message: result.message },
+    })
 
     return {
       updatedCount: result.updated_count || 0,
       totalRequested: result.total_requested || 0,
     }
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:batchUpdateCertifications', severity: ErrorSeverity.CRITICAL, metadata: { updates } })
+    logError(error as Error, {
+      source: 'certification-service:batchUpdateCertifications',
+      severity: ErrorSeverity.CRITICAL,
+      metadata: { certifications },
+    })
     throw error
   }
 }
@@ -633,15 +683,18 @@ export async function getCertificationStats() {
       }
     )
 
-    const complianceRate =
-      stats.total > 0 ? Math.round((stats.current / stats.total) * 100) : 100
+    const complianceRate = stats.total > 0 ? Math.round((stats.current / stats.total) * 100) : 100
 
     return {
       ...stats,
       complianceRate,
     }
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:getCertificationStats', severity: ErrorSeverity.MEDIUM, metadata: { operation: 'calculateStats' } })
+    logError(error as Error, {
+      source: 'certification-service:getCertificationStats',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'calculateStats' },
+    })
     throw error
   }
 }
@@ -697,7 +750,11 @@ export async function getCertificationsByCategory() {
       complianceRate: Math.round((stats.current / stats.total) * 100),
     }))
   } catch (error) {
-    logError(error as Error, { source: 'certification-service:getCertificationsByCategory', severity: ErrorSeverity.MEDIUM, metadata: { operation: 'calculateCategoryStats' } })
+    logError(error as Error, {
+      source: 'certification-service:getCertificationsByCategory',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'calculateCategoryStats' },
+    })
     throw error
   }
 }

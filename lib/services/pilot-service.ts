@@ -1,14 +1,14 @@
 /**
  * Pilot Service for Fleet Management V2
  * Ported from air-niugini-pms v1 with Next.js 15 updates
- * 
+ *
  * Key Changes from v1:
  * - Updated imports to use @/ alias
  * - Changed Supabase client imports to @/lib/supabase/server
  * - All async patterns updated for Next.js 15
  * - Removed client/server branching (server-only service)
  * - Retained all business logic and seniority calculations
- * 
+ *
  * @version 2.0.0
  * @since 2025-10-17
  */
@@ -66,10 +66,12 @@ export interface PilotWithRetirement extends Pilot {
 
 function getCertificationStatus(expiryDate: Date | null) {
   if (!expiryDate) return { color: 'gray', label: 'No Date' }
-  
+
   const today = new Date()
-  const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-  
+  const daysUntilExpiry = Math.ceil(
+    (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  )
+
   if (daysUntilExpiry < 0) {
     return { color: 'red', label: 'Expired' }
   }
@@ -88,30 +90,38 @@ export async function calculateSeniorityNumber(
   excludePilotId?: string
 ): Promise<number> {
   const supabase = await createClient()
-  
+
   try {
     let query = supabase
       .from('pilots')
       .select('commencement_date')
       .not('commencement_date', 'is', null)
       .order('commencement_date', { ascending: true })
-    
+
     if (excludePilotId) {
       query = query.not('id', 'eq', excludePilotId)
     }
-    
+
     const { data: pilots, error } = await query
     if (error) throw error
-    
+
     const targetDate = new Date(commencementDate)
     const earlierPilots = (pilots || []).filter((pilot) => {
       if (!pilot.commencement_date) return false
       return new Date(pilot.commencement_date) < targetDate
     })
-    
+
     return earlierPilots.length + 1
   } catch (error) {
-    console.error('Error calculating seniority number:', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: {
+        operation: 'calculateSeniorityNumber',
+        commencementDate,
+        excludePilotId,
+      },
+    })
     return 1
   }
 }
@@ -145,7 +155,7 @@ export async function getAllPilots(
     const to = from + pageSize - 1
 
     // Build query with eager loading (single JOIN query - eliminates N+1)
-    let query = supabase
+    const query = supabase
       .from('pilots')
       .select(
         includeChecks
@@ -223,7 +233,16 @@ export async function getAllPilots(
 
     return { pilots: pilotsWithCerts, total: count || 0, page, pageSize }
   } catch (error) {
-    console.error('getAllPilots: Fatal error', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'getAllPilots',
+        page,
+        pageSize,
+        includeChecks,
+      },
+    })
     throw error
   }
 }
@@ -239,14 +258,14 @@ export async function getAllPilotsUnpaginated(): Promise<PilotWithCertifications
 
 export async function getPilotById(pilotId: string): Promise<PilotWithCertifications | null> {
   const supabase = await createClient()
-  
+
   try {
     const { data: pilot, error: pilotError } = await supabase
       .from('pilots')
       .select('*')
       .eq('id', pilotId)
       .single()
-    
+
     if (pilotError) {
       if (pilotError.code === 'PGRST116') {
         return null
@@ -254,10 +273,11 @@ export async function getPilotById(pilotId: string): Promise<PilotWithCertificat
       throw pilotError
     }
     if (!pilot) return null
-    
+
     const { data: checks, error: checksError } = await supabase
       .from('pilot_checks')
-      .select(`
+      .select(
+        `
         id,
         expiry_date,
         check_types (
@@ -266,13 +286,21 @@ export async function getPilotById(pilotId: string): Promise<PilotWithCertificat
           check_description,
           category
         )
-      `)
+      `
+      )
       .eq('pilot_id', pilotId)
-    
+
     if (checksError) {
-      console.warn(`Error fetching checks for pilot ${pilotId}`, checksError)
+      logWarning('Failed to fetch pilot checks', {
+        source: 'PilotService',
+        metadata: {
+          operation: 'getPilotById',
+          pilotId,
+          error: checksError.message,
+        },
+      })
     }
-    
+
     const certifications = checks || []
     const certificationCounts = certifications.reduce(
       (acc: any, check: any) => {
@@ -286,37 +314,46 @@ export async function getPilotById(pilotId: string): Promise<PilotWithCertificat
       },
       { current: 0, expiring: 0, expired: 0 }
     )
-    
+
     return {
       ...pilot,
       certificationStatus: certificationCounts,
     }
   } catch (error) {
-    console.error('getPilotById: Fatal error', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'getPilotById',
+        pilotId,
+      },
+    })
     throw error
   }
 }
 
 export async function getPilotStats() {
   const supabase = await createClient()
-  
+
   try {
     const { data: pilots, error } = await supabase
       .from('pilots')
       .select('role, is_active, captain_qualifications')
-    
+
     if (error) throw error
-    
+
     const stats = (pilots || []).reduce(
       (acc, pilot) => {
         acc.total++
         if (pilot.is_active) acc.active++
         else acc.inactive++
-        
+
         if (pilot.role === 'Captain') {
           acc.captains++
-          
-          const qualifications = pilot.captain_qualifications || []
+
+          const qualifications = (
+            Array.isArray(pilot.captain_qualifications) ? pilot.captain_qualifications : []
+          ) as string[]
           if (qualifications.includes('training_captain')) {
             acc.trainingCaptains++
           }
@@ -326,7 +363,7 @@ export async function getPilotStats() {
         } else if (pilot.role === 'First Officer') {
           acc.firstOfficers++
         }
-        
+
         return acc
       },
       {
@@ -339,10 +376,16 @@ export async function getPilotStats() {
         examiners: 0,
       }
     )
-    
+
     return stats
   } catch (error) {
-    console.error('Error fetching pilot stats', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: {
+        operation: 'getPilotStats',
+      },
+    })
     throw error
   }
 }
@@ -395,7 +438,14 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
 
     return data
   } catch (error) {
-    console.error('Error creating pilot', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'createPilot',
+        employeeId: pilotData.employee_id,
+      },
+    })
     throw error
   }
 }
@@ -437,7 +487,7 @@ export async function createPilotWithCertifications(
     }
 
     // Prepare certifications for PostgreSQL function
-    const certificationsJson = certifications.length > 0 ? certifications : null
+    const certificationsJson = certifications.length > 0 ? (certifications as any) : undefined
 
     // Use PostgreSQL function for atomic creation
     const { data, error } = await supabase.rpc('create_pilot_with_certifications', {
@@ -446,7 +496,15 @@ export async function createPilotWithCertifications(
     })
 
     if (error) {
-      console.error('createPilotWithCertifications: Database function error', error)
+      logError(new Error(error.message), {
+        source: 'PilotService',
+        severity: ErrorSeverity.HIGH,
+        metadata: {
+          operation: 'createPilotWithCertifications',
+          employeeId: pilotData.employee_id,
+          certificationCount: certifications.length,
+        },
+      })
       throw new Error(`Failed to create pilot with certifications: ${error.message}`)
     }
 
@@ -456,14 +514,29 @@ export async function createPilotWithCertifications(
       throw new Error('Unexpected response from database function')
     }
 
-    console.log('createPilotWithCertifications: Success -', result.message)
+    logInfo('Successfully created pilot with certifications', {
+      source: 'PilotService',
+      metadata: {
+        operation: 'createPilotWithCertifications',
+        pilotId: result.pilot.id,
+        employeeId: result.pilot.employee_id,
+        certificationCount: result.certification_count || 0,
+      },
+    })
 
     return {
       pilot: result.pilot,
       certificationCount: result.certification_count || 0,
     }
   } catch (error) {
-    console.error('createPilotWithCertifications: Fatal error', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'createPilotWithCertifications',
+        employeeId: pilotData.employee_id,
+      },
+    })
     throw error
   }
 }
@@ -476,11 +549,7 @@ export async function updatePilot(
 
   try {
     // Fetch old data for audit trail
-    const { data: oldData } = await supabase
-      .from('pilots')
-      .select('*')
-      .eq('id', pilotId)
-      .single()
+    const { data: oldData } = await supabase.from('pilots').select('*').eq('id', pilotId).single()
 
     let seniorityNumber = undefined
     if (pilotData.commencement_date) {
@@ -519,7 +588,14 @@ export async function updatePilot(
 
     return data
   } catch (error) {
-    console.error('Error updating pilot', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'updatePilot',
+        pilotId,
+      },
+    })
     throw error
   }
 }
@@ -534,11 +610,7 @@ export async function deletePilot(pilotId: string): Promise<void> {
 
   try {
     // Fetch pilot data before deletion for audit trail
-    const { data: oldData } = await supabase
-      .from('pilots')
-      .select('*')
-      .eq('id', pilotId)
-      .single()
+    const { data: oldData } = await supabase.from('pilots').select('*').eq('id', pilotId).single()
 
     // Use PostgreSQL function for atomic deletion
     const { data, error } = await supabase.rpc('delete_pilot_with_cascade', {
@@ -546,7 +618,14 @@ export async function deletePilot(pilotId: string): Promise<void> {
     })
 
     if (error) {
-      console.error('deletePilot: Database function error', error)
+      logError(new Error(error.message), {
+        source: 'PilotService',
+        severity: ErrorSeverity.HIGH,
+        metadata: {
+          operation: 'deletePilot',
+          pilotId,
+        },
+      })
       throw new Error(`Failed to delete pilot: ${error.message}`)
     }
 
@@ -563,10 +642,24 @@ export async function deletePilot(pilotId: string): Promise<void> {
 
     // Log the successful deletion for audit purposes
     if (data && typeof data === 'object' && 'message' in data) {
-      console.log('deletePilot: Success -', (data as any).message)
+      logInfo('Successfully deleted pilot with cascading records', {
+        source: 'PilotService',
+        metadata: {
+          operation: 'deletePilot',
+          pilotId,
+          employeeId: oldData?.employee_id,
+        },
+      })
     }
   } catch (error) {
-    console.error('deletePilot: Fatal error', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'deletePilot',
+        pilotId,
+      },
+    })
     throw error
   }
 }
@@ -583,10 +676,10 @@ export async function searchPilots(
   } = {}
 ): Promise<PilotWithCertifications[]> {
   const supabase = await createClient()
-  
+
   try {
     let query = supabase.from('pilots').select('*')
-    
+
     if (searchTerm) {
       query = query.or(`
         first_name.ilike.%${searchTerm}%,
@@ -594,27 +687,35 @@ export async function searchPilots(
         employee_id.ilike.%${searchTerm}%
       `)
     }
-    
+
     if (filters.role && filters.role !== 'all') {
       query = query.eq('role', filters.role)
     }
-    
+
     if (filters.status && filters.status !== 'all') {
       query = query.eq('is_active', filters.status === 'active')
     }
-    
+
     const { data: pilots, error } = await query.order('first_name', { ascending: true })
-    
+
     if (error) throw error
-    
+
     const pilotsWithCerts = (pilots || []).map((pilot) => ({
       ...pilot,
       certificationStatus: { current: 0, expiring: 0, expired: 0 },
     }))
-    
+
     return pilotsWithCerts
   } catch (error) {
-    console.error('Error searching pilots', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: {
+        operation: 'searchPilots',
+        searchTerm,
+        filters,
+      },
+    })
     throw error
   }
 }
@@ -624,20 +725,27 @@ export async function checkEmployeeIdExists(
   excludePilotId?: string
 ): Promise<boolean> {
   const supabase = await createClient()
-  
+
   try {
     let query = supabase.from('pilots').select('id').eq('employee_id', employeeId)
-    
+
     if (excludePilotId) {
       query = query.neq('id', excludePilotId)
     }
-    
+
     const { data, error } = await query.maybeSingle()
-    
+
     if (error) throw error
     return data !== null
   } catch (error) {
-    console.error('Error checking employee ID', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.LOW,
+      metadata: {
+        operation: 'checkEmployeeIdExists',
+        employeeId,
+      },
+    })
     return false
   }
 }
@@ -649,33 +757,33 @@ export async function checkEmployeeIdExists(
 export async function getPilotsNearingRetirementForDashboard(): Promise<PilotWithRetirement[]> {
   const supabase = await createClient()
   const RETIREMENT_AGE = 65
-  
+
   try {
     const { data: pilots, error } = await supabase
       .from('pilots')
       .select('id, first_name, last_name, date_of_birth, is_active')
       .eq('is_active', true)
       .not('date_of_birth', 'is', null)
-    
+
     if (error) throw error
-    
+
     const today = new Date()
-    const pilotsWithRetirement: PilotWithRetirement[] = (pilots || [])
+    const pilotsWithRetirement = (pilots || [])
       .map((pilot) => {
         if (!pilot.date_of_birth) return null
-        
+
         const birthDate = new Date(pilot.date_of_birth)
         const retirementDate = new Date(birthDate)
         retirementDate.setFullYear(retirementDate.getFullYear() + RETIREMENT_AGE)
-        
+
         const yearsToRetirement = Math.floor(
           (retirementDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
         )
-        
+
         let retirementStatus: 'active' | 'due_soon' | 'overdue' = 'active'
         if (yearsToRetirement < 0) retirementStatus = 'overdue'
         else if (yearsToRetirement <= 2) retirementStatus = 'due_soon'
-        
+
         return {
           ...pilot,
           retirement: {
@@ -685,18 +793,26 @@ export async function getPilotsNearingRetirementForDashboard(): Promise<PilotWit
           },
         }
       })
-      .filter((pilot): pilot is PilotWithRetirement => {
-        return pilot !== null && pilot.retirement !== undefined && pilot.retirement.yearsToRetirement < 5
+      .filter((pilot) => {
+        return (
+          pilot !== null && pilot.retirement !== undefined && pilot.retirement.yearsToRetirement < 5
+        )
       })
       .sort((a, b) => {
-        const aYears = a.retirement?.yearsToRetirement ?? Infinity
-        const bYears = b.retirement?.yearsToRetirement ?? Infinity
+        const aYears = a!.retirement!.yearsToRetirement
+        const bYears = b!.retirement!.yearsToRetirement
         return aYears - bYears
-      })
-    
+      }) as PilotWithRetirement[]
+
     return pilotsWithRetirement
   } catch (error) {
-    console.error('Error getting pilots nearing retirement', error)
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: {
+        operation: 'getPilotsNearingRetirementForDashboard',
+      },
+    })
     return []
   }
 }

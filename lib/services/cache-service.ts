@@ -161,13 +161,14 @@ class CacheService {
     if (!checkTypes) {
       const supabase = await getSupabaseClient()
 
-      const { data, error } = await supabase
-        .from('check_types')
-        .select('*')
-        .order('check_code')
+      const { data, error } = await supabase.from('check_types').select('*').order('check_code')
 
       if (error) {
-        console.error('Cache Service: Error fetching check types', error)
+        logError(error as Error, {
+          source: 'CacheService',
+          severity: ErrorSeverity.HIGH,
+          metadata: { operation: 'getCheckTypes' },
+        })
         throw error
       }
 
@@ -197,7 +198,11 @@ class CacheService {
         .order('name')
 
       if (error) {
-        console.error('Cache Service: Error fetching contract types', error)
+        logError(error as Error, {
+          source: 'CacheService',
+          severity: ErrorSeverity.HIGH,
+          metadata: { operation: 'getContractTypes' },
+        })
         throw error
       }
 
@@ -223,7 +228,11 @@ class CacheService {
       const { data, error } = await supabase.from('settings').select('*')
 
       if (error) {
-        console.error('Cache Service: Error fetching settings', error)
+        logError(error as Error, {
+          source: 'CacheService',
+          severity: ErrorSeverity.HIGH,
+          metadata: { operation: 'getSettings' },
+        })
         throw error
       }
 
@@ -342,7 +351,11 @@ class CacheService {
 
         this.set(cacheKey, stats, CACHE_CONFIG.PILOT_STATS_TTL)
       } catch (error) {
-        console.error('Cache Service: Error calculating pilot statistics', error)
+        logError(error as Error, {
+          source: 'CacheService',
+          severity: ErrorSeverity.MEDIUM,
+          metadata: { operation: 'getPilotStatistics' },
+        })
         throw error
       }
     }
@@ -398,7 +411,11 @@ class CacheService {
     try {
       await Promise.all([this.getCheckTypes(), this.getContractTypes(), this.getSettings()])
     } catch (error) {
-      console.error('Cache warm-up failed', error)
+      logError(error as Error, {
+        source: 'CacheService',
+        severity: ErrorSeverity.LOW,
+        metadata: { operation: 'warmUp' },
+      })
       // Don't throw error - application should still work without cache
     }
   }

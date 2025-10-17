@@ -13,9 +13,7 @@ import { z } from 'zod'
 // ===================================
 
 export const AnalyticsPeriodEnum = z.enum(['daily', 'weekly', 'monthly', 'quarterly', 'yearly'], {
-  errorMap: () => ({
-    message: 'Period must be one of: daily, weekly, monthly, quarterly, yearly',
-  }),
+  message: 'Period must be one of: daily, weekly, monthly, quarterly, yearly',
 })
 
 export const AnalyticsMetricEnum = z.enum(
@@ -28,17 +26,13 @@ export const AnalyticsMetricEnum = z.enum(
     'crew_availability',
   ],
   {
-    errorMap: () => ({
-      message:
-        'Metric must be one of: pilot_count, certification_compliance, leave_requests, retirement_rate, expiry_rate, crew_availability',
-    }),
+    message:
+      'Metric must be one of: pilot_count, certification_compliance, leave_requests, retirement_rate, expiry_rate, crew_availability',
   }
 )
 
 export const ChartTypeEnum = z.enum(['line', 'bar', 'pie', 'area', 'donut'], {
-  errorMap: () => ({
-    message: 'Chart type must be one of: line, bar, pie, area, donut',
-  }),
+  message: 'Chart type must be one of: line, bar, pie, area, donut',
 })
 
 // ===================================
@@ -274,7 +268,7 @@ export const CustomReportSchema = z.object({
   name: z.string().min(1).max(100, 'Report name cannot exceed 100 characters'),
   description: z.string().max(500, 'Description cannot exceed 500 characters').optional(),
   metrics: z.array(AnalyticsMetricEnum).min(1, 'At least one metric is required'),
-  filters: z.record(z.any()).optional(),
+  filters: z.record(z.string(), z.any()).optional(),
   dateRange: AnalyticsDateRangeSchema,
   chartType: ChartTypeEnum.optional(),
   schedule: z

@@ -125,11 +125,15 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
       .order('expiry_date', { ascending: true })
 
     if (error) {
-      console.error('Service: Database error', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
+      logError(error as Error, {
+        source: 'ExpiringCertificationsService',
+        severity: ErrorSeverity.HIGH,
+        metadata: {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        },
       })
       throw new Error(`Database error: ${error.message}`)
     }
@@ -139,7 +143,13 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
       .map((check: any) => {
         // First, validate that we have a proper expiry_date
         if (!check.expiry_date) {
-          console.warn('Missing expiry_date for check', { checkId: check.id })
+          logWarning('Missing expiry_date for check', {
+            source: 'ExpiringCertificationsService',
+            metadata: {
+              operation: 'getExpiringCertifications',
+              checkId: check.id,
+            },
+          })
           return null // Skip this record
         }
 
@@ -147,7 +157,14 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
 
         // Validate the date is valid
         if (isNaN(expiryDate.getTime())) {
-          console.warn('Invalid expiry_date for check', { checkId: check.id, date: check.expiry_date })
+          logWarning('Invalid expiry_date for check', {
+            source: 'ExpiringCertificationsService',
+            metadata: {
+              operation: 'getExpiringCertifications',
+              checkId: check.id,
+              date: check.expiry_date,
+            },
+          })
           return null // Skip this record
         }
 
@@ -163,11 +180,14 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
             period.number <= 0 ||
             period.code.includes('NaN')
           ) {
-            console.warn('Invalid roster calculation detected', {
-              number: period.number,
-              code: period.code,
-              year: period.year,
-              isNumberNaN: isNaN(period.number),
+            logWarning('Invalid roster calculation detected', {
+              source: 'ExpiringCertificationsService',
+              metadata: {
+                number: period.number,
+                code: period.code,
+                year: period.year,
+                isNumberNaN: isNaN(period.number),
+              },
             })
             throw new Error(
               `Invalid roster calculation: number=${period.number}, code=${period.code}`
@@ -177,9 +197,12 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
           rosterPeriod = period.code
           rosterDisplay = `${period.code} (${format(period.startDate, 'MMM dd')} - ${format(period.endDate, 'MMM dd, yyyy')})`
         } catch (error) {
-          console.warn('Error calculating roster period for date', {
-            date: expiryDate.toISOString().split('T')[0],
-            error
+          logWarning('Error calculating roster period for date', {
+            source: 'ExpiringCertificationsService',
+            metadata: {
+              date: expiryDate.toISOString().split('T')[0],
+              error,
+            },
           })
 
           // Robust fallback: determine roster period based on date with proper validation
@@ -213,7 +236,11 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
 
     return result
   } catch (error) {
-    console.error('Service: Fatal error', error)
+    logError(error as Error, {
+      source: 'ExpiringCertificationsService',
+      severity: ErrorSeverity.HIGH,
+      metadata: { operation: 'getExpiringCertifications' },
+    })
     throw error
   }
 }

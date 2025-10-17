@@ -13,17 +13,12 @@ import { z } from 'zod'
 // ===================================
 
 export const PilotRoleEnum = z.enum(['Captain', 'First Officer'], {
-  errorMap: () => ({ message: 'Rank must be either "Captain" or "First Officer"' }),
+  message: 'Rank must be either "Captain" or "First Officer"',
 })
 
-export const CaptainQualificationEnum = z.enum(
-  ['line_captain', 'training_captain', 'examiner'],
-  {
-    errorMap: () => ({
-      message: 'Invalid captain qualification. Must be line_captain, training_captain, or examiner',
-    }),
-  }
-)
+export const CaptainQualificationEnum = z.enum(['line_captain', 'training_captain', 'examiner'], {
+  message: 'Invalid captain qualification. Must be line_captain, training_captain, or examiner',
+})
 
 // ===================================
 // BASE SCHEMAS

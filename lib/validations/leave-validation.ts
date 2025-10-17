@@ -15,23 +15,17 @@ import { z } from 'zod'
 export const LeaveRequestTypeEnum = z.enum(
   ['RDO', 'SDO', 'ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'],
   {
-    errorMap: () => ({
-      message:
-        'Leave type must be one of: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE',
-    }),
+    message:
+      'Leave type must be one of: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE',
   }
 )
 
 export const LeaveRequestStatusEnum = z.enum(['PENDING', 'APPROVED', 'DENIED'], {
-  errorMap: () => ({
-    message: 'Status must be one of: PENDING, APPROVED, DENIED',
-  }),
+  message: 'Status must be one of: PENDING, APPROVED, DENIED',
 })
 
 export const RequestMethodEnum = z.enum(['EMAIL', 'ORACLE', 'LEAVE_BIDS', 'SYSTEM'], {
-  errorMap: () => ({
-    message: 'Request method must be one of: EMAIL, ORACLE, LEAVE_BIDS, SYSTEM',
-  }),
+  message: 'Request method must be one of: EMAIL, ORACLE, LEAVE_BIDS, SYSTEM',
 })
 
 // ===================================
@@ -53,15 +47,15 @@ const dateSchema = z.string().datetime({ message: 'Must be a valid ISO datetime 
  */
 const rosterPeriodSchema = z
   .string()
-  .regex(/^RP(1[0-3]|[1-9])\/\d{4}$/, 'Roster period must be in format "RP1/2025" through "RP13/2025"')
+  .regex(
+    /^RP(1[0-3]|[1-9])\/\d{4}$/,
+    'Roster period must be in format "RP1/2025" through "RP13/2025"'
+  )
 
 /**
  * Reason validation: Max 500 characters
  */
-const reasonSchema = z
-  .string()
-  .max(500, 'Reason cannot exceed 500 characters')
-  .optional()
+const reasonSchema = z.string().max(500, 'Reason cannot exceed 500 characters').optional()
 
 /**
  * Review comments validation: Max 500 characters
@@ -128,7 +122,9 @@ export const LeaveRequestCreateSchema = z
       // Check if late request flag is set correctly (less than 21 days advance notice)
       const requestDate = new Date(data.request_date)
       const startDate = new Date(data.start_date)
-      const daysDiff = Math.ceil((startDate.getTime() - requestDate.getTime()) / (1000 * 60 * 60 * 24))
+      const daysDiff = Math.ceil(
+        (startDate.getTime() - requestDate.getTime()) / (1000 * 60 * 60 * 24)
+      )
 
       if (data.is_late_request) {
         return daysDiff < 21
@@ -178,7 +174,9 @@ export const LeaveRequestUpdateSchema = z
       if (data.start_date && data.end_date) {
         const startDate = new Date(data.start_date)
         const endDate = new Date(data.end_date)
-        const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+        const daysDiff = Math.ceil(
+          (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        )
         return daysDiff <= 90
       }
       return true

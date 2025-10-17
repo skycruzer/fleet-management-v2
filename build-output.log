@@ -1,0 +1,43 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/skycruzer/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/package-lock.json
+
+   ▲ Next.js 15.5.6
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · serverActions
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 1221ms
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/4) ...
+   Generating static pages (1/4) 
+   Generating static pages (2/4) 
+   Generating static pages (3/4) 
+ ✓ Generating static pages (4/4)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    3.45 kB         105 kB
+└ ○ /_not-found                            994 B         103 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/255-6080d22baa93e028.js       45.5 kB
+  ├ chunks/4bd1b696-21f374d1156f834a.js  54.2 kB
+  └ other shared chunks (total)          1.84 kB
+
+
+ƒ Middleware                               88 kB
+
+○  (Static)  prerendered as static content
+

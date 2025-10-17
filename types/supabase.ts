@@ -35,6 +35,60 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_logs: {
+        Row: {
+          action: string
+          changed_fields: string[] | null
+          created_at: string
+          created_at_png: string | null
+          description: string | null
+          id: string
+          ip_address: unknown | null
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string
+          table_name: string
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+          user_role: string | null
+        }
+        Insert: {
+          action: string
+          changed_fields?: string[] | null
+          created_at?: string
+          created_at_png?: string | null
+          description?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id: string
+          table_name: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          action?: string
+          changed_fields?: string[] | null
+          created_at?: string
+          created_at_png?: string | null
+          description?: string | null
+          id?: string
+          ip_address?: unknown | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string
+          table_name?: string
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
       check_types: {
         Row: {
           category: string | null
@@ -3061,6 +3115,15 @@ export type Database = {
         Args: { days_until_expiry: number } | { expiry_date: string }
         Returns: string
       }
+      approve_leave_request: {
+        Args: {
+          p_comments?: string
+          p_request_id: string
+          p_reviewer_id: string
+          p_status: string
+        }
+        Returns: Json
+      }
       aus_to_date: {
         Args: { date_text: string }
         Returns: string
@@ -3068,6 +3131,14 @@ export type Database = {
       auth_get_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      batch_update_certifications: {
+        Args: { p_updates: Json[] }
+        Returns: Json
+      }
+      bulk_delete_certifications: {
+        Args: { p_certification_ids: string[] }
+        Returns: Json
       }
       calculate_check_status: {
         Args:
@@ -3207,6 +3278,10 @@ export type Database = {
             }
         Returns: string
       }
+      create_pilot_with_certifications: {
+        Args: { p_certifications?: Json[]; p_pilot_data: Json }
+        Returns: Json
+      }
       current_user_email: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -3237,6 +3312,10 @@ export type Database = {
       days_until_expiry: {
         Args: { expiry_date: string }
         Returns: number
+      }
+      delete_pilot_with_cascade: {
+        Args: { p_pilot_id: string }
+        Returns: Json
       }
       excel_date_to_pg_date: {
         Args: { excel_serial: number }

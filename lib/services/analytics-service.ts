@@ -76,7 +76,13 @@ export async function getPilotAnalytics() {
 
     return stats
   } catch (error) {
-    console.error('Analytics Service: Error getting pilot analytics', error)
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: {
+        operation: 'getPilotAnalytics',
+      },
+    })
     throw error
   }
 }
@@ -88,10 +94,8 @@ export async function getCertificationAnalytics() {
   const supabase = await createClient()
 
   try {
-    const { data: checks, error: checksError } = await supabase
-      .from('pilot_checks')
-      .select(
-        `
+    const { data: checks, error: checksError } = await supabase.from('pilot_checks').select(
+      `
         id,
         expiry_date,
         check_types (
@@ -99,7 +103,7 @@ export async function getCertificationAnalytics() {
           category
         )
       `
-      )
+    )
 
     if (checksError) throw checksError
 
@@ -147,12 +151,14 @@ export async function getCertificationAnalytics() {
         current: 0,
         expiring: 0,
         expired: 0,
-        categoryBreakdown: {} as Record<string, { current: number; expiring: number; expired: number }>,
+        categoryBreakdown: {} as Record<
+          string,
+          { current: number; expiring: number; expired: number }
+        >,
       }
     )
 
-    const complianceRate =
-      stats.total > 0 ? Math.round((stats.current / stats.total) * 100) : 100
+    const complianceRate = stats.total > 0 ? Math.round((stats.current / stats.total) * 100) : 100
 
     return {
       ...stats,
@@ -163,7 +169,11 @@ export async function getCertificationAnalytics() {
       })),
     }
   } catch (error) {
-    console.error('Analytics Service: Error getting certification analytics', error)
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getCertificationAnalytics' },
+    })
     throw error
   }
 }
@@ -215,7 +225,11 @@ export async function getLeaveAnalytics() {
       })),
     }
   } catch (error) {
-    console.error('Analytics Service: Error getting leave analytics', error)
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getLeaveAnalytics' },
+    })
     throw error
   }
 }
@@ -270,7 +284,11 @@ export async function getFleetAnalytics() {
       },
     }
   } catch (error) {
-    console.error('Analytics Service: Error getting fleet analytics', error)
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getFleetAnalytics' },
+    })
     throw error
   }
 }
@@ -363,7 +381,11 @@ export async function getRiskAnalytics() {
       complianceGaps: [],
     }
   } catch (error) {
-    console.error('Analytics Service: Error getting risk analytics', error)
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getRiskAnalytics' },
+    })
     throw error
   }
 }

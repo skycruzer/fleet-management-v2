@@ -82,7 +82,14 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
       const cached = await getOrSetCache(cacheKey, () => computeDashboardMetrics(), cacheTTL)
       return cached
     } catch (error) {
-      console.warn('Dashboard cache failed, computing fresh metrics', error)
+      logWarning('Dashboard cache failed, computing fresh metrics', {
+        source: 'DashboardService',
+        metadata: {
+          operation: 'getDashboardMetrics',
+          cacheKey,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      })
     }
   }
 
@@ -106,8 +113,8 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
     const RETIREMENT_AGE = 65
 
     // OPTIMIZATION: Execute all queries in parallel (eliminates sequential wait time)
-    const [pilotsResult, checksResult, leaveRequestsResult, activePilotsResult] =
-      await Promise.all([
+    const [pilotsResult, checksResult, leaveRequestsResult, activePilotsResult] = await Promise.all(
+      [
         // Query 1: Pilot stats with specific fields only
         supabase
           .from('pilots')
@@ -115,7 +122,10 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
           .order('role', { ascending: true }),
 
         // Query 2: Certification stats with expiry dates only
-        supabase.from('pilot_checks').select('expiry_date').order('expiry_date', { ascending: true }),
+        supabase
+          .from('pilot_checks')
+          .select('expiry_date')
+          .order('expiry_date', { ascending: true }),
 
         // Query 3: Leave request stats with status and date only
         supabase
@@ -129,7 +139,8 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
           .select('id, date_of_birth')
           .eq('is_active', true)
           .not('date_of_birth', 'is', null),
-      ])
+      ]
+    )
 
     // Check for errors in parallel queries
     if (pilotsResult.error) throw pilotsResult.error
@@ -150,7 +161,9 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
 
         if (pilot.role === 'Captain') {
           acc.captains++
-          const qualifications = pilot.captain_qualifications || []
+          const qualifications = (
+            Array.isArray(pilot.captain_qualifications) ? pilot.captain_qualifications : []
+          ) as string[]
           if (qualifications.includes('training_captain')) {
             acc.trainingCaptains++
           }
@@ -279,7 +292,13 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
       },
     }
   } catch (error) {
-    console.error('Dashboard Service: Error getting metrics', error)
+    logError(error as Error, {
+      source: 'DashboardService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'computeDashboardMetrics',
+      },
+    })
     throw error
   }
 }
@@ -358,7 +377,13 @@ export async function getRecentActivity(): Promise<
     // Sort by timestamp and return most recent
     return activity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5)
   } catch (error) {
-    console.error('Dashboard Service: Error getting recent activity', error)
+    logError(error as Error, {
+      source: 'DashboardService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: {
+        operation: 'getRecentActivity',
+      },
+    })
     return []
   }
 }

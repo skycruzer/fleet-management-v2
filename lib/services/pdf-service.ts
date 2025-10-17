@@ -169,9 +169,7 @@ function calculateComplianceOverview(pilots: any[], checks: any[]) {
   }).length
 
   const complianceRate =
-    totalCertifications > 0
-      ? Math.round((currentCertifications / totalCertifications) * 100)
-      : 100
+    totalCertifications > 0 ? Math.round((currentCertifications / totalCertifications) * 100) : 100
 
   return {
     totalPilots,
@@ -210,7 +208,11 @@ export async function generateComplianceReportData(
       checkTypes: checkTypesData,
     }
   } catch (error) {
-    console.error('Error generating compliance report data', error)
+    logError(error as Error, {
+      source: 'PDFService',
+      severity: ErrorSeverity.HIGH,
+      metadata: { operation: 'generateComplianceReportData' },
+    })
     throw new Error('Failed to generate compliance report data')
   }
 }
@@ -247,7 +249,11 @@ export async function generatePilotReportData(
       leaveRequests: leaveData,
     }
   } catch (error) {
-    console.error('Error generating pilot report data', error)
+    logError(error as Error, {
+      source: 'PDFService',
+      severity: ErrorSeverity.HIGH,
+      metadata: { operation: 'generatePilotReportData' },
+    })
     throw new Error('Failed to generate pilot report data')
   }
 }
@@ -255,10 +261,7 @@ export async function generatePilotReportData(
 /**
  * Generate fleet management report data
  */
-export async function generateFleetManagementReportData(
-  reportType: string,
-  generatedBy: string
-) {
+export async function generateFleetManagementReportData(reportType: string, generatedBy: string) {
   try {
     const [pilotsData, checksData, checkTypesData, leaveData] = await Promise.all([
       fetchPilots(),
@@ -294,7 +297,7 @@ export async function generateFleetManagementReportData(
     const upcomingRetirements = pilotsData
       .filter((pilot) => pilot.date_of_birth && pilot.is_active)
       .map((pilot) => {
-        const retirementDate = addYears(new Date(pilot.date_of_birth), RETIREMENT_AGE)
+        const retirementDate = addYears(new Date(pilot.date_of_birth!), RETIREMENT_AGE)
         const yearsToRetirement = differenceInYears(retirementDate, now)
 
         return {
@@ -303,7 +306,9 @@ export async function generateFleetManagementReportData(
           yearsToRetirement,
         }
       })
-      .filter((retirement) => retirement.yearsToRetirement <= 5 && retirement.yearsToRetirement >= 0)
+      .filter(
+        (retirement) => retirement.yearsToRetirement <= 5 && retirement.yearsToRetirement >= 0
+      )
       .sort((a, b) => a.yearsToRetirement - b.yearsToRetirement)
 
     return {
@@ -327,7 +332,11 @@ export async function generateFleetManagementReportData(
       },
     }
   } catch (error) {
-    console.error('Error generating fleet management report data', error)
+    logError(error as Error, {
+      source: 'PDFService',
+      severity: ErrorSeverity.HIGH,
+      metadata: { operation: 'generateFleetManagementReport' },
+    })
     throw new Error('Failed to generate fleet management report data')
   }
 }

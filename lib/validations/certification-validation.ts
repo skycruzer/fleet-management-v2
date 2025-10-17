@@ -29,27 +29,24 @@ const dateSchema = z
 /**
  * Required date validation
  */
-const requiredDateSchema = z
-  .string()
-  .datetime({ message: 'Must be a valid ISO datetime string' })
+const requiredDateSchema = z.string().datetime({ message: 'Must be a valid ISO datetime string' })
 
 /**
  * Roster period validation: Format "RP1/2025" through "RP13/2025"
  */
 const rosterPeriodSchema = z
   .string()
-  .regex(/^RP(1[0-3]|[1-9])\/\d{4}$/, 'Roster period must be in format "RP1/2025" through "RP13/2025"')
+  .regex(
+    /^RP(1[0-3]|[1-9])\/\d{4}$/,
+    'Roster period must be in format "RP1/2025" through "RP13/2025"'
+  )
   .optional()
   .nullable()
 
 /**
  * Notes validation: Max 500 characters
  */
-const notesSchema = z
-  .string()
-  .max(500, 'Notes cannot exceed 500 characters')
-  .optional()
-  .nullable()
+const notesSchema = z.string().max(500, 'Notes cannot exceed 500 characters').optional().nullable()
 
 // ===================================
 // CERTIFICATION CREATE SCHEMA
@@ -197,9 +194,7 @@ export type ExpiringCertificationsFilter = z.infer<typeof ExpiringCertifications
 // ===================================
 
 export const CertificationStatusEnum = z.enum(['current', 'expiring', 'expired', 'all'], {
-  errorMap: () => ({
-    message: 'Status must be one of: current, expiring, expired, all',
-  }),
+  message: 'Status must be one of: current, expiring, expired, all',
 })
 
 export const CertificationFilterSchema = z.object({

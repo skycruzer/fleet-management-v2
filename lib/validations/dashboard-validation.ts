@@ -13,17 +13,13 @@ import { z } from 'zod'
 // ===================================
 
 export const TimeRangeEnum = z.enum(['7d', '30d', '90d', '365d', 'all'], {
-  errorMap: () => ({
-    message: 'Time range must be one of: 7d, 30d, 90d, 365d, all',
-  }),
+  message: 'Time range must be one of: 7d, 30d, 90d, 365d, all',
 })
 
 export const MetricTypeEnum = z.enum(
   ['pilots', 'certifications', 'leave', 'retirement', 'compliance'],
   {
-    errorMap: () => ({
-      message: 'Metric type must be one of: pilots, certifications, leave, retirement, compliance',
-    }),
+    message: 'Metric type must be one of: pilots, certifications, leave, retirement, compliance',
   }
 )
 
@@ -151,18 +147,14 @@ export type ComprehensiveDashboardFilter = z.infer<typeof ComprehensiveDashboard
 // ===================================
 
 export const AlertSeverityEnum = z.enum(['critical', 'warning', 'notice', 'all'], {
-  errorMap: () => ({
-    message: 'Alert severity must be one of: critical, warning, notice, all',
-  }),
+  message: 'Alert severity must be one of: critical, warning, notice, all',
 })
 
 export const AlertTypeEnum = z.enum(
   ['expired_cert', 'expiring_cert', 'retirement', 'missing_cert', 'leave_conflict', 'all'],
   {
-    errorMap: () => ({
-      message:
-        'Alert type must be one of: expired_cert, expiring_cert, retirement, missing_cert, leave_conflict, all',
-    }),
+    message:
+      'Alert type must be one of: expired_cert, expiring_cert, retirement, missing_cert, leave_conflict, all',
   }
 )
 
