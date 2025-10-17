@@ -86,7 +86,10 @@ export function canPilotConductTraining(pilot: PilotRow): boolean {
   // 2. A training captain
   // 3. Have valid RHS captain qualification (if required)
 
-  return hasRequiredQualifications(pilot.captain_qualifications, ['line_captain', 'training_captain'])
+  return hasRequiredQualifications(pilot.captain_qualifications, [
+    'line_captain',
+    'training_captain',
+  ])
 }
 
 export function canPilotConductCheckRide(pilot: PilotRow): boolean {
@@ -191,19 +194,27 @@ export function filterPilotsByQualification(
 
 export function getAvailableTrainingCaptains(pilots: PilotRow[]) {
   return pilots.filter(
-    (pilot) => pilot.is_active && hasRequiredQualifications(pilot.captain_qualifications, ['training_captain'])
+    (pilot) =>
+      pilot.is_active &&
+      hasRequiredQualifications(pilot.captain_qualifications, ['training_captain'])
   )
 }
 
 export function getAvailableExaminers(pilots: PilotRow[]) {
-  return pilots.filter((pilot) => pilot.is_active && hasRequiredQualifications(pilot.captain_qualifications, ['examiner']))
+  return pilots.filter(
+    (pilot) =>
+      pilot.is_active && hasRequiredQualifications(pilot.captain_qualifications, ['examiner'])
+  )
 }
 
 /* ============================================================================
  * EXAMPLE 7: Updating pilot qualifications
  * ========================================================================== */
 
-export function updatePilotQualificationsExample(currentQualifications: CaptainQualifications | null, updates: Partial<CaptainQualifications>) {
+export function updatePilotQualificationsExample(
+  currentQualifications: CaptainQualifications | null,
+  updates: Partial<CaptainQualifications>
+) {
   // Safely merge updates with current qualifications
   const current = currentQualifications || createDefaultCaptainQualifications()
 
@@ -216,7 +227,7 @@ export function updatePilotQualificationsExample(currentQualifications: CaptainQ
   return sanitizeCaptainQualifications(updated)
 }
 
-export function promoteToCaptain(pilot: PilotRow): CaptainQualifications {
+export function promoteToCaptain(_pilot: PilotRow): CaptainQualifications {
   // When promoting to captain, grant line captain qualification
   return sanitizeCaptainQualifications({
     line_captain: true,
@@ -225,21 +236,28 @@ export function promoteToCaptain(pilot: PilotRow): CaptainQualifications {
   })
 }
 
-export function grantTrainingCaptainQualification(currentQualifications: CaptainQualifications | null): CaptainQualifications {
+export function grantTrainingCaptainQualification(
+  currentQualifications: CaptainQualifications | null
+): CaptainQualifications {
   // Add training captain qualification
   return updatePilotQualificationsExample(currentQualifications, {
     training_captain: true,
   })
 }
 
-export function grantExaminerQualification(currentQualifications: CaptainQualifications | null): CaptainQualifications {
+export function grantExaminerQualification(
+  currentQualifications: CaptainQualifications | null
+): CaptainQualifications {
   // Add examiner qualification
   return updatePilotQualificationsExample(currentQualifications, {
     examiner: true,
   })
 }
 
-export function updateRHSCaptainExpiry(currentQualifications: CaptainQualifications | null, expiryDate: Date): CaptainQualifications {
+export function updateRHSCaptainExpiry(
+  currentQualifications: CaptainQualifications | null,
+  expiryDate: Date
+): CaptainQualifications {
   // Update RHS captain expiry date
   return updatePilotQualificationsExample(currentQualifications, {
     rhs_captain_expiry: expiryDate.toISOString(),
@@ -258,7 +276,9 @@ export function generateQualificationReport(pilots: PilotRow[]) {
     trainingCaptains: pilots.filter((p) => isTrainingCaptain(p.captain_qualifications)).length,
     examiners: pilots.filter((p) => isExaminer(p.captain_qualifications)).length,
     validRHSCaptains: pilots.filter((p) => isRHSCaptainValid(p.captain_qualifications)).length,
-    expiringRHSCaptains: pilots.filter((p) => hasExpiringQualifications(p.captain_qualifications, 30)).length,
+    expiringRHSCaptains: pilots.filter((p) =>
+      hasExpiringQualifications(p.captain_qualifications, 30)
+    ).length,
   }
 
   return report
@@ -286,7 +306,9 @@ export function validateQualificationForm(formData: Record<string, unknown>) {
 
   // Check if at least one qualification is selected for captains
   const hasAnyQualification =
-    formData.line_captain === true || formData.training_captain === true || formData.examiner === true
+    formData.line_captain === true ||
+    formData.training_captain === true ||
+    formData.examiner === true
 
   if (!hasAnyQualification) {
     errors.qualifications = 'At least one captain qualification must be selected'
@@ -319,20 +341,31 @@ export function getQualificationStatusDashboard(pilots: PilotRow[]) {
     overview: {
       totalActivePilots: activePilots.length,
       lineCaptains: activePilots.filter((p) => isLineCaptain(p.captain_qualifications)).length,
-      trainingCaptains: activePilots.filter((p) => isTrainingCaptain(p.captain_qualifications)).length,
+      trainingCaptains: activePilots.filter((p) => isTrainingCaptain(p.captain_qualifications))
+        .length,
       examiners: activePilots.filter((p) => isExaminer(p.captain_qualifications)).length,
     },
     rhsStatus: {
       valid: activePilots.filter((p) => isRHSCaptainValid(p.captain_qualifications)).length,
-      expiring30Days: activePilots.filter((p) => hasExpiringQualifications(p.captain_qualifications, 30)).length,
-      expiring7Days: activePilots.filter((p) => hasExpiringQualifications(p.captain_qualifications, 7)).length,
+      expiring30Days: activePilots.filter((p) =>
+        hasExpiringQualifications(p.captain_qualifications, 30)
+      ).length,
+      expiring7Days: activePilots.filter((p) =>
+        hasExpiringQualifications(p.captain_qualifications, 7)
+      ).length,
       expired: activePilots.filter((p) => {
         const days = getDaysUntilRHSExpiry(p.captain_qualifications)
         return days !== null && days < 0
       }).length,
     },
     alerts: activePilots
-      .flatMap((p) => getQualificationAlerts(p).map((alert) => ({ pilotId: p.id, pilotName: `${p.first_name} ${p.last_name}`, ...alert })))
+      .flatMap((p) =>
+        getQualificationAlerts(p).map((alert) => ({
+          pilotId: p.id,
+          pilotName: `${p.first_name} ${p.last_name}`,
+          ...alert,
+        }))
+      )
       .sort((a, b) => {
         // Sort by severity: error > warning > info
         const severityOrder = { error: 0, warning: 1, info: 2 }

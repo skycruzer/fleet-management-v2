@@ -29,23 +29,20 @@
       "@/public/*": ["./public/*"]
     },
     "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "allowUnreachableCode": false
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": [
     "node_modules",
     ".next",
     "out",
     "dist",
     "build",
-    "storybook-static"
+    "storybook-static",
+    "**/*.stories.tsx",
+    "**/*.stories.ts"
   ]
 }

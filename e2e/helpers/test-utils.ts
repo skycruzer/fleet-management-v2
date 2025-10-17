@@ -392,7 +392,7 @@ export const cleanupUtils = {
   /**
    * Delete all test data created during tests
    */
-  async cleanupTestData(page: Page, testPrefix: string = 'Test') {
+  async cleanupTestData(_page: Page, testPrefix: string = 'Test') {
     // This is a placeholder - implement based on your cleanup needs
     console.log(`Cleaning up test data with prefix: ${testPrefix}`)
   },
