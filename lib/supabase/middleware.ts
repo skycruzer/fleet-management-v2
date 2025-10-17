@@ -1,26 +1,91 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Database } from '@/types/supabase'
+import { env } from '@/lib/env'
+import {
+  loginRateLimit,
+  authRateLimit,
+  passwordResetRateLimit,
+  getClientIp,
+  createRateLimitResponse,
+} from '@/lib/rate-limit'
 
 export async function updateSession(request: NextRequest) {
+  // ============================================================================
+  // Rate Limiting for Authentication Endpoints
+  // ============================================================================
+
+  const pathname = request.nextUrl.pathname
+
+  // Apply rate limiting to authentication endpoints
+  if (pathname.startsWith('/api/auth')) {
+    const ip = getClientIp(request)
+
+    // Determine which rate limiter to use based on endpoint
+    let rateLimitResult
+
+    if (pathname.includes('/login') || pathname.includes('/signin')) {
+      // Strict limit for login attempts (5 per minute)
+      rateLimitResult = await loginRateLimit.limit(ip)
+    } else if (
+      pathname.includes('/password-reset') ||
+      pathname.includes('/forgot-password')
+    ) {
+      // Very strict limit for password reset (3 per hour)
+      rateLimitResult = await passwordResetRateLimit.limit(ip)
+    } else {
+      // General auth limit for signup, etc. (10 per minute)
+      rateLimitResult = await authRateLimit.limit(ip)
+    }
+
+    // If rate limit exceeded, return 429 response
+    if (!rateLimitResult.success) {
+      return createRateLimitResponse(
+        rateLimitResult.retryAfter!,
+        rateLimitResult.limit,
+        rateLimitResult.reset
+      )
+    }
+
+    // Add rate limit headers to all auth responses
+    const response = NextResponse.next({ request })
+    response.headers.set(
+      'X-RateLimit-Limit',
+      rateLimitResult.limit.toString()
+    )
+    response.headers.set(
+      'X-RateLimit-Remaining',
+      rateLimitResult.remaining.toString()
+    )
+    response.headers.set('X-RateLimit-Reset', rateLimitResult.reset.toString())
+
+    // Note: We continue to Supabase session handling below
+  }
+
+  // ============================================================================
+  // Supabase Session Management
+  // ============================================================================
+
   let supabaseResponse = NextResponse.next({
     request,
   })
 
   const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    env.NEXT_PUBLIC_SUPABASE_URL,
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
+          cookiesToSet.forEach(({ name, value }: { name: string; value: string }) =>
+            request.cookies.set(name, value)
+          )
           supabaseResponse = NextResponse.next({
             request,
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: any }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
         },
