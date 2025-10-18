@@ -29,15 +29,9 @@ const envSchema = z.object({
     .optional()
     .default('http://localhost:3000'),
 
-  NEXT_PUBLIC_APP_NAME: z
-    .string()
-    .optional()
-    .default('Fleet Management V2'),
+  NEXT_PUBLIC_APP_NAME: z.string().optional().default('Fleet Management V2'),
 
-  NEXT_PUBLIC_APP_VERSION: z
-    .string()
-    .optional()
-    .default('0.1.0'),
+  NEXT_PUBLIC_APP_VERSION: z.string().optional().default('0.1.0'),
 
   // Optional: Service Role Key (server-only)
   SUPABASE_SERVICE_ROLE_KEY: z
@@ -48,11 +42,17 @@ const envSchema = z.object({
 
 /**
  * Validates environment variables against the schema.
+ * Only runs on the server side to avoid client-side validation errors.
  *
  * @throws {z.ZodError} If validation fails, with detailed error messages
  * @returns Validated and type-safe environment variables
  */
 function validateEnv() {
+  // Skip validation on client side - client only has access to NEXT_PUBLIC_* vars
+  if (typeof window !== 'undefined') {
+    return process.env as z.infer<typeof envSchema>
+  }
+
   try {
     return envSchema.parse(process.env)
   } catch (error) {
@@ -63,19 +63,20 @@ function validateEnv() {
 
       console.error(
         '\n❌ Environment Variable Validation Failed\n\n' +
-        'The following environment variables are missing or invalid:\n\n' +
-        errorMessages +
-        '\n\n' +
-        'Please check your .env.local file and ensure all required variables are set.\n' +
-        'See .env.example for reference.\n'
+          'The following environment variables are missing or invalid:\n\n' +
+          errorMessages +
+          '\n\n' +
+          'Please check your .env.local file and ensure all required variables are set.\n' +
+          'See .env.example for reference.\n'
       )
 
-      // Exit process in production, throw in development for better DX
-      if (process.env.NODE_ENV === 'production') {
-        process.exit(1)
-      }
-
-      throw new Error('Environment validation failed. See console for details.')
+      // Throw error in all environments for proper error handling
+      // This allows container orchestrators to implement backoff strategies
+      // and error monitoring tools to capture the failure before termination
+      throw new Error(
+        'Environment validation failed. Missing or invalid environment variables. ' +
+          'Check console output for details.'
+      )
     }
     throw error
   }

@@ -165,9 +165,26 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
     // Calculate changed fields if both old and new data provided
     let changedFields: string[] | null = null
     if (params.oldData && params.newData) {
-      changedFields = Object.keys(params.newData).filter(
-        (key) => JSON.stringify(params.oldData![key]) !== JSON.stringify(params.newData![key])
-      )
+      // Get all unique keys from both old and new data
+      const allKeys = new Set([...Object.keys(params.oldData), ...Object.keys(params.newData)])
+
+      changedFields = Array.from(allKeys).filter((key) => {
+        const oldValue = params.oldData![key]
+        const newValue = params.newData![key]
+
+        // Handle undefined explicitly to avoid false positives
+        if (oldValue === undefined && newValue === undefined) {
+          return false
+        }
+
+        // Consider undefined and null as different values
+        if (oldValue === undefined || newValue === undefined) {
+          return true
+        }
+
+        // Use JSON.stringify for deep comparison of objects/arrays
+        return JSON.stringify(oldValue) !== JSON.stringify(newValue)
+      })
     }
 
     // Get user role from an_users table if user exists

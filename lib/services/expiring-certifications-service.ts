@@ -62,12 +62,12 @@ function getRosterPeriodFromDate(date: Date) {
     year--
   }
 
-  // Calculate start and end dates
-  const startDate = new Date(KNOWN_ROSTER.startDate)
-  startDate.setDate(startDate.getDate() + periodsPassed * ROSTER_DURATION)
+  // Calculate start and end dates using milliseconds for safer arithmetic
+  const startDate = new Date(
+    KNOWN_ROSTER.startDate.getTime() + periodsPassed * ROSTER_DURATION * 24 * 60 * 60 * 1000
+  )
 
-  const endDate = new Date(startDate)
-  endDate.setDate(endDate.getDate() + ROSTER_DURATION - 1)
+  const endDate = new Date(startDate.getTime() + (ROSTER_DURATION - 1) * 24 * 60 * 60 * 1000)
 
   return {
     number,
@@ -91,12 +91,17 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
   try {
     // Calculate date threshold - include expired certifications (30 days back)
     const today = new Date()
-    const futureDate = new Date()
-    futureDate.setDate(today.getDate() + daysAhead)
+
+    // Use milliseconds for safer date arithmetic
+    const futureDate = new Date(today.getTime() + daysAhead * 24 * 60 * 60 * 1000)
 
     // Look back 365 days to include all expired certifications for planning purposes
-    const pastDate = new Date()
-    pastDate.setDate(today.getDate() - 365)
+    const pastDate = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000)
+
+    // Validate dates before using them
+    if (isNaN(futureDate.getTime()) || isNaN(pastDate.getTime())) {
+      throw new Error(`Invalid date calculation: futureDate=${futureDate}, pastDate=${pastDate}`)
+    }
 
     const { data: expiringChecks, error } = await supabase
       .from('pilot_checks')

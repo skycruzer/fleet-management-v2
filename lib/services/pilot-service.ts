@@ -17,6 +17,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { parseCaptainQualifications } from '@/lib/utils/type-guards'
 
 // Type aliases for convenience
 type Pilot = Database['public']['Tables']['pilots']['Row']
@@ -351,14 +352,14 @@ export async function getPilotStats() {
         if (pilot.role === 'Captain') {
           acc.captains++
 
-          const qualifications = (
-            Array.isArray(pilot.captain_qualifications) ? pilot.captain_qualifications : []
-          ) as string[]
-          if (qualifications.includes('training_captain')) {
-            acc.trainingCaptains++
-          }
-          if (qualifications.includes('examiner')) {
-            acc.examiners++
+          const qualifications = parseCaptainQualifications(pilot.captain_qualifications)
+          if (qualifications) {
+            if (qualifications.training_captain) {
+              acc.trainingCaptains++
+            }
+            if (qualifications.examiner) {
+              acc.examiners++
+            }
           }
         } else if (pilot.role === 'First Officer') {
           acc.firstOfficers++
@@ -667,6 +668,49 @@ export async function deletePilot(pilotId: string): Promise<void> {
 // ===================================
 // SEARCH & FILTER
 // ===================================
+
+/**
+ * Get pilots with optional filters (for API routes)
+ * @param filters - Optional filters for role and status
+ * @returns Promise<Pilot[]>
+ */
+export async function getPilots(filters?: {
+  role?: 'Captain' | 'First Officer'
+  is_active?: boolean
+}): Promise<Pilot[]> {
+  const supabase = await createClient()
+
+  try {
+    let query = supabase
+      .from('pilots')
+      .select('*')
+      .order('seniority_number', { ascending: true, nullsFirst: false })
+
+    if (filters?.role) {
+      query = query.eq('role', filters.role)
+    }
+
+    if (filters?.is_active !== undefined) {
+      query = query.eq('is_active', filters.is_active)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    return data || []
+  } catch (error) {
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'getPilots',
+        filters,
+      },
+    })
+    throw error
+  }
+}
 
 export async function searchPilots(
   searchTerm: string,

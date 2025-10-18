@@ -27,10 +27,7 @@ export async function updateSession(request: NextRequest) {
     if (pathname.includes('/login') || pathname.includes('/signin')) {
       // Strict limit for login attempts (5 per minute)
       rateLimitResult = await loginRateLimit.limit(ip)
-    } else if (
-      pathname.includes('/password-reset') ||
-      pathname.includes('/forgot-password')
-    ) {
+    } else if (pathname.includes('/password-reset') || pathname.includes('/forgot-password')) {
       // Very strict limit for password reset (3 per hour)
       rateLimitResult = await passwordResetRateLimit.limit(ip)
     } else {
@@ -49,14 +46,8 @@ export async function updateSession(request: NextRequest) {
 
     // Add rate limit headers to all auth responses
     const response = NextResponse.next({ request })
-    response.headers.set(
-      'X-RateLimit-Limit',
-      rateLimitResult.limit.toString()
-    )
-    response.headers.set(
-      'X-RateLimit-Remaining',
-      rateLimitResult.remaining.toString()
-    )
+    response.headers.set('X-RateLimit-Limit', rateLimitResult.limit.toString())
+    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString())
     response.headers.set('X-RateLimit-Reset', rateLimitResult.reset.toString())
 
     // Note: We continue to Supabase session handling below
@@ -85,8 +76,9 @@ export async function updateSession(request: NextRequest) {
           supabaseResponse = NextResponse.next({
             request,
           })
-          cookiesToSet.forEach(({ name, value, options }: { name: string; value: string; options?: any }) =>
-            supabaseResponse.cookies.set(name, value, options)
+          cookiesToSet.forEach(
+            ({ name, value, options }: { name: string; value: string; options?: any }) =>
+              supabaseResponse.cookies.set(name, value, options)
           )
         },
       },
@@ -104,7 +96,7 @@ export async function updateSession(request: NextRequest) {
   // Protected routes
   if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/auth/login'
     return NextResponse.redirect(url)
   }
 

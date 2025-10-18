@@ -604,6 +604,19 @@ export async function getLeaveRequestsByRosterPeriod(
  * 28-day cycles starting from known anchor: RP12/2025 = 2025-10-11
  */
 function getRosterPeriodFromDate(date: Date): string {
+  // Validate input date
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+    logError(new Error('Invalid date provided to roster calculation'), {
+      source: 'LeaveService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'getRosterPeriodFromDate',
+        date: String(date),
+      },
+    })
+    throw new Error('Invalid date for roster period calculation')
+  }
+
   const ROSTER_DURATION = 28
   const KNOWN_ROSTER = {
     number: 12,
@@ -627,6 +640,21 @@ function getRosterPeriodFromDate(date: Date): string {
   while (number < 1) {
     number += 13
     year--
+  }
+
+  // Validate output before returning
+  if (isNaN(number) || number <= 0 || number > 13) {
+    logError(new Error('Invalid roster period calculated'), {
+      source: 'LeaveService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'getRosterPeriodFromDate',
+        number,
+        year,
+        inputDate: date.toISOString(),
+      },
+    })
+    throw new Error('Roster period calculation produced invalid result')
   }
 
   return `RP${number}/${year}`
