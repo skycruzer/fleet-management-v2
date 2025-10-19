@@ -12,6 +12,12 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
  * - gcTime: 5min - Inactive queries cached for 5 minutes (formerly cacheTime)
  * - refetchOnWindowFocus: false - Prevent excessive refetches on tab switches
  * - retry: 1 - Single retry attempt for failed queries
+ * - networkMode: 'offlineFirst' - Deduplication works even when offline
+ *
+ * REQUEST DEDUPLICATION:
+ * TanStack Query automatically deduplicates identical queries made simultaneously.
+ * Multiple components calling useQuery with the same key will share a single request.
+ * This prevents duplicate database queries and reduces server load.
  */
 function makeQueryClient() {
   return new QueryClient({
@@ -25,10 +31,18 @@ function makeQueryClient() {
         refetchOnWindowFocus: false,
         // Single retry for failed queries (fail fast for better UX)
         retry: 1,
+        // Network mode for better deduplication
+        networkMode: 'offlineFirst',
+        // Refetch interval to keep data fresh
+        refetchInterval: false, // Disabled - manual invalidation preferred
+        // Keep previous data while fetching new data
+        placeholderData: (previousData: unknown) => previousData,
       },
       mutations: {
         // Single retry for failed mutations
         retry: 1,
+        // Network mode for mutations
+        networkMode: 'offlineFirst',
       },
     },
   })

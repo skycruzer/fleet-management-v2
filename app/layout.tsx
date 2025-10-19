@@ -2,7 +2,10 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
+import { ErrorBoundary } from '@/components/error-boundary'
 import { Providers } from './providers'
+import { SkipLinks, SkipToMainContent, SkipToNavigation } from '@/components/ui/skip-link'
+import { RouteChangeFocusManager } from '@/components/ui/route-change-focus'
 import './globals.css'
 
 const inter = Inter({
@@ -73,19 +76,40 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <Providers>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="relative flex min-h-screen flex-col">
-              <div className="flex-1">{children}</div>
-            </div>
-            <Toaster />
-          </ThemeProvider>
-        </Providers>
+        <ErrorBoundary
+          onError={(error, errorInfo) => {
+            // Log root-level errors with high severity
+            console.error('Root Layout Error (Critical):', {
+              error,
+              errorInfo,
+              timestamp: new Date().toISOString(),
+              severity: 'CRITICAL',
+            })
+          }}
+        >
+          <Providers>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {/* Skip Links for Accessibility */}
+              <SkipLinks>
+                <SkipToMainContent />
+                <SkipToNavigation />
+              </SkipLinks>
+
+              {/* Route Change Focus Manager */}
+              <RouteChangeFocusManager />
+
+              <div className="relative flex min-h-screen flex-col">
+                <div className="flex-1">{children}</div>
+              </div>
+              <Toaster />
+            </ThemeProvider>
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   )

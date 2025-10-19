@@ -51,10 +51,7 @@ export interface CertificationWithDetails extends PilotCheck {
 export interface CertificationFormData {
   pilot_id: string
   check_type_id: string
-  completion_date?: string | null
   expiry_date?: string | null
-  expiry_roster_period?: string | null
-  notes?: string | null
 }
 
 // ===================================
@@ -131,10 +128,7 @@ export async function getCertifications(
         id,
         pilot_id,
         check_type_id,
-        completion_date,
         expiry_date,
-        expiry_roster_period,
-        notes,
         created_at,
         updated_at,
         pilot:pilots (
@@ -395,10 +389,7 @@ export async function createCertification(
         {
           pilot_id: certificationData.pilot_id,
           check_type_id: certificationData.check_type_id,
-          completion_date: certificationData.completion_date,
           expiry_date: certificationData.expiry_date,
-          expiry_roster_period: certificationData.expiry_roster_period,
-          notes: certificationData.notes,
         },
       ])
       .select()
@@ -586,17 +577,8 @@ export async function batchUpdateCertifications(
       const cleanedData: any = { id }
 
       // Only include defined, non-empty values
-      if (updates.completion_date !== undefined) {
-        cleanedData.completion_date = updates.completion_date || null
-      }
       if (updates.expiry_date !== undefined) {
         cleanedData.expiry_date = updates.expiry_date || null
-      }
-      if (updates.expiry_roster_period !== undefined) {
-        cleanedData.expiry_roster_period = updates.expiry_roster_period || null
-      }
-      if (updates.notes !== undefined) {
-        cleanedData.notes = updates.notes || null
       }
 
       return cleanedData

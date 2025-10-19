@@ -1,0 +1,224 @@
+/**
+ * Add New User Page
+ * Form for creating new system users
+ */
+
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { UserCreateSchema } from '@/lib/validations/user-validation'
+import Link from 'next/link'
+
+type UserFormData = z.infer<typeof UserCreateSchema>
+
+export default function NewUserPage() {
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UserFormData>({
+    resolver: zodResolver(UserCreateSchema),
+    defaultValues: {
+      role: 'User',
+    },
+  })
+
+  const onSubmit = async (data: UserFormData) => {
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create user')
+      }
+
+      // Success - redirect to users list
+      router.push('/dashboard/admin/users')
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create user')
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Add New User</h2>
+          <p className="text-gray-600 mt-1">Create a new system user account</p>
+        </div>
+        <Link href="/dashboard/admin/users">
+          <Button variant="outline">← Back to Users</Button>
+        </Link>
+      </div>
+
+      {/* Form Card */}
+      <Card className="p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Error Message */}
+          {error && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {/* User Information Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+              User Information
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Full Name */}
+              <div className="space-y-2 md:col-span-1">
+                <Label htmlFor="name">
+                  Full Name <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="e.g., John Smith"
+                  {...register('name')}
+                  className={errors.name ? 'border-red-500' : ''}
+                />
+                {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+                <p className="text-xs text-gray-500">Minimum 2 characters</p>
+              </div>
+
+              {/* Email Address */}
+              <div className="space-y-2 md:col-span-1">
+                <Label htmlFor="email">
+                  Email Address <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="e.g., john.smith@example.com"
+                  {...register('email')}
+                  className={errors.email ? 'border-red-500' : ''}
+                />
+                {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+                <p className="text-xs text-gray-500">Must be a valid email address</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Role Assignment Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+              Role Assignment
+            </h3>
+
+            <div className="space-y-2">
+              <Label htmlFor="role">
+                User Role <span className="text-red-500">*</span>
+              </Label>
+              <select
+                id="role"
+                {...register('role')}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.role ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="User">User (Read-only access)</option>
+                <option value="Manager">Manager (View and approve requests)</option>
+                <option value="Admin">Admin (Full system access)</option>
+              </select>
+              {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
+            </div>
+
+            {/* Role Descriptions */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+              <p className="text-sm font-medium text-gray-900">Role Permissions:</p>
+              <ul className="text-sm text-gray-700 space-y-2">
+                <li className="flex items-start space-x-2">
+                  <span className="text-blue-600 font-bold">•</span>
+                  <div>
+                    <span className="font-medium">User:</span> View pilot data, certifications,
+                    and leave requests. Cannot make changes.
+                  </div>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-blue-600 font-bold">•</span>
+                  <div>
+                    <span className="font-medium">Manager:</span> All User permissions, plus
+                    approve/deny leave requests and submit forms.
+                  </div>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-blue-600 font-bold">•</span>
+                  <div>
+                    <span className="font-medium">Admin:</span> Full system access, including user
+                    management, pilot CRUD, and system configuration.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+            <Link href="/dashboard/admin/users">
+              <Button type="button" variant="outline" disabled={isSubmitting}>
+                Cancel
+              </Button>
+            </Link>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center space-x-2">
+                  <span className="animate-spin">⏳</span>
+                  <span>Creating...</span>
+                </span>
+              ) : (
+                'Create User'
+              )}
+            </Button>
+          </div>
+        </form>
+      </Card>
+
+      {/* Help Text */}
+      <Card className="p-4 bg-yellow-50 border-yellow-200">
+        <div className="flex items-start space-x-3">
+          <span className="text-2xl">⚠️</span>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-gray-900">Important Notes</p>
+            <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+              <li>Email addresses must be unique in the system</li>
+              <li>Users will need to set their password through the authentication system</li>
+              <li>Admin role should only be assigned to trusted personnel</li>
+              <li>Changes to user roles take effect immediately</li>
+              <li>An audit log entry will be created for this user creation</li>
+            </ul>
+          </div>
+        </div>
+      </Card>
+    </div>
+  )
+}

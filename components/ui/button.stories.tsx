@@ -93,3 +93,65 @@ export const Disabled: Story = {
     disabled: true,
   },
 }
+
+export const Loading: Story = {
+  args: {
+    children: 'Submit',
+    loading: true,
+  },
+}
+
+export const LoadingWithText: Story = {
+  args: {
+    children: 'Submit Form',
+    loading: true,
+    loadingText: 'Submitting...',
+  },
+}
+
+export const LoadingOutline: Story = {
+  args: {
+    children: 'Save',
+    variant: 'outline',
+    loading: true,
+  },
+}
+
+export const LoadingDestructive: Story = {
+  args: {
+    children: 'Delete',
+    variant: 'destructive',
+    loading: true,
+    loadingText: 'Deleting...',
+  },
+}
+
+export const AllLoadingStates: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-4">
+        <Button loading>Default Loading</Button>
+        <Button variant="outline" loading>
+          Outline Loading
+        </Button>
+        <Button variant="secondary" loading>
+          Secondary Loading
+        </Button>
+        <Button variant="destructive" loading>
+          Destructive Loading
+        </Button>
+      </div>
+      <div className="flex gap-4">
+        <Button loading loadingText="Processing...">
+          Submit
+        </Button>
+        <Button variant="outline" loading loadingText="Saving...">
+          Save
+        </Button>
+        <Button variant="destructive" loading loadingText="Deleting...">
+          Delete
+        </Button>
+      </div>
+    </div>
+  ),
+}

@@ -57,23 +57,33 @@ export function FormSelectWrapper({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={className}>
           <FormLabel>
             {label}
-            {required && <span className="text-destructive ml-1">*</span>}
+            {required && (
+              <span className="text-destructive ml-1" aria-label="required">
+                *
+              </span>
+            )}
           </FormLabel>
           <Select
             onValueChange={field.onChange}
             defaultValue={field.value}
             disabled={disabled}
+            required={required}
           >
             <FormControl>
-              <SelectTrigger>
+              <SelectTrigger
+                aria-label={label}
+                aria-invalid={!!fieldState.error}
+                aria-describedby={description ? `${name}-description` : undefined}
+                aria-required={required}
+              >
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
-            <SelectContent>
+            <SelectContent aria-label={`${label} options`}>
               {options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -81,8 +91,10 @@ export function FormSelectWrapper({
               ))}
             </SelectContent>
           </Select>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
+          {description && (
+            <FormDescription id={`${name}-description`}>{description}</FormDescription>
+          )}
+          <FormMessage role="alert" aria-live="polite" />
         </FormItem>
       )}
     />

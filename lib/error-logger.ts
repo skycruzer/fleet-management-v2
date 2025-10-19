@@ -294,14 +294,63 @@ export function formatError(error: Error): string {
 }
 
 /**
- * Check if error is a network error
+ * Check if error is a network error (offline/connection failure)
  */
 export function isNetworkError(error: Error): boolean {
   return (
     error.message.includes('fetch') ||
     error.message.includes('network') ||
     error.message.includes('Failed to fetch') ||
-    error.name === 'NetworkError'
+    error.message.toLowerCase().includes('networkerror') ||
+    error.message.toLowerCase().includes('connection') ||
+    error.message.toLowerCase().includes('offline') ||
+    error.message.toLowerCase().includes('no internet') ||
+    error.name === 'NetworkError' ||
+    error.name === 'TypeError' // Common for fetch failures
+  )
+}
+
+/**
+ * Check if error is specifically an offline error
+ */
+export function isOfflineError(error: Error): boolean {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return true
+  }
+
+  return (
+    error.message.toLowerCase().includes('offline') ||
+    error.message.toLowerCase().includes('no internet') ||
+    error.message.toLowerCase().includes('network unavailable')
+  )
+}
+
+/**
+ * Check if error is a server error (5xx)
+ */
+export function isServerError(error: Error): boolean {
+  return (
+    error.message.includes('500') ||
+    error.message.includes('501') ||
+    error.message.includes('502') ||
+    error.message.includes('503') ||
+    error.message.includes('504') ||
+    error.message.includes('Internal Server Error') ||
+    error.message.includes('Bad Gateway') ||
+    error.message.includes('Service Unavailable') ||
+    error.message.includes('Gateway Timeout')
+  )
+}
+
+/**
+ * Check if error is a timeout error
+ */
+export function isTimeoutError(error: Error): boolean {
+  return (
+    error.message.toLowerCase().includes('timeout') ||
+    error.message.includes('408') ||
+    error.message.includes('504') ||
+    error.name === 'TimeoutError'
   )
 }
 
@@ -329,17 +378,35 @@ export function isValidationError(error: Error): boolean {
 }
 
 /**
- * Get user-friendly error message
+ * Get user-friendly error message with specific context
  */
 export function getUserFriendlyMessage(error: Error): string {
+  // Check for offline-specific errors first
+  if (isOfflineError(error)) {
+    return 'You are currently offline. Please check your internet connection and try again.'
+  }
+
+  // Network errors (but not offline)
   if (isNetworkError(error)) {
     return 'Network connection error. Please check your internet connection and try again.'
   }
 
+  // Timeout errors
+  if (isTimeoutError(error)) {
+    return 'Request timed out. The server took too long to respond. Please try again.'
+  }
+
+  // Server errors (5xx)
+  if (isServerError(error)) {
+    return 'Server error. Our servers are experiencing issues. Please try again later.'
+  }
+
+  // Authentication errors
   if (isAuthError(error)) {
     return 'Authentication error. Please log in again.'
   }
 
+  // Validation errors
   if (isValidationError(error)) {
     return 'Validation error. Please check your input and try again.'
   }
@@ -351,4 +418,17 @@ export function getUserFriendlyMessage(error: Error): string {
 
   // Development: Show actual error
   return error.message
+}
+
+/**
+ * Get error category for analytics/logging
+ */
+export function getErrorCategory(error: Error): string {
+  if (isOfflineError(error)) return 'offline'
+  if (isNetworkError(error)) return 'network'
+  if (isTimeoutError(error)) return 'timeout'
+  if (isServerError(error)) return 'server'
+  if (isAuthError(error)) return 'auth'
+  if (isValidationError(error)) return 'validation'
+  return 'unknown'
 }

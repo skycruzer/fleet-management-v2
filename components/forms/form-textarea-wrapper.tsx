@@ -48,29 +48,35 @@ export function FormTextareaWrapper({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={className}>
           <FormLabel>
             {label}
-            {required && <span className="text-destructive ml-1">*</span>}
+            {required && (
+              <span className="text-destructive ml-1" aria-label="required">
+                *
+              </span>
+            )}
           </FormLabel>
           <FormControl>
             <Textarea
               placeholder={placeholder}
               rows={rows}
               disabled={disabled}
+              required={required}
               maxLength={maxLength}
+              aria-label={label}
+              aria-invalid={!!fieldState.error}
+              aria-describedby={description ? `${name}-description` : undefined}
+              showCharCount={!!maxLength}
               {...field}
               value={field.value ?? ''}
             />
           </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          {maxLength && field.value && (
-            <p className="text-xs text-muted-foreground text-right">
-              {field.value.length}/{maxLength}
-            </p>
+          {description && (
+            <FormDescription id={`${name}-description`}>{description}</FormDescription>
           )}
-          <FormMessage />
+          <FormMessage role="alert" aria-live="polite" />
         </FormItem>
       )}
     />

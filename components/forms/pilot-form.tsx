@@ -2,8 +2,12 @@
  * Unified Pilot Form Component
  * Handles both create and edit modes for pilot management
  *
- * @version 1.0.0
+ * DEDUPLICATION: This form uses useDeduplicatedSubmit to prevent
+ * duplicate submissions when users rapidly click the submit button.
+ *
+ * @version 2.0.0
  * @since 2025-10-17
+ * @updated 2025-10-19 - Added request deduplication
  */
 
 'use client'
@@ -18,6 +22,7 @@ import { FormFieldWrapper } from './form-field-wrapper'
 import { FormSelectWrapper } from './form-select-wrapper'
 import { FormDatePickerWrapper } from './form-date-picker-wrapper'
 import { FormCheckboxWrapper } from './form-checkbox-wrapper'
+import { useDeduplicatedSubmit } from '@/lib/hooks/use-deduplicated-submit'
 import { Loader2 } from 'lucide-react'
 
 type PilotFormMode = 'create' | 'edit'
@@ -57,9 +62,19 @@ export function PilotForm({
     },
   })
 
-  const handleSubmit = async (data: PilotCreate | PilotUpdate) => {
-    await onSubmit(data)
-  }
+  // Deduplicated submit handler prevents duplicate submissions
+  // when users rapidly click the submit button
+  const {
+    handleSubmit: deduplicatedSubmit,
+    isSubmitting,
+  } = useDeduplicatedSubmit(
+    async (data: PilotCreate | PilotUpdate) => {
+      await onSubmit(data)
+    },
+    {
+      key: mode === 'create' ? 'pilot-form-create' : `pilot-form-edit-${(defaultValues as any)?.id || 'new'}`,
+    }
+  )
 
   const rankOptions = [
     { label: 'Captain', value: 'Captain' },
@@ -82,7 +97,7 @@ export function PilotForm({
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <form onSubmit={form.handleSubmit(deduplicatedSubmit)}>
           <CardContent className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">
@@ -226,14 +241,16 @@ export function PilotForm({
                 type="button"
                 variant="outline"
                 onClick={onCancel}
-                disabled={isLoading}
+                disabled={isLoading || isSubmitting}
               >
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === 'create' ? 'Create Pilot' : 'Update Pilot'}
+            <Button type="submit" disabled={isLoading || isSubmitting}>
+              {(isLoading || isSubmitting) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting
+                ? mode === 'create' ? 'Creating...' : 'Updating...'
+                : mode === 'create' ? 'Create Pilot' : 'Update Pilot'}
             </Button>
           </CardFooter>
         </form>

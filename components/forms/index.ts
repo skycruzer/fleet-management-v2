@@ -2,11 +2,15 @@
  * Form Components Export Index
  * Central export point for all reusable form components
  *
- * @version 1.0.0
+ * @version 2.0.0
  * @since 2025-10-17
+ * @updated 2025-10-19 - Added base form components and layout utilities
  */
 
-// Base form wrappers
+// Base form structure components (NEW - reduces duplication)
+export { BaseFormCard, FormSection, type BaseFormCardProps, type FormSectionProps } from './base-form-card'
+
+// Field wrapper components
 export { FormFieldWrapper, type FormFieldWrapperProps } from './form-field-wrapper'
 export { FormSelectWrapper, type FormSelectWrapperProps, type SelectOption } from './form-select-wrapper'
 export { FormTextareaWrapper, type FormTextareaWrapperProps } from './form-textarea-wrapper'

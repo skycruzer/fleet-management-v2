@@ -255,7 +255,17 @@ export async function createLeaveRequestServer(
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      // Check if error is a unique constraint violation
+      if (error.code === '23505' && error.message.includes('leave_requests_pilot_dates_unique')) {
+        const duplicateError = new Error(
+          'A leave request for these dates already exists. Please check your existing requests or contact your supervisor.'
+        )
+        duplicateError.name = 'DuplicateLeaveRequestError'
+        throw duplicateError
+      }
+      throw error
+    }
 
     // Audit log the creation
     await createAuditLog({
@@ -268,6 +278,11 @@ export async function createLeaveRequestServer(
 
     return data as LeaveRequest
   } catch (error) {
+    // Re-throw duplicate errors without additional logging
+    if (error instanceof Error && error.name === 'DuplicateLeaveRequestError') {
+      throw error
+    }
+
     logError(error as Error, {
       source: 'leave-service:createLeaveRequestServer',
       severity: ErrorSeverity.HIGH,

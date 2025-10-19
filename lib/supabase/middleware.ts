@@ -37,8 +37,12 @@ export async function updateSession(request: NextRequest) {
 
     // If rate limit exceeded, return 429 response
     if (!rateLimitResult.success) {
+      // Calculate retry time in seconds from reset timestamp (milliseconds)
+      const now = Date.now()
+      const retryAfter = Math.ceil((rateLimitResult.reset - now) / 1000)
+
       return createRateLimitResponse(
-        rateLimitResult.retryAfter!,
+        retryAfter,
         rateLimitResult.limit,
         rateLimitResult.reset
       )

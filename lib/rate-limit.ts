@@ -1,124 +1,86 @@
 /**
- * Rate Limiting Utility
+ * Rate Limiting Module using Upstash Redis
  *
- * Implements sliding window rate limiting to prevent brute force attacks
- * and account enumeration on authentication endpoints.
+ * Provides distributed rate limiting for Server Actions to prevent spam and DoS attacks.
  *
- * Current Implementation: In-memory (development/small-scale)
- * Production Upgrade: Replace with @upstash/ratelimit for distributed rate limiting
+ * Rate Limits:
+ * - Feedback Submissions: 5 per minute
+ * - Leave Requests: 3 per minute
+ * - Flight Requests: 3 per minute
+ * - Feedback Votes: 30 per minute
+ * - Login Attempts: 5 per minute
+ * - Authentication: 10 per minute
+ * - Password Reset: 3 per hour
  *
- * @see https://upstash.com/docs/redis/sdks/ratelimit-ts/overview
+ * @see https://upstash.com/docs/redis/features/ratelimit
  */
 
-interface RateLimitEntry {
-  count: number
-  resetAt: number
-  requests: number[]
-}
-
-/**
- * Simple in-memory rate limiter using sliding window algorithm
- *
- * WARNING: This implementation uses in-memory storage and will not work
- * across multiple server instances. For production deployments with multiple
- * instances, use @upstash/ratelimit or a similar distributed solution.
- */
-class InMemoryRateLimiter {
-  private store = new Map<string, RateLimitEntry>()
-  private readonly windowMs: number
-  private readonly maxRequests: number
-  private readonly cleanupInterval: NodeJS.Timeout
-
-  constructor(maxRequests: number, windowMs: number) {
-    this.maxRequests = maxRequests
-    this.windowMs = windowMs
-
-    // Cleanup expired entries every 60 seconds
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup()
-    }, 60000)
-  }
-
-  /**
-   * Check if a request should be rate limited
-   * @param identifier - Unique identifier (IP address, user ID, etc.)
-   * @returns Object with success status and rate limit info
-   */
-  async limit(identifier: string): Promise<{
-    success: boolean
-    limit: number
-    remaining: number
-    reset: number
-    retryAfter?: number
-  }> {
-    const now = Date.now()
-    const entry = this.store.get(identifier) || {
-      count: 0,
-      resetAt: now + this.windowMs,
-      requests: [],
-    }
-
-    // Remove requests outside the sliding window
-    entry.requests = entry.requests.filter(
-      (timestamp) => timestamp > now - this.windowMs
-    )
-
-    // Check if limit exceeded
-    const isAllowed = entry.requests.length < this.maxRequests
-
-    if (isAllowed) {
-      entry.requests.push(now)
-      entry.count = entry.requests.length
-      this.store.set(identifier, entry)
-    }
-
-    const reset = Math.ceil((now + this.windowMs) / 1000)
-    const remaining = Math.max(0, this.maxRequests - entry.requests.length)
-
-    return {
-      success: isAllowed,
-      limit: this.maxRequests,
-      remaining,
-      reset,
-      retryAfter: isAllowed ? undefined : Math.ceil(this.windowMs / 1000),
-    }
-  }
-
-  /**
-   * Reset rate limit for a specific identifier
-   * @param identifier - Unique identifier to reset
-   */
-  reset(identifier: string): void {
-    this.store.delete(identifier)
-  }
-
-  /**
-   * Clean up expired entries from memory
-   */
-  private cleanup(): void {
-    const now = Date.now()
-    const keysToDelete: string[] = []
-
-    this.store.forEach((entry, key) => {
-      if (entry.resetAt < now && entry.requests.length === 0) {
-        keysToDelete.push(key)
-      }
-    })
-
-    keysToDelete.forEach((key) => this.store.delete(key))
-  }
-
-  /**
-   * Destroy the rate limiter and cleanup interval
-   */
-  destroy(): void {
-    clearInterval(this.cleanupInterval)
-    this.store.clear()
-  }
-}
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
 
 // ============================================================================
-// Rate Limiter Instances
+// REDIS CLIENT CONFIGURATION
+// ============================================================================
+
+/**
+ * Initialize Redis client with environment variables
+ * Throws error if environment variables are not set
+ */
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+})
+
+// ============================================================================
+// RATE LIMITERS FOR SERVER ACTIONS
+// ============================================================================
+
+/**
+ * Feedback submissions: 5 per minute
+ * Prevents spam feedback posts
+ */
+export const feedbackRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:feedback',
+})
+
+/**
+ * Leave requests: 3 per minute
+ * Prevents abuse of leave request system
+ */
+export const leaveRequestRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(3, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:leave',
+})
+
+/**
+ * Flight requests: 3 per minute
+ * Prevents spam flight requests
+ */
+export const flightRequestRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(3, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:flight',
+})
+
+/**
+ * Votes: 30 per minute
+ * Allows higher frequency for reading/voting actions
+ */
+export const voteRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(30, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:vote',
+})
+
+// ============================================================================
+// RATE LIMITERS FOR AUTHENTICATION
 // ============================================================================
 
 /**
@@ -126,34 +88,71 @@ class InMemoryRateLimiter {
  * Limit: 5 attempts per minute per IP
  * Prevents: Brute force password attacks
  */
-export const loginRateLimit = new InMemoryRateLimiter(
-  5, // Max 5 requests
-  60 * 1000 // Per 1 minute (60 seconds)
-)
+export const loginRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:login',
+})
 
 /**
  * Authentication Rate Limiter (General)
  * Limit: 10 attempts per minute per IP
  * Prevents: Account enumeration, signup abuse
  */
-export const authRateLimit = new InMemoryRateLimiter(
-  10, // Max 10 requests
-  60 * 1000 // Per 1 minute (60 seconds)
-)
+export const authRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:auth',
+})
 
 /**
  * Password Reset Rate Limiter
  * Limit: 3 attempts per hour per IP
  * Prevents: Email flooding, abuse of password reset
  */
-export const passwordResetRateLimit = new InMemoryRateLimiter(
-  3, // Max 3 requests
-  60 * 60 * 1000 // Per 1 hour (3600 seconds)
-)
+export const passwordResetRateLimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(3, '3600 s'),
+  analytics: true,
+  prefix: 'ratelimit:password-reset',
+})
 
 // ============================================================================
-// Helper Functions
+// HELPER TYPES
 // ============================================================================
+
+/**
+ * Rate limit check result
+ */
+export interface RateLimitResult {
+  success: boolean
+  limit: number
+  remaining: number
+  reset: number
+  error?: string
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Format rate limit error message with reset time
+ */
+export function formatRateLimitError(resetTimestamp: number): string {
+  const resetDate = new Date(resetTimestamp)
+  const now = new Date()
+  const secondsUntilReset = Math.ceil((resetDate.getTime() - now.getTime()) / 1000)
+
+  if (secondsUntilReset <= 60) {
+    return `Too many requests. Please wait ${secondsUntilReset} seconds before trying again.`
+  }
+
+  const minutesUntilReset = Math.ceil(secondsUntilReset / 60)
+  return `Too many requests. Please wait ${minutesUntilReset} minute${minutesUntilReset > 1 ? 's' : ''} before trying again.`
+}
 
 /**
  * Extract IP address from Next.js request
@@ -222,52 +221,3 @@ export function createRateLimitResponse(
     }
   )
 }
-
-// ============================================================================
-// Production Upgrade Path (commented for future use)
-// ============================================================================
-
-/*
-// To upgrade to distributed rate limiting using Upstash Redis:
-//
-// 1. Install dependencies:
-//    npm install @upstash/ratelimit @upstash/redis
-//
-// 2. Add environment variables to .env.local:
-//    UPSTASH_REDIS_REST_URL=your-redis-url
-//    UPSTASH_REDIS_REST_TOKEN=your-redis-token
-//
-// 3. Replace the implementation:
-
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
-
-export const loginRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '1 m'),
-  analytics: true,
-  prefix: 'ratelimit:login',
-})
-
-export const authRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '1 m'),
-  analytics: true,
-  prefix: 'ratelimit:auth',
-})
-
-export const passwordResetRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(3, '1 h'),
-  analytics: true,
-  prefix: 'ratelimit:password-reset',
-})
-
-// Note: Upstash Ratelimit returns { success, limit, remaining, reset }
-// which matches our interface, making the upgrade seamless.
-*/

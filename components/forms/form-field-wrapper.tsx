@@ -46,23 +46,33 @@ export function FormFieldWrapper({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={className}>
           <FormLabel>
             {label}
-            {required && <span className="text-destructive ml-1">*</span>}
+            {required && (
+              <span className="text-destructive ml-1" aria-label="required">
+                *
+              </span>
+            )}
           </FormLabel>
           <FormControl>
             <Input
               placeholder={placeholder}
               type={type}
               disabled={disabled}
+              required={required}
+              aria-label={label}
+              aria-invalid={!!fieldState.error}
+              aria-describedby={description ? `${name}-description` : undefined}
               {...field}
               value={field.value ?? ''}
             />
           </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
+          {description && (
+            <FormDescription id={`${name}-description`}>{description}</FormDescription>
+          )}
+          <FormMessage role="alert" aria-live="polite" />
         </FormItem>
       )}
     />

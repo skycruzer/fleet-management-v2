@@ -18,6 +18,7 @@ import type { Database } from '@/types/supabase'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
+import { unstable_cache, revalidateTag } from 'next/cache'
 
 // Type aliases for convenience
 type Pilot = Database['public']['Tables']['pilots']['Row']
@@ -333,63 +334,74 @@ export async function getPilotById(pilotId: string): Promise<PilotWithCertificat
   }
 }
 
-export async function getPilotStats() {
-  const supabase = await createClient()
+/**
+ * Get pilot statistics
+ * CACHED: 5 minutes (pilot stats update moderately)
+ */
+export const getPilotStats = unstable_cache(
+  async () => {
+    const supabase = await createClient()
 
-  try {
-    const { data: pilots, error } = await supabase
-      .from('pilots')
-      .select('role, is_active, captain_qualifications')
+    try {
+      const { data: pilots, error } = await supabase
+        .from('pilots')
+        .select('role, is_active, captain_qualifications')
 
-    if (error) throw error
+      if (error) throw error
 
-    const stats = (pilots || []).reduce(
-      (acc, pilot) => {
-        acc.total++
-        if (pilot.is_active) acc.active++
-        else acc.inactive++
+      const stats = (pilots || []).reduce(
+        (acc, pilot) => {
+          acc.total++
+          if (pilot.is_active) acc.active++
+          else acc.inactive++
 
-        if (pilot.role === 'Captain') {
-          acc.captains++
+          if (pilot.role === 'Captain') {
+            acc.captains++
 
-          const qualifications = parseCaptainQualifications(pilot.captain_qualifications)
-          if (qualifications) {
-            if (qualifications.training_captain) {
-              acc.trainingCaptains++
+            const qualifications = parseCaptainQualifications(pilot.captain_qualifications)
+            if (qualifications) {
+              if (qualifications.training_captain) {
+                acc.trainingCaptains++
+              }
+              if (qualifications.examiner) {
+                acc.examiners++
+              }
             }
-            if (qualifications.examiner) {
-              acc.examiners++
-            }
+          } else if (pilot.role === 'First Officer') {
+            acc.firstOfficers++
           }
-        } else if (pilot.role === 'First Officer') {
-          acc.firstOfficers++
+
+          return acc
+        },
+        {
+          total: 0,
+          active: 0,
+          inactive: 0,
+          captains: 0,
+          firstOfficers: 0,
+          trainingCaptains: 0,
+          examiners: 0,
         }
+      )
 
-        return acc
-      },
-      {
-        total: 0,
-        active: 0,
-        inactive: 0,
-        captains: 0,
-        firstOfficers: 0,
-        trainingCaptains: 0,
-        examiners: 0,
-      }
-    )
-
-    return stats
-  } catch (error) {
-    logError(error as Error, {
-      source: 'PilotService',
-      severity: ErrorSeverity.MEDIUM,
-      metadata: {
-        operation: 'getPilotStats',
-      },
-    })
-    throw error
+      return stats
+    } catch (error) {
+      logError(error as Error, {
+        source: 'PilotService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: {
+          operation: 'getPilotStats',
+        },
+      })
+      throw error
+    }
+  },
+  ['pilot-stats'],
+  {
+    revalidate: 300, // 5 minutes
+    tags: ['pilots', 'pilot-stats'],
   }
-}
+)
 
 // ===================================
 // WRITE OPERATIONS
@@ -436,6 +448,10 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
       newData: data,
       description: `Created pilot: ${data.first_name} ${data.last_name} (${data.employee_id})`,
     })
+
+    // Invalidate pilot-related caches
+    revalidateTag('pilots')
+    revalidateTag('pilot-stats')
 
     return data
   } catch (error) {
@@ -525,6 +541,10 @@ export async function createPilotWithCertifications(
       },
     })
 
+    // Invalidate pilot-related caches
+    revalidateTag('pilots')
+    revalidateTag('pilot-stats')
+
     return {
       pilot: result.pilot,
       certificationCount: result.certification_count || 0,
@@ -586,6 +606,10 @@ export async function updatePilot(
       newData: data,
       description: `Updated pilot: ${data.first_name} ${data.last_name} (${data.employee_id})`,
     })
+
+    // Invalidate pilot-related caches
+    revalidateTag('pilots')
+    revalidateTag('pilot-stats')
 
     return data
   } catch (error) {
@@ -652,6 +676,10 @@ export async function deletePilot(pilotId: string): Promise<void> {
         },
       })
     }
+
+    // Invalidate pilot-related caches
+    revalidateTag('pilots')
+    revalidateTag('pilot-stats')
   } catch (error) {
     logError(error as Error, {
       source: 'PilotService',

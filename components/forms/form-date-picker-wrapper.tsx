@@ -57,11 +57,15 @@ export function FormDatePickerWrapper({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={cn('flex flex-col', className)}>
           <FormLabel>
             {label}
-            {required && <span className="text-destructive ml-1">*</span>}
+            {required && (
+              <span className="text-destructive ml-1" aria-label="required">
+                *
+              </span>
+            )}
           </FormLabel>
           <Popover>
             <PopoverTrigger asChild>
@@ -73,17 +77,23 @@ export function FormDatePickerWrapper({
                     'w-full pl-3 text-left font-normal',
                     !field.value && 'text-muted-foreground'
                   )}
+                  aria-label={`${label}, ${field.value ? format(new Date(field.value), 'PPP') : placeholder}`}
+                  aria-invalid={!!fieldState.error}
+                  aria-describedby={description ? `${name}-description` : undefined}
+                  aria-required={required}
+                  role="combobox"
+                  aria-haspopup="dialog"
                 >
                   {field.value ? (
                     format(new Date(field.value), 'PPP')
                   ) : (
                     <span>{placeholder}</span>
                   )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0" align="start" role="dialog" aria-label={`${label} calendar`}>
               <Calendar
                 mode="single"
                 selected={field.value ? new Date(field.value) : undefined}
@@ -96,11 +106,14 @@ export function FormDatePickerWrapper({
                   return false
                 }}
                 initialFocus
+                aria-label={`Select ${label}`}
               />
             </PopoverContent>
           </Popover>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
+          {description && (
+            <FormDescription id={`${name}-description`}>{description}</FormDescription>
+          )}
+          <FormMessage role="alert" aria-live="polite" />
         </FormItem>
       )}
     />

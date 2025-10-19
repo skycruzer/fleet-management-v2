@@ -40,20 +40,25 @@ export function FormCheckboxWrapper({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem className={`flex flex-row items-start space-x-3 space-y-0 ${className}`}>
           <FormControl>
             <Checkbox
               checked={field.value}
               onCheckedChange={field.onChange}
               disabled={disabled}
+              aria-label={label}
+              aria-describedby={description ? `${name}-description` : undefined}
+              aria-invalid={!!fieldState.error}
             />
           </FormControl>
           <div className="space-y-1 leading-none">
-            <FormLabel>{label}</FormLabel>
-            {description && <FormDescription>{description}</FormDescription>}
+            <FormLabel className="cursor-pointer">{label}</FormLabel>
+            {description && (
+              <FormDescription id={`${name}-description`}>{description}</FormDescription>
+            )}
           </div>
-          <FormMessage />
+          <FormMessage role="alert" aria-live="polite" />
         </FormItem>
       )}
     />

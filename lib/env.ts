@@ -50,7 +50,7 @@ const envSchema = z.object({
 function validateEnv() {
   // Skip validation on client side - client only has access to NEXT_PUBLIC_* vars
   if (typeof window !== 'undefined') {
-    return process.env as z.infer<typeof envSchema>
+    return process.env as unknown as z.infer<typeof envSchema>
   }
 
   try {

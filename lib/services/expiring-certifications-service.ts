@@ -79,13 +79,32 @@ function getRosterPeriodFromDate(date: Date) {
 }
 
 /**
+ * Expiring certification data structure
+ */
+export interface ExpiringCertification {
+  pilotName: string
+  employeeId: string
+  checkCode: string
+  checkDescription: string
+  category: string
+  expiryDate: Date
+  status: {
+    color: string
+    label: string
+    daysUntilExpiry: number
+  }
+  expiry_roster_period: string
+  expiry_roster_display: string
+}
+
+/**
  * Core service function to fetch expiring certifications
  * This function can be used by both API routes and internal server calls
  *
  * @param daysAhead - Number of days ahead to look for expiring certifications
- * @returns Promise<Array> - Array of expiring certification objects
+ * @returns Promise<ExpiringCertification[]> - Array of expiring certification objects
  */
-export async function getExpiringCertifications(daysAhead: number = 60) {
+export async function getExpiringCertifications(daysAhead: number = 60): Promise<ExpiringCertification[]> {
   const supabase = await createClient()
 
   try {
@@ -145,7 +164,7 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
 
     // Transform the data to match the expected format
     const result = (expiringChecks || [])
-      .map((check: any) => {
+      .map((check: any): ExpiringCertification | null => {
         // First, validate that we have a proper expiry_date
         if (!check.expiry_date) {
           logWarning('Missing expiry_date for check', {
@@ -237,7 +256,12 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
           expiry_roster_display: rosterDisplay,
         }
       })
-      .filter(Boolean) // Remove null entries from invalid dates
+      .filter((cert): cert is ExpiringCertification => cert !== null) // Remove null entries from invalid dates
+      .filter((cert) => {
+        // Only include certifications that are actually expiring soon (0 to daysAhead)
+        // Exclude expired certifications (negative days)
+        return cert.status.daysUntilExpiry >= 0 && cert.status.daysUntilExpiry <= daysAhead
+      })
 
     return result
   } catch (error) {
