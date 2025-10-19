@@ -28,12 +28,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <ErrorBoundary>
       <div className="bg-muted/50 flex h-screen">
         {/* Sidebar */}
-        <aside className="border-border flex w-64 flex-col border-r bg-white">
+        <aside className="border-border bg-card flex w-64 flex-col border-r">
           {/* Logo */}
           <div className="border-border flex h-16 items-center border-b px-6">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                <span className="text-sm font-bold text-white">FM</span>
+              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
+                <span className="text-primary-foreground text-sm font-bold">FM</span>
               </div>
               <span className="text-foreground font-semibold">Fleet Mgmt</span>
             </Link>
@@ -64,8 +64,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {/* User Info */}
           <div className="border-border border-t p-4">
             <div className="flex items-center space-x-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300">
-                <span className="text-muted-foreground text-sm font-medium">
+              <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+                <span className="text-card-foreground text-sm font-medium">
                   {user.email?.[0].toUpperCase()}
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {/* Main Content */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Header */}
-          <header className="border-border flex h-16 items-center border-b bg-white px-6">
+          <header className="border-border bg-card flex h-16 items-center border-b px-6">
             <h1 className="text-foreground text-lg font-semibold">B767 Fleet Management</h1>
           </header>
 

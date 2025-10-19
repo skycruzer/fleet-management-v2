@@ -166,14 +166,17 @@ export default function AnalyticsPage() {
 
       {/* Critical Alerts Section */}
       {analytics.risk.criticalAlerts.length > 0 && (
-        <Card className="border-red-200 bg-red-50 p-6">
+        <Card className="border-destructive/20 bg-red-50 p-6">
           <div className="flex items-start space-x-3">
             <span className="text-3xl">🚨</span>
             <div className="flex-1">
               <h3 className="text-foreground mb-3 text-lg font-bold">Critical Alerts</h3>
               <div className="space-y-2">
                 {analytics.risk.criticalAlerts.map((alert) => (
-                  <div key={alert.id} className="rounded-lg border border-red-300 bg-white p-3">
+                  <div
+                    key={alert.id}
+                    className="border-destructive/30 bg-destructive/5 rounded-lg border p-3"
+                  >
                     <div className="mb-1 flex items-center justify-between">
                       <span className="text-foreground font-medium">{alert.title}</span>
                       <span
@@ -247,7 +250,7 @@ export default function AnalyticsPage() {
               <div className="text-3xl font-bold text-green-900">{analytics.pilot.active}</div>
               <div className="text-muted-foreground text-sm">Active</div>
             </div>
-            <div className="rounded-lg bg-blue-50 p-4">
+            <div className="bg-primary/5 rounded-lg p-4">
               <div className="text-3xl font-bold text-blue-900">{analytics.pilot.captains}</div>
               <div className="text-muted-foreground text-sm">Captains</div>
             </div>
@@ -323,7 +326,7 @@ export default function AnalyticsPage() {
               <div className="text-muted-foreground text-sm">Expired</div>
             </div>
           </div>
-          <div className="mt-4 rounded-lg bg-blue-50 p-4">
+          <div className="bg-primary/5 mt-4 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
               <span className="text-2xl font-bold text-blue-900">
@@ -418,14 +421,14 @@ export default function AnalyticsPage() {
               {analytics.risk.overallRiskScore}/100
             </span>
           </div>
-          <div className="h-3 w-full rounded-full bg-gray-200">
+          <div className="bg-muted h-3 w-full rounded-full">
             <div
               className={`h-3 rounded-full ${
                 analytics.risk.overallRiskScore > 50
-                  ? 'bg-red-600'
+                  ? 'bg-destructive'
                   : analytics.risk.overallRiskScore > 25
-                    ? 'bg-yellow-500'
-                    : 'bg-green-500'
+                    ? 'bg-warning'
+                    : 'bg-success'
               }`}
               style={{ width: `${analytics.risk.overallRiskScore}%` }}
             />

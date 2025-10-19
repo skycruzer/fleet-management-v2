@@ -56,15 +56,15 @@ export default function HomePage() {
 
             {/* Stats */}
             <div className="mt-12 grid w-full max-w-2xl grid-cols-3 gap-8">
-              <div className="flex flex-col items-center rounded-lg bg-white/50 p-4 backdrop-blur-sm dark:bg-gray-800/50">
+              <div className="bg-card/50 flex flex-col items-center rounded-lg p-4 backdrop-blur-sm">
                 <div className="text-primary text-4xl font-bold">27</div>
                 <div className="text-muted-foreground mt-1 text-sm">Active Pilots</div>
               </div>
-              <div className="flex flex-col items-center rounded-lg bg-white/50 p-4 backdrop-blur-sm dark:bg-gray-800/50">
+              <div className="bg-card/50 flex flex-col items-center rounded-lg p-4 backdrop-blur-sm">
                 <div className="text-primary text-4xl font-bold">607</div>
                 <div className="text-muted-foreground mt-1 text-sm">Certifications</div>
               </div>
-              <div className="flex flex-col items-center rounded-lg bg-white/50 p-4 backdrop-blur-sm dark:bg-gray-800/50">
+              <div className="bg-card/50 flex flex-col items-center rounded-lg p-4 backdrop-blur-sm">
                 <div className="text-primary text-4xl font-bold">34</div>
                 <div className="text-muted-foreground mt-1 text-sm">Check Types</div>
               </div>
@@ -163,7 +163,7 @@ function FeatureCard({
 
 function TechBadge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-foreground border-border hover:border-primary/50 rounded-full border bg-white px-4 py-2 font-medium shadow-sm transition-all duration-200 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+    <span className="text-foreground border-border bg-card hover:border-primary/50 rounded-full border px-4 py-2 font-medium shadow-sm transition-all duration-200 hover:shadow-md">
       {children}
     </span>
   )

@@ -53,8 +53,8 @@ export default function LoginPage() {
       <Card className="w-full max-w-md p-8">
         {/* Logo and Title */}
         <div className="mb-8 text-center">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-lg bg-blue-600">
-            <span className="text-2xl font-bold text-white">FM</span>
+          <div className="bg-primary mb-4 inline-flex h-16 w-16 items-center justify-center rounded-lg">
+            <span className="text-primary-foreground text-2xl font-bold">FM</span>
           </div>
           <h1 className="text-foreground text-2xl font-bold">Fleet Management V2</h1>
           <p className="text-muted-foreground mt-2">Sign in to your account</p>
@@ -63,7 +63,7 @@ export default function LoginPage() {
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+            <div className="border-destructive/20 rounded-lg border bg-red-50 p-3">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
@@ -107,7 +107,7 @@ export default function LoginPage() {
         </form>
 
         {/* Development Helper */}
-        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <div className="bg-primary/5 mt-6 rounded-lg border border-blue-200 p-4">
           <p className="mb-2 text-xs font-medium text-blue-900">Development Mode</p>
           <p className="text-xs text-blue-700">
             Create an account in Supabase dashboard or use test credentials if available.

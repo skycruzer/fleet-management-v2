@@ -10,8 +10,8 @@ export default function PortalDashboardLoading() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header Skeleton */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
               <Skeleton className="h-8 w-48" />
@@ -22,18 +22,18 @@ export default function PortalDashboardLoading() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="space-y-6">
           {/* Welcome Card Skeleton */}
-          <Card className="p-6 bg-gradient-to-r from-blue-500 to-indigo-600">
+          <Card className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
             <div className="space-y-3">
-              <Skeleton className="h-8 w-64 bg-white/20" />
-              <Skeleton className="h-4 w-48 bg-white/20" />
+              <Skeleton className="bg-muted/20 h-8 w-64" />
+              <Skeleton className="bg-muted/20 h-4 w-48" />
             </div>
           </Card>
 
           {/* Quick Actions Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <Card className="p-6">
               <div className="space-y-3">
                 <Skeleton className="h-12 w-12 rounded-lg" />
@@ -62,7 +62,7 @@ export default function PortalDashboardLoading() {
 
           {/* Recent Activity Skeleton */}
           <Card className="p-6">
-            <Skeleton className="h-6 w-48 mb-4" />
+            <Skeleton className="mb-4 h-6 w-48" />
             <div className="space-y-3">
               <Skeleton className="h-16 w-full rounded-lg" />
               <Skeleton className="h-16 w-full rounded-lg" />

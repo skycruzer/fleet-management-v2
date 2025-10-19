@@ -79,7 +79,7 @@ export default function NewUserPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
@@ -148,7 +148,7 @@ export default function NewUserPage() {
             </div>
 
             {/* Role Descriptions */}
-            <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <div className="bg-primary/5 space-y-3 rounded-lg border border-blue-200 p-4">
               <p className="text-foreground text-sm font-medium">Role Permissions:</p>
               <ul className="text-card-foreground space-y-2 text-sm">
                 <li className="flex items-start space-x-2">

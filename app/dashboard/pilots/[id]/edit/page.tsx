@@ -209,7 +209,7 @@ export default function EditPilotPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}

@@ -46,7 +46,7 @@ export default async function CertificationsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Card className="border-red-200 bg-red-50 p-6">
+        <Card className="border-destructive/20 bg-red-50 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🔴</span>
             <div>
@@ -76,7 +76,7 @@ export default async function CertificationsPage() {
       </div>
 
       {/* Certifications Table */}
-      <Card className="bg-white p-6">
+      <Card className="p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">All Certifications</h3>
         <div className="overflow-x-auto">
           <table className="divide-border min-w-full divide-y">
@@ -102,7 +102,7 @@ export default async function CertificationsPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-border divide-y bg-white">
+            <tbody className="divide-border divide-y">
               {certifications.map((cert) => (
                 <tr key={cert.id} className="hover:bg-muted/50">
                   <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">

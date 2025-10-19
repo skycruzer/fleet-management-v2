@@ -64,7 +64,7 @@ export default async function CertificationsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
@@ -84,7 +84,7 @@ export default async function CertificationsPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Statistics Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <Card className="bg-white p-6">
+          <Card className="p-6">
             <p className="text-muted-foreground text-sm font-medium">Total Certifications</p>
             <p className="text-foreground mt-2 text-3xl font-bold">{stats.total}</p>
           </Card>
@@ -96,7 +96,7 @@ export default async function CertificationsPage() {
             <p className="text-muted-foreground text-sm font-medium">Expiring Soon</p>
             <p className="mt-2 text-3xl font-bold text-yellow-700">{stats.expiringSoon}</p>
           </Card>
-          <Card className="border-red-200 bg-red-50 p-6">
+          <Card className="border-destructive/20 bg-red-50 p-6">
             <p className="text-muted-foreground text-sm font-medium">Expired</p>
             <p className="mt-2 text-3xl font-bold text-red-700">{stats.expired}</p>
           </Card>
@@ -115,7 +115,7 @@ export default async function CertificationsPage() {
                 </p>
                 <a
                   href="mailto:fleet@airniugini.com.pg?subject=Expired Certifications - Urgent"
-                  className="inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
+                  className="text-primary-foreground inline-flex items-center rounded-lg bg-red-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-red-700"
                 >
                   Contact Fleet Management
                 </a>
@@ -143,7 +143,7 @@ export default async function CertificationsPage() {
         <div className="space-y-6">
           {/* Licenses */}
           {categorized.licenses.length > 0 && (
-            <Card className="bg-white p-6">
+            <Card className="p-6">
               <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">📜</span>
                 Licenses & Ratings ({categorized.licenses.length})
@@ -169,7 +169,7 @@ export default async function CertificationsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-border divide-y bg-white">
+                  <tbody className="divide-border divide-y">
                     {categorized.licenses.map((cert) => (
                       <tr key={cert.id} className="hover:bg-muted/50">
                         <td className="text-foreground px-4 py-4 text-sm font-medium">
@@ -211,7 +211,7 @@ export default async function CertificationsPage() {
 
           {/* Medicals */}
           {categorized.medicals.length > 0 && (
-            <Card className="bg-white p-6">
+            <Card className="p-6">
               <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">🏥</span>
                 Medical Certifications ({categorized.medicals.length})
@@ -237,7 +237,7 @@ export default async function CertificationsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-border divide-y bg-white">
+                  <tbody className="divide-border divide-y">
                     {categorized.medicals.map((cert) => (
                       <tr key={cert.id} className="hover:bg-muted/50">
                         <td className="text-foreground px-4 py-4 text-sm font-medium">
@@ -279,7 +279,7 @@ export default async function CertificationsPage() {
 
           {/* Recurrent Training */}
           {categorized.recurrent.length > 0 && (
-            <Card className="bg-white p-6">
+            <Card className="p-6">
               <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">✈️</span>
                 Recurrent Training & Checks ({categorized.recurrent.length})
@@ -305,7 +305,7 @@ export default async function CertificationsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-border divide-y bg-white">
+                  <tbody className="divide-border divide-y">
                     {categorized.recurrent.map((cert) => (
                       <tr key={cert.id} className="hover:bg-muted/50">
                         <td className="text-foreground px-4 py-4 text-sm font-medium">
@@ -347,7 +347,7 @@ export default async function CertificationsPage() {
 
           {/* Other Certifications */}
           {categorized.other.length > 0 && (
-            <Card className="bg-white p-6">
+            <Card className="p-6">
               <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">📋</span>
                 Other Certifications ({categorized.other.length})
@@ -373,7 +373,7 @@ export default async function CertificationsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-border divide-y bg-white">
+                  <tbody className="divide-border divide-y">
                     {categorized.other.map((cert) => (
                       <tr key={cert.id} className="hover:bg-muted/50">
                         <td className="text-foreground px-4 py-4 text-sm font-medium">

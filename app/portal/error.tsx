@@ -26,7 +26,7 @@ export default function PortalError({
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
       <div className="w-full max-w-lg">
         {/* Error Card */}
-        <div className="rounded-lg border border-red-200 bg-white p-8 shadow-lg">
+        <div className="border-destructive/20 rounded-lg border p-8 shadow-lg">
           {/* Icon */}
           <div className="mb-4 flex justify-center">
             <div className="rounded-full bg-red-100 p-4">
@@ -65,7 +65,7 @@ export default function PortalError({
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               onClick={reset}
-              className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1 rounded-lg px-6 py-3 font-medium transition-colors"
             >
               Try Again
             </button>

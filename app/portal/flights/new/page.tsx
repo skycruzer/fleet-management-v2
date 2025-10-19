@@ -38,7 +38,7 @@ export default async function NewFlightRequestPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
@@ -76,7 +76,7 @@ export default async function NewFlightRequestPage() {
         </Card>
 
         {/* Flight Request Form */}
-        <Card className="bg-white p-8">
+        <Card className="p-8">
           <FlightRequestForm
             pilotUser={{ ...pilotUser, rank: pilotUser.rank || 'Unknown' }}
             csrfToken={csrfToken}
@@ -100,7 +100,7 @@ export default async function NewFlightRequestPage() {
                 >
                   fleet@airniugini.com.pg
                 </a>
-                <span className="text-gray-400">•</span>
+                <span className="text-muted-foreground">•</span>
                 <Link
                   href="/portal/feedback"
                   className="font-medium text-purple-600 hover:underline"

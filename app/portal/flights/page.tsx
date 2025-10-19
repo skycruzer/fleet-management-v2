@@ -54,7 +54,7 @@ export default async function FlightRequestsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
@@ -80,7 +80,7 @@ export default async function FlightRequestsPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Statistics Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <Card className="bg-white p-6">
+          <Card className="p-6">
             <p className="text-muted-foreground text-sm font-medium">Total Requests</p>
             <p className="text-foreground mt-2 text-3xl font-bold">{stats.total}</p>
           </Card>
@@ -92,17 +92,17 @@ export default async function FlightRequestsPage() {
             <p className="text-muted-foreground text-sm font-medium">Approved</p>
             <p className="mt-2 text-3xl font-bold text-green-700">{stats.approved}</p>
           </Card>
-          <Card className="border-red-200 bg-red-50 p-6">
+          <Card className="border-destructive/20 bg-red-50 p-6">
             <p className="text-muted-foreground text-sm font-medium">Denied</p>
             <p className="mt-2 text-3xl font-bold text-red-700">{stats.denied}</p>
           </Card>
         </div>
 
         {/* Request Type Breakdown */}
-        <Card className="mb-8 bg-white p-6">
+        <Card className="mb-8 p-6">
           <h2 className="text-foreground mb-4 text-lg font-semibold">Requests by Type</h2>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="rounded-lg bg-blue-50 p-4 text-center">
+            <div className="bg-primary/5 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-blue-700">{typeBreakdown.additional}</p>
               <p className="text-muted-foreground mt-1 text-xs">Additional Flights</p>
             </div>
@@ -122,7 +122,7 @@ export default async function FlightRequestsPage() {
         </Card>
 
         {/* Flight Requests Table */}
-        <Card className="bg-white p-6">
+        <Card className="p-6">
           <h2 className="text-foreground mb-4 text-lg font-semibold">All Flight Requests</h2>
 
           {flightRequests.length === 0 ? (
@@ -161,7 +161,7 @@ export default async function FlightRequestsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-border divide-y bg-white">
+                <tbody className="divide-border divide-y">
                   {flightRequests.map((request) => (
                     <tr key={request.id} className="hover:bg-muted/50">
                       <td className="px-4 py-4 whitespace-nowrap">

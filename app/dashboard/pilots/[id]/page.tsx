@@ -214,7 +214,7 @@ export default function PilotDetailPage() {
             variant="outline"
             onClick={handleDelete}
             disabled={deleting}
-            className="border-red-200 text-red-600 hover:bg-red-50"
+            className="border-destructive/20 text-red-600 hover:bg-red-50"
           >
             {deleting ? 'Deleting...' : 'Delete'}
           </Button>
@@ -245,7 +245,7 @@ export default function PilotDetailPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-red-200 bg-red-50 p-6">
+        <Card className="border-destructive/20 bg-red-50 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">❌</span>
             <div>
@@ -260,7 +260,7 @@ export default function PilotDetailPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Basic Information */}
-        <Card className="bg-white p-6">
+        <Card className="p-6">
           <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Basic Information
           </h3>
@@ -293,7 +293,7 @@ export default function PilotDetailPage() {
         </Card>
 
         {/* Employment Information */}
-        <Card className="bg-white p-6">
+        <Card className="p-6">
           <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Employment Information
           </h3>
@@ -320,7 +320,7 @@ export default function PilotDetailPage() {
         </Card>
 
         {/* Personal Information */}
-        <Card className="bg-white p-6">
+        <Card className="p-6">
           <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Personal Information
           </h3>
@@ -345,7 +345,7 @@ export default function PilotDetailPage() {
         </Card>
 
         {/* Passport Information */}
-        <Card className="bg-white p-6">
+        <Card className="p-6">
           <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Passport Information
           </h3>
@@ -368,7 +368,7 @@ export default function PilotDetailPage() {
 
       {/* Captain Qualifications - Only show if Captain */}
       {pilot.role === 'Captain' && (
-        <Card className="bg-white p-6">
+        <Card className="p-6">
           <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Captain Qualifications
           </h3>
@@ -390,7 +390,7 @@ export default function PilotDetailPage() {
       )}
 
       {/* System Information */}
-      <Card className="bg-white p-6">
+      <Card className="p-6">
         <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
           System Information
         </h3>

@@ -94,7 +94,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Admin Users Section */}
-      <Card className="bg-white p-6">
+      <Card className="p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">Admin & Manager Users</h3>
         <div className="overflow-x-auto">
           <table className="divide-border min-w-full divide-y">
@@ -114,7 +114,7 @@ export default async function AdminPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-border divide-y bg-white">
+            <tbody className="divide-border divide-y">
               {users.map((user) => (
                 <tr key={user.id} className="hover:bg-muted/50">
                   <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
@@ -146,7 +146,7 @@ export default async function AdminPage() {
       </Card>
 
       {/* Check Types by Category */}
-      <Card className="bg-white p-6">
+      <Card className="p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">
           Check Types Configuration ({checkTypes.length} total)
         </h3>
@@ -183,7 +183,7 @@ export default async function AdminPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-border divide-y bg-white">
+            <tbody className="divide-border divide-y">
               {checkTypes.slice(0, 15).map((checkType) => (
                 <tr key={checkType.id} className="hover:bg-muted/50">
                   <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
@@ -209,7 +209,7 @@ export default async function AdminPage() {
       </Card>
 
       {/* System Settings */}
-      <Card className="bg-white p-6">
+      <Card className="p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">System Settings</h3>
         <div className="space-y-4">
           {settings.map((setting) => (
@@ -221,7 +221,7 @@ export default async function AdminPage() {
                     <p className="text-muted-foreground mt-1 text-sm">{setting.description}</p>
                   )}
                   <div className="mt-2">
-                    <pre className="border-border text-card-foreground overflow-x-auto rounded border bg-white p-2 text-xs">
+                    <pre className="border-border bg-muted text-card-foreground overflow-x-auto rounded border p-2 text-xs">
                       {JSON.stringify(setting.value, null, 2)}
                     </pre>
                   </div>
@@ -239,7 +239,7 @@ export default async function AdminPage() {
       </Card>
 
       {/* Contract Types */}
-      <Card className="bg-white p-6">
+      <Card className="p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">Contract Types</h3>
         <div className="overflow-x-auto">
           <table className="divide-border min-w-full divide-y">
@@ -259,7 +259,7 @@ export default async function AdminPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-border divide-y bg-white">
+            <tbody className="divide-border divide-y">
               {contractTypes.map((contract) => (
                 <tr key={contract.id} className="hover:bg-muted/50">
                   <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">

@@ -33,7 +33,7 @@ export default async function PilotPortalPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -74,7 +74,7 @@ export default async function PilotPortalPage() {
 
         {/* Features Grid */}
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">📋</div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Manage Certifications</h3>
             <p className="text-muted-foreground text-sm">
@@ -82,7 +82,7 @@ export default async function PilotPortalPage() {
             </p>
           </Card>
 
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">📅</div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Submit Leave Requests</h3>
             <p className="text-muted-foreground text-sm">
@@ -90,7 +90,7 @@ export default async function PilotPortalPage() {
             </p>
           </Card>
 
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">✈️</div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Flight Requests</h3>
             <p className="text-muted-foreground text-sm">
@@ -98,7 +98,7 @@ export default async function PilotPortalPage() {
             </p>
           </Card>
 
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">📊</div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Personal Dashboard</h3>
             <p className="text-muted-foreground text-sm">
@@ -106,7 +106,7 @@ export default async function PilotPortalPage() {
             </p>
           </Card>
 
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">💬</div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Feedback & Discussion</h3>
             <p className="text-muted-foreground text-sm">
@@ -114,7 +114,7 @@ export default async function PilotPortalPage() {
             </p>
           </Card>
 
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">🔔</div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Real-time Notifications</h3>
             <p className="text-muted-foreground text-sm">
@@ -160,7 +160,7 @@ export default async function PilotPortalPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-20 border-t bg-white/50">
+      <footer className="bg-card/50 mt-20 border-t">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="text-muted-foreground text-center text-sm">
             <p>&copy; 2025 Air Niugini B767 Fleet Management. All rights reserved.</p>

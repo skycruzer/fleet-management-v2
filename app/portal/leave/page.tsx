@@ -47,7 +47,7 @@ export default async function LeaveRequestsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
@@ -73,7 +73,7 @@ export default async function LeaveRequestsPage() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Statistics Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <Card className="bg-white p-6">
+          <Card className="p-6">
             <p className="text-muted-foreground text-sm font-medium">Total Requests</p>
             <p className="text-foreground mt-2 text-3xl font-bold">{stats.total}</p>
           </Card>
@@ -92,7 +92,7 @@ export default async function LeaveRequestsPage() {
         </div>
 
         {/* Leave Requests Table */}
-        <Card className="bg-white p-6">
+        <Card className="p-6">
           <h2 className="text-foreground mb-4 text-lg font-semibold">All Leave Requests</h2>
 
           {leaveRequests.length === 0 ? (
@@ -134,7 +134,7 @@ export default async function LeaveRequestsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-border divide-y bg-white">
+                <tbody className="divide-border divide-y">
                   {leaveRequests.map((request) => (
                     <tr key={request.id} className="hover:bg-muted/50">
                       <td className="px-4 py-4 whitespace-nowrap">

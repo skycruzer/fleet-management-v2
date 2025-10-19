@@ -41,7 +41,7 @@ export default async function PilotDashboardPage() {
   if (!pilotUser.registration_approved) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6">
-        <Card className="max-w-md bg-white p-8 text-center">
+        <Card className="max-w-md p-8 text-center">
           <div className="mb-4 text-6xl">⏳</div>
           <h2 className="text-foreground mb-2 text-2xl font-bold">Registration Pending</h2>
           <p className="text-muted-foreground mb-4">
@@ -78,7 +78,7 @@ export default async function PilotDashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -113,7 +113,7 @@ export default async function PilotDashboardPage() {
         {/* Statistics Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {/* Leave Requests Stats */}
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-4xl">📅</span>
               <span className="text-sm font-medium text-blue-600">
@@ -130,7 +130,7 @@ export default async function PilotDashboardPage() {
           </Card>
 
           {/* Certifications Stats */}
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-4xl">📋</span>
               {stats.expiringCertifications > 0 && (
@@ -152,7 +152,7 @@ export default async function PilotDashboardPage() {
           </Card>
 
           {/* Flight Requests Stats */}
-          <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
+          <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-4xl">✈️</span>
             </div>
@@ -227,7 +227,7 @@ export default async function PilotDashboardPage() {
         )}
 
         {/* Quick Actions */}
-        <Card className="mb-8 bg-white p-6">
+        <Card className="mb-8 p-6">
           <h3 className="text-foreground mb-4 text-lg font-semibold">Quick Actions</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <Link href="/portal/leave/new">
@@ -257,7 +257,7 @@ export default async function PilotDashboardPage() {
         {/* Recent Activity */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Recent Leave Requests */}
-          <Card className="bg-white p-6">
+          <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-foreground text-lg font-semibold">Recent Leave Requests</h3>
               <Link href="/portal/leave">
@@ -311,7 +311,7 @@ export default async function PilotDashboardPage() {
           </Card>
 
           {/* Recent Flight Requests */}
-          <Card className="bg-white p-6">
+          <Card className="p-6">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-foreground text-lg font-semibold">Recent Flight Requests</h3>
               <Link href="/portal/flights">
@@ -381,7 +381,7 @@ export default async function PilotDashboardPage() {
                 >
                   fleet@airniugini.com.pg
                 </a>
-                <span className="text-gray-400">•</span>
+                <span className="text-muted-foreground">•</span>
                 <Link href="/portal/feedback" className="text-sm text-blue-600 hover:underline">
                   Submit Feedback
                 </Link>
@@ -392,7 +392,7 @@ export default async function PilotDashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 border-t bg-white/50">
+      <footer className="bg-card/50 mt-12 border-t">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="text-muted-foreground text-center text-sm">
             <p>&copy; 2025 Air Niugini B767 Fleet Management. All rights reserved.</p>

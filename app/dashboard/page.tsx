@@ -183,7 +183,7 @@ function MetricCard({
     purple: 'bg-purple-50 border-purple-200',
     green: 'bg-green-50 border-green-200',
     yellow: 'bg-yellow-50 border-yellow-200',
-    red: 'bg-red-50 border-red-200',
+    red: 'bg-red-50 border-destructive/20',
   }
 
   return (
@@ -214,7 +214,7 @@ function CertificationCard({
   icon: string
 }) {
   const colorClasses = {
-    red: 'bg-red-50 border-red-200',
+    red: 'bg-red-50 border-destructive/20',
     yellow: 'bg-yellow-50 border-yellow-200',
     green: 'bg-green-50 border-green-200',
   }
@@ -247,7 +247,7 @@ function ActionCard({
   return (
     <a
       href={href}
-      className="border-border block rounded-lg border bg-white p-6 transition-all hover:border-blue-300 hover:shadow-md"
+      className="border-border block rounded-lg border p-6 transition-all hover:border-blue-300 hover:shadow-md"
     >
       <div className="flex items-start space-x-3">
         <span className="text-2xl">{icon}</span>
