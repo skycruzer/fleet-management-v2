@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Color palette for Fleet Management */
@@ -46,48 +46,6 @@
   --radius-xl: 0.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  @theme {
-    /* Dark mode color palette */
-    --color-primary: #38bdf8;
-    --color-primary-foreground: #020617;
-
-    --color-secondary: #475569;
-    --color-secondary-foreground: #f8fafc;
-
-    --color-accent: #a78bfa;
-    --color-accent-foreground: #020617;
-
-    --color-destructive: #dc2626;
-    --color-destructive-foreground: #f8fafc;
-
-    --color-success: #16a34a;
-    --color-success-foreground: #f8fafc;
-
-    --color-warning: #d97706;
-    --color-warning-foreground: #f8fafc;
-
-    /* Dark mode backgrounds */
-    --color-background: #020617;
-    --color-foreground: #f8fafc;
-
-    --color-card: #0f172a;
-    --color-card-foreground: #f8fafc;
-
-    --color-popover: #0f172a;
-    --color-popover-foreground: #f8fafc;
-
-    /* Dark mode borders */
-    --color-border: #1e293b;
-    --color-input: #1e293b;
-    --color-ring: #38bdf8;
-
-    /* Dark mode muted */
-    --color-muted: #1e293b;
-    --color-muted-foreground: #94a3b8;
-  }
-}
-
 /* Base styles */
 @layer base {
   * {
@@ -96,10 +54,17 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold tracking-tight;
   }
 
@@ -124,7 +89,7 @@
 @layer components {
   .btn {
     @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors;
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    @apply focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none;
     @apply disabled:pointer-events-none disabled:opacity-50;
   }
 
@@ -145,13 +110,13 @@
   }
 
   .card {
-    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    @apply bg-card text-card-foreground rounded-lg border shadow-sm;
   }
 
   .input {
-    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm;
+    @apply border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-sm;
     @apply ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium;
-    @apply placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2;
+    @apply placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:outline-none;
     @apply focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
 }
