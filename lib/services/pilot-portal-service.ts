@@ -263,45 +263,37 @@ export async function getPilotDashboardStats(pilotUserId: string): Promise<Pilot
 
 /**
  * Get all leave requests for current pilot
- * CACHED: 10 minutes (leave requests update moderately)
+ * NOT CACHED: Uses cookies via createClient (Next.js 15 restriction)
  */
-export const getPilotLeaveRequests = (pilotUserId: string) =>
-  unstable_cache(
-    async (): Promise<PilotLeaveRequest[]> => {
-      try {
-        const supabase = await createClient()
+export async function getPilotLeaveRequests(pilotUserId: string): Promise<PilotLeaveRequest[]> {
+  try {
+    const supabase = await createClient()
 
-        const { data, error } = await supabase
-          .from('leave_requests')
-          .select('*')
-          .eq('pilot_user_id', pilotUserId)
-          .order('created_at', { ascending: false })
+    const { data, error } = await supabase
+      .from('leave_requests')
+      .select('*')
+      .eq('pilot_user_id', pilotUserId)
+      .order('created_at', { ascending: false })
 
-        if (error) {
-          // Log error type only, no user IDs or leave data
-          console.error('Error fetching leave requests:', {
-            errorCode: error.code,
-            errorMessage: error.message,
-          })
-          throw new Error(`Failed to fetch leave requests: ${error.message}`)
-        }
-
-        return data || []
-      } catch (error) {
-        // Log error type only, no user data
-        console.error('Error in getPilotLeaveRequests:', {
-          errorType: error instanceof Error ? error.name : 'Unknown',
-          errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        })
-        throw error
-      }
-    },
-    [`pilot-leave-requests-${pilotUserId}`],
-    {
-      revalidate: 600, // 10 minutes
-      tags: ['leave-requests', `leave-requests-${pilotUserId}`],
+    if (error) {
+      // Log error type only, no user IDs or leave data
+      console.error('Error fetching leave requests:', {
+        errorCode: error.code,
+        errorMessage: error.message,
+      })
+      throw new Error(`Failed to fetch leave requests: ${error.message}`)
     }
-  )()
+
+    return data || []
+  } catch (error) {
+    // Log error type only, no user data
+    console.error('Error in getPilotLeaveRequests:', {
+      errorType: error instanceof Error ? error.name : 'Unknown',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    })
+    throw error
+  }
+}
 
 /**
  * Submit a new leave request (using transaction-wrapped database function)
@@ -364,45 +356,37 @@ export async function submitLeaveRequest(
 
 /**
  * Get all flight requests for current pilot
- * CACHED: 10 minutes (flight requests update moderately)
+ * NOT CACHED: Uses cookies via createClient (Next.js 15 restriction)
  */
-export const getPilotFlightRequests = (pilotUserId: string) =>
-  unstable_cache(
-    async (): Promise<PilotFlightRequest[]> => {
-      try {
-        const supabase = await createClient()
+export async function getPilotFlightRequests(pilotUserId: string): Promise<PilotFlightRequest[]> {
+  try {
+    const supabase = await createClient()
 
-        const { data, error } = await supabase
-          .from('flight_requests')
-          .select('*')
-          .eq('pilot_user_id', pilotUserId)
-          .order('created_at', { ascending: false })
+    const { data, error } = await supabase
+      .from('flight_requests')
+      .select('*')
+      .eq('pilot_user_id', pilotUserId)
+      .order('created_at', { ascending: false })
 
-        if (error) {
-          // Log error type only, no user IDs or flight data
-          console.error('Error fetching flight requests:', {
-            errorCode: error.code,
-            errorMessage: error.message,
-          })
-          throw new Error(`Failed to fetch flight requests: ${error.message}`)
-        }
-
-        return (data || []) as unknown as PilotFlightRequest[]
-      } catch (error) {
-        // Log error type only, no user data
-        console.error('Error in getPilotFlightRequests:', {
-          errorType: error instanceof Error ? error.name : 'Unknown',
-          errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        })
-        throw error
-      }
-    },
-    [`pilot-flight-requests-${pilotUserId}`],
-    {
-      revalidate: 600, // 10 minutes
-      tags: ['flight-requests', `flight-requests-${pilotUserId}`],
+    if (error) {
+      // Log error type only, no user IDs or flight data
+      console.error('Error fetching flight requests:', {
+        errorCode: error.code,
+        errorMessage: error.message,
+      })
+      throw new Error(`Failed to fetch flight requests: ${error.message}`)
     }
-  )()
+
+    return (data || []) as unknown as PilotFlightRequest[]
+  } catch (error) {
+    // Log error type only, no user data
+    console.error('Error in getPilotFlightRequests:', {
+      errorType: error instanceof Error ? error.name : 'Unknown',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    })
+    throw error
+  }
+}
 
 /**
  * Submit a new flight request (using transaction-wrapped database function)
