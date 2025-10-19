@@ -3,6 +3,8 @@
  * System configuration and administrative settings
  */
 
+export const dynamic = 'force-dynamic'
+
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -36,7 +38,9 @@ export default async function AdminPage() {
           <p className="mt-1 text-gray-600">System configuration and user management</p>
         </div>
         <Link href="/dashboard/admin/users/new">
-          <Button className="bg-blue-600 text-white hover:bg-blue-700">Add User</Button>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            Add User
+          </Button>
         </Link>
       </div>
 
@@ -52,7 +56,7 @@ export default async function AdminPage() {
           </div>
         </Card>
 
-        <Card className="border-blue-200 bg-blue-50 p-6">
+        <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">👥</span>
             <div>
@@ -122,7 +126,7 @@ export default async function AdminPage() {
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         user.role === 'admin'
                           ? 'bg-purple-100 text-purple-800'
-                          : 'bg-blue-100 text-blue-800'
+                          : 'bg-primary/10 text-primary'
                       }`}
                     >
                       {user.role.toUpperCase()}

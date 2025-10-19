@@ -67,7 +67,7 @@ export default function NewUserPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Add New User</h2>
-          <p className="text-gray-600 mt-1">Create a new system user account</p>
+          <p className="mt-1 text-gray-600">Create a new system user account</p>
         </div>
         <Link href="/dashboard/admin/users">
           <Button variant="outline">← Back to Users</Button>
@@ -79,18 +79,16 @@ export default function NewUserPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
           {/* User Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              User Information
-            </h3>
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">User Information</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Full Name */}
               <div className="space-y-2 md:col-span-1">
                 <Label htmlFor="name">
@@ -127,9 +125,7 @@ export default function NewUserPage() {
 
           {/* Role Assignment Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              Role Assignment
-            </h3>
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Role Assignment</h3>
 
             <div className="space-y-2">
               <Label htmlFor="role">
@@ -138,7 +134,7 @@ export default function NewUserPage() {
               <select
                 id="role"
                 {...register('role')}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                   errors.role ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
@@ -150,25 +146,25 @@ export default function NewUserPage() {
             </div>
 
             {/* Role Descriptions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
               <p className="text-sm font-medium text-gray-900">Role Permissions:</p>
-              <ul className="text-sm text-gray-700 space-y-2">
+              <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-start space-x-2">
-                  <span className="text-blue-600 font-bold">•</span>
+                  <span className="font-bold text-blue-600">•</span>
                   <div>
-                    <span className="font-medium">User:</span> View pilot data, certifications,
-                    and leave requests. Cannot make changes.
+                    <span className="font-medium">User:</span> View pilot data, certifications, and
+                    leave requests. Cannot make changes.
                   </div>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-blue-600 font-bold">•</span>
+                  <span className="font-bold text-blue-600">•</span>
                   <div>
                     <span className="font-medium">Manager:</span> All User permissions, plus
                     approve/deny leave requests and submit forms.
                   </div>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="text-blue-600 font-bold">•</span>
+                  <span className="font-bold text-blue-600">•</span>
                   <div>
                     <span className="font-medium">Admin:</span> Full system access, including user
                     management, pilot CRUD, and system configuration.
@@ -179,7 +175,7 @@ export default function NewUserPage() {
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+          <div className="flex items-center justify-end space-x-4 border-t pt-6">
             <Link href="/dashboard/admin/users">
               <Button type="button" variant="outline" disabled={isSubmitting}>
                 Cancel
@@ -188,7 +184,7 @@ export default function NewUserPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
@@ -204,12 +200,12 @@ export default function NewUserPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="p-4 bg-yellow-50 border-yellow-200">
+      <Card className="border-yellow-200 bg-yellow-50 p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">⚠️</span>
           <div className="space-y-1">
             <p className="text-sm font-medium text-gray-900">Important Notes</p>
-            <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+            <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
               <li>Email addresses must be unique in the system</li>
               <li>Users will need to set their password through the authentication system</li>
               <li>Admin role should only be assigned to trusted personnel</li>

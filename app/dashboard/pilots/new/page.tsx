@@ -71,7 +71,7 @@ export default function NewPilotPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Add New Pilot</h2>
-          <p className="text-gray-600 mt-1">Create a new pilot profile</p>
+          <p className="mt-1 text-gray-600">Create a new pilot profile</p>
         </div>
         <Link href="/dashboard/pilots">
           <Button variant="outline">← Back to Pilots</Button>
@@ -83,18 +83,16 @@ export default function NewPilotPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
           {/* Basic Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              Basic Information
-            </h3>
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Basic Information</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Employee ID */}
               <div className="space-y-2">
                 <Label htmlFor="employee_id">
@@ -121,7 +119,7 @@ export default function NewPilotPage() {
                 <select
                   id="role"
                   {...register('role')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     errors.role ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
@@ -132,7 +130,7 @@ export default function NewPilotPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* First Name */}
               <div className="space-y-2">
                 <Label htmlFor="first_name">
@@ -186,18 +184,18 @@ export default function NewPilotPage() {
 
           {/* Employment Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
               Employment Information
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* Contract Type */}
               <div className="space-y-2">
                 <Label htmlFor="contract_type">Contract Type</Label>
                 <select
                   id="contract_type"
                   {...register('contract_type')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="">Select contract type...</option>
                   <option value="Fixed Term">Fixed Term</option>
@@ -224,27 +222,27 @@ export default function NewPilotPage() {
               {/* Active Status */}
               <div className="space-y-2">
                 <Label htmlFor="is_active">Employment Status</Label>
-                <div className="flex items-center space-x-4 h-10">
-                  <label className="flex items-center space-x-2 cursor-pointer">
+                <div className="flex h-10 items-center space-x-4">
+                  <label className="flex cursor-pointer items-center space-x-2">
                     <input
                       type="radio"
                       value="true"
                       {...register('is_active', {
-                        setValueAs: (v) => v === 'true'
+                        setValueAs: (v) => v === 'true',
                       })}
                       defaultChecked
-                      className="w-4 h-4 text-blue-600"
+                      className="h-4 w-4 text-blue-600"
                     />
                     <span className="text-sm font-medium text-gray-700">Active</span>
                   </label>
-                  <label className="flex items-center space-x-2 cursor-pointer">
+                  <label className="flex cursor-pointer items-center space-x-2">
                     <input
                       type="radio"
                       value="false"
                       {...register('is_active', {
-                        setValueAs: (v) => v === 'true'
+                        setValueAs: (v) => v === 'true',
                       })}
-                      className="w-4 h-4 text-blue-600"
+                      className="h-4 w-4 text-blue-600"
                     />
                     <span className="text-sm font-medium text-gray-700">Inactive</span>
                   </label>
@@ -255,11 +253,11 @@ export default function NewPilotPage() {
 
           {/* Personal Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
               Personal Information
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Date of Birth */}
               <div className="space-y-2">
                 <Label htmlFor="date_of_birth">Date of Birth</Label>
@@ -294,11 +292,11 @@ export default function NewPilotPage() {
 
           {/* Passport Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
               Passport Information
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Passport Number */}
               <div className="space-y-2">
                 <Label htmlFor="passport_number">Passport Number</Label>
@@ -327,9 +325,7 @@ export default function NewPilotPage() {
                 {errors.passport_expiry && (
                   <p className="text-sm text-red-600">{errors.passport_expiry.message}</p>
                 )}
-                <p className="text-xs text-gray-500">
-                  Required if passport number is provided
-                </p>
+                <p className="text-xs text-gray-500">Required if passport number is provided</p>
               </div>
             </div>
           </div>
@@ -337,7 +333,7 @@ export default function NewPilotPage() {
           {/* Captain Qualifications Section - Only show if Captain */}
           {selectedRole === 'Captain' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+              <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
                 Captain Qualifications
               </h3>
 
@@ -348,7 +344,7 @@ export default function NewPilotPage() {
                     id="qual_line_captain"
                     value="line_captain"
                     {...register('captain_qualifications')}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
                   />
                   <Label htmlFor="qual_line_captain" className="cursor-pointer">
                     Line Captain
@@ -361,7 +357,7 @@ export default function NewPilotPage() {
                     id="qual_training_captain"
                     value="training_captain"
                     {...register('captain_qualifications')}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
                   />
                   <Label htmlFor="qual_training_captain" className="cursor-pointer">
                     Training Captain
@@ -374,7 +370,7 @@ export default function NewPilotPage() {
                     id="qual_examiner"
                     value="examiner"
                     {...register('captain_qualifications')}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
                   />
                   <Label htmlFor="qual_examiner" className="cursor-pointer">
                     Examiner
@@ -389,7 +385,7 @@ export default function NewPilotPage() {
           )}
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+          <div className="flex items-center justify-end space-x-4 border-t pt-6">
             <Link href="/dashboard/pilots">
               <Button type="button" variant="outline" disabled={isSubmitting}>
                 Cancel
@@ -398,7 +394,7 @@ export default function NewPilotPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
@@ -414,13 +410,15 @@ export default function NewPilotPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="p-4 bg-blue-50 border-blue-200">
+      <Card className="bg-primary/5 border-primary/20 p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div className="space-y-1">
             <p className="text-sm font-medium text-gray-900">Form Tips</p>
-            <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-              <li>Fields marked with <span className="text-red-500">*</span> are required</li>
+            <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
+              <li>
+                Fields marked with <span className="text-red-500">*</span> are required
+              </li>
               <li>Employee ID must be exactly 6 digits</li>
               <li>Seniority number will be calculated automatically from commencement date</li>
               <li>Captain qualifications are only available for Captains</li>

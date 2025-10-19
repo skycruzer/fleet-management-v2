@@ -4,6 +4,8 @@
  * Individual widgets wrapped with ErrorBoundary for resilience
  */
 
+export const dynamic = 'force-dynamic'
+
 import { Card } from '@/components/ui/card'
 import { getDashboardMetrics } from '@/lib/services/dashboard-service'
 import { getExpiringCertifications } from '@/lib/services/expiring-certifications-service'
@@ -173,7 +175,7 @@ function MetricCard({
   color: 'blue' | 'purple' | 'green' | 'yellow' | 'red'
 }) {
   const colorClasses = {
-    blue: 'bg-blue-50 border-blue-200',
+    blue: 'bg-primary/5 border-primary/20',
     purple: 'bg-purple-50 border-purple-200',
     green: 'bg-green-50 border-green-200',
     yellow: 'bg-yellow-50 border-yellow-200',

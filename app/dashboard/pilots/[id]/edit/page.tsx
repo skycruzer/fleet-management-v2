@@ -519,7 +519,7 @@ export default function EditPilotPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 text-white hover:bg-blue-700"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
@@ -535,7 +535,7 @@ export default function EditPilotPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="border-blue-200 bg-blue-50 p-4">
+      <Card className="border-primary/20 bg-primary/5 p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div className="space-y-1">

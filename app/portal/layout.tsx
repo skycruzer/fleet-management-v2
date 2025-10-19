@@ -8,6 +8,8 @@ import { ErrorBoundary } from '@/components/error-boundary'
  * Wrapped with ErrorBoundary for graceful error handling
  */
 
+export const dynamic = 'force-dynamic'
+
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   // Check authentication - shared auth logic for all portal pages
   const pilotUser = await getCurrentPilotUser()

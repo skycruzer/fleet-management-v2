@@ -127,9 +127,7 @@ export default function PilotDetailPage() {
     if (!commencementDate) return 'N/A'
     const start = new Date(commencementDate)
     const today = new Date()
-    const years = Math.floor(
-      (today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
-    )
+    const years = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25))
     return `${years} years`
   }
 
@@ -171,7 +169,7 @@ export default function PilotDetailPage() {
           <div className="space-y-4">
             <span className="text-6xl">❌</span>
             <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Error</h3>
+              <h3 className="mb-2 text-xl font-bold text-gray-900">Error</h3>
               <p className="text-gray-600">{error || 'Pilot not found'}</p>
             </div>
             <Link href="/dashboard/pilots">
@@ -183,9 +181,7 @@ export default function PilotDetailPage() {
     )
   }
 
-  const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name]
-    .filter(Boolean)
-    .join(' ')
+  const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name].filter(Boolean).join(' ')
 
   return (
     <div className="space-y-6">
@@ -195,16 +191,14 @@ export default function PilotDetailPage() {
           <div className="flex items-center space-x-3">
             <h2 className="text-2xl font-bold text-gray-900">{fullName}</h2>
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                pilot.is_active
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-gray-100 text-gray-800'
+              className={`rounded-full px-3 py-1 text-sm font-medium ${
+                pilot.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
               }`}
             >
               {pilot.is_active ? 'Active' : 'Inactive'}
             </span>
           </div>
-          <p className="text-gray-600 mt-1">
+          <p className="mt-1 text-gray-600">
             {pilot.role} • Employee ID: {pilot.employee_id}
             {pilot.seniority_number && ` • Seniority #${pilot.seniority_number}`}
           </p>
@@ -214,13 +208,13 @@ export default function PilotDetailPage() {
             <Button variant="outline">← Back to Pilots</Button>
           </Link>
           <Link href={`/dashboard/pilots/${pilot.id}/edit`}>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">Edit Pilot</Button>
+            <Button className="bg-primary hover:bg-primary/90 text-white">Edit Pilot</Button>
           </Link>
           <Button
             variant="outline"
             onClick={handleDelete}
             disabled={deleting}
-            className="text-red-600 hover:bg-red-50 border-red-200"
+            className="border-red-200 text-red-600 hover:bg-red-50"
           >
             {deleting ? 'Deleting...' : 'Delete'}
           </Button>
@@ -228,8 +222,8 @@ export default function PilotDetailPage() {
       </div>
 
       {/* Certification Status Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 bg-green-50 border-green-200">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <Card className="border-green-200 bg-green-50 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
@@ -240,7 +234,7 @@ export default function PilotDetailPage() {
             </div>
           </div>
         </Card>
-        <Card className="p-6 bg-yellow-50 border-yellow-200">
+        <Card className="border-yellow-200 bg-yellow-50 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">⚠️</span>
             <div>
@@ -251,7 +245,7 @@ export default function PilotDetailPage() {
             </div>
           </div>
         </Card>
-        <Card className="p-6 bg-red-50 border-red-200">
+        <Card className="border-red-200 bg-red-50 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">❌</span>
             <div>
@@ -264,10 +258,10 @@ export default function PilotDetailPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Basic Information */}
-        <Card className="p-6 bg-white">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+        <Card className="bg-white p-6">
+          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
             Basic Information
           </h3>
           <div className="space-y-3">
@@ -299,8 +293,8 @@ export default function PilotDetailPage() {
         </Card>
 
         {/* Employment Information */}
-        <Card className="p-6 bg-white">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+        <Card className="bg-white p-6">
+          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
             Employment Information
           </h3>
           <div className="space-y-3">
@@ -326,22 +320,18 @@ export default function PilotDetailPage() {
         </Card>
 
         {/* Personal Information */}
-        <Card className="p-6 bg-white">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+        <Card className="bg-white p-6">
+          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
             Personal Information
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600">Date of Birth:</span>
-              <span className="font-medium text-gray-900">
-                {formatDate(pilot.date_of_birth)}
-              </span>
+              <span className="font-medium text-gray-900">{formatDate(pilot.date_of_birth)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Age:</span>
-              <span className="font-medium text-gray-900">
-                {calculateAge(pilot.date_of_birth)}
-              </span>
+              <span className="font-medium text-gray-900">{calculateAge(pilot.date_of_birth)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Nationality:</span>
@@ -353,8 +343,8 @@ export default function PilotDetailPage() {
         </Card>
 
         {/* Passport Information */}
-        <Card className="p-6 bg-white">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+        <Card className="bg-white p-6">
+          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
             Passport Information
           </h3>
           <div className="space-y-3">
@@ -366,9 +356,7 @@ export default function PilotDetailPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Passport Expiry:</span>
-              <span className="font-medium text-gray-900">
-                {formatDate(pilot.passport_expiry)}
-              </span>
+              <span className="font-medium text-gray-900">{formatDate(pilot.passport_expiry)}</span>
             </div>
           </div>
         </Card>
@@ -376,8 +364,8 @@ export default function PilotDetailPage() {
 
       {/* Captain Qualifications - Only show if Captain */}
       {pilot.role === 'Captain' && (
-        <Card className="p-6 bg-white">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+        <Card className="bg-white p-6">
+          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
             Captain Qualifications
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -385,7 +373,7 @@ export default function PilotDetailPage() {
               parseCaptainQualifications(pilot.captain_qualifications).map((qual, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                  className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-medium"
                 >
                   {qual}
                 </span>
@@ -398,22 +386,18 @@ export default function PilotDetailPage() {
       )}
 
       {/* System Information */}
-      <Card className="p-6 bg-white">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+      <Card className="bg-white p-6">
+        <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
           System Information
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
           <div className="flex justify-between">
             <span className="text-gray-600">Created:</span>
-            <span className="font-medium text-gray-900">
-              {formatDate(pilot.created_at)}
-            </span>
+            <span className="font-medium text-gray-900">{formatDate(pilot.created_at)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Last Updated:</span>
-            <span className="font-medium text-gray-900">
-              {formatDate(pilot.updated_at)}
-            </span>
+            <span className="font-medium text-gray-900">{formatDate(pilot.updated_at)}</span>
           </div>
         </div>
       </Card>

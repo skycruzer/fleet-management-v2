@@ -42,14 +42,24 @@ const envSchema = z.object({
 
 /**
  * Validates environment variables against the schema.
- * Only runs on the server side to avoid client-side validation errors.
+ * Skips validation during build phase and on client side.
+ * Validates strictly at runtime to ensure proper configuration.
  *
- * @throws {z.ZodError} If validation fails, with detailed error messages
+ * @throws {z.ZodError} If validation fails at runtime, with detailed error messages
  * @returns Validated and type-safe environment variables
  */
 function validateEnv() {
   // Skip validation on client side - client only has access to NEXT_PUBLIC_* vars
   if (typeof window !== 'undefined') {
+    return process.env as unknown as z.infer<typeof envSchema>
+  }
+
+  // Skip validation during build phase - env vars may not be available yet
+  // They will be available at runtime in production
+  if (
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    process.env.NEXT_PHASE === 'phase-export'
+  ) {
     return process.env as unknown as z.infer<typeof envSchema>
   }
 

@@ -48,11 +48,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 p-4">
-      <Card className="w-full max-w-md p-8 space-y-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 p-4">
+      <Card className="w-full max-w-md space-y-6 p-8">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center mb-4">
+        <div className="space-y-2 text-center">
+          <div className="mb-4 flex items-center justify-center">
             <span className="text-4xl">✈️</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Fleet Management V2</h1>
@@ -90,7 +90,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <div className="rounded-md border border-red-200 bg-red-50 p-3">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
@@ -98,22 +98,18 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-primary hover:bg-primary/90 w-full text-white"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
 
         {/* Test Credentials Helper */}
-        <div className="pt-4 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center mb-2">Test Credentials:</p>
-          <div className="bg-gray-50 p-3 rounded-md space-y-1">
-            <p className="text-xs text-gray-600 font-mono">
-              Email: mrondeau@airniugini.com.pg
-            </p>
-            <p className="text-xs text-gray-600 font-mono">
-              Password: test123
-            </p>
+        <div className="border-t border-gray-200 pt-4">
+          <p className="mb-2 text-center text-xs text-gray-500">Test Credentials:</p>
+          <div className="space-y-1 rounded-md bg-gray-50 p-3">
+            <p className="font-mono text-xs text-gray-600">Email: mrondeau@airniugini.com.pg</p>
+            <p className="font-mono text-xs text-gray-600">Password: test123</p>
           </div>
         </div>
 

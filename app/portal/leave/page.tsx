@@ -3,6 +3,8 @@
  * View all leave requests for the current pilot
  */
 
+export const dynamic = 'force-dynamic'
+
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilotUser, getPilotLeaveRequests } from '@/lib/services/pilot-portal-service'
@@ -56,7 +58,7 @@ export default async function LeaveRequestsPage() {
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/portal/leave/new">
-                <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                   + New Leave Request
                 </Button>
               </Link>
@@ -75,7 +77,7 @@ export default async function LeaveRequestsPage() {
             <p className="text-sm font-medium text-gray-600">Total Requests</p>
             <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
           </Card>
-          <Card className="border-blue-200 bg-blue-50 p-6">
+          <Card className="border-primary/20 bg-primary/5 p-6">
             <p className="text-sm font-medium text-gray-600">Pending</p>
             <p className="mt-2 text-3xl font-bold text-blue-700">{stats.pending}</p>
           </Card>
@@ -102,7 +104,7 @@ export default async function LeaveRequestsPage() {
                 request.
               </p>
               <Link href="/portal/leave/new">
-                <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                   Submit Your First Leave Request
                 </Button>
               </Link>
@@ -156,7 +158,7 @@ export default async function LeaveRequestsPage() {
                             request.status === 'APPROVED'
                               ? 'bg-green-100 text-green-800'
                               : request.status === 'PENDING'
-                                ? 'bg-blue-100 text-blue-800'
+                                ? 'bg-primary/10 text-primary'
                                 : 'bg-red-100 text-red-800'
                           }`}
                         >

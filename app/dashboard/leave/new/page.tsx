@@ -146,7 +146,7 @@ export default function NewLeaveRequestPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Submit Leave Request</h2>
-          <p className="text-gray-600 mt-1">Request time off from your duty roster</p>
+          <p className="mt-1 text-gray-600">Request time off from your duty roster</p>
         </div>
         <Link href="/dashboard/leave">
           <Button variant="outline">← Back to Leave Requests</Button>
@@ -158,17 +158,15 @@ export default function NewLeaveRequestPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
           {/* Conflict Warning */}
           {conflicts.length > 0 && (
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm font-medium text-yellow-900 mb-2">
-                ⚠️ Date Conflict Detected
-              </p>
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+              <p className="mb-2 text-sm font-medium text-yellow-900">⚠️ Date Conflict Detected</p>
               <p className="text-sm text-yellow-700">
                 You have existing leave requests that overlap with these dates. Manager approval
                 required.
@@ -178,11 +176,9 @@ export default function NewLeaveRequestPage() {
 
           {/* Basic Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              Request Details
-            </h3>
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Request Details</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Pilot Selection */}
               <div className="space-y-2">
                 <Label htmlFor="pilot_id">
@@ -191,7 +187,7 @@ export default function NewLeaveRequestPage() {
                 <select
                   id="pilot_id"
                   {...register('pilot_id')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     errors.pilot_id ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
@@ -215,7 +211,7 @@ export default function NewLeaveRequestPage() {
                 <select
                   id="request_type"
                   {...register('request_type')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     errors.request_type ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
@@ -238,11 +234,9 @@ export default function NewLeaveRequestPage() {
 
           {/* Date Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              Date Information
-            </h3>
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Date Information</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* Start Date */}
               <div className="space-y-2">
                 <Label htmlFor="start_date">
@@ -270,13 +264,15 @@ export default function NewLeaveRequestPage() {
                   {...register('end_date')}
                   className={errors.end_date ? 'border-red-500' : ''}
                 />
-                {errors.end_date && <p className="text-sm text-red-600">{errors.end_date.message}</p>}
+                {errors.end_date && (
+                  <p className="text-sm text-red-600">{errors.end_date.message}</p>
+                )}
               </div>
 
               {/* Days Count (Display Only) */}
               <div className="space-y-2">
                 <Label>Days Requested</Label>
-                <div className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                <div className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2">
                   <span className="font-medium text-gray-900">
                     {startDate && endDate ? calculateDaysCount(startDate, endDate) : 0} days
                   </span>
@@ -284,7 +280,7 @@ export default function NewLeaveRequestPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Request Date */}
               <div className="space-y-2">
                 <Label htmlFor="request_date">
@@ -310,7 +306,7 @@ export default function NewLeaveRequestPage() {
                 <select
                   id="request_method"
                   {...register('request_method')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     errors.request_method ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
@@ -328,7 +324,7 @@ export default function NewLeaveRequestPage() {
 
           {/* Reason Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
               Additional Information
             </h3>
 
@@ -339,7 +335,7 @@ export default function NewLeaveRequestPage() {
                 {...register('reason')}
                 rows={4}
                 placeholder="Provide any additional details about this leave request..."
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                   errors.reason ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
@@ -349,7 +345,7 @@ export default function NewLeaveRequestPage() {
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+          <div className="flex items-center justify-end space-x-4 border-t pt-6">
             <Link href="/dashboard/leave">
               <Button type="button" variant="outline" disabled={isSubmitting}>
                 Cancel
@@ -358,7 +354,7 @@ export default function NewLeaveRequestPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
@@ -374,12 +370,12 @@ export default function NewLeaveRequestPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="p-4 bg-blue-50 border-blue-200">
+      <Card className="bg-primary/5 border-primary/20 p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div className="space-y-1">
             <p className="text-sm font-medium text-gray-900">Form Tips</p>
-            <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+            <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
               <li>Select your name, leave type, and date range</li>
               <li>End date must be after or equal to start date</li>
               <li>Requests with less than 21 days advance notice are marked as "late"</li>

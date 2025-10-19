@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { redirect } from 'next/navigation'
 import { getCurrentPilotUser, getFeedbackCategories } from '@/lib/services/pilot-portal-service'
 import { FeedbackForm } from '@/components/portal/feedback-form'
@@ -45,7 +47,7 @@ export default async function NewFeedbackPage() {
         </ErrorBoundary>
 
         {/* Info Box */}
-        <div className="mt-8 rounded-lg border border-blue-200 bg-blue-50 p-6">
+        <div className="border-primary/20 bg-primary/5 mt-8 rounded-lg border p-6">
           <div className="flex items-start space-x-3">
             <div className="text-2xl">💡</div>
             <div>

@@ -3,6 +3,8 @@
  * Track and manage pilot certifications
  */
 
+export const dynamic = 'force-dynamic'
+
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -36,7 +38,9 @@ export default async function CertificationsPage() {
           </p>
         </div>
         <Link href="/dashboard/certifications/new">
-          <Button className="bg-blue-600 text-white hover:bg-blue-700">Add Certification</Button>
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+            Add Certification
+          </Button>
         </Link>
       </div>
 

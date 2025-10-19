@@ -134,7 +134,7 @@ export default function NewCertificationPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Add New Certification</h2>
-          <p className="text-gray-600 mt-1">Record a new pilot certification</p>
+          <p className="mt-1 text-gray-600">Record a new pilot certification</p>
         </div>
         <Link href="/dashboard/certifications">
           <Button variant="outline">← Back to Certifications</Button>
@@ -146,18 +146,18 @@ export default function NewCertificationPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
           {/* Basic Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
               Certification Details
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Pilot Selection */}
               <div className="space-y-2">
                 <Label htmlFor="pilot_id">
@@ -166,7 +166,7 @@ export default function NewCertificationPage() {
                 <select
                   id="pilot_id"
                   {...register('pilot_id')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     errors.pilot_id ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
@@ -190,7 +190,7 @@ export default function NewCertificationPage() {
                 <select
                   id="check_type_id"
                   {...register('check_type_id')}
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                     errors.check_type_id ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
@@ -211,11 +211,9 @@ export default function NewCertificationPage() {
 
           {/* Date Information Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-              Date Information
-            </h3>
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Date Information</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* Completion Date */}
               <div className="space-y-2">
                 <Label htmlFor="completion_date">Completion Date</Label>
@@ -266,7 +264,7 @@ export default function NewCertificationPage() {
 
           {/* Notes Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
+            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
               Additional Information
             </h3>
 
@@ -277,19 +275,17 @@ export default function NewCertificationPage() {
                 {...register('notes')}
                 rows={4}
                 placeholder="Add any additional notes about this certification..."
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                   errors.notes ? 'border-red-500' : 'border-gray-300'
                 }`}
               />
-              {errors.notes && (
-                <p className="text-sm text-red-600">{errors.notes.message}</p>
-              )}
+              {errors.notes && <p className="text-sm text-red-600">{errors.notes.message}</p>}
               <p className="text-xs text-gray-500">Maximum 500 characters</p>
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+          <div className="flex items-center justify-end space-x-4 border-t pt-6">
             <Link href="/dashboard/certifications">
               <Button type="button" variant="outline" disabled={isSubmitting}>
                 Cancel
@@ -298,7 +294,7 @@ export default function NewCertificationPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
@@ -314,12 +310,12 @@ export default function NewCertificationPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="p-4 bg-blue-50 border-blue-200">
+      <Card className="bg-primary/5 border-primary/20 p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div className="space-y-1">
             <p className="text-sm font-medium text-gray-900">Form Tips</p>
-            <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+            <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
               <li>Both pilot and check type are required</li>
               <li>Completion date must be today or in the past</li>
               <li>Expiry date must be after the completion date</li>

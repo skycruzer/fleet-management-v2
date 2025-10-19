@@ -3,6 +3,8 @@
  * Allows pilots to submit leave requests (RDO, Annual, Sick, etc.)
  */
 
+export const dynamic = 'force-dynamic'
+
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilotUser } from '@/lib/services/pilot-portal-service'
@@ -55,7 +57,7 @@ export default async function NewLeaveRequestPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Info Card */}
-        <Card className="mb-6 border-blue-200 bg-blue-50 p-6">
+        <Card className="border-primary/20 bg-primary/5 mb-6 p-6">
           <div className="flex items-start space-x-4">
             <span className="text-3xl">ℹ️</span>
             <div>

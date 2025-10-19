@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  // Disable static optimization for database-dependent app
+  output: 'standalone',
+
   // Disable ESLint during builds (Storybook files have linting issues that don't affect production)
   eslint: {
     ignoreDuringBuilds: true,
