@@ -41,8 +41,8 @@ export default async function PilotPortalPage() {
                 <span className="text-lg font-bold text-white">FM</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">B767 Fleet Management</h1>
-                <p className="text-xs text-gray-600">Pilot Self-Service Portal</p>
+                <h1 className="text-foreground text-xl font-bold">B767 Fleet Management</h1>
+                <p className="text-muted-foreground text-xs">Pilot Self-Service Portal</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -60,13 +60,13 @@ export default async function PilotPortalPage() {
       {/* Hero Section */}
       <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-16 text-center">
-          <h2 className="mb-4 text-4xl font-bold text-gray-900 sm:text-5xl">
+          <h2 className="text-foreground mb-4 text-4xl font-bold sm:text-5xl">
             Welcome to Your{' '}
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Pilot Portal
             </span>
           </h2>
-          <p className="mx-auto max-w-2xl text-xl text-gray-600">
+          <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
             Manage your certifications, submit leave requests, and stay connected with fleet
             operations—all in one place.
           </p>
@@ -76,48 +76,48 @@ export default async function PilotPortalPage() {
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">📋</div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Manage Certifications</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-foreground mb-2 text-lg font-semibold">Manage Certifications</h3>
+            <p className="text-muted-foreground text-sm">
               View all your certifications, expiry dates, and receive alerts for upcoming renewals.
             </p>
           </Card>
 
           <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">📅</div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Submit Leave Requests</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-foreground mb-2 text-lg font-semibold">Submit Leave Requests</h3>
+            <p className="text-muted-foreground text-sm">
               Request RDO, annual leave, or other time off directly through the portal.
             </p>
           </Card>
 
           <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">✈️</div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Flight Requests</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-foreground mb-2 text-lg font-semibold">Flight Requests</h3>
+            <p className="text-muted-foreground text-sm">
               Submit requests for additional flights, route changes, or schedule preferences.
             </p>
           </Card>
 
           <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">📊</div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Personal Dashboard</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-foreground mb-2 text-lg font-semibold">Personal Dashboard</h3>
+            <p className="text-muted-foreground text-sm">
               Track your statistics, upcoming events, and important notifications at a glance.
             </p>
           </Card>
 
           <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">💬</div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Feedback & Discussion</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-foreground mb-2 text-lg font-semibold">Feedback & Discussion</h3>
+            <p className="text-muted-foreground text-sm">
               Share feedback, participate in discussions, and stay informed with fleet updates.
             </p>
           </Card>
 
           <Card className="bg-white p-6 transition-shadow hover:shadow-lg">
             <div className="mb-4 text-4xl">🔔</div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">Real-time Notifications</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-foreground mb-2 text-lg font-semibold">Real-time Notifications</h3>
+            <p className="text-muted-foreground text-sm">
               Get instant updates on request approvals, certification expiries, and announcements.
             </p>
           </Card>
@@ -150,7 +150,7 @@ export default async function PilotPortalPage() {
 
         {/* Info Section */}
         <div className="mt-12 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-muted-foreground text-sm">
             Need help? Contact fleet management at{' '}
             <a href="mailto:fleet@airniugini.com.pg" className="text-blue-600 hover:underline">
               fleet@airniugini.com.pg
@@ -162,7 +162,7 @@ export default async function PilotPortalPage() {
       {/* Footer */}
       <footer className="mt-20 border-t bg-white/50">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="text-center text-sm text-gray-600">
+          <div className="text-muted-foreground text-center text-sm">
             <p>&copy; 2025 Air Niugini B767 Fleet Management. All rights reserved.</p>
             <p className="mt-2">
               <Link href="/dashboard" className="text-blue-600 hover:underline">

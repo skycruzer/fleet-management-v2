@@ -43,8 +43,8 @@ export default async function NewLeaveRequestPage() {
         <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Submit Leave Request</h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <h1 className="text-foreground text-2xl font-bold">Submit Leave Request</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
                 {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
               </p>
             </div>
@@ -61,8 +61,8 @@ export default async function NewLeaveRequestPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">ℹ️</span>
             <div>
-              <h3 className="mb-2 font-semibold text-gray-900">Leave Request Guidelines</h3>
-              <ul className="space-y-1 text-sm text-gray-700">
+              <h3 className="text-foreground mb-2 font-semibold">Leave Request Guidelines</h3>
+              <ul className="text-card-foreground space-y-1 text-sm">
                 <li>• Leave requests must align with 28-day roster periods</li>
                 <li>• RDO requests should be submitted at least 7 days in advance</li>
                 <li>• Annual leave requires 14 days notice for approval consideration</li>
@@ -94,8 +94,8 @@ export default async function NewLeaveRequestPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">💡</span>
             <div>
-              <h3 className="mb-2 font-semibold text-gray-900">Need Help?</h3>
-              <p className="mb-3 text-sm text-gray-700">
+              <h3 className="text-foreground mb-2 font-semibold">Need Help?</h3>
+              <p className="text-card-foreground mb-3 text-sm">
                 If you have questions about leave eligibility, roster periods, or the approval
                 process:
               </p>

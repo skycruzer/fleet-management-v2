@@ -26,16 +26,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <ErrorBoundary>
-      <div className="flex h-screen bg-gray-50">
+      <div className="bg-muted/50 flex h-screen">
         {/* Sidebar */}
-        <aside className="flex w-64 flex-col border-r border-gray-200 bg-white">
+        <aside className="border-border flex w-64 flex-col border-r bg-white">
           {/* Logo */}
-          <div className="flex h-16 items-center border-b border-gray-200 px-6">
+          <div className="border-border flex h-16 items-center border-b px-6">
             <Link href="/dashboard" className="flex items-center space-x-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
                 <span className="text-sm font-bold text-white">FM</span>
               </div>
-              <span className="font-semibold text-gray-900">Fleet Mgmt</span>
+              <span className="text-foreground font-semibold">Fleet Mgmt</span>
             </Link>
           </div>
 
@@ -62,21 +62,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </nav>
 
           {/* User Info */}
-          <div className="border-t border-gray-200 p-4">
+          <div className="border-border border-t p-4">
             <div className="flex items-center space-x-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-300">
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-muted-foreground text-sm font-medium">
                   {user.email?.[0].toUpperCase()}
                 </span>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900">{user.email}</p>
+                <p className="text-foreground truncate text-sm font-medium">{user.email}</p>
                 <form action="/api/auth/signout" method="POST">
                   <Button
                     type="submit"
                     variant="ghost"
                     size="sm"
-                    className="h-6 px-0 text-xs text-gray-500 hover:text-gray-700"
+                    className="text-muted-foreground hover:text-card-foreground h-6 px-0 text-xs"
                   >
                     Sign out
                   </Button>
@@ -89,12 +89,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {/* Main Content */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Header */}
-          <header className="flex h-16 items-center border-b border-gray-200 bg-white px-6">
-            <h1 className="text-lg font-semibold text-gray-900">B767 Fleet Management</h1>
+          <header className="border-border flex h-16 items-center border-b bg-white px-6">
+            <h1 className="text-foreground text-lg font-semibold">B767 Fleet Management</h1>
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto bg-gray-50 p-6">{children}</main>
+          <main className="bg-muted/50 flex-1 overflow-y-auto p-6">{children}</main>
         </div>
       </div>
     </ErrorBoundary>
@@ -113,7 +113,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="flex items-center space-x-3 rounded-lg px-3 py-2 text-gray-700 transition-colors hover:bg-gray-100 hover:text-gray-900"
+      className="text-card-foreground hover:bg-muted hover:text-foreground flex items-center space-x-3 rounded-lg px-3 py-2 transition-colors"
     >
       <span className="text-lg">{icon}</span>
       <span className="text-sm font-medium">{children}</span>

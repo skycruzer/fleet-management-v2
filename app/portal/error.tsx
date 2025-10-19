@@ -23,15 +23,15 @@ export default function PortalError({
   }, [error])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4">
-      <div className="max-w-lg w-full">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
+      <div className="w-full max-w-lg">
         {/* Error Card */}
-        <div className="bg-white rounded-lg shadow-lg border border-red-200 p-8">
+        <div className="rounded-lg border border-red-200 bg-white p-8 shadow-lg">
           {/* Icon */}
-          <div className="flex justify-center mb-4">
-            <div className="bg-red-100 rounded-full p-4">
+          <div className="mb-4 flex justify-center">
+            <div className="rounded-full bg-red-100 p-4">
               <svg
-                className="w-12 h-12 text-red-600"
+                className="h-12 w-12 text-red-600"
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -45,35 +45,33 @@ export default function PortalError({
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">
+          <h1 className="text-foreground mb-2 text-center text-2xl font-bold">
             Something went wrong
           </h1>
 
           {/* Message */}
-          <p className="text-gray-600 text-center mb-6">
+          <p className="text-muted-foreground mb-6 text-center">
             {error.message || 'An unexpected error occurred while loading the portal.'}
           </p>
 
           {/* Error Details (Development only) */}
           {process.env.NODE_ENV === 'development' && error.digest && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-xs text-gray-500 font-mono">
-                Error ID: {error.digest}
-              </p>
+            <div className="bg-muted/50 border-border mb-6 rounded-lg border p-4">
+              <p className="text-muted-foreground font-mono text-xs">Error ID: {error.digest}</p>
             </div>
           )}
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <button
               onClick={reset}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              className="flex-1 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
             >
               Try Again
             </button>
             <button
               onClick={() => router.push('/portal')}
-              className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="border-border text-card-foreground hover:bg-muted/50 flex-1 rounded-lg border px-6 py-3 font-medium transition-colors"
             >
               Go to Dashboard
             </button>
@@ -81,7 +79,7 @@ export default function PortalError({
         </div>
 
         {/* Help Text */}
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="text-muted-foreground mt-6 text-center text-sm">
           If this problem persists, please contact{' '}
           <a href="mailto:support@example.com" className="text-blue-600 hover:underline">
             support@example.com

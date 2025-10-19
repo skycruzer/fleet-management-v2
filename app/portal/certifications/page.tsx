@@ -68,8 +68,8 @@ export default async function CertificationsPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Certifications</h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <h1 className="text-foreground text-2xl font-bold">My Certifications</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
                 {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name} • Seniority #
                 {pilotUser.seniority}
               </p>
@@ -85,19 +85,19 @@ export default async function CertificationsPage() {
         {/* Statistics Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
           <Card className="bg-white p-6">
-            <p className="text-sm font-medium text-gray-600">Total Certifications</p>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-muted-foreground text-sm font-medium">Total Certifications</p>
+            <p className="text-foreground mt-2 text-3xl font-bold">{stats.total}</p>
           </Card>
           <Card className="border-green-200 bg-green-50 p-6">
-            <p className="text-sm font-medium text-gray-600">Current</p>
+            <p className="text-muted-foreground text-sm font-medium">Current</p>
             <p className="mt-2 text-3xl font-bold text-green-700">{stats.current}</p>
           </Card>
           <Card className="border-yellow-200 bg-yellow-50 p-6">
-            <p className="text-sm font-medium text-gray-600">Expiring Soon</p>
+            <p className="text-muted-foreground text-sm font-medium">Expiring Soon</p>
             <p className="mt-2 text-3xl font-bold text-yellow-700">{stats.expiringSoon}</p>
           </Card>
           <Card className="border-red-200 bg-red-50 p-6">
-            <p className="text-sm font-medium text-gray-600">Expired</p>
+            <p className="text-muted-foreground text-sm font-medium">Expired</p>
             <p className="mt-2 text-3xl font-bold text-red-700">{stats.expired}</p>
           </Card>
         </div>
@@ -144,46 +144,46 @@ export default async function CertificationsPage() {
           {/* Licenses */}
           {categorized.licenses.length > 0 && (
             <Card className="bg-white p-6">
-              <h2 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+              <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">📜</span>
                 Licenses & Ratings ({categorized.licenses.length})
               </h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="divide-border min-w-full divide-y">
+                  <thead className="bg-muted/50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Check Type
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Last Check
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Expiry Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Days Until Expiry
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Status
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
+                  <tbody className="divide-border divide-y bg-white">
                     {categorized.licenses.map((cert) => (
-                      <tr key={cert.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                      <tr key={cert.id} className="hover:bg-muted/50">
+                        <td className="text-foreground px-4 py-4 text-sm font-medium">
                           {cert.check_type.check_description}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {format(new Date(cert.created_at), 'MMM dd, yyyy')}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
+                        <td className="text-foreground px-4 py-4 text-sm">
                           {cert.expiry_date
                             ? format(new Date(cert.expiry_date), 'MMM dd, yyyy')
                             : 'N/A'}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {cert.status.daysUntilExpiry >= 0
                             ? cert.status.daysUntilExpiry
                             : `Expired ${Math.abs(cert.status.daysUntilExpiry)} days ago`}
@@ -212,46 +212,46 @@ export default async function CertificationsPage() {
           {/* Medicals */}
           {categorized.medicals.length > 0 && (
             <Card className="bg-white p-6">
-              <h2 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+              <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">🏥</span>
                 Medical Certifications ({categorized.medicals.length})
               </h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="divide-border min-w-full divide-y">
+                  <thead className="bg-muted/50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Check Type
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Last Check
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Expiry Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Days Until Expiry
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Status
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
+                  <tbody className="divide-border divide-y bg-white">
                     {categorized.medicals.map((cert) => (
-                      <tr key={cert.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                      <tr key={cert.id} className="hover:bg-muted/50">
+                        <td className="text-foreground px-4 py-4 text-sm font-medium">
                           {cert.check_type.check_description}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {format(new Date(cert.created_at), 'MMM dd, yyyy')}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
+                        <td className="text-foreground px-4 py-4 text-sm">
                           {cert.expiry_date
                             ? format(new Date(cert.expiry_date), 'MMM dd, yyyy')
                             : 'N/A'}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {cert.status.daysUntilExpiry >= 0
                             ? cert.status.daysUntilExpiry
                             : `Expired ${Math.abs(cert.status.daysUntilExpiry)} days ago`}
@@ -280,46 +280,46 @@ export default async function CertificationsPage() {
           {/* Recurrent Training */}
           {categorized.recurrent.length > 0 && (
             <Card className="bg-white p-6">
-              <h2 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+              <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">✈️</span>
                 Recurrent Training & Checks ({categorized.recurrent.length})
               </h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="divide-border min-w-full divide-y">
+                  <thead className="bg-muted/50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Check Type
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Last Check
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Expiry Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Days Until Expiry
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Status
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
+                  <tbody className="divide-border divide-y bg-white">
                     {categorized.recurrent.map((cert) => (
-                      <tr key={cert.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                      <tr key={cert.id} className="hover:bg-muted/50">
+                        <td className="text-foreground px-4 py-4 text-sm font-medium">
                           {cert.check_type.check_description}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {format(new Date(cert.created_at), 'MMM dd, yyyy')}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
+                        <td className="text-foreground px-4 py-4 text-sm">
                           {cert.expiry_date
                             ? format(new Date(cert.expiry_date), 'MMM dd, yyyy')
                             : 'N/A'}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {cert.status.daysUntilExpiry >= 0
                             ? cert.status.daysUntilExpiry
                             : `Expired ${Math.abs(cert.status.daysUntilExpiry)} days ago`}
@@ -348,46 +348,46 @@ export default async function CertificationsPage() {
           {/* Other Certifications */}
           {categorized.other.length > 0 && (
             <Card className="bg-white p-6">
-              <h2 className="mb-4 flex items-center text-lg font-semibold text-gray-900">
+              <h2 className="text-foreground mb-4 flex items-center text-lg font-semibold">
                 <span className="mr-2 text-2xl">📋</span>
                 Other Certifications ({categorized.other.length})
               </h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="divide-border min-w-full divide-y">
+                  <thead className="bg-muted/50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Check Type
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Last Check
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Expiry Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Days Until Expiry
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium uppercase">
                         Status
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
+                  <tbody className="divide-border divide-y bg-white">
                     {categorized.other.map((cert) => (
-                      <tr key={cert.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm font-medium text-gray-900">
+                      <tr key={cert.id} className="hover:bg-muted/50">
+                        <td className="text-foreground px-4 py-4 text-sm font-medium">
                           {cert.check_type.check_description}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {format(new Date(cert.created_at), 'MMM dd, yyyy')}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-900">
+                        <td className="text-foreground px-4 py-4 text-sm">
                           {cert.expiry_date
                             ? format(new Date(cert.expiry_date), 'MMM dd, yyyy')
                             : 'N/A'}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-600">
+                        <td className="text-muted-foreground px-4 py-4 text-sm">
                           {cert.status.daysUntilExpiry >= 0
                             ? cert.status.daysUntilExpiry
                             : `Expired ${Math.abs(cert.status.daysUntilExpiry)} days ago`}
@@ -419,8 +419,8 @@ export default async function CertificationsPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">💡</span>
             <div>
-              <h3 className="mb-2 font-semibold text-gray-900">Certification Status Guide</h3>
-              <div className="space-y-2 text-sm text-gray-700">
+              <h3 className="text-foreground mb-2 font-semibold">Certification Status Guide</h3>
+              <div className="text-card-foreground space-y-2 text-sm">
                 <p>
                   <span className="mr-2 inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
                     CURRENT
@@ -440,7 +440,7 @@ export default async function CertificationsPage() {
                   Past expiry date - contact fleet management immediately
                 </p>
               </div>
-              <p className="mt-4 text-sm text-gray-600">
+              <p className="text-muted-foreground mt-4 text-sm">
                 Questions about certifications?{' '}
                 <a href="mailto:fleet@airniugini.com.pg" className="text-blue-600 hover:underline">
                   fleet@airniugini.com.pg

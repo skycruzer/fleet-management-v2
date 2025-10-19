@@ -43,8 +43,8 @@ export default async function PilotDashboardPage() {
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6">
         <Card className="max-w-md bg-white p-8 text-center">
           <div className="mb-4 text-6xl">⏳</div>
-          <h2 className="mb-2 text-2xl font-bold text-gray-900">Registration Pending</h2>
-          <p className="mb-4 text-gray-600">
+          <h2 className="text-foreground mb-2 text-2xl font-bold">Registration Pending</h2>
+          <p className="text-muted-foreground mb-4">
             Your pilot portal registration is pending approval by fleet management. You will receive
             an email once your account is activated.
           </p>
@@ -89,10 +89,12 @@ export default async function PilotDashboardPage() {
                 </span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
+                <h1 className="text-foreground text-xl font-bold">
                   Welcome, {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
                 </h1>
-                <p className="text-xs text-gray-600">Employee ID: {pilotUser.employee_id}</p>
+                <p className="text-muted-foreground text-xs">
+                  Employee ID: {pilotUser.employee_id}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -118,10 +120,10 @@ export default async function PilotDashboardPage() {
                 {stats.pendingLeaveRequests} Pending
               </span>
             </div>
-            <h3 className="text-sm font-medium text-gray-600">Leave Requests</h3>
+            <h3 className="text-muted-foreground text-sm font-medium">Leave Requests</h3>
             <div className="mt-3 space-y-1">
-              <p className="text-2xl font-bold text-gray-900">{stats.totalLeaveRequests}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-foreground text-2xl font-bold">{stats.totalLeaveRequests}</p>
+              <p className="text-muted-foreground text-xs">
                 {stats.approvedLeaveRequests} Approved • {stats.totalLeaveDays} Days
               </p>
             </div>
@@ -137,10 +139,10 @@ export default async function PilotDashboardPage() {
                 </span>
               )}
             </div>
-            <h3 className="text-sm font-medium text-gray-600">Certifications</h3>
+            <h3 className="text-muted-foreground text-sm font-medium">Certifications</h3>
             <div className="mt-3 space-y-1">
-              <p className="text-2xl font-bold text-gray-900">{stats.activeCertifications}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-foreground text-2xl font-bold">{stats.activeCertifications}</p>
+              <p className="text-muted-foreground text-xs">
                 {stats.expiredCertifications > 0 && (
                   <span className="text-red-600">{stats.expiredCertifications} Expired • </span>
                 )}
@@ -154,10 +156,10 @@ export default async function PilotDashboardPage() {
             <div className="mb-2 flex items-center justify-between">
               <span className="text-4xl">✈️</span>
             </div>
-            <h3 className="text-sm font-medium text-gray-600">Flight Requests</h3>
+            <h3 className="text-muted-foreground text-sm font-medium">Flight Requests</h3>
             <div className="mt-3 space-y-1">
-              <p className="text-2xl font-bold text-gray-900">{flightRequests.length}</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-foreground text-2xl font-bold">{flightRequests.length}</p>
+              <p className="text-muted-foreground text-xs">
                 {flightRequests.filter((r) => r.status === 'PENDING').length} Pending
               </p>
             </div>
@@ -168,10 +170,10 @@ export default async function PilotDashboardPage() {
             <div className="mb-2 flex items-center justify-between">
               <span className="text-4xl">✅</span>
             </div>
-            <h3 className="text-sm font-medium text-gray-600">Profile Status</h3>
+            <h3 className="text-muted-foreground text-sm font-medium">Profile Status</h3>
             <div className="mt-3 space-y-1">
               <p className="text-2xl font-bold text-green-700">Active</p>
-              <p className="text-xs text-gray-600">All systems operational</p>
+              <p className="text-muted-foreground text-xs">All systems operational</p>
             </div>
           </Card>
         </div>
@@ -182,7 +184,7 @@ export default async function PilotDashboardPage() {
             <div className="flex items-start space-x-4">
               <div className="text-4xl">⚠️</div>
               <div className="flex-1">
-                <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                <h3 className="text-foreground mb-2 text-lg font-semibold">
                   {expiringCertifications.length} Certification
                   {expiringCertifications.length > 1 ? 's' : ''} Expiring Soon
                 </h3>
@@ -190,10 +192,10 @@ export default async function PilotDashboardPage() {
                   {expiringCertifications.slice(0, 3).map((cert) => (
                     <div key={cert.id} className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="text-foreground font-medium">
                           {cert.check_type.check_description}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-muted-foreground text-sm">
                           Expires:{' '}
                           {cert.expiry_date
                             ? format(new Date(cert.expiry_date), 'MMM dd, yyyy')
@@ -226,7 +228,7 @@ export default async function PilotDashboardPage() {
 
         {/* Quick Actions */}
         <Card className="mb-8 bg-white p-6">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h3>
+          <h3 className="text-foreground mb-4 text-lg font-semibold">Quick Actions</h3>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <Link href="/portal/leave/new">
               <Button className="bg-primary hover:bg-primary/90 flex h-auto w-full flex-col items-center space-y-2 py-6 text-white">
@@ -257,7 +259,7 @@ export default async function PilotDashboardPage() {
           {/* Recent Leave Requests */}
           <Card className="bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Leave Requests</h3>
+              <h3 className="text-foreground text-lg font-semibold">Recent Leave Requests</h3>
               <Link href="/portal/leave">
                 <Button variant="outline" size="sm">
                   View All
@@ -265,7 +267,7 @@ export default async function PilotDashboardPage() {
               </Link>
             </div>
             {recentLeaveRequests.length === 0 ? (
-              <div className="py-8 text-center text-gray-500">
+              <div className="text-muted-foreground py-8 text-center">
                 <p className="mb-2 text-4xl">📭</p>
                 <p>No leave requests yet</p>
                 <Link href="/portal/leave/new">
@@ -279,11 +281,11 @@ export default async function PilotDashboardPage() {
                 {recentLeaveRequests.map((request) => (
                   <div
                     key={request.id}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                    className="bg-muted/50 hover:bg-muted flex items-center justify-between rounded-lg p-3 transition-colors"
                   >
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">{request.request_type}</span>
+                        <span className="text-foreground font-medium">{request.request_type}</span>
                         <span
                           className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
                             request.status === 'APPROVED'
@@ -296,7 +298,7 @@ export default async function PilotDashboardPage() {
                           {request.status}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-gray-600">
+                      <p className="text-muted-foreground mt-1 text-sm">
                         {format(new Date(request.start_date), 'MMM dd')} -{' '}
                         {format(new Date(request.end_date), 'MMM dd, yyyy')} ({request.days_count}{' '}
                         days)
@@ -311,7 +313,7 @@ export default async function PilotDashboardPage() {
           {/* Recent Flight Requests */}
           <Card className="bg-white p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Flight Requests</h3>
+              <h3 className="text-foreground text-lg font-semibold">Recent Flight Requests</h3>
               <Link href="/portal/flights">
                 <Button variant="outline" size="sm">
                   View All
@@ -319,7 +321,7 @@ export default async function PilotDashboardPage() {
               </Link>
             </div>
             {recentFlightRequests.length === 0 ? (
-              <div className="py-8 text-center text-gray-500">
+              <div className="text-muted-foreground py-8 text-center">
                 <p className="mb-2 text-4xl">📭</p>
                 <p>No flight requests yet</p>
                 <Link href="/portal/flights/new">
@@ -333,11 +335,11 @@ export default async function PilotDashboardPage() {
                 {recentFlightRequests.map((request) => (
                   <div
                     key={request.id}
-                    className="flex items-center justify-between rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                    className="bg-muted/50 hover:bg-muted flex items-center justify-between rounded-lg p-3 transition-colors"
                   >
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">{request.request_type}</span>
+                        <span className="text-foreground font-medium">{request.request_type}</span>
                         <span
                           className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
                             request.status === 'APPROVED'
@@ -350,10 +352,10 @@ export default async function PilotDashboardPage() {
                           {request.status}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-gray-600">
+                      <p className="text-muted-foreground mt-1 text-sm">
                         Flight Date: {format(new Date(request.flight_date), 'MMM dd, yyyy')}
                       </p>
-                      <p className="text-sm text-gray-500">{request.description}</p>
+                      <p className="text-muted-foreground text-sm">{request.description}</p>
                     </div>
                   </div>
                 ))}
@@ -367,8 +369,8 @@ export default async function PilotDashboardPage() {
           <div className="flex items-start space-x-4">
             <span className="text-4xl">💡</span>
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">Need Help?</h3>
-              <p className="mb-4 text-gray-600">
+              <h3 className="text-foreground mb-2 text-lg font-semibold">Need Help?</h3>
+              <p className="text-muted-foreground mb-4">
                 If you have questions about the pilot portal or need assistance with certifications,
                 leave requests, or flight requests, please contact fleet management.
               </p>
@@ -392,7 +394,7 @@ export default async function PilotDashboardPage() {
       {/* Footer */}
       <footer className="mt-12 border-t bg-white/50">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="text-center text-sm text-gray-600">
+          <div className="text-muted-foreground text-center text-sm">
             <p>&copy; 2025 Air Niugini B767 Fleet Management. All rights reserved.</p>
           </div>
         </div>

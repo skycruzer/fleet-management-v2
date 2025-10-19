@@ -55,8 +55,8 @@ export default function LoginPage() {
           <div className="mb-4 flex items-center justify-center">
             <span className="text-4xl">✈️</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Fleet Management V2</h1>
-          <p className="text-gray-600">Sign in to your account</p>
+          <h1 className="text-foreground text-2xl font-bold">Fleet Management V2</h1>
+          <p className="text-muted-foreground">Sign in to your account</p>
         </div>
 
         {/* Login Form */}
@@ -105,11 +105,13 @@ export default function LoginPage() {
         </form>
 
         {/* Test Credentials Helper */}
-        <div className="border-t border-gray-200 pt-4">
-          <p className="mb-2 text-center text-xs text-gray-500">Test Credentials:</p>
-          <div className="space-y-1 rounded-md bg-gray-50 p-3">
-            <p className="font-mono text-xs text-gray-600">Email: mrondeau@airniugini.com.pg</p>
-            <p className="font-mono text-xs text-gray-600">Password: test123</p>
+        <div className="border-border border-t pt-4">
+          <p className="text-muted-foreground mb-2 text-center text-xs">Test Credentials:</p>
+          <div className="bg-muted/50 space-y-1 rounded-md p-3">
+            <p className="text-muted-foreground font-mono text-xs">
+              Email: mrondeau@airniugini.com.pg
+            </p>
+            <p className="text-muted-foreground font-mono text-xs">Password: test123</p>
           </div>
         </div>
 
@@ -119,7 +121,7 @@ export default function LoginPage() {
             type="button"
             variant="outline"
             onClick={() => router.push('/')}
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-muted-foreground hover:text-foreground text-sm"
           >
             ← Back to Home
           </Button>

@@ -32,8 +32,8 @@ export default async function CertificationsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Certifications</h2>
-          <p className="mt-1 text-gray-600">
+          <h2 className="text-foreground text-2xl font-bold">Certifications</h2>
+          <p className="text-muted-foreground mt-1">
             Track and manage pilot certifications and check types
           </p>
         </div>
@@ -50,8 +50,8 @@ export default async function CertificationsPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🔴</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.expired}</p>
-              <p className="text-sm font-medium text-gray-600">Expired</p>
+              <p className="text-foreground text-2xl font-bold">{stats.expired}</p>
+              <p className="text-muted-foreground text-sm font-medium">Expired</p>
             </div>
           </div>
         </Card>
@@ -59,8 +59,8 @@ export default async function CertificationsPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🟡</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.expiring}</p>
-              <p className="text-sm font-medium text-gray-600">Expiring Soon</p>
+              <p className="text-foreground text-2xl font-bold">{stats.expiring}</p>
+              <p className="text-muted-foreground text-sm font-medium">Expiring Soon</p>
             </div>
           </div>
         </Card>
@@ -68,8 +68,8 @@ export default async function CertificationsPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🟢</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.current}</p>
-              <p className="text-sm font-medium text-gray-600">Current</p>
+              <p className="text-foreground text-2xl font-bold">{stats.current}</p>
+              <p className="text-muted-foreground text-sm font-medium">Current</p>
             </div>
           </div>
         </Card>
@@ -77,47 +77,47 @@ export default async function CertificationsPage() {
 
       {/* Certifications Table */}
       <Card className="bg-white p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">All Certifications</h3>
+        <h3 className="text-foreground mb-4 text-lg font-semibold">All Certifications</h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="divide-border min-w-full divide-y">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Pilot
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Check Type
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Category
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Completion
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Expiry
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-border divide-y bg-white">
               {certifications.map((cert) => (
-                <tr key={cert.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                <tr key={cert.id} className="hover:bg-muted/50">
+                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                     {cert.pilot?.first_name} {cert.pilot?.last_name}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-900">
+                  <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {cert.check_type?.check_description}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {cert.check_type?.category || 'N/A'}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {cert.created_at ? format(new Date(cert.created_at), 'MMM dd, yyyy') : 'N/A'}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {cert.expiry_date ? format(new Date(cert.expiry_date), 'MMM dd, yyyy') : 'N/A'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
@@ -140,7 +140,7 @@ export default async function CertificationsPage() {
             </tbody>
           </table>
         </div>
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="text-muted-foreground mt-4 text-sm">
           Showing {certifications.length} of {total} certifications
         </div>
       </Card>

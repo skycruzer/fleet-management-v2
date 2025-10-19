@@ -118,7 +118,7 @@ export default function AnalyticsPage() {
         <Card className="p-12 text-center">
           <div className="flex items-center justify-center space-x-2">
             <span className="animate-spin text-3xl">⏳</span>
-            <p className="text-gray-600">Loading analytics...</p>
+            <p className="text-muted-foreground">Loading analytics...</p>
           </div>
         </Card>
       </div>
@@ -132,8 +132,8 @@ export default function AnalyticsPage() {
           <div className="space-y-4">
             <span className="text-6xl">❌</span>
             <div>
-              <h3 className="mb-2 text-xl font-bold text-gray-900">Error</h3>
-              <p className="text-gray-600">{error || 'Analytics data not available'}</p>
+              <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
+              <p className="text-muted-foreground">{error || 'Analytics data not available'}</p>
             </div>
             <Button onClick={handleRefresh}>Try Again</Button>
           </div>
@@ -147,8 +147,8 @@ export default function AnalyticsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Fleet Analytics Dashboard</h2>
-          <p className="mt-1 text-gray-600">
+          <h2 className="text-foreground text-2xl font-bold">Fleet Analytics Dashboard</h2>
+          <p className="text-muted-foreground mt-1">
             Comprehensive analytics and key performance indicators
           </p>
         </div>
@@ -170,12 +170,12 @@ export default function AnalyticsPage() {
           <div className="flex items-start space-x-3">
             <span className="text-3xl">🚨</span>
             <div className="flex-1">
-              <h3 className="mb-3 text-lg font-bold text-gray-900">Critical Alerts</h3>
+              <h3 className="text-foreground mb-3 text-lg font-bold">Critical Alerts</h3>
               <div className="space-y-2">
                 {analytics.risk.criticalAlerts.map((alert) => (
                   <div key={alert.id} className="rounded-lg border border-red-300 bg-white p-3">
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{alert.title}</span>
+                      <span className="text-foreground font-medium">{alert.title}</span>
                       <span
                         className={`rounded px-2 py-1 text-xs font-medium ${
                           alert.severity === 'critical'
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
                         {alert.severity.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600">{alert.description}</p>
+                    <p className="text-muted-foreground text-sm">{alert.description}</p>
                   </div>
                 ))}
               </div>
@@ -202,8 +202,8 @@ export default function AnalyticsPage() {
             <span className="text-4xl">📊</span>
             <span className="text-3xl font-bold text-blue-900">{analytics.fleet.utilization}%</span>
           </div>
-          <h3 className="text-sm font-medium text-gray-600 uppercase">Fleet Utilization</h3>
-          <p className="mt-1 text-xs text-gray-500">Certification compliance rate</p>
+          <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Utilization</h3>
+          <p className="text-muted-foreground mt-1 text-xs">Certification compliance rate</p>
         </Card>
 
         <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-6">
@@ -213,8 +213,10 @@ export default function AnalyticsPage() {
               {analytics.fleet.availability}%
             </span>
           </div>
-          <h3 className="text-sm font-medium text-gray-600 uppercase">Pilot Availability</h3>
-          <p className="mt-1 text-xs text-gray-500">
+          <h3 className="text-muted-foreground text-sm font-medium uppercase">
+            Pilot Availability
+          </h3>
+          <p className="text-muted-foreground mt-1 text-xs">
             {analytics.fleet.pilotAvailability.available} available,{' '}
             {analytics.fleet.pilotAvailability.onLeave} on leave
           </p>
@@ -225,48 +227,48 @@ export default function AnalyticsPage() {
             <span className="text-4xl">🎯</span>
             <span className="text-3xl font-bold text-purple-900">{analytics.fleet.readiness}%</span>
           </div>
-          <h3 className="text-sm font-medium text-gray-600 uppercase">Fleet Readiness</h3>
-          <p className="mt-1 text-xs text-gray-500">Overall operational readiness</p>
+          <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Readiness</h3>
+          <p className="text-muted-foreground mt-1 text-xs">Overall operational readiness</p>
         </Card>
       </div>
 
       {/* Pilot Analytics */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             👥 Pilot Distribution
           </h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-lg bg-gray-50 p-4">
-              <div className="text-3xl font-bold text-gray-900">{analytics.pilot.total}</div>
-              <div className="text-sm text-gray-600">Total Pilots</div>
+            <div className="bg-muted/50 rounded-lg p-4">
+              <div className="text-foreground text-3xl font-bold">{analytics.pilot.total}</div>
+              <div className="text-muted-foreground text-sm">Total Pilots</div>
             </div>
             <div className="rounded-lg bg-green-50 p-4">
               <div className="text-3xl font-bold text-green-900">{analytics.pilot.active}</div>
-              <div className="text-sm text-gray-600">Active</div>
+              <div className="text-muted-foreground text-sm">Active</div>
             </div>
             <div className="rounded-lg bg-blue-50 p-4">
               <div className="text-3xl font-bold text-blue-900">{analytics.pilot.captains}</div>
-              <div className="text-sm text-gray-600">Captains</div>
+              <div className="text-muted-foreground text-sm">Captains</div>
             </div>
             <div className="rounded-lg bg-indigo-50 p-4">
               <div className="text-3xl font-bold text-indigo-900">
                 {analytics.pilot.firstOfficers}
               </div>
-              <div className="text-sm text-gray-600">First Officers</div>
+              <div className="text-muted-foreground text-sm">First Officers</div>
             </div>
           </div>
         </Card>
 
         <Card className="p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             ⏰ Retirement Planning
           </h3>
           <div className="space-y-4">
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-600">Retiring in 2 Years</div>
+                  <div className="text-muted-foreground text-sm">Retiring in 2 Years</div>
                   <div className="mt-1 text-2xl font-bold text-yellow-900">
                     {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
                   </div>
@@ -277,7 +279,7 @@ export default function AnalyticsPage() {
             <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-600">Retiring in 5 Years</div>
+                  <div className="text-muted-foreground text-sm">Retiring in 5 Years</div>
                   <div className="mt-1 text-2xl font-bold text-orange-900">
                     {analytics.pilot.retirementPlanning.retiringIn5Years} pilots
                   </div>
@@ -292,38 +294,38 @@ export default function AnalyticsPage() {
       {/* Certification Analytics */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             ✅ Certification Status
           </h3>
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-lg bg-gray-50 p-4">
-              <div className="text-3xl font-bold text-gray-900">
+            <div className="bg-muted/50 rounded-lg p-4">
+              <div className="text-foreground text-3xl font-bold">
                 {analytics.certification.total}
               </div>
-              <div className="text-sm text-gray-600">Total Certifications</div>
+              <div className="text-muted-foreground text-sm">Total Certifications</div>
             </div>
             <div className="rounded-lg bg-green-50 p-4">
               <div className="text-3xl font-bold text-green-900">
                 {analytics.certification.current}
               </div>
-              <div className="text-sm text-gray-600">Current</div>
+              <div className="text-muted-foreground text-sm">Current</div>
             </div>
             <div className="rounded-lg bg-yellow-50 p-4">
               <div className="text-3xl font-bold text-yellow-900">
                 {analytics.certification.expiring}
               </div>
-              <div className="text-sm text-gray-600">Expiring (≤30 days)</div>
+              <div className="text-muted-foreground text-sm">Expiring (≤30 days)</div>
             </div>
             <div className="rounded-lg bg-red-50 p-4">
               <div className="text-3xl font-bold text-red-900">
                 {analytics.certification.expired}
               </div>
-              <div className="text-sm text-gray-600">Expired</div>
+              <div className="text-muted-foreground text-sm">Expired</div>
             </div>
           </div>
           <div className="mt-4 rounded-lg bg-blue-50 p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Compliance Rate</span>
+              <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
               <span className="text-2xl font-bold text-blue-900">
                 {analytics.certification.complianceRate}%
               </span>
@@ -332,25 +334,25 @@ export default function AnalyticsPage() {
         </Card>
 
         <Card className="p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             📂 Category Breakdown
           </h3>
           <div className="max-h-64 space-y-3 overflow-y-auto">
             {analytics.certification.categoryBreakdown.map((category) => (
-              <div key={category.category} className="rounded-lg bg-gray-50 p-3">
-                <div className="mb-2 font-medium text-gray-900">{category.category}</div>
+              <div key={category.category} className="bg-muted/50 rounded-lg p-3">
+                <div className="text-foreground mb-2 font-medium">{category.category}</div>
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <div className="text-center">
                     <div className="font-bold text-green-700">{category.current}</div>
-                    <div className="text-gray-600">Current</div>
+                    <div className="text-muted-foreground">Current</div>
                   </div>
                   <div className="text-center">
                     <div className="font-bold text-yellow-700">{category.expiring}</div>
-                    <div className="text-gray-600">Expiring</div>
+                    <div className="text-muted-foreground">Expiring</div>
                   </div>
                   <div className="text-center">
                     <div className="font-bold text-red-700">{category.expired}</div>
-                    <div className="text-gray-600">Expired</div>
+                    <div className="text-muted-foreground">Expired</div>
                   </div>
                 </div>
               </div>
@@ -361,34 +363,34 @@ export default function AnalyticsPage() {
 
       {/* Leave Analytics */}
       <Card className="p-6">
-        <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+        <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
           🏖️ Leave Request Analytics
         </h3>
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <div className="rounded-lg bg-gray-50 p-4">
-            <div className="text-3xl font-bold text-gray-900">{analytics.leave.total}</div>
-            <div className="text-sm text-gray-600">Total Requests</div>
+          <div className="bg-muted/50 rounded-lg p-4">
+            <div className="text-foreground text-3xl font-bold">{analytics.leave.total}</div>
+            <div className="text-muted-foreground text-sm">Total Requests</div>
           </div>
           <div className="rounded-lg bg-yellow-50 p-4">
             <div className="text-3xl font-bold text-yellow-900">{analytics.leave.pending}</div>
-            <div className="text-sm text-gray-600">Pending</div>
+            <div className="text-muted-foreground text-sm">Pending</div>
           </div>
           <div className="rounded-lg bg-green-50 p-4">
             <div className="text-3xl font-bold text-green-900">{analytics.leave.approved}</div>
-            <div className="text-sm text-gray-600">Approved</div>
+            <div className="text-muted-foreground text-sm">Approved</div>
           </div>
           <div className="rounded-lg bg-red-50 p-4">
             <div className="text-3xl font-bold text-red-900">{analytics.leave.denied}</div>
-            <div className="text-sm text-gray-600">Denied</div>
+            <div className="text-muted-foreground text-sm">Denied</div>
           </div>
         </div>
 
-        <h4 className="mb-3 font-medium text-gray-900">Leave Types Breakdown</h4>
+        <h4 className="text-foreground mb-3 font-medium">Leave Types Breakdown</h4>
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {analytics.leave.byType.map((type) => (
-            <div key={type.type} className="rounded-lg bg-gray-50 p-3">
-              <div className="font-medium text-gray-900">{type.type}</div>
-              <div className="mt-1 text-sm text-gray-600">
+            <div key={type.type} className="bg-muted/50 rounded-lg p-3">
+              <div className="text-foreground font-medium">{type.type}</div>
+              <div className="text-muted-foreground mt-1 text-sm">
                 {type.count} requests • {type.totalDays} days
               </div>
             </div>
@@ -398,12 +400,12 @@ export default function AnalyticsPage() {
 
       {/* Risk Analytics */}
       <Card className="p-6">
-        <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+        <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
           ⚠️ Risk Assessment
         </h3>
         <div className="mb-6">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Overall Risk Score</span>
+            <span className="text-card-foreground text-sm font-medium">Overall Risk Score</span>
             <span
               className={`text-3xl font-bold ${
                 analytics.risk.overallRiskScore > 50
@@ -432,9 +434,9 @@ export default function AnalyticsPage() {
 
         <div className="space-y-3">
           {analytics.risk.riskFactors.map((factor, index) => (
-            <div key={index} className="rounded-lg bg-gray-50 p-4">
+            <div key={index} className="bg-muted/50 rounded-lg p-4">
               <div className="mb-2 flex items-center justify-between">
-                <span className="font-medium text-gray-900">{factor.factor}</span>
+                <span className="text-foreground font-medium">{factor.factor}</span>
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
                     factor.severity === 'critical'
@@ -449,8 +451,10 @@ export default function AnalyticsPage() {
                   {factor.severity.toUpperCase()}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">{factor.description}</p>
-              <div className="mt-2 text-xs text-gray-500">Impact: {factor.impact.toFixed(1)}%</div>
+              <p className="text-muted-foreground text-sm">{factor.description}</p>
+              <div className="text-muted-foreground mt-2 text-xs">
+                Impact: {factor.impact.toFixed(1)}%
+              </div>
             </div>
           ))}
         </div>
@@ -461,8 +465,8 @@ export default function AnalyticsPage() {
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">Analytics Data Export</p>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="text-foreground text-sm font-medium">Analytics Data Export</p>
+            <p className="text-muted-foreground mt-1 text-sm">
               Data refreshes automatically. Use the Refresh button to get the latest metrics. Export
               functionality coming soon.
             </p>

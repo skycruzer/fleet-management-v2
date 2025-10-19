@@ -19,10 +19,10 @@ export default async function NewFeedbackPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white shadow-sm">
+      <header className="border-border border-b bg-white shadow-sm">
         <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">Submit Feedback</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-foreground text-3xl font-bold">Submit Feedback</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Share your thoughts, suggestions, or concerns with fleet management
           </p>
         </div>
@@ -32,7 +32,7 @@ export default async function NewFeedbackPage() {
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Form Card */}
         <ErrorBoundary>
-          <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+          <div className="border-border rounded-lg border bg-white p-8 shadow-sm">
             <FeedbackForm
               pilotUser={{
                 id: pilotUser.id,

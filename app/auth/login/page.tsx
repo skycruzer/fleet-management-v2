@@ -49,32 +49,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="bg-muted/50 flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md p-8">
         {/* Logo and Title */}
-        <div className="text-center mb-8">
-          <div className="inline-flex w-16 h-16 bg-blue-600 rounded-lg items-center justify-center mb-4">
-            <span className="text-white font-bold text-2xl">FM</span>
+        <div className="mb-8 text-center">
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-lg bg-blue-600">
+            <span className="text-2xl font-bold text-white">FM</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Fleet Management V2
-          </h1>
-          <p className="text-gray-600 mt-2">Sign in to your account</p>
+          <h1 className="text-foreground text-2xl font-bold">Fleet Management V2</h1>
+          <p className="text-muted-foreground mt-2">Sign in to your account</p>
         </div>
 
         {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="email" className="text-card-foreground mb-1 block text-sm font-medium">
               Email
             </label>
             <Input
@@ -91,7 +86,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="text-card-foreground mb-1 block text-sm font-medium"
             >
               Password
             </label>
@@ -106,32 +101,22 @@ export default function LoginPage() {
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
 
         {/* Development Helper */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-xs font-medium text-blue-900 mb-2">
-            Development Mode
-          </p>
+        <div className="mt-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <p className="mb-2 text-xs font-medium text-blue-900">Development Mode</p>
           <p className="text-xs text-blue-700">
-            Create an account in Supabase dashboard or use test credentials if
-            available.
+            Create an account in Supabase dashboard or use test credentials if available.
           </p>
         </div>
 
         {/* Back to Home */}
         <div className="mt-6 text-center">
-          <Link
-            href="/"
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-          >
+          <Link href="/" className="text-sm font-medium text-blue-600 hover:text-blue-700">
             ← Back to home
           </Link>
         </div>

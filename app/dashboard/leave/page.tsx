@@ -33,8 +33,8 @@ export default async function LeaveRequestsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Leave Requests</h2>
-          <p className="mt-1 text-gray-600">Submit and manage pilot leave requests</p>
+          <h2 className="text-foreground text-2xl font-bold">Leave Requests</h2>
+          <p className="text-muted-foreground mt-1">Submit and manage pilot leave requests</p>
         </div>
         <Link href="/dashboard/leave/new">
           <Button className="bg-primary hover:bg-primary/90 text-white">
@@ -49,8 +49,8 @@ export default async function LeaveRequestsPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📋</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-              <p className="text-sm font-medium text-gray-600">Pending Requests</p>
+              <p className="text-foreground text-2xl font-bold">{stats.pending}</p>
+              <p className="text-muted-foreground text-sm font-medium">Pending Requests</p>
             </div>
           </div>
         </Card>
@@ -58,8 +58,8 @@ export default async function LeaveRequestsPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
-              <p className="text-sm font-medium text-gray-600">Approved</p>
+              <p className="text-foreground text-2xl font-bold">{stats.approved}</p>
+              <p className="text-muted-foreground text-sm font-medium">Approved</p>
             </div>
           </div>
         </Card>
@@ -67,8 +67,8 @@ export default async function LeaveRequestsPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">❌</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.denied}</p>
-              <p className="text-sm font-medium text-gray-600">Denied</p>
+              <p className="text-foreground text-2xl font-bold">{stats.denied}</p>
+              <p className="text-muted-foreground text-sm font-medium">Denied</p>
             </div>
           </div>
         </Card>
@@ -76,8 +76,8 @@ export default async function LeaveRequestsPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📊</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalDays}</p>
-              <p className="text-sm font-medium text-gray-600">Total Days</p>
+              <p className="text-foreground text-2xl font-bold">{stats.totalDays}</p>
+              <p className="text-muted-foreground text-sm font-medium">Total Days</p>
             </div>
           </div>
         </Card>
@@ -85,53 +85,53 @@ export default async function LeaveRequestsPage() {
 
       {/* Leave Requests Table */}
       <Card className="bg-white p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">All Leave Requests</h3>
+        <h3 className="text-foreground mb-4 text-lg font-semibold">All Leave Requests</h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="divide-border min-w-full divide-y">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Pilot
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Type
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Start Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   End Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Days
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Roster Period
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Status
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-border divide-y bg-white">
               {requests.map((req) => (
-                <tr key={req.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                <tr key={req.id} className="hover:bg-muted/50">
+                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                     {req.pilot_name}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-900">
+                  <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {req.request_type}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {format(new Date(req.start_date), 'MMM dd, yyyy')}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {format(new Date(req.end_date), 'MMM dd, yyyy')}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {req.days_count}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {req.roster_period}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
@@ -152,7 +152,9 @@ export default async function LeaveRequestsPage() {
             </tbody>
           </table>
         </div>
-        <div className="mt-4 text-sm text-gray-600">Showing {requests.length} leave requests</div>
+        <div className="text-muted-foreground mt-4 text-sm">
+          Showing {requests.length} leave requests
+        </div>
       </Card>
     </div>
   )

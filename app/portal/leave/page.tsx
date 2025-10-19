@@ -51,8 +51,8 @@ export default async function LeaveRequestsPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Leave Requests</h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <h1 className="text-foreground text-2xl font-bold">My Leave Requests</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
                 {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
               </p>
             </div>
@@ -74,32 +74,32 @@ export default async function LeaveRequestsPage() {
         {/* Statistics Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
           <Card className="bg-white p-6">
-            <p className="text-sm font-medium text-gray-600">Total Requests</p>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-muted-foreground text-sm font-medium">Total Requests</p>
+            <p className="text-foreground mt-2 text-3xl font-bold">{stats.total}</p>
           </Card>
           <Card className="border-primary/20 bg-primary/5 p-6">
-            <p className="text-sm font-medium text-gray-600">Pending</p>
+            <p className="text-muted-foreground text-sm font-medium">Pending</p>
             <p className="mt-2 text-3xl font-bold text-blue-700">{stats.pending}</p>
           </Card>
           <Card className="border-green-200 bg-green-50 p-6">
-            <p className="text-sm font-medium text-gray-600">Approved</p>
+            <p className="text-muted-foreground text-sm font-medium">Approved</p>
             <p className="mt-2 text-3xl font-bold text-green-700">{stats.approved}</p>
           </Card>
           <Card className="border-purple-200 bg-purple-50 p-6">
-            <p className="text-sm font-medium text-gray-600">Total Days</p>
+            <p className="text-muted-foreground text-sm font-medium">Total Days</p>
             <p className="mt-2 text-3xl font-bold text-purple-700">{stats.totalDays}</p>
           </Card>
         </div>
 
         {/* Leave Requests Table */}
         <Card className="bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">All Leave Requests</h2>
+          <h2 className="text-foreground mb-4 text-lg font-semibold">All Leave Requests</h2>
 
           {leaveRequests.length === 0 ? (
             <div className="py-12 text-center">
               <span className="mb-4 block text-6xl">📅</span>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">No Leave Requests Yet</h3>
-              <p className="mb-6 text-gray-600">
+              <h3 className="text-foreground mb-2 text-xl font-semibold">No Leave Requests Yet</h3>
+              <p className="text-muted-foreground mb-6">
                 You haven't submitted any leave requests. Get started by creating your first
                 request.
               </p>
@@ -111,45 +111,45 @@ export default async function LeaveRequestsPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="divide-border min-w-full divide-y">
+                <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Type
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Dates
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Days
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Roster Period
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Submitted
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
+                <tbody className="divide-border divide-y bg-white">
                   {leaveRequests.map((request) => (
-                    <tr key={request.id} className="hover:bg-gray-50">
+                    <tr key={request.id} className="hover:bg-muted/50">
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                        <span className="bg-muted text-foreground inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
                           {request.request_type}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-900">
+                      <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
                         {format(new Date(request.start_date), 'MMM dd, yyyy')} →{' '}
                         {format(new Date(request.end_date), 'MMM dd, yyyy')}
                       </td>
-                      <td className="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                      <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                         {request.days_count}
                       </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-600">
+                      <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                         {request.roster_period || 'N/A'}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
@@ -165,7 +165,7 @@ export default async function LeaveRequestsPage() {
                           {request.status}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                      <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                         {request.created_at
                           ? format(new Date(request.created_at), 'MMM dd, yyyy')
                           : 'N/A'}
@@ -178,7 +178,7 @@ export default async function LeaveRequestsPage() {
           )}
 
           {leaveRequests.length > 0 && (
-            <div className="mt-4 text-sm text-gray-600">
+            <div className="text-muted-foreground mt-4 text-sm">
               Showing {leaveRequests.length} requests
             </div>
           )}
@@ -189,8 +189,8 @@ export default async function LeaveRequestsPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">💡</span>
             <div>
-              <h3 className="mb-2 font-semibold text-gray-900">Leave Request Status</h3>
-              <div className="space-y-2 text-sm text-gray-700">
+              <h3 className="text-foreground mb-2 font-semibold">Leave Request Status</h3>
+              <div className="text-card-foreground space-y-2 text-sm">
                 <p>
                   <span className="font-medium">PENDING:</span> Your request is under review by
                   fleet management
@@ -204,7 +204,7 @@ export default async function LeaveRequestsPage() {
                   review comments)
                 </p>
               </div>
-              <p className="mt-4 text-sm text-gray-600">
+              <p className="text-muted-foreground mt-4 text-sm">
                 Questions?{' '}
                 <a href="mailto:fleet@airniugini.com.pg" className="text-blue-600 hover:underline">
                   fleet@airniugini.com.pg

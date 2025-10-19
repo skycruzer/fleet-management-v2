@@ -42,8 +42,8 @@ export default async function NewFlightRequestPage() {
         <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Submit Flight Request</h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <h1 className="text-foreground text-2xl font-bold">Submit Flight Request</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
                 {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
               </p>
             </div>
@@ -60,8 +60,8 @@ export default async function NewFlightRequestPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">ℹ️</span>
             <div>
-              <h3 className="mb-2 font-semibold text-gray-900">Flight Request Guidelines</h3>
-              <ul className="space-y-1 text-sm text-gray-700">
+              <h3 className="text-foreground mb-2 font-semibold">Flight Request Guidelines</h3>
+              <ul className="text-card-foreground space-y-1 text-sm">
                 <li>
                   • Additional flight requests are subject to crew availability and operational
                   needs
@@ -88,8 +88,8 @@ export default async function NewFlightRequestPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">💡</span>
             <div>
-              <h3 className="mb-2 font-semibold text-gray-900">Need Help?</h3>
-              <p className="mb-3 text-sm text-gray-700">
+              <h3 className="text-foreground mb-2 font-semibold">Need Help?</h3>
+              <p className="text-card-foreground mb-3 text-sm">
                 If you have questions about flight requests, operational requirements, or the
                 approval process:
               </p>

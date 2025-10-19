@@ -155,7 +155,7 @@ export default function PilotDetailPage() {
         <Card className="p-12 text-center">
           <div className="flex items-center justify-center space-x-2">
             <span className="animate-spin text-3xl">⏳</span>
-            <p className="text-gray-600">Loading pilot details...</p>
+            <p className="text-muted-foreground">Loading pilot details...</p>
           </div>
         </Card>
       </div>
@@ -169,8 +169,8 @@ export default function PilotDetailPage() {
           <div className="space-y-4">
             <span className="text-6xl">❌</span>
             <div>
-              <h3 className="mb-2 text-xl font-bold text-gray-900">Error</h3>
-              <p className="text-gray-600">{error || 'Pilot not found'}</p>
+              <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
+              <p className="text-muted-foreground">{error || 'Pilot not found'}</p>
             </div>
             <Link href="/dashboard/pilots">
               <Button variant="outline">← Back to Pilots</Button>
@@ -189,16 +189,16 @@ export default function PilotDetailPage() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-3">
-            <h2 className="text-2xl font-bold text-gray-900">{fullName}</h2>
+            <h2 className="text-foreground text-2xl font-bold">{fullName}</h2>
             <span
               className={`rounded-full px-3 py-1 text-sm font-medium ${
-                pilot.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                pilot.is_active ? 'bg-green-100 text-green-800' : 'bg-muted text-foreground'
               }`}
             >
               {pilot.is_active ? 'Active' : 'Inactive'}
             </span>
           </div>
-          <p className="mt-1 text-gray-600">
+          <p className="text-muted-foreground mt-1">
             {pilot.role} • Employee ID: {pilot.employee_id}
             {pilot.seniority_number && ` • Seniority #${pilot.seniority_number}`}
           </p>
@@ -227,10 +227,10 @@ export default function PilotDetailPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-foreground text-2xl font-bold">
                 {pilot.certificationStatus.current}
               </p>
-              <p className="text-sm font-medium text-gray-600">Current Certifications</p>
+              <p className="text-muted-foreground text-sm font-medium">Current Certifications</p>
             </div>
           </div>
         </Card>
@@ -238,10 +238,10 @@ export default function PilotDetailPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">⚠️</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-foreground text-2xl font-bold">
                 {pilot.certificationStatus.expiring}
               </p>
-              <p className="text-sm font-medium text-gray-600">Expiring Soon</p>
+              <p className="text-muted-foreground text-sm font-medium">Expiring Soon</p>
             </div>
           </div>
         </Card>
@@ -249,10 +249,10 @@ export default function PilotDetailPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">❌</span>
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-foreground text-2xl font-bold">
                 {pilot.certificationStatus.expired}
               </p>
-              <p className="text-sm font-medium text-gray-600">Expired Certifications</p>
+              <p className="text-muted-foreground text-sm font-medium">Expired Certifications</p>
             </div>
           </div>
         </Card>
@@ -261,31 +261,31 @@ export default function PilotDetailPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Basic Information */}
         <Card className="bg-white p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Basic Information
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">Employee ID:</span>
-              <span className="font-medium text-gray-900">{pilot.employee_id}</span>
+              <span className="text-muted-foreground">Employee ID:</span>
+              <span className="text-foreground font-medium">{pilot.employee_id}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Full Name:</span>
-              <span className="font-medium text-gray-900">{fullName}</span>
+              <span className="text-muted-foreground">Full Name:</span>
+              <span className="text-foreground font-medium">{fullName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Rank:</span>
-              <span className="font-medium text-gray-900">{pilot.role}</span>
+              <span className="text-muted-foreground">Rank:</span>
+              <span className="text-foreground font-medium">{pilot.role}</span>
             </div>
             {pilot.seniority_number && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Seniority Number:</span>
-                <span className="font-medium text-gray-900">#{pilot.seniority_number}</span>
+                <span className="text-muted-foreground">Seniority Number:</span>
+                <span className="text-foreground font-medium">#{pilot.seniority_number}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-gray-600">Status:</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Status:</span>
+              <span className="text-foreground font-medium">
                 {pilot.is_active ? 'Active' : 'Inactive'}
               </span>
             </div>
@@ -294,25 +294,25 @@ export default function PilotDetailPage() {
 
         {/* Employment Information */}
         <Card className="bg-white p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Employment Information
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">Contract Type:</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Contract Type:</span>
+              <span className="text-foreground font-medium">
                 {pilot.contract_type || 'Not specified'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Commencement Date:</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Commencement Date:</span>
+              <span className="text-foreground font-medium">
                 {formatDate(pilot.commencement_date)}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Years in Service:</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Years in Service:</span>
+              <span className="text-foreground font-medium">
                 {calculateYearsInService(pilot.commencement_date)}
               </span>
             </div>
@@ -321,21 +321,23 @@ export default function PilotDetailPage() {
 
         {/* Personal Information */}
         <Card className="bg-white p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Personal Information
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">Date of Birth:</span>
-              <span className="font-medium text-gray-900">{formatDate(pilot.date_of_birth)}</span>
+              <span className="text-muted-foreground">Date of Birth:</span>
+              <span className="text-foreground font-medium">{formatDate(pilot.date_of_birth)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Age:</span>
-              <span className="font-medium text-gray-900">{calculateAge(pilot.date_of_birth)}</span>
+              <span className="text-muted-foreground">Age:</span>
+              <span className="text-foreground font-medium">
+                {calculateAge(pilot.date_of_birth)}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Nationality:</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Nationality:</span>
+              <span className="text-foreground font-medium">
                 {pilot.nationality || 'Not specified'}
               </span>
             </div>
@@ -344,19 +346,21 @@ export default function PilotDetailPage() {
 
         {/* Passport Information */}
         <Card className="bg-white p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Passport Information
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">Passport Number:</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-muted-foreground">Passport Number:</span>
+              <span className="text-foreground font-medium">
                 {pilot.passport_number || 'Not specified'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Passport Expiry:</span>
-              <span className="font-medium text-gray-900">{formatDate(pilot.passport_expiry)}</span>
+              <span className="text-muted-foreground">Passport Expiry:</span>
+              <span className="text-foreground font-medium">
+                {formatDate(pilot.passport_expiry)}
+              </span>
             </div>
           </div>
         </Card>
@@ -365,7 +369,7 @@ export default function PilotDetailPage() {
       {/* Captain Qualifications - Only show if Captain */}
       {pilot.role === 'Captain' && (
         <Card className="bg-white p-6">
-          <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
             Captain Qualifications
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -379,7 +383,7 @@ export default function PilotDetailPage() {
                 </span>
               ))
             ) : (
-              <p className="text-gray-600">No qualifications specified</p>
+              <p className="text-muted-foreground">No qualifications specified</p>
             )}
           </div>
         </Card>
@@ -387,17 +391,17 @@ export default function PilotDetailPage() {
 
       {/* System Information */}
       <Card className="bg-white p-6">
-        <h3 className="mb-4 border-b pb-2 text-lg font-semibold text-gray-900">
+        <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
           System Information
         </h3>
         <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
           <div className="flex justify-between">
-            <span className="text-gray-600">Created:</span>
-            <span className="font-medium text-gray-900">{formatDate(pilot.created_at)}</span>
+            <span className="text-muted-foreground">Created:</span>
+            <span className="text-foreground font-medium">{formatDate(pilot.created_at)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">Last Updated:</span>
-            <span className="font-medium text-gray-900">{formatDate(pilot.updated_at)}</span>
+            <span className="text-muted-foreground">Last Updated:</span>
+            <span className="text-foreground font-medium">{formatDate(pilot.updated_at)}</span>
           </div>
         </div>
       </Card>

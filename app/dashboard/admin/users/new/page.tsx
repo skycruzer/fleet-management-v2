@@ -66,8 +66,8 @@ export default function NewUserPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Add New User</h2>
-          <p className="mt-1 text-gray-600">Create a new system user account</p>
+          <h2 className="text-foreground text-2xl font-bold">Add New User</h2>
+          <p className="text-muted-foreground mt-1">Create a new system user account</p>
         </div>
         <Link href="/dashboard/admin/users">
           <Button variant="outline">← Back to Users</Button>
@@ -86,7 +86,9 @@ export default function NewUserPage() {
 
           {/* User Information Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">User Information</h3>
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
+              User Information
+            </h3>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Full Name */}
@@ -102,7 +104,7 @@ export default function NewUserPage() {
                   className={errors.name ? 'border-red-500' : ''}
                 />
                 {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
-                <p className="text-xs text-gray-500">Minimum 2 characters</p>
+                <p className="text-muted-foreground text-xs">Minimum 2 characters</p>
               </div>
 
               {/* Email Address */}
@@ -118,14 +120,14 @@ export default function NewUserPage() {
                   className={errors.email ? 'border-red-500' : ''}
                 />
                 {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
-                <p className="text-xs text-gray-500">Must be a valid email address</p>
+                <p className="text-muted-foreground text-xs">Must be a valid email address</p>
               </div>
             </div>
           </div>
 
           {/* Role Assignment Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Role Assignment</h3>
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">Role Assignment</h3>
 
             <div className="space-y-2">
               <Label htmlFor="role">
@@ -135,7 +137,7 @@ export default function NewUserPage() {
                 id="role"
                 {...register('role')}
                 className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors.role ? 'border-red-500' : 'border-gray-300'
+                  errors.role ? 'border-red-500' : 'border-border'
                 }`}
               >
                 <option value="User">User (Read-only access)</option>
@@ -147,8 +149,8 @@ export default function NewUserPage() {
 
             {/* Role Descriptions */}
             <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <p className="text-sm font-medium text-gray-900">Role Permissions:</p>
-              <ul className="space-y-2 text-sm text-gray-700">
+              <p className="text-foreground text-sm font-medium">Role Permissions:</p>
+              <ul className="text-card-foreground space-y-2 text-sm">
                 <li className="flex items-start space-x-2">
                   <span className="font-bold text-blue-600">•</span>
                   <div>
@@ -204,8 +206,8 @@ export default function NewUserPage() {
         <div className="flex items-start space-x-3">
           <span className="text-2xl">⚠️</span>
           <div className="space-y-1">
-            <p className="text-sm font-medium text-gray-900">Important Notes</p>
-            <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
+            <p className="text-foreground text-sm font-medium">Important Notes</p>
+            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>Email addresses must be unique in the system</li>
               <li>Users will need to set their password through the authentication system</li>
               <li>Admin role should only be assigned to trusted personnel</li>

@@ -58,8 +58,8 @@ export default async function FlightRequestsPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Flight Requests</h1>
-              <p className="mt-1 text-sm text-gray-600">
+              <h1 className="text-foreground text-2xl font-bold">My Flight Requests</h1>
+              <p className="text-muted-foreground mt-1 text-sm">
                 {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
               </p>
             </div>
@@ -81,55 +81,55 @@ export default async function FlightRequestsPage() {
         {/* Statistics Cards */}
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
           <Card className="bg-white p-6">
-            <p className="text-sm font-medium text-gray-600">Total Requests</p>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-muted-foreground text-sm font-medium">Total Requests</p>
+            <p className="text-foreground mt-2 text-3xl font-bold">{stats.total}</p>
           </Card>
           <Card className="border-primary/20 bg-primary/5 p-6">
-            <p className="text-sm font-medium text-gray-600">Pending</p>
+            <p className="text-muted-foreground text-sm font-medium">Pending</p>
             <p className="mt-2 text-3xl font-bold text-blue-700">{stats.pending}</p>
           </Card>
           <Card className="border-green-200 bg-green-50 p-6">
-            <p className="text-sm font-medium text-gray-600">Approved</p>
+            <p className="text-muted-foreground text-sm font-medium">Approved</p>
             <p className="mt-2 text-3xl font-bold text-green-700">{stats.approved}</p>
           </Card>
           <Card className="border-red-200 bg-red-50 p-6">
-            <p className="text-sm font-medium text-gray-600">Denied</p>
+            <p className="text-muted-foreground text-sm font-medium">Denied</p>
             <p className="mt-2 text-3xl font-bold text-red-700">{stats.denied}</p>
           </Card>
         </div>
 
         {/* Request Type Breakdown */}
         <Card className="mb-8 bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Requests by Type</h2>
+          <h2 className="text-foreground mb-4 text-lg font-semibold">Requests by Type</h2>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div className="rounded-lg bg-blue-50 p-4 text-center">
               <p className="text-2xl font-bold text-blue-700">{typeBreakdown.additional}</p>
-              <p className="mt-1 text-xs text-gray-600">Additional Flights</p>
+              <p className="text-muted-foreground mt-1 text-xs">Additional Flights</p>
             </div>
             <div className="rounded-lg bg-purple-50 p-4 text-center">
               <p className="text-2xl font-bold text-purple-700">{typeBreakdown.routeChange}</p>
-              <p className="mt-1 text-xs text-gray-600">Route Changes</p>
+              <p className="text-muted-foreground mt-1 text-xs">Route Changes</p>
             </div>
             <div className="rounded-lg bg-indigo-50 p-4 text-center">
               <p className="text-2xl font-bold text-indigo-700">{typeBreakdown.schedule}</p>
-              <p className="mt-1 text-xs text-gray-600">Schedule Preferences</p>
+              <p className="text-muted-foreground mt-1 text-xs">Schedule Preferences</p>
             </div>
             <div className="rounded-lg bg-teal-50 p-4 text-center">
               <p className="text-2xl font-bold text-teal-700">{typeBreakdown.pickup}</p>
-              <p className="mt-1 text-xs text-gray-600">Pickup Requests</p>
+              <p className="text-muted-foreground mt-1 text-xs">Pickup Requests</p>
             </div>
           </div>
         </Card>
 
         {/* Flight Requests Table */}
         <Card className="bg-white p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">All Flight Requests</h2>
+          <h2 className="text-foreground mb-4 text-lg font-semibold">All Flight Requests</h2>
 
           {flightRequests.length === 0 ? (
             <div className="py-12 text-center">
               <span className="mb-4 block text-6xl">✈️</span>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">No Flight Requests Yet</h3>
-              <p className="mb-6 text-gray-600">
+              <h3 className="text-foreground mb-2 text-xl font-semibold">No Flight Requests Yet</h3>
+              <p className="text-muted-foreground mb-6">
                 You haven't submitted any flight requests. Get started by creating your first
                 request.
               </p>
@@ -141,29 +141,29 @@ export default async function FlightRequestsPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="divide-border min-w-full divide-y">
+                <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Type
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Flight Date
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Details
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Status
                     </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                    <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                       Submitted
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
+                <tbody className="divide-border divide-y bg-white">
                   {flightRequests.map((request) => (
-                    <tr key={request.id} className="hover:bg-gray-50">
+                    <tr key={request.id} className="hover:bg-muted/50">
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -179,16 +179,18 @@ export default async function FlightRequestsPage() {
                           {request.request_type?.replace('_', ' ') || 'N/A'}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-900">
+                      <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
                         {format(new Date(request.flight_date), 'MMM dd, yyyy')}
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-600">
+                      <td className="text-muted-foreground px-4 py-4 text-sm">
                         <div className="max-w-md">
                           {request.route && (
-                            <p className="font-medium text-gray-900">{request.route}</p>
+                            <p className="text-foreground font-medium">{request.route}</p>
                           )}
                           {request.flight_number && (
-                            <p className="text-xs text-gray-500">Flight {request.flight_number}</p>
+                            <p className="text-muted-foreground text-xs">
+                              Flight {request.flight_number}
+                            </p>
                           )}
                           <p className="truncate">{request.description}</p>
                         </div>
@@ -206,7 +208,7 @@ export default async function FlightRequestsPage() {
                           {request.status}
                         </span>
                       </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                      <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                         {request.created_at
                           ? format(new Date(request.created_at), 'MMM dd, yyyy')
                           : 'N/A'}
@@ -219,7 +221,7 @@ export default async function FlightRequestsPage() {
           )}
 
           {flightRequests.length > 0 && (
-            <div className="mt-4 text-sm text-gray-600">
+            <div className="text-muted-foreground mt-4 text-sm">
               Showing {flightRequests.length} requests
             </div>
           )}
@@ -230,8 +232,8 @@ export default async function FlightRequestsPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">💡</span>
             <div>
-              <h3 className="mb-2 font-semibold text-gray-900">Flight Request Status</h3>
-              <div className="space-y-2 text-sm text-gray-700">
+              <h3 className="text-foreground mb-2 font-semibold">Flight Request Status</h3>
+              <div className="text-card-foreground space-y-2 text-sm">
                 <p>
                   <span className="font-medium">PENDING:</span> Your request is under review by
                   fleet management
@@ -245,7 +247,7 @@ export default async function FlightRequestsPage() {
                   review comments)
                 </p>
               </div>
-              <p className="mt-4 text-sm text-gray-600">
+              <p className="text-muted-foreground mt-4 text-sm">
                 Questions?{' '}
                 <a href="mailto:fleet@airniugini.com.pg" className="text-blue-600 hover:underline">
                   fleet@airniugini.com.pg

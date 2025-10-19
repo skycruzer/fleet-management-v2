@@ -70,8 +70,8 @@ export default function NewPilotPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Add New Pilot</h2>
-          <p className="mt-1 text-gray-600">Create a new pilot profile</p>
+          <h2 className="text-foreground text-2xl font-bold">Add New Pilot</h2>
+          <p className="text-muted-foreground mt-1">Create a new pilot profile</p>
         </div>
         <Link href="/dashboard/pilots">
           <Button variant="outline">← Back to Pilots</Button>
@@ -90,7 +90,9 @@ export default function NewPilotPage() {
 
           {/* Basic Information Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Basic Information</h3>
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
+              Basic Information
+            </h3>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {/* Employee ID */}
@@ -108,7 +110,7 @@ export default function NewPilotPage() {
                 {errors.employee_id && (
                   <p className="text-sm text-red-600">{errors.employee_id.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Must be exactly 6 digits</p>
+                <p className="text-muted-foreground text-xs">Must be exactly 6 digits</p>
               </div>
 
               {/* Role */}
@@ -120,7 +122,7 @@ export default function NewPilotPage() {
                   id="role"
                   {...register('role')}
                   className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.role ? 'border-red-500' : 'border-gray-300'
+                    errors.role ? 'border-red-500' : 'border-border'
                   }`}
                 >
                   <option value="Captain">Captain</option>
@@ -184,7 +186,7 @@ export default function NewPilotPage() {
 
           {/* Employment Information Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
               Employment Information
             </h3>
 
@@ -195,7 +197,7 @@ export default function NewPilotPage() {
                 <select
                   id="contract_type"
                   {...register('contract_type')}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="">Select contract type...</option>
                   <option value="Fixed Term">Fixed Term</option>
@@ -216,7 +218,7 @@ export default function NewPilotPage() {
                 {errors.commencement_date && (
                   <p className="text-sm text-red-600">{errors.commencement_date.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Used to calculate seniority</p>
+                <p className="text-muted-foreground text-xs">Used to calculate seniority</p>
               </div>
 
               {/* Active Status */}
@@ -233,7 +235,7 @@ export default function NewPilotPage() {
                       defaultChecked
                       className="h-4 w-4 text-blue-600"
                     />
-                    <span className="text-sm font-medium text-gray-700">Active</span>
+                    <span className="text-card-foreground text-sm font-medium">Active</span>
                   </label>
                   <label className="flex cursor-pointer items-center space-x-2">
                     <input
@@ -244,7 +246,7 @@ export default function NewPilotPage() {
                       })}
                       className="h-4 w-4 text-blue-600"
                     />
-                    <span className="text-sm font-medium text-gray-700">Inactive</span>
+                    <span className="text-card-foreground text-sm font-medium">Inactive</span>
                   </label>
                 </div>
               </div>
@@ -253,7 +255,7 @@ export default function NewPilotPage() {
 
           {/* Personal Information Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
               Personal Information
             </h3>
 
@@ -270,7 +272,7 @@ export default function NewPilotPage() {
                 {errors.date_of_birth && (
                   <p className="text-sm text-red-600">{errors.date_of_birth.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Must be at least 18 years old</p>
+                <p className="text-muted-foreground text-xs">Must be at least 18 years old</p>
               </div>
 
               {/* Nationality */}
@@ -292,7 +294,7 @@ export default function NewPilotPage() {
 
           {/* Passport Information Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
               Passport Information
             </h3>
 
@@ -310,7 +312,7 @@ export default function NewPilotPage() {
                 {errors.passport_number && (
                   <p className="text-sm text-red-600">{errors.passport_number.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Uppercase letters and numbers only</p>
+                <p className="text-muted-foreground text-xs">Uppercase letters and numbers only</p>
               </div>
 
               {/* Passport Expiry */}
@@ -325,7 +327,9 @@ export default function NewPilotPage() {
                 {errors.passport_expiry && (
                   <p className="text-sm text-red-600">{errors.passport_expiry.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Required if passport number is provided</p>
+                <p className="text-muted-foreground text-xs">
+                  Required if passport number is provided
+                </p>
               </div>
             </div>
           </div>
@@ -333,7 +337,7 @@ export default function NewPilotPage() {
           {/* Captain Qualifications Section - Only show if Captain */}
           {selectedRole === 'Captain' && (
             <div className="space-y-4">
-              <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
+              <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
                 Captain Qualifications
               </h3>
 
@@ -414,8 +418,8 @@ export default function NewPilotPage() {
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div className="space-y-1">
-            <p className="text-sm font-medium text-gray-900">Form Tips</p>
-            <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
+            <p className="text-foreground text-sm font-medium">Form Tips</p>
+            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>
                 Fields marked with <span className="text-red-500">*</span> are required
               </li>

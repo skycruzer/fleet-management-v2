@@ -22,8 +22,8 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-        <p className="mt-1 text-gray-600">Fleet overview and key metrics</p>
+        <h2 className="text-foreground text-2xl font-bold">Dashboard</h2>
+        <p className="text-muted-foreground mt-1">Fleet overview and key metrics</p>
       </div>
 
       {/* Metrics Grid */}
@@ -104,11 +104,11 @@ export default async function DashboardPage() {
             <div className="flex items-start space-x-4">
               <div className="text-2xl">⚠️</div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-foreground text-lg font-semibold">
                   {expiringCerts.length} Certification
                   {expiringCerts.length > 1 ? 's' : ''} Expiring Soon
                 </h3>
-                <p className="mt-1 text-gray-600">
+                <p className="text-muted-foreground mt-1">
                   Review and renew certifications expiring within 30 days
                 </p>
                 <div className="mt-4 space-y-2">
@@ -117,14 +117,18 @@ export default async function DashboardPage() {
                       key={`${cert.employeeId}-${cert.checkCode}-${cert.expiryDate.toISOString()}`}
                       className="flex items-center justify-between text-sm"
                     >
-                      <span className="text-gray-700">
+                      <span className="text-card-foreground">
                         {cert.pilotName} - {cert.checkDescription}
                       </span>
-                      <span className="text-gray-500">{cert.status.daysUntilExpiry} days left</span>
+                      <span className="text-muted-foreground">
+                        {cert.status.daysUntilExpiry} days left
+                      </span>
                     </div>
                   ))}
                   {expiringCerts.length > 5 && (
-                    <p className="mt-2 text-sm text-gray-500">+{expiringCerts.length - 5} more</p>
+                    <p className="text-muted-foreground mt-2 text-sm">
+                      +{expiringCerts.length - 5} more
+                    </p>
                   )}
                 </div>
               </div>
@@ -135,7 +139,7 @@ export default async function DashboardPage() {
 
       {/* Quick Actions */}
       <div>
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h3>
+        <h3 className="text-foreground mb-4 text-lg font-semibold">Quick Actions</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <ActionCard
             title="Add Pilot"
@@ -186,9 +190,9 @@ function MetricCard({
     <Card className={`p-6 ${colorClasses[color]}`}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
-          <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
+          <p className="text-muted-foreground text-sm font-medium">{title}</p>
+          <p className="text-foreground mt-2 text-3xl font-bold">{value}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
         </div>
         <span className="text-3xl">{icon}</span>
       </div>
@@ -220,9 +224,9 @@ function CertificationCard({
       <div className="flex items-center space-x-3">
         <span className="text-2xl">{icon}</span>
         <div>
-          <p className="text-2xl font-bold text-gray-900">{count}</p>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          {subtitle && <p className="mt-1 text-xs text-gray-500">{subtitle}</p>}
+          <p className="text-foreground text-2xl font-bold">{count}</p>
+          <p className="text-muted-foreground text-sm font-medium">{title}</p>
+          {subtitle && <p className="text-muted-foreground mt-1 text-xs">{subtitle}</p>}
         </div>
       </div>
     </Card>
@@ -243,13 +247,13 @@ function ActionCard({
   return (
     <a
       href={href}
-      className="block rounded-lg border border-gray-200 bg-white p-6 transition-all hover:border-blue-300 hover:shadow-md"
+      className="border-border block rounded-lg border bg-white p-6 transition-all hover:border-blue-300 hover:shadow-md"
     >
       <div className="flex items-start space-x-3">
         <span className="text-2xl">{icon}</span>
         <div>
-          <h4 className="font-semibold text-gray-900">{title}</h4>
-          <p className="mt-1 text-sm text-gray-600">{description}</p>
+          <h4 className="text-foreground font-semibold">{title}</h4>
+          <p className="text-muted-foreground mt-1 text-sm">{description}</p>
         </div>
       </div>
     </a>

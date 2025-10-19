@@ -34,8 +34,8 @@ export default async function AdminPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Admin Settings</h2>
-          <p className="mt-1 text-gray-600">System configuration and user management</p>
+          <h2 className="text-foreground text-2xl font-bold">Admin Settings</h2>
+          <p className="text-muted-foreground mt-1">System configuration and user management</p>
         </div>
         <Link href="/dashboard/admin/users/new">
           <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -50,8 +50,8 @@ export default async function AdminPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
-              <p className="text-sm font-medium text-gray-600">System Status</p>
-              <p className="mt-1 text-lg font-bold text-gray-900">All Systems Operational</p>
+              <p className="text-muted-foreground text-sm font-medium">System Status</p>
+              <p className="text-foreground mt-1 text-lg font-bold">All Systems Operational</p>
             </div>
           </div>
         </Card>
@@ -60,8 +60,8 @@ export default async function AdminPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">👥</span>
             <div>
-              <p className="text-sm font-medium text-gray-600">Active Users</p>
-              <p className="mt-1 text-lg font-bold text-gray-900">
+              <p className="text-muted-foreground text-sm font-medium">Active Users</p>
+              <p className="text-foreground mt-1 text-lg font-bold">
                 {stats.totalAdmins + stats.totalManagers} Admin, {stats.totalPilots} Pilots
               </p>
             </div>
@@ -72,8 +72,10 @@ export default async function AdminPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📋</span>
             <div>
-              <p className="text-sm font-medium text-gray-600">Check Types</p>
-              <p className="mt-1 text-lg font-bold text-gray-900">{stats.totalCheckTypes} Types</p>
+              <p className="text-muted-foreground text-sm font-medium">Check Types</p>
+              <p className="text-foreground mt-1 text-lg font-bold">
+                {stats.totalCheckTypes} Types
+              </p>
             </div>
           </div>
         </Card>
@@ -82,8 +84,8 @@ export default async function AdminPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📊</span>
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Records</p>
-              <p className="mt-1 text-lg font-bold text-gray-900">
+              <p className="text-muted-foreground text-sm font-medium">Total Records</p>
+              <p className="text-foreground mt-1 text-lg font-bold">
                 {stats.totalCertifications} Certs
               </p>
             </div>
@@ -93,32 +95,32 @@ export default async function AdminPage() {
 
       {/* Admin Users Section */}
       <Card className="bg-white p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Admin & Manager Users</h3>
+        <h3 className="text-foreground mb-4 text-lg font-semibold">Admin & Manager Users</h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="divide-border min-w-full divide-y">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Email
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Role
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Created
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-border divide-y bg-white">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                <tr key={user.id} className="hover:bg-muted/50">
+                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                     {user.name}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-600">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {user.email}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
@@ -132,7 +134,7 @@ export default async function AdminPage() {
                       {user.role.toUpperCase()}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
                   </td>
                 </tr>
@@ -140,12 +142,12 @@ export default async function AdminPage() {
             </tbody>
           </table>
         </div>
-        <div className="mt-4 text-sm text-gray-600">Showing {users.length} users</div>
+        <div className="text-muted-foreground mt-4 text-sm">Showing {users.length} users</div>
       </Card>
 
       {/* Check Types by Category */}
       <Card className="bg-white p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+        <h3 className="text-foreground mb-4 text-lg font-semibold">
           Check Types Configuration ({checkTypes.length} total)
         </h3>
 
@@ -154,9 +156,9 @@ export default async function AdminPage() {
           {categories.map((category) => {
             const count = checkTypes.filter((ct) => ct.category === category).length
             return (
-              <Card key={category} className="bg-gray-50 p-4">
-                <p className="text-sm font-medium text-gray-600">{category}</p>
-                <p className="mt-1 text-2xl font-bold text-gray-900">{count}</p>
+              <Card key={category} className="bg-muted/50 p-4">
+                <p className="text-muted-foreground text-sm font-medium">{category}</p>
+                <p className="text-foreground mt-1 text-2xl font-bold">{count}</p>
               </Card>
             )
           })}
@@ -164,34 +166,36 @@ export default async function AdminPage() {
 
         {/* Check Types Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="divide-border min-w-full divide-y">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Code
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Description
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Category
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Updated
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-border divide-y bg-white">
               {checkTypes.slice(0, 15).map((checkType) => (
-                <tr key={checkType.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                <tr key={checkType.id} className="hover:bg-muted/50">
+                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                     {checkType.check_code}
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-900">{checkType.check_description}</td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-600">
+                  <td className="text-foreground px-4 py-4 text-sm">
+                    {checkType.check_description}
+                  </td>
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {checkType.category || 'N/A'}
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
                   </td>
                 </tr>
@@ -199,25 +203,25 @@ export default async function AdminPage() {
             </tbody>
           </table>
         </div>
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="text-muted-foreground mt-4 text-sm">
           Showing {Math.min(15, checkTypes.length)} of {checkTypes.length} check types
         </div>
       </Card>
 
       {/* System Settings */}
       <Card className="bg-white p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">System Settings</h3>
+        <h3 className="text-foreground mb-4 text-lg font-semibold">System Settings</h3>
         <div className="space-y-4">
           {settings.map((setting) => (
-            <Card key={setting.id} className="bg-gray-50 p-4">
+            <Card key={setting.id} className="bg-muted/50 p-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{setting.key}</p>
+                  <p className="text-foreground text-sm font-medium">{setting.key}</p>
                   {setting.description && (
-                    <p className="mt-1 text-sm text-gray-600">{setting.description}</p>
+                    <p className="text-muted-foreground mt-1 text-sm">{setting.description}</p>
                   )}
                   <div className="mt-2">
-                    <pre className="overflow-x-auto rounded border border-gray-200 bg-white p-2 text-xs text-gray-700">
+                    <pre className="border-border text-card-foreground overflow-x-auto rounded border bg-white p-2 text-xs">
                       {JSON.stringify(setting.value, null, 2)}
                     </pre>
                   </div>
@@ -230,38 +234,38 @@ export default async function AdminPage() {
           ))}
         </div>
         {settings.length === 0 && (
-          <p className="py-8 text-center text-gray-500">No system settings configured</p>
+          <p className="text-muted-foreground py-8 text-center">No system settings configured</p>
         )}
       </Card>
 
       {/* Contract Types */}
       <Card className="bg-white p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Contract Types</h3>
+        <h3 className="text-foreground mb-4 text-lg font-semibold">Contract Types</h3>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="divide-border min-w-full divide-y">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Description
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Created
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-border divide-y bg-white">
               {contractTypes.map((contract) => (
-                <tr key={contract.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                <tr key={contract.id} className="hover:bg-muted/50">
+                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                     {contract.name}
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-600">
+                  <td className="text-muted-foreground px-4 py-4 text-sm">
                     {contract.description || 'N/A'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
@@ -269,13 +273,13 @@ export default async function AdminPage() {
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         contract.is_active
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                          : 'bg-muted text-foreground'
                       }`}
                     >
                       {contract.is_active ? 'ACTIVE' : 'INACTIVE'}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-500">
+                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                     {format(new Date(contract.created_at), 'MMM dd, yyyy')}
                   </td>
                 </tr>
@@ -283,29 +287,29 @@ export default async function AdminPage() {
             </tbody>
           </table>
         </div>
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="text-muted-foreground mt-4 text-sm">
           Showing {contractTypes.length} contract types
         </div>
       </Card>
 
       {/* Quick Actions */}
       <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h3>
+        <h3 className="text-foreground mb-4 text-lg font-semibold">Quick Actions</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Button variant="outline" className="flex h-auto flex-col items-start py-4">
             <span className="mb-2 text-2xl">👤</span>
             <span className="font-semibold">Add New User</span>
-            <span className="text-xs text-gray-600">Create admin or manager account</span>
+            <span className="text-muted-foreground text-xs">Create admin or manager account</span>
           </Button>
           <Button variant="outline" className="flex h-auto flex-col items-start py-4">
             <span className="mb-2 text-2xl">📋</span>
             <span className="font-semibold">Manage Check Types</span>
-            <span className="text-xs text-gray-600">Add or edit certification types</span>
+            <span className="text-muted-foreground text-xs">Add or edit certification types</span>
           </Button>
           <Button variant="outline" className="flex h-auto flex-col items-start py-4">
             <span className="mb-2 text-2xl">⚙️</span>
             <span className="font-semibold">System Settings</span>
-            <span className="text-xs text-gray-600">Configure system preferences</span>
+            <span className="text-muted-foreground text-xs">Configure system preferences</span>
           </Button>
         </div>
       </Card>

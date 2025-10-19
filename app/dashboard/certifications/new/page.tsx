@@ -121,7 +121,7 @@ export default function NewCertificationPage() {
         <Card className="p-12 text-center">
           <div className="flex items-center justify-center space-x-2">
             <span className="animate-spin text-3xl">⏳</span>
-            <p className="text-gray-600">Loading form data...</p>
+            <p className="text-muted-foreground">Loading form data...</p>
           </div>
         </Card>
       </div>
@@ -133,8 +133,8 @@ export default function NewCertificationPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Add New Certification</h2>
-          <p className="mt-1 text-gray-600">Record a new pilot certification</p>
+          <h2 className="text-foreground text-2xl font-bold">Add New Certification</h2>
+          <p className="text-muted-foreground mt-1">Record a new pilot certification</p>
         </div>
         <Link href="/dashboard/certifications">
           <Button variant="outline">← Back to Certifications</Button>
@@ -153,7 +153,7 @@ export default function NewCertificationPage() {
 
           {/* Basic Information Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
               Certification Details
             </h3>
 
@@ -167,7 +167,7 @@ export default function NewCertificationPage() {
                   id="pilot_id"
                   {...register('pilot_id')}
                   className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.pilot_id ? 'border-red-500' : 'border-gray-300'
+                    errors.pilot_id ? 'border-red-500' : 'border-border'
                   }`}
                 >
                   <option value="">Select a pilot...</option>
@@ -191,7 +191,7 @@ export default function NewCertificationPage() {
                   id="check_type_id"
                   {...register('check_type_id')}
                   className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.check_type_id ? 'border-red-500' : 'border-gray-300'
+                    errors.check_type_id ? 'border-red-500' : 'border-border'
                   }`}
                 >
                   <option value="">Select a check type...</option>
@@ -211,7 +211,9 @@ export default function NewCertificationPage() {
 
           {/* Date Information Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">Date Information</h3>
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
+              Date Information
+            </h3>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* Completion Date */}
@@ -226,7 +228,7 @@ export default function NewCertificationPage() {
                 {errors.completion_date && (
                   <p className="text-sm text-red-600">{errors.completion_date.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Cannot be in the future</p>
+                <p className="text-muted-foreground text-xs">Cannot be in the future</p>
               </div>
 
               {/* Expiry Date */}
@@ -241,7 +243,7 @@ export default function NewCertificationPage() {
                 {errors.expiry_date && (
                   <p className="text-sm text-red-600">{errors.expiry_date.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Must be after completion date</p>
+                <p className="text-muted-foreground text-xs">Must be after completion date</p>
               </div>
 
               {/* Expiry Roster Period */}
@@ -257,14 +259,14 @@ export default function NewCertificationPage() {
                 {errors.expiry_roster_period && (
                   <p className="text-sm text-red-600">{errors.expiry_roster_period.message}</p>
                 )}
-                <p className="text-xs text-gray-500">Format: RP1-13/YYYY</p>
+                <p className="text-muted-foreground text-xs">Format: RP1-13/YYYY</p>
               </div>
             </div>
           </div>
 
           {/* Notes Section */}
           <div className="space-y-4">
-            <h3 className="border-b pb-2 text-lg font-semibold text-gray-900">
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
               Additional Information
             </h3>
 
@@ -276,11 +278,11 @@ export default function NewCertificationPage() {
                 rows={4}
                 placeholder="Add any additional notes about this certification..."
                 className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors.notes ? 'border-red-500' : 'border-gray-300'
+                  errors.notes ? 'border-red-500' : 'border-border'
                 }`}
               />
               {errors.notes && <p className="text-sm text-red-600">{errors.notes.message}</p>}
-              <p className="text-xs text-gray-500">Maximum 500 characters</p>
+              <p className="text-muted-foreground text-xs">Maximum 500 characters</p>
             </div>
           </div>
 
@@ -314,8 +316,8 @@ export default function NewCertificationPage() {
         <div className="flex items-start space-x-3">
           <span className="text-2xl">ℹ️</span>
           <div className="space-y-1">
-            <p className="text-sm font-medium text-gray-900">Form Tips</p>
-            <ul className="list-inside list-disc space-y-1 text-sm text-gray-600">
+            <p className="text-foreground text-sm font-medium">Form Tips</p>
+            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>Both pilot and check type are required</li>
               <li>Completion date must be today or in the past</li>
               <li>Expiry date must be after the completion date</li>
