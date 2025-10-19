@@ -141,7 +141,7 @@ async function getPilotIdFromPilotUserId(pilotUserId: string): Promise<string | 
       // Log error type only, no user IDs
       console.error('Error fetching pilot_id from pilot_user_mappings:', {
         errorCode: error.code,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
       return null
     }
@@ -151,7 +151,7 @@ async function getPilotIdFromPilotUserId(pilotUserId: string): Promise<string | 
     // Log error type only, no user data
     console.error('Error in getPilotIdFromPilotUserId:', {
       errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     })
     return null
   }
@@ -163,50 +163,43 @@ async function getPilotIdFromPilotUserId(pilotUserId: string): Promise<string | 
 
 /**
  * Get current pilot user from Supabase auth
- * CACHED: 1 hour (user data rarely changes during session)
+ * NOTE: Not cached because it accesses dynamic auth state via cookies
  */
-export const getCurrentPilotUser = unstable_cache(
-  async (): Promise<PilotUser | null> => {
-    try {
-      const supabase = await createClient()
+export async function getCurrentPilotUser(): Promise<PilotUser | null> {
+  try {
+    const supabase = await createClient()
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-      if (!user?.email) return null
+    if (!user?.email) return null
 
-      const { data, error } = await supabase
-        .from('pilot_users')
-        .select('*')
-        .eq('email', user.email)
-        .single()
+    const { data, error } = await supabase
+      .from('pilot_users')
+      .select('*')
+      .eq('email', user.email)
+      .single()
 
-      if (error) {
-        // Log error type only, no email or user data
-        console.error('Error fetching pilot user:', {
-          errorCode: error.code,
-          errorMessage: error.message,
-        })
-        return null
-      }
-
-      return data
-    } catch (error) {
-      // Log error type only, no user data
-      console.error('Error in getCurrentPilotUser:', {
-        errorType: error instanceof Error ? error.name : 'Unknown',
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    if (error) {
+      // Log error type only, no email or user data
+      console.error('Error fetching pilot user:', {
+        errorCode: error.code,
+        errorMessage: error.message,
       })
       return null
     }
-  },
-  ['current-pilot-user'],
-  {
-    revalidate: 3600, // 1 hour
-    tags: ['pilot-user'],
+
+    return data
+  } catch (error) {
+    // Log error type only, no user data
+    console.error('Error in getCurrentPilotUser:', {
+      errorType: error instanceof Error ? error.name : 'Unknown',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    })
+    return null
   }
-)
+}
 
 /**
  * Get pilot dashboard statistics
@@ -224,10 +217,7 @@ export async function getPilotDashboardStats(pilotUserId: string): Promise<Pilot
 
     // Fetch all stats in parallel
     const [leaveRequests, certifications] = await Promise.all([
-      supabase
-        .from('leave_requests')
-        .select('*')
-        .eq('pilot_user_id', pilotUserId),
+      supabase.from('leave_requests').select('*').eq('pilot_user_id', pilotUserId),
       supabase
         .from('pilot_checks')
         .select(
@@ -245,8 +235,7 @@ export async function getPilotDashboardStats(pilotUserId: string): Promise<Pilot
       leaveRequests.data?.filter((r) => r.status === 'PENDING').length || 0
     const approvedLeaveRequests =
       leaveRequests.data?.filter((r) => r.status === 'APPROVED').length || 0
-    const totalLeaveDays =
-      leaveRequests.data?.reduce((sum, r) => sum + (r.days_count || 0), 0) || 0
+    const totalLeaveDays = leaveRequests.data?.reduce((sum, r) => sum + (r.days_count || 0), 0) || 0
 
     // Calculate certification stats
     const today = new Date()
@@ -287,7 +276,7 @@ export async function getPilotDashboardStats(pilotUserId: string): Promise<Pilot
     // Log error type only, no user IDs or stats data
     console.error('Error in getPilotDashboardStats:', {
       errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     })
     throw error
   }
@@ -371,7 +360,7 @@ export async function submitLeaveRequest(
       // Log error type only, no leave request data (reasons may contain medical info)
       console.error('Error submitting leave request:', {
         errorCode: error.code,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
       throw new Error(`Failed to submit leave request: ${error.message}`)
     }
@@ -466,7 +455,10 @@ export async function submitFlightRequest(
 
     if (error) {
       // Check if error is a unique constraint violation
-      if (error.code === '23505' && error.message.includes('flight_requests_pilot_date_type_unique')) {
+      if (
+        error.code === '23505' &&
+        error.message.includes('flight_requests_pilot_date_type_unique')
+      ) {
         const duplicateError = new Error(
           'A flight request for this date and type already exists. Please check your existing requests or select a different date.'
         )
@@ -477,7 +469,7 @@ export async function submitFlightRequest(
       // Log error type only, no flight request data (may contain sensitive reasons)
       console.error('Error submitting flight request:', {
         errorCode: error.code,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
       throw new Error(`Failed to submit flight request: ${error.message}`)
     }
@@ -512,9 +504,7 @@ export async function submitFlightRequest(
 /**
  * Get all certifications for current pilot
  */
-export async function getPilotCertifications(
-  pilotUserId: string
-): Promise<PilotCertification[]> {
+export async function getPilotCertifications(pilotUserId: string): Promise<PilotCertification[]> {
   try {
     const supabase = await createClient()
 
@@ -546,7 +536,7 @@ export async function getPilotCertifications(
       // Log error type only, no user IDs or certification data
       console.error('Error fetching certifications:', {
         errorCode: error.code,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
       throw new Error(`Failed to fetch certifications: ${error.message}`)
     }
@@ -600,7 +590,7 @@ export async function getPilotCertifications(
     // Log error type only, no user data
     console.error('Error in getPilotCertifications:', {
       errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     })
     throw error
   }
@@ -628,7 +618,7 @@ export const getFeedbackCategories = unstable_cache(
         // Log error type only, no category data
         console.error('Error fetching feedback categories:', {
           errorCode: error.code,
-          errorMessage: error.message
+          errorMessage: error.message,
         })
         throw new Error(`Failed to fetch feedback categories: ${error.message}`)
       }
@@ -638,7 +628,7 @@ export const getFeedbackCategories = unstable_cache(
       // Log error type only, no category data
       console.error('Error in getFeedbackCategories:', {
         errorType: error instanceof Error ? error.name : 'Unknown',
-        errorMessage: error instanceof Error ? error.message : 'Unknown error'
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
       })
       throw error
     }
@@ -677,7 +667,7 @@ export const getFeedbackPosts = async (
           // Log error type only, no post data
           console.error('Error counting feedback posts:', {
             errorCode: countError.code,
-            errorMessage: countError.message
+            errorMessage: countError.message,
           })
           throw new Error(`Failed to count feedback posts: ${countError.message}`)
         }
@@ -688,10 +678,12 @@ export const getFeedbackPosts = async (
         // Get paginated data
         const { data, error } = await supabase
           .from('feedback_posts')
-          .select(`
+          .select(
+            `
             *,
             category:feedback_categories(id, name, slug, description, icon)
-          `)
+          `
+          )
           .order('created_at', { ascending: false })
           .range(from, to)
 
@@ -699,7 +691,7 @@ export const getFeedbackPosts = async (
           // Log error type only, no post content
           console.error('Error fetching feedback posts:', {
             errorCode: error.code,
-            errorMessage: error.message
+            errorMessage: error.message,
           })
           throw new Error(`Failed to fetch feedback posts: ${error.message}`)
         }
@@ -719,7 +711,7 @@ export const getFeedbackPosts = async (
         // Log error type only, no post content
         console.error('Error in getFeedbackPosts:', {
           errorType: error instanceof Error ? error.name : 'Unknown',
-          errorMessage: error instanceof Error ? error.message : 'Unknown error'
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
         })
         throw error
       }
@@ -764,7 +756,7 @@ export async function submitFeedbackPost(
       // Log error type only, no feedback content (may contain sensitive information)
       console.error('Error submitting feedback post:', {
         errorCode: error.code,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
       throw new Error(`Failed to submit feedback post: ${error.message}`)
     }

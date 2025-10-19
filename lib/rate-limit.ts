@@ -23,12 +23,38 @@ import { Redis } from '@upstash/redis'
 // ============================================================================
 
 /**
- * Initialize Redis client with environment variables
- * Throws error if environment variables are not set
+ * Check if Redis credentials are configured
  */
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+const isRedisConfigured =
+  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN
+
+/**
+ * Initialize Redis client with environment variables
+ * Returns null if credentials are not configured (development mode)
+ */
+const redis = isRedisConfigured
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    })
+  : null
+
+// ============================================================================
+// MOCK RATE LIMITER (Development Mode)
+// ============================================================================
+
+/**
+ * Mock rate limiter that always returns success
+ * Used when Redis is not configured (development mode)
+ */
+const createMockRateLimiter = () => ({
+  limit: async () => ({
+    success: true,
+    limit: 999,
+    remaining: 999,
+    reset: Date.now() + 60000,
+    pending: Promise.resolve(),
+  }),
 })
 
 // ============================================================================
@@ -39,45 +65,53 @@ const redis = new Redis({
  * Feedback submissions: 5 per minute
  * Prevents spam feedback posts
  */
-export const feedbackRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:feedback',
-})
+export const feedbackRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '60 s'),
+      analytics: true,
+      prefix: 'ratelimit:feedback',
+    })
+  : createMockRateLimiter()
 
 /**
  * Leave requests: 3 per minute
  * Prevents abuse of leave request system
  */
-export const leaveRequestRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(3, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:leave',
-})
+export const leaveRequestRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(3, '60 s'),
+      analytics: true,
+      prefix: 'ratelimit:leave',
+    })
+  : createMockRateLimiter()
 
 /**
  * Flight requests: 3 per minute
  * Prevents spam flight requests
  */
-export const flightRequestRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(3, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:flight',
-})
+export const flightRequestRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(3, '60 s'),
+      analytics: true,
+      prefix: 'ratelimit:flight',
+    })
+  : createMockRateLimiter()
 
 /**
  * Votes: 30 per minute
  * Allows higher frequency for reading/voting actions
  */
-export const voteRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(30, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:vote',
-})
+export const voteRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(30, '60 s'),
+      analytics: true,
+      prefix: 'ratelimit:vote',
+    })
+  : createMockRateLimiter()
 
 // ============================================================================
 // RATE LIMITERS FOR AUTHENTICATION
@@ -88,36 +122,42 @@ export const voteRateLimit = new Ratelimit({
  * Limit: 5 attempts per minute per IP
  * Prevents: Brute force password attacks
  */
-export const loginRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:login',
-})
+export const loginRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '60 s'),
+      analytics: true,
+      prefix: 'ratelimit:login',
+    })
+  : createMockRateLimiter()
 
 /**
  * Authentication Rate Limiter (General)
  * Limit: 10 attempts per minute per IP
  * Prevents: Account enumeration, signup abuse
  */
-export const authRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:auth',
-})
+export const authRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, '60 s'),
+      analytics: true,
+      prefix: 'ratelimit:auth',
+    })
+  : createMockRateLimiter()
 
 /**
  * Password Reset Rate Limiter
  * Limit: 3 attempts per hour per IP
  * Prevents: Email flooding, abuse of password reset
  */
-export const passwordResetRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(3, '3600 s'),
-  analytics: true,
-  prefix: 'ratelimit:password-reset',
-})
+export const passwordResetRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(3, '3600 s'),
+      analytics: true,
+      prefix: 'ratelimit:password-reset',
+    })
+  : createMockRateLimiter()
 
 // ============================================================================
 // HELPER TYPES
@@ -161,9 +201,7 @@ export function formatRateLimitError(resetTimestamp: number): string {
  * @param request - Next.js request object
  * @returns IP address string or 'unknown' if not found
  */
-export function getClientIp(
-  request: Request | { headers: Headers }
-): string {
+export function getClientIp(request: Request | { headers: Headers }): string {
   const headers = request.headers
 
   // Check common proxy headers
