@@ -19,7 +19,8 @@ export const metadata: Metadata = {
     default: 'Fleet Management V2',
     template: '%s | Fleet Management V2',
   },
-  description: 'Modern fleet management system for B767 operations with comprehensive pilot certification tracking',
+  description:
+    'Modern fleet management system for B767 operations with comprehensive pilot certification tracking',
   keywords: ['fleet management', 'aviation', 'pilot tracking', 'certification', 'B767'],
   authors: [{ name: 'Maurice (Skycruzer)' }],
   creator: 'Maurice (Skycruzer)',
@@ -68,25 +69,11 @@ export const viewport: Viewport = {
   ],
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className="min-h-screen bg-background font-sans antialiased">
-        <ErrorBoundary
-          onError={(error, errorInfo) => {
-            // Log root-level errors with high severity
-            console.error('Root Layout Error (Critical):', {
-              error,
-              errorInfo,
-              timestamp: new Date().toISOString(),
-              severity: 'CRITICAL',
-            })
-          }}
-        >
+      <body className="bg-background min-h-screen font-sans antialiased">
+        <ErrorBoundary>
           <Providers>
             <ThemeProvider
               attribute="class"
