@@ -220,8 +220,9 @@ export const CERTIFICATION_ERRORS = {
   DELETE_FAILED: DATABASE_ERRORS.DELETE_FAILED('certification'),
   NOT_FOUND: DATABASE_ERRORS.NOT_FOUND('Certification'),
   DUPLICATE_CERTIFICATION: {
-    message: 'This certification already exists for this pilot. Please check existing certifications.',
-    action: 'Review the pilot\'s current certifications',
+    message:
+      'This certification already exists for this pilot. Please check existing certifications.',
+    action: "Review the pilot's current certifications",
     category: ErrorCategory.CONFLICT,
     severity: ErrorSeverity.WARNING,
   },
@@ -286,7 +287,8 @@ export const FLIGHT_ERRORS = {
   DELETE_FAILED: DATABASE_ERRORS.DELETE_FAILED('flight request'),
   NOT_FOUND: DATABASE_ERRORS.NOT_FOUND('Flight request'),
   DUPLICATE_REQUEST: {
-    message: 'A flight request for this date and type already exists. Please check your existing requests.',
+    message:
+      'A flight request for this date and type already exists. Please check your existing requests.',
     action: 'View your existing flight requests or select a different date',
     category: ErrorCategory.CONFLICT,
     severity: ErrorSeverity.WARNING,
@@ -505,13 +507,10 @@ export function combineErrors(errors: ErrorMessage[]): ErrorMessage {
 }
 
 /**
- * Check if error is retryable based on category and severity
+ * Check if error message is retryable based on category and severity
  */
-export function isRetryableError(error: ErrorMessage): boolean {
-  const retryableCategories = [
-    ErrorCategory.NETWORK,
-    ErrorCategory.SERVER,
-  ]
+export function isErrorMessageRetryable(error: ErrorMessage): boolean {
+  const retryableCategories = [ErrorCategory.NETWORK, ErrorCategory.SERVER]
   return retryableCategories.includes(error.category)
 }
 

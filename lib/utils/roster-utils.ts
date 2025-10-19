@@ -110,7 +110,7 @@
  *
  * GET CURRENT ROSTER PERIOD:
  * ```typescript
- * const current = getCurrentRosterPeriod()
+ * const current = getCurrentRosterPeriodObject()
  * console.log(current.code) // "RP12/2025"
  * console.log(current.daysRemaining) // Days until period ends
  * ```
@@ -267,7 +267,7 @@ export interface RosterPeriod {
  *
  * @returns Current roster period with all calculated fields
  */
-export function getCurrentRosterPeriod(): RosterPeriod {
+export function getCurrentRosterPeriodObject(): RosterPeriod {
   // Normalize to midnight local time to avoid timezone issues
   const today = startOfDay(new Date())
 
@@ -384,7 +384,7 @@ export function getRosterPeriodFromDate(date: Date): RosterPeriod {
  * @param current - The current roster period
  * @returns The next roster period
  */
-export function getNextRosterPeriod(current: RosterPeriod): RosterPeriod {
+export function getNextRosterPeriodObject(current: RosterPeriod): RosterPeriod {
   const nextStartDate = addDays(current.endDate, 1)
   return getRosterPeriodFromDate(nextStartDate)
 }
@@ -398,7 +398,7 @@ export function getNextRosterPeriod(current: RosterPeriod): RosterPeriod {
  * @param current - The current roster period
  * @returns The previous roster period
  */
-export function getPreviousRosterPeriod(current: RosterPeriod): RosterPeriod {
+export function getPreviousRosterPeriodObject(current: RosterPeriod): RosterPeriod {
   const prevEndDate = addDays(current.startDate, -1)
   return getRosterPeriodFromDate(prevEndDate)
 }
@@ -411,7 +411,7 @@ export function getPreviousRosterPeriod(current: RosterPeriod): RosterPeriod {
  * @param roster - The roster period to format
  * @returns Human-readable roster period string
  */
-export function formatRosterPeriod(roster: RosterPeriod): string {
+export function formatRosterPeriodFromObject(roster: RosterPeriod): string {
   const startFormatted = format(roster.startDate, 'MMM dd')
   const endFormatted = format(roster.endDate, 'MMM dd, yyyy')
   return `${roster.code}: ${startFormatted} - ${endFormatted}`
@@ -445,9 +445,8 @@ export function isDateInRoster(date: Date, roster: RosterPeriod): boolean {
  * @param endDate - End date
  * @returns Number of days (inclusive)
  */
-export function calculateDaysBetween(startDate: Date, endDate: Date): number {
-  return Math.abs(differenceInDays(endDate, startDate)) + 1
-}
+// Removed: calculateDaysBetween is now exported from date-range-utils.ts
+// Use: import { calculateDaysBetween } from './date-range-utils'
 
 /**
  * Get all dates in a roster period as array
@@ -533,7 +532,7 @@ export function getAffectedRosterPeriods(startDate: Date, endDate: Date): Roster
  */
 export function getFutureRosterPeriods(monthsAhead: number = 12): RosterPeriod[] {
   const periods: RosterPeriod[] = []
-  const current = getCurrentRosterPeriod()
+  const current = getCurrentRosterPeriodObject()
   let currentPeriod = current
 
   // Calculate approximately how many periods we need for the given months
@@ -542,7 +541,7 @@ export function getFutureRosterPeriods(monthsAhead: number = 12): RosterPeriod[]
 
   for (let i = 0; i < periodsNeeded; i++) {
     periods.push(currentPeriod)
-    currentPeriod = getNextRosterPeriod(currentPeriod)
+    currentPeriod = getNextRosterPeriodObject(currentPeriod)
   }
 
   return periods
@@ -578,8 +577,8 @@ export interface RosterCountdown {
  */
 export function getNextRosterCountdown(): RosterCountdown {
   const now = new Date()
-  const current = getCurrentRosterPeriod()
-  const next = getNextRosterPeriod(current)
+  const current = getCurrentRosterPeriodObject()
+  const next = getNextRosterPeriodObject(current)
 
   // Calculate time difference to next roster start
   const totalDays = differenceInDays(next.startDate, now)
@@ -685,8 +684,8 @@ export interface FinalReviewAlert {
 export function getFinalReviewAlert(): FinalReviewAlert {
   const REVIEW_WINDOW_DAYS = 22
   const now = new Date()
-  const current = getCurrentRosterPeriod()
-  const next = getNextRosterPeriod(current)
+  const current = getCurrentRosterPeriodObject()
+  const next = getNextRosterPeriodObject(current)
 
   // Calculate days until NEXT roster starts (not current roster)
   const daysUntilRosterStarts = differenceInDays(next.startDate, now)

@@ -25,9 +25,12 @@ interface PilotUser {
 
 // Form validation schema
 const flightRequestSchema = z.object({
-  request_type: z.enum(['ADDITIONAL_FLIGHT', 'ROUTE_CHANGE', 'SCHEDULE_PREFERENCE', 'PICKUP_REQUEST'], {
-    message: 'Please select a request type',
-  }),
+  request_type: z.enum(
+    ['ADDITIONAL_FLIGHT', 'ROUTE_CHANGE', 'SCHEDULE_PREFERENCE', 'PICKUP_REQUEST'],
+    {
+      message: 'Please select a request type',
+    }
+  ),
   flight_date: z.string().min(1, 'Flight date is required'),
   route: z.string().optional(),
   flight_number: z.string().optional(),
@@ -44,7 +47,12 @@ interface FlightRequestFormProps {
 
 export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormProps) {
   const router = useRouter()
-  const { isSubmitting, error, handleSubmit: handlePortalSubmit, resetError } = usePortalForm({
+  const {
+    isSubmitting,
+    error,
+    handleSubmit: handlePortalSubmit,
+    resetError,
+  } = usePortalForm({
     successRedirect: '/portal/dashboard',
     successMessage: 'flight_request_submitted',
   })
@@ -93,12 +101,12 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
 
       {/* Request Type */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="mb-2 block text-sm font-medium text-gray-700">
           Request Type <span className="text-red-500">*</span>
         </label>
         <select
           {...register('request_type')}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
         >
           <option value="ADDITIONAL_FLIGHT">Additional Flight</option>
           <option value="ROUTE_CHANGE">Route Change</option>
@@ -109,7 +117,8 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
           <p className="mt-1 text-sm text-red-600">{errors.request_type.message}</p>
         )}
         <p className="mt-1 text-xs text-gray-500">
-          {requestType === 'ADDITIONAL_FLIGHT' && 'Request to operate additional flights beyond your current schedule'}
+          {requestType === 'ADDITIONAL_FLIGHT' &&
+            'Request to operate additional flights beyond your current schedule'}
           {requestType === 'ROUTE_CHANGE' && 'Request to change routes or destinations'}
           {requestType === 'SCHEDULE_PREFERENCE' && 'Share preferences for future roster planning'}
           {requestType === 'PICKUP_REQUEST' && 'Request to pick up a specific flight or pairing'}
@@ -118,7 +127,7 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
 
       {/* Flight Date */}
       <div>
-        <label htmlFor="flight_date" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="flight_date" className="mb-2 block text-sm font-medium text-gray-700">
           Flight Date <span className="text-red-500">*</span>
         </label>
         <Input
@@ -127,7 +136,7 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
           {...register('flight_date')}
           error={!!errors.flight_date}
           success={touchedFields.flight_date && !errors.flight_date}
-          aria-required="true"
+          aria-required={true}
           aria-describedby="flight_date_help flight_date_error"
         />
         {errors.flight_date && (
@@ -143,10 +152,10 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
       </div>
 
       {/* Optional Flight Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Route */}
         <div>
-          <label htmlFor="route" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="route" className="mb-2 block text-sm font-medium text-gray-700">
             Route <span className="text-gray-400">(Optional)</span>
           </label>
           <Input
@@ -167,7 +176,7 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
 
         {/* Flight Number */}
         <div>
-          <label htmlFor="flight_number" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="flight_number" className="mb-2 block text-sm font-medium text-gray-700">
             Flight Number <span className="text-gray-400">(Optional)</span>
           </label>
           <Input
@@ -176,7 +185,9 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
             {...register('flight_number')}
             placeholder="e.g., PX123, PX456"
             error={!!errors.flight_number}
-            success={touchedFields.flight_number && dirtyFields.flight_number && !errors.flight_number}
+            success={
+              touchedFields.flight_number && dirtyFields.flight_number && !errors.flight_number
+            }
             aria-describedby="flight_number_error"
           />
           {errors.flight_number && (
@@ -189,7 +200,7 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
           Description <span className="text-red-500">*</span>
         </label>
         <Textarea
@@ -207,7 +218,7 @@ Examples:
           success={touchedFields.description && !errors.description}
           showCharCount={true}
           maxLength={1000}
-          aria-required="true"
+          aria-required={true}
           aria-describedby="description_help description_error"
         />
         {errors.description && (
@@ -222,7 +233,7 @@ Examples:
 
       {/* Reason (Optional) */}
       <div>
-        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="reason" className="mb-2 block text-sm font-medium text-gray-700">
           Additional Comments <span className="text-gray-400">(Optional)</span>
         </label>
         <Textarea
@@ -244,11 +255,11 @@ Examples:
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+      <div className="flex items-center justify-end space-x-4 border-t pt-6">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
           disabled={isSubmitting}
         >
           Cancel

@@ -122,39 +122,13 @@ export interface PaginatedFeedbackPosts {
 // ============================================================================
 
 /**
- * Get pilot_id from pilot_user_id using the pilot_user_mappings view
- * This eliminates the N+1 query pattern by using a single query
+ * Get pilot_id from pilot_user_id
+ * In this system, pilot_user.id is the same as pilot.id
  * @param pilotUserId - The pilot_user.id
- * @returns pilot_id or null if not found
+ * @returns pilot_id (same as pilot_user.id)
  */
 async function getPilotIdFromPilotUserId(pilotUserId: string): Promise<string | null> {
-  try {
-    const supabase = await createClient()
-
-    const { data, error } = await supabase
-      .from('pilot_user_mappings')
-      .select('pilot_id')
-      .eq('pilot_user_id', pilotUserId)
-      .single()
-
-    if (error) {
-      // Log error type only, no user IDs
-      console.error('Error fetching pilot_id from pilot_user_mappings:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      return null
-    }
-
-    return data?.pilot_id || null
-  } catch (error) {
-    // Log error type only, no user data
-    console.error('Error in getPilotIdFromPilotUserId:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    return null
-  }
+  return pilotUserId
 }
 
 // ============================================================================
@@ -190,7 +164,8 @@ export async function getCurrentPilotUser(): Promise<PilotUser | null> {
       return null
     }
 
-    return data
+    // Add seniority alias for seniority_number
+    return { ...data, seniority: data.seniority_number } as PilotUser
   } catch (error) {
     // Log error type only, no user data
     console.error('Error in getCurrentPilotUser:', {
@@ -353,7 +328,7 @@ export async function submitLeaveRequest(
       p_end_date: leaveRequest.end_date,
       p_days_count: leaveRequest.days_count,
       p_roster_period: leaveRequest.roster_period,
-      p_reason: leaveRequest.reason || null,
+      p_reason: leaveRequest.reason || undefined,
     })
 
     if (error) {
@@ -366,7 +341,7 @@ export async function submitLeaveRequest(
     }
 
     // Verify successful submission
-    if (!data?.success) {
+    if (!(data as { success?: boolean })?.success) {
       throw new Error('Leave request submission failed')
     }
 
@@ -412,7 +387,7 @@ export const getPilotFlightRequests = (pilotUserId: string) =>
           throw new Error(`Failed to fetch flight requests: ${error.message}`)
         }
 
-        return data || []
+        return (data || []) as unknown as PilotFlightRequest[]
       } catch (error) {
         // Log error type only, no user data
         console.error('Error in getPilotFlightRequests:', {
@@ -450,7 +425,7 @@ export async function submitFlightRequest(
       p_request_type: flightRequest.request_type,
       p_flight_date: flightRequest.flight_date,
       p_description: flightRequest.description,
-      p_reason: flightRequest.reason || null,
+      p_reason: flightRequest.reason || undefined,
     })
 
     if (error) {
@@ -475,7 +450,7 @@ export async function submitFlightRequest(
     }
 
     // Verify successful submission
-    if (!data?.success) {
+    if (!(data as { success?: boolean })?.success) {
       throw new Error('Flight request submission failed')
     }
 
@@ -746,7 +721,7 @@ export async function submitFeedbackPost(
       p_pilot_user_id: pilotUserId,
       p_title: feedbackData.title,
       p_content: feedbackData.content,
-      p_category_id: feedbackData.category_id || null,
+      p_category_id: feedbackData.category_id || undefined,
       p_is_anonymous: feedbackData.is_anonymous || false,
       p_author_display_name: feedbackData.author_display_name,
       p_author_rank: feedbackData.author_rank,
@@ -762,7 +737,7 @@ export async function submitFeedbackPost(
     }
 
     // Verify successful submission
-    if (!data?.success) {
+    if (!(data as { success?: boolean })?.success) {
       throw new Error('Feedback post submission failed')
     }
 

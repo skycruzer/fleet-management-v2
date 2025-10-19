@@ -18,12 +18,12 @@ interface UseFocusManagementOptions {
   /**
    * Element to focus when component mounts (overrides focusOnMount)
    */
-  initialFocusRef?: React.RefObject<HTMLElement>
+  initialFocusRef?: React.RefObject<HTMLElement | null>
 
   /**
    * Element to return focus to when component unmounts
    */
-  returnFocusRef?: React.RefObject<HTMLElement>
+  returnFocusRef?: React.RefObject<HTMLElement | null>
 
   /**
    * Trap focus within a container (useful for modals/dialogs)
@@ -33,7 +33,7 @@ interface UseFocusManagementOptions {
   /**
    * Container ref for focus trapping
    */
-  containerRef?: React.RefObject<HTMLElement>
+  containerRef?: React.RefObject<HTMLElement | null>
 }
 
 /**
@@ -74,16 +74,19 @@ export function useFocusManagement(options: UseFocusManagementOptions = {}) {
   /**
    * Focus the first focusable element in a container
    */
-  const focusFirst = useCallback((container?: HTMLElement) => {
-    const target = container || document.body
-    const focusableElements = getFocusableElements(target)
+  const focusFirst = useCallback(
+    (container?: HTMLElement) => {
+      const target = container || document.body
+      const focusableElements = getFocusableElements(target)
 
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus()
-      return true
-    }
-    return false
-  }, [getFocusableElements])
+      if (focusableElements.length > 0) {
+        focusableElements[0].focus()
+        return true
+      }
+      return false
+    },
+    [getFocusableElements]
+  )
 
   /**
    * Focus a specific element with error handling
@@ -234,9 +237,13 @@ export function useRouteChangeFocus() {
         mainContent.focus()
 
         // Remove tabindex after focus
-        mainContent.addEventListener('blur', () => {
-          mainContent.removeAttribute('tabindex')
-        }, { once: true })
+        mainContent.addEventListener(
+          'blur',
+          () => {
+            mainContent.removeAttribute('tabindex')
+          },
+          { once: true }
+        )
       }
     }
 

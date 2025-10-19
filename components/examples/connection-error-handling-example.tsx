@@ -52,15 +52,11 @@ export function BasicOfflineExample() {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Show banner when offline */}
-        <NetworkStatusIndicator
-          isOnline={isOnline}
-          variant="banner"
-          showOnlyWhenOffline={true}
-        />
+        <NetworkStatusIndicator isOnline={isOnline} variant="banner" showOnlyWhenOffline={true} />
 
         {/* Disable actions when offline */}
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Status: <strong>{isOnline ? 'Online' : 'Offline'}</strong>
           </p>
           <Button disabled={isOffline}>Submit Data</Button>
@@ -98,7 +94,7 @@ export function RetryWithOfflineExample() {
         },
         {
           maxRetries: 3,
-          retryDelay: 1000,
+          initialDelayMs: 1000,
           backoffMultiplier: 2,
         }
       )
@@ -205,7 +201,7 @@ export function AutoReconnectExample() {
 
         <div className="space-y-2">
           {lastFetch && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Last refreshed: {new Date(lastFetch).toLocaleTimeString()}
             </p>
           )}
@@ -262,7 +258,7 @@ export function FormWithConnectionHandling() {
         },
         {
           maxRetries: 3,
-          retryDelay: 2000,
+          initialDelayMs: 2000,
           backoffMultiplier: 1.5,
         }
       )
@@ -325,7 +321,7 @@ export function FormWithConnectionHandling() {
 
           {/* Form fields would go here */}
           <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Form fields would appear here...</p>
+            <p className="text-muted-foreground text-sm">Form fields would appear here...</p>
           </div>
 
           {/* Submit button */}
@@ -362,9 +358,9 @@ export function ConnectionErrorHandlingDemo() {
         <FormWithConnectionHandling />
       </div>
 
-      <div className="rounded-lg border bg-muted/50 p-4">
+      <div className="bg-muted/50 rounded-lg border p-4">
         <h2 className="mb-2 text-lg font-semibold">Testing Tips</h2>
-        <ul className="space-y-1 text-sm text-muted-foreground">
+        <ul className="text-muted-foreground space-y-1 text-sm">
           <li>• Open DevTools → Network tab → Toggle "Offline" to simulate network failure</li>
           <li>• Watch how components handle offline state and retry logic</li>
           <li>• Toggle back to "Online" to see reconnection behavior</li>

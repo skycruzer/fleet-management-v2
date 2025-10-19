@@ -55,7 +55,12 @@ interface LeaveRequestFormProps {
 
 export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps) {
   const router = useRouter()
-  const { isSubmitting, error, handleSubmit: handlePortalSubmit, resetError } = usePortalForm({
+  const {
+    isSubmitting,
+    error,
+    handleSubmit: handlePortalSubmit,
+    resetError,
+  } = usePortalForm({
     successRedirect: '/portal/dashboard',
     successMessage: 'leave_request_submitted',
   })
@@ -110,12 +115,12 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
 
       {/* Leave Type */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="mb-2 block text-sm font-medium text-gray-700">
           Leave Type <span className="text-red-500">*</span>
         </label>
         <select
           {...register('request_type')}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
         >
           <option value="RDO">RDO (Rostered Day Off)</option>
           <option value="ANNUAL">Annual Leave</option>
@@ -129,10 +134,10 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
       </div>
 
       {/* Date Range */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Start Date */}
         <div>
-          <label htmlFor="start_date" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="start_date" className="mb-2 block text-sm font-medium text-gray-700">
             Start Date <span className="text-red-500">*</span>
           </label>
           <Input
@@ -141,7 +146,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
             {...register('start_date')}
             error={!!errors.start_date}
             success={touchedFields.start_date && !errors.start_date}
-            aria-required="true"
+            aria-required={true}
             aria-describedby="start_date_error"
           />
           {errors.start_date && (
@@ -153,7 +158,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
 
         {/* End Date */}
         <div>
-          <label htmlFor="end_date" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="end_date" className="mb-2 block text-sm font-medium text-gray-700">
             End Date <span className="text-red-500">*</span>
           </label>
           <Input
@@ -162,7 +167,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
             {...register('end_date')}
             error={!!errors.end_date}
             success={touchedFields.end_date && !errors.end_date}
-            aria-required="true"
+            aria-required={true}
             aria-describedby="end_date_error"
           />
           {errors.end_date && (
@@ -175,7 +180,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
 
       {/* Days Count Display */}
       {daysCount > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
           <p className="text-sm font-medium text-blue-900">
             Total Days: <span className="text-xl font-bold">{daysCount}</span> day
             {daysCount !== 1 ? 's' : ''}
@@ -185,7 +190,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
 
       {/* Roster Period */}
       <div>
-        <label htmlFor="roster_period" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="roster_period" className="mb-2 block text-sm font-medium text-gray-700">
           Roster Period <span className="text-red-500">*</span>
         </label>
         <Input
@@ -195,7 +200,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
           placeholder="e.g., RP12/2025"
           error={!!errors.roster_period}
           success={touchedFields.roster_period && !errors.roster_period}
-          aria-required="true"
+          aria-required={true}
           aria-describedby="roster_period_help roster_period_error"
         />
         {errors.roster_period && (
@@ -210,7 +215,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
 
       {/* Reason (Optional) */}
       <div>
-        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="reason" className="mb-2 block text-sm font-medium text-gray-700">
           Reason <span className="text-gray-400">(Optional)</span>
         </label>
         <Textarea
@@ -232,11 +237,11 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+      <div className="flex items-center justify-end space-x-4 border-t pt-6">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
           disabled={isSubmitting}
         >
           Cancel
@@ -258,9 +263,7 @@ function getCurrentRosterPeriod(): string {
   const anchorYear = 2025
 
   // Calculate roster period based on 28-day cycles
-  const daysSinceAnchor = Math.floor(
-    (today.getTime() - anchor.getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysSinceAnchor = Math.floor((today.getTime() - anchor.getTime()) / (1000 * 60 * 60 * 24))
   const rosterPeriodOffset = Math.floor(daysSinceAnchor / 28)
 
   let currentRP = anchorRP + rosterPeriodOffset

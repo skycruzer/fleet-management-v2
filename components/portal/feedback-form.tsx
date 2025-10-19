@@ -49,7 +49,12 @@ interface FeedbackFormProps {
 
 export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormProps) {
   const router = useRouter()
-  const { isSubmitting, error, handleSubmit: handlePortalSubmit, resetError } = usePortalForm({
+  const {
+    isSubmitting,
+    error,
+    handleSubmit: handlePortalSubmit,
+    resetError,
+  } = usePortalForm({
     successRedirect: '/portal/feedback',
     successMessage: 'feedback_submitted',
   })
@@ -91,12 +96,12 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
       <FormErrorAlert error={error} onDismiss={resetError} />
 
       {/* Anonymous Toggle */}
-      <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg p-4">
+      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
         <div>
-          <label htmlFor="is_anonymous" className="font-medium text-gray-900 cursor-pointer">
+          <label htmlFor="is_anonymous" className="cursor-pointer font-medium text-gray-900">
             Submit Anonymously
           </label>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="mt-1 text-sm text-gray-600">
             {isAnonymous
               ? 'Your identity will be hidden from other pilots'
               : `Posting as ${pilotUser.rank} ${pilotUser.first_name} ${pilotUser.last_name}`}
@@ -106,19 +111,19 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
           type="checkbox"
           id="is_anonymous"
           {...register('is_anonymous')}
-          className="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+          className="h-5 w-5 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
       </div>
 
       {/* Category */}
       {categories.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700">
             Category <span className="text-gray-400">(Optional)</span>
           </label>
           <select
             {...register('category_id')}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select a category</option>
             {categories.map((category) => (
@@ -136,7 +141,7 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
 
       {/* Title */}
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
           Title <span className="text-red-500">*</span>
         </label>
         <Input
@@ -146,7 +151,7 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
           placeholder="Brief summary of your feedback..."
           error={!!errors.title}
           success={touchedFields.title && !errors.title}
-          aria-required="true"
+          aria-required={true}
           aria-describedby="title_error"
         />
         {errors.title && (
@@ -158,7 +163,7 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
 
       {/* Content */}
       <div>
-        <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="content" className="mb-2 block text-sm font-medium text-gray-700">
           Feedback <span className="text-red-500">*</span>
         </label>
         <Textarea
@@ -178,7 +183,7 @@ Examples:
           success={touchedFields.content && !errors.content}
           showCharCount={true}
           maxLength={2000}
-          aria-required="true"
+          aria-required={true}
           aria-describedby="content_help content_error"
         />
         {errors.content && (
@@ -192,11 +197,11 @@ Examples:
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+      <div className="flex items-center justify-end space-x-4 border-t pt-6">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
           disabled={isSubmitting}
         >
           Cancel

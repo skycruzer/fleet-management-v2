@@ -72,7 +72,7 @@ export function useEscapeKey(callback: () => void, enabled = true) {
 /**
  * Hook for trapping focus within a container (for modals/dialogs)
  */
-export function useFocusTrap(containerRef: RefObject<HTMLElement>, isActive = true) {
+export function useFocusTrap(containerRef: RefObject<HTMLElement | null>, isActive = true) {
   useEffect(() => {
     if (!isActive || !containerRef.current) return
 

@@ -4077,6 +4077,40 @@ export type Database = {
         Args: { '': string }
         Returns: string[]
       }
+      submit_feedback_post_tx: {
+        Args: {
+          p_author_display_name?: string
+          p_author_rank?: string
+          p_category_id?: string
+          p_content: string
+          p_is_anonymous?: boolean
+          p_pilot_user_id: string
+          p_title: string
+        }
+        Returns: Json
+      }
+      submit_flight_request_tx: {
+        Args: {
+          p_description: string
+          p_flight_date: string
+          p_pilot_user_id: string
+          p_reason?: string
+          p_request_type: string
+        }
+        Returns: Json
+      }
+      submit_leave_request_tx: {
+        Args: {
+          p_days_count: number
+          p_end_date: string
+          p_pilot_user_id: string
+          p_reason?: string
+          p_request_type: string
+          p_roster_period: string
+          p_start_date: string
+        }
+        Returns: Json
+      }
       system_health_check: {
         Args: Record<PropertyKey, never>
         Returns: {
