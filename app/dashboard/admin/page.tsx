@@ -12,7 +12,6 @@ import {
   getAdminStats,
   getAdminUsers,
   getCheckTypes,
-  getSystemSettings,
   getContractTypes,
   getCheckTypeCategories,
 } from '@/lib/services/admin-service'
@@ -20,11 +19,10 @@ import { format } from 'date-fns'
 
 export default async function AdminPage() {
   // Fetch all data in parallel
-  const [stats, users, checkTypes, settings, contractTypes, categories] = await Promise.all([
+  const [stats, users, checkTypes, contractTypes, categories] = await Promise.all([
     getAdminStats(),
     getAdminUsers(),
     getCheckTypes(),
-    getSystemSettings(),
     getContractTypes(),
     getCheckTypeCategories(),
   ])
@@ -208,36 +206,6 @@ export default async function AdminPage() {
         </div>
       </Card>
 
-      {/* System Settings */}
-      <Card className="p-6">
-        <h3 className="text-foreground mb-4 text-lg font-semibold">System Settings</h3>
-        <div className="space-y-4">
-          {settings.map((setting) => (
-            <Card key={setting.id} className="bg-muted/50 p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <p className="text-foreground text-sm font-medium">{setting.key}</p>
-                  {setting.description && (
-                    <p className="text-muted-foreground mt-1 text-sm">{setting.description}</p>
-                  )}
-                  <div className="mt-2">
-                    <pre className="border-border bg-muted text-card-foreground overflow-x-auto rounded border p-2 text-xs">
-                      {JSON.stringify(setting.value, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="ml-4">
-                  Edit
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-        {settings.length === 0 && (
-          <p className="text-muted-foreground py-8 text-center">No system settings configured</p>
-        )}
-      </Card>
-
       {/* Contract Types */}
       <Card className="p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">Contract Types</h3>
@@ -296,21 +264,36 @@ export default async function AdminPage() {
       <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">Quick Actions</h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Button variant="outline" className="flex h-auto flex-col items-start py-4">
-            <span className="mb-2 text-2xl">👤</span>
-            <span className="font-semibold">Add New User</span>
-            <span className="text-muted-foreground text-xs">Create admin or manager account</span>
-          </Button>
-          <Button variant="outline" className="flex h-auto flex-col items-start py-4">
-            <span className="mb-2 text-2xl">📋</span>
-            <span className="font-semibold">Manage Check Types</span>
-            <span className="text-muted-foreground text-xs">Add or edit certification types</span>
-          </Button>
-          <Button variant="outline" className="flex h-auto flex-col items-start py-4">
-            <span className="mb-2 text-2xl">⚙️</span>
-            <span className="font-semibold">System Settings</span>
-            <span className="text-muted-foreground text-xs">Configure system preferences</span>
-          </Button>
+          <Link href="/dashboard/admin/users/new" className="block">
+            <Button
+              variant="outline"
+              className="flex h-auto w-full flex-col items-start py-4 transition-all hover:bg-white hover:shadow-md"
+            >
+              <span className="mb-2 text-2xl">👤</span>
+              <span className="font-semibold">Add New User</span>
+              <span className="text-muted-foreground text-xs">Create admin or manager account</span>
+            </Button>
+          </Link>
+          <Link href="/dashboard/admin/check-types" className="block">
+            <Button
+              variant="outline"
+              className="flex h-auto w-full flex-col items-start py-4 transition-all hover:bg-white hover:shadow-md"
+            >
+              <span className="mb-2 text-2xl">📋</span>
+              <span className="font-semibold">Manage Check Types</span>
+              <span className="text-muted-foreground text-xs">Add or edit certification types</span>
+            </Button>
+          </Link>
+          <Link href="/dashboard/admin/settings" className="block">
+            <Button
+              variant="outline"
+              className="flex h-auto w-full flex-col items-start py-4 transition-all hover:bg-white hover:shadow-md"
+            >
+              <span className="mb-2 text-2xl">⚙️</span>
+              <span className="font-semibold">System Settings</span>
+              <span className="text-muted-foreground text-xs">Configure system preferences</span>
+            </Button>
+          </Link>
         </div>
       </Card>
     </div>

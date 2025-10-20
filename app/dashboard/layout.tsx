@@ -6,12 +6,14 @@
  */
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0 // Always fetch fresh data
 
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { getAppTitle } from '@/lib/services/admin-service'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Check authentication
@@ -23,6 +25,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!user) {
     redirect('/auth/login')
   }
+
+  // Fetch app title from settings
+  const appTitle = await getAppTitle()
 
   return (
     <ErrorBoundary>
@@ -57,7 +62,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               Analytics
             </NavLink>
             <NavLink href="/dashboard/admin" icon="⚙️">
-              Admin
+              Settings
             </NavLink>
           </nav>
 
@@ -90,7 +95,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Header */}
           <header className="border-border bg-card flex h-16 items-center border-b px-6">
-            <h1 className="text-foreground text-lg font-semibold">B767 Fleet Management</h1>
+            <h1 className="text-foreground text-lg font-semibold" suppressHydrationWarning>
+              {appTitle}
+            </h1>
           </header>
 
           {/* Page Content */}
