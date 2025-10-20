@@ -156,14 +156,8 @@ export default async function CheckTypesPage() {
                     {checkType.category || 'N/A'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        checkType.is_active !== false
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-muted text-foreground'
-                      }`}
-                    >
-                      {checkType.is_active !== false ? 'ACTIVE' : 'INACTIVE'}
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      ACTIVE
                     </span>
                   </td>
                   <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
