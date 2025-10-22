@@ -27,9 +27,9 @@ const dateSchema = z
   .nullable()
 
 /**
- * Required date validation
+ * Required date validation (currently unused)
  */
-const requiredDateSchema = z.string().datetime({ message: 'Must be a valid ISO datetime string' })
+// const requiredDateSchema = z.string().datetime({ message: 'Must be a valid ISO datetime string' })
 
 /**
  * Roster period validation: Format "RP1/2025" through "RP13/2025"

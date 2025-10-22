@@ -82,7 +82,7 @@ export function DataTableLoading({
 /**
  * Simple table loading state without filters or pagination
  */
-export function SimpleTableLoading({ rows = 5, columns = 4 }: { rows?: number; columns?: number }) {
+export function SimpleTableLoading() {
   return (
     <Card className="overflow-hidden">
       <div className="p-8 text-center">

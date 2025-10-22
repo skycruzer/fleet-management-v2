@@ -5,11 +5,16 @@
 
 export const dynamic = 'force-dynamic'
 
+import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
+
+export const metadata = dashboardMetadata.leave
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import Link from 'next/link'
 import { getAllLeaveRequests } from '@/lib/services/leave-service'
-import { format } from 'date-fns'
+import { LeaveRequestGroup } from '@/components/leave/leave-request-group'
+import { FileText, CheckCircle, BarChart3, XCircle, Calendar, Plus } from 'lucide-react'
 
 export default async function LeaveRequestsPage() {
   // Fetch leave requests data
@@ -28,26 +33,57 @@ export default async function LeaveRequestsPage() {
     { total: 0, pending: 0, approved: 0, denied: 0, totalDays: 0 }
   )
 
+  // Group leave requests by type -> role -> sort by start date
+  const groupedRequests = requests.reduce(
+    (acc, req) => {
+      const type = req.request_type || 'Other'
+      const role = (req.pilots?.role as 'Captain' | 'First Officer') || 'Unknown'
+
+      if (!acc[type]) {
+        acc[type] = { Captain: [], 'First Officer': [], Unknown: [] }
+      }
+      if (!acc[type][role]) {
+        acc[type][role] = []
+      }
+      acc[type][role].push(req)
+      return acc
+    },
+    {} as Record<string, Record<string, typeof requests>>
+  )
+
+  // Sort requests within each role by start date
+  Object.keys(groupedRequests).forEach((type) => {
+    Object.keys(groupedRequests[type]).forEach((role) => {
+      groupedRequests[type][role].sort(
+        (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+      )
+    })
+  })
+
+  // Sort types alphabetically
+  const sortedTypes = Object.keys(groupedRequests).sort()
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-2xl font-bold">Leave Requests</h2>
-          <p className="text-muted-foreground mt-1">Submit and manage pilot leave requests</p>
+          <h2 className="text-foreground text-xl sm:text-2xl font-bold">Leave Requests</h2>
+          <p className="text-muted-foreground mt-1 text-sm">Submit and manage pilot leave requests</p>
         </div>
-        <Link href="/dashboard/leave/new">
-          <Button className="bg-primary hover:bg-primary/90 text-white">
+        <Link href="/dashboard/leave/new" className="w-full sm:w-auto">
+          <Button className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto">
+            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
             Submit Leave Request
           </Button>
         </Link>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-primary/5 border-primary/20 p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">📋</span>
+            <FileText className="h-8 w-8 text-primary" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.pending}</p>
               <p className="text-muted-foreground text-sm font-medium">Pending Requests</p>
@@ -56,7 +92,7 @@ export default async function LeaveRequestsPage() {
         </Card>
         <Card className="border-green-200 bg-green-50 p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">✅</span>
+            <CheckCircle className="h-8 w-8 text-green-600" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.approved}</p>
               <p className="text-muted-foreground text-sm font-medium">Approved</p>
@@ -65,7 +101,7 @@ export default async function LeaveRequestsPage() {
         </Card>
         <Card className="border-destructive/20 bg-red-50 p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">❌</span>
+            <XCircle className="h-8 w-8 text-red-600" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.denied}</p>
               <p className="text-muted-foreground text-sm font-medium">Denied</p>
@@ -74,7 +110,7 @@ export default async function LeaveRequestsPage() {
         </Card>
         <Card className="border-purple-200 bg-purple-50 p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">📊</span>
+            <BarChart3 className="h-8 w-8 text-purple-600" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.totalDays}</p>
               <p className="text-muted-foreground text-sm font-medium">Total Days</p>
@@ -83,79 +119,43 @@ export default async function LeaveRequestsPage() {
         </Card>
       </div>
 
-      {/* Leave Requests Table */}
+      {/* Leave Request Type Overview */}
       <Card className="p-6">
-        <h3 className="text-foreground mb-4 text-lg font-semibold">All Leave Requests</h3>
-        <div className="overflow-x-auto">
-          <table className="divide-border min-w-full divide-y">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Pilot
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Type
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Start Date
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  End Date
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Days
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Roster Period
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-border divide-y">
-              {requests.map((req) => (
-                <tr key={req.id} className="hover:bg-muted/50">
-                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
-                    {req.pilot_name}
-                  </td>
-                  <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {req.request_type}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {format(new Date(req.start_date), 'MMM dd, yyyy')}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {format(new Date(req.end_date), 'MMM dd, yyyy')}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {req.days_count}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {req.roster_period}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        req.status === 'PENDING'
-                          ? 'bg-primary/10 text-primary'
-                          : req.status === 'APPROVED'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {req.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="flex items-center justify-between">
+          <h3 className="text-foreground text-lg font-semibold">Request Types</h3>
+          <div className="text-muted-foreground text-sm">
+            {sortedTypes.length} types • {requests.length} total requests
+          </div>
         </div>
-        <div className="text-muted-foreground mt-4 text-sm">
-          Showing {requests.length} leave requests
-        </div>
+        <p className="text-muted-foreground mt-2 text-sm">
+          Leave requests are grouped by type and role, sorted by start date within each group.
+        </p>
       </Card>
+
+      {/* Grouped Leave Requests by Type and Role */}
+      <div className="space-y-4">
+        {sortedTypes.map((type) => (
+          <LeaveRequestGroup
+            key={type}
+            type={type}
+            roleGroups={groupedRequests[type]}
+            defaultExpanded
+          />
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {requests.length === 0 && (
+        <EmptyState
+          icon={Calendar}
+          title="No leave requests found"
+          description="Submit your first leave request to get started with the leave management system."
+          action={{
+            label: 'Submit Leave Request',
+            href: '/dashboard/leave/new',
+          }}
+        />
+      )}
     </div>
   )
 }

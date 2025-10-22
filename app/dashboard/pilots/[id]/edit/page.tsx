@@ -15,7 +15,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PilotUpdateSchema } from '@/lib/validations/pilot-validation'
+import { formatDateForInput } from '@/lib/utils/form-utils'
 import Link from 'next/link'
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 
 type PilotFormData = z.infer<typeof PilotUpdateSchema>
 
@@ -87,12 +89,6 @@ export default function EditPilotPage() {
           }
         }
 
-        // Format dates to YYYY-MM-DD for input fields
-        const formatDateForInput = (dateString: string | null) => {
-          if (!dateString) return ''
-          return new Date(dateString).toISOString().split('T')[0]
-        }
-
         // Reset form with pilot data
         reset({
           employee_id: data.data.employee_id,
@@ -106,7 +102,7 @@ export default function EditPilotPage() {
           passport_expiry: formatDateForInput(data.data.passport_expiry),
           date_of_birth: formatDateForInput(data.data.date_of_birth),
           commencement_date: formatDateForInput(data.data.commencement_date),
-          is_active: data.data.is_active,
+          is_active: String(data.data.is_active) as any, // Convert boolean to string for radio buttons
           captain_qualifications: captainQuals,
         })
       } else {
@@ -124,20 +120,18 @@ export default function EditPilotPage() {
     setError(null)
 
     try {
-      // Convert date strings to ISO format if they exist
-      const formattedData = {
+      // Process form data (convert strings to proper types)
+      const processedData = {
         ...data,
-        passport_expiry: data.passport_expiry ? new Date(data.passport_expiry).toISOString() : null,
-        date_of_birth: data.date_of_birth ? new Date(data.date_of_birth).toISOString() : null,
-        commencement_date: data.commencement_date
-          ? new Date(data.commencement_date).toISOString()
-          : null,
+        // Convert is_active to boolean (handle both boolean and string inputs)
+        is_active:
+          typeof data.is_active === 'boolean' ? data.is_active : data.is_active === 'true',
       }
 
       const response = await fetch(`/api/pilots/${pilotId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formattedData),
+        body: JSON.stringify(processedData),
       })
 
       const result = await response.json()
@@ -189,6 +183,16 @@ export default function EditPilotPage() {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <PageBreadcrumbs
+        items={[
+          { label: 'Admin Dashboard', href: '/dashboard' },
+          { label: 'Pilots', href: '/dashboard/pilots' },
+          { label: `${pilot?.first_name} ${pilot?.last_name}`, href: `/dashboard/pilots/${pilotId}` },
+          { label: 'Edit' },
+        ]}
+      />
+
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -230,7 +234,9 @@ export default function EditPilotPage() {
                   id="employee_id"
                   type="text"
                   placeholder="e.g., 100001"
-                  {...register('employee_id')}
+                  {...register('employee_id', {
+                    setValueAs: (v) => (v ? v.trim() : v),
+                  })}
                   className={errors.employee_id ? 'border-red-500' : ''}
                 />
                 {errors.employee_id && (
@@ -283,7 +289,9 @@ export default function EditPilotPage() {
                   id="middle_name"
                   type="text"
                   placeholder="Michael (optional)"
-                  {...register('middle_name')}
+                  {...register('middle_name', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? v : null),
+                  })}
                   className={errors.middle_name ? 'border-red-500' : ''}
                 />
                 {errors.middle_name && (
@@ -322,13 +330,16 @@ export default function EditPilotPage() {
                 <Label htmlFor="contract_type">Contract Type</Label>
                 <select
                   id="contract_type"
-                  {...register('contract_type')}
+                  {...register('contract_type', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? v : null),
+                  })}
                   className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
                   <option value="">Select contract type...</option>
-                  <option value="Fixed Term">Fixed Term</option>
-                  <option value="Permanent">Permanent</option>
-                  <option value="Contract">Contract</option>
+                  <option value="Full-time">Full-time</option>
+                  <option value="Commuting 18/10">Commuting 18/10</option>
+                  <option value="Commuting 36/20">Commuting 36/20</option>
+                  <option value="Tours 21/21">Tours 21/21</option>
                 </select>
               </div>
 
@@ -338,7 +349,9 @@ export default function EditPilotPage() {
                 <Input
                   id="commencement_date"
                   type="date"
-                  {...register('commencement_date')}
+                  {...register('commencement_date', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
+                  })}
                   className={errors.commencement_date ? 'border-red-500' : ''}
                 />
                 {errors.commencement_date && (
@@ -355,9 +368,7 @@ export default function EditPilotPage() {
                     <input
                       type="radio"
                       value="true"
-                      {...register('is_active', {
-                        setValueAs: (v) => v === 'true',
-                      })}
+                      {...register('is_active')}
                       className="h-4 w-4 text-blue-600"
                     />
                     <span className="text-card-foreground text-sm font-medium">Active</span>
@@ -366,9 +377,7 @@ export default function EditPilotPage() {
                     <input
                       type="radio"
                       value="false"
-                      {...register('is_active', {
-                        setValueAs: (v) => v === 'true',
-                      })}
+                      {...register('is_active')}
                       className="h-4 w-4 text-blue-600"
                     />
                     <span className="text-card-foreground text-sm font-medium">Inactive</span>
@@ -391,7 +400,9 @@ export default function EditPilotPage() {
                 <Input
                   id="date_of_birth"
                   type="date"
-                  {...register('date_of_birth')}
+                  {...register('date_of_birth', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
+                  })}
                   className={errors.date_of_birth ? 'border-red-500' : ''}
                 />
                 {errors.date_of_birth && (
@@ -407,7 +418,9 @@ export default function EditPilotPage() {
                   id="nationality"
                   type="text"
                   placeholder="e.g., Papua New Guinean"
-                  {...register('nationality')}
+                  {...register('nationality', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? v : null),
+                  })}
                   className={errors.nationality ? 'border-red-500' : ''}
                 />
                 {errors.nationality && (
@@ -431,7 +444,9 @@ export default function EditPilotPage() {
                   id="passport_number"
                   type="text"
                   placeholder="e.g., P1234567"
-                  {...register('passport_number')}
+                  {...register('passport_number', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? v : null),
+                  })}
                   className={errors.passport_number ? 'border-red-500' : ''}
                 />
                 {errors.passport_number && (
@@ -446,7 +461,9 @@ export default function EditPilotPage() {
                 <Input
                   id="passport_expiry"
                   type="date"
-                  {...register('passport_expiry')}
+                  {...register('passport_expiry', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
+                  })}
                   className={errors.passport_expiry ? 'border-red-500' : ''}
                 />
                 {errors.passport_expiry && (

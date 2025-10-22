@@ -6,6 +6,7 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
@@ -41,6 +42,13 @@ export interface LeaveRequest {
   employee_id?: string
   pilot_role?: 'Captain' | 'First Officer' | null
   reviewer_name?: string | null
+  pilots?: {
+    first_name: string
+    middle_name?: string | null
+    last_name: string
+    employee_id: string
+    role: 'Captain' | 'First Officer'
+  } | null
 }
 
 export interface LeaveRequestFormData {

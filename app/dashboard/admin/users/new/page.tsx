@@ -69,8 +69,8 @@ export default function NewUserPage() {
           <h2 className="text-foreground text-2xl font-bold">Add New User</h2>
           <p className="text-muted-foreground mt-1">Create a new system user account</p>
         </div>
-        <Link href="/dashboard/admin/users">
-          <Button variant="outline">← Back to Users</Button>
+        <Link href="/dashboard/admin">
+          <Button variant="outline">← Back to Admin</Button>
         </Link>
       </div>
 

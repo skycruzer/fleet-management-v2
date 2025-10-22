@@ -9,7 +9,6 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
 import { useKeyboardShortcuts } from '@/lib/hooks/use-keyboard-nav'
 
 interface PaginationProps {

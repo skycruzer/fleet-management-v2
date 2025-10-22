@@ -16,13 +16,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { submitLeaveRequestAction } from '@/app/portal/leave/actions'
 
-interface PilotUser {
-  id: string
-  first_name: string
-  last_name: string
-  rank: string
-}
-
 // Form validation schema
 const leaveRequestSchema = z
   .object({
@@ -49,11 +42,10 @@ const leaveRequestSchema = z
 type LeaveRequestFormData = z.infer<typeof leaveRequestSchema>
 
 interface LeaveRequestFormProps {
-  pilotUser: PilotUser
   csrfToken: string
 }
 
-export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps) {
+export function LeaveRequestForm({ csrfToken }: LeaveRequestFormProps) {
   const router = useRouter()
   const {
     isSubmitting,
@@ -69,7 +61,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
     register,
     handleSubmit,
     watch,
-    formState: { errors, touchedFields, dirtyFields },
+    formState: { errors, touchedFields },
   } = useForm<LeaveRequestFormData>({
     resolver: zodResolver(leaveRequestSchema),
     mode: 'onBlur', // Validate on blur for better UX
@@ -224,7 +216,7 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
           rows={4}
           placeholder="Provide any additional context or reason for your leave request..."
           error={!!errors.reason}
-          success={touchedFields.reason && dirtyFields.reason && !errors.reason}
+          success={touchedFields.reason && !errors.reason}
           showCharCount={true}
           maxLength={500}
           aria-describedby="reason_error"
@@ -255,7 +247,6 @@ export function LeaveRequestForm({ pilotUser, csrfToken }: LeaveRequestFormProps
 // Helper function to get current roster period
 function getCurrentRosterPeriod(): string {
   const today = new Date()
-  const year = today.getFullYear()
 
   // Known anchor: RP12/2025 starts 2025-10-11
   const anchor = new Date('2025-10-11')

@@ -69,7 +69,7 @@ function Button({
         disabled={true}
         {...props}
       >
-        <ButtonSpinner variant={variant === 'outline' || variant === 'ghost' ? 'primary' : 'white'} />
+        <ButtonSpinner />
         {loadingText || children}
       </button>
     )

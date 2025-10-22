@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plane, Users, FileText, BarChart3, Shield, Zap } from 'lucide-react'
+import { publicMetadata } from '@/lib/utils/metadata'
+
+export const metadata = publicMetadata.home
 
 export default function HomePage() {
   return (
@@ -17,7 +20,7 @@ export default function HomePage() {
               <div className="bg-primary/10 rounded-2xl p-3 backdrop-blur-sm">
                 <Plane className="text-primary h-14 w-14" />
               </div>
-              <h1 className="text-foreground text-6xl font-bold tracking-tight sm:text-7xl">
+              <h1 className="text-foreground text-6xl font-bold tracking-tight sm:text-7xl" suppressHydrationWarning>
                 Fleet Management{' '}
                 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   V2

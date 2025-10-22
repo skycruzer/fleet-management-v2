@@ -50,7 +50,7 @@ interface AccessibleFormProps extends React.FormHTMLAttributes<HTMLFormElement> 
  */
 export const AccessibleForm = React.forwardRef<HTMLFormElement, AccessibleFormProps>(
   ({ title, description, onSuccess, onError, children, className, ...props }, ref) => {
-    const { firstFieldRef, focusFirstField } = useFormFocusManagement()
+    const { focusFirstField } = useFormFocusManagement()
     const formId = React.useId()
 
     // Focus first field on mount

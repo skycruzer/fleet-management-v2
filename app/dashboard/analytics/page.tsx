@@ -8,6 +8,17 @@
 import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import {
+  Loader2,
+  BarChart3,
+  Plane,
+  Target,
+  AlertTriangle,
+  Calendar,
+  CheckCircle,
+  Palmtree,
+  Info,
+} from 'lucide-react'
 
 interface AnalyticsData {
   pilot: {
@@ -117,7 +128,7 @@ export default function AnalyticsPage() {
       <div className="space-y-6">
         <Card className="p-12 text-center">
           <div className="flex items-center justify-center space-x-2">
-            <span className="animate-spin text-3xl">⏳</span>
+            <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
             <p className="text-muted-foreground">Loading analytics...</p>
           </div>
         </Card>
@@ -145,17 +156,17 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-2xl font-bold">Fleet Analytics Dashboard</h2>
-          <p className="text-muted-foreground mt-1">
+          <h2 className="text-foreground text-xl sm:text-2xl font-bold">Fleet Analytics Dashboard</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
             Comprehensive analytics and key performance indicators
           </p>
         </div>
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline">
+        <Button onClick={handleRefresh} disabled={refreshing} variant="outline" className="w-full sm:w-auto">
           {refreshing ? (
             <span className="flex items-center space-x-2">
-              <span className="animate-spin">⏳</span>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               <span>Refreshing...</span>
             </span>
           ) : (
@@ -199,10 +210,10 @@ export default function AnalyticsPage() {
       )}
 
       {/* Fleet Readiness Overview */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-4xl">📊</span>
+            <BarChart3 className="h-10 w-10 text-blue-600" aria-hidden="true" />
             <span className="text-3xl font-bold text-blue-900">{analytics.fleet.utilization}%</span>
           </div>
           <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Utilization</h3>
@@ -211,7 +222,7 @@ export default function AnalyticsPage() {
 
         <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-4xl">✈️</span>
+            <Plane className="h-10 w-10 text-green-600" aria-hidden="true" />
             <span className="text-3xl font-bold text-green-900">
               {analytics.fleet.availability}%
             </span>
@@ -227,7 +238,7 @@ export default function AnalyticsPage() {
 
         <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-4xl">🎯</span>
+            <Target className="h-10 w-10 text-purple-600" aria-hidden="true" />
             <span className="text-3xl font-bold text-purple-900">{analytics.fleet.readiness}%</span>
           </div>
           <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Readiness</h3>
@@ -276,7 +287,7 @@ export default function AnalyticsPage() {
                     {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
                   </div>
                 </div>
-                <span className="text-3xl">⚠️</span>
+                <AlertTriangle className="h-8 w-8 text-red-600" aria-hidden="true" />
               </div>
             </div>
             <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
@@ -287,7 +298,7 @@ export default function AnalyticsPage() {
                     {analytics.pilot.retirementPlanning.retiringIn5Years} pilots
                   </div>
                 </div>
-                <span className="text-3xl">📅</span>
+                <Calendar className="h-8 w-8 text-yellow-600" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -297,8 +308,9 @@ export default function AnalyticsPage() {
       {/* Certification Analytics */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            ✅ Certification Status
+          <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+            <CheckCircle className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+            Certification Status
           </h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-muted/50 rounded-lg p-4">
@@ -366,10 +378,11 @@ export default function AnalyticsPage() {
 
       {/* Leave Analytics */}
       <Card className="p-6">
-        <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-          🏖️ Leave Request Analytics
+        <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+          <Palmtree className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+          Leave Request Analytics
         </h3>
-        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="bg-muted/50 rounded-lg p-4">
             <div className="text-foreground text-3xl font-bold">{analytics.leave.total}</div>
             <div className="text-muted-foreground text-sm">Total Requests</div>
@@ -389,7 +402,7 @@ export default function AnalyticsPage() {
         </div>
 
         <h4 className="text-foreground mb-3 font-medium">Leave Types Breakdown</h4>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {analytics.leave.byType.map((type) => (
             <div key={type.type} className="bg-muted/50 rounded-lg p-3">
               <div className="text-foreground font-medium">{type.type}</div>
@@ -403,8 +416,9 @@ export default function AnalyticsPage() {
 
       {/* Risk Analytics */}
       <Card className="p-6">
-        <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-          ⚠️ Risk Assessment
+        <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+          <AlertTriangle className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
+          Risk Assessment
         </h3>
         <div className="mb-6">
           <div className="mb-2 flex items-center justify-between">
@@ -466,7 +480,7 @@ export default function AnalyticsPage() {
       {/* Export Section */}
       <Card className="bg-primary/5 border-primary/20 p-4">
         <div className="flex items-start space-x-3">
-          <span className="text-2xl">ℹ️</span>
+          <Info className="h-6 w-6 text-blue-600" aria-hidden="true" />
           <div className="flex-1">
             <p className="text-foreground text-sm font-medium">Analytics Data Export</p>
             <p className="text-muted-foreground mt-1 text-sm">

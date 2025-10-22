@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AWESOME-CLAUDE-AGENTS-GUIDE</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown.min.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Awesome Claude Agents - Complete Guide</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#awesome-claude-agents---complete-guide"
+id="toc-awesome-claude-agents---complete-guide">Awesome Claude Agents -
+Complete Guide</a>
+<ul>
+<li><a href="#fleet-management-v2-ai-development-team"
+id="toc-fleet-management-v2-ai-development-team">Fleet Management V2 AI
+Development Team</a></li>
+<li><a href="#table-of-contents" id="toc-table-of-contents">Table of
+Contents</a></li>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#what-are-claude-agents"
+id="toc-what-are-claude-agents">What Are Claude Agents?</a></li>
+<li><a href="#your-ai-development-team"
+id="toc-your-ai-development-team">Your AI Development Team</a></li>
+<li><a href="#installation-summary"
+id="toc-installation-summary">Installation Summary</a></li>
+<li><a href="#technology-stack-detection"
+id="toc-technology-stack-detection">Technology Stack Detection</a></li>
+<li><a href="#agent-reference-guide"
+id="toc-agent-reference-guide">Agent Reference Guide</a></li>
+<li><a href="#usage-examples" id="toc-usage-examples">Usage
+Examples</a></li>
+<li><a href="#best-practices" id="toc-best-practices">Best
+Practices</a></li>
+<li><a href="#workflow-patterns-1" id="toc-workflow-patterns-1">Workflow
+Patterns</a></li>
+<li><a href="#troubleshooting"
+id="toc-troubleshooting">Troubleshooting</a></li>
+<li><a href="#quick-reference-card" id="toc-quick-reference-card">Quick
+Reference Card</a></li>
+<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="awesome-claude-agents---complete-guide">Awesome Claude Agents -
+Complete Guide</h1>
+<h2 id="fleet-management-v2-ai-development-team">Fleet Management V2 AI
+Development Team</h2>
+<p><strong>Version</strong>: 1.0.0 <strong>Date</strong>: October 22,
+2025 <strong>Project</strong>: Fleet Management V2 - B767 Pilot
+Management System <strong>Author</strong>: Maurice (Skycruzer)</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-are-claude-agents">What Are Claude Agents?</a></li>
+<li><a href="#your-ai-development-team">Your AI Development
+Team</a></li>
+<li><a href="#installation-summary">Installation Summary</a></li>
+<li><a href="#technology-stack-detection">Technology Stack
+Detection</a></li>
+<li><a href="#agent-reference-guide">Agent Reference Guide</a></li>
+<li><a href="#usage-examples">Usage Examples</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#workflow-patterns">Workflow Patterns</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol>
+<hr />
+<h2 id="introduction">Introduction</h2>
+<p>This guide provides comprehensive documentation for using
+<strong>Awesome Claude Agents</strong> with your Fleet Management V2
+project. These specialized AI agents extend Claude Code’s capabilities,
+giving you a complete AI development team optimized for your
+Next.js/React/TypeScript/Supabase stack.</p>
+<h3 id="what-youll-learn">What You’ll Learn</h3>
+<ul>
+<li>How to invoke and use each specialist agent</li>
+<li>Best practices for agent coordination</li>
+<li>Real-world usage examples specific to your project</li>
+<li>Workflow patterns for common development tasks</li>
+<li>Troubleshooting tips</li>
+</ul>
+<hr />
+<h2 id="what-are-claude-agents">What Are Claude Agents?</h2>
+<p>Claude Agents are specialized AI assistants that provide deep
+expertise in specific domains. Instead of relying on a general-purpose
+AI, you can invoke specialists who:</p>
+<ul>
+<li><strong>Have domain expertise</strong> - Each agent masters their
+specific technology or task</li>
+<li><strong>Follow best practices</strong> - Agents apply current
+industry standards</li>
+<li><strong>Coordinate seamlessly</strong> - Agents work together
+through orchestration</li>
+<li><strong>Provide structured output</strong> - Clear, actionable
+results</li>
+</ul>
+<h3 id="how-they-work">How They Work</h3>
+<p>Agents are invoked using the <code>@agent-&lt;name&gt;</code> syntax
+in Claude Code:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to review my App Router structure&quot;</span></span></code></pre></div>
+<p>The main Claude instance coordinates the workflow, passing context
+between specialists and ensuring quality output.</p>
+<hr />
+<h2 id="your-ai-development-team">Your AI Development Team</h2>
+<p>You have <strong>11 specialized agents</strong> configured for Fleet
+Management V2:</p>
+<h3 id="orchestrators-2-agents">🎭 Orchestrators (2 agents)</h3>
+<p><strong>1. <span class="citation"
+data-cites="agent-tech-lead-orchestrator">@agent-tech-lead-orchestrator</span></strong>
+- <strong>Purpose</strong>: Coordinates complex multi-step projects -
+<strong>Use when</strong>: Building new features, refactoring large
+systems - <strong>Capabilities</strong>: Architecture decisions, task
+breakdown, team coordination</p>
+<p><strong>2. <span class="citation"
+data-cites="agent-project-analyst">@agent-project-analyst</span></strong>
+- <strong>Purpose</strong>: Technology stack detection and analysis -
+<strong>Use when</strong>: Understanding project structure, generating
+reports - <strong>Capabilities</strong>: Stack detection, dependency
+analysis, architecture review</p>
+<h3 id="reactnext.js-specialists-2-agents">⚛️ React/Next.js Specialists
+(2 agents)</h3>
+<p><strong>3. <span class="citation"
+data-cites="agent-react-nextjs-expert">@agent-react-nextjs-expert</span></strong>
+- <strong>Purpose</strong>: Next.js framework expertise - <strong>Use
+when</strong>: App Router development, SSR/SSG/ISR, Server Components -
+<strong>Capabilities</strong>: - App Router architecture - Server
+Components vs Client Components - Server Actions implementation -
+Metadata API and SEO - Streaming and Suspense - Performance
+optimization</p>
+<p><strong>4. <span class="citation"
+data-cites="agent-react-component-architect">@agent-react-component-architect</span></strong>
+- <strong>Purpose</strong>: React component design and patterns -
+<strong>Use when</strong>: Building reusable components, hooks,
+composition patterns - <strong>Capabilities</strong>: - React 19
+patterns - Custom hooks development - Component composition - State
+management patterns - Performance optimization (memo, useMemo,
+useCallback)</p>
+<h3 id="styling-specialist-1-agent">🎨 Styling Specialist (1 agent)</h3>
+<p><strong>5. <span class="citation"
+data-cites="agent-tailwind-css-expert">@agent-tailwind-css-expert</span></strong>
+- <strong>Purpose</strong>: Tailwind CSS styling and design -
+<strong>Use when</strong>: Styling components, responsive design,
+utility-first development - <strong>Capabilities</strong>: - Tailwind
+CSS 4.1.0 features - Responsive design patterns - Custom theme
+configuration - Component styling with Radix UI - Accessibility in
+design</p>
+<h3 id="api-backend-specialists-2-agents">🌐 API &amp; Backend
+Specialists (2 agents)</h3>
+<p><strong>6. <span class="citation"
+data-cites="agent-api-architect">@agent-api-architect</span></strong> -
+<strong>Purpose</strong>: API design and architecture - <strong>Use
+when</strong>: Designing API routes, Server Actions, GraphQL schemas -
+<strong>Capabilities</strong>: - RESTful API design - Server Actions
+patterns - API route optimization - Request/response patterns - Error
+handling</p>
+<p><strong>7. <span class="citation"
+data-cites="agent-backend-developer">@agent-backend-developer</span></strong>
+- <strong>Purpose</strong>: Backend development and service layer -
+<strong>Use when</strong>: Building services, Supabase integration,
+business logic - <strong>Capabilities</strong>: - Service layer
+architecture - Supabase client integration - Database operations -
+Authentication and authorization - Data validation and
+transformation</p>
+<h3 id="quality-performance-2-agents">🔧 Quality &amp; Performance (2
+agents)</h3>
+<p><strong>8. <span class="citation"
+data-cites="agent-code-reviewer">@agent-code-reviewer</span></strong> ⭐
+<strong>MANDATORY FOR MAJOR CHANGES</strong> - <strong>Purpose</strong>:
+Security-aware code reviews - <strong>Use when</strong>: Before
+committing major changes, security audits -
+<strong>Capabilities</strong>: - Code quality analysis - Security
+vulnerability detection - Best practices enforcement - Severity-tagged
+reports - Refactoring suggestions</p>
+<p><strong>9. <span class="citation"
+data-cites="agent-performance-optimizer">@agent-performance-optimizer</span></strong>
+⭐ <strong>MANDATORY BEFORE PRODUCTION</strong> -
+<strong>Purpose</strong>: Performance analysis and optimization -
+<strong>Use when</strong>: Optimizing queries, caching strategies,
+bottleneck identification - <strong>Capabilities</strong>: - Database
+query optimization - Caching strategy design - Bundle size optimization
+- React performance patterns - Server-side rendering optimization</p>
+<h3 id="documentation-analysis-2-agents">📚 Documentation &amp; Analysis
+(2 agents)</h3>
+<p><strong>10. <span class="citation"
+data-cites="agent-documentation-specialist">@agent-documentation-specialist</span></strong>
+- <strong>Purpose</strong>: Technical documentation creation -
+<strong>Use when</strong>: Writing docs, API specs, README updates -
+<strong>Capabilities</strong>: - Technical documentation - API
+documentation - Architecture documentation - User guides - Code
+comments</p>
+<p><strong>11. <span class="citation"
+data-cites="agent-code-archaeologist">@agent-code-archaeologist</span></strong>
+- <strong>Purpose</strong>: Codebase exploration and analysis -
+<strong>Use when</strong>: Understanding unfamiliar code, legacy
+analysis - <strong>Capabilities</strong>: - Codebase exploration -
+Pattern identification - Dependency mapping - Legacy code documentation
+- Technical debt assessment</p>
+<hr />
+<h2 id="installation-summary">Installation Summary</h2>
+<h3 id="already-completed">✅ Already Completed</h3>
+<p>Your installation is complete. Here’s what was done:</p>
+<p><strong>1. Agents Installed</strong></p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">~/.claude/agents/awesome-claude-agents/</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> core/              <span class="co"># 4 agents</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> orchestrators/     <span class="co"># 3 agents (2 relevant for your project)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> specialized/       <span class="co"># 26 agents (2 React/Next.js agents relevant)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> universal/         <span class="co"># 4 agents</span></span></code></pre></div>
+<p><strong>2. Symlink Created</strong></p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> <span class="st">&quot;</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/awesome-claude-agents/agents/&quot;</span> ~/.claude/agents/awesome-claude-agents</span></code></pre></div>
+<p><strong>3. CLAUDE.md Updated</strong> - Lines 30-131 contain AI Team
+Configuration - Detected technology stack documented - Agent routing
+table created - Usage examples provided</p>
+<h3 id="verification">Verification</h3>
+<p>To verify installation:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># List all available agents</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> ~/.claude/agents/awesome-claude-agents/</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check agent count</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">find</span> ~/.claude/agents/awesome-claude-agents <span class="at">-name</span> <span class="st">&quot;*.md&quot;</span> <span class="at">-type</span> f <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Should show: 33 agents total (11 configured for your project)</span></span></code></pre></div>
+<hr />
+<h2 id="technology-stack-detection">Technology Stack Detection</h2>
+<p>Your project was analyzed and the following stack was detected:</p>
+<h3 id="frontend">Frontend</h3>
+<ul>
+<li><strong>Framework</strong>: Next.js 15.5.4 (App Router)</li>
+<li><strong>UI Library</strong>: React 19.1.0</li>
+<li><strong>Language</strong>: TypeScript 5.7.3 (strict mode)</li>
+<li><strong>Styling</strong>: Tailwind CSS 4.1.0</li>
+<li><strong>UI Components</strong>: Radix UI (shadcn/ui)</li>
+</ul>
+<h3 id="state-forms">State &amp; Forms</h3>
+<ul>
+<li><strong>State Management</strong>: TanStack Query 5.90.2</li>
+<li><strong>Forms</strong>: React Hook Form 7.65.0</li>
+<li><strong>Validation</strong>: Zod 4.1.12</li>
+</ul>
+<h3 id="backend-database">Backend &amp; Database</h3>
+<ul>
+<li><strong>Database</strong>: Supabase PostgreSQL
+<ul>
+<li>Project ID: wgdmgvonqysflwdiiols</li>
+<li><span class="citation"
+data-cites="supabase/supabase-js">@supabase/supabase-js</span>
+2.75.1</li>
+<li><span class="citation"
+data-cites="supabase/ssr">@supabase/ssr</span> 0.7.0</li>
+</ul></li>
+<li><strong>Rate Limiting</strong>: Upstash Redis</li>
+</ul>
+<h3 id="testing-development">Testing &amp; Development</h3>
+<ul>
+<li><strong>E2E Testing</strong>: Playwright 1.55.0</li>
+<li><strong>Component Dev</strong>: Storybook 8.5.11</li>
+<li><strong>Build System</strong>: Turbopack (Next.js built-in)</li>
+</ul>
+<h3 id="additional-features">Additional Features</h3>
+<ul>
+<li><strong>PWA</strong>: Serwist/Next 9.2.1</li>
+<li><strong>Animation</strong>: Framer Motion 12.23.24</li>
+<li><strong>Drag &amp; Drop</strong>: <span class="citation"
+data-cites="dnd-kit">@dnd-kit</span></li>
+</ul>
+<hr />
+<h2 id="agent-reference-guide">Agent Reference Guide</h2>
+<h3 id="quick-reference-table">Quick Reference Table</h3>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 34%" />
+<col style="width: 36%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr>
+<th>Task</th>
+<th>Primary Agent</th>
+<th>Fallback Agent</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>New Feature Development</strong></td>
+<td><code>@agent-tech-lead-orchestrator</code></td>
+<td>-</td>
+<td>Coordinates multi-step tasks</td>
+</tr>
+<tr>
+<td><strong>Next.js Pages/Routes</strong></td>
+<td><code>@agent-react-nextjs-expert</code></td>
+<td><code>@agent-backend-developer</code></td>
+<td>App Router, SSR, Server Components</td>
+</tr>
+<tr>
+<td><strong>React Components</strong></td>
+<td><code>@agent-react-component-architect</code></td>
+<td>-</td>
+<td>Hooks, composition, patterns</td>
+</tr>
+<tr>
+<td><strong>Tailwind Styling</strong></td>
+<td><code>@agent-tailwind-css-expert</code></td>
+<td>-</td>
+<td>Responsive design, utilities</td>
+</tr>
+<tr>
+<td><strong>API Routes</strong></td>
+<td><code>@agent-api-architect</code></td>
+<td><code>@agent-backend-developer</code></td>
+<td>REST, Server Actions</td>
+</tr>
+<tr>
+<td><strong>Service Layer</strong></td>
+<td><code>@agent-backend-developer</code></td>
+<td>-</td>
+<td>Supabase integration, business logic</td>
+</tr>
+<tr>
+<td><strong>Code Review</strong></td>
+<td><code>@agent-code-reviewer</code></td>
+<td>-</td>
+<td>Security, quality, best practices</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td><code>@agent-performance-optimizer</code></td>
+<td>-</td>
+<td>Bottlenecks, caching, optimization</td>
+</tr>
+<tr>
+<td><strong>Documentation</strong></td>
+<td><code>@agent-documentation-specialist</code></td>
+<td>-</td>
+<td>Docs, API specs, guides</td>
+</tr>
+<tr>
+<td><strong>Codebase Analysis</strong></td>
+<td><code>@agent-code-archaeologist</code></td>
+<td>-</td>
+<td>Exploration, legacy analysis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-use-each-agent">When to Use Each Agent</h3>
+<h4 id="agent-tech-lead-orchestrator"><span class="citation"
+data-cites="agent-tech-lead-orchestrator">@agent-tech-lead-orchestrator</span></h4>
+<p><strong>Use For:</strong> - Building complete features
+(authentication, user management, etc.) - Large refactoring projects -
+Architecture decisions - Complex multi-step tasks</p>
+<p><strong>Example Scenarios:</strong> - “Build a pilot scheduling
+system with calendar integration” - “Refactor the certification tracking
+module for better performance” - “Design and implement a notification
+system”</p>
+<h4 id="agent-react-nextjs-expert"><span class="citation"
+data-cites="agent-react-nextjs-expert">@agent-react-nextjs-expert</span></h4>
+<p><strong>Use For:</strong> - Creating new pages with App Router -
+Implementing Server Components - Server Actions for mutations -
+SSR/SSG/ISR strategies - Metadata and SEO optimization</p>
+<p><strong>Example Scenarios:</strong> - “Create a new dashboard page
+with real-time data using Server Components” - “Implement a pilot
+profile page with SSR and dynamic metadata” - “Optimize the
+certification list page with ISR”</p>
+<h4 id="agent-react-component-architect"><span class="citation"
+data-cites="agent-react-component-architect">@agent-react-component-architect</span></h4>
+<p><strong>Use For:</strong> - Building reusable UI components - Custom
+hooks development - Component composition patterns - State management
+within components - Performance optimization (memo, callbacks)</p>
+<p><strong>Example Scenarios:</strong> - “Build a reusable data table
+component with sorting and filtering” - “Create a custom hook for
+managing form state” - “Refactor the pilot card component for better
+composition”</p>
+<h4 id="agent-tailwind-css-expert"><span class="citation"
+data-cites="agent-tailwind-css-expert">@agent-tailwind-css-expert</span></h4>
+<p><strong>Use For:</strong> - Styling components with Tailwind -
+Responsive design implementation - Radix UI integration and styling -
+Custom theme configuration - Accessibility in styling</p>
+<p><strong>Example Scenarios:</strong> - “Style the navigation component
+with Tailwind and make it responsive” - “Create a custom color palette
+for the pilot management system” - “Implement dark mode with
+Tailwind”</p>
+<h4 id="agent-api-architect"><span class="citation"
+data-cites="agent-api-architect">@agent-api-architect</span></h4>
+<p><strong>Use For:</strong> - Designing API routes - Server Actions
+implementation - API error handling - Request/response patterns - API
+documentation</p>
+<p><strong>Example Scenarios:</strong> - “Design the API endpoints for
+leave request management” - “Implement Server Actions for pilot data
+mutations” - “Create a RESTful API structure for certification
+tracking”</p>
+<h4 id="agent-backend-developer"><span class="citation"
+data-cites="agent-backend-developer">@agent-backend-developer</span></h4>
+<p><strong>Use For:</strong> - Service layer implementation - Supabase
+integration - Business logic - Database operations - Authentication and
+authorization</p>
+<p><strong>Example Scenarios:</strong> - “Implement a service for
+calculating leave eligibility” - “Create Supabase queries for pilot
+certification tracking” - “Build authentication middleware for route
+protection”</p>
+<h4 id="agent-code-reviewer"><span class="citation"
+data-cites="agent-code-reviewer">@agent-code-reviewer</span></h4>
+<p><strong>Use For:</strong> - Pre-commit code reviews - Security audits
+- Best practices enforcement - Refactoring suggestions - Code quality
+assessment</p>
+<p><strong>Example Scenarios:</strong> - “Review the new certification
+tracking feature before commit” - “Audit the authentication
+implementation for security issues” - “Review service layer for best
+practices”</p>
+<h4 id="agent-performance-optimizer"><span class="citation"
+data-cites="agent-performance-optimizer">@agent-performance-optimizer</span></h4>
+<p><strong>Use For:</strong> - Database query optimization - Caching
+strategy design - Bundle size reduction - React performance optimization
+- Server-side rendering optimization</p>
+<p><strong>Example Scenarios:</strong> - “Optimize the pilot dashboard
+query performance” - “Design a caching strategy for certification data”
+- “Reduce bundle size and improve initial load time”</p>
+<h4 id="agent-documentation-specialist"><span class="citation"
+data-cites="agent-documentation-specialist">@agent-documentation-specialist</span></h4>
+<p><strong>Use For:</strong> - Writing technical documentation - API
+documentation - README updates - User guides - Architecture
+documentation</p>
+<p><strong>Example Scenarios:</strong> - “Document the service layer
+architecture” - “Create API documentation for the leave request
+endpoints” - “Update README with deployment instructions”</p>
+<h4 id="agent-code-archaeologist"><span class="citation"
+data-cites="agent-code-archaeologist">@agent-code-archaeologist</span></h4>
+<p><strong>Use For:</strong> - Understanding unfamiliar code - Legacy
+codebase analysis - Pattern identification - Technical debt assessment -
+Dependency mapping</p>
+<p><strong>Example Scenarios:</strong> - “Analyze the existing
+certification tracking implementation” - “Document the legacy roster
+period calculation logic” - “Identify patterns in the current service
+layer”</p>
+<hr />
+<h2 id="usage-examples">Usage Examples</h2>
+<h3 id="example-1-building-a-new-feature">Example 1: Building a New
+Feature</h3>
+<p><strong>Scenario</strong>: Build a pilot notification system</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Use tech-lead orchestrator for planning</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-tech-lead-orchestrator to build a pilot notification system with email and in-app notifications&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The orchestrator will:</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Analyze requirements</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Create architecture plan</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Coordinate specialists (Next.js expert, backend developer, etc.)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Provide implementation plan</span></span></code></pre></div>
+<h3 id="example-2-creating-a-new-page">Example 2: Creating a New
+Page</h3>
+<p><strong>Scenario</strong>: Create a pilot analytics dashboard
+page</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use Next.js expert for App Router implementation</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to create a pilot analytics dashboard page with Server Components and real-time data&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Create page.tsx with App Router</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Implement Server Components for data fetching</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Add metadata for SEO</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Optimize for performance</span></span></code></pre></div>
+<h3 id="example-3-building-reusable-components">Example 3: Building
+Reusable Components</h3>
+<p><strong>Scenario</strong>: Create a reusable certification card
+component</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use React component architect</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-component-architect to create a reusable certification card component with status indicators and expiry warnings&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Design component API (props)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Implement with React 19 patterns</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Add proper TypeScript types</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Include Storybook stories</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Optimize performance</span></span></code></pre></div>
+<h3 id="example-4-styling-components">Example 4: Styling Components</h3>
+<p><strong>Scenario</strong>: Style the navigation with Tailwind</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use Tailwind expert</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-tailwind-css-expert to style the main navigation component with responsive design and accessibility&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Apply Tailwind utilities</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Implement responsive breakpoints</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Add accessibility features</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Integrate with Radix UI</span></span></code></pre></div>
+<h3 id="example-5-api-development">Example 5: API Development</h3>
+<p><strong>Scenario</strong>: Design leave request API endpoints</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use API architect</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-api-architect to design RESTful API endpoints for leave request management with proper error handling&quot;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Design endpoint structure</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Define request/response schemas</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Implement error handling</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Add validation</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Document API</span></span></code></pre></div>
+<h3 id="example-6-service-layer-implementation">Example 6: Service Layer
+Implementation</h3>
+<p><strong>Scenario</strong>: Create a service for pilot statistics</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use backend developer</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to create a service for calculating pilot statistics with Supabase integration&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Design service architecture</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Implement Supabase queries</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Add error handling</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Include TypeScript types</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Add caching if needed</span></span></code></pre></div>
+<h3 id="example-7-code-review">Example 7: Code Review</h3>
+<p><strong>Scenario</strong>: Review before committing major changes</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use code reviewer (MANDATORY)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review the new pilot scheduling feature with security focus&quot;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Analyze code quality</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Check for security vulnerabilities</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Verify best practices</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Provide severity-tagged report</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Suggest improvements</span></span></code></pre></div>
+<h3 id="example-8-performance-optimization">Example 8: Performance
+Optimization</h3>
+<p><strong>Scenario</strong>: Optimize dashboard performance</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use performance optimizer (MANDATORY BEFORE PRODUCTION)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-performance-optimizer to analyze and optimize the pilot dashboard performance&quot;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Identify bottlenecks</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Analyze database queries</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Review caching strategies</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Check bundle size</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Provide optimization plan</span></span></code></pre></div>
+<h3 id="example-9-documentation">Example 9: Documentation</h3>
+<p><strong>Scenario</strong>: Document the service layer</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use documentation specialist</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-documentation-specialist to create comprehensive documentation for the service layer architecture&quot;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Analyze service layer structure</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Document each service</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Create usage examples</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Add architecture diagrams</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Write best practices guide</span></span></code></pre></div>
+<h3 id="example-10-codebase-analysis">Example 10: Codebase Analysis</h3>
+<p><strong>Scenario</strong>: Understand legacy leave eligibility
+logic</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use code archaeologist</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-archaeologist to analyze and document the existing leave eligibility calculation logic&quot;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The agent will:</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Explore the codebase</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Identify patterns</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Document logic flow</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Explain business rules</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Suggest improvements</span></span></code></pre></div>
+<hr />
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="agent-selection">1. Agent Selection</h3>
+<p>✅ <strong>DO:</strong> - Use tech-lead-orchestrator for complex
+multi-step features - Use framework-specific agents
+(react-nextjs-expert) over generic ones - Run code-reviewer before major
+commits - Run performance-optimizer before production deployments</p>
+<p>❌ <strong>DON’T:</strong> - Use generic agents when specialists are
+available - Skip code review for large changes - Deploy without
+performance optimization - Mix concerns (use specialized agents for
+their domain)</p>
+<h3 id="workflow-patterns">2. Workflow Patterns</h3>
+<h4 id="new-feature-development">New Feature Development</h4>
+<pre><code>1. @agent-tech-lead-orchestrator → Planning and architecture
+2. @agent-react-nextjs-expert → Page/route implementation
+3. @agent-react-component-architect → Component development
+4. @agent-tailwind-css-expert → Styling
+5. @agent-backend-developer → Service layer
+6. @agent-code-reviewer → Review before commit
+7. @agent-performance-optimizer → Optimization
+8. @agent-documentation-specialist → Documentation</code></pre>
+<h4 id="bug-fix-workflow">Bug Fix Workflow</h4>
+<pre><code>1. @agent-code-archaeologist → Understand existing code
+2. @agent-backend-developer → Fix implementation
+3. @agent-code-reviewer → Review fix</code></pre>
+<h4 id="refactoring-workflow">Refactoring Workflow</h4>
+<pre><code>1. @agent-code-archaeologist → Analyze current implementation
+2. @agent-tech-lead-orchestrator → Plan refactoring
+3. Specialist agents → Implement changes
+4. @agent-code-reviewer → Review changes
+5. @agent-performance-optimizer → Verify improvements</code></pre>
+<h3 id="communication-with-agents">3. Communication with Agents</h3>
+<p><strong>Be Specific:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ Good - Specific request</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to create a pilot profile page with SSR, dynamic metadata, and real-time certification status&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ Bad - Too vague</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to make a page&quot;</span></span></code></pre></div>
+<p><strong>Provide Context:</strong></p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ Good - Includes context</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to create a leave eligibility service that checks minimum crew requirements of 10 Captains and 10 First Officers separately by rank&quot;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ Bad - Missing context</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to create a service&quot;</span></span></code></pre></div>
+<p><strong>Request Specific Deliverables:</strong></p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ Good - Clear deliverables</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review the certification-service.ts file and provide severity-tagged security analysis&quot;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ Bad - Unclear deliverables</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to look at some code&quot;</span></span></code></pre></div>
+<h3 id="quality-gates">4. Quality Gates</h3>
+<p><strong>MANDATORY Quality Checks:</strong></p>
+<p>Before ANY commit:</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review changes&quot;</span></span></code></pre></div>
+<p>Before production deployment:</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-performance-optimizer to analyze performance&quot;</span></span></code></pre></div>
+<p>After major refactoring:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-archaeologist to verify changes don&#39;t break existing patterns&quot;</span></span></code></pre></div>
+<h3 id="orchestration-best-practices">5. Orchestration Best
+Practices</h3>
+<p><strong>When to use <span class="citation"
+data-cites="agent-tech-lead-orchestrator">@agent-tech-lead-orchestrator</span>:</strong>
+- Features requiring 3+ files - Cross-cutting concerns - Architecture
+decisions needed - Multiple technologies involved</p>
+<p><strong>When to use specialists directly:</strong> - Single file
+changes - Specific domain tasks - Quick fixes - Isolated
+improvements</p>
+<h3 id="agent-coordination">6. Agent Coordination</h3>
+<p><strong>Sequential Tasks (Dependencies):</strong></p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Design</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-api-architect to design the notification API&quot;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Implement (after Step 1 completes)</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to implement the notification service based on the API design&quot;</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 3: Review (after Step 2 completes)</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review the implementation&quot;</span></span></code></pre></div>
+<p><strong>Parallel Tasks (Independent):</strong></p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># These can be done independently</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-component-architect to build notification bell component&quot;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to build notification service&quot;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-documentation-specialist to document notification system&quot;</span></span></code></pre></div>
+<hr />
+<h2 id="workflow-patterns-1">Workflow Patterns</h2>
+<h3 id="pattern-1-full-feature-implementation">Pattern 1: Full Feature
+Implementation</h3>
+<p><strong>Use Case</strong>: Building a complete feature from
+scratch</p>
+<pre class="mermaid"><code>graph TD
+    A[User Request] --&gt; B[@agent-tech-lead-orchestrator]
+    B --&gt; C[Planning Phase]
+    C --&gt; D[@agent-react-nextjs-expert]
+    C --&gt; E[@agent-backend-developer]
+    C --&gt; F[@agent-tailwind-css-expert]
+    D --&gt; G[Implementation]
+    E --&gt; G
+    F --&gt; G
+    G --&gt; H[@agent-code-reviewer]
+    H --&gt; I{Pass?}
+    I --&gt;|No| G
+    I --&gt;|Yes| J[@agent-performance-optimizer]
+    J --&gt; K{Pass?}
+    K --&gt;|No| G
+    K --&gt;|Yes| L[@agent-documentation-specialist]
+    L --&gt; M[Deploy]</code></pre>
+<p><strong>Steps:</strong> 1. Tech-lead analyzes and plans 2.
+Specialists implement in parallel 3. Code reviewer validates 4.
+Performance optimizer checks 5. Documentation specialist documents 6.
+Ready for deployment</p>
+<h3 id="pattern-2-bug-fix-workflow">Pattern 2: Bug Fix Workflow</h3>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Understand the issue</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-archaeologist to analyze the leave eligibility calculation bug&quot;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Implement fix</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to fix the leave eligibility service based on the analysis&quot;</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Review fix</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review the bug fix&quot;</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Deploy</span></span></code></pre></div>
+<h3 id="pattern-3-performance-optimization">Pattern 3: Performance
+Optimization</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Identify bottlenecks</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-performance-optimizer to analyze the pilot dashboard performance&quot;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Optimize queries</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to optimize the identified slow queries&quot;</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Optimize frontend</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to implement the recommended React optimizations&quot;</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Verify improvements</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-performance-optimizer to verify the optimization results&quot;</span></span></code></pre></div>
+<h3 id="pattern-4-refactoring">Pattern 4: Refactoring</h3>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Analyze current code</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-archaeologist to document the current certification tracking implementation&quot;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Plan refactoring</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-tech-lead-orchestrator to plan refactoring of certification tracking for better maintainability&quot;</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Implement changes</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to refactor the certification service based on the plan&quot;</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Update components</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-component-architect to update components to use the refactored service&quot;</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Review</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review the refactoring&quot;</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Document</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-documentation-specialist to update documentation for the refactored system&quot;</span></span></code></pre></div>
+<h3 id="pattern-5-api-development">Pattern 5: API Development</h3>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Design API</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-api-architect to design RESTful API endpoints for pilot document management&quot;</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Implement backend</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to implement the document management service and Supabase storage integration&quot;</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Create API routes</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to create API routes for document upload and retrieval&quot;</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Build frontend</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-component-architect to build document upload component&quot;</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Review</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review the complete API implementation&quot;</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Document</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-documentation-specialist to create API documentation&quot;</span></span></code></pre></div>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<h4 id="issue-1-agent-not-found">Issue 1: Agent Not Found</h4>
+<p><strong>Symptom:</strong></p>
+<pre><code>Error: Agent &#39;@agent-react-nextjs-expert&#39; not found</code></pre>
+<p><strong>Solution:</strong></p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify symlink exists</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> ~/.claude/agents/awesome-claude-agents</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># If missing, recreate symlink</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Users/skycruzer/Desktop/Fleet\ Office\ Management/fleet-management-v2</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ln</span> <span class="at">-sf</span> <span class="st">&quot;</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/awesome-claude-agents/agents/&quot;</span> ~/.claude/agents/awesome-claude-agents</span></code></pre></div>
+<h4 id="issue-2-agent-returns-generic-results">Issue 2: Agent Returns
+Generic Results</h4>
+<p><strong>Symptom:</strong> Agent doesn’t provide framework-specific
+solutions</p>
+<p><strong>Solution:</strong> - Be more specific in your request -
+Provide context about your stack - Reference specific files or patterns
+- Use the tech-lead-orchestrator for complex tasks</p>
+<p><strong>Example:</strong></p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ Too generic</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to make a page&quot;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ Specific and contextual</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to create a pilot certification tracking page using App Router with Server Components, fetching data from Supabase, and including dynamic metadata for SEO&quot;</span></span></code></pre></div>
+<h4 id="issue-3-conflicting-recommendations">Issue 3: Conflicting
+Recommendations</h4>
+<p><strong>Symptom:</strong> Different agents provide conflicting
+approaches</p>
+<p><strong>Solution:</strong> Use the tech-lead-orchestrator to
+coordinate:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-tech-lead-orchestrator to reconcile the different approaches for implementing real-time notifications and provide a unified recommendation&quot;</span></span></code></pre></div>
+<h4 id="issue-4-agent-doesnt-know-project-context">Issue 4: Agent
+Doesn’t Know Project Context</h4>
+<p><strong>Symptom:</strong> Agent makes suggestions that don’t fit your
+architecture</p>
+<p><strong>Solution:</strong> - Reference CLAUDE.md in your request -
+Point to specific service layer patterns - Mention existing patterns to
+follow</p>
+<p><strong>Example:</strong></p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to create a notification service following the same pattern as pilot-service.ts and integrating with our service layer architecture defined in CLAUDE.md&quot;</span></span></code></pre></div>
+<h4 id="issue-5-outdated-recommendations">Issue 5: Outdated
+Recommendations</h4>
+<p><strong>Symptom:</strong> Agent suggests older patterns not suitable
+for your versions</p>
+<p><strong>Solution:</strong> Specify versions in your request:</p>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to create a page using Next.js 15 App Router with React 19 Server Components&quot;</span></span></code></pre></div>
+<h3 id="getting-help">Getting Help</h3>
+<p><strong>For Agent Issues:</strong> 1. Check agent definition:
+<code>cat ~/.claude/agents/awesome-claude-agents/[category]/[agent-name].md</code>
+2. Review CLAUDE.md for project-specific guidance 3. Use
+tech-lead-orchestrator for clarification</p>
+<p><strong>For Installation Issues:</strong> 1. Verify symlink:
+<code>ls -la ~/.claude/agents/</code> 2. Check agent count:
+<code>find ~/.claude/agents/awesome-claude-agents -name "*.md" -type f | wc -l</code>
+3. Recreate symlink if needed</p>
+<p><strong>For Quality Issues:</strong> 1. Always use code-reviewer
+before commits 2. Use performance-optimizer before production 3. Request
+specific deliverables 4. Provide clear context</p>
+<hr />
+<h2 id="quick-reference-card">Quick Reference Card</h2>
+<h3 id="most-common-commands">Most Common Commands</h3>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># New Feature</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-tech-lead-orchestrator to build [feature description]&quot;</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Next.js Page</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-nextjs-expert to create [page description] with SSR&quot;</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co"># React Component</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-react-component-architect to build [component description]&quot;</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Styling</span></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-tailwind-css-expert to style [component] with responsive design&quot;</span></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Service Layer</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-backend-developer to create [service description]&quot;</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Code Review (Before Commit)</span></span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-code-reviewer to review [feature/file]&quot;</span></span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Performance (Before Production)</span></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-performance-optimizer to analyze [area]&quot;</span></span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Documentation</span></span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a><span class="ex">claude</span> <span class="st">&quot;use @agent-documentation-specialist to document [feature]&quot;</span></span></code></pre></div>
+<h3 id="quality-checklist">Quality Checklist</h3>
+<p>Before committing code: - [ ] Functionality implemented correctly - [
+] TypeScript types are correct - [ ] Service layer pattern followed - [
+] Error handling implemented - [ ] <strong><span class="citation"
+data-cites="agent-code-reviewer">@agent-code-reviewer</span></strong>
+review passed - [ ] Tests written (if applicable)</p>
+<p>Before production deployment: - [ ] All functionality tested - [ ]
+<strong><span class="citation"
+data-cites="agent-performance-optimizer">@agent-performance-optimizer</span></strong>
+analysis passed - [ ] Security review completed - [ ] Documentation
+updated - [ ] Performance benchmarks met</p>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>You now have a complete AI development team optimized for your Fleet
+Management V2 project. These agents provide:</p>
+<p>✅ <strong>Domain Expertise</strong> - Specialists in Next.js, React,
+TypeScript, Supabase ✅ <strong>Quality Assurance</strong> - Code review
+and performance optimization ✅ <strong>Faster Development</strong> -
+Coordinate complex tasks efficiently ✅ <strong>Better Code</strong> -
+Follow best practices automatically ✅ <strong>Complete
+Documentation</strong> - Generate docs as you build</p>
+<h3 id="next-steps">Next Steps</h3>
+<ol type="1">
+<li><strong>Start Small</strong> - Try a simple task with one agent</li>
+<li><strong>Build Confidence</strong> - Use tech-lead-orchestrator for a
+small feature</li>
+<li><strong>Scale Up</strong> - Coordinate multiple agents for complex
+features</li>
+<li><strong>Maintain Quality</strong> - Always use code-reviewer and
+performance-optimizer</li>
+</ol>
+<h3 id="support">Support</h3>
+<ul>
+<li><strong>Project Documentation</strong>: <code>CLAUDE.md</code>
+(lines 30-131)</li>
+<li><strong>Agent Repository</strong>:
+<code>~/.claude/agents/awesome-claude-agents/</code></li>
+<li><strong>Agent Definitions</strong>: Individual <code>.md</code>
+files in agent directories</li>
+</ul>
+<hr />
+<p><strong>Happy Building! 🚀</strong></p>
+<p><em>Your AI development team is ready to help you build
+production-ready features faster than ever.</em></p>
+</body>
+</html>

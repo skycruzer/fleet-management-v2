@@ -12,6 +12,7 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 import { differenceInDays } from 'date-fns'
@@ -20,8 +21,6 @@ import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 
 // Type aliases for convenience
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
-type PilotCheckInsert = Database['public']['Tables']['pilot_checks']['Insert']
-type PilotCheckUpdate = Database['public']['Tables']['pilot_checks']['Update']
 
 // ===================================
 // INTERFACES
@@ -638,7 +637,6 @@ export async function getCertificationStats() {
 
     if (error) throw error
 
-    const now = new Date()
     const stats = (data || []).reduce(
       (acc, cert) => {
         acc.total++
@@ -736,6 +734,78 @@ export async function getCertificationsByCategory() {
       source: 'certification-service:getCertificationsByCategory',
       severity: ErrorSeverity.MEDIUM,
       metadata: { operation: 'calculateCategoryStats' },
+    })
+    throw error
+  }
+}
+
+/**
+ * Get certifications grouped by category with full certification details
+ * Returns certifications organized by their check type category
+ */
+export async function getCertificationsGroupedByCategory(): Promise<
+  Record<string, CertificationWithDetails[]>
+> {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('pilot_checks')
+      .select(
+        `
+        id,
+        pilot_id,
+        check_type_id,
+        expiry_date,
+        created_at,
+        updated_at,
+        pilot:pilots (
+          id,
+          first_name,
+          last_name,
+          employee_id,
+          role
+        ),
+        check_type:check_types (
+          id,
+          check_code,
+          check_description,
+          category
+        )
+      `
+      )
+      .order('expiry_date', { ascending: true, nullsFirst: false })
+
+    if (error) throw error
+
+    // Group certifications by category
+    const grouped = (data || []).reduce(
+      (acc, cert: any) => {
+        const category = cert.check_type?.category || 'Uncategorized'
+
+        if (!acc[category]) {
+          acc[category] = []
+        }
+
+        // Add status calculation
+        const certWithStatus = {
+          ...cert,
+          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null),
+        }
+
+        acc[category].push(certWithStatus)
+
+        return acc
+      },
+      {} as Record<string, CertificationWithDetails[]>
+    )
+
+    return grouped
+  } catch (error) {
+    logError(error as Error, {
+      source: 'certification-service:getCertificationsGroupedByCategory',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'groupByCategory' },
     })
     throw error
   }

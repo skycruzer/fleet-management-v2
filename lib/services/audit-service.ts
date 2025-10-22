@@ -15,9 +15,10 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { format, subDays, startOfDay, endOfDay } from 'date-fns'
-import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 
 // ===================================
 // TYPES & INTERFACES

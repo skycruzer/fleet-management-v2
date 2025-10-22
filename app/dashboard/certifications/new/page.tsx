@@ -45,7 +45,6 @@ export default function NewCertificationPage() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<CertificationFormData>({
     resolver: zodResolver(CertificationCreateSchema),

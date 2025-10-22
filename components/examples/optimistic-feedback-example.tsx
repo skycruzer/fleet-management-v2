@@ -14,11 +14,11 @@
 
 'use client'
 
-import { useState, useOptimistic } from 'react'
+import { useOptimistic } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ThumbsUp, ThumbsDown, MessageSquare, Loader2, CheckCircle2 } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, CheckCircle2 } from 'lucide-react'
 
 interface FeedbackItem {
   id: string

@@ -97,11 +97,60 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protected routes
+  // ============================================================================
+  // Protected Routes & Role-Based Routing
+  // ============================================================================
+
+  // Admin/Manager Dashboard Protection
   if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     return NextResponse.redirect(url)
+  }
+
+  // Pilot Portal Protection (US1)
+  if (!user && request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login') && !request.nextUrl.pathname.startsWith('/portal/register')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/portal/login'
+    return NextResponse.redirect(url)
+  }
+
+  // Role-Based Routing (US1)
+  // If user is authenticated, check their role and redirect to appropriate portal
+  if (user) {
+    // Check if user is a pilot
+    const { data: pilotUser } = await supabase
+      .from('pilot_users')
+      .select('id, registration_approved')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    // Check if user is an admin/manager
+    const { data: adminUser } = await supabase
+      .from('an_users')
+      .select('id, role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    // Redirect pilots trying to access admin dashboard
+    if (pilotUser && !adminUser && request.nextUrl.pathname.startsWith('/dashboard')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/portal/dashboard'
+      return NextResponse.redirect(url)
+    }
+
+    // Redirect admins trying to access pilot portal
+    if (adminUser && !pilotUser && request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login') && !request.nextUrl.pathname.startsWith('/portal/register')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+
+    // Redirect unapproved pilot registrations
+    if (pilotUser && !pilotUser.registration_approved && request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login')) {
+      // Allow access to pilot portal but dashboard will show pending message
+      // No redirect needed - handled in dashboard page
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

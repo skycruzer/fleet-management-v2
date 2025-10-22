@@ -5,7 +5,10 @@
 
 export const dynamic = 'force-dynamic'
 
+import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
+
+export const metadata = dashboardMetadata.admin
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import {
@@ -30,20 +33,20 @@ export default async function AdminPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-2xl font-bold">Admin Settings</h2>
-          <p className="text-muted-foreground mt-1">System configuration and user management</p>
+          <h2 className="text-foreground text-xl sm:text-2xl font-bold">Admin Settings</h2>
+          <p className="text-muted-foreground mt-1 text-sm">System configuration and user management</p>
         </div>
-        <Link href="/dashboard/admin/users/new">
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Link href="/dashboard/admin/users/new" className="w-full sm:w-auto">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto">
             Add User
           </Button>
         </Link>
       </div>
 
       {/* System Status Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-green-200 bg-green-50 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
@@ -150,7 +153,7 @@ export default async function AdminPage() {
         </h3>
 
         {/* Category Stats */}
-        <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => {
             const count = checkTypes.filter((ct) => ct.category === category).length
             return (
@@ -263,7 +266,7 @@ export default async function AdminPage() {
       {/* Quick Actions */}
       <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">Quick Actions</h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link href="/dashboard/admin/users/new" className="block">
             <Button
               variant="outline"

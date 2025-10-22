@@ -93,7 +93,7 @@ export function Modal({
   const descriptionId = React.useId()
 
   // Focus management
-  const { returnFocus } = useFocusManagement({
+  useFocusManagement({
     trapFocus: true,
     containerRef: modalRef,
     focusOnMount: true,
@@ -137,6 +137,7 @@ export function Modal({
         document.body.style.overflow = originalOverflow
       }
     }
+    return undefined
   }, [open])
 
   if (!open) return null

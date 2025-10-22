@@ -64,6 +64,7 @@
  * - All business logic PRESERVED
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { differenceInDays, parseISO, isWithinInterval, eachDayOfInterval, addDays } from 'date-fns'
 
@@ -589,7 +590,7 @@ function generateSpreadingRecommendations(
 function generateDateSpreadingSuggestions(
   startDate: string,
   endDate: string,
-  conflictingRequests: ConflictingRequest[]
+  _conflictingRequests: ConflictingRequest[]
 ): string[] {
   const suggestions: string[] = []
   const start = new Date(startDate)
@@ -712,12 +713,11 @@ export async function checkLeaveEligibility(
   // Get conflicting PENDING requests for same dates
   const {
     conflictingRequests: allConflictingRequests,
-    seniorityRecommendation: initialSeniorityRec,
+    seniorityRecommendation: _initialSeniorityRec,
   } = await getConflictingPendingRequests(request)
 
   // Now check if approving ALL conflicting requests would cause crew shortage
   // Only show seniority comparison if collective approval would violate minimums
-  let needsSeniorityReview = false
   let conflictingRequests: ConflictingRequest[] = []
   let seniorityRecommendation = ''
 
@@ -773,15 +773,6 @@ export async function checkLeaveEligibility(
 
       // STEP 2: Decision based on the role being requested
       // Check if we have minimum crew for the specific role requesting leave
-      let hasMinimumCrewForRole = false
-
-      if (request.pilotRole === 'Captain') {
-        // Multiple Captains requesting - check if we have minimum Captains available
-        hasMinimumCrewForRole = availableCaptains >= requirements.minimumCaptains
-      } else if (request.pilotRole === 'First Officer') {
-        // Multiple First Officers requesting - check if we have minimum First Officers available
-        hasMinimumCrewForRole = availableFirstOfficers >= requirements.minimumFirstOfficers
-      }
 
       // LOGIC UPDATE (2025-10-04): New seniority-based approval logic
       // CRITICAL: Must maintain minimum 10 Captains AND 10 First Officers
@@ -798,7 +789,6 @@ export async function checkLeaveEligibility(
 
       if (allConflictingRequests.length > 1) {
         conflictingRequests = allConflictingRequests
-        needsSeniorityReview = true // Always show seniority comparison for multiple pilots
 
         // Count how many pilots can be approved while maintaining minimum crew
         const requestingRole = request.pilotRole
@@ -875,7 +865,6 @@ export async function checkLeaveEligibility(
       } else {
         // SCENARIO 1: Only ONE pilot requesting - straight approve based on crew availability
         conflictingRequests = []
-        needsSeniorityReview = false
         seniorityRecommendation = ''
       }
     }

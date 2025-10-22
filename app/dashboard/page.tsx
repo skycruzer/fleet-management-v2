@@ -2,52 +2,99 @@
  * Dashboard Page
  * Main dashboard showing fleet metrics and status
  * Individual widgets wrapped with ErrorBoundary for resilience
+ * Optimized with caching and memoization for fast load times
  */
 
 export const dynamic = 'force-dynamic'
 
+import { memo } from 'react'
+import Link from 'next/link'
 import { Card } from '@/components/ui/card'
-import { getDashboardMetrics } from '@/lib/services/dashboard-service'
-import { getExpiringCertifications } from '@/lib/services/expiring-certifications-service'
+import { getDashboardMetrics, type DashboardMetrics } from '@/lib/services/dashboard-service'
+import { getExpiringCertifications, type ExpiringCertification } from '@/lib/services/expiring-certifications-service'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { RosterPeriodCarousel } from '@/components/dashboard/roster-period-carousel'
+import {
+  Users,
+  Star,
+  User,
+  CheckCircle,
+  AlertCircle,
+  Circle,
+  Plus,
+  FileText,
+  BarChart3,
+  AlertTriangle,
+} from 'lucide-react'
+import { getCachedData, setCachedData } from '@/lib/services/cache-service'
+import { dashboardMetadata } from '@/lib/utils/metadata'
+
+// Metadata for SEO
+export const metadata = dashboardMetadata.home
+
+// Cached data fetching function
+async function getCachedDashboardData(): Promise<DashboardMetrics> {
+  const cacheKey = 'dashboard:metrics'
+  const cached = await getCachedData<DashboardMetrics>(cacheKey)
+  if (cached) return cached
+
+  const data = await getDashboardMetrics()
+  await setCachedData(cacheKey, data, 60) // 60 second cache
+  return data
+}
+
+async function getCachedExpiringCerts(): Promise<ExpiringCertification[]> {
+  const cacheKey = 'dashboard:expiring-certs:30'
+  const cached = await getCachedData<ExpiringCertification[]>(cacheKey)
+  if (cached) return cached
+
+  const data = await getExpiringCertifications(30)
+  await setCachedData(cacheKey, data, 60) // 60 second cache
+  return data
+}
 
 export default async function DashboardPage() {
-  // Fetch dashboard data
+  // Fetch dashboard data with caching
   const [metrics, expiringCerts] = await Promise.all([
-    getDashboardMetrics(),
-    getExpiringCertifications(30),
+    getCachedDashboardData(),
+    getCachedExpiringCerts(),
   ])
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h2 className="text-foreground text-2xl font-bold">Dashboard</h2>
-        <p className="text-muted-foreground mt-1">Fleet overview and key metrics</p>
+        <h2 className="text-foreground text-xl sm:text-2xl font-bold">Dashboard</h2>
+        <p className="text-muted-foreground mt-1 text-sm">Fleet overview and key metrics</p>
       </div>
+
+      {/* Roster Period Carousel */}
+      <ErrorBoundary>
+        <RosterPeriodCarousel />
+      </ErrorBoundary>
 
       {/* Metrics Grid */}
       <ErrorBoundary>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Pilots"
             value={metrics.pilots.total}
             subtitle={`${metrics.pilots.active} active`}
-            icon="👨‍✈️"
+            icon={<Users className="h-8 w-8 text-primary" aria-hidden="true" />}
             color="blue"
           />
           <MetricCard
             title="Captains"
             value={metrics.pilots.captains}
             subtitle={`${metrics.pilots.trainingCaptains} training`}
-            icon="⭐"
+            icon={<Star className="h-8 w-8 text-purple-600" aria-hidden="true" />}
             color="purple"
           />
           <MetricCard
             title="First Officers"
             value={metrics.pilots.firstOfficers}
             subtitle="Active roster"
-            icon="👤"
+            icon={<User className="h-8 w-8 text-green-600" aria-hidden="true" />}
             color="green"
           />
           <MetricCard
@@ -60,7 +107,12 @@ export default async function DashboardPage() {
                   ? 'Good'
                   : 'Needs attention'
             }
-            icon="✅"
+            icon={
+              <CheckCircle
+                className={`h-8 w-8 ${metrics.certifications.complianceRate >= 95 ? 'text-green-600' : metrics.certifications.complianceRate >= 85 ? 'text-yellow-600' : 'text-red-600'}`}
+                aria-hidden="true"
+              />
+            }
             color={
               metrics.certifications.complianceRate >= 95
                 ? 'green'
@@ -74,25 +126,25 @@ export default async function DashboardPage() {
 
       {/* Certifications Overview */}
       <ErrorBoundary>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <CertificationCard
             title="Expired"
             count={metrics.certifications.expired}
             color="red"
-            icon="🔴"
+            icon={<AlertCircle className="h-6 w-6 text-red-600" aria-hidden="true" />}
           />
           <CertificationCard
             title="Expiring Soon"
             count={metrics.certifications.expiring}
             subtitle="Within 30 days"
             color="yellow"
-            icon="🟡"
+            icon={<AlertCircle className="h-6 w-6 text-yellow-600" aria-hidden="true" />}
           />
           <CertificationCard
             title="Current"
             count={metrics.certifications.current}
             color="green"
-            icon="🟢"
+            icon={<Circle className="h-6 w-6 fill-green-600 text-green-600" aria-hidden="true" />}
           />
         </div>
       </ErrorBoundary>
@@ -102,7 +154,7 @@ export default async function DashboardPage() {
         {expiringCerts.length > 0 && (
           <Card className="border-yellow-200 bg-yellow-50 p-6">
             <div className="flex items-start space-x-4">
-              <div className="text-2xl">⚠️</div>
+              <AlertTriangle className="h-6 w-6 text-yellow-600" aria-hidden="true" />
               <div className="flex-1">
                 <h3 className="text-foreground text-lg font-semibold">
                   {expiringCerts.length} Certification
@@ -144,19 +196,19 @@ export default async function DashboardPage() {
           <ActionCard
             title="Add Pilot"
             description="Add a new pilot to the fleet"
-            icon="➕"
+            icon={<Plus className="h-6 w-6 text-primary" aria-hidden="true" />}
             href="/dashboard/pilots/new"
           />
           <ActionCard
             title="Update Certification"
             description="Record a new certification check"
-            icon="📋"
+            icon={<FileText className="h-6 w-6 text-primary" aria-hidden="true" />}
             href="/dashboard/certifications/new"
           />
           <ActionCard
             title="View Reports"
             description="Access analytics and reports"
-            icon="📊"
+            icon={<BarChart3 className="h-6 w-6 text-primary" aria-hidden="true" />}
             href="/dashboard/analytics"
           />
         </div>
@@ -165,7 +217,8 @@ export default async function DashboardPage() {
   )
 }
 
-function MetricCard({
+// Memoized components for performance
+const MetricCard = memo(function MetricCard({
   title,
   value,
   subtitle,
@@ -175,7 +228,7 @@ function MetricCard({
   title: string
   value: number | string
   subtitle: string
-  icon: string
+  icon: React.ReactNode
   color: 'blue' | 'purple' | 'green' | 'yellow' | 'red'
 }) {
   const colorClasses = {
@@ -194,13 +247,13 @@ function MetricCard({
           <p className="text-foreground mt-2 text-3xl font-bold">{value}</p>
           <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
         </div>
-        <span className="text-3xl">{icon}</span>
+        <div className="flex h-8 w-8 items-center justify-center">{icon}</div>
       </div>
     </Card>
   )
-}
+})
 
-function CertificationCard({
+const CertificationCard = memo(function CertificationCard({
   title,
   count,
   subtitle,
@@ -211,7 +264,7 @@ function CertificationCard({
   count: number
   subtitle?: string
   color: 'red' | 'yellow' | 'green'
-  icon: string
+  icon: React.ReactNode
 }) {
   const colorClasses = {
     red: 'bg-red-50 border-destructive/20',
@@ -222,7 +275,7 @@ function CertificationCard({
   return (
     <Card className={`p-6 ${colorClasses[color]}`}>
       <div className="flex items-center space-x-3">
-        <span className="text-2xl">{icon}</span>
+        <div className="flex h-6 w-6 items-center justify-center">{icon}</div>
         <div>
           <p className="text-foreground text-2xl font-bold">{count}</p>
           <p className="text-muted-foreground text-sm font-medium">{title}</p>
@@ -231,9 +284,9 @@ function CertificationCard({
       </div>
     </Card>
   )
-}
+})
 
-function ActionCard({
+const ActionCard = memo(function ActionCard({
   title,
   description,
   icon,
@@ -241,21 +294,21 @@ function ActionCard({
 }: {
   title: string
   description: string
-  icon: string
+  icon: React.ReactNode
   href: string
 }) {
   return (
-    <a
+    <Link
       href={href}
       className="border-border block rounded-lg border p-6 transition-all hover:border-blue-300 hover:shadow-md"
     >
       <div className="flex items-start space-x-3">
-        <span className="text-2xl">{icon}</span>
+        <div className="flex h-6 w-6 items-center justify-center">{icon}</div>
         <div>
           <h4 className="text-foreground font-semibold">{title}</h4>
           <p className="text-muted-foreground mt-1 text-sm">{description}</p>
         </div>
       </div>
-    </a>
+    </Link>
   )
-}
+})

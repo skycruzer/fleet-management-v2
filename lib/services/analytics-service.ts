@@ -16,8 +16,9 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
-import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 /**
  * Get comprehensive pilot analytics for charts and KPIs
@@ -238,8 +239,6 @@ export async function getLeaveAnalytics() {
  * Get fleet utilization and readiness analytics
  */
 export async function getFleetAnalytics() {
-  const supabase = await createClient()
-
   try {
     const [pilotAnalytics, certificationAnalytics, leaveAnalytics] = await Promise.all([
       getPilotAnalytics(),
@@ -297,8 +296,6 @@ export async function getFleetAnalytics() {
  * Get risk analytics and alerts
  */
 export async function getRiskAnalytics() {
-  const supabase = await createClient()
-
   try {
     const [certificationAnalytics, pilotAnalytics] = await Promise.all([
       getCertificationAnalytics(),

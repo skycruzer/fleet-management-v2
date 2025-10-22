@@ -217,7 +217,6 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
       <div className="grid gap-4">
         {pilots.map((pilot) => {
           const isTemp = pilot.id.startsWith('temp-')
-          const isEditing = editingId === pilot.id
 
           return (
             <Card key={pilot.id} className={isTemp ? 'border-dashed border-blue-300 bg-blue-50' : ''}>

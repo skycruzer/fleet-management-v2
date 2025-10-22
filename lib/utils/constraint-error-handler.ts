@@ -38,11 +38,31 @@ export class DuplicateSubmissionError extends Error {
  * Maps constraint names to user-friendly error messages
  */
 const CONSTRAINT_MESSAGES: Record<string, string> = {
+  // Leave requests
   leave_requests_pilot_dates_unique: ERROR_MESSAGES.LEAVE.DUPLICATE_REQUEST.message,
+
+  // Flight requests
   flight_requests_pilot_date_type_unique: ERROR_MESSAGES.FLIGHT.DUPLICATE_REQUEST.message,
-  feedback_likes_post_user_unique: ERROR_MESSAGES.FEEDBACK.ALREADY_LIKED.message,
+
+  // Feedback
+  feedback_likes_post_user_unique: ERROR_MESSAGES.FEEDBACK.ALREADY_VOTED.message,
+  feedback_posts_title_unique: ERROR_MESSAGES.FEEDBACK.CREATE_FAILED.message,
+
+  // Pilot registrations
+  pilot_registrations_email_unique: ERROR_MESSAGES.PORTAL.DUPLICATE_REGISTRATION.message,
+  pilot_registrations_employee_id_unique: 'A pilot with this employee ID has already registered.',
+
+  // Pilots
   pilots_employee_id_unique: ERROR_MESSAGES.PILOT.DUPLICATE_EMPLOYEE_ID.message,
+
+  // Users
   an_users_email_unique: ERROR_MESSAGES.USER.DUPLICATE_EMAIL.message,
+
+  // Tasks (if any unique constraints added later)
+  tasks_title_unique: 'A task with this title already exists.',
+
+  // Feedback categories
+  feedback_categories_name_unique: ERROR_MESSAGES.FEEDBACK.INVALID_CATEGORY.message,
 }
 
 /**
@@ -116,6 +136,18 @@ export function handleUniqueConstraintViolation(error: unknown): DuplicateSubmis
  */
 export function isDuplicateSubmissionError(error: unknown): error is DuplicateSubmissionError {
   return error instanceof DuplicateSubmissionError
+}
+
+/**
+ * Convenience function to handle constraint errors and return user-friendly message
+ * This is a simpler wrapper around handleUniqueConstraintViolation
+ */
+export function handleConstraintError(error: unknown): string {
+  if (isUniqueConstraintViolation(error)) {
+    const duplicateError = handleUniqueConstraintViolation(error)
+    return duplicateError.message
+  }
+  return 'An error occurred. Please try again.'
 }
 
 /**

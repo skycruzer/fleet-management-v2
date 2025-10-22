@@ -3,6 +3,7 @@
  * Handles administrative operations including user management, check types, and system settings
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 
 // ============================================================================
@@ -257,6 +258,243 @@ export async function getSystemSetting(key: string): Promise<SystemSetting | nul
   }
 }
 
+/**
+ * Update a system setting
+ */
+export async function updateSystemSetting(
+  id: string,
+  updates: { value?: any; description?: string }
+): Promise<SystemSetting> {
+  try {
+    const supabase = await createClient()
+
+    console.log('🔄 updateSystemSetting - Before update:', {
+      id,
+      updates: JSON.stringify(updates),
+    })
+
+    const { data, error } = await supabase
+      .from('settings')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('❌ updateSystemSetting - Database error:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      })
+      throw new Error(`Failed to update system setting: ${error.message}`)
+    }
+
+    console.log('✅ updateSystemSetting - Success:', {
+      id: data.id,
+      key: data.key,
+      value: JSON.stringify(data.value),
+      updated_at: data.updated_at,
+    })
+
+    return data
+  } catch (error) {
+    console.error('❌ updateSystemSetting - Error:', error)
+    throw error
+  }
+}
+
+/**
+ * Get the application title from settings
+ * Returns a default value if not found
+ */
+export async function getAppTitle(): Promise<string> {
+  try {
+    const supabase = await createClient()
+
+    // Fetch directly without caching to get fresh data
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'app_title')
+      .single()
+
+    if (error) {
+      console.error('Error fetching app title:', error)
+      return 'Fleet Office Management'
+    }
+
+    if (data && data.value) {
+      // Handle both string and object value formats
+      if (typeof data.value === 'string') {
+        return data.value
+      } else if (
+        typeof data.value === 'object' &&
+        data.value !== null &&
+        !Array.isArray(data.value) &&
+        'title' in data.value &&
+        typeof data.value.title === 'string'
+      ) {
+        return data.value.title
+      }
+    }
+
+    // Default fallback
+    return 'Fleet Office Management'
+  } catch (error) {
+    console.error('Error getting app title:', error)
+    // Return default on error
+    return 'Fleet Office Management'
+  }
+}
+
+/**
+ * Get pilot requirements from settings
+ * Returns default values if not found
+ */
+export async function getPilotRequirements(): Promise<{
+  pilot_retirement_age: number
+  number_of_aircraft: number
+  captains_per_hull: number
+  first_officers_per_hull: number
+  minimum_captains_per_hull: number
+  minimum_first_officers_per_hull: number
+  training_captains_per_pilots: number
+  examiners_per_pilots: number
+}> {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'pilot_requirements')
+      .single()
+
+    if (error) {
+      console.error('Error fetching pilot requirements:', error)
+      return getDefaultPilotRequirements()
+    }
+
+    if (
+      data &&
+      data.value &&
+      typeof data.value === 'object' &&
+      data.value !== null &&
+      !Array.isArray(data.value)
+    ) {
+      const value = data.value as Record<string, unknown>
+      return {
+        pilot_retirement_age:
+          typeof value.pilot_retirement_age === 'number' ? value.pilot_retirement_age : 65,
+        number_of_aircraft: typeof value.number_of_aircraft === 'number' ? value.number_of_aircraft : 2,
+        captains_per_hull: typeof value.captains_per_hull === 'number' ? value.captains_per_hull : 7,
+        first_officers_per_hull:
+          typeof value.first_officers_per_hull === 'number' ? value.first_officers_per_hull : 7,
+        minimum_captains_per_hull:
+          typeof value.minimum_captains_per_hull === 'number' ? value.minimum_captains_per_hull : 10,
+        minimum_first_officers_per_hull:
+          typeof value.minimum_first_officers_per_hull === 'number'
+            ? value.minimum_first_officers_per_hull
+            : 10,
+        training_captains_per_pilots:
+          typeof value.training_captains_per_pilots === 'number'
+            ? value.training_captains_per_pilots
+            : 11,
+        examiners_per_pilots:
+          typeof value.examiners_per_pilots === 'number' ? value.examiners_per_pilots : 11,
+      }
+    }
+
+    return getDefaultPilotRequirements()
+  } catch (error) {
+    console.error('Error getting pilot requirements:', error)
+    return getDefaultPilotRequirements()
+  }
+}
+
+/**
+ * Get alert thresholds from settings
+ * Returns default values if not found
+ */
+export async function getAlertThresholds(): Promise<{
+  critical_days: number
+  urgent_days: number
+  warning_30_days: number
+  warning_60_days: number
+  early_warning_90_days: number
+}> {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'alert_thresholds')
+      .single()
+
+    if (error) {
+      console.error('Error fetching alert thresholds:', error)
+      return getDefaultAlertThresholds()
+    }
+
+    if (
+      data &&
+      data.value &&
+      typeof data.value === 'object' &&
+      data.value !== null &&
+      !Array.isArray(data.value)
+    ) {
+      const value = data.value as Record<string, unknown>
+      return {
+        critical_days: typeof value.critical_days === 'number' ? value.critical_days : 7,
+        urgent_days: typeof value.urgent_days === 'number' ? value.urgent_days : 14,
+        warning_30_days: typeof value.warning_30_days === 'number' ? value.warning_30_days : 30,
+        warning_60_days: typeof value.warning_60_days === 'number' ? value.warning_60_days : 60,
+        early_warning_90_days:
+          typeof value.early_warning_90_days === 'number' ? value.early_warning_90_days : 90,
+      }
+    }
+
+    return getDefaultAlertThresholds()
+  } catch (error) {
+    console.error('Error getting alert thresholds:', error)
+    return getDefaultAlertThresholds()
+  }
+}
+
+/**
+ * Default pilot requirements (fallback)
+ */
+function getDefaultPilotRequirements() {
+  return {
+    pilot_retirement_age: 65,
+    number_of_aircraft: 2,
+    captains_per_hull: 7,
+    first_officers_per_hull: 7,
+    minimum_captains_per_hull: 10,
+    minimum_first_officers_per_hull: 10,
+    training_captains_per_pilots: 11,
+    examiners_per_pilots: 11,
+  }
+}
+
+/**
+ * Default alert thresholds (fallback)
+ */
+function getDefaultAlertThresholds() {
+  return {
+    critical_days: 7,
+    urgent_days: 14,
+    warning_30_days: 30,
+    warning_60_days: 60,
+    early_warning_90_days: 90,
+  }
+}
+
 // ============================================================================
 // CONTRACT TYPES
 // ============================================================================
@@ -297,7 +535,7 @@ export async function getAdminStats(): Promise<AdminStats> {
     const supabase = await createClient()
 
     // Fetch all stats in parallel
-    const [usersData, pilotsData, checkTypesData, certificationsData, leaveRequestsData] =
+    const [_usersData, pilotsData, checkTypesData, certificationsData, leaveRequestsData] =
       await Promise.all([
         supabase.from('an_users').select('role', { count: 'exact', head: true }),
         supabase.from('pilots').select('*', { count: 'exact', head: true }),

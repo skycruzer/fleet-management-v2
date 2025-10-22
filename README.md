@@ -7,6 +7,7 @@ Modern fleet management system built with Next.js 15, TypeScript, and Supabase f
 - **Pilot Management**: Comprehensive pilot profiles with certification tracking and qualifications
 - **Certification Tracking**: Track 38+ check types with automated expiry alerts
 - **Analytics Dashboard**: Real-time fleet metrics and compliance statistics
+- **Progressive Web App**: Works offline, installable on mobile devices
 - **Security First**: Built with Supabase RLS and role-based access control
 - **Modern Stack**: Next.js 15, React 19, TypeScript, Tailwind CSS v4
 - **Aviation Compliant**: FAA standards with color-coded status indicators
@@ -24,6 +25,7 @@ Modern fleet management system built with Next.js 15, TypeScript, and Supabase f
 - **Form Handling**: React Hook Form 7.63.0 with Zod 4.1.11
 - **Testing**: Playwright 1.55.0 for E2E tests
 - **Component Dev**: Storybook 8.5.11
+- **PWA**: Serwist (next-pwa successor) with service worker caching
 - **Code Quality**: ESLint, Prettier, Husky, lint-staged
 
 ## Prerequisites

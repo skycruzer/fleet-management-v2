@@ -181,7 +181,7 @@ function getDefaultConfigForOperation(operationType: SupabaseOperation): RetryCo
  */
 export function withRetry(
   client: SupabaseClient<Database>,
-  config?: SupabaseRetryConfig
+  _config?: SupabaseRetryConfig
 ): SupabaseClient<Database> {
   // Note: Full implementation would require proxying all Supabase methods
   // For now, we provide helper functions for common operations

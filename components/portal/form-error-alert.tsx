@@ -1,7 +1,10 @@
 /**
  * Form Error Alert Component
  * Reusable error display for portal forms
+ * @deprecated Use FormErrorAlert from @/components/ui/error-alert instead
  */
+
+import { AlertCircle, X } from 'lucide-react'
 
 interface FormErrorAlertProps {
   error: string | null
@@ -12,30 +15,20 @@ export function FormErrorAlert({ error, onDismiss }: FormErrorAlertProps) {
   if (!error) return null
 
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
       <div className="flex items-start space-x-3">
-        <span className="text-red-500 text-xl">⚠️</span>
+        <AlertCircle className="h-5 w-5 text-red-500" aria-hidden="true" />
         <div className="flex-1">
           <h4 className="text-sm font-medium text-red-800">Submission Failed</h4>
-          <p className="text-sm text-red-700 mt-1">{error}</p>
+          <p className="mt-1 text-sm text-red-700">{error}</p>
         </div>
         {onDismiss && (
           <button
             onClick={onDismiss}
-            className="text-red-400 hover:text-red-600 transition-colors"
+            className="text-red-400 transition-colors hover:text-red-600"
             aria-label="Dismiss error"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="h-5 w-5" aria-hidden="true" />
           </button>
         )}
       </div>

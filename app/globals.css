@@ -20,7 +20,7 @@
   --color-warning: #f59e0b;
   --color-warning-foreground: #ffffff;
 
-  /* Background colors */
+  /* Background colors - Light Mode */
   --color-background: #ffffff;
   --color-foreground: #020617;
 
@@ -30,12 +30,12 @@
   --color-popover: #ffffff;
   --color-popover-foreground: #020617;
 
-  /* Border and input colors */
+  /* Border and input colors - Light Mode */
   --color-border: #e2e8f0;
   --color-input: #e2e8f0;
   --color-ring: #0ea5e9;
 
-  /* Muted colors */
+  /* Muted colors - Light Mode */
   --color-muted: #f1f5f9;
   --color-muted-foreground: #64748b;
 
@@ -44,6 +44,35 @@
   --radius-md: 0.375rem;
   --radius-lg: 0.5rem;
   --radius-xl: 0.75rem;
+}
+
+/* Dark Mode Colors */
+.dark {
+  /* Background colors - Dark Mode */
+  --color-background: #020617;
+  --color-foreground: #f8fafc;
+
+  --color-card: #0f172a;
+  --color-card-foreground: #f8fafc;
+
+  --color-popover: #0f172a;
+  --color-popover-foreground: #f8fafc;
+
+  /* Border and input colors - Dark Mode */
+  --color-border: #1e293b;
+  --color-input: #1e293b;
+  --color-ring: #0ea5e9;
+
+  /* Muted colors - Dark Mode */
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+
+  /* Adjusted colors for better dark mode contrast */
+  --color-primary: #38bdf8;
+  --color-accent: #a78bfa;
+  --color-destructive: #f87171;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
 }
 
 /* Base styles */
@@ -134,5 +163,67 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Custom scrollbar for roster carousel */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgb(203 213 225);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgb(148 163 184);
+  }
+
+  .scrollbar-thumb-border {
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  .scrollbar-track-transparent {
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  /* Touch feedback ripple effect */
+  @keyframes ripple {
+    to {
+      transform: scale(100);
+      opacity: 0;
+    }
+  }
+
+  /* Touch-optimized tap highlights */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Smooth scroll for mobile */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Pull-to-refresh prevention */
+  .no-pull-refresh {
+    overscroll-behavior-y: contain;
   }
 }

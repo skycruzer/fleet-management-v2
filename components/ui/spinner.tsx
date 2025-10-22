@@ -87,7 +87,7 @@ export function InlineSpinner({ className }: { className?: string }) {
  * Button Spinner Component
  * Spinner specifically designed for button loading states
  */
-export function ButtonSpinner({ variant = 'white' }: { variant?: 'primary' | 'white' }) {
+export function ButtonSpinner() {
   return (
     <svg
       className="animate-spin h-5 w-5"

@@ -12,7 +12,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useEscapeKey, useFocusTrap } from "@/lib/hooks/use-keyboard-nav"
+import { useFocusTrap } from "@/lib/hooks/use-keyboard-nav"
 
 const Dialog = DialogPrimitive.Root
 
@@ -62,7 +62,7 @@ const DialogContent = React.forwardRef<
           className
         )}
         onEscapeKeyDown={onEscapeKeyDown}
-        onOpenAutoFocus={(event) => {
+        onOpenAutoFocus={(_event) => {
           setIsOpen(true)
         }}
         onCloseAutoFocus={() => {

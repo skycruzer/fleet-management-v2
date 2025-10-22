@@ -63,7 +63,7 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
     register,
     handleSubmit,
     watch,
-    formState: { errors, touchedFields, dirtyFields },
+    formState: { errors, touchedFields },
   } = useForm<FeedbackFormData>({
     resolver: zodResolver(feedbackSchema),
     mode: 'onBlur', // Validate on blur for better UX

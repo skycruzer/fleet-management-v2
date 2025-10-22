@@ -19,9 +19,11 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
-import { getOrSetCache, CACHE_INVALIDATION_PATTERNS } from './cache-service'
-import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { getOrSetCache } from './cache-service'
+import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { getPilotRequirements } from './admin-service'
 
 /**
  * Interface for comprehensive dashboard metrics
@@ -110,10 +112,9 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
     const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
     const currentMonth = now.getMonth()
     const currentYear = now.getFullYear()
-    const RETIREMENT_AGE = 65
 
     // OPTIMIZATION: Execute all queries in parallel (eliminates sequential wait time)
-    const [pilotsResult, checksResult, leaveRequestsResult, activePilotsResult] = await Promise.all(
+    const [pilotsResult, checksResult, leaveRequestsResult, activePilotsResult, pilotReqs] = await Promise.all(
       [
         // Query 1: Pilot stats with specific fields only
         supabase
@@ -139,6 +140,9 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
           .select('id, date_of_birth')
           .eq('is_active', true)
           .not('date_of_birth', 'is', null),
+
+        // Query 5: Fetch retirement age from settings dynamically
+        getPilotRequirements(),
       ]
     )
 
@@ -152,6 +156,7 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
     const checks = checksResult.data || []
     const leaveRequests = leaveRequestsResult.data || []
     const activePilots = activePilotsResult.data || []
+    const RETIREMENT_AGE = pilotReqs.pilot_retirement_age
 
     // Calculate pilot stats
     const pilotStats = pilots.reduce(

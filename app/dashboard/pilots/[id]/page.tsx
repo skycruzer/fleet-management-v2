@@ -9,7 +9,10 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import Link from 'next/link'
+import { CertificationCategoryGroup } from '@/components/certifications/certification-category-group'
 
 interface Pilot {
   id: string
@@ -41,11 +44,20 @@ export default function PilotDetailPage() {
   const router = useRouter()
   const params = useParams()
   const pilotId = params.id as string
+  const { confirm, ConfirmDialog } = useConfirm()
 
   const [pilot, setPilot] = useState<Pilot | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  // Certification modal state
+  const [showCertificationsModal, setShowCertificationsModal] = useState(false)
+  const [certifications, setCertifications] = useState<any[]>([])
+  const [loadingCertifications, setLoadingCertifications] = useState(false)
+  const [editingCertId, setEditingCertId] = useState<string | null>(null)
+  const [editExpiryDate, setEditExpiryDate] = useState('')
+  const [savingCert, setSavingCert] = useState(false)
 
   useEffect(() => {
     if (pilotId) {
@@ -71,12 +83,100 @@ export default function PilotDetailPage() {
     }
   }
 
+  async function fetchCertifications() {
+    try {
+      setLoadingCertifications(true)
+      const response = await fetch(`/api/certifications?pilotId=${pilotId}&pageSize=100`)
+      const data = await response.json()
+
+      if (data.success) {
+        // Sort certifications by expiry date within the response
+        const sortedCerts = (data.data || []).sort((a: any, b: any) => {
+          if (!a.expiry_date) return 1
+          if (!b.expiry_date) return -1
+          return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
+        })
+        setCertifications(sortedCerts)
+      }
+    } catch (err) {
+      console.error('Failed to fetch certifications:', err)
+    } finally {
+      setLoadingCertifications(false)
+    }
+  }
+
+  async function handleSaveCertification(certId: string) {
+    if (!editExpiryDate) return
+
+    try {
+      setSavingCert(true)
+      const response = await fetch(`/api/certifications/${certId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expiry_date: new Date(editExpiryDate).toISOString(),
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Refresh certifications
+        await fetchCertifications()
+        // Also refresh pilot details to update certification status summary
+        await fetchPilotDetails()
+        // Clear editing state
+        setEditingCertId(null)
+        setEditExpiryDate('')
+      } else {
+        alert(result.error || 'Failed to update certification')
+      }
+    } catch (err) {
+      alert('Failed to update certification')
+    } finally {
+      setSavingCert(false)
+    }
+  }
+
+  function handleEditCertification(certId: string, currentExpiry: string | null) {
+    setEditingCertId(certId)
+    if (currentExpiry) {
+      const date = new Date(currentExpiry)
+      setEditExpiryDate(date.toISOString().split('T')[0])
+    } else {
+      setEditExpiryDate('')
+    }
+  }
+
+  function handleCancelEdit() {
+    setEditingCertId(null)
+    setEditExpiryDate('')
+  }
+
+  function handleOpenCertificationsModal() {
+    setShowCertificationsModal(true)
+    fetchCertifications()
+  }
+
+  // Utility function for status badge colors (currently unused)
+  // function getStatusColor(cert: any): string {
+  //   if (!cert.status) return 'bg-gray-100 text-gray-800'
+  //   if (cert.status.color === 'red') return 'bg-red-100 text-red-800'
+  //   if (cert.status.color === 'yellow') return 'bg-yellow-100 text-yellow-800'
+  //   return 'bg-green-100 text-green-800'
+  // }
+
   async function handleDelete() {
-    if (
-      !confirm(
-        'Are you sure you want to delete this pilot? This will also delete all associated certifications and leave requests.'
-      )
-    ) {
+    const confirmed = await confirm({
+      title: 'Delete Pilot',
+      description:
+        'Are you sure you want to delete this pilot? This will permanently delete the pilot record and all associated certifications and leave requests. This action cannot be undone.',
+      confirmText: 'Delete Pilot',
+      cancelText: 'Cancel',
+      variant: 'destructive',
+    })
+
+    if (!confirmed) {
       return
     }
 
@@ -183,6 +283,22 @@ export default function PilotDetailPage() {
 
   const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name].filter(Boolean).join(' ')
 
+  // Group certifications by category and sort
+  const groupedCertifications = certifications.reduce(
+    (acc, cert) => {
+      const category = cert.check_type?.category || 'Other'
+      if (!acc[category]) {
+        acc[category] = []
+      }
+      acc[category].push(cert)
+      return acc
+    },
+    {} as Record<string, typeof certifications>
+  )
+
+  // Sort categories alphabetically
+  const sortedCategories = Object.keys(groupedCertifications).sort()
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -256,6 +372,17 @@ export default function PilotDetailPage() {
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* View & Edit Certifications Button */}
+      <div className="flex justify-center">
+        <Button
+          onClick={handleOpenCertificationsModal}
+          className="bg-primary hover:bg-primary/90 text-white"
+          size="lg"
+        >
+          📋 View & Edit Certifications
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -405,6 +532,63 @@ export default function PilotDetailPage() {
           </div>
         </div>
       </Card>
+
+      {/* Certifications Modal */}
+      <Dialog open={showCertificationsModal} onOpenChange={setShowCertificationsModal}>
+        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              Certifications for {fullName}
+            </DialogTitle>
+          </DialogHeader>
+
+          {loadingCertifications ? (
+            <div className="flex items-center justify-center py-12">
+              <span className="animate-spin text-3xl">⏳</span>
+              <p className="text-muted-foreground ml-3">Loading certifications...</p>
+            </div>
+          ) : certifications.length === 0 ? (
+            <div className="py-12 text-center">
+              <p className="text-muted-foreground">No certifications found for this pilot.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Category Overview */}
+              <Card className="p-4 bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-foreground text-sm font-semibold">Certification Categories</h4>
+                  <div className="text-muted-foreground text-sm">
+                    {sortedCategories.length} categories • {certifications.length} total certifications
+                  </div>
+                </div>
+                <p className="text-muted-foreground mt-2 text-xs">
+                  Certifications are grouped by category and sorted by expiry date.
+                </p>
+              </Card>
+
+              {/* Grouped Certifications by Category */}
+              {sortedCategories.map((category) => (
+                <CertificationCategoryGroup
+                  key={category}
+                  category={category}
+                  certifications={groupedCertifications[category]}
+                  defaultExpanded={true}
+                  editingCertId={editingCertId}
+                  editExpiryDate={editExpiryDate}
+                  savingCert={savingCert}
+                  onEdit={handleEditCertification}
+                  onSave={handleSaveCertification}
+                  onCancel={handleCancelEdit}
+                  onEditExpiryDateChange={setEditExpiryDate}
+                />
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog />
     </div>
   )
 }

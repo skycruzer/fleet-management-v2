@@ -35,8 +35,6 @@ function makeQueryClient() {
         networkMode: 'offlineFirst',
         // Refetch interval to keep data fresh
         refetchInterval: false, // Disabled - manual invalidation preferred
-        // Keep previous data while fetching new data
-        placeholderData: (previousData: unknown) => previousData,
       },
       mutations: {
         // Single retry for failed mutations

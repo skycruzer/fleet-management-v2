@@ -1,0 +1,418 @@
+openapi: 3.0.3
+info:
+  title: Pilot Authentication API
+  description: Authentication endpoints for pilot portal access
+  version: 1.0.0
+  contact:
+    name: Fleet Management V2 Team
+    email: support@airniugini.com
+
+servers:
+  - url: https://fleet-management-v2.vercel.app/api
+    description: Production
+  - url: http://localhost:3000/api
+    description: Local Development
+
+tags:
+  - name: Authentication
+    description: Pilot login, registration, and session management
+
+paths:
+  /pilot/login:
+    post:
+      tags:
+        - Authentication
+      summary: Pilot Login
+      description: Authenticate pilot with email and password
+      operationId: pilotLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+                  example: john.doe@airniugini.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: SecurePassword123!
+            examples:
+              valid:
+                summary: Valid login credentials
+                value:
+                  email: captain.smith@airniugini.com
+                  password: MySecurePass123!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccessResponse'
+              examples:
+                success:
+                  summary: Successful login
+                  value:
+                    success: true
+                    data:
+                      user:
+                        id: 550e8400-e29b-41d4-a716-446655440000
+                        email: captain.smith@airniugini.com
+                        role: pilot
+                      pilot:
+                        id: 660e8400-e29b-41d4-a716-446655440000
+                        first_name: John
+                        last_name: Smith
+                        rank: Captain
+                        employee_id: PNG001
+                      redirectTo: /pilot/dashboard
+                    metadata:
+                      timestamp: '2025-10-22T10:30:00Z'
+                      requestId: req_abc123
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidCredentials:
+                  summary: Wrong password
+                  value:
+                    success: false
+                    error:
+                      code: INVALID_CREDENTIALS
+                      message: Invalid email or password
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  summary: Missing required field
+                  value:
+                    success: false
+                    error:
+                      code: VALIDATION_ERROR
+                      message: Invalid request parameters
+                      details:
+                        field: email
+                        issue: Email is required
+
+  /pilot/register:
+    post:
+      tags:
+        - Authentication
+      summary: Pilot Registration
+      description: Register new pilot account (requires admin approval)
+      operationId: pilotRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PilotRegistrationRequest'
+            examples:
+              captain:
+                summary: Captain registration
+                value:
+                  email: new.captain@airniugini.com
+                  password: SecurePass123!
+                  first_name: Michael
+                  last_name: Johnson
+                  rank: Captain
+                  employee_id: PNG025
+                  date_of_birth: '1985-03-15'
+                  phone_number: +675 7123 4567
+                  address: Port Moresby, Papua New Guinea
+              firstOfficer:
+                summary: First Officer registration
+                value:
+                  email: new.fo@airniugini.com
+                  password: SecurePass123!
+                  first_name: Sarah
+                  last_name: Williams
+                  rank: First Officer
+                  employee_id: PNG026
+                  date_of_birth: '1990-07-22'
+                  phone_number: +675 7234 5678
+      responses:
+        '201':
+          description: Registration submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationSuccessResponse'
+              examples:
+                success:
+                  summary: Registration pending approval
+                  value:
+                    success: true
+                    data:
+                      registrationId: 770e8400-e29b-41d4-a716-446655440000
+                      status: PENDING
+                      message: >-
+                        Registration submitted successfully. Please check your email to verify your
+                        address. Your registration will then be reviewed by an administrator.
+                    metadata:
+                      timestamp: '2025-10-22T11:00:00Z'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                duplicate:
+                  summary: Duplicate email
+                  value:
+                    success: false
+                    error:
+                      code: DUPLICATE_EMAIL
+                      message: An account with this email already exists
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /pilot/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Pilot Logout
+      description: End pilot session
+      operationId: pilotLogout
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: Logged out successfully
+                      redirectTo:
+                        type: string
+                        example: /pilot/login
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Auth JWT token
+
+  schemas:
+    LoginSuccessResponse:
+      type: object
+      required:
+        - success
+        - data
+        - metadata
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          required:
+            - user
+            - pilot
+            - redirectTo
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+            pilot:
+              $ref: '#/components/schemas/Pilot'
+            redirectTo:
+              type: string
+              example: /pilot/dashboard
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - role
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440000
+        email:
+          type: string
+          format: email
+          example: pilot@airniugini.com
+        role:
+          type: string
+          enum: [pilot, admin, manager]
+          example: pilot
+
+    Pilot:
+      type: object
+      required:
+        - id
+        - first_name
+        - last_name
+        - rank
+      properties:
+        id:
+          type: string
+          format: uuid
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Smith
+        rank:
+          type: string
+          enum: [Captain, First Officer]
+          example: Captain
+        employee_id:
+          type: string
+          example: PNG001
+
+    PilotRegistrationRequest:
+      type: object
+      required:
+        - email
+        - password
+        - first_name
+        - last_name
+        - rank
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          format: password
+          minLength: 8
+          pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
+          description: >-
+            Must be at least 8 characters with uppercase, lowercase, number, and special character
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        rank:
+          type: string
+          enum: [Captain, First Officer]
+        employee_id:
+          type: string
+          maxLength: 50
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        phone_number:
+          type: string
+          maxLength: 20
+          nullable: true
+        address:
+          type: string
+          maxLength: 500
+          nullable: true
+
+    RegistrationSuccessResponse:
+      type: object
+      required:
+        - success
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          required:
+            - registrationId
+            - status
+            - message
+          properties:
+            registrationId:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [PENDING]
+              example: PENDING
+            message:
+              type: string
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: Invalid request parameters
+            details:
+              type: object
+              nullable: true
+
+    Metadata:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: '2025-10-22T10:30:00Z'
+        requestId:
+          type: string
+          example: req_abc123

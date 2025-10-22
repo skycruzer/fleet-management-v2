@@ -8,9 +8,9 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
-import type { Database } from '@/types/supabase'
-import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 /**
  * Helper function to get appropriate Supabase client
@@ -720,3 +720,15 @@ export const invalidateCacheByTag = (tag: string) => enhancedCacheService.invali
 export const getCacheAccessStats = () => enhancedCacheService.getAccessStats()
 
 export const getCacheHitRate = () => enhancedCacheService.getHitRate()
+
+/**
+ * Simple cache get/set functions for easy usage
+ */
+export const getCachedData = <T>(key: string): T | null => {
+  return enhancedCacheService.getWithTracking<T>(key)
+}
+
+export const setCachedData = <T>(key: string, data: T, ttlSeconds: number): void => {
+  const ttlMs = ttlSeconds * 1000
+  enhancedCacheService.set(key, data, ttlMs)
+}

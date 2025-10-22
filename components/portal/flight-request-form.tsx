@@ -16,13 +16,6 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { submitFlightRequestAction } from '@/app/portal/flights/actions'
 
-interface PilotUser {
-  id: string
-  first_name: string
-  last_name: string
-  rank: string
-}
-
 // Form validation schema
 const flightRequestSchema = z.object({
   request_type: z.enum(
@@ -41,11 +34,10 @@ const flightRequestSchema = z.object({
 type FlightRequestFormData = z.infer<typeof flightRequestSchema>
 
 interface FlightRequestFormProps {
-  pilotUser: PilotUser
   csrfToken: string
 }
 
-export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormProps) {
+export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
   const router = useRouter()
   const {
     isSubmitting,
@@ -61,7 +53,7 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
     register,
     handleSubmit,
     watch,
-    formState: { errors, touchedFields, dirtyFields },
+    formState: { errors, touchedFields },
   } = useForm<FlightRequestFormData>({
     resolver: zodResolver(flightRequestSchema),
     mode: 'onBlur', // Validate on blur for better UX
@@ -164,7 +156,7 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
             {...register('route')}
             placeholder="e.g., POM-HKG, POM-CNS-BNE"
             error={!!errors.route}
-            success={touchedFields.route && dirtyFields.route && !errors.route}
+            success={touchedFields.route && !errors.route}
             aria-describedby="route_error"
           />
           {errors.route && (
@@ -185,9 +177,7 @@ export function FlightRequestForm({ pilotUser, csrfToken }: FlightRequestFormPro
             {...register('flight_number')}
             placeholder="e.g., PX123, PX456"
             error={!!errors.flight_number}
-            success={
-              touchedFields.flight_number && dirtyFields.flight_number && !errors.flight_number
-            }
+            success={touchedFields.flight_number && !errors.flight_number}
             aria-describedby="flight_number_error"
           />
           {errors.flight_number && (
@@ -242,7 +232,7 @@ Examples:
           rows={3}
           placeholder="Any additional context, personal circumstances, or supporting information..."
           error={!!errors.reason}
-          success={touchedFields.reason && dirtyFields.reason && !errors.reason}
+          success={touchedFields.reason && !errors.reason}
           showCharCount={true}
           maxLength={500}
           aria-describedby="reason_error"

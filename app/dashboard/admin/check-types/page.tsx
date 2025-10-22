@@ -5,7 +5,10 @@
 
 export const dynamic = 'force-dynamic'
 
+import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
+
+export const metadata = dashboardMetadata.adminCheckTypes
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { getCheckTypes, getCheckTypeCategories } from '@/lib/services/admin-service'

@@ -12,7 +12,7 @@
 
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { AlertCircle, RefreshCw, WifiOff } from 'lucide-react'
+import { RefreshCw, WifiOff } from 'lucide-react'
 
 // ===================================
 // TYPES

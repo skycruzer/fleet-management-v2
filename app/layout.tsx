@@ -1,18 +1,12 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { OfflineIndicator } from '@/components/ui/offline-indicator'
 import { Providers } from './providers'
 import { SkipLinks, SkipToMainContent, SkipToNavigation } from '@/components/ui/skip-link'
 import { RouteChangeFocusManager } from '@/components/ui/route-change-focus'
 import './globals.css'
-
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-})
 
 export const metadata: Metadata = {
   title: {
@@ -56,6 +50,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Fleet Mgmt',
+  },
 }
 
 export const viewport: Viewport = {
@@ -71,7 +71,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+      </head>
       <body className="bg-background min-h-screen font-sans antialiased">
         <ErrorBoundary>
           <Providers>
@@ -81,6 +84,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               enableSystem
               disableTransitionOnChange
             >
+              {/* PWA Offline Indicator */}
+              <OfflineIndicator />
+
               {/* Skip Links for Accessibility */}
               <SkipLinks>
                 <SkipToMainContent />

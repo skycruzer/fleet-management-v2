@@ -6,9 +6,10 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
-import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 
 /**
  * Get certification status based on expiry date

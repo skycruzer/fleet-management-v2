@@ -1,9 +1,20 @@
+const withSerwist = require('@serwist/next').default({
+  swSrc: 'app/sw.ts',
+  swDest: 'public/sw.js',
+  disable: process.env.NODE_ENV === 'development',
+  reloadOnOnline: true,
+  cacheOnNavigation: true,
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 
   // Disable static optimization for database-dependent app
   output: 'standalone',
+
+  // Fix workspace root detection warning
+  outputFileTracingRoot: __dirname,
 
   // Disable ESLint during builds (Storybook files have linting issues that don't affect production)
   eslint: {
@@ -110,4 +121,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withSerwist(nextConfig)

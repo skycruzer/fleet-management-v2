@@ -16,35 +16,43 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { differenceInDays, differenceInYears, format, addYears } from 'date-fns'
-import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { getPilotRequirements } from '@/lib/services/admin-service'
 
 /**
  * Get default settings values (fallback)
+ * Fetches app_title from database settings
+ *
+ * NOTE: Currently unused but kept for potential future use
  */
-async function getDefaultSettings() {
-  return {
-    app_title: 'B767 Pilot Management System',
-    alert_thresholds: {
-      critical_days: 7,
-      urgent_days: 14,
-      warning_30_days: 30,
-      warning_60_days: 60,
-      early_warning_90_days: 90,
-    },
-    pilot_requirements: {
-      pilot_retirement_age: 65,
-      number_of_aircraft: 2,
-      captains_per_hull: 7,
-      first_officers_per_hull: 7,
-      minimum_captains_per_hull: 10,
-      minimum_first_officers_per_hull: 10,
-      training_captains_per_pilots: 11,
-      examiners_per_pilots: 11,
-    },
-  }
-}
+// async function getDefaultSettings() {
+//   // Fetch app title from database settings
+//   const app_title = await getAppTitle()
+
+//   return {
+//     app_title,
+//     alert_thresholds: {
+//       critical_days: 7,
+//       urgent_days: 14,
+//       warning_30_days: 30,
+//       warning_60_days: 60,
+//       early_warning_90_days: 90,
+//     },
+//     pilot_requirements: {
+//       pilot_retirement_age: 65,
+//       number_of_aircraft: 2,
+//       captains_per_hull: 7,
+//       first_officers_per_hull: 7,
+//       minimum_captains_per_hull: 10,
+//       minimum_first_officers_per_hull: 10,
+//       training_captains_per_pilots: 11,
+//       examiners_per_pilots: 11,
+//     },
+//   }
+// }
 
 /**
  * Fetch all pilots
@@ -188,7 +196,7 @@ function calculateComplianceOverview(pilots: any[], checks: any[]) {
 export async function generateComplianceReportData(
   reportType: string,
   generatedBy: string,
-  options?: { dateRange?: { from: string; to: string } }
+  _options?: { dateRange?: { from: string; to: string } }
 ) {
   try {
     const [pilotsData, checksData, checkTypesData] = await Promise.all([
@@ -263,11 +271,12 @@ export async function generatePilotReportData(
  */
 export async function generateFleetManagementReportData(reportType: string, generatedBy: string) {
   try {
-    const [pilotsData, checksData, checkTypesData, leaveData] = await Promise.all([
+    const [pilotsData, checksData, _checkTypesData, leaveData, pilotReqs] = await Promise.all([
       fetchPilots(),
       fetchPilotChecks(),
       fetchCheckTypes(),
       fetchLeaveRequests(),
+      getPilotRequirements(),
     ])
 
     const metadata = generateMetadata(reportType, 'Fleet Management Report', generatedBy)
@@ -292,8 +301,8 @@ export async function generateFleetManagementReportData(reportType: string, gene
     const certifiedCaptains = certifiedPilots.filter((p) => p.role === 'Captain').length
     const certifiedFirstOfficers = certifiedPilots.filter((p) => p.role === 'First Officer').length
 
-    // Calculate upcoming retirements
-    const RETIREMENT_AGE = 65
+    // Calculate upcoming retirements using dynamic retirement age from settings
+    const RETIREMENT_AGE = pilotReqs.pilot_retirement_age
     const upcomingRetirements = pilotsData
       .filter((pilot) => pilot.date_of_birth && pilot.is_active)
       .map((pilot) => {
