@@ -17,7 +17,7 @@ import { createClient } from '@/lib/supabase/server'
  * GET /api/analytics
  * Get comprehensive analytics data with optional type filter
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get query parameter for specific analytics type
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = _request.nextUrl.searchParams
     const type = searchParams.get('type')
 
     let analyticsData: any
