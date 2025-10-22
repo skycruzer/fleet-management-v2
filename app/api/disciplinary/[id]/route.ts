@@ -107,7 +107,7 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate at least one field to update
     if (Object.keys(body).length === 0) {

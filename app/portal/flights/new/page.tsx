@@ -3,8 +3,6 @@
  * Allows pilots to submit flight requests (additional flights, route changes, schedule preferences, pickup requests)
  */
 
-export const dynamic = 'force-dynamic'
-
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilotUser } from '@/lib/services/pilot-portal-service'
@@ -38,12 +36,12 @@ export default async function NewFlightRequestPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header */}
-      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-foreground text-2xl font-bold">Submit Flight Request</h1>
-              <p className="text-muted-foreground mt-1 text-sm">
+              <h1 className="text-2xl font-bold text-gray-900">Submit Flight Request</h1>
+              <p className="mt-1 text-sm text-gray-600">
                 {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
               </p>
             </div>
@@ -56,12 +54,12 @@ export default async function NewFlightRequestPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Info Card */}
-        <Card className="border-primary/20 bg-primary/5 mb-6 p-6">
+        <Card className="mb-6 border-blue-200 bg-blue-50 p-6">
           <div className="flex items-start space-x-4">
             <span className="text-3xl">ℹ️</span>
             <div>
-              <h3 className="text-foreground mb-2 font-semibold">Flight Request Guidelines</h3>
-              <ul className="text-card-foreground space-y-1 text-sm">
+              <h3 className="mb-2 font-semibold text-gray-900">Flight Request Guidelines</h3>
+              <ul className="space-y-1 text-sm text-gray-700">
                 <li>
                   • Additional flight requests are subject to crew availability and operational
                   needs
@@ -76,11 +74,8 @@ export default async function NewFlightRequestPage() {
         </Card>
 
         {/* Flight Request Form */}
-        <Card className="p-8">
-          <FlightRequestForm
-            pilotUser={{ ...pilotUser, rank: pilotUser.rank || 'Unknown' }}
-            csrfToken={csrfToken}
-          />
+        <Card className="bg-white p-8">
+          <FlightRequestForm pilotUser={pilotUser} csrfToken={csrfToken} />
         </Card>
 
         {/* Help Section */}
@@ -88,8 +83,8 @@ export default async function NewFlightRequestPage() {
           <div className="flex items-start space-x-4">
             <span className="text-3xl">💡</span>
             <div>
-              <h3 className="text-foreground mb-2 font-semibold">Need Help?</h3>
-              <p className="text-card-foreground mb-3 text-sm">
+              <h3 className="mb-2 font-semibold text-gray-900">Need Help?</h3>
+              <p className="mb-3 text-sm text-gray-700">
                 If you have questions about flight requests, operational requirements, or the
                 approval process:
               </p>
@@ -100,7 +95,7 @@ export default async function NewFlightRequestPage() {
                 >
                   fleet@airniugini.com.pg
                 </a>
-                <span className="text-muted-foreground">•</span>
+                <span className="text-gray-400">•</span>
                 <Link
                   href="/portal/feedback"
                   className="font-medium text-purple-600 hover:underline"

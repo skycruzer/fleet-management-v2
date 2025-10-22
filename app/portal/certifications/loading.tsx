@@ -10,7 +10,7 @@ export default function PortalCertificationsLoading() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header Skeleton */}
-      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
@@ -26,7 +26,7 @@ export default function PortalCertificationsLoading() {
         <div className="space-y-6">
           {/* Stats Cards Skeleton */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <Card className="border-destructive/20 bg-red-50 p-6">
+            <Card className="border-red-200 bg-red-50 p-6">
               <div className="flex items-center space-x-3">
                 <Skeleton className="h-12 w-12 rounded-full" />
                 <div className="space-y-2">

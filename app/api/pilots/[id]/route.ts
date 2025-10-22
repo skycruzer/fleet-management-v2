@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Parse request body
-    const body = await request.json()
+    const body = await _request.json()
 
     // Update pilot using service layer
     const updatedPilot = await updatePilot(pilotId, body)

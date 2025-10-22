@@ -13,18 +13,34 @@
  * @since 2025-10-17
  */
 
+import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
-import { unstable_cache, revalidateTag } from 'next/cache'
+import { unstable_cache } from 'next/cache'
+
+// Helper to safely revalidate tags (server-side only)
+async function safeRevalidate(tag: string) {
+  try {
+    // Only run on server
+    if (typeof window === 'undefined') {
+      const { revalidateTag } = await import('next/cache')
+      revalidateTag(tag)
+    }
+  } catch (error) {
+    // Silently fail - revalidation is not critical
+    console.warn(`Failed to revalidate tag: ${tag}`, error)
+  }
+}
+import { getPilotRequirements } from './admin-service'
 
 // Type aliases for convenience
 type Pilot = Database['public']['Tables']['pilots']['Row']
-type PilotInsert = Database['public']['Tables']['pilots']['Insert']
-type PilotUpdate = Database['public']['Tables']['pilots']['Update']
-type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
+// type PilotInsert = Database['public']['Tables']['pilots']['Insert']
+// type PilotUpdate = Database['public']['Tables']['pilots']['Update']
+// type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
 
 // ===================================
 // INTERFACES
@@ -450,8 +466,8 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
     })
 
     // Invalidate pilot-related caches
-    revalidateTag('pilots')
-    revalidateTag('pilot-stats')
+    await safeRevalidate('pilots')
+    await safeRevalidate('pilot-stats')
 
     return data
   } catch (error) {
@@ -542,8 +558,8 @@ export async function createPilotWithCertifications(
     })
 
     // Invalidate pilot-related caches
-    revalidateTag('pilots')
-    revalidateTag('pilot-stats')
+    await safeRevalidate('pilots')
+    await safeRevalidate('pilot-stats')
 
     return {
       pilot: result.pilot,
@@ -608,8 +624,8 @@ export async function updatePilot(
     })
 
     // Invalidate pilot-related caches
-    revalidateTag('pilots')
-    revalidateTag('pilot-stats')
+    await safeRevalidate('pilots')
+    await safeRevalidate('pilot-stats')
 
     return data
   } catch (error) {
@@ -678,8 +694,8 @@ export async function deletePilot(pilotId: string): Promise<void> {
     }
 
     // Invalidate pilot-related caches
-    revalidateTag('pilots')
-    revalidateTag('pilot-stats')
+    await safeRevalidate('pilots')
+    await safeRevalidate('pilot-stats')
   } catch (error) {
     logError(error as Error, {
       source: 'PilotService',
@@ -735,6 +751,49 @@ export async function getPilots(filters?: {
         operation: 'getPilots',
         filters,
       },
+    })
+    throw error
+  }
+}
+
+/**
+ * Get pilots grouped by rank and sorted by seniority number
+ * Returns pilots organized by their rank (Captain, First Officer)
+ * @returns Promise<Record<string, Pilot[]>>
+ */
+export async function getPilotsGroupedByRank(): Promise<Record<string, Pilot[]>> {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('pilots')
+      .select('*')
+      .order('seniority_number', { ascending: true, nullsFirst: false })
+
+    if (error) throw error
+
+    // Group pilots by rank
+    const grouped = (data || []).reduce(
+      (acc, pilot) => {
+        const rank = pilot.role || 'Unknown'
+
+        if (!acc[rank]) {
+          acc[rank] = []
+        }
+
+        acc[rank].push(pilot)
+
+        return acc
+      },
+      {} as Record<string, Pilot[]>
+    )
+
+    return grouped
+  } catch (error) {
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getPilotsGroupedByRank' },
     })
     throw error
   }
@@ -828,9 +887,12 @@ export async function checkEmployeeIdExists(
 
 export async function getPilotsNearingRetirementForDashboard(): Promise<PilotWithRetirement[]> {
   const supabase = await createClient()
-  const RETIREMENT_AGE = 65
 
   try {
+    // Fetch retirement age from settings dynamically
+    const pilotReqs = await getPilotRequirements()
+    const RETIREMENT_AGE = pilotReqs.pilot_retirement_age
+
     const { data: pilots, error } = await supabase
       .from('pilots')
       .select('id, first_name, last_name, date_of_birth, is_active')

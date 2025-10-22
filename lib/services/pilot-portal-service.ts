@@ -1,738 +1,668 @@
 /**
  * Pilot Portal Service
- * Handles pilot self-service operations including leave requests, flight requests, and certifications
+ *
+ * Handles pilot authentication, registration, and portal operations.
+ * Part of User Story 1: Pilot Portal Authentication & Dashboard (US1)
+ *
+ * @version 2.0.0
+ * @since 2025-10-22
+ * @spec 001-missing-core-features
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { unstable_cache, revalidateTag } from 'next/cache'
+import { Database } from '@/types/supabase'
+import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { handleConstraintError } from '@/lib/utils/constraint-error-handler'
+import {
+  PilotLoginInput,
+  PilotRegistrationInput,
+  RegistrationApprovalInput,
+} from '@/lib/validations/pilot-portal-schema'
 
-// ============================================================================
-// TYPES AND INTERFACES
-// ============================================================================
+// Type aliases for cleaner code
+type PilotRegistration = Database['public']['Tables']['pilot_registrations']['Row']
+type PilotRegistrationInsert = Database['public']['Tables']['pilot_registrations']['Insert']
+type Pilot = Database['public']['Tables']['pilots']['Row']
 
-export interface PilotUser {
-  id: string
-  employee_id: string | null
-  email: string
-  first_name: string
-  last_name: string
-  rank: 'Captain' | 'First Officer' | null
-  seniority_number: number | null
-  seniority: number | null // Alias for seniority_number
-  registration_approved: boolean
-  last_login_at: string | null
-  created_at: string | null
-  updated_at: string | null
-  approved_at: string | null
-  approved_by: string | null
+/**
+ * Service response type
+ */
+interface ServiceResponse<T> {
+  success: boolean
+  data?: T
+  error?: string
 }
 
-export interface PilotDashboardStats {
-  totalLeaveRequests: number
-  pendingLeaveRequests: number
-  approvedLeaveRequests: number
-  totalLeaveDays: number
-  activeCertifications: number
-  expiringCertifications: number
-  expiredCertifications: number
-  upcomingFlights: number
-}
-
-export interface PilotCertification {
-  id: string
-  check_type: {
+/**
+ * Portal statistics type
+ */
+interface PortalStats {
+  total_pilots: number
+  total_captains: number
+  total_first_officers: number
+  active_certifications: number
+  pending_leave_requests: number
+  pending_flight_requests: number
+  upcoming_checks: number
+  upcoming_checks_details: Array<{
+    id: string
     check_code: string
     check_description: string
-    category: string | null
-  }
-  expiry_date: string | null
-  status: {
-    color: 'red' | 'yellow' | 'green'
-    label: string
-    daysUntilExpiry: number
-  }
-  created_at: string
+    expiry_date: string
+  }>
+  expired_certifications: number
+  expired_certifications_details: Array<{
+    id: string
+    check_code: string
+    check_description: string
+    expiry_date: string
+  }>
+  critical_certifications: number
+  critical_certifications_details: Array<{
+    id: string
+    check_code: string
+    check_description: string
+    expiry_date: string
+  }>
 }
 
-export interface PilotLeaveRequest {
-  id: string
-  request_type: string | null
-  start_date: string
-  end_date: string
-  days_count: number
-  roster_period: string | null
-  status: string | null
-  reason: string | null
-  created_at: string | null
-  reviewed_at: string | null
-  review_comments: string | null
-}
-
-export interface PilotFlightRequest {
-  id: string
-  request_type: string | null
-  flight_date: string
-  description: string
-  reason: string | null
-  route: string | null // Optional route field
-  flight_number: string | null // Optional flight number field
-  status: string | null
-  created_at: string | null
-  reviewed_at: string | null
-  reviewer_comments: string | null
-}
-
-export interface FeedbackCategory {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  icon: string | null
-}
-
-export interface FeedbackPost {
-  id: string
-  pilot_user_id: string | null
-  title: string
-  content: string
-  author_display_name: string
-  author_rank: string | null
-  category_id: string | null
-  is_anonymous: boolean | null
-  status: string | null
-  comment_count: number | null
-  created_at: string | null
-  category: FeedbackCategory | null | undefined
-}
-
-export interface PaginatedFeedbackPosts {
-  posts: FeedbackPost[]
-  pagination: {
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-    hasNext: boolean
-    hasPrev: boolean
-  }
-}
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
+// ===================================
+// AUTHENTICATION OPERATIONS
+// ===================================
 
 /**
- * Get pilot_id from pilot_user_id
- * In this system, pilot_user.id is the same as pilot.id
- * @param pilotUserId - The pilot_user.id
- * @returns pilot_id (same as pilot_user.id)
+ * Pilot login with email and password
+ *
+ * @param credentials - Login credentials
+ * @returns Service response with user session
  */
-async function getPilotIdFromPilotUserId(pilotUserId: string): Promise<string | null> {
-  return pilotUserId
-}
-
-// ============================================================================
-// PILOT USER OPERATIONS
-// ============================================================================
-
-/**
- * Get current pilot user from Supabase auth
- * NOTE: Not cached because it accesses dynamic auth state via cookies
- */
-export async function getCurrentPilotUser(): Promise<PilotUser | null> {
+export async function pilotLogin(
+  credentials: PilotLoginInput
+): Promise<ServiceResponse<{ user: any; session: any }>> {
   try {
     const supabase = await createClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: credentials.email,
+      password: credentials.password,
+    })
 
-    if (!user?.email) return null
+    if (error) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
+      }
+    }
 
-    const { data, error } = await supabase
+    // Check if user is an approved pilot in pilot_users table
+    const { data: pilotUser, error: pilotError } = await supabase
       .from('pilot_users')
-      .select('*')
-      .eq('email', user.email)
+      .select('id, email, registration_approved, first_name, last_name, rank')
+      .eq('id', data.user.id)
       .single()
 
-    if (error) {
-      // Log error type only, no email or user data
-      console.error('Error fetching pilot user:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      return null
-    }
+    if (pilotError || !pilotUser) {
+      // If not a pilot, check if user is an admin/manager in an_users table
+      const { data: adminUser, error: adminError } = await supabase
+        .from('an_users')
+        .select('id, role, email')
+        .eq('id', data.user.id)
+        .single()
 
-    // Add seniority alias for seniority_number
-    return { ...data, seniority: data.seniority_number } as PilotUser
-  } catch (error) {
-    // Log error type only, no user data
-    console.error('Error in getCurrentPilotUser:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    return null
-  }
-}
-
-/**
- * Get pilot dashboard statistics
- */
-export async function getPilotDashboardStats(pilotUserId: string): Promise<PilotDashboardStats> {
-  try {
-    const supabase = await createClient()
-
-    // Get pilot_id using the helper function (eliminates N+1 query)
-    const pilot_id = await getPilotIdFromPilotUserId(pilotUserId)
-
-    if (!pilot_id) {
-      throw new Error('Pilot not found')
-    }
-
-    // Fetch all stats in parallel
-    const [leaveRequests, certifications] = await Promise.all([
-      supabase.from('leave_requests').select('*').eq('pilot_user_id', pilotUserId),
-      supabase
-        .from('pilot_checks')
-        .select(
-          `
-          *,
-          check_type:check_types(check_code, check_description, category)
-        `
-        )
-        .eq('pilot_id', pilot_id),
-    ])
-
-    // Calculate leave stats
-    const totalLeaveRequests = leaveRequests.data?.length || 0
-    const pendingLeaveRequests =
-      leaveRequests.data?.filter((r) => r.status === 'PENDING').length || 0
-    const approvedLeaveRequests =
-      leaveRequests.data?.filter((r) => r.status === 'APPROVED').length || 0
-    const totalLeaveDays = leaveRequests.data?.reduce((sum, r) => sum + (r.days_count || 0), 0) || 0
-
-    // Calculate certification stats
-    const today = new Date()
-    const certStats = {
-      active: 0,
-      expiring: 0,
-      expired: 0,
-    }
-
-    certifications.data?.forEach((cert) => {
-      if (!cert.expiry_date) return
-
-      const expiryDate = new Date(cert.expiry_date)
-      const daysUntilExpiry = Math.floor(
-        (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-      )
-
-      if (daysUntilExpiry < 0) {
-        certStats.expired++
-      } else if (daysUntilExpiry <= 30) {
-        certStats.expiring++
-      } else {
-        certStats.active++
+      if (adminError || !adminUser) {
+        await supabase.auth.signOut()
+        return {
+          success: false,
+          error: 'User not found in system.',
+        }
       }
-    })
+
+      // Allow admins to access pilot portal
+      if (adminUser.role !== 'admin') {
+        await supabase.auth.signOut()
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.FORBIDDEN.message,
+        }
+      }
+    } else {
+      // Verify pilot registration is approved
+      if (!pilotUser.registration_approved) {
+        await supabase.auth.signOut()
+        return {
+          success: false,
+          error: 'Your registration is pending admin approval.',
+        }
+      }
+    }
 
     return {
-      totalLeaveRequests,
-      pendingLeaveRequests,
-      approvedLeaveRequests,
-      totalLeaveDays,
-      activeCertifications: certStats.active,
-      expiringCertifications: certStats.expiring,
-      expiredCertifications: certStats.expired,
-      upcomingFlights: 0, // TODO: Implement when flight schedule is available
+      success: true,
+      data: {
+        user: data.user,
+        session: data.session,
+      },
     }
   } catch (error) {
-    // Log error type only, no user IDs or stats data
-    console.error('Error in getPilotDashboardStats:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    throw error
+    console.error('Pilot login error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
+    }
   }
 }
 
-// ============================================================================
-// LEAVE REQUESTS
-// ============================================================================
+/**
+ * Pilot logout
+ *
+ * @returns Service response
+ */
+export async function pilotLogout(): Promise<ServiceResponse<null>> {
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      return {
+        success: false,
+        error: 'Logout failed. Please try again.',
+      }
+    }
+
+    return {
+      success: true,
+      data: null,
+    }
+  } catch (error) {
+    console.error('Pilot logout error:', error)
+    return {
+      success: false,
+      error: 'Logout failed. Please try again.',
+    }
+  }
+}
+
+// ===================================
+// REGISTRATION OPERATIONS
+// ===================================
 
 /**
- * Get all leave requests for current pilot
- * NOT CACHED: Uses cookies via createClient (Next.js 15 restriction)
+ * Submit pilot registration
+ *
+ * Creates a pending registration for admin approval.
+ * Uses Supabase Auth to create the user account.
+ *
+ * @param registration - Registration data
+ * @returns Service response with registration ID
  */
-export async function getPilotLeaveRequests(pilotUserId: string): Promise<PilotLeaveRequest[]> {
+export async function submitPilotRegistration(
+  registration: PilotRegistrationInput
+): Promise<ServiceResponse<{ id: string; status: string }>> {
+  try {
+    const supabase = await createClient()
+
+    // Step 1: Create auth user (unconfirmed until approved)
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: registration.email,
+      password: registration.password,
+      options: {
+        data: {
+          first_name: registration.first_name,
+          last_name: registration.last_name,
+          rank: registration.rank,
+        },
+      },
+    })
+
+    if (authError) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.PORTAL.REGISTRATION_FAILED.message,
+      }
+    }
+
+    if (!authData.user) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.PORTAL.REGISTRATION_FAILED.message,
+      }
+    }
+
+    // Step 2: Create registration record
+    const registrationData: PilotRegistrationInsert = {
+      user_id: authData.user.id,
+      first_name: registration.first_name,
+      last_name: registration.last_name,
+      email: registration.email,
+      employee_id: registration.employee_id || null,
+      rank: registration.rank,
+      date_of_birth: registration.date_of_birth || null,
+      phone_number: registration.phone_number || null,
+      address: registration.address || null,
+      status: 'PENDING',
+    }
+
+    const { data: regData, error: regError } = await supabase
+      .from('pilot_registrations')
+      .insert(registrationData)
+      .select('id, status')
+      .single()
+
+    if (regError) {
+      // Rollback: Delete the auth user if registration insert fails
+      await supabase.auth.admin.deleteUser(authData.user.id)
+
+      return {
+        success: false,
+        error: handleConstraintError(regError),
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        id: regData.id,
+        status: regData.status,
+      },
+    }
+  } catch (error) {
+    console.error('Pilot registration error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.PORTAL.REGISTRATION_FAILED.message,
+    }
+  }
+}
+
+/**
+ * Get registration status by email
+ *
+ * @param email - Pilot email address
+ * @returns Service response with registration record
+ */
+export async function getRegistrationStatus(
+  email: string
+): Promise<ServiceResponse<PilotRegistration | null>> {
   try {
     const supabase = await createClient()
 
     const { data, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_registrations')
       .select('*')
-      .eq('pilot_user_id', pilotUserId)
+      .eq('email', email)
       .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
     if (error) {
-      // Log error type only, no user IDs or leave data
-      console.error('Error fetching leave requests:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      throw new Error(`Failed to fetch leave requests: ${error.message}`)
+      return {
+        success: false,
+        error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('registration status').message,
+      }
     }
 
-    return data || []
+    return {
+      success: true,
+      data: data,
+    }
   } catch (error) {
-    // Log error type only, no user data
-    console.error('Error in getPilotLeaveRequests:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    throw error
+    console.error('Get registration status error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('registration status').message,
+    }
   }
 }
 
 /**
- * Submit a new leave request (using transaction-wrapped database function)
+ * Get all pending registrations (admin only)
+ *
+ * @returns Service response with pending registrations
  */
-export async function submitLeaveRequest(
-  pilotUserId: string,
-  leaveRequest: {
-    request_type: string
-    start_date: string
-    end_date: string
-    days_count: number
-    roster_period: string
-    reason?: string
-  }
-): Promise<void> {
-  try {
-    const supabase = await createClient()
-
-    // Use transaction-wrapped database function for atomic operation
-    const { data, error } = await supabase.rpc('submit_leave_request_tx', {
-      p_pilot_user_id: pilotUserId,
-      p_request_type: leaveRequest.request_type,
-      p_start_date: leaveRequest.start_date,
-      p_end_date: leaveRequest.end_date,
-      p_days_count: leaveRequest.days_count,
-      p_roster_period: leaveRequest.roster_period,
-      p_reason: leaveRequest.reason || undefined,
-    })
-
-    if (error) {
-      // Log error type only, no leave request data (reasons may contain medical info)
-      console.error('Error submitting leave request:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      throw new Error(`Failed to submit leave request: ${error.message}`)
-    }
-
-    // Verify successful submission
-    if (!(data as { success?: boolean })?.success) {
-      throw new Error('Leave request submission failed')
-    }
-
-    // Invalidate leave requests cache for this pilot
-    revalidateTag('leave-requests')
-    revalidateTag(`leave-requests-${pilotUserId}`)
-  } catch (error) {
-    // Log error type only, no leave request data
-    console.error('Error in submitLeaveRequest:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    throw error
-  }
-}
-
-// ============================================================================
-// FLIGHT REQUESTS
-// ============================================================================
-
-/**
- * Get all flight requests for current pilot
- * NOT CACHED: Uses cookies via createClient (Next.js 15 restriction)
- */
-export async function getPilotFlightRequests(pilotUserId: string): Promise<PilotFlightRequest[]> {
+export async function getPendingRegistrations(): Promise<ServiceResponse<PilotRegistration[]>> {
   try {
     const supabase = await createClient()
 
     const { data, error } = await supabase
-      .from('flight_requests')
+      .from('pilot_registrations')
       .select('*')
-      .eq('pilot_user_id', pilotUserId)
-      .order('created_at', { ascending: false })
+      .eq('status', 'PENDING')
+      .order('created_at', { ascending: true })
 
     if (error) {
-      // Log error type only, no user IDs or flight data
-      console.error('Error fetching flight requests:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      throw new Error(`Failed to fetch flight requests: ${error.message}`)
+      return {
+        success: false,
+        error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('pending registrations').message,
+      }
     }
 
-    return (data || []) as unknown as PilotFlightRequest[]
+    return {
+      success: true,
+      data: data || [],
+    }
   } catch (error) {
-    // Log error type only, no user data
-    console.error('Error in getPilotFlightRequests:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    throw error
+    console.error('Get pending registrations error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('pending registrations').message,
+    }
   }
 }
 
 /**
- * Submit a new flight request (using transaction-wrapped database function)
+ * Approve or deny pilot registration (admin only)
+ *
+ * @param registrationId - Registration ID
+ * @param approval - Approval decision
+ * @param reviewerId - Admin user ID
+ * @returns Service response
  */
-export async function submitFlightRequest(
-  pilotUserId: string,
-  flightRequest: {
-    request_type: string
-    flight_date: string
-    description: string
-    reason?: string
-  }
-): Promise<void> {
+export async function reviewPilotRegistration(
+  registrationId: string,
+  approval: RegistrationApprovalInput,
+  reviewerId: string
+): Promise<ServiceResponse<{ status: string }>> {
   try {
     const supabase = await createClient()
 
-    // Use transaction-wrapped database function for atomic operation
-    const { data, error } = await supabase.rpc('submit_flight_request_tx', {
-      p_pilot_user_id: pilotUserId,
-      p_request_type: flightRequest.request_type,
-      p_flight_date: flightRequest.flight_date,
-      p_description: flightRequest.description,
-      p_reason: flightRequest.reason || undefined,
-    })
+    // Step 1: Update registration status
+    const { data: registration, error: updateError } = await supabase
+      .from('pilot_registrations')
+      .update({
+        status: approval.status,
+        admin_notes: approval.admin_notes || null,
+        denial_reason: approval.denial_reason || null,
+        reviewed_by: reviewerId,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq('id', registrationId)
+      .select('user_id, status, email, first_name, last_name, rank')
+      .single()
 
-    if (error) {
-      // Check if error is a unique constraint violation
-      if (
-        error.code === '23505' &&
-        error.message.includes('flight_requests_pilot_date_type_unique')
-      ) {
-        const duplicateError = new Error(
-          'A flight request for this date and type already exists. Please check your existing requests or select a different date.'
-        )
-        duplicateError.name = 'DuplicateFlightRequestError'
-        throw duplicateError
+    if (updateError) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.PORTAL.APPROVAL_FAILED.message,
+      }
+    }
+
+    // Step 2: If approved, create pilot record
+    if (approval.status === 'APPROVED' && registration.user_id) {
+      const { error: pilotError } = await supabase.from('pilots').insert({
+        user_id: registration.user_id,
+        first_name: registration.first_name,
+        last_name: registration.last_name,
+        rank: registration.rank,
+        status: 'active',
+      })
+
+      if (pilotError) {
+        console.error('Failed to create pilot record:', pilotError)
+        // Don't fail the entire approval, just log the error
       }
 
-      // Log error type only, no flight request data (may contain sensitive reasons)
-      console.error('Error submitting flight request:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      throw new Error(`Failed to submit flight request: ${error.message}`)
+      // Update user role to 'pilot'
+      const { error: roleError } = await supabase
+        .from('an_users')
+        .update({ role: 'pilot' })
+        .eq('id', registration.user_id)
+
+      if (roleError) {
+        console.error('Failed to update user role:', roleError)
+      }
     }
 
-    // Verify successful submission
-    if (!(data as { success?: boolean })?.success) {
-      throw new Error('Flight request submission failed')
+    // Step 3: If denied, optionally delete the auth user
+    if (approval.status === 'DENIED' && registration.user_id) {
+      // Note: You might want to keep the auth user for audit purposes
+      // Uncomment if you want to delete denied registrations
+      // await supabase.auth.admin.deleteUser(registration.user_id)
     }
 
-    // Invalidate flight requests cache for this pilot
-    revalidateTag('flight-requests')
-    revalidateTag(`flight-requests-${pilotUserId}`)
+    return {
+      success: true,
+      data: { status: registration.status },
+    }
   } catch (error) {
-    // Re-throw duplicate errors without additional logging
-    if (error instanceof Error && error.name === 'DuplicateFlightRequestError') {
-      throw error
+    console.error('Review registration error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.PORTAL.APPROVAL_FAILED.message,
     }
-
-    // Log error type only, no flight request data
-    console.error('Error in submitFlightRequest:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    throw error
   }
 }
 
-// ============================================================================
-// CERTIFICATIONS
-// ============================================================================
+// ===================================
+// PILOT PORTAL OPERATIONS
+// ===================================
 
 /**
- * Get all certifications for current pilot
+ * Get pilot portal statistics for dashboard
+ *
+ * @param pilotId - Pilot ID
+ * @returns Service response with portal stats
  */
-export async function getPilotCertifications(pilotUserId: string): Promise<PilotCertification[]> {
+export async function getPilotPortalStats(pilotId: string): Promise<ServiceResponse<PortalStats>> {
   try {
     const supabase = await createClient()
 
-    // Get pilot_id using the helper function (eliminates N+1 query)
-    const pilot_id = await getPilotIdFromPilotUserId(pilotUserId)
+    // Get total pilots count
+    const { count: pilotsCount } = await supabase
+      .from('pilots')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
 
-    if (!pilot_id) {
-      throw new Error('Pilot not found')
-    }
+    // Get total captains count
+    const { count: captainsCount } = await supabase
+      .from('pilots')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
+      .eq('role', 'Captain')
 
-    const { data, error } = await supabase
+    // Get total first officers count
+    const { count: firstOfficersCount } = await supabase
+      .from('pilots')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
+      .eq('role', 'First Officer')
+
+    // Get active certifications count for this pilot
+    const { count: certsCount } = await supabase
+      .from('pilot_checks')
+      .select('*', { count: 'exact', head: true })
+      .eq('pilot_id', pilotId)
+      .gte('expiry_date', new Date().toISOString())
+
+    // Get pending leave requests count for this pilot
+    const { count: leaveCount } = await supabase
+      .from('leave_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('pilot_id', pilotId)
+      .eq('status', 'pending')
+
+    // Get pending flight requests count for this pilot
+    const { count: flightCount } = await supabase
+      .from('flight_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('pilot_id', pilotId)
+      .in('status', ['PENDING', 'UNDER_REVIEW'])
+
+    // Get upcoming checks (expiring within 60 days) with details
+    const sixtyDaysFromNow = new Date()
+    sixtyDaysFromNow.setDate(sixtyDaysFromNow.getDate() + 60)
+
+    const { data: upcomingChecks } = await supabase
       .from('pilot_checks')
       .select(
         `
         id,
         expiry_date,
-        created_at,
-        check_type:check_types(
+        check_types (
           check_code,
-          check_description,
-          category
+          check_description
         )
       `
       )
-      .eq('pilot_id', pilot_id)
+      .eq('pilot_id', pilotId)
+      .gte('expiry_date', new Date().toISOString())
+      .lte('expiry_date', sixtyDaysFromNow.toISOString())
       .order('expiry_date', { ascending: true })
+      .limit(5)
 
-    if (error) {
-      // Log error type only, no user IDs or certification data
-      console.error('Error fetching certifications:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      throw new Error(`Failed to fetch certifications: ${error.message}`)
-    }
-
-    // Add status calculation
-    const today = new Date()
-    const certificationsWithStatus = (data || []).map((cert) => {
-      let status = {
-        color: 'green' as 'red' | 'yellow' | 'green',
-        label: 'Current',
-        daysUntilExpiry: 999,
-      }
-
-      if (cert.expiry_date) {
-        const expiryDate = new Date(cert.expiry_date)
-        const daysUntilExpiry = Math.floor(
-          (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    // Get expired certifications
+    const { data: expiredChecks } = await supabase
+      .from('pilot_checks')
+      .select(
+        `
+        id,
+        expiry_date,
+        check_types (
+          check_code,
+          check_description
         )
+      `
+      )
+      .eq('pilot_id', pilotId)
+      .lt('expiry_date', new Date().toISOString())
+      .order('expiry_date', { ascending: false })
+      .limit(10)
 
-        status.daysUntilExpiry = daysUntilExpiry
+    // Get critical certifications (expiring within 14 days)
+    const fourteenDaysFromNow = new Date()
+    fourteenDaysFromNow.setDate(fourteenDaysFromNow.getDate() + 14)
 
-        if (daysUntilExpiry < 0) {
-          status = {
-            color: 'red',
-            label: 'Expired',
-            daysUntilExpiry,
-          }
-        } else if (daysUntilExpiry <= 30) {
-          status = {
-            color: 'yellow',
-            label: 'Expiring Soon',
-            daysUntilExpiry,
-          }
-        } else {
-          status = {
-            color: 'green',
-            label: 'Current',
-            daysUntilExpiry,
-          }
-        }
-      }
+    const { data: criticalChecks } = await supabase
+      .from('pilot_checks')
+      .select(
+        `
+        id,
+        expiry_date,
+        check_types (
+          check_code,
+          check_description
+        )
+      `
+      )
+      .eq('pilot_id', pilotId)
+      .gte('expiry_date', new Date().toISOString())
+      .lte('expiry_date', fourteenDaysFromNow.toISOString())
+      .order('expiry_date', { ascending: true })
+      .limit(10)
 
-      return {
-        ...cert,
-        status,
-      }
-    })
-
-    return certificationsWithStatus as PilotCertification[]
+    return {
+      success: true,
+      data: {
+        total_pilots: pilotsCount || 0,
+        total_captains: captainsCount || 0,
+        total_first_officers: firstOfficersCount || 0,
+        active_certifications: certsCount || 0,
+        pending_leave_requests: leaveCount || 0,
+        pending_flight_requests: flightCount || 0,
+        upcoming_checks: upcomingChecks?.length || 0,
+        upcoming_checks_details:
+          upcomingChecks?.map((check: any) => ({
+            id: check.id,
+            check_code: check.check_types?.check_code || 'Unknown',
+            check_description: check.check_types?.check_description || 'Unknown',
+            expiry_date: check.expiry_date,
+          })) || [],
+        expired_certifications: expiredChecks?.length || 0,
+        expired_certifications_details:
+          expiredChecks?.map((check: any) => ({
+            id: check.id,
+            check_code: check.check_types?.check_code || 'Unknown',
+            check_description: check.check_types?.check_description || 'Unknown',
+            expiry_date: check.expiry_date,
+          })) || [],
+        critical_certifications: criticalChecks?.length || 0,
+        critical_certifications_details:
+          criticalChecks?.map((check: any) => ({
+            id: check.id,
+            check_code: check.check_types?.check_code || 'Unknown',
+            check_description: check.check_types?.check_description || 'Unknown',
+            expiry_date: check.expiry_date,
+          })) || [],
+      },
+    }
   } catch (error) {
-    // Log error type only, no user data
-    console.error('Error in getPilotCertifications:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    throw error
+    console.error('Get pilot portal stats error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('portal statistics').message,
+    }
   }
 }
 
-// ============================================================================
-// FEEDBACK
-// ============================================================================
-
 /**
- * Get all feedback categories (cached for 1 hour)
+ * Get current authenticated pilot information
+ *
+ * @returns Service response with pilot user data (includes both pilot_users.id and pilots.id)
  */
-export const getFeedbackCategories = unstable_cache(
-  async (): Promise<FeedbackCategory[]> => {
-    try {
-      const supabase = await createClient()
-
-      const { data, error } = await supabase
-        .from('feedback_categories')
-        .select('*')
-        .eq('is_archived', false)
-        .order('name')
-
-      if (error) {
-        // Log error type only, no category data
-        console.error('Error fetching feedback categories:', {
-          errorCode: error.code,
-          errorMessage: error.message,
-        })
-        throw new Error(`Failed to fetch feedback categories: ${error.message}`)
-      }
-
-      return data || []
-    } catch (error) {
-      // Log error type only, no category data
-      console.error('Error in getFeedbackCategories:', {
-        errorType: error instanceof Error ? error.name : 'Unknown',
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      })
-      throw error
-    }
-  },
-  ['feedback-categories'],
-  {
-    revalidate: 3600, // 1 hour
-    tags: ['feedback-categories'],
-  }
-)
-
-/**
- * Get feedback posts with pagination (cached for 5 minutes)
- * @param page - Page number (1-indexed, default: 1)
- * @param limit - Items per page (default: 20)
- */
-export const getFeedbackPosts = async (
-  page: number = 1,
-  limit: number = 20
-): Promise<PaginatedFeedbackPosts> => {
-  return unstable_cache(
-    async () => {
-      try {
-        const supabase = await createClient()
-
-        // Calculate range for pagination
-        const from = (page - 1) * limit
-        const to = from + limit - 1
-
-        // Get total count
-        const { count, error: countError } = await supabase
-          .from('feedback_posts')
-          .select('*', { count: 'exact', head: true })
-
-        if (countError) {
-          // Log error type only, no post data
-          console.error('Error counting feedback posts:', {
-            errorCode: countError.code,
-            errorMessage: countError.message,
-          })
-          throw new Error(`Failed to count feedback posts: ${countError.message}`)
-        }
-
-        const total = count || 0
-        const totalPages = Math.ceil(total / limit)
-
-        // Get paginated data
-        const { data, error } = await supabase
-          .from('feedback_posts')
-          .select(
-            `
-            *,
-            category:feedback_categories(id, name, slug, description, icon)
-          `
-          )
-          .order('created_at', { ascending: false })
-          .range(from, to)
-
-        if (error) {
-          // Log error type only, no post content
-          console.error('Error fetching feedback posts:', {
-            errorCode: error.code,
-            errorMessage: error.message,
-          })
-          throw new Error(`Failed to fetch feedback posts: ${error.message}`)
-        }
-
-        return {
-          posts: data || [],
-          pagination: {
-            total,
-            page,
-            limit,
-            totalPages,
-            hasNext: page < totalPages,
-            hasPrev: page > 1,
-          },
-        }
-      } catch (error) {
-        // Log error type only, no post content
-        console.error('Error in getFeedbackPosts:', {
-          errorType: error instanceof Error ? error.name : 'Unknown',
-          errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        })
-        throw error
-      }
-    },
-    [`feedback-posts-${page}-${limit}`],
-    {
-      revalidate: 300, // 5 minutes
-      tags: ['feedback-posts'],
-    }
-  )()
-}
-
-/**
- * Submit a new feedback post (using transaction-wrapped database function)
- */
-export async function submitFeedbackPost(
-  pilotUserId: string,
-  feedbackData: {
-    title: string
-    content: string
-    category_id?: string
-    is_anonymous?: boolean
-    author_display_name: string
-    author_rank: string
-  }
-): Promise<void> {
+export async function getCurrentPilot(): Promise<ServiceResponse<any | null>> {
   try {
     const supabase = await createClient()
 
-    // Use transaction-wrapped database function for atomic operation
-    const { data, error } = await supabase.rpc('submit_feedback_post_tx', {
-      p_pilot_user_id: pilotUserId,
-      p_title: feedbackData.title,
-      p_content: feedbackData.content,
-      p_category_id: feedbackData.category_id || undefined,
-      p_is_anonymous: feedbackData.is_anonymous || false,
-      p_author_display_name: feedbackData.author_display_name,
-      p_author_rank: feedbackData.author_rank,
-    })
+    // Get current user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
-    if (error) {
-      // Log error type only, no feedback content (may contain sensitive information)
-      console.error('Error submitting feedback post:', {
-        errorCode: error.code,
-        errorMessage: error.message,
-      })
-      throw new Error(`Failed to submit feedback post: ${error.message}`)
+    if (authError || !user) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      }
     }
 
-    // Verify successful submission
-    if (!(data as { success?: boolean })?.success) {
-      throw new Error('Feedback post submission failed')
+    // Get pilot_users record (which has all portal user info)
+    const { data: pilotUser, error: pilotError } = await supabase
+      .from('pilot_users')
+      .select(
+        'id, email, first_name, last_name, rank, employee_id, registration_approved, seniority_number'
+      )
+      .eq('id', user.id)
+      .single()
+
+    if (pilotError || !pilotUser) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.PILOT.NOT_FOUND.message,
+      }
     }
 
-    // Invalidate feedback posts cache
-    revalidateTag('feedback-posts')
+    // Verify registration is approved
+    if (!pilotUser.registration_approved) {
+      return {
+        success: false,
+        error: 'Your registration is pending admin approval.',
+      }
+    }
+
+    // Get the corresponding pilots table record (for operational data queries)
+    const { data: pilotsRecord, error: pilotsError } = await supabase
+      .from('pilots')
+      .select('id')
+      .eq('employee_id', pilotUser.employee_id)
+      .single()
+
+    if (pilotsError || !pilotsRecord) {
+      console.warn('Pilot record not found in pilots table for employee_id:', pilotUser.employee_id)
+      // Continue without pilots.id - portal still works but with no operational data
+    }
+
+    return {
+      success: true,
+      data: {
+        ...pilotUser,
+        pilot_id: pilotsRecord?.id || null, // Add pilots.id for operational queries
+      },
+    }
   } catch (error) {
-    // Log error type only, no feedback content
-    console.error('Error in submitFeedbackPost:', {
-      errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-    })
-    throw error
+    console.error('Get current pilot error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.PILOT.FETCH_FAILED.message,
+    }
   }
 }

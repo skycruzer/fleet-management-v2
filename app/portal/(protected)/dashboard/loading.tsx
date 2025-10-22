@@ -4,13 +4,13 @@
  */
 
 import { Card } from '@/components/ui/card'
-import { Skeleton, MetricCardSkeleton, TableSkeleton } from '@/components/ui/skeleton'
+import { Skeleton, MetricCardSkeleton } from '@/components/ui/skeleton'
 
 export default function PortalDashboardLoading() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header Skeleton */}
-      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="space-y-2">
@@ -27,8 +27,8 @@ export default function PortalDashboardLoading() {
           {/* Welcome Card Skeleton */}
           <Card className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
             <div className="space-y-3">
-              <Skeleton className="h-8 w-64 bg-white/20" />
-              <Skeleton className="h-4 w-48 bg-white/20" />
+              <Skeleton className="bg-muted/20 h-8 w-64" />
+              <Skeleton className="bg-muted/20 h-4 w-48" />
             </div>
           </Card>
 

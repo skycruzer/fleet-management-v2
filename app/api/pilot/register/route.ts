@@ -33,7 +33,7 @@ import { handleConstraintError } from '@/lib/utils/constraint-error-handler'
  */
 export async function POST(_request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate request body
     const validation = PilotRegistrationSchema.safeParse(body)

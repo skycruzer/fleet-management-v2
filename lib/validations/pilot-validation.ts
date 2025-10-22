@@ -25,12 +25,12 @@ export const CaptainQualificationEnum = z.enum(['line_captain', 'training_captai
 // ===================================
 
 /**
- * Employee ID validation: Must be exactly 6 digits
+ * Employee ID validation: Must be 4-6 digits
  */
 const employeeIdSchema = z
   .string()
   .min(1, 'Employee ID is required')
-  .regex(/^\d{6}$/, 'Employee ID must be exactly 6 digits')
+  .regex(/^\d{4,6}$/, 'Employee ID must be 4-6 digits')
 
 /**
  * Name validation: 1-50 characters, letters only
@@ -204,7 +204,12 @@ export const PilotUpdateSchema = z
     date_of_birth: dateSchema,
     commencement_date: dateSchema,
     seniority_number: seniorityNumberSchema,
-    is_active: z.boolean().optional(),
+    is_active: z.preprocess((val) => {
+      // Convert string to boolean for radio buttons
+      if (val === 'true' || val === true) return true
+      if (val === 'false' || val === false) return false
+      return val
+    }, z.boolean().optional()),
     captain_qualifications: z.array(CaptainQualificationEnum).optional().nullable(),
   })
   .partial()

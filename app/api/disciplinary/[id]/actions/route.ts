@@ -64,7 +64,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate required fields
     if (!body.action_type || !body.action_date || !body.description || !body.issued_by) {

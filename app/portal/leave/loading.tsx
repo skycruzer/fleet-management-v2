@@ -10,7 +10,7 @@ export default function PortalLeaveLoading() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header Skeleton */}
-      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
+      <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="space-y-2">

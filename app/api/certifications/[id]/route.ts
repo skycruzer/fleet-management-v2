@@ -82,7 +82,7 @@ export async function PUT(_request: NextRequest, context: RouteContext) {
     const { id } = await context.params
 
     // Parse and validate request body
-    const body = await request.json()
+    const body = await _request.json()
     const validatedData = CertificationUpdateSchema.parse(body)
 
     // Update certification

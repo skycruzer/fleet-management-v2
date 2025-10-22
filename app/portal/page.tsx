@@ -5,11 +5,15 @@
 
 export const dynamic = 'force-dynamic'
 
+import { portalMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
+
+export const metadata = portalMetadata.home
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { FileText, Calendar, Plane, BarChart3, MessageSquare, Bell } from 'lucide-react'
 
 export default async function PilotPortalPage() {
   const supabase = await createClient()
@@ -41,8 +45,10 @@ export default async function PilotPortalPage() {
                 <span className="text-lg font-bold text-white">FM</span>
               </div>
               <div>
-                <h1 className="text-foreground text-xl font-bold">B767 Fleet Management</h1>
-                <p className="text-muted-foreground text-xs">Pilot Self-Service Portal</p>
+                <h1 className="text-foreground text-xl font-bold">Pilot Portal</h1>
+                <p className="text-muted-foreground text-xs">
+                  Fleet Office Management • Self-Service
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -75,7 +81,9 @@ export default async function PilotPortalPage() {
         {/* Features Grid */}
         <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card className="p-6 transition-shadow hover:shadow-lg">
-            <div className="mb-4 text-4xl">📋</div>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50">
+              <FileText className="h-6 w-6 text-blue-600" aria-hidden="true" />
+            </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Manage Certifications</h3>
             <p className="text-muted-foreground text-sm">
               View all your certifications, expiry dates, and receive alerts for upcoming renewals.
@@ -83,7 +91,9 @@ export default async function PilotPortalPage() {
           </Card>
 
           <Card className="p-6 transition-shadow hover:shadow-lg">
-            <div className="mb-4 text-4xl">📅</div>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-50">
+              <Calendar className="h-6 w-6 text-green-600" aria-hidden="true" />
+            </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Submit Leave Requests</h3>
             <p className="text-muted-foreground text-sm">
               Request RDO, annual leave, or other time off directly through the portal.
@@ -91,7 +101,9 @@ export default async function PilotPortalPage() {
           </Card>
 
           <Card className="p-6 transition-shadow hover:shadow-lg">
-            <div className="mb-4 text-4xl">✈️</div>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-indigo-50">
+              <Plane className="h-6 w-6 text-indigo-600" aria-hidden="true" />
+            </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Flight Requests</h3>
             <p className="text-muted-foreground text-sm">
               Submit requests for additional flights, route changes, or schedule preferences.
@@ -99,7 +111,9 @@ export default async function PilotPortalPage() {
           </Card>
 
           <Card className="p-6 transition-shadow hover:shadow-lg">
-            <div className="mb-4 text-4xl">📊</div>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-50">
+              <BarChart3 className="h-6 w-6 text-purple-600" aria-hidden="true" />
+            </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Personal Dashboard</h3>
             <p className="text-muted-foreground text-sm">
               Track your statistics, upcoming events, and important notifications at a glance.
@@ -107,7 +121,9 @@ export default async function PilotPortalPage() {
           </Card>
 
           <Card className="p-6 transition-shadow hover:shadow-lg">
-            <div className="mb-4 text-4xl">💬</div>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-50">
+              <MessageSquare className="h-6 w-6 text-orange-600" aria-hidden="true" />
+            </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Feedback & Discussion</h3>
             <p className="text-muted-foreground text-sm">
               Share feedback, participate in discussions, and stay informed with fleet updates.
@@ -115,7 +131,9 @@ export default async function PilotPortalPage() {
           </Card>
 
           <Card className="p-6 transition-shadow hover:shadow-lg">
-            <div className="mb-4 text-4xl">🔔</div>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-50">
+              <Bell className="h-6 w-6 text-yellow-600" aria-hidden="true" />
+            </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">Real-time Notifications</h3>
             <p className="text-muted-foreground text-sm">
               Get instant updates on request approvals, certification expiries, and announcements.
@@ -163,10 +181,10 @@ export default async function PilotPortalPage() {
       <footer className="bg-card/50 mt-20 border-t">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="text-muted-foreground text-center text-sm">
-            <p>&copy; 2025 Air Niugini B767 Fleet Management. All rights reserved.</p>
+            <p>&copy; 2025 Air Niugini Fleet Office Management. All rights reserved.</p>
             <p className="mt-2">
               <Link href="/dashboard" className="text-blue-600 hover:underline">
-                Admin Portal
+                Admin Dashboard →
               </Link>
             </p>
           </div>

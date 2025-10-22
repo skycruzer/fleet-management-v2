@@ -51,7 +51,7 @@ export async function GET(_request: NextRequest) {
  */
 export async function POST(_request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate input
     const validation = PilotLeaveRequestSchema.safeParse(body)
