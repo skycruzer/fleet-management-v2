@@ -17,17 +17,9 @@ export async function POST(_request: NextRequest) {
 
     if (error) {
       console.error('Logout error:', error)
-      return NextResponse.json(
-        formatApiError(
-          {
-            message: 'Failed to log out. Please try again.',
-            category: 'auth',
-            severity: 'error',
-          },
-          500
-        ),
-        { status: 500 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.LOGIN_FAILED, 500), {
+        status: 500,
+      })
     }
 
     // Successful logout
