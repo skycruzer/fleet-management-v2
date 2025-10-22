@@ -74,7 +74,7 @@ export async function PATCH(_request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ success: false, error: 'Invalid task ID format' }, { status: 400 })
     }
 
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate input
     const validation = TaskUpdateSchema.safeParse(body)

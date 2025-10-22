@@ -10,7 +10,7 @@ import { updateSystemSetting } from '@/lib/services/admin-service'
 export async function PUT(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const body = await request.json()
+    const body = await _request.json()
     const { value, description } = body
 
     console.log('📝 PUT /api/settings/[id] - Request received:', {

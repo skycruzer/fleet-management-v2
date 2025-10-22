@@ -175,7 +175,7 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate required fields
     if (

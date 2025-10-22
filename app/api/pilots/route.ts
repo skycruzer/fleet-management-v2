@@ -70,7 +70,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Parse and validate request body
-    const body = await request.json()
+    const body = await _request.json()
     const validatedData = PilotCreateSchema.parse(body)
 
     // Create pilot
