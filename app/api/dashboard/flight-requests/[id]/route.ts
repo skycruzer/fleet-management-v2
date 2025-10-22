@@ -73,7 +73,7 @@ export async function PATCH(_request: NextRequest, { params }: { params: { id: s
       )
     }
 
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate input
     const validation = FlightRequestReviewSchema.safeParse(body)
