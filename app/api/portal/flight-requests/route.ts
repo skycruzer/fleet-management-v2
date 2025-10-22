@@ -118,7 +118,7 @@ export async function GET(_request: NextRequest) {
  */
 export async function DELETE(_request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(_request.url)
     const requestId = searchParams.get('id')
 
     if (!requestId) {

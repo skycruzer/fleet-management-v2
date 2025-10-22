@@ -34,7 +34,7 @@ export async function GET(_request: NextRequest) {
 
     const pilotId = pilotResult.data.id
 
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(_request.url)
     const countOnly = searchParams.get('countOnly') === 'true'
     const unreadOnly = searchParams.get('unreadOnly') === 'true'
     const limit = parseInt(searchParams.get('limit') || '50')
@@ -160,7 +160,7 @@ export async function DELETE(_request: NextRequest) {
 
     const pilotId = pilotResult.data.id
 
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(_request.url)
     const notificationId = searchParams.get('id')
 
     if (!notificationId) {

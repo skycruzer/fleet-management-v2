@@ -65,7 +65,7 @@ export async function POST(_request: NextRequest) {
  */
 export async function GET(_request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = new URL(_request.url)
     const email = searchParams.get('email')
 
     if (!email) {
