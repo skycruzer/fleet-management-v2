@@ -17,7 +17,7 @@ export async function POST(_request: NextRequest) {
 
     if (error) {
       console.error('Logout error:', error)
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.LOGIN_FAILED, 500), {
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
         status: 500,
       })
     }
