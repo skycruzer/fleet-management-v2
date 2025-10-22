@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  *
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const taskId = params.id
 
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
  *
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const taskId = params.id
 
@@ -120,7 +120,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
  *
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const taskId = params.id
 

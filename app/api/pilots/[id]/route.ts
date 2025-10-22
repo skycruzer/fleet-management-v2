@@ -62,7 +62,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
  * PUT /api/pilots/[id]
  * Update a pilot's information
  */
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Verify authentication
     const supabase = await createClient()

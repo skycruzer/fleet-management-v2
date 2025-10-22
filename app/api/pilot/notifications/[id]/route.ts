@@ -22,7 +22,7 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  * @param id - Notification ID (from URL)
  * @returns 200 with success message or 401/404/500 with error
  */
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabase = await createClient()
 

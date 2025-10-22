@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  *
  * @spec 001-missing-core-features (US2, T047)
  */
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const requestId = params.id
 
