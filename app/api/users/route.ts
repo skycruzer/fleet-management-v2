@@ -12,7 +12,7 @@ import { createClient } from '@/lib/supabase/server'
  * GET /api/users
  * List all users with optional role filter
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get query parameters
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = _request.nextUrl.searchParams
     const role = searchParams.get('role') as 'Admin' | 'Manager' | 'User' | null
 
     // Fetch users
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
  * POST /api/users
  * Create a new user
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()

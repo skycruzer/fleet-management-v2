@@ -16,7 +16,7 @@ import { createClient } from '@/lib/supabase/server'
  * GET /api/leave-requests
  * List all leave requests with optional filters
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get query parameters
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = _request.nextUrl.searchParams
     const pilotId = searchParams.get('pilotId')
     const status = searchParams.get('status')
     const rosterPeriod = searchParams.get('rosterPeriod')
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
  * POST /api/leave-requests
  * Create a new leave request
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -108,9 +108,7 @@ export async function POST(request: NextRequest) {
         success: true,
         data: newRequest,
         message: 'Leave request created successfully',
-        warnings: hasConflicts
-          ? ['This request conflicts with existing leave dates']
-          : undefined,
+        warnings: hasConflicts ? ['This request conflicts with existing leave dates'] : undefined,
         conflicts: hasConflicts ? conflicts : undefined,
       },
       { status: 201 }

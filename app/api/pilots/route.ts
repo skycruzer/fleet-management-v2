@@ -13,7 +13,7 @@ import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
  * GET /api/pilots
  * List all pilots with optional filters
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -22,14 +22,13 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     // Get query parameters
-    const searchParams = request.nextUrl.searchParams
+    const searchParams = _request.nextUrl.searchParams
     const role = searchParams.get('role') as 'Captain' | 'First Officer' | null
     const status = searchParams.get('status') as 'active' | 'inactive' | null
 
@@ -46,10 +45,9 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('GET /api/pilots error:', error)
-    return NextResponse.json(
-      formatApiError(ERROR_MESSAGES.PILOT.FETCH_FAILED, 500),
-      { status: 500 }
-    )
+    return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.FETCH_FAILED, 500), {
+      status: 500,
+    })
   }
 }
 
@@ -57,7 +55,7 @@ export async function GET(request: NextRequest) {
  * POST /api/pilots
  * Create a new pilot
  */
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -66,10 +64,9 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     // Parse and validate request body
@@ -102,9 +99,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(
-      formatApiError(ERROR_MESSAGES.PILOT.CREATE_FAILED, 500),
-      { status: 500 }
-    )
+    return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.CREATE_FAILED, 500), {
+      status: 500,
+    })
   }
 }

@@ -4,7 +4,6 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 
 export async function POST() {
@@ -14,5 +13,7 @@ export async function POST() {
   await supabase.auth.signOut()
 
   // Redirect to home page
-  return NextResponse.redirect(new URL('/', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))
+  return NextResponse.redirect(
+    new URL('/', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+  )
 }

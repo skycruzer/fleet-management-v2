@@ -1,16 +1,21 @@
 /**
  * Check Types API Route
  * Handles listing all check types for certification forms
+ *
+ * Updated: 2025-10-22 - Refactored to use service layer pattern
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getCheckTypes } from '@/lib/services/check-types-service'
 
 /**
  * GET /api/check-types
  * List all check types
+ *
+ * Uses service layer for database operations (check-types-service.ts)
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -22,13 +27,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch check types
-    const { data: checkTypes, error } = await supabase
-      .from('check_types')
-      .select('id, check_code, check_description, category')
-      .order('check_code', { ascending: true })
-
-    if (error) throw error
+    // Fetch check types using service layer
+    const checkTypes = await getCheckTypes()
 
     return NextResponse.json({
       success: true,
