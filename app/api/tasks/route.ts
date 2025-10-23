@@ -157,8 +157,13 @@ export async function POST(_request: NextRequest) {
       )
     }
 
-    // Create task
-    const result = await createTask(validation.data)
+    // Create task (convert null to undefined for Supabase compatibility)
+    const taskData = {
+      ...validation.data,
+      assigned_to: validation.data.assigned_to ?? undefined,
+      due_date: validation.data.due_date ?? undefined,
+    }
+    const result = await createTask(taskData)
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })

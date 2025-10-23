@@ -294,9 +294,9 @@ export default function TaskList({ tasks }: TaskListProps) {
                     {task.assigned_user ? (
                       <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                          {(task.assigned_user.full_name || task.assigned_user.email)[0].toUpperCase()}
+                          {(task.assigned_user.name || task.assigned_user.email)[0].toUpperCase()}
                         </div>
-                        <span className="truncate">{task.assigned_user.full_name || task.assigned_user.email}</span>
+                        <span className="truncate">{task.assigned_user.name || task.assigned_user.email}</span>
                       </div>
                     ) : (
                       <span className="text-gray-500 dark:text-gray-500">Unassigned</span>

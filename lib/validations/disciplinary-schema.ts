@@ -12,8 +12,7 @@ export const DisciplinaryMatterSchema = z.object({
     .string()
     .uuid('Invalid pilot ID format'),
   matter_type: z.enum(['investigation', 'verbal_warning', 'written_warning', 'suspension', 'other'], {
-    required_error: 'Matter type is required',
-    invalid_type_error: 'Invalid matter type',
+    message: 'Matter type is required',
   }),
   title: z
     .string()
@@ -24,7 +23,7 @@ export const DisciplinaryMatterSchema = z.object({
     .min(10, 'Description must be at least 10 characters')
     .max(5000, 'Description must be less than 5000 characters'),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], {
-    invalid_type_error: 'Invalid severity level',
+    message: 'Invalid severity level',
   }).default('MEDIUM'),
 })
 
@@ -44,7 +43,7 @@ export const DisciplinaryMatterUpdateSchema = z.object({
     .max(5000, 'Description must be less than 5000 characters')
     .optional(),
   status: z.enum(['OPEN', 'UNDER_INVESTIGATION', 'RESOLVED', 'CLOSED'], {
-    invalid_type_error: 'Invalid status',
+    message: 'Invalid status',
   }).optional(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   resolution: z
@@ -81,7 +80,7 @@ export const DisciplinaryActionSchema = z.object({
     'comment_added',
     'other',
   ], {
-    required_error: 'Action type is required',
+    message: 'Action type is required',
   }),
   description: z
     .string()

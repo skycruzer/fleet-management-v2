@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilotLeaveRequests, getPilotLeaveStats } from '@/lib/services/pilot-leave-service'
 import LeaveRequestForm from '@/components/pilot/LeaveRequestForm'
 import LeaveRequestsList from '@/components/pilot/LeaveRequestsList'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Pilot Leave Request Page
@@ -56,7 +59,7 @@ export default async function PilotLeavePage() {
   const leaveStatsResult = await getPilotLeaveStats()
 
   const leaveRequests = leaveRequestsResult.success ? leaveRequestsResult.data || [] : []
-  const stats = leaveStatsResult.success
+  const stats = leaveStatsResult.success && leaveStatsResult.data
     ? leaveStatsResult.data
     : { total: 0, pending: 0, approved: 0, denied: 0 }
 

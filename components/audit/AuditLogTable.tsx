@@ -19,8 +19,8 @@ interface AuditLog {
   action: string
   table_name: string
   record_id: string | null
-  old_values: any
-  new_values: any
+  old_data: any
+  new_data: any
   description: string | null
   ip_address: string | null
   user_agent: string | null

@@ -112,12 +112,10 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                       {request.pilot_rank && ` (${request.pilot_rank})`}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
-                      <strong>Route:</strong> {request.route}
+                      <strong>Flight Date:</strong> {new Date(request.flight_date).toLocaleDateString()}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
-                      <strong>Dates:</strong>{' '}
-                      {new Date(request.start_date).toLocaleDateString()} -{' '}
-                      {new Date(request.end_date).toLocaleDateString()}
+                      <strong>Description:</strong> {request.description.substring(0, 50)}...
                     </p>
                   </div>
                   <div>
@@ -125,10 +123,12 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                       <strong>Submitted:</strong>{' '}
                       {new Date(request.created_at).toLocaleDateString()}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      <strong>Reason:</strong> {request.reason.substring(0, 100)}
-                      {request.reason.length > 100 && '...'}
-                    </p>
+                    {request.reason && (
+                      <p className="text-gray-600 dark:text-gray-400">
+                        <strong>Reason:</strong> {request.reason.substring(0, 100)}
+                        {request.reason.length > 100 && '...'}
+                      </p>
+                    )}
                     {request.reviewed_by && (
                       <p className="text-gray-600 dark:text-gray-400">
                         <strong>Reviewed by:</strong> {request.reviewer_name || 'Unknown'}

@@ -30,7 +30,6 @@ import {
   Plane,
   CheckCircle,
   AlertTriangle,
-  Inbox,
   UserCircle,
   XCircle,
 } from 'lucide-react'
@@ -81,7 +80,7 @@ export default async function PilotDashboardPage() {
 
   // Fetch pilot portal stats using the pilots table ID
   const statsResult = await getPilotPortalStats(pilotUser.pilot_id || pilotUser.id)
-  const stats = statsResult.success ? statsResult.data : null
+  const stats = statsResult.success && statsResult.data ? statsResult.data : null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -155,10 +154,10 @@ export default async function PilotDashboardPage() {
         </div>
 
         {/* Certification Warnings */}
-        {(stats?.expired_certifications > 0 || stats?.critical_certifications > 0) && (
+        {((stats?.expired_certifications || 0) > 0 || (stats?.critical_certifications || 0) > 0) && (
           <div className="mb-8 space-y-4">
             {/* Expired Certifications Alert */}
-            {stats?.expired_certifications > 0 && (
+            {(stats?.expired_certifications || 0) > 0 && (
               <Card className="border-red-300 bg-gradient-to-r from-red-50 to-red-100 p-6">
                 <div className="flex items-start space-x-4">
                   <XCircle className="h-8 w-8 text-red-600" aria-hidden="true" />
@@ -167,8 +166,8 @@ export default async function PilotDashboardPage() {
                       ⚠️ Expired Certifications
                     </h2>
                     <p className="mb-4 text-red-800">
-                      You have {stats.expired_certifications} expired certification
-                      {stats.expired_certifications !== 1 ? 's' : ''}. Please renew immediately.
+                      You have {stats?.expired_certifications || 0} expired certification
+                      {(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew immediately.
                     </p>
                     {stats?.expired_certifications_details &&
                       stats.expired_certifications_details.length > 0 && (
@@ -214,7 +213,7 @@ export default async function PilotDashboardPage() {
             )}
 
             {/* Critical Certifications Alert (< 2 weeks) */}
-            {stats?.critical_certifications > 0 && (
+            {(stats?.critical_certifications || 0) > 0 && (
               <Card className="border-orange-300 bg-gradient-to-r from-orange-50 to-yellow-50 p-6">
                 <div className="flex items-start space-x-4">
                   <AlertTriangle className="h-8 w-8 text-orange-600" aria-hidden="true" />
@@ -223,8 +222,8 @@ export default async function PilotDashboardPage() {
                       🚨 Critical: Certifications Expiring Soon
                     </h2>
                     <p className="mb-4 text-orange-800">
-                      You have {stats.critical_certifications} certification
-                      {stats.critical_certifications !== 1 ? 's' : ''} expiring within the next 2
+                      You have {stats?.critical_certifications || 0} certification
+                      {(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring within the next 2
                       weeks. Action required.
                     </p>
                     {stats?.critical_certifications_details &&

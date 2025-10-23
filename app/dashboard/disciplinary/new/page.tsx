@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getIncidentTypes } from '@/lib/services/disciplinary-service'
 import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatterForm'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * New Disciplinary Matter Page (Admin)
@@ -24,14 +27,14 @@ export default async function NewDisciplinaryMatterPage() {
   // Fetch pilots for selection
   const { data: pilots } = await supabase
     .from('pilots')
-    .select('id, first_name, last_name, rank, employee_number')
+    .select('id, first_name, last_name, role, employee_id')
     .order('last_name', { ascending: true })
 
   // Fetch users for assignment
   const { data: users } = await supabase
     .from('an_users')
-    .select('id, email, full_name')
-    .order('full_name', { ascending: true })
+    .select('id, email, name')
+    .order('name', { ascending: true })
 
   // Fetch incident types
   const incidentTypesResult = await getIncidentTypes()

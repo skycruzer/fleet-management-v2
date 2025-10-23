@@ -14,14 +14,10 @@ import {
   UserCircle,
   ArrowLeft,
   Mail,
-  Phone,
-  MapPin,
   Briefcase,
-  Calendar,
   Award,
   Shield,
   Clock,
-  Hash,
 } from 'lucide-react'
 import { format } from 'date-fns'
 

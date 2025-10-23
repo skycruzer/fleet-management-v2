@@ -63,8 +63,7 @@ export async function getAllFlightRequests(filters?: {
         ),
         an_users:reviewed_by (
           id,
-          first_name,
-          last_name
+          name
         )
       `)
       .order('created_at', { ascending: false })
@@ -154,8 +153,7 @@ export async function getFlightRequestById(
         ),
         an_users:reviewed_by (
           id,
-          first_name,
-          last_name
+          name
         )
       `)
       .eq('id', requestId)
@@ -175,9 +173,7 @@ export async function getFlightRequestById(
         ? `${request.pilots.first_name} ${request.pilots.last_name}`
         : 'Unknown Pilot',
       pilot_rank: request.pilots?.role || 'Unknown',
-      reviewer_name: request.an_users
-        ? `${request.an_users.first_name} ${request.an_users.last_name}`
-        : null,
+      reviewer_name: request.an_users?.name || null,
     }
 
     return {
@@ -237,7 +233,7 @@ export async function reviewFlightRequest(
       .from('flight_requests')
       .update({
         status: reviewData.status,
-        admin_comments: reviewData.admin_comments || null,
+        reviewer_comments: reviewData.reviewer_comments || null,
         reviewed_by: user.id,
         reviewed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -256,17 +252,16 @@ export async function reviewFlightRequest(
 
     // Create audit log
     await createAuditLog({
-      user_id: user.id,
       action: 'UPDATE',
-      table_name: 'flight_requests',
-      record_id: requestId,
-      old_values: {
+      tableName: 'flight_requests',
+      recordId: requestId,
+      oldData: {
         status: existingRequest.status,
-        admin_comments: existingRequest.admin_comments,
+        reviewer_comments: existingRequest.reviewer_comments,
       },
-      new_values: {
+      newData: {
         status: reviewData.status,
-        admin_comments: reviewData.admin_comments,
+        reviewer_comments: reviewData.reviewer_comments,
       },
       description: `Flight request ${reviewData.status.toLowerCase()}`,
     })
@@ -275,16 +270,14 @@ export async function reviewFlightRequest(
     if (reviewData.status === 'APPROVED') {
       await notifyFlightApproved(
         existingRequest.pilot_id,
-        existingRequest.request_type.replace('_', ' '),
-        existingRequest.route,
-        reviewData.admin_comments
+        requestId,
+        existingRequest.request_type.replace('_', ' ')
       )
     } else if (reviewData.status === 'DENIED') {
       await notifyFlightDenied(
         existingRequest.pilot_id,
-        existingRequest.request_type.replace('_', ' '),
-        existingRequest.route,
-        reviewData.admin_comments
+        requestId,
+        reviewData.reviewer_comments || 'No reason provided'
       )
     }
 

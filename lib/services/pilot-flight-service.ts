@@ -94,8 +94,8 @@ export async function submitPilotFlightRequest(
 
     // Create notification for successful submission
     await createNotification({
-      pilot_id: pilot.id,
-      notification_type: 'flight_submitted',
+      recipient_id: pilot.id,
+      type: 'flight_submitted',
       title: 'Flight Request Submitted',
       message: `Your ${request.request_type.replace('_', ' ')} request for ${request.flight_date} has been submitted for review.`,
       link: `/portal/flight-requests`,
@@ -231,8 +231,8 @@ export async function cancelPilotFlightRequest(requestId: string): Promise<Servi
 
     // Create notification for cancellation
     await createNotification({
-      pilot_id: pilot.id,
-      notification_type: 'flight_cancelled',
+      recipient_id: pilot.id,
+      type: 'flight_cancelled',
       title: 'Flight Request Cancelled',
       message: `Your ${request.request_type.replace('_', ' ')} request for ${request.flight_date} has been cancelled.`,
       link: `/portal/flight-requests`,

@@ -20,8 +20,8 @@ interface Notification {
   title: string
   message: string
   link: string | null
-  is_read: boolean
-  created_at: string
+  is_read: boolean | null
+  created_at: string | null
 }
 
 interface NotificationListProps {
@@ -91,7 +91,7 @@ export default function NotificationList({ notifications, initialUnreadCount }: 
                   {notification.message}
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                  {new Date(notification.created_at).toLocaleString()}
+                  {notification.created_at ? new Date(notification.created_at).toLocaleString() : 'Unknown date'}
                 </p>
               </div>
               {!notification.is_read && (

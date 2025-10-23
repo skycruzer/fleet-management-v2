@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getAllFlightRequests, getFlightRequestStats } from '@/lib/services/flight-request-service'
 import FlightRequestsTable from '@/components/admin/FlightRequestsTable'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Admin Flight Requests Page
@@ -38,7 +41,7 @@ export default async function AdminFlightRequestsPage() {
   const flightStatsResult = await getFlightRequestStats()
 
   const flightRequests = flightRequestsResult.success ? flightRequestsResult.data || [] : []
-  const stats = flightStatsResult.success
+  const stats = flightStatsResult.success && flightStatsResult.data
     ? flightStatsResult.data
     : {
         total: 0,

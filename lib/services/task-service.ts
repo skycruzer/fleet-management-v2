@@ -11,7 +11,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
 import { createNotification } from './pilot-notification-service'
-import { ERROR_MESSAGES, NETWORK_ERRORS } from '@/lib/utils/error-messages'
+import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { Database } from '@/types/supabase'
 
 type Task = Database['public']['Tables']['tasks']['Row']
@@ -321,12 +321,11 @@ export async function createTask(taskData: {
     // Send notification to assignee if task is assigned
     if (data.assigned_to && data.assigned_to !== user.id) {
       await createNotification({
-        user_id: data.assigned_to,
+        recipient_id: data.assigned_to,
         type: 'TASK_ASSIGNED',
         title: 'New Task Assigned',
         message: `You have been assigned a new task: ${data.title}`,
-        link_url: `/dashboard/tasks/${data.id}`,
-        priority: data.priority === 'URGENT' ? 'HIGH' : data.priority === 'HIGH' ? 'MEDIUM' : 'LOW',
+        link: `/dashboard/tasks/${data.id}`,
       })
     }
 
@@ -422,12 +421,11 @@ export async function updateTask(
       updates.assigned_to !== user.id
     ) {
       await createNotification({
-        user_id: updates.assigned_to,
+        recipient_id: updates.assigned_to,
         type: 'TASK_ASSIGNED',
         title: 'Task Reassigned',
         message: `You have been assigned to task: ${data.title}`,
-        link_url: `/dashboard/tasks/${data.id}`,
-        priority: data.priority === 'URGENT' ? 'HIGH' : data.priority === 'HIGH' ? 'MEDIUM' : 'LOW',
+        link: `/dashboard/tasks/${data.id}`,
       })
     }
 
@@ -439,12 +437,11 @@ export async function updateTask(
       existingTask.assigned_to !== user.id
     ) {
       await createNotification({
-        user_id: existingTask.assigned_to,
+        recipient_id: existingTask.assigned_to,
         type: 'TASK_UPDATED',
         title: 'Task Completed',
         message: `Task "${data.title}" has been marked as complete`,
-        link_url: `/dashboard/tasks/${data.id}`,
-        priority: 'LOW',
+        link: `/dashboard/tasks/${data.id}`,
       })
     }
 

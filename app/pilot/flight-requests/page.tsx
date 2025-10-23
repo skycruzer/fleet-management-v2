@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilotFlightRequests, getPilotFlightStats } from '@/lib/services/pilot-flight-service'
 import FlightRequestForm from '@/components/pilot/FlightRequestForm'
 import FlightRequestsList from '@/components/pilot/FlightRequestsList'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Pilot Flight Requests Page
@@ -56,7 +59,7 @@ export default async function PilotFlightRequestsPage() {
   const flightStatsResult = await getPilotFlightStats()
 
   const flightRequests = flightRequestsResult.success ? flightRequestsResult.data || [] : []
-  const stats = flightStatsResult.success
+  const stats = flightStatsResult.success && flightStatsResult.data
     ? flightStatsResult.data
     : { total: 0, pending: 0, under_review: 0, approved: 0, denied: 0 }
 

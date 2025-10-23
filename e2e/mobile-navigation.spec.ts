@@ -39,12 +39,11 @@ test.describe('Mobile Navigation', () => {
     const viewportSize = page.viewportSize()
     if (!viewportSize) return
 
-    // Swipe from left edge to right
-    await page.touchscreen.tap(5, viewportSize.height / 2)
-    await page.touchscreen.swipe(
-      { x: 5, y: viewportSize.height / 2 },
-      { x: 200, y: viewportSize.height / 2 }
-    )
+    // Swipe from left edge to right using mouse drag
+    await page.mouse.move(5, viewportSize.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(200, viewportSize.height / 2)
+    await page.mouse.up()
 
     // Menu should open
     const nav = page.getByRole('navigation')

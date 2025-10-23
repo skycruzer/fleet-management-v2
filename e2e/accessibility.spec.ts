@@ -144,7 +144,6 @@ test.describe('Accessibility - Screen Reader', () => {
   test('should have proper heading hierarchy', async ({ page }) => {
     // Get all headings
     const h1 = await page.locator('h1').count()
-    const h2 = await page.locator('h2').count()
 
     // Should have at least one h1
     expect(h1).toBeGreaterThanOrEqual(1)

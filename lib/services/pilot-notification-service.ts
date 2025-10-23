@@ -14,8 +14,8 @@ import { Database } from '@/types/supabase'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 
 // Type aliases for cleaner code
-type PilotNotification = Database['public']['Tables']['pilot_notifications']['Row']
-type PilotNotificationInsert = Database['public']['Tables']['pilot_notifications']['Insert']
+type PilotNotification = Database['public']['Tables']['notifications']['Row']
+type PilotNotificationInsert = Database['public']['Tables']['notifications']['Insert']
 
 /**
  * Service response type
@@ -48,8 +48,8 @@ export enum NotificationType {
  * Notification creation input
  */
 interface CreateNotificationInput {
-  pilot_id: string
-  notification_type: NotificationType | string
+  recipient_id: string
+  type: NotificationType | string
   title: string
   message: string
   link?: string
@@ -72,16 +72,17 @@ export async function createNotification(
     const supabase = await createClient()
 
     const notificationData: PilotNotificationInsert = {
-      pilot_id: notification.pilot_id,
-      notification_type: notification.notification_type,
+      recipient_id: notification.recipient_id,
+      recipient_type: 'pilot',
+      type: notification.type,
       title: notification.title,
       message: notification.message,
       link: notification.link || null,
-      read: false,
+      is_read: false,
     }
 
     const { data, error } = await supabase
-      .from('pilot_notifications')
+      .from('notifications')
       .insert(notificationData)
       .select()
       .single()
@@ -123,14 +124,15 @@ export async function getPilotNotifications(
     const supabase = await createClient()
 
     let query = supabase
-      .from('pilot_notifications')
+      .from('notifications')
       .select('*')
-      .eq('pilot_id', pilotId)
+      .eq('recipient_id', pilotId)
+      .eq('recipient_type', 'pilot')
       .order('created_at', { ascending: false })
       .limit(limit)
 
     if (unreadOnly) {
-      query = query.eq('read', false)
+      query = query.eq('is_read', false)
     }
 
     const { data, error } = await query
@@ -170,10 +172,11 @@ export async function markNotificationAsRead(
     const supabase = await createClient()
 
     const { data, error } = await supabase
-      .from('pilot_notifications')
-      .update({ read: true })
+      .from('notifications')
+      .update({ is_read: true })
       .eq('id', notificationId)
-      .eq('pilot_id', pilotId) // Ensure pilot owns this notification
+      .eq('recipient_id', pilotId) // Ensure pilot owns this notification
+      .eq('recipient_type', 'pilot')
       .select()
       .single()
 
@@ -210,10 +213,11 @@ export async function markAllNotificationsAsRead(
     const supabase = await createClient()
 
     const { data, error } = await supabase
-      .from('pilot_notifications')
-      .update({ read: true })
-      .eq('pilot_id', pilotId)
-      .eq('read', false) // Only update unread ones
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('recipient_id', pilotId)
+      .eq('recipient_type', 'pilot')
+      .eq('is_read', false) // Only update unread ones
       .select('id')
 
     if (error) {
@@ -251,10 +255,11 @@ export async function deleteNotification(
     const supabase = await createClient()
 
     const { error } = await supabase
-      .from('pilot_notifications')
+      .from('notifications')
       .delete()
       .eq('id', notificationId)
-      .eq('pilot_id', pilotId) // Ensure pilot owns this notification
+      .eq('recipient_id', pilotId) // Ensure pilot owns this notification
+      .eq('recipient_type', 'pilot')
 
     if (error) {
       return {
@@ -287,10 +292,11 @@ export async function getUnreadCount(pilotId: string): Promise<ServiceResponse<{
     const supabase = await createClient()
 
     const { count, error } = await supabase
-      .from('pilot_notifications')
+      .from('notifications')
       .select('*', { count: 'exact', head: true })
-      .eq('pilot_id', pilotId)
-      .eq('read', false)
+      .eq('recipient_id', pilotId)
+      .eq('recipient_type', 'pilot')
+      .eq('is_read', false)
 
     if (error) {
       return {
@@ -332,8 +338,8 @@ export async function notifyLeaveApproved(
   endDate: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.LEAVE_APPROVED,
+    recipient_id: pilotId,
+    type: NotificationType.LEAVE_APPROVED,
     title: 'Leave Request Approved',
     message: `Your leave request from ${startDate} to ${endDate} has been approved.`,
     link: `/portal/leave-requests/${leaveRequestId}`,
@@ -354,8 +360,8 @@ export async function notifyLeaveDenied(
   reason: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.LEAVE_DENIED,
+    recipient_id: pilotId,
+    type: NotificationType.LEAVE_DENIED,
     title: 'Leave Request Denied',
     message: `Your leave request was denied. Reason: ${reason}`,
     link: `/portal/leave-requests/${leaveRequestId}`,
@@ -376,8 +382,8 @@ export async function notifyFlightApproved(
   route: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.FLIGHT_APPROVED,
+    recipient_id: pilotId,
+    type: NotificationType.FLIGHT_APPROVED,
     title: 'Flight Request Approved',
     message: `Your flight request for route ${route} has been approved.`,
     link: `/portal/flight-requests/${flightRequestId}`,
@@ -398,8 +404,8 @@ export async function notifyFlightDenied(
   reason: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.FLIGHT_DENIED,
+    recipient_id: pilotId,
+    type: NotificationType.FLIGHT_DENIED,
     title: 'Flight Request Denied',
     message: `Your flight request was denied. Reason: ${reason}`,
     link: `/portal/flight-requests/${flightRequestId}`,
@@ -422,8 +428,8 @@ export async function notifyCertExpiring(
   daysUntilExpiry: number
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.CERT_EXPIRING,
+    recipient_id: pilotId,
+    type: NotificationType.CERT_EXPIRING,
     title: 'Certification Expiring Soon',
     message: `Your ${certName} certification expires in ${daysUntilExpiry} days (${expiryDate}).`,
     link: `/portal/certifications`,
@@ -444,8 +450,8 @@ export async function notifyCertExpired(
   expiryDate: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.CERT_EXPIRED,
+    recipient_id: pilotId,
+    type: NotificationType.CERT_EXPIRED,
     title: 'Certification Expired',
     message: `Your ${certName} certification expired on ${expiryDate}. Please renew immediately.`,
     link: `/portal/certifications`,
@@ -466,8 +472,8 @@ export async function notifyTaskAssigned(
   taskTitle: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.TASK_ASSIGNED,
+    recipient_id: pilotId,
+    type: NotificationType.TASK_ASSIGNED,
     title: 'New Task Assigned',
     message: `You have been assigned a new task: ${taskTitle}`,
     link: `/portal/tasks/${taskId}`,
@@ -484,8 +490,8 @@ export async function notifyRegistrationApproved(
   pilotId: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.REGISTRATION_APPROVED,
+    recipient_id: pilotId,
+    type: NotificationType.REGISTRATION_APPROVED,
     title: 'Registration Approved',
     message: 'Your pilot registration has been approved. You can now access the portal.',
     link: `/portal/dashboard`,
@@ -504,8 +510,8 @@ export async function notifyRegistrationDenied(
   reason: string
 ): Promise<ServiceResponse<PilotNotification>> {
   return createNotification({
-    pilot_id: pilotId,
-    notification_type: NotificationType.REGISTRATION_DENIED,
+    recipient_id: pilotId,
+    type: NotificationType.REGISTRATION_DENIED,
     title: 'Registration Denied',
     message: `Your pilot registration was denied. Reason: ${reason}`,
   })

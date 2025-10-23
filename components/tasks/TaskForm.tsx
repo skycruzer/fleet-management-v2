@@ -8,7 +8,7 @@
  * @spec 001-missing-core-features (US5, T084)
  */
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,8 +16,8 @@ import { TaskInputSchema, TaskUpdateSchema, type TaskInput, type TaskUpdate } fr
 import type { TaskWithRelations } from '@/lib/services/task-service'
 import type { Database } from '@/types/supabase'
 
-type User = { id: string; email: string; full_name: string | null }
-type Pilot = { id: string; first_name: string; last_name: string; rank: string }
+type User = { id: string; email: string; name: string | null }
+type Pilot = { id: string; first_name: string; last_name: string; role: 'Captain' | 'First Officer' }
 type Category = Database['public']['Tables']['task_categories']['Row']
 
 interface TaskFormProps {
@@ -29,7 +29,7 @@ interface TaskFormProps {
   onCancel?: () => void
 }
 
-export default function TaskForm({ task, users = [], pilots = [], categories = [], onSuccess, onCancel }: TaskFormProps) {
+export default function TaskForm({ task, users = [], onSuccess, onCancel }: TaskFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -167,7 +167,7 @@ export default function TaskForm({ task, users = [], pilots = [], categories = [
               <option value="DONE">Done</option>
               <option value="CANCELLED">Cancelled</option>
             </select>
-            {form.formState.errors.status && (
+            {isEdit && 'status' in form.formState.errors && form.formState.errors.status && (
               <p className="mt-1 text-sm text-red-600">{form.formState.errors.status.message}</p>
             )}
           </div>
@@ -189,7 +189,7 @@ export default function TaskForm({ task, users = [], pilots = [], categories = [
             <option value="">Unassigned</option>
             {users.map((user) => (
               <option key={user.id} value={user.id}>
-                {user.full_name || user.email}
+                {user.name || user.email}
               </option>
             ))}
           </select>

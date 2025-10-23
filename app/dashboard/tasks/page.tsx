@@ -5,6 +5,9 @@ import { getTasks, getTaskStats } from '@/lib/services/task-service'
 import TaskKanban from '@/components/tasks/TaskKanban'
 import TaskList from '@/components/tasks/TaskList'
 import Link from 'next/link'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Task Management Dashboard (Admin)
@@ -65,7 +68,13 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   }
 
   const tasks = tasksResult.data || []
-  const stats = statsResult.data
+  const stats = statsResult.data || {
+    totalTasks: 0,
+    todoCount: 0,
+    inProgressCount: 0,
+    doneCount: 0,
+    overdueCount: 0,
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -127,7 +127,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
               />
             </svg>
             <span className="truncate">
-              {task.assigned_user.full_name || task.assigned_user.email}
+              {task.assigned_user.name || task.assigned_user.email}
             </span>
           </div>
         )}

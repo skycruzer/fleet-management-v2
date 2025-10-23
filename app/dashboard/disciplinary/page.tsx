@@ -1,9 +1,11 @@
-import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getMatters, getMatterStats } from '@/lib/services/disciplinary-service'
 import Link from 'next/link'
 import { DisciplinaryFilters } from './components/disciplinary-filters'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Disciplinary Matters Dashboard (Admin)
@@ -260,7 +262,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                       {matter.pilot
-                        ? `${matter.pilot.rank} ${matter.pilot.first_name} ${matter.pilot.last_name}`
+                        ? `${matter.pilot.role} ${matter.pilot.first_name} ${matter.pilot.last_name}`
                         : 'Unknown'}
                     </td>
                     <td className="px-6 py-4">

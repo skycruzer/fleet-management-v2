@@ -62,7 +62,7 @@ test.describe('Progressive Web App (PWA)', () => {
     expect(content).toContain('initial-scale=1')
   })
 
-  test('should cache assets for offline use', async ({ page, context }) => {
+  test('should cache assets for offline use', async ({ page }) => {
     // First visit - populate cache
     await page.goto('/')
     await page.waitForLoadState('networkidle')

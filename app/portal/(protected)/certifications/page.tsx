@@ -22,7 +22,6 @@ import {
   ArrowLeft,
   Search,
   Clock,
-  Filter,
 } from 'lucide-react'
 
 interface Certification {

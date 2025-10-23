@@ -20,7 +20,7 @@ export const FeedbackPostSchema = z.object({
     .min(10, 'Content must be at least 10 characters')
     .max(10000, 'Content must be less than 10,000 characters'),
   status: z.enum(['draft', 'published'], {
-    invalid_type_error: 'Status must be either draft or published',
+    message: 'Status must be either draft or published',
   }).default('published'),
 })
 
@@ -84,8 +84,7 @@ export type FeedbackCommentUpdate = z.infer<typeof FeedbackCommentUpdateSchema>
 // Vote schema (upvote/downvote)
 export const FeedbackVoteSchema = z.object({
   vote_type: z.enum(['upvote', 'downvote', 'remove'], {
-    required_error: 'Vote type is required',
-    invalid_type_error: 'Vote type must be upvote, downvote, or remove',
+    message: 'Vote type is required',
   }),
 })
 
@@ -94,8 +93,7 @@ export type FeedbackVoteInput = z.infer<typeof FeedbackVoteSchema>
 // Admin moderation schema
 export const FeedbackModerationSchema = z.object({
   action: z.enum(['pin', 'unpin', 'hide', 'unhide'], {
-    required_error: 'Moderation action is required',
-    invalid_type_error: 'Invalid moderation action',
+    message: 'Moderation action is required',
   }),
   reason: z
     .string()

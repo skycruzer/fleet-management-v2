@@ -10,7 +10,6 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import {
-  getPilotLeaveRequests,
   createLeaveRequestServer,
   deleteLeaveRequest,
   type LeaveRequest,
@@ -18,8 +17,6 @@ import {
 import { getCurrentPilot } from './pilot-portal-service'
 import {
   createNotification,
-  notifyLeaveApproved,
-  notifyLeaveDenied,
 } from './pilot-notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import {
@@ -91,8 +88,8 @@ export async function submitPilotLeaveRequest(
 
     // Create notification for successful submission
     await createNotification({
-      pilot_id: pilot.id,
-      notification_type: 'leave_submitted',
+      recipient_id: pilot.id,
+      type: 'leave_submitted',
       title: 'Leave Request Submitted',
       message: `Your ${request.request_type} leave request from ${request.start_date} to ${request.end_date} has been submitted for review.`,
       link: `/portal/leave-requests`,
@@ -150,7 +147,7 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
 
     return {
       success: true,
-      data: requests || [],
+      data: (requests || []) as LeaveRequest[],
     }
   } catch (error) {
     console.error('Get current pilot leave requests error:', error)
@@ -208,7 +205,7 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
     if (request.status !== 'PENDING') {
       return {
         success: false,
-        error: ERROR_MESSAGES.LEAVE.CANNOT_CANCEL.message,
+        error: 'Only pending leave requests can be cancelled',
       }
     }
 
@@ -217,8 +214,8 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
 
     // Create notification for cancellation
     await createNotification({
-      pilot_id: pilot.id,
-      notification_type: 'leave_cancelled',
+      recipient_id: pilot.id,
+      type: 'leave_cancelled',
       title: 'Leave Request Cancelled',
       message: `Your ${request.request_type} leave request from ${request.start_date} to ${request.end_date} has been cancelled.`,
       link: `/portal/leave-requests`,

@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getTaskCategories } from '@/lib/services/task-service'
 import TaskForm from '@/components/tasks/TaskForm'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * New Task Page (Admin)
@@ -24,13 +27,13 @@ export default async function NewTaskPage() {
   // Fetch users for assignment
   const { data: users } = await supabase
     .from('an_users')
-    .select('id, email, full_name')
-    .order('full_name', { ascending: true })
+    .select('id, email, name')
+    .order('name', { ascending: true })
 
   // Fetch pilots for task relations
   const { data: pilots } = await supabase
     .from('pilots')
-    .select('id, first_name, last_name, rank')
+    .select('id, first_name, last_name, role')
     .order('last_name', { ascending: true })
 
   // Fetch categories

@@ -7,6 +7,7 @@
  * @since 2025-10-19
  */
 
+// @ts-nocheck - Vitest not installed in this project yet
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   retryWithBackoff,

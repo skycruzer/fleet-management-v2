@@ -135,7 +135,7 @@ export default function DisciplinaryTimeline({ actions }: DisciplinaryTimelinePr
   return (
     <div className="flow-root">
       <ul className="-mb-8">
-        {sortedDates.map((date, dateIdx) => {
+        {sortedDates.map((date) => {
           const dateActions = groupedActions[date]
           return (
             <li key={date}>
@@ -159,7 +159,7 @@ export default function DisciplinaryTimeline({ actions }: DisciplinaryTimelinePr
 
               {/* Actions for this date */}
               <ul className="ml-4 space-y-6 border-l-2 border-gray-200 pl-6 dark:border-gray-700">
-                {dateActions.map((action, actionIdx) => (
+                {dateActions.map((action) => (
                   <li key={action.id} className="relative">
                     {/* Timeline dot */}
                     <div className="absolute -left-[33px] flex h-8 w-8 items-center justify-center rounded-full bg-white ring-4 ring-white dark:bg-gray-800 dark:ring-gray-800">
@@ -199,7 +199,7 @@ export default function DisciplinaryTimeline({ actions }: DisciplinaryTimelinePr
                           <div>
                             <span className="font-medium text-gray-600 dark:text-gray-400">Issued by:</span>{' '}
                             <span className="text-gray-900 dark:text-white">
-                              {action.issued_by_user.full_name || action.issued_by_user.email}
+                              {action.issued_by_user.name || action.issued_by_user.email}
                             </span>
                           </div>
                         )}

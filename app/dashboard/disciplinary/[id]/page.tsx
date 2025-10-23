@@ -5,6 +5,9 @@ import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatter
 import DisciplinaryTimeline from '@/components/disciplinary/DisciplinaryTimeline'
 import ActionForm from '@/components/disciplinary/ActionForm'
 import Link from 'next/link'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Disciplinary Matter Detail/Edit Page (Admin)
@@ -48,14 +51,14 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
   // Fetch pilots for form
   const { data: pilots } = await supabase
     .from('pilots')
-    .select('id, first_name, last_name, rank, employee_number')
+    .select('id, first_name, last_name, role, employee_id')
     .order('last_name', { ascending: true })
 
   // Fetch users for form
   const { data: users } = await supabase
     .from('an_users')
-    .select('id, email, full_name')
-    .order('full_name', { ascending: true })
+    .select('id, email, name')
+    .order('name', { ascending: true })
 
   // Fetch incident types
   const incidentTypesResult = await getIncidentTypes()
@@ -135,20 +138,20 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pilot</p>
             <p className="mt-1 text-gray-900 dark:text-white">
               {matter.pilot
-                ? `${matter.pilot.rank} ${matter.pilot.first_name} ${matter.pilot.last_name}`
+                ? `${matter.pilot.role} ${matter.pilot.first_name} ${matter.pilot.last_name}`
                 : 'Unknown'}
             </p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Reported By</p>
             <p className="mt-1 text-gray-900 dark:text-white">
-              {matter.reported_by_user?.full_name || matter.reported_by_user?.email || 'Unknown'}
+              {matter.reported_by_user?.name || matter.reported_by_user?.email || 'Unknown'}
             </p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned To</p>
             <p className="mt-1 text-gray-900 dark:text-white">
-              {matter.assigned_to_user?.full_name || matter.assigned_to_user?.email || 'Unassigned'}
+              {matter.assigned_to_user?.name || matter.assigned_to_user?.email || 'Unassigned'}
             </p>
           </div>
           {matter.incident_type && (

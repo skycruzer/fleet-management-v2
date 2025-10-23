@@ -2,8 +2,6 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Performance - Core Web Vitals', () => {
   test('should have good Largest Contentful Paint (LCP < 2.5s)', async ({ page }) => {
-    const startTime = Date.now()
-
     await page.goto('/dashboard')
 
     // Wait for LCP
@@ -90,11 +88,13 @@ test.describe('Performance - Core Web Vitals', () => {
   })
 
   test('should have Time to First Byte (TTFB < 600ms)', async ({ page }) => {
-    const response = await page.goto('/dashboard')
+    await page.goto('/dashboard')
 
-    const ttfb = await response?.serverTiming().then(timings => {
-      const ttfbTiming = timings.find(t => t.name === 'ttfb')
-      return ttfbTiming?.duration || 0
+    // Note: serverTiming() is not available in Playwright's Response type
+    // TTFB can be measured using performance.timing in the browser context instead
+    const ttfb = await page.evaluate(() => {
+      const perfData = window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+      return perfData.responseStart - perfData.requestStart
     })
 
     if (ttfb) {
@@ -196,7 +196,8 @@ test.describe('Performance - Caching', () => {
     // Second visit
     const cachedResources: string[] = []
     page.on('response', response => {
-      if (response.fromCache()) {
+      // Check if response was served from cache via status code or headers
+      if (response.status() === 304 || response.fromServiceWorker()) {
         cachedResources.push(response.url())
       }
     })
@@ -208,7 +209,7 @@ test.describe('Performance - Caching', () => {
     expect(cachedResources.length).toBeGreaterThan(0)
   })
 
-  test('should use service worker for offline support', async ({ page, context }) => {
+  test('should use service worker for offline support', async ({ page }) => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 

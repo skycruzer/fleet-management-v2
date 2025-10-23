@@ -157,7 +157,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
 
           {/* Timeline Items */}
           <div className="relative ml-6 space-y-6 border-l-2 border-gray-200 pl-8 dark:border-gray-700">
-            {logs.map((log, index) => {
+            {logs.map((log) => {
               const { time } = formatDate(log.created_at)
               const isHighlighted = highlightRecordId && log.record_id === highlightRecordId
 

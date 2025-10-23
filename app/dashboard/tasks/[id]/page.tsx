@@ -3,6 +3,9 @@ import { redirect, notFound } from 'next/navigation'
 import { getTaskById, getTaskCategories } from '@/lib/services/task-service'
 import TaskForm from '@/components/tasks/TaskForm'
 import Link from 'next/link'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Task Detail/Edit Page (Admin)
@@ -46,13 +49,13 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   // Fetch users for assignment
   const { data: users } = await supabase
     .from('an_users')
-    .select('id, email, full_name')
-    .order('full_name', { ascending: true })
+    .select('id, email, name')
+    .order('name', { ascending: true })
 
   // Fetch pilots for task relations
   const { data: pilots } = await supabase
     .from('pilots')
-    .select('id, first_name, last_name, rank')
+    .select('id, first_name, last_name, role')
     .order('last_name', { ascending: true })
 
   // Fetch categories
@@ -113,13 +116,13 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Created By</p>
             <p className="mt-1 text-gray-900 dark:text-white">
-              {task.created_user?.full_name || task.created_user?.email || 'Unknown'}
+              {task.created_user?.name || task.created_user?.email || 'Unknown'}
             </p>
           </div>
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned To</p>
             <p className="mt-1 text-gray-900 dark:text-white">
-              {task.assigned_user?.full_name || task.assigned_user?.email || 'Unassigned'}
+              {task.assigned_user?.name || task.assigned_user?.email || 'Unassigned'}
             </p>
           </div>
           {task.category && (

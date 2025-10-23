@@ -409,11 +409,10 @@ export async function createMatter(
 
     // Create audit log
     await createAuditLog({
-      userId: user.id,
       action: 'INSERT',
       tableName: 'disciplinary_matters',
       recordId: matter.id,
-      newValues: matter,
+      newData: matter,
     })
 
     // Send notification to assigned user if specified
@@ -491,12 +490,11 @@ export async function updateMatter(
 
     // Create audit log
     await createAuditLog({
-      userId: user.id,
       action: 'UPDATE',
       tableName: 'disciplinary_matters',
       recordId: matterId,
-      oldValues: oldMatter,
-      newValues: matter,
+      oldData: oldMatter,
+      newData: matter,
     })
 
     // Send notification on status change
@@ -554,11 +552,10 @@ export async function deleteMatter(matterId: string): Promise<ServiceResponse> {
 
     // Create audit log
     await createAuditLog({
-      userId: user.id,
       action: 'DELETE',
       tableName: 'disciplinary_matters',
       recordId: matterId,
-      oldValues: oldMatter,
+      oldData: oldMatter,
     })
 
     return { success: true }
@@ -639,11 +636,10 @@ export async function addAction(
 
     // Create audit log
     await createAuditLog({
-      userId: user.id,
       action: 'INSERT',
       tableName: 'disciplinary_actions',
       recordId: action.id,
-      newValues: action,
+      newData: action,
     })
 
     // Update matter's updated_at timestamp
@@ -794,7 +790,13 @@ export async function getIncidentTypes(): Promise<
       return { success: false, error: 'Failed to fetch incident types' }
     }
 
-    return { success: true, data: data || [] }
+    // Map to ensure description is never null
+    const mappedData = (data || []).map(item => ({
+      ...item,
+      description: item.description || ''
+    }))
+
+    return { success: true, data: mappedData }
   } catch (error) {
     console.error('Error in getIncidentTypes:', error)
     return { success: false, error: 'Internal server error' }

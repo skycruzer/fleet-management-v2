@@ -14,7 +14,7 @@ import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { getAllNotifications } from '@/lib/services/pilot-notification-service'
+import { getPilotNotifications } from '@/lib/services/pilot-notification-service'
 import NotificationList from '@/components/pilot/NotificationList'
 
 export const metadata: Metadata = {
@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   description: 'View all your notifications and updates.',
 }
 
+
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
 /**
  * Pilot Notifications Page
  * Server Component - requires authentication
@@ -51,7 +54,7 @@ export default async function PilotNotificationsPage() {
   }
 
   // Fetch all notifications
-  const notificationsResult = await getAllNotifications(user.id)
+  const notificationsResult = await getPilotNotifications(user.id)
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

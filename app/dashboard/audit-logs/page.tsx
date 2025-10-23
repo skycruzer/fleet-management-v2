@@ -1,10 +1,12 @@
-import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getAuditLogs, getAuditStats, getAuditedTables, getAuditedUsers } from '@/lib/services/audit-service'
 import { AuditFilters } from './components/audit-filters'
 import { format } from 'date-fns'
 import Link from 'next/link'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Audit Logs Dashboard (Admin)

@@ -131,7 +131,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     }
 
     // Check if deleteSubtasks flag is set
-    const deleteSubtasks = request.nextUrl.searchParams.get('deleteSubtasks') === 'true'
+    const deleteSubtasks = _request.nextUrl.searchParams.get('deleteSubtasks') === 'true'
 
     // Delete task
     const result = await deleteTask(taskId, deleteSubtasks)

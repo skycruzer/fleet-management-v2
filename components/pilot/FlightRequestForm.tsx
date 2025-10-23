@@ -24,12 +24,10 @@ export default function FlightRequestForm() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'additional_flight',
-      route: '',
-      start_date: '',
-      end_date: '',
+      request_type: 'ADDITIONAL_FLIGHT',
+      flight_date: '',
+      description: '',
       reason: '',
-      additional_details: '',
     },
   })
 
@@ -80,106 +78,72 @@ export default function FlightRequestForm() {
           {...form.register('request_type')}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
-          <option value="additional_flight">Additional Flight</option>
-          <option value="route_change">Route Change</option>
-          <option value="schedule_swap">Schedule Swap</option>
-          <option value="other">Other</option>
+          <option value="ADDITIONAL_FLIGHT">Additional Flight</option>
+          <option value="ROUTE_CHANGE">Route Change</option>
+          <option value="SCHEDULE_SWAP">Schedule Swap</option>
+          <option value="OTHER">Other</option>
         </select>
         {form.formState.errors.request_type && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.request_type.message}</p>
         )}
       </div>
 
-      {/* Route */}
+      {/* Flight Date */}
       <div>
-        <label htmlFor="route" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Route <span className="text-red-500">*</span>
+        <label htmlFor="flight_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Flight Date <span className="text-red-500">*</span>
         </label>
         <input
-          type="text"
-          id="route"
-          {...form.register('route')}
-          placeholder="POM-LAE or route description"
+          type="date"
+          id="flight_date"
+          {...form.register('flight_date')}
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
-        {form.formState.errors.route && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.route.message}</p>
+        {form.formState.errors.flight_date && (
+          <p className="mt-1 text-sm text-red-600">{form.formState.errors.flight_date.message}</p>
         )}
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Format: XXX-YYY or descriptive text
+          Select the date for your requested flight
         </p>
       </div>
 
-      {/* Date Range */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label htmlFor="start_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Start Date <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            id="start_date"
-            {...form.register('start_date')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-          />
-          {form.formState.errors.start_date && (
-            <p className="mt-1 text-sm text-red-600">{form.formState.errors.start_date.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="end_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            End Date <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            id="end_date"
-            {...form.register('end_date')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-          />
-          {form.formState.errors.end_date && (
-            <p className="mt-1 text-sm text-red-600">{form.formState.errors.end_date.message}</p>
-          )}
-        </div>
+      {/* Description */}
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Description <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          id="description"
+          {...form.register('description')}
+          rows={3}
+          placeholder="Describe your flight request (route, requirements, etc.)..."
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+        />
+        {form.formState.errors.description && (
+          <p className="mt-1 text-sm text-red-600">{form.formState.errors.description.message}</p>
+        )}
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Minimum 10 characters, maximum 2000 characters
+        </p>
       </div>
 
-      {/* Reason */}
+      {/* Reason (Optional) */}
       <div>
         <label htmlFor="reason" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Reason <span className="text-red-500">*</span>
+          Reason (Optional)
         </label>
         <textarea
           id="reason"
           {...form.register('reason')}
-          rows={3}
-          placeholder="Explain why you need this flight request..."
+          rows={2}
+          placeholder="Additional reasoning for your request..."
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.reason && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.reason.message}</p>
         )}
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Minimum 10 characters, maximum 1000 characters
-        </p>
-      </div>
-
-      {/* Additional Details (Optional) */}
-      <div>
-        <label htmlFor="additional_details" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Additional Details (Optional)
-        </label>
-        <textarea
-          id="additional_details"
-          {...form.register('additional_details')}
-          rows={2}
-          placeholder="Any additional information..."
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        />
-        {form.formState.errors.additional_details && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.additional_details.message}</p>
-        )}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Maximum 2000 characters
+          Maximum 1000 characters
         </p>
       </div>
 

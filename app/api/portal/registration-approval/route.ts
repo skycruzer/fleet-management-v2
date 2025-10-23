@@ -12,10 +12,6 @@ import {
   getPendingRegistrations,
   reviewPilotRegistration,
 } from '@/lib/services/pilot-portal-service'
-import {
-  notifyRegistrationApproved,
-  notifyRegistrationDenied,
-} from '@/lib/services/pilot-notification-service'
 import { RegistrationApprovalSchema } from '@/lib/validations/pilot-portal-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { createClient } from '@/lib/supabase/server'

@@ -400,8 +400,6 @@ test.describe('Dashboard - Data Refresh', () => {
     const metricText = page.getByText(/\d+\s*pilots?/i).first()
 
     if (await metricText.isVisible()) {
-      const initialText = await metricText.textContent()
-
       // Click refresh
       const refreshButton = page.getByRole('button', { name: /refresh|reload/i })
       if (await refreshButton.isVisible()) {

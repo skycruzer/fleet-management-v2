@@ -42,18 +42,18 @@ import Link from 'next/link'
 
 const REQUEST_TYPES = [
   {
-    value: 'additional_flight',
+    value: 'ADDITIONAL_FLIGHT',
     label: 'Additional Flight',
     description: 'Request to fly additional sectors',
   },
-  { value: 'route_change', label: 'Route Change', description: 'Request to change assigned route' },
+  { value: 'ROUTE_CHANGE', label: 'Route Change', description: 'Request to change assigned route' },
   {
-    value: 'schedule_swap',
+    value: 'SCHEDULE_SWAP',
     label: 'Schedule Swap',
     description: 'Request to swap with another pilot',
   },
-  { value: 'other', label: 'Other', description: 'Other flight-related requests' },
-]
+  { value: 'OTHER', label: 'Other', description: 'Other flight-related requests' },
+] as const
 
 export default function NewFlightRequestPage() {
   const router = useRouter()
@@ -64,12 +64,10 @@ export default function NewFlightRequestPage() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'additional_flight',
-      route: '',
-      start_date: '',
-      end_date: '',
+      request_type: 'ADDITIONAL_FLIGHT',
+      flight_date: '',
+      description: '',
       reason: '',
-      additional_details: '',
     },
   })
 
@@ -191,89 +189,58 @@ export default function NewFlightRequestPage() {
               )}
             </div>
 
-            {/* Route */}
+            {/* Flight Date */}
             <div className="space-y-2">
-              <Label htmlFor="route">Route *</Label>
+              <Label htmlFor="flight_date">Flight Date *</Label>
               <Input
-                id="route"
-                placeholder="e.g., POM-LAE or describe the route"
-                {...form.register('route')}
+                id="flight_date"
+                type="date"
+                {...form.register('flight_date')}
                 disabled={isLoading}
               />
               <p className="text-xs text-gray-500">
-                Enter route in format "XXX-YYY" (airport codes) or describe the route
+                Select the date for your requested flight
               </p>
-              {form.formState.errors.route && (
-                <p className="text-sm text-red-500">{form.formState.errors.route.message}</p>
+              {form.formState.errors.flight_date && (
+                <p className="text-sm text-red-500">{form.formState.errors.flight_date.message}</p>
               )}
             </div>
 
-            {/* Date Range */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="start_date">Start Date *</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  {...form.register('start_date')}
-                  disabled={isLoading}
-                />
-                {form.formState.errors.start_date && (
-                  <p className="text-sm text-red-500">{form.formState.errors.start_date.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="end_date">End Date *</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  {...form.register('end_date')}
-                  disabled={isLoading}
-                />
-                {form.formState.errors.end_date && (
-                  <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
-                )}
-              </div>
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
+                placeholder="Describe your flight request in detail (route, requirements, etc.)..."
+                rows={4}
+                maxLength={2000}
+                {...form.register('description')}
+                disabled={isLoading}
+              />
+              <p className="text-xs text-gray-500">
+                {form.watch('description')?.length || 0}/2000 characters (minimum 10 characters)
+              </p>
+              {form.formState.errors.description && (
+                <p className="text-sm text-red-500">{form.formState.errors.description.message}</p>
+              )}
             </div>
 
-            {/* Reason */}
+            {/* Reason (Optional) */}
             <div className="space-y-2">
-              <Label htmlFor="reason">Reason *</Label>
+              <Label htmlFor="reason">Reason (Optional)</Label>
               <Textarea
                 id="reason"
-                placeholder="Explain why you are requesting this flight change..."
-                rows={4}
+                placeholder="Additional reasoning for your request..."
+                rows={3}
                 maxLength={1000}
                 {...form.register('reason')}
                 disabled={isLoading}
               />
               <p className="text-xs text-gray-500">
-                {form.watch('reason')?.length || 0}/1000 characters (minimum 10 characters)
+                {form.watch('reason')?.length || 0}/1000 characters
               </p>
               {form.formState.errors.reason && (
                 <p className="text-sm text-red-500">{form.formState.errors.reason.message}</p>
-              )}
-            </div>
-
-            {/* Additional Details (Optional) */}
-            <div className="space-y-2">
-              <Label htmlFor="additional_details">Additional Details (Optional)</Label>
-              <Textarea
-                id="additional_details"
-                placeholder="Any additional information that supports your request..."
-                rows={4}
-                maxLength={2000}
-                {...form.register('additional_details')}
-                disabled={isLoading}
-              />
-              <p className="text-xs text-gray-500">
-                {form.watch('additional_details')?.length || 0}/2000 characters
-              </p>
-              {form.formState.errors.additional_details && (
-                <p className="text-sm text-red-500">
-                  {form.formState.errors.additional_details.message}
-                </p>
               )}
             </div>
 

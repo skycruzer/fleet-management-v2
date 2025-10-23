@@ -15,10 +15,9 @@ import Link from 'next/link'
 
 interface PilotDashboardContentProps {
   dashboardData: any
-  pilotUser: any
 }
 
-export default function PilotDashboardContent({ dashboardData, pilotUser }: PilotDashboardContentProps) {
+export default function PilotDashboardContent({ dashboardData }: PilotDashboardContentProps) {
   const { certifications, leave_requests, stats } = dashboardData
 
   // Categorize certifications by expiry status

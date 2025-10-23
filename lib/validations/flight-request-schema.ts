@@ -9,8 +9,7 @@ import { z } from 'zod'
 // Flight request submission schema
 export const FlightRequestSchema = z.object({
   request_type: z.enum(['ADDITIONAL_FLIGHT', 'ROUTE_CHANGE', 'SCHEDULE_SWAP', 'OTHER'], {
-    required_error: 'Request type is required',
-    invalid_type_error: 'Invalid request type',
+    message: 'Request type is required',
   }),
   flight_date: z
     .string()
@@ -39,7 +38,7 @@ export type FlightRequestInput = z.infer<typeof FlightRequestSchema>
 // Flight request review schema (admin)
 export const FlightRequestReviewSchema = z.object({
   status: z.enum(['UNDER_REVIEW', 'APPROVED', 'DENIED'], {
-    required_error: 'Review status is required',
+    message: 'Review status is required',
   }),
   reviewer_comments: z
     .string()

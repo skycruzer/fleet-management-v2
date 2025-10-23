@@ -3,6 +3,9 @@ import { redirect, notFound } from 'next/navigation'
 import { getAuditLogById } from '@/lib/services/audit-service'
 import AuditLogDetail from '@/components/audit/AuditLogDetail'
 import Link from 'next/link'
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 
 /**
  * Audit Log Detail Page (Admin)
@@ -36,13 +39,11 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
   }
 
   // Fetch audit log
-  const result = await getAuditLogById(params.id)
+  const auditLog = await getAuditLogById(params.id)
 
-  if (!result.success || !result.data) {
+  if (!auditLog) {
     notFound()
   }
-
-  const auditLog = result.data
 
   return (
     <div className="container mx-auto px-4 py-8">

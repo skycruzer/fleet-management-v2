@@ -16,9 +16,7 @@ export const TaskInputSchema = z.object({
     .string()
     .max(5000, 'Description must be less than 5000 characters')
     .optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'], {
-    invalid_type_error: 'Invalid priority level',
-  }).default('MEDIUM'),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
   assigned_to: z
     .string()
     .uuid('Invalid user ID format')
@@ -27,16 +25,6 @@ export const TaskInputSchema = z.object({
   due_date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format')
-    .refine(
-      (date) => {
-        if (!date) return true
-        const dueDate = new Date(date)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        // Allow due dates in the past for historical tasks
-        return true
-      }
-    )
     .nullable()
     .optional(),
   tags: z
@@ -59,12 +47,8 @@ export const TaskUpdateSchema = z.object({
     .max(5000, 'Description must be less than 5000 characters')
     .nullable()
     .optional(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED'], {
-    invalid_type_error: 'Invalid status',
-  }).optional(),
-  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'], {
-    invalid_type_error: 'Invalid priority level',
-  }).optional(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED']).optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   assigned_to: z
     .string()
     .uuid('Invalid user ID format')
@@ -85,9 +69,7 @@ export type TaskUpdate = z.infer<typeof TaskUpdateSchema>
 
 // Kanban move schema (simplified update for drag-drop)
 export const TaskKanbanMoveSchema = z.object({
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE'], {
-    required_error: 'Status is required for Kanban move',
-  }),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']),
 })
 
 export type TaskKanbanMove = z.infer<typeof TaskKanbanMoveSchema>

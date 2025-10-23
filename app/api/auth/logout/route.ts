@@ -6,7 +6,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 
 export async function POST(_request: NextRequest) {
   try {
@@ -17,20 +16,15 @@ export async function POST(_request: NextRequest) {
 
     if (error) {
       console.error('Logout error:', error)
-      return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-        status: 500,
-      })
+      // Redirect to login even if there's an error (session might already be invalid)
+      return NextResponse.redirect(new URL('/auth/login', _request.url))
     }
 
-    // Successful logout
-    return NextResponse.json({
-      success: true,
-      message: 'Logged out successfully',
-    })
+    // Successful logout - redirect to login page
+    return NextResponse.redirect(new URL('/auth/login', _request.url))
   } catch (error) {
     console.error('Logout API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
-    })
+    // Redirect to login even on error
+    return NextResponse.redirect(new URL('/auth/login', _request.url))
   }
 }

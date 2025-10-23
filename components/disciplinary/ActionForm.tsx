@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
-type User = { id: string; email: string; full_name: string | null }
+type User = { id: string; email: string; name: string | null }
 
 interface ActionFormProps {
   matterId: string
@@ -166,7 +166,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             <option value="">Select user</option>
             {users.map((user) => (
               <option key={user.id} value={user.id}>
-                {user.full_name || user.email}
+                {user.name || user.email}
               </option>
             ))}
           </select>

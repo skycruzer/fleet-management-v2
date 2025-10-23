@@ -78,19 +78,14 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
 
               <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <p>
-                  <strong>Route:</strong> {request.route}
+                  <strong>Flight Date:</strong> {new Date(request.flight_date).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Dates:</strong>{' '}
-                  {new Date(request.start_date).toLocaleDateString()} -{' '}
-                  {new Date(request.end_date).toLocaleDateString()}
+                  <strong>Description:</strong> {request.description}
                 </p>
-                <p>
-                  <strong>Reason:</strong> {request.reason}
-                </p>
-                {request.additional_details && (
+                {request.reason && (
                   <p>
-                    <strong>Additional Details:</strong> {request.additional_details}
+                    <strong>Reason:</strong> {request.reason}
                   </p>
                 )}
                 <p>
@@ -100,13 +95,13 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
               </div>
 
               {/* Admin Comments */}
-              {request.status !== 'PENDING' && request.admin_comments && (
+              {request.status !== 'PENDING' && request.reviewer_comments && (
                 <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Admin Comments:
+                    Reviewer Comments:
                   </p>
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {request.admin_comments}
+                    {request.reviewer_comments}
                   </p>
                   {request.reviewed_at && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">

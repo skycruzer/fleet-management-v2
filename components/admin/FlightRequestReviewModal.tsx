@@ -34,7 +34,7 @@ export default function FlightRequestReviewModal({
     resolver: zodResolver(FlightRequestReviewSchema),
     defaultValues: {
       status: request.status === 'PENDING' ? 'UNDER_REVIEW' : request.status,
-      admin_comments: request.admin_comments || '',
+      reviewer_comments: request.reviewer_comments || '',
     },
   })
 
@@ -125,16 +125,10 @@ export default function FlightRequestReviewModal({
                     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
                     .join(' ')}
                 </p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  <strong>Route:</strong> {request.route}
-                </p>
               </div>
               <div>
                 <p className="text-gray-600 dark:text-gray-400">
-                  <strong>Start Date:</strong> {new Date(request.start_date).toLocaleDateString()}
-                </p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  <strong>End Date:</strong> {new Date(request.end_date).toLocaleDateString()}
+                  <strong>Flight Date:</strong> {new Date(request.flight_date).toLocaleDateString()}
                 </p>
                 <p className="text-gray-600 dark:text-gray-400">
                   <strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}
@@ -144,18 +138,18 @@ export default function FlightRequestReviewModal({
 
             <div className="mt-3">
               <p className="text-gray-600 dark:text-gray-400">
-                <strong>Reason:</strong>
+                <strong>Description:</strong>
               </p>
-              <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{request.reason}</p>
+              <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{request.description}</p>
             </div>
 
-            {request.additional_details && (
+            {request.reason && (
               <div className="mt-3">
                 <p className="text-gray-600 dark:text-gray-400">
-                  <strong>Additional Details:</strong>
+                  <strong>Reason:</strong>
                 </p>
                 <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                  {request.additional_details}
+                  {request.reason}
                 </p>
               </div>
             )}
@@ -183,17 +177,17 @@ export default function FlightRequestReviewModal({
                 )}
               </div>
 
-              {/* Admin Comments */}
+              {/* Reviewer Comments */}
               <div>
                 <label
-                  htmlFor="admin_comments"
+                  htmlFor="reviewer_comments"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Admin Comments {selectedStatus === 'DENIED' && <span className="text-red-500">*</span>}
+                  Reviewer Comments {selectedStatus === 'DENIED' && <span className="text-red-500">*</span>}
                 </label>
                 <textarea
-                  id="admin_comments"
-                  {...form.register('admin_comments')}
+                  id="reviewer_comments"
+                  {...form.register('reviewer_comments')}
                   rows={4}
                   placeholder={
                     selectedStatus === 'DENIED'
@@ -202,9 +196,9 @@ export default function FlightRequestReviewModal({
                   }
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
-                {form.formState.errors.admin_comments && (
+                {form.formState.errors.reviewer_comments && (
                   <p className="mt-1 text-sm text-red-600">
-                    {form.formState.errors.admin_comments.message}
+                    {form.formState.errors.reviewer_comments.message}
                   </p>
                 )}
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -257,13 +251,13 @@ export default function FlightRequestReviewModal({
                     {request.status}
                   </span>
                 </p>
-                {request.admin_comments && (
+                {request.reviewer_comments && (
                   <div className="mt-3">
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      <strong>Admin Comments:</strong>
+                      <strong>Reviewer Comments:</strong>
                     </p>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {request.admin_comments}
+                      {request.reviewer_comments}
                     </p>
                   </div>
                 )}

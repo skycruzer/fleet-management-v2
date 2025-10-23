@@ -56,8 +56,7 @@ export const PilotRegistrationSchema = z
         'Last name can only contain letters, spaces, hyphens, and apostrophes'
       ),
     rank: z.enum(['Captain', 'First Officer'], {
-      required_error: 'Rank is required',
-      invalid_type_error: 'Rank must be either Captain or First Officer',
+      message: 'Rank is required',
     }),
     employee_id: z.string().max(50, 'Employee ID must be less than 50 characters').optional(),
     date_of_birth: z
@@ -92,7 +91,7 @@ export type PilotRegistrationInput = z.infer<typeof PilotRegistrationSchema>
 export const RegistrationApprovalSchema = z
   .object({
     status: z.enum(['APPROVED', 'DENIED'], {
-      required_error: 'Approval status is required',
+      message: 'Approval status is required',
     }),
     admin_notes: z.string().max(1000, 'Admin notes must be less than 1000 characters').optional(),
     denial_reason: z

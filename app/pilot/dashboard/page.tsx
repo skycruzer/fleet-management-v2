@@ -13,7 +13,7 @@
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getPilotDashboardData } from '@/lib/services/pilot-portal-service'
+import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import PilotDashboardContent from '@/components/pilot/PilotDashboardContent'
 import NotificationBell from '@/components/pilot/NotificationBell'
 
@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   description: 'View your certifications, leave requests, and pilot information.',
 }
 
+
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
 /**
  * Pilot Dashboard Page
  * Server Component - requires authentication
@@ -91,7 +94,7 @@ export default async function PilotDashboardPage() {
   }
 
   // Fetch dashboard data
-  const dashboardResult = await getPilotDashboardData(user.id)
+  const dashboardResult = await getPilotPortalStats(user.id)
 
   if (!dashboardResult.success || !dashboardResult.data) {
     return (
@@ -135,7 +138,7 @@ export default async function PilotDashboardPage() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <PilotDashboardContent dashboardData={dashboardResult.data} pilotUser={pilotUser} />
+        <PilotDashboardContent dashboardData={dashboardResult.data} />
       </main>
     </div>
   )

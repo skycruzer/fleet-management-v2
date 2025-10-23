@@ -13,8 +13,8 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import type { DisciplinaryMatterWithRelations } from '@/lib/services/disciplinary-service'
 
-type Pilot = { id: string; first_name: string; last_name: string; rank: string; employee_number: string }
-type User = { id: string; email: string; full_name: string | null }
+type Pilot = { id: string; first_name: string; last_name: string; role: string; employee_id: string }
+type User = { id: string; email: string; name: string | null }
 type IncidentType = { id: string; name: string; description: string }
 
 interface DisciplinaryMatterFormProps {
@@ -191,7 +191,7 @@ export default function DisciplinaryMatterForm({
             <option value="">Select pilot</option>
             {pilots.map((pilot) => (
               <option key={pilot.id} value={pilot.id}>
-                {pilot.rank} {pilot.first_name} {pilot.last_name} ({pilot.employee_number})
+                {pilot.role} {pilot.first_name} {pilot.last_name} ({pilot.employee_id})
               </option>
             ))}
           </select>
@@ -300,7 +300,7 @@ export default function DisciplinaryMatterForm({
             <option value="">Unassigned</option>
             {users.map((user) => (
               <option key={user.id} value={user.id}>
-                {user.full_name || user.email}
+                {user.name || user.email}
               </option>
             ))}
           </select>

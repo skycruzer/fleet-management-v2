@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   description: 'Log in to the pilot portal to access your dashboard, certifications, and leave requests.',
 }
 
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+
 /**
  * Pilot Login Page
  * Server Component - checks if user is already authenticated

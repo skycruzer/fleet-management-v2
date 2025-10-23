@@ -20,9 +20,8 @@ import {
 } from '@/lib/validations/pilot-portal-schema'
 
 // Type aliases for cleaner code
-type PilotRegistration = Database['public']['Tables']['pilot_registrations']['Row']
-type PilotRegistrationInsert = Database['public']['Tables']['pilot_registrations']['Insert']
-type Pilot = Database['public']['Tables']['pilots']['Row']
+type PilotRegistration = Database['public']['Tables']['pilot_users']['Row']
+type PilotRegistrationInsert = Database['public']['Tables']['pilot_users']['Insert']
 
 /**
  * Service response type
@@ -228,9 +227,9 @@ export async function submitPilotRegistration(
       }
     }
 
-    // Step 2: Create registration record
+    // Step 2: Create registration record in pilot_users
     const registrationData: PilotRegistrationInsert = {
-      user_id: authData.user.id,
+      id: authData.user.id,
       first_name: registration.first_name,
       last_name: registration.last_name,
       email: registration.email,
@@ -239,13 +238,14 @@ export async function submitPilotRegistration(
       date_of_birth: registration.date_of_birth || null,
       phone_number: registration.phone_number || null,
       address: registration.address || null,
-      status: 'PENDING',
+      registration_approved: null, // Pending approval
+      registration_date: new Date().toISOString(),
     }
 
     const { data: regData, error: regError } = await supabase
-      .from('pilot_registrations')
+      .from('pilot_users')
       .insert(registrationData)
-      .select('id, status')
+      .select('id, registration_approved')
       .single()
 
     if (regError) {
@@ -262,7 +262,7 @@ export async function submitPilotRegistration(
       success: true,
       data: {
         id: regData.id,
-        status: regData.status,
+        status: regData.registration_approved === null ? 'PENDING' : (regData.registration_approved ? 'APPROVED' : 'DENIED'),
       },
     }
   } catch (error) {
@@ -287,7 +287,7 @@ export async function getRegistrationStatus(
     const supabase = await createClient()
 
     const { data, error } = await supabase
-      .from('pilot_registrations')
+      .from('pilot_users')
       .select('*')
       .eq('email', email)
       .order('created_at', { ascending: false })
@@ -324,9 +324,9 @@ export async function getPendingRegistrations(): Promise<ServiceResponse<PilotRe
     const supabase = await createClient()
 
     const { data, error } = await supabase
-      .from('pilot_registrations')
+      .from('pilot_users')
       .select('*')
-      .eq('status', 'PENDING')
+      .is('registration_approved', null) // NULL means pending
       .order('created_at', { ascending: true })
 
     if (error) {
@@ -365,18 +365,17 @@ export async function reviewPilotRegistration(
   try {
     const supabase = await createClient()
 
-    // Step 1: Update registration status
+    // Step 1: Update registration status in pilot_users
     const { data: registration, error: updateError } = await supabase
-      .from('pilot_registrations')
+      .from('pilot_users')
       .update({
-        status: approval.status,
-        admin_notes: approval.admin_notes || null,
+        registration_approved: approval.status === 'APPROVED',
         denial_reason: approval.denial_reason || null,
-        reviewed_by: reviewerId,
-        reviewed_at: new Date().toISOString(),
+        approved_by: reviewerId,
+        approved_at: new Date().toISOString(),
       })
       .eq('id', registrationId)
-      .select('user_id, status, email, first_name, last_name, rank')
+      .select('id, registration_approved, email, first_name, last_name, rank')
       .single()
 
     if (updateError) {
@@ -386,42 +385,24 @@ export async function reviewPilotRegistration(
       }
     }
 
-    // Step 2: If approved, create pilot record
-    if (approval.status === 'APPROVED' && registration.user_id) {
-      const { error: pilotError } = await supabase.from('pilots').insert({
-        user_id: registration.user_id,
-        first_name: registration.first_name,
-        last_name: registration.last_name,
-        rank: registration.rank,
-        status: 'active',
-      })
-
-      if (pilotError) {
-        console.error('Failed to create pilot record:', pilotError)
-        // Don't fail the entire approval, just log the error
-      }
-
-      // Update user role to 'pilot'
-      const { error: roleError } = await supabase
-        .from('an_users')
-        .update({ role: 'pilot' })
-        .eq('id', registration.user_id)
-
-      if (roleError) {
-        console.error('Failed to update user role:', roleError)
-      }
+    // Step 2: If approved, the user role is already set via registration_approved field
+    // No additional updates needed - the registration_approved flag controls access
+    if (approval.status === 'APPROVED' && registration.id) {
+      // Note: Pilot operational record creation is handled separately
+      // when employee_id is assigned to the pilot_users record
+      console.log(`Pilot registration approved for user ${registration.id}`)
     }
 
     // Step 3: If denied, optionally delete the auth user
-    if (approval.status === 'DENIED' && registration.user_id) {
+    if (approval.status === 'DENIED' && registration.id) {
       // Note: You might want to keep the auth user for audit purposes
       // Uncomment if you want to delete denied registrations
-      // await supabase.auth.admin.deleteUser(registration.user_id)
+      // await supabase.auth.admin.deleteUser(registration.id)
     }
 
     return {
       success: true,
-      data: { status: registration.status },
+      data: { status: approval.status === 'APPROVED' ? 'approved' : 'denied' },
     }
   } catch (error) {
     console.error('Review registration error:', error)
@@ -640,15 +621,20 @@ export async function getCurrentPilot(): Promise<ServiceResponse<any | null>> {
     }
 
     // Get the corresponding pilots table record (for operational data queries)
-    const { data: pilotsRecord, error: pilotsError } = await supabase
-      .from('pilots')
-      .select('id')
-      .eq('employee_id', pilotUser.employee_id)
-      .single()
+    let pilotsRecord = null
+    if (pilotUser.employee_id) {
+      const { data, error: pilotsError } = await supabase
+        .from('pilots')
+        .select('id')
+        .eq('employee_id', pilotUser.employee_id)
+        .single()
 
-    if (pilotsError || !pilotsRecord) {
-      console.warn('Pilot record not found in pilots table for employee_id:', pilotUser.employee_id)
-      // Continue without pilots.id - portal still works but with no operational data
+      if (pilotsError || !data) {
+        console.warn('Pilot record not found in pilots table for employee_id:', pilotUser.employee_id)
+        // Continue without pilots.id - portal still works but with no operational data
+      } else {
+        pilotsRecord = data
+      }
     }
 
     return {
