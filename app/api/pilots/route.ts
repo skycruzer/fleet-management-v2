@@ -8,6 +8,7 @@ import { getPilots, createPilot } from '@/lib/services/pilot-service'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
 import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
 /**
  * GET /api/pilots
@@ -54,8 +55,9 @@ export async function GET(_request: NextRequest) {
 /**
  * POST /api/pilots
  * Create a new pilot
+ * Protected by rate limiting (20 requests/min)
  */
-export async function POST(_request: NextRequest) {
+export const POST = withRateLimit(async (_request: NextRequest) => {
   try {
     // Check authentication
     const supabase = await createClient()
@@ -103,4 +105,4 @@ export async function POST(_request: NextRequest) {
       status: 500,
     })
   }
-}
+})

@@ -13,10 +13,8 @@ import type { Database } from '@/types/supabase'
 
 // Types
 type DisciplinaryMatter = Database['public']['Tables']['disciplinary_matters']['Row']
-type DisciplinaryAction = Database['public']['Tables']['disciplinary_actions']['Row']
 type DisciplinaryMatterInsert = Database['public']['Tables']['disciplinary_matters']['Insert']
 type DisciplinaryMatterUpdate = Database['public']['Tables']['disciplinary_matters']['Update']
-type DisciplinaryActionInsert = Database['public']['Tables']['disciplinary_actions']['Insert']
 
 // Extended types with relations
 export interface DisciplinaryMatterWithRelations extends DisciplinaryMatter {
@@ -47,20 +45,6 @@ export interface DisciplinaryMatterWithRelations extends DisciplinaryMatter {
     email: string
     name: string | null
   }
-  actions?: DisciplinaryActionWithRelations[]
-}
-
-export interface DisciplinaryActionWithRelations extends DisciplinaryAction {
-  issued_by_user?: {
-    id: string
-    email: string
-    name: string | null
-  }
-  matter?: {
-    id: string
-    title: string
-    pilot_id: string
-  }
 }
 
 // Service response types
@@ -88,14 +72,6 @@ export interface MatterFilters {
   sortOrder?: 'asc' | 'desc'
 }
 
-export interface ActionFilters {
-  matterId?: string
-  actionType?: string
-  issuedBy?: string
-  startDate?: Date
-  endDate?: Date
-  status?: string
-}
 
 // Statistics types
 export interface MatterStats {
@@ -129,17 +105,6 @@ export const MATTER_STATUSES = [
 
 export const MATTER_SEVERITIES = ['MINOR', 'MODERATE', 'SERIOUS', 'CRITICAL'] as const
 
-export const ACTION_TYPES = [
-  'VERBAL_WARNING',
-  'WRITTEN_WARNING',
-  'SUSPENSION',
-  'DEMOTION',
-  'TERMINATION',
-  'REMEDIAL_TRAINING',
-  'COUNSELING',
-  'MONITORING',
-  'OTHER',
-] as const
 
 // ============================================================================
 // MATTER CRUD OPERATIONS
@@ -192,12 +157,6 @@ export async function getMatters(
           id,
           email,
           name
-        ),
-        actions:disciplinary_actions (
-          id,
-          action_type,
-          action_date,
-          status
         )
       `,
         { count: 'exact' }
@@ -349,27 +308,15 @@ export async function getMatterById(matterId: string): Promise<ServiceResponse<D
 
 /**
  * Get matter with complete timeline of actions
+ * NOTE: Actions timeline functionality removed - disciplinary_actions table no longer exists
  */
 export async function getMatterWithTimeline(
   matterId: string
 ): Promise<ServiceResponse<DisciplinaryMatterWithRelations>> {
   try {
-    // Get the matter first
+    // Get the matter (actions table no longer exists)
     const matterResult = await getMatterById(matterId)
-    if (!matterResult.success || !matterResult.data) {
-      return matterResult
-    }
-
-    // Get all actions for this matter
-    const actionsResult = await getActionsByMatterId(matterId)
-    if (!actionsResult.success) {
-      return { success: false, error: 'Failed to fetch timeline' }
-    }
-
-    const matter = matterResult.data
-    matter.actions = actionsResult.data
-
-    return { success: true, data: matter }
+    return matterResult
   } catch (error) {
     console.error('Error in getMatterWithTimeline:', error)
     return { success: false, error: 'Internal server error' }
@@ -568,95 +515,7 @@ export async function deleteMatter(matterId: string): Promise<ServiceResponse> {
 // ============================================================================
 // ACTION MANAGEMENT
 // ============================================================================
-
-/**
- * Get actions for a specific matter
- */
-export async function getActionsByMatterId(
-  matterId: string
-): Promise<ServiceResponse<DisciplinaryActionWithRelations[]>> {
-  try {
-    const supabase = await createClient()
-
-    const { data, error } = await supabase
-      .from('disciplinary_actions')
-      .select(
-        `
-        *,
-        issued_by_user:an_users!disciplinary_actions_issued_by_fkey (
-          id,
-          email,
-          name
-        )
-      `
-      )
-      .eq('matter_id', matterId)
-      .order('action_date', { ascending: false })
-      .order('action_time', { ascending: false })
-
-    if (error) {
-      console.error('Error fetching actions:', error)
-      return { success: false, error: 'Failed to fetch actions' }
-    }
-
-    return { success: true, data: (data as DisciplinaryActionWithRelations[]) || [] }
-  } catch (error) {
-    console.error('Error in getActionsByMatterId:', error)
-    return { success: false, error: 'Internal server error' }
-  }
-}
-
-/**
- * Add action to disciplinary matter
- */
-export async function addAction(
-  actionData: Omit<DisciplinaryActionInsert, 'id' | 'created_at' | 'updated_at'>
-): Promise<ServiceResponse<DisciplinaryAction>> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { success: false, error: 'Unauthorized' }
-    }
-
-    // Insert action
-    const { data: action, error } = await supabase
-      .from('disciplinary_actions')
-      .insert(actionData)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Error adding action:', error)
-      return { success: false, error: 'Failed to add action' }
-    }
-
-    // Create audit log
-    await createAuditLog({
-      action: 'INSERT',
-      tableName: 'disciplinary_actions',
-      recordId: action.id,
-      newData: action,
-    })
-
-    // Update matter's updated_at timestamp
-    await supabase
-      .from('disciplinary_matters')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', actionData.matter_id)
-
-    // Send notification
-    console.log(`Notification: New action added to matter ${actionData.matter_id}`)
-
-    return { success: true, data: action }
-  } catch (error) {
-    console.error('Error in addAction:', error)
-    return { success: false, error: 'Internal server error' }
-  }
-}
+// NOTE: Action management functionality removed - disciplinary_actions table no longer exists
 
 // ============================================================================
 // STATISTICS

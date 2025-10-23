@@ -18,6 +18,7 @@ import type { Database } from '@/types/supabase'
 import { differenceInDays } from 'date-fns'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
+import { getOrSetCache } from './cache-service'
 
 // Type aliases for convenience
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
@@ -112,7 +113,14 @@ export async function getCertifications(
   page: number
   pageSize: number
 }> {
-  const supabase = await createClient()
+  // Generate cache key based on parameters
+  const cacheKey = `certifications:${page}:${pageSize}:${JSON.stringify(filters || {})}`
+
+  // Try to get from cache (5 minute TTL)
+  return getOrSetCache(
+    cacheKey,
+    async () => {
+      const supabase = await createClient()
 
   try {
     // Calculate pagination range
@@ -199,6 +207,9 @@ export async function getCertifications(
     })
     throw error
   }
+    },
+    5 * 60 * 1000 // 5 minute cache TTL
+  )
 }
 
 /**
@@ -520,7 +531,7 @@ export async function bulkDeleteCertifications(
   try {
     // Use PostgreSQL function for atomic bulk delete
     const { data, error } = await supabase.rpc('bulk_delete_certifications', {
-      p_certification_ids: certificationIds,
+      certification_ids: certificationIds,
     })
 
     if (error) {
@@ -585,7 +596,7 @@ export async function batchUpdateCertifications(
 
     // Use PostgreSQL function for atomic batch update
     const { data, error } = await supabase.rpc('batch_update_certifications', {
-      p_updates: updatesJson,
+      updates: updatesJson,
     })
 
     if (error) {

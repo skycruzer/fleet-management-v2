@@ -15,9 +15,6 @@ import {
   type LeaveRequest,
 } from './leave-service'
 import { getCurrentPilot } from './pilot-portal-service'
-import {
-  createNotification,
-} from './pilot-notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import {
   isLateRequest,
@@ -85,15 +82,6 @@ export async function submitPilotLeaveRequest(
         error: ERROR_MESSAGES.LEAVE.CREATE_FAILED.message,
       }
     }
-
-    // Create notification for successful submission
-    await createNotification({
-      recipient_id: pilot.id,
-      type: 'leave_submitted',
-      title: 'Leave Request Submitted',
-      message: `Your ${request.request_type} leave request from ${request.start_date} to ${request.end_date} has been submitted for review.`,
-      link: `/portal/leave-requests`,
-    })
 
     return {
       success: true,
@@ -211,15 +199,6 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
 
     // Delete request
     await deleteLeaveRequest(requestId)
-
-    // Create notification for cancellation
-    await createNotification({
-      recipient_id: pilot.id,
-      type: 'leave_cancelled',
-      title: 'Leave Request Cancelled',
-      message: `Your ${request.request_type} leave request from ${request.start_date} to ${request.end_date} has been cancelled.`,
-      link: `/portal/leave-requests`,
-    })
 
     return {
       success: true,

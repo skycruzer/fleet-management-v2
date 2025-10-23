@@ -10,7 +10,6 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
-import { createNotification } from './pilot-notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { Database } from '@/types/supabase'
 
@@ -318,17 +317,6 @@ export async function createTask(taskData: {
       description: `Created task: ${data.title}`,
     })
 
-    // Send notification to assignee if task is assigned
-    if (data.assigned_to && data.assigned_to !== user.id) {
-      await createNotification({
-        recipient_id: data.assigned_to,
-        type: 'TASK_ASSIGNED',
-        title: 'New Task Assigned',
-        message: `You have been assigned a new task: ${data.title}`,
-        link: `/dashboard/tasks/${data.id}`,
-      })
-    }
-
     return {
       success: true,
       data: data as Task,
@@ -413,37 +401,6 @@ export async function updateTask(
       newData: data,
       description: `Updated task: ${data.title}`,
     })
-
-    // Send notification if task was reassigned
-    if (
-      updates.assigned_to &&
-      updates.assigned_to !== existingTask.assigned_to &&
-      updates.assigned_to !== user.id
-    ) {
-      await createNotification({
-        recipient_id: updates.assigned_to,
-        type: 'TASK_ASSIGNED',
-        title: 'Task Reassigned',
-        message: `You have been assigned to task: ${data.title}`,
-        link: `/dashboard/tasks/${data.id}`,
-      })
-    }
-
-    // Send notification if task status changed to DONE and there's an assignee
-    if (
-      updates.status === 'DONE' &&
-      existingTask.status !== 'DONE' &&
-      existingTask.assigned_to &&
-      existingTask.assigned_to !== user.id
-    ) {
-      await createNotification({
-        recipient_id: existingTask.assigned_to,
-        type: 'TASK_UPDATED',
-        title: 'Task Completed',
-        message: `Task "${data.title}" has been marked as complete`,
-        link: `/dashboard/tasks/${data.id}`,
-      })
-    }
 
     return {
       success: true,

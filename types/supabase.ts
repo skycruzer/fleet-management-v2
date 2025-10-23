@@ -49,7 +49,7 @@ export type Database = {
           created_at_png: string | null
           description: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_data: Json | null
           old_data: Json | null
           record_id: string
@@ -66,7 +66,7 @@ export type Database = {
           created_at_png?: string | null
           description?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_data?: Json | null
           old_data?: Json | null
           record_id: string
@@ -83,7 +83,7 @@ export type Database = {
           created_at_png?: string | null
           description?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_data?: Json | null
           old_data?: Json | null
           record_id?: string
@@ -199,170 +199,6 @@ export type Database = {
           },
         ]
       }
-      disciplinary_action_documents: {
-        Row: {
-          action_id: string
-          created_at: string | null
-          description: string | null
-          file_name: string
-          file_path: string
-          file_size: number | null
-          id: string
-          mime_type: string | null
-          title: string
-          updated_at: string | null
-          uploaded_at: string | null
-        }
-        Insert: {
-          action_id: string
-          created_at?: string | null
-          description?: string | null
-          file_name: string
-          file_path: string
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          title: string
-          updated_at?: string | null
-          uploaded_at?: string | null
-        }
-        Update: {
-          action_id?: string
-          created_at?: string | null
-          description?: string | null
-          file_name?: string
-          file_path?: string
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          title?: string
-          updated_at?: string | null
-          uploaded_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "disciplinary_action_documents_action_id_fkey"
-            columns: ["action_id"]
-            isOneToOne: false
-            referencedRelation: "disciplinary_actions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disciplinary_action_documents_action_id_fkey"
-            columns: ["action_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_warning_history"
-            referencedColumns: ["action_id"]
-          },
-        ]
-      }
-      disciplinary_actions: {
-        Row: {
-          acknowledged_by_pilot: boolean | null
-          acknowledgment_date: string | null
-          action_date: string
-          action_notes: string | null
-          action_time: string | null
-          action_type: string
-          appeal_deadline: string | null
-          created_at: string | null
-          description: string
-          effective_date: string | null
-          expiry_date: string | null
-          follow_up_date: string | null
-          follow_up_required: boolean | null
-          id: string
-          is_automatic_escalation: boolean | null
-          issued_by: string
-          location: string | null
-          matter_id: string
-          status: string | null
-          suspension_days: number | null
-          updated_at: string | null
-          warning_level: string | null
-          warning_sequence: number | null
-        }
-        Insert: {
-          acknowledged_by_pilot?: boolean | null
-          acknowledgment_date?: string | null
-          action_date: string
-          action_notes?: string | null
-          action_time?: string | null
-          action_type: string
-          appeal_deadline?: string | null
-          created_at?: string | null
-          description: string
-          effective_date?: string | null
-          expiry_date?: string | null
-          follow_up_date?: string | null
-          follow_up_required?: boolean | null
-          id?: string
-          is_automatic_escalation?: boolean | null
-          issued_by: string
-          location?: string | null
-          matter_id: string
-          status?: string | null
-          suspension_days?: number | null
-          updated_at?: string | null
-          warning_level?: string | null
-          warning_sequence?: number | null
-        }
-        Update: {
-          acknowledged_by_pilot?: boolean | null
-          acknowledgment_date?: string | null
-          action_date?: string
-          action_notes?: string | null
-          action_time?: string | null
-          action_type?: string
-          appeal_deadline?: string | null
-          created_at?: string | null
-          description?: string
-          effective_date?: string | null
-          expiry_date?: string | null
-          follow_up_date?: string | null
-          follow_up_required?: boolean | null
-          id?: string
-          is_automatic_escalation?: boolean | null
-          issued_by?: string
-          location?: string | null
-          matter_id?: string
-          status?: string | null
-          suspension_days?: number | null
-          updated_at?: string | null
-          warning_level?: string | null
-          warning_sequence?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "disciplinary_actions_issued_by_fkey"
-            columns: ["issued_by"]
-            isOneToOne: false
-            referencedRelation: "an_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disciplinary_actions_matter_id_fkey"
-            columns: ["matter_id"]
-            isOneToOne: false
-            referencedRelation: "disciplinary_matters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disciplinary_actions_matter_id_fkey"
-            columns: ["matter_id"]
-            isOneToOne: false
-            referencedRelation: "disciplinary_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disciplinary_actions_matter_id_fkey"
-            columns: ["matter_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_warning_history"
-            referencedColumns: ["matter_id"]
-          },
-        ]
-      }
       disciplinary_audit_log: {
         Row: {
           action: string
@@ -406,80 +242,11 @@ export type Database = {
             foreignKeyName: "disciplinary_audit_log_matter_id_fkey"
             columns: ["matter_id"]
             isOneToOne: false
-            referencedRelation: "disciplinary_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disciplinary_audit_log_matter_id_fkey"
-            columns: ["matter_id"]
-            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["matter_id"]
           },
           {
             foreignKeyName: "disciplinary_audit_log_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "an_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      disciplinary_comments: {
-        Row: {
-          attachments: Json | null
-          comment: string
-          created_at: string | null
-          id: string
-          is_internal: boolean | null
-          matter_id: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          attachments?: Json | null
-          comment: string
-          created_at?: string | null
-          id?: string
-          is_internal?: boolean | null
-          matter_id: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          attachments?: Json | null
-          comment?: string
-          created_at?: string | null
-          id?: string
-          is_internal?: boolean | null
-          matter_id?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "disciplinary_comments_matter_id_fkey"
-            columns: ["matter_id"]
-            isOneToOne: false
-            referencedRelation: "disciplinary_matters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disciplinary_comments_matter_id_fkey"
-            columns: ["matter_id"]
-            isOneToOne: false
-            referencedRelation: "disciplinary_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disciplinary_comments_matter_id_fkey"
-            columns: ["matter_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_warning_history"
-            referencedColumns: ["matter_id"]
-          },
-          {
-            foreignKeyName: "disciplinary_comments_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "an_users"
@@ -669,51 +436,6 @@ export type Database = {
           },
         ]
       }
-      document_access_log: {
-        Row: {
-          action: string
-          created_at: string | null
-          document_id: string | null
-          id: string
-          ip_address: string | null
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          action: string
-          created_at?: string | null
-          document_id?: string | null
-          id?: string
-          ip_address?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          action?: string
-          created_at?: string | null
-          document_id?: string | null
-          id?: string
-          ip_address?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "document_access_log_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "document_access_log_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "an_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       document_categories: {
         Row: {
           color: string | null
@@ -749,144 +471,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      documents: {
-        Row: {
-          category_id: string | null
-          created_at: string | null
-          description: string | null
-          expires_at: string | null
-          file_name: string
-          file_path: string
-          file_size: number | null
-          file_type: string | null
-          id: string
-          is_public: boolean | null
-          mime_type: string | null
-          pilot_id: string | null
-          status: string | null
-          title: string
-          updated_at: string | null
-          uploaded_by: string | null
-          version: number | null
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          expires_at?: string | null
-          file_name: string
-          file_path: string
-          file_size?: number | null
-          file_type?: string | null
-          id?: string
-          is_public?: boolean | null
-          mime_type?: string | null
-          pilot_id?: string | null
-          status?: string | null
-          title: string
-          updated_at?: string | null
-          uploaded_by?: string | null
-          version?: number | null
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          expires_at?: string | null
-          file_name?: string
-          file_path?: string
-          file_size?: number | null
-          file_type?: string | null
-          id?: string
-          is_public?: boolean | null
-          mime_type?: string | null
-          pilot_id?: string | null
-          status?: string | null
-          title?: string
-          updated_at?: string | null
-          uploaded_by?: string | null
-          version?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "documents_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "document_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "captain_qualifications_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_checks_overview"
-            referencedColumns: ["pilot_id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_qualification_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_report_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_requirements_compliance"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_summary_optimized"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_warning_history"
-            referencedColumns: ["pilot_id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilots"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilots_with_contract_details"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "documents_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "an_users"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       feedback_categories: {
         Row: {
@@ -942,185 +526,6 @@ export type Database = {
           {
             foreignKeyName: "feedback_categories_created_by_fkey"
             columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "pilot_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      feedback_comments: {
-        Row: {
-          author_display_name: string
-          author_rank: string | null
-          content: string
-          created_at: string | null
-          edited_at: string | null
-          flag_count: number | null
-          id: string
-          is_anonymous: boolean | null
-          is_edited: boolean | null
-          is_flagged: boolean | null
-          parent_comment_id: string | null
-          pilot_user_id: string | null
-          post_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          author_display_name: string
-          author_rank?: string | null
-          content: string
-          created_at?: string | null
-          edited_at?: string | null
-          flag_count?: number | null
-          id?: string
-          is_anonymous?: boolean | null
-          is_edited?: boolean | null
-          is_flagged?: boolean | null
-          parent_comment_id?: string | null
-          pilot_user_id?: string | null
-          post_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          author_display_name?: string
-          author_rank?: string | null
-          content?: string
-          created_at?: string | null
-          edited_at?: string | null
-          flag_count?: number | null
-          id?: string
-          is_anonymous?: boolean | null
-          is_edited?: boolean | null
-          is_flagged?: boolean | null
-          parent_comment_id?: string | null
-          pilot_user_id?: string | null
-          post_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feedback_comments_parent_comment_id_fkey"
-            columns: ["parent_comment_id"]
-            isOneToOne: false
-            referencedRelation: "feedback_comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
-            columns: ["pilot_user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_pilot_registrations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
-            columns: ["pilot_user_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feedback_comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "feedback_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feedback_comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "feedback_posts_feed"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      feedback_posts: {
-        Row: {
-          author_display_name: string
-          author_rank: string | null
-          category_id: string | null
-          comment_count: number | null
-          content: string
-          created_at: string | null
-          flag_count: number | null
-          id: string
-          is_anonymous: boolean | null
-          is_pinned: boolean | null
-          last_activity_at: string | null
-          pilot_user_id: string | null
-          pin_order: number | null
-          status: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string | null
-          view_count: number | null
-        }
-        Insert: {
-          author_display_name: string
-          author_rank?: string | null
-          category_id?: string | null
-          comment_count?: number | null
-          content: string
-          created_at?: string | null
-          flag_count?: number | null
-          id?: string
-          is_anonymous?: boolean | null
-          is_pinned?: boolean | null
-          last_activity_at?: string | null
-          pilot_user_id?: string | null
-          pin_order?: number | null
-          status?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string | null
-          view_count?: number | null
-        }
-        Update: {
-          author_display_name?: string
-          author_rank?: string | null
-          category_id?: string | null
-          comment_count?: number | null
-          content?: string
-          created_at?: string | null
-          flag_count?: number | null
-          id?: string
-          is_anonymous?: boolean | null
-          is_pinned?: boolean | null
-          last_activity_at?: string | null
-          pilot_user_id?: string | null
-          pin_order?: number | null
-          status?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string | null
-          view_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feedback_posts_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "feedback_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feedback_posts_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "feedback_posts_feed"
-            referencedColumns: ["category_id"]
-          },
-          {
-            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
-            columns: ["pilot_user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_pilot_registrations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
-            columns: ["pilot_user_id"]
             isOneToOne: false
             referencedRelation: "pilot_users"
             referencedColumns: ["id"]
@@ -1254,136 +659,6 @@ export type Database = {
           {
             foreignKeyName: "flight_requests_reviewed_by_fkey"
             columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "an_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      form_submissions: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          attachments: Json | null
-          created_at: string | null
-          form_data: Json
-          form_id: string | null
-          id: string
-          pilot_id: string | null
-          rejection_reason: string | null
-          status: string | null
-          submitted_by: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          attachments?: Json | null
-          created_at?: string | null
-          form_data: Json
-          form_id?: string | null
-          id?: string
-          pilot_id?: string | null
-          rejection_reason?: string | null
-          status?: string | null
-          submitted_by?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          attachments?: Json | null
-          created_at?: string | null
-          form_data?: Json
-          form_id?: string | null
-          id?: string
-          pilot_id?: string | null
-          rejection_reason?: string | null
-          status?: string | null
-          submitted_by?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "form_submissions_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "an_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_form_id_fkey"
-            columns: ["form_id"]
-            isOneToOne: false
-            referencedRelation: "digital_forms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "captain_qualifications_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_checks_overview"
-            referencedColumns: ["pilot_id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_qualification_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_report_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_requirements_compliance"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_summary_optimized"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilot_warning_history"
-            referencedColumns: ["pilot_id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilots"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_pilot_id_fkey"
-            columns: ["pilot_id"]
-            isOneToOne: false
-            referencedRelation: "pilots_with_contract_details"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_submitted_by_fkey"
-            columns: ["submitted_by"]
             isOneToOne: false
             referencedRelation: "an_users"
             referencedColumns: ["id"]
@@ -1699,51 +974,6 @@ export type Database = {
           },
         ]
       }
-      notifications: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_read: boolean | null
-          link: string | null
-          message: string
-          metadata: Json | null
-          read_at: string | null
-          recipient_id: string
-          recipient_type: string
-          sender_id: string | null
-          title: string
-          type: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_read?: boolean | null
-          link?: string | null
-          message: string
-          metadata?: Json | null
-          read_at?: string | null
-          recipient_id: string
-          recipient_type: string
-          sender_id?: string | null
-          title: string
-          type: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_read?: boolean | null
-          link?: string | null
-          message?: string
-          metadata?: Json | null
-          read_at?: string | null
-          recipient_id?: string
-          recipient_type?: string
-          sender_id?: string | null
-          title?: string
-          type?: string
-        }
-        Relationships: []
-      }
       pilot_checks: {
         Row: {
           check_type_id: string
@@ -1923,13 +1153,6 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: true
             referencedRelation: "detailed_expiring_checks"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "disciplinary_summary"
             referencedColumns: ["employee_id"]
           },
           {
@@ -2196,61 +1419,6 @@ export type Database = {
         }
         Relationships: []
       }
-      task_comments: {
-        Row: {
-          attachments: Json | null
-          comment: string
-          created_at: string | null
-          id: string
-          mentions: Json | null
-          task_id: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          attachments?: Json | null
-          comment: string
-          created_at?: string | null
-          id?: string
-          mentions?: Json | null
-          task_id: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          attachments?: Json | null
-          comment?: string
-          created_at?: string | null
-          id?: string
-          mentions?: Json | null
-          task_id?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "task_comments_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "active_tasks_dashboard"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_comments_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "an_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tasks: {
         Row: {
           actual_hours: number | null
@@ -2368,13 +1536,6 @@ export type Database = {
             columns: ["related_matter_id"]
             isOneToOne: false
             referencedRelation: "disciplinary_matters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_related_matter_id_fkey"
-            columns: ["related_matter_id"]
-            isOneToOne: false
-            referencedRelation: "disciplinary_summary"
             referencedColumns: ["id"]
           },
           {
@@ -2628,24 +1789,6 @@ export type Database = {
           },
         ]
       }
-      disciplinary_summary: {
-        Row: {
-          action_count: number | null
-          comment_count: number | null
-          created_at: string | null
-          employee_id: string | null
-          id: string | null
-          incident_date: string | null
-          incident_type: string | null
-          pilot_name: string | null
-          pilot_role: Database["public"]["Enums"]["pilot_role"] | null
-          reported_by_name: string | null
-          severity: string | null
-          status: string | null
-          title: string | null
-        }
-        Relationships: []
-      }
       expiring_checks: {
         Row: {
           category: string | null
@@ -2808,42 +1951,6 @@ export type Database = {
           },
         ]
       }
-      feedback_posts_feed: {
-        Row: {
-          author_display_name: string | null
-          author_rank: string | null
-          category_icon: string | null
-          category_id: string | null
-          category_name: string | null
-          category_slug: string | null
-          comment_count: number | null
-          content: string | null
-          created_at: string | null
-          id: string | null
-          is_anonymous: boolean | null
-          is_pinned: boolean | null
-          last_activity_at: string | null
-          pilot_user_id: string | null
-          pin_order: number | null
-          status: string | null
-          tags: string[] | null
-          title: string | null
-          updated_at: string | null
-          view_count: number | null
-        }
-        Relationships: []
-      }
-      index_usage_stats: {
-        Row: {
-          idx_scan: number | null
-          idx_tup_fetch: number | null
-          idx_tup_read: number | null
-          indexname: unknown | null
-          schemaname: unknown | null
-          tablename: unknown | null
-        }
-        Relationships: []
-      }
       pending_pilot_registrations: {
         Row: {
           calculated_seniority: number | null
@@ -2870,13 +1977,6 @@ export type Database = {
             columns: ["employee_id"]
             isOneToOne: true
             referencedRelation: "detailed_expiring_checks"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "disciplinary_summary"
             referencedColumns: ["employee_id"]
           },
           {
@@ -3028,15 +2128,10 @@ export type Database = {
       }
       pilot_warning_history: {
         Row: {
-          acknowledged_by_pilot: boolean | null
-          action_date: string | null
-          action_description: string | null
-          action_id: string | null
-          action_status: string | null
-          action_type: string | null
+          created_at: string | null
           employee_id: string | null
           first_name: string | null
-          is_automatic_escalation: boolean | null
+          incident_date: string | null
           issued_by_email: string | null
           issued_by_name: string | null
           last_name: string | null
@@ -3045,9 +2140,6 @@ export type Database = {
           matter_title: string | null
           pilot_id: string | null
           severity: string | null
-          suspension_days: number | null
-          warning_level: string | null
-          warning_sequence: number | null
         }
         Relationships: []
       }
@@ -3086,38 +2178,14 @@ export type Database = {
           },
         ]
       }
-      table_performance_stats: {
-        Row: {
-          idx_scan: number | null
-          idx_tup_fetch: number | null
-          n_tup_del: number | null
-          n_tup_ins: number | null
-          n_tup_upd: number | null
-          schemaname: unknown | null
-          seq_scan: number | null
-          seq_tup_read: number | null
-          tablename: unknown | null
-        }
-        Relationships: []
-      }
-      v_index_performance_monitor: {
-        Row: {
-          idx_scan: number | null
-          index_size: string | null
-          indexname: unknown | null
-          schemaname: unknown | null
-          tablename: unknown | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
-      acknowledge_alert: {
-        Args:
-          | { acknowledger_email: string; alert_id: string }
-          | { alert_id: string }
-        Returns: boolean
-      }
+      acknowledge_alert:
+        | {
+            Args: { acknowledger_email: string; alert_id: string }
+            Returns: boolean
+          }
+        | { Args: { alert_id: string }; Returns: boolean }
       add_crew_check: {
         Args: {
           p_certificate_number?: string
@@ -3131,56 +2199,64 @@ export type Database = {
         }
         Returns: string
       }
-      alert_level: {
-        Args: { days_until_expiry: number } | { expiry_date: string }
-        Returns: string
-      }
-      approve_leave_request: {
-        Args: {
-          p_comments?: string
-          p_request_id: string
-          p_reviewer_id: string
-          p_status: string
-        }
-        Returns: Json
-      }
-      aus_to_date: {
-        Args: { date_text: string }
-        Returns: string
-      }
-      auth_get_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      alert_level:
+        | { Args: { days_until_expiry: number }; Returns: string }
+        | { Args: { expiry_date: string }; Returns: string }
+      approve_leave_request:
+        | {
+            Args: {
+              p_comments?: string
+              p_request_id: string
+              p_reviewer_id: string
+              p_status: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_approval_notes?: string
+              p_approved_by: string
+              p_request_id: string
+            }
+            Returns: boolean
+          }
+      aus_to_date: { Args: { date_text: string }; Returns: string }
+      auth_get_user_role: { Args: never; Returns: string }
       batch_update_certifications: {
-        Args: { p_updates: Json[] }
-        Returns: Json
+        Args: { updates: Json[] }
+        Returns: number
       }
       bulk_delete_certifications: {
-        Args: { p_certification_ids: string[] }
-        Returns: Json
+        Args: { certification_ids: string[] }
+        Returns: number
       }
-      calculate_check_status: {
-        Args:
-          | {
-              advance_days?: number
-              renewal_date: string
-              validity_date: string
-            }
-          | {
+      calculate_check_status:
+        | {
+            Args: {
               advance_renewal_days?: number
               completion_date: string
               expiry_date: string
               validity_date: string
             }
-          | {
+            Returns: string
+          }
+        | {
+            Args: {
               critical_days?: number
               expiry_date: string
               warning_days?: number
             }
-          | { expiry_date: string }
-        Returns: string
-      }
+            Returns: string
+          }
+        | {
+            Args: {
+              advance_days?: number
+              renewal_date: string
+              validity_date: string
+            }
+            Returns: string
+          }
+        | { Args: { expiry_date: string }; Returns: string }
       calculate_days_remaining: {
         Args: { expiry_date: string }
         Returns: number
@@ -3202,7 +2278,7 @@ export type Database = {
         Returns: string
       }
       calculate_pilot_to_hull_ratio: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           active_aircraft: number
           active_pilots: number
@@ -3212,28 +2288,17 @@ export type Database = {
           surplus_shortage: number
         }[]
       }
-      calculate_required_examiners: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      calculate_required_training_captains: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      calculate_years_in_service: {
-        Args: { commencement_date: string } | { pilot_id: string }
-        Returns: number
-      }
-      calculate_years_to_retirement: {
-        Args: { birth_date: string } | { pilot_id: string }
-        Returns: number
-      }
-      can_access_pilot_data: {
-        Args: { pilot_uuid: string }
-        Returns: boolean
-      }
+      calculate_required_examiners: { Args: never; Returns: number }
+      calculate_required_training_captains: { Args: never; Returns: number }
+      calculate_years_in_service:
+        | { Args: { pilot_id: string }; Returns: number }
+        | { Args: { commencement_date: string }; Returns: number }
+      calculate_years_to_retirement:
+        | { Args: { pilot_id: string }; Returns: number }
+        | { Args: { birth_date: string }; Returns: number }
+      can_access_pilot_data: { Args: { pilot_uuid: string }; Returns: boolean }
       check_training_currency: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           check_type_code: string
           compliance_status: string
@@ -3245,7 +2310,7 @@ export type Database = {
         }[]
       }
       check_tri_tre_compliance: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           total_pilots: number
           total_tre: number
@@ -3258,14 +2323,8 @@ export type Database = {
           tri_surplus_shortage: number
         }[]
       }
-      cleanup_audit_logs: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      cleanup_old_expiry_alerts: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      cleanup_audit_logs: { Args: never; Returns: number }
+      cleanup_old_expiry_alerts: { Args: never; Returns: number }
       create_audit_log: {
         Args: {
           p_action: string
@@ -3276,9 +2335,20 @@ export type Database = {
         }
         Returns: undefined
       }
-      create_notification: {
-        Args:
-          | {
+      create_notification:
+        | {
+            Args: {
+              p_link?: string
+              p_message: string
+              p_metadata?: Json
+              p_title: string
+              p_type?: string
+              p_user_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
               p_link?: string
               p_message: string
               p_metadata?: Json
@@ -3288,38 +2358,18 @@ export type Database = {
               p_title: string
               p_type: string
             }
-          | {
-              p_link?: string
-              p_message: string
-              p_metadata?: Json
-              p_title: string
-              p_type?: string
-              p_user_id: string
-            }
-        Returns: string
-      }
+            Returns: string
+          }
       create_pilot_with_certifications: {
-        Args: { p_certifications?: Json[]; p_pilot_data: Json }
-        Returns: Json
-      }
-      current_user_email: {
-        Args: Record<PropertyKey, never>
+        Args: { certifications: Json[]; pilot_data: Json }
         Returns: string
       }
-      current_user_is_an_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      daily_database_maintenance: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      daily_expiry_maintenance: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      current_user_email: { Args: never; Returns: string }
+      current_user_is_an_admin: { Args: never; Returns: boolean }
+      daily_database_maintenance: { Args: never; Returns: Json }
+      daily_expiry_maintenance: { Args: never; Returns: Json }
       daily_maintenance: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           alerts_generated: number
           maintenance_timestamp: string
@@ -3327,264 +2377,25 @@ export type Database = {
         }[]
       }
       daily_status_update: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           generated_notifications: number
           updated_checks: number
         }[]
       }
-      days_until_expiry: {
-        Args: { expiry_date: string }
-        Returns: number
-      }
+      days_until_expiry: { Args: { expiry_date: string }; Returns: number }
       delete_pilot_with_cascade: {
         Args: { p_pilot_id: string }
-        Returns: Json
+        Returns: boolean
       }
-      excel_date_to_pg_date: {
-        Args: { excel_serial: number }
-        Returns: string
-      }
-      find_check_type_by_code: {
-        Args: { code: string }
-        Returns: string
-      }
+      excel_date_to_pg_date: { Args: { excel_serial: number }; Returns: string }
+      find_check_type_by_code: { Args: { code: string }; Returns: string }
       find_crew_member_by_name: {
         Args: { search_name: string }
         Returns: string
       }
-      gbt_bit_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bool_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bool_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bpchar_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bytea_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_cash_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_cash_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_date_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_date_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_enum_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_enum_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float4_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float4_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float8_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float8_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_inet_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int2_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int2_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int4_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int4_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int8_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int8_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_intv_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_intv_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_intv_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad8_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad8_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_numeric_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_oid_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_oid_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_text_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_time_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_time_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_timetz_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_ts_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_ts_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_tstz_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_uuid_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_uuid_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_var_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_var_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey_var_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey_var_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey16_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey16_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey2_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey2_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey32_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey32_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey4_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey4_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey8_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey8_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      generate_certification_alerts: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      generate_check_alerts: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      generate_certification_alerts: { Args: never; Returns: number }
+      generate_check_alerts: { Args: never; Returns: number }
       generate_compliance_report: {
         Args: { end_date?: string; start_date?: string }
         Returns: {
@@ -3595,16 +2406,10 @@ export type Database = {
           total_events: number
         }[]
       }
-      generate_comprehensive_expiry_alerts: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      generate_expiry_alerts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      generate_comprehensive_expiry_alerts: { Args: never; Returns: number }
+      generate_expiry_alerts: { Args: never; Returns: undefined }
       generate_simplified_expiry_alerts: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           alert_level: string
           alert_type: string
@@ -3616,7 +2421,7 @@ export type Database = {
         }[]
       }
       get_certification_compliance_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           compliance_rate: number
           critical_alerts: number
@@ -3627,7 +2432,7 @@ export type Database = {
         }[]
       }
       get_certification_stats: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           critical_alerts: number
           expired_certifications: number
@@ -3637,7 +2442,7 @@ export type Database = {
         }[]
       }
       get_check_category_distribution: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           category: string
           count: number
@@ -3697,20 +2502,11 @@ export type Database = {
           should_show: boolean
         }[]
       }
-      get_current_pilot_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_dashboard_metrics: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      get_current_pilot_id: { Args: never; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
+      get_dashboard_metrics: { Args: never; Returns: Json }
       get_database_performance_metrics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           metric_name: string
           metric_unit: string
@@ -3734,7 +2530,7 @@ export type Database = {
         }[]
       }
       get_expiry_statistics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           expired_count: number
           expiring_in_60_days: number
@@ -3742,7 +2538,7 @@ export type Database = {
         }[]
       }
       get_fleet_compliance_stats: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           fully_compliant_pilots: number
           overall_compliance_percentage: number
@@ -3753,7 +2549,7 @@ export type Database = {
         }[]
       }
       get_fleet_expiry_statistics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avg_days_to_next_expiry: number
           critical_expiries: number
@@ -3770,14 +2566,14 @@ export type Database = {
         }[]
       }
       get_monthly_expiry_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           count: number
           month: string
         }[]
       }
       get_pending_pilot_registrations: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           approved_at: string
           approved_by: string
@@ -3823,7 +2619,7 @@ export type Database = {
         }[]
       }
       get_pilot_dashboard_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           active_pilots: number
           critical_alerts: number
@@ -3836,7 +2632,7 @@ export type Database = {
         }[]
       }
       get_pilot_data_with_checks: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           completed_checks: number
           compliance_percentage: number
@@ -3883,7 +2679,7 @@ export type Database = {
         }[]
       }
       get_pilot_expiries: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           expiry_date: string
           expiry_type: string
@@ -3908,7 +2704,7 @@ export type Database = {
         }[]
       }
       get_pilot_statistics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           active_pilots: number
           captain_count: number
@@ -3917,18 +2713,7 @@ export type Database = {
           tri_count: number
         }[]
       }
-      get_pilot_warning_count: {
-        Args: { pilot_uuid: string }
-        Returns: {
-          final_warnings: number
-          last_warning_date: string
-          next_escalation_level: string
-          suspensions: number
-          total_warnings: number
-          verbal_warnings: number
-          written_warnings: number
-        }[]
-      }
+      get_pilot_warning_count: { Args: { pilot_uuid: string }; Returns: number }
       get_renewal_recommendations: {
         Args: { days_ahead?: number }
         Returns: {
@@ -3958,30 +2743,7 @@ export type Database = {
         Args: { commencement_date: string }
         Returns: number
       }
-      get_years_to_retirement: {
-        Args: { birth_date: string }
-        Returns: number
-      }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
+      get_years_to_retirement: { Args: { birth_date: string }; Returns: number }
       import_crew_check: {
         Args: {
           p_check_code: string
@@ -3995,90 +2757,46 @@ export type Database = {
         Args: { post_uuid: string }
         Returns: undefined
       }
-      insert_crew_checks_batch: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never> | { user_id?: string }
-        Returns: boolean
-      }
-      is_admin_user: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_current_user: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
-      is_manager_or_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_pilot_owner: {
-        Args: { pilot_uuid: string }
-        Returns: boolean
-      }
-      map_crew_name_to_id: {
-        Args: { check_name: string }
-        Returns: string
-      }
-      mark_check_complete: {
-        Args:
-          | {
-              check_id: string
-              completion_date: string
-              document_ref?: string
-              expiry_date: string
-            }
-          | {
+      insert_crew_checks_batch: { Args: never; Returns: undefined }
+      is_admin:
+        | { Args: { user_id?: string }; Returns: boolean }
+        | { Args: never; Returns: boolean }
+      is_admin_user: { Args: never; Returns: boolean }
+      is_current_user: { Args: { user_id: string }; Returns: boolean }
+      is_manager_or_admin: { Args: never; Returns: boolean }
+      is_pilot_owner: { Args: { pilot_uuid: string }; Returns: boolean }
+      map_crew_name_to_id: { Args: { check_name: string }; Returns: string }
+      mark_check_complete:
+        | {
+            Args: {
               p_check_type_code: string
               p_completion_date?: string
               p_crew_member_id: string
               p_validity_months?: number
             }
-        Returns: boolean
-      }
-      parse_cert_date: {
-        Args: { date_str: string }
-        Returns: string
-      }
-      parse_excel_date: {
-        Args: { excel_serial: number } | { excel_value: string }
-        Returns: string
-      }
-      process_pending_reminders: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      refresh_all_expiry_views: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      refresh_dashboard_metrics: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      refresh_dashboard_views: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      refresh_expiry_materialized_views: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      refresh_expiry_views: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      refresh_pilot_status: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      safe_to_date: {
-        Args: { date_str: string }
-        Returns: string
-      }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              check_id: string
+              completion_date: string
+              document_ref?: string
+              expiry_date: string
+            }
+            Returns: boolean
+          }
+      parse_cert_date: { Args: { date_str: string }; Returns: string }
+      parse_excel_date:
+        | { Args: { excel_value: string }; Returns: string }
+        | { Args: { excel_serial: number }; Returns: string }
+      process_pending_reminders: { Args: never; Returns: number }
+      refresh_all_expiry_views: { Args: never; Returns: string }
+      refresh_dashboard_metrics: { Args: never; Returns: undefined }
+      refresh_dashboard_views: { Args: never; Returns: undefined }
+      refresh_expiry_materialized_views: { Args: never; Returns: string }
+      refresh_expiry_views: { Args: never; Returns: undefined }
+      refresh_pilot_status: { Args: never; Returns: undefined }
+      safe_to_date: { Args: { date_str: string }; Returns: string }
       search_pilots_by_name: {
         Args: { search_term: string }
         Returns: {
@@ -4089,54 +2807,54 @@ export type Database = {
           role: string
         }[]
       }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
-      }
-      submit_feedback_post_tx: {
-        Args: {
-          p_author_display_name?: string
-          p_author_rank?: string
-          p_category_id?: string
-          p_content: string
-          p_is_anonymous?: boolean
-          p_pilot_user_id: string
-          p_title: string
-        }
-        Returns: Json
-      }
-      submit_flight_request_tx: {
-        Args: {
-          p_description: string
-          p_flight_date: string
-          p_pilot_user_id: string
-          p_reason?: string
-          p_request_type: string
-        }
-        Returns: Json
-      }
-      submit_leave_request_tx: {
-        Args: {
-          p_days_count: number
-          p_end_date: string
-          p_pilot_user_id: string
-          p_reason?: string
-          p_request_type: string
-          p_roster_period: string
-          p_start_date: string
-        }
-        Returns: Json
-      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      submit_flight_request_tx:
+        | {
+            Args: {
+              p_description: string
+              p_flight_date: string
+              p_pilot_user_id: string
+              p_reason?: string
+              p_request_type: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_notes?: string
+              p_pilot_id: string
+              p_preferred_date?: string
+              p_request_type: string
+              p_route_details: string
+            }
+            Returns: string
+          }
+      submit_leave_request_tx:
+        | {
+            Args: {
+              p_days_count: number
+              p_end_date: string
+              p_pilot_user_id: string
+              p_reason?: string
+              p_request_type: string
+              p_roster_period: string
+              p_start_date: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_end_date: string
+              p_notes?: string
+              p_pilot_id: string
+              p_roster_period: string
+              p_start_date: string
+            }
+            Returns: string
+          }
       system_health_check: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           check_name: string
           details: string
@@ -4144,22 +2862,10 @@ export type Database = {
           status: string
         }[]
       }
-      update_all_expiry_statuses: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      update_certification_status: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      update_check_expiry_dates: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      update_check_statuses: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      update_all_expiry_statuses: { Args: never; Returns: number }
+      update_certification_status: { Args: never; Returns: undefined }
+      update_check_expiry_dates: { Args: never; Returns: number }
+      update_check_statuses: { Args: never; Returns: number }
       update_crew_instructor_status: {
         Args: {
           p_crew_member_id: string
@@ -4168,10 +2874,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      update_pilot_checks_status: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      update_pilot_checks_status: { Args: never; Returns: number }
       upsert_system_settings: {
         Args: {
           p_alert_days_critical?: number
@@ -4191,16 +2894,12 @@ export type Database = {
         }
         Returns: Json
       }
-      user_has_admin_role: {
-        Args: Record<PropertyKey, never> | { user_id: string }
-        Returns: boolean
-      }
-      user_has_role: {
-        Args: { required_roles: string[] }
-        Returns: boolean
-      }
+      user_has_admin_role:
+        | { Args: never; Returns: boolean }
+        | { Args: { user_id: string }; Returns: boolean }
+      user_has_role: { Args: { required_roles: string[] }; Returns: boolean }
       validate_crew_member_completeness: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           compliance_impact: string
           crew_member_id: string

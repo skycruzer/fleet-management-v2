@@ -10,7 +10,6 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilot } from './pilot-portal-service'
-import { createNotification } from './pilot-notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { FlightRequestInput } from '@/lib/validations/flight-request-schema'
 
@@ -91,15 +90,6 @@ export async function submitPilotFlightRequest(
         error: ERROR_MESSAGES.FLIGHT.CREATE_FAILED.message,
       }
     }
-
-    // Create notification for successful submission
-    await createNotification({
-      recipient_id: pilot.id,
-      type: 'flight_submitted',
-      title: 'Flight Request Submitted',
-      message: `Your ${request.request_type.replace('_', ' ')} request for ${request.flight_date} has been submitted for review.`,
-      link: `/portal/flight-requests`,
-    })
 
     return {
       success: true,
@@ -228,15 +218,6 @@ export async function cancelPilotFlightRequest(requestId: string): Promise<Servi
         error: ERROR_MESSAGES.FLIGHT.DELETE_FAILED.message,
       }
     }
-
-    // Create notification for cancellation
-    await createNotification({
-      recipient_id: pilot.id,
-      type: 'flight_cancelled',
-      title: 'Flight Request Cancelled',
-      message: `Your ${request.request_type.replace('_', ' ')} request for ${request.flight_date} has been cancelled.`,
-      link: `/portal/flight-requests`,
-    })
 
     return {
       success: true,

@@ -2,8 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { getMatterWithTimeline, getIncidentTypes } from '@/lib/services/disciplinary-service'
 import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatterForm'
-import DisciplinaryTimeline from '@/components/disciplinary/DisciplinaryTimeline'
-import ActionForm from '@/components/disciplinary/ActionForm'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
@@ -205,23 +203,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
         )}
       </div>
 
-      {/* Timeline of Actions */}
-      {matter.actions && matter.actions.length > 0 && (
-        <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-            Timeline ({matter.actions.length} action{matter.actions.length !== 1 ? 's' : ''})
-          </h2>
-          <DisciplinaryTimeline actions={matter.actions} />
-        </div>
-      )}
-
-      {/* Add New Action */}
-      {matter.status !== 'RESOLVED' && matter.status !== 'CLOSED' && (
-        <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Add Action</h2>
-          <ActionForm matterId={matter.id} users={users || []} />
-        </div>
-      )}
+      {/* Actions Timeline removed - disciplinary_actions table no longer exists */}
 
       {/* Edit Form */}
       <div className="mx-auto max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">

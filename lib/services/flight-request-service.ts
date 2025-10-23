@@ -10,7 +10,6 @@
 import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
-import { notifyFlightApproved, notifyFlightDenied } from './pilot-notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { FlightRequestReviewInput } from '@/lib/validations/flight-request-schema'
 import type { FlightRequest } from './pilot-flight-service'
@@ -265,21 +264,6 @@ export async function reviewFlightRequest(
       },
       description: `Flight request ${reviewData.status.toLowerCase()}`,
     })
-
-    // Send notification to pilot
-    if (reviewData.status === 'APPROVED') {
-      await notifyFlightApproved(
-        existingRequest.pilot_id,
-        requestId,
-        existingRequest.request_type.replace('_', ' ')
-      )
-    } else if (reviewData.status === 'DENIED') {
-      await notifyFlightDenied(
-        existingRequest.pilot_id,
-        requestId,
-        reviewData.reviewer_comments || 'No reason provided'
-      )
-    }
 
     return {
       success: true,

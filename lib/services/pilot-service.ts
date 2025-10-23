@@ -524,8 +524,8 @@ export async function createPilotWithCertifications(
 
     // Use PostgreSQL function for atomic creation
     const { data, error } = await supabase.rpc('create_pilot_with_certifications', {
-      p_pilot_data: pilotJson,
-      p_certifications: certificationsJson,
+      pilot_data: pilotJson,
+      certifications: certificationsJson,
     })
 
     if (error) {

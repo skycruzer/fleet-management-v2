@@ -283,8 +283,8 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                       {new Date(matter.incident_date).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className="text-gray-900 dark:text-white">
-                        {matter.actions?.length || 0} action{matter.actions?.length !== 1 ? 's' : ''}
+                      <span className="text-gray-600 dark:text-gray-400 italic">
+                        Actions tracking removed
                       </span>
                     </td>
                   </tr>
