@@ -1,31 +1,37 @@
 /**
  * Date Formatting Utilities
  * Standardized date formatting functions for the Fleet Management application
+ *
+ * Australian Date Format Standards:
+ * - Default format: DD MMM YYYY (e.g., "24 Oct 2025")
+ * - Uses en-AU locale for proper Australian formatting
+ * - Month abbreviations: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
  */
 
 /**
  * Format options for consistent date display across the app
+ * All formats use Australian conventions (day-first)
  */
 const DATE_FORMATS = {
-  /** Long format: January 15, 2025 */
+  /** Long format: 15 January 2025 */
   LONG: {
     year: 'numeric' as const,
     month: 'long' as const,
     day: 'numeric' as const,
   },
-  /** Medium format: Jan 15, 2025 */
+  /** Medium format (Default): 15 Jan 2025 - Australian short date format */
   MEDIUM: {
     year: 'numeric' as const,
     month: 'short' as const,
     day: 'numeric' as const,
   },
-  /** Short format: 01/15/2025 */
+  /** Short format: 15/01/2025 - Australian numeric format */
   SHORT: {
     year: 'numeric' as const,
     month: '2-digit' as const,
     day: '2-digit' as const,
   },
-  /** ISO format: 2025-01-15 */
+  /** ISO format: 2025-01-15 - Database/API format only */
   ISO: {
     year: 'numeric' as const,
     month: '2-digit' as const,
@@ -40,8 +46,9 @@ const DATE_FORMATS = {
 
 /**
  * Default locale for date formatting
+ * Using en-AU (Australian English) for proper DD MMM YYYY format
  */
-const DEFAULT_LOCALE = 'en-US'
+const DEFAULT_LOCALE = 'en-AU'
 
 /**
  * Check if date is valid
@@ -68,7 +75,8 @@ export function toDate(date: Date | string | null | undefined): Date | null {
 }
 
 /**
- * Format date in long format (e.g., "January 15, 2025")
+ * Format date in long format (e.g., "15 January 2025")
+ * Australian format: DD MMMM YYYY
  * @param date - Date to format
  * @returns Formatted date string or empty string
  */
@@ -80,8 +88,9 @@ export function formatDateLong(date: Date | string | null | undefined): string {
 }
 
 /**
- * Format date in medium format (e.g., "Jan 15, 2025")
- * Standard format for most of the app
+ * Format date in medium format (e.g., "15 Jan 2025")
+ * Australian short date format: DD MMM YYYY
+ * This is the standard format for most of the app
  * @param date - Date to format
  * @returns Formatted date string or empty string
  */
@@ -93,7 +102,8 @@ export function formatDate(date: Date | string | null | undefined): string {
 }
 
 /**
- * Format date in short format (e.g., "01/15/2025")
+ * Format date in short numeric format (e.g., "15/01/2025")
+ * Australian numeric format: DD/MM/YYYY
  * @param date - Date to format
  * @returns Formatted date string or empty string
  */
@@ -246,7 +256,8 @@ export function isToday(date: Date | string | null | undefined): boolean {
 }
 
 /**
- * Format date range (e.g., "Jan 15 - Jan 20, 2025")
+ * Format date range (e.g., "15 Jan - 20 Jan 2025" or "15 Jan 2025 - 20 Feb 2026")
+ * Australian format: DD MMM - DD MMM YYYY
  * @param startDate - Start date
  * @param endDate - End date
  * @returns Formatted date range string
@@ -271,7 +282,8 @@ export function formatDateRange(
       const month = start.toLocaleDateString(DEFAULT_LOCALE, { month: 'short' })
       const year = start.getFullYear()
 
-      return `${month} ${startDay} - ${endDay}, ${year}`
+      // Australian format: 15 - 20 Jan 2025
+      return `${startDay} - ${endDay} ${month} ${year}`
     }
 
     // Different month, same year
@@ -279,10 +291,11 @@ export function formatDateRange(
     const endMonth = end.toLocaleDateString(DEFAULT_LOCALE, { month: 'short' })
     const year = start.getFullYear()
 
-    return `${startMonth} ${start.getDate()} - ${endMonth} ${end.getDate()}, ${year}`
+    // Australian format: 15 Jan - 20 Feb 2025
+    return `${start.getDate()} ${startMonth} - ${end.getDate()} ${endMonth} ${year}`
   }
 
-  // Different year
+  // Different year - Australian format: 15 Jan 2025 - 20 Feb 2026
   return `${formatDate(start)} - ${formatDate(end)}`
 }
 

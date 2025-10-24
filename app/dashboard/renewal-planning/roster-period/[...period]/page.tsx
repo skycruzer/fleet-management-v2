@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { formatDate } from '@/lib/utils/date-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -90,17 +91,7 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
           <div>
             <h1 className="text-foreground text-3xl font-bold">{summary.rosterPeriod}</h1>
             <p className="text-muted-foreground mt-1">
-              {summary.periodStartDate.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })}{' '}
-              -{' '}
-              {summary.periodEndDate.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })}
+              {formatDate(summary.periodStartDate)} - {formatDate(summary.periodEndDate)}
             </p>
           </div>
         </div>
@@ -253,12 +244,12 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
                     </TableCell>
                     <TableCell>
                       {renewal.original_expiry_date
-                        ? new Date(renewal.original_expiry_date).toLocaleDateString()
+                        ? formatDate(renewal.original_expiry_date)
                         : 'N/A'}
                     </TableCell>
                     <TableCell>
                       {renewal.planned_renewal_date
-                        ? new Date(renewal.planned_renewal_date).toLocaleDateString()
+                        ? formatDate(renewal.planned_renewal_date)
                         : 'N/A'}
                     </TableCell>
                     <TableCell>

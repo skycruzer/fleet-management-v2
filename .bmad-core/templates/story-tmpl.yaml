@@ -1,138 +1,309 @@
-# <!-- Powered by BMAD™ Core -->
-template:
-  id: story-template-v2
-  name: Story Document
-  version: 2.0
-  output:
-    format: markdown
-    filename: docs/stories/{{epic_num}}.{{story_num}}.{{story_title_short}}.md
-    title: "Story {{epic_num}}.{{story_num}}: {{story_title_short}}"
+---
+template_name: User Story Template
+template_version: 1.0.0
+template_type: user_story
+project_type: universal
+description: Standard user story template for agile development
+output_format: markdown
+---
 
-workflow:
-  mode: interactive
-  elicitation: advanced-elicitation
+# User Story: {story_title}
 
-agent_config:
-  editable_sections:
-    - Status
-    - Story
-    - Acceptance Criteria
-    - Tasks / Subtasks
-    - Dev Notes
-    - Testing
-    - Change Log
+**Story ID**: {story_id}
+**Project**: {project_name}
+**Epic**: {epic_name}
+**Priority**: P0 (Critical) | P1 (High) | P2 (Medium) | P3 (Low)
+**Story Points**: {points}
+**Status**: Draft | Ready | In Progress | In Review | Done
+**Sprint**: {sprint_number}
+**Created**: {date}
+**Author**: {author}
 
-sections:
-  - id: status
-    title: Status
-    type: choice
-    choices: [Draft, Approved, InProgress, Review, Done]
-    instruction: Select the current status of the story
-    owner: scrum-master
-    editors: [scrum-master, dev-agent]
+---
 
-  - id: story
-    title: Story
-    type: template-text
-    template: |
-      **As a** {{role}},
-      **I want** {{action}},
-      **so that** {{benefit}}
-    instruction: Define the user story using the standard format with role, action, and benefit
-    elicit: true
-    owner: scrum-master
-    editors: [scrum-master]
+## Story Summary
 
-  - id: acceptance-criteria
-    title: Acceptance Criteria
-    type: numbered-list
-    instruction: Copy the acceptance criteria numbered list from the epic file
-    elicit: true
-    owner: scrum-master
-    editors: [scrum-master]
+### User Story
+**As a** [type of user],
+**I want** [goal/desire],
+**So that** [benefit/value].
 
-  - id: tasks-subtasks
-    title: Tasks / Subtasks
-    type: bullet-list
-    instruction: |
-      Break down the story into specific tasks and subtasks needed for implementation.
-      Reference applicable acceptance criteria numbers where relevant.
-    template: |
-      - [ ] Task 1 (AC: # if applicable)
-        - [ ] Subtask1.1...
-      - [ ] Task 2 (AC: # if applicable)
-        - [ ] Subtask 2.1...
-      - [ ] Task 3 (AC: # if applicable)
-        - [ ] Subtask 3.1...
-    elicit: true
-    owner: scrum-master
-    editors: [scrum-master, dev-agent]
+### One-Line Summary
+Brief one-sentence description of this story.
 
-  - id: dev-notes
-    title: Dev Notes
-    instruction: |
-      Populate relevant information, only what was pulled from actual artifacts from docs folder, relevant to this story:
-      - Do not invent information
-      - If known add Relevant Source Tree info that relates to this story
-      - If there were important notes from previous story that are relevant to this one, include them here
-      - Put enough information in this section so that the dev agent should NEVER need to read the architecture documents, these notes along with the tasks and subtasks must give the Dev Agent the complete context it needs to comprehend with the least amount of overhead the information to complete the story, meeting all AC and completing all tasks+subtasks
-    elicit: true
-    owner: scrum-master
-    editors: [scrum-master]
-    sections:
-      - id: testing-standards
-        title: Testing
-        instruction: |
-          List Relevant Testing Standards from Architecture the Developer needs to conform to:
-          - Test file location
-          - Test standards
-          - Testing frameworks and patterns to use
-          - Any specific testing requirements for this story
-        elicit: true
-        owner: scrum-master
-        editors: [scrum-master]
+---
 
-  - id: change-log
-    title: Change Log
-    type: table
-    columns: [Date, Version, Description, Author]
-    instruction: Track changes made to this story document
-    owner: scrum-master
-    editors: [scrum-master, dev-agent, qa-agent]
+## Background & Context
 
-  - id: dev-agent-record
-    title: Dev Agent Record
-    instruction: This section is populated by the development agent during implementation
-    owner: dev-agent
-    editors: [dev-agent]
-    sections:
-      - id: agent-model
-        title: Agent Model Used
-        template: "{{agent_model_name_version}}"
-        instruction: Record the specific AI agent model and version used for development
-        owner: dev-agent
-        editors: [dev-agent]
+### Problem/Opportunity
+What problem does this solve or opportunity does this address?
 
-      - id: debug-log-references
-        title: Debug Log References
-        instruction: Reference any debug logs or traces generated during development
-        owner: dev-agent
-        editors: [dev-agent]
+### User Need
+Why does the user need this functionality?
 
-      - id: completion-notes
-        title: Completion Notes List
-        instruction: Notes about the completion of tasks and any issues encountered
-        owner: dev-agent
-        editors: [dev-agent]
+### Business Value
+What value does this deliver to the business?
 
-      - id: file-list
-        title: File List
-        instruction: List all files created, modified, or affected during story implementation
-        owner: dev-agent
-        editors: [dev-agent]
+**Value Statement**: [Quantify the value where possible]
 
-  - id: qa-results
-    title: QA Results
-    instruction: Results from QA Agent QA review of the completed story implementation
-    owner: qa-agent
-    editors: [qa-agent]
+---
+
+## Acceptance Criteria
+
+### Functional Acceptance Criteria
+Clear, testable criteria that define "done":
+
+- [ ] **Given** [context/precondition]
+      **When** [action/event]
+      **Then** [expected outcome]
+
+- [ ] **Given** [context/precondition]
+      **When** [action/event]
+      **Then** [expected outcome]
+
+- [ ] **Given** [context/precondition]
+      **When** [action/event]
+      **Then** [expected outcome]
+
+### Non-Functional Acceptance Criteria
+
+**Performance**:
+- [ ] Response time < X seconds
+- [ ] Can handle Y concurrent users
+
+**Security**:
+- [ ] Authentication required
+- [ ] Authorization rules enforced
+- [ ] Data encrypted at rest/in transit
+
+**Usability**:
+- [ ] Meets WCAG 2.1 AA standards
+- [ ] Works on mobile/tablet/desktop
+- [ ] Intuitive for target users
+
+**Reliability**:
+- [ ] Error handling implemented
+- [ ] Data validation in place
+- [ ] Graceful degradation
+
+---
+
+## User Flows
+
+### Primary Flow
+1. User navigates to [location]
+2. User performs [action]
+3. System responds with [response]
+4. User sees [result]
+5. User can then [next steps]
+
+### Alternative Flows
+**Alternative Flow 1: [Scenario]**
+1. Step 1
+2. Step 2
+3. Step 3
+
+**Alternative Flow 2: [Scenario]**
+1. Step 1
+2. Step 2
+3. Step 3
+
+### Error Flows
+**Error Flow 1: [Error Scenario]**
+- What triggers this error
+- How system responds
+- How user recovers
+
+---
+
+## Design & UI/UX
+
+### UI Requirements
+- Screen/page layout requirements
+- Key UI components needed
+- Design principles to follow
+
+### Wireframes/Mockups
+- [Link to design files]
+- [Embedded wireframes if applicable]
+
+### Accessibility Requirements
+- Screen reader support
+- Keyboard navigation
+- Color contrast requirements
+- Alt text for images
+
+---
+
+## Technical Details
+
+### Technical Approach
+High-level technical approach (without getting into implementation details):
+- Components to be created/modified
+- APIs/services to be used
+- Database changes needed
+
+### Integration Points
+- Which existing components/services this integrates with
+- API endpoints involved
+- Data dependencies
+
+### Data Requirements
+**New Data**:
+- Tables/collections needed
+- Fields/attributes required
+- Relationships to existing data
+
+**Data Migration**:
+- Existing data to be migrated
+- Migration strategy
+
+---
+
+## Dependencies
+
+### Blocked By
+- Other stories/tasks that must be completed first
+- External dependencies
+
+### Blocks
+- Stories/tasks that depend on this being complete
+
+### Related Stories
+- Stories that are related but not blocking
+
+---
+
+## Testing Requirements
+
+### Unit Tests
+- [ ] Test case 1
+- [ ] Test case 2
+- [ ] Test case 3
+
+### Integration Tests
+- [ ] Test scenario 1
+- [ ] Test scenario 2
+- [ ] Test scenario 3
+
+### E2E Tests
+- [ ] User flow 1
+- [ ] User flow 2
+- [ ] Error scenario 1
+
+### Manual Testing Checklist
+- [ ] Happy path works as expected
+- [ ] Error handling works correctly
+- [ ] Performance meets criteria
+- [ ] Works on all required browsers/devices
+- [ ] Accessibility requirements met
+- [ ] Security requirements met
+
+---
+
+## Definition of Done
+
+Story is considered "Done" when:
+
+- [ ] All acceptance criteria met
+- [ ] Code reviewed and approved
+- [ ] Unit tests written and passing
+- [ ] Integration tests written and passing
+- [ ] E2E tests written and passing
+- [ ] Documentation updated
+- [ ] Deployed to staging environment
+- [ ] QA testing completed
+- [ ] Product Owner acceptance
+- [ ] No critical or high-priority bugs
+- [ ] Performance requirements met
+- [ ] Security requirements met
+- [ ] Accessibility requirements met
+
+---
+
+## Out of Scope
+
+Explicitly list what this story does NOT include:
+- Out of scope item 1
+- Out of scope item 2
+- Out of scope item 3
+
+---
+
+## Risks & Assumptions
+
+### Risks
+| Risk | Impact | Likelihood | Mitigation |
+|------|--------|------------|------------|
+| Risk 1 | High/Med/Low | High/Med/Low | Mitigation plan |
+| Risk 2 | High/Med/Low | High/Med/Low | Mitigation plan |
+
+### Assumptions
+- Assumption 1
+- Assumption 2
+- Assumption 3
+
+---
+
+## Notes & Questions
+
+### Open Questions
+- [ ] Question 1 - Status: Open/Resolved
+- [ ] Question 2 - Status: Open/Resolved
+- [ ] Question 3 - Status: Open/Resolved
+
+### Development Notes
+- Note 1
+- Note 2
+- Note 3
+
+### Decisions Made
+| Date | Decision | Rationale | Decision Maker |
+|------|----------|-----------|----------------|
+| | | | |
+
+---
+
+## Stakeholders
+
+| Name | Role | Involvement |
+|------|------|-------------|
+| | Product Owner | Approval |
+| | Tech Lead | Technical guidance |
+| | Designer | UI/UX design |
+| | QA Lead | Testing |
+
+---
+
+## Sub-Tasks
+
+Break down implementation into specific tasks:
+
+- [ ] **Task 1**: [Description] - Assigned to: - Est: Xh
+- [ ] **Task 2**: [Description] - Assigned to: - Est: Xh
+- [ ] **Task 3**: [Description] - Assigned to: - Est: Xh
+- [ ] **Task 4**: [Description] - Assigned to: - Est: Xh
+
+**Total Estimated Time**: Xh
+
+---
+
+## History & Updates
+
+| Date | Update | Author |
+|------|--------|--------|
+| {date} | Story created | {author} |
+| | | |
+
+---
+
+## References
+
+- Related documentation
+- Design files
+- API specifications
+- Research/data supporting this story
+
+---
+
+*Generated using BMAD Method - User Story Template*

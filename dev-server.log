@@ -1,0 +1,265 @@
+
+> fleet-management-v2@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.6
+   - Local:        http://localhost:3000
+   - Network:      http://10.16.34.25:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · serverActions
+     · optimizePackageImports
+
+ ✓ Starting...
+ ○ (serwist) Serwist is disabled.
+ ○ (serwist) Serwist is disabled.
+ ✓ Ready in 3.5s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1640ms (277 modules)
+ ○ Compiling / ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (129kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (118kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled / in 9.3s (1468 modules)
+ GET / 200 in 10745ms
+ GET / 200 in 531ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 8.2s (1664 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /auth/login 200 in 4874ms
+ GET /auth/login 200 in 9882ms
+ GET / 200 in 279ms
+ GET /auth/login 200 in 101ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 4.4s (2187 modules)
+ GET /dashboard 200 in 3377ms
+ GET /dashboard 200 in 5527ms
+ GET /dashboard 200 in 165ms
+ GET /dashboard 200 in 111ms
+ ○ Compiling /dashboard/certifications ...
+ ✓ Compiled /dashboard/certifications in 1671ms (2214 modules)
+ GET /dashboard/certifications 200 in 2216ms
+ GET /dashboard 200 in 536ms
+ ○ Compiling /dashboard/pilots ...
+ ✓ Compiled /dashboard/pilots in 2.8s (2303 modules)
+ GET /dashboard/pilots 200 in 3686ms
+ GET /dashboard/pilots 200 in 247ms
+ GET /dashboard/pilots 200 in 220ms
+ ○ Compiling /dashboard/pilots/[id] ...
+ ✓ Compiled /dashboard/pilots/[id] in 1075ms (2324 modules)
+ GET /dashboard/pilots/1a490ad6-51c1-4627-8dc2-d751d043a202 200 in 2196ms
+ ○ Compiling /api/pilots/[id] ...
+ ✓ Compiled /api/pilots/[id] in 763ms (2341 modules)
+ GET /api/pilots/1a490ad6-51c1-4627-8dc2-d751d043a202 200 in 1678ms
+ GET /api/pilots/1a490ad6-51c1-4627-8dc2-d751d043a202 200 in 1755ms
+ GET /dashboard/certifications 200 in 685ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1980ms (2339 modules)
+ GET /dashboard/leave-requests 404 in 2335ms
+ GET /dashboard/leave-requests 404 in 628ms
+ ○ Compiling /dashboard/renewal-planning ...
+ ✓ Compiled /dashboard/renewal-planning in 1271ms (2361 modules)
+ GET /dashboard/renewal-planning 200 in 1892ms
+ GET /dashboard/renewal-planning?year=2026 200 in 1007ms
+ ○ Compiling /dashboard/renewal-planning/calendar ...
+ ✓ Compiled /dashboard/renewal-planning/calendar in 4.1s (2374 modules)
+ GET /dashboard/renewal-planning/calendar?year=2026 200 in 4805ms
+ ○ Compiling /dashboard/analytics ...
+ ✓ Compiled /dashboard/analytics in 3.6s (2375 modules)
+ GET /dashboard/analytics 200 in 4688ms
+ ○ Compiling /api/analytics ...
+ ✓ Compiled /api/analytics in 1020ms (2393 modules)
+ GET /api/analytics 200 in 1833ms
+ GET /api/analytics 200 in 1804ms
+ GET /dashboard/settings 404 in 514ms
+ GET /dashboard/settings 404 in 360ms
+ GET /dashboard/settings 404 in 41ms
+ GET /dashboard/settings 404 in 100ms
+ GET /dashboard 200 in 1071ms
+ GET /dashboard/certifications 200 in 2441ms
+ ✓ Compiled in 13.8s (2342 modules)
+ ✓ Compiled in 1689ms (956 modules)
+ ✓ Compiled in 2.8s (956 modules)
+ GET /dashboard/certifications 200 in 6367ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 14.5s (2352 modules)
+ GET /dashboard/support 404 in 8962ms
+ GET /dashboard/renewal-planning 200 in 13174ms
+ GET /dashboard/support 404 in 1295ms
+ ⨯ ./components/dashboard/compliance-overview.tsx
+Error: 
+
+Caused by:
+    0: Failed to read source code from /Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/components/dashboard/compliance-overview.tsx
+    1: No such file or directory (os error 2)
+
+Import trace for requested module:
+./components/dashboard/compliance-overview.tsx
+./app/dashboard/page.tsx
+ ✓ Compiled in 6.3s (2368 modules)
+ ✓ Compiled in 7.8s (2344 modules)
+ ✓ Compiled in 2.6s (956 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 5.1s (1395 modules)
+ GET / 200 in 6879ms
+ ○ Compiling /docs ...
+ ✓ Compiled /docs in 3.4s (2343 modules)
+ GET /docs 200 in 3832ms
+ ○ Compiling /portal/login ...
+ ✓ Compiled /portal/login in 6.4s (2389 modules)
+ GET /portal/login 200 in 7254ms
+ ○ Compiling /api/portal/login ...
+ ✓ Compiled /api/portal/login in 4.6s (2410 modules)
+ POST /api/portal/login 401 in 6917ms
+ POST /api/portal/login 200 in 748ms
+ ○ Compiling /portal/dashboard ...
+ ✓ Compiled /portal/dashboard in 4s (2371 modules)
+ GET /portal/dashboard 200 in 5819ms
+ GET /portal/dashboard 200 in 974ms
+ ○ Compiling /portal/profile ...
+ ✓ Compiled /portal/profile in 5.2s (2375 modules)
+ GET /portal/profile 200 in 5838ms
+ ○ Compiling /api/portal/profile ...
+ ✓ Compiled /api/portal/profile in 771ms (2377 modules)
+ GET /api/portal/profile 200 in 1084ms
+ GET /api/portal/profile 200 in 1143ms
+ ✓ Compiled in 30.6s (1055 modules)
+ GET /portal/profile 200 in 907ms
+ GET /portal/profile 200 in 2090ms
+ GET /api/portal/profile 200 in 1157ms
+ GET /portal/dashboard 200 in 2930ms
+ GET /portal/dashboard 200 in 2857ms
+ ○ Compiling /api/auth/logout ...
+ ✓ Compiled /api/auth/logout in 5.9s (2283 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ POST /api/auth/logout 200 in 7723ms
+🔴 Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+  Error Object: Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+      at eval (lib/supabase/server.ts:42:27)
+      at Array.forEach (<anonymous>)
+      at setAll (lib/supabase/server.ts:41:26)
+    40 |           try {
+    41 |             cookiesToSet.forEach(({ name, value, options }) =>
+  > 42 |               cookieStore.set(name, value, options)
+       |                           ^
+    43 |             )
+    44 |           } catch (error) {
+    45 |             // The `setAll` method was called from a Server Component.
+  Source: SupabaseClient
+  Severity: medium
+  Metadata: { operation: 'setAll' }
+  Stack Trace: Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+      at Proxy.callable (/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:30:17100)
+      at eval (webpack-internal:///(rsc)/./lib/supabase/server.ts:40:86)
+      at Array.forEach (<anonymous>)
+      at setAll (webpack-internal:///(rsc)/./lib/supabase/server.ts:40:38)
+      at applyServerStorage (webpack-internal:///(rsc)/./node_modules/@supabase/ssr/dist/module/cookies.js:337:11)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async Object.eval [as callback] (webpack-internal:///(rsc)/./node_modules/@supabase/ssr/dist/module/createServerClient.js:54:13)
+      at async eval (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1939:21)
+      at async Promise.all (index 1)
+      at async SupabaseAuthClient._notifyAllSubscribers (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1945:13)
+      at async SupabaseAuthClient._removeSession (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:2005:9)
+      at async SupabaseAuthClient._getUser (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1233:21)
+      at async eval (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1198:20)
+      at async eval (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1052:28)
+🔴 Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+  Error Object: Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+      at eval (lib/supabase/server.ts:42:27)
+      at Array.forEach (<anonymous>)
+      at setAll (lib/supabase/server.ts:41:26)
+    40 |           try {
+    41 |             cookiesToSet.forEach(({ name, value, options }) =>
+  > 42 |               cookieStore.set(name, value, options)
+       |                           ^
+    43 |             )
+    44 |           } catch (error) {
+    45 |             // The `setAll` method was called from a Server Component.
+  Source: SupabaseClient
+  Severity: medium
+  Metadata: { operation: 'setAll' }
+  Stack Trace: Error: Cookies can only be modified in a Server Action or Route Handler. Read more: https://nextjs.org/docs/app/api-reference/functions/cookies#options
+      at Proxy.callable (/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:30:17100)
+      at eval (webpack-internal:///(rsc)/./lib/supabase/server.ts:40:86)
+      at Array.forEach (<anonymous>)
+      at setAll (webpack-internal:///(rsc)/./lib/supabase/server.ts:40:38)
+      at applyServerStorage (webpack-internal:///(rsc)/./node_modules/@supabase/ssr/dist/module/cookies.js:337:11)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async Object.eval [as callback] (webpack-internal:///(rsc)/./node_modules/@supabase/ssr/dist/module/createServerClient.js:54:13)
+      at async eval (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1939:21)
+      at async Promise.all (index 1)
+      at async SupabaseAuthClient._notifyAllSubscribers (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1945:13)
+      at async SupabaseAuthClient._removeSession (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:2005:9)
+      at async SupabaseAuthClient._getUser (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1233:21)
+      at async eval (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1198:20)
+      at async eval (webpack-internal:///(rsc)/./node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:1052:28)
+ GET /portal/dashboard 200 in 1843ms
+ GET /portal/login 200 in 1254ms
+ GET / 200 in 1172ms
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 8.5s (1337 modules)
+ GET /auth/login 200 in 9425ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 13.6s (1449 modules)
+ GET /dashboard 200 in 4420ms
+ GET /dashboard 200 in 16408ms
+ GET /dashboard 200 in 321ms
+ GET /dashboard 200 in 196ms
+ GET /dashboard 200 in 880ms
+ ○ Compiling /dashboard/pilots ...
+ ✓ Compiled /dashboard/pilots in 9s (1485 modules)
+ GET /dashboard/pilots 200 in 14139ms
+ ○ Compiling /dashboard/pilots/[id] ...
+ ✓ Compiled /dashboard/pilots/[id] in 8.9s (1413 modules)
+ GET /dashboard/pilots/9dfbdcbc-201a-453f-ac3b-f63f8abe3ef1 200 in 9631ms
+ ○ Compiling /api/pilots/[id] ...
+ ✓ Compiled /api/pilots/[id] in 1211ms (1430 modules)
+ GET /api/pilots/9dfbdcbc-201a-453f-ac3b-f63f8abe3ef1 200 in 2842ms
+ GET /api/pilots/9dfbdcbc-201a-453f-ac3b-f63f8abe3ef1 200 in 2861ms
+ ○ Compiling /api/certifications ...
+ ✓ Compiled /api/certifications in 11.7s (2466 modules)
+ GET /api/certifications?pilotId=9dfbdcbc-201a-453f-ac3b-f63f8abe3ef1&pageSize=100 200 in 14051ms
+ GET /dashboard/pilots 200 in 2303ms
+ ○ Compiling /dashboard/certifications ...
+ ✓ Compiled /dashboard/certifications in 9.6s (1435 modules)
+ GET /dashboard/certifications 200 in 11384ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 6.1s (2445 modules)
+ GET /dashboard/leave-requests 404 in 8438ms
+ GET /dashboard/leave-requests 404 in 2094ms
+ GET /dashboard/leave-requests 404 in 230ms
+ GET /dashboard/leave-requests 404 in 390ms
+ ✓ Compiled in 4.8s (1059 modules)
+ ✓ Compiled in 25.7s (2454 modules)
+ ✓ Compiled in 14s (2451 modules)
+ ○ Compiling /dashboard/certifications/new ...
+ ✓ Compiled /dashboard/certifications/new in 20.6s (2522 modules)
+ ⨯ Error: ENOENT: no such file or directory, open '/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/.next/server/vendor-chunks/lucide-react.js'
+    at <unknown> (.next/server/app/dashboard/certifications/new/page.js:892:47)
+    at Object.<anonymous> (.next/server/app/dashboard/certifications/new/page.js:895:3) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/.next/server/vendor-chunks/lucide-react.js',
+  page: '/dashboard/certifications/new'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 9.1s (2866 modules)
+ ⨯ Error: ENOENT: no such file or directory, open '/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/.next/server/vendor-chunks/lucide-react.js'
+    at <unknown> (.next/server/app/_not-found/page.js:500:47)
+    at Object.<anonymous> (.next/server/app/_not-found/page.js:503:3) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/.next/server/vendor-chunks/lucide-react.js'
+}
+ GET /dashboard/certifications/new 500 in 32249ms
+ GET /dashboard/support 500 in 14430ms
+ ⨯ Error: ENOENT: no such file or directory, open '/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/.next/server/vendor-chunks/lucide-react.js'
+    at <unknown> (.next/server/app/_not-found/page.js:500:47)
+    at Object.<anonymous> (.next/server/app/_not-found/page.js:503:3) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/skycruzer/Desktop/Fleet Office Management/fleet-management-v2/.next/server/vendor-chunks/lucide-react.js'
+}
+ GET /dashboard/support 500 in 65ms

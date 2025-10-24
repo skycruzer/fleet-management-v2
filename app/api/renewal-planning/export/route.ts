@@ -1,19 +1,24 @@
 /**
  * API Route: Export Renewal Plans to CSV
- * GET /api/renewal-planning/export
+ * GET /api/renewal-planning/export?year=2026
  *
- * Exports all renewal plans to a CSV file for download
+ * Exports renewal plans to a CSV file for download
+ * Supports optional year filtering
  */
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export async function GET() {
+export const dynamic = 'force-dynamic'
+
+export async function GET(request: Request) {
   try {
     const supabase = await createClient()
+    const { searchParams } = new URL(request.url)
+    const year = searchParams.get('year')
 
-    // Fetch all renewal plans with full details
-    const { data: renewals, error } = await supabase
+    // Build query with optional year filter
+    let query = supabase
       .from('certification_renewal_plans')
       .select(
         `
@@ -41,6 +46,13 @@ export async function GET() {
       )
       .order('planned_roster_period')
       .order('planned_renewal_date')
+
+    // Filter by year if provided
+    if (year) {
+      query = query.like('planned_roster_period', `%${year}%`)
+    }
+
+    const { data: renewals, error } = await query
 
     if (error) throw error
 
@@ -96,11 +108,15 @@ export async function GET() {
       ),
     ].join('\n')
 
-    // Return CSV file
+    // Return CSV file with year in filename
+    const filename = year
+      ? `renewal-plans-${year}.csv`
+      : `renewal-plans-${new Date().toISOString().split('T')[0]}.csv`
+
     return new NextResponse(csvContent, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="renewal-plans-${new Date().toISOString().split('T')[0]}.csv"`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
       },
     })
   } catch (error: any) {

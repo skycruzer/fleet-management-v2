@@ -92,6 +92,22 @@ export async function generateRenewalPlan(options?: {
   // Step 1: Fetch all certifications expiring in the next N months
   const endDate = addDays(new Date(), monthsAhead * 30)
 
+  // Step 1a: If categories specified, first get the check_type_ids for those categories
+  let checkTypeIds: string[] | undefined
+  if (categories && categories.length > 0) {
+    const { data: checkTypes } = await supabase
+      .from('check_types')
+      .select('id')
+      .in('category', categories)
+
+    checkTypeIds = checkTypes?.map((ct) => ct.id) || []
+
+    // If no check types found for the specified categories, return empty
+    if (checkTypeIds.length === 0) {
+      return []
+    }
+  }
+
   let query = supabase
     .from('pilot_checks')
     .select(
@@ -119,8 +135,8 @@ export async function generateRenewalPlan(options?: {
     .gte('expiry_date', new Date().toISOString().split('T')[0])
     .lte('expiry_date', endDate.toISOString().split('T')[0])
 
-  if (categories && categories.length > 0) {
-    query = query.in('check_types.category', categories)
+  if (checkTypeIds && checkTypeIds.length > 0) {
+    query = query.in('check_type_id', checkTypeIds)
   }
 
   if (pilotIds && pilotIds.length > 0) {
@@ -157,28 +173,55 @@ export async function generateRenewalPlan(options?: {
     // Get eligible roster periods within renewal window
     const eligiblePeriods = getRosterPeriodsInRange(windowStart, windowEnd)
 
-    if (eligiblePeriods.length === 0) {
-      console.warn(`No eligible roster periods for certification ${cert.id}, category ${category}`)
+    // BUSINESS RULE: Exclude December and January from renewal scheduling
+    // Reason: Holiday months with reduced operational capacity and higher pilot absence rates
+    // This ensures critical certification renewals are not scheduled during holiday periods
+    const filteredPeriods = eligiblePeriods.filter((period) => {
+      const month = period.startDate.getMonth()
+      // month 0 = January, month 11 = December
+      return month !== 0 && month !== 11
+    })
+
+    if (filteredPeriods.length === 0) {
+      console.warn(
+        `No eligible roster periods for certification ${cert.id}, category ${category} ` +
+          `after excluding December/January. Original window: ${windowStart.toISOString()} - ${windowEnd.toISOString()}`
+      )
       continue
     }
 
-    // Find optimal period (lowest current load)
-    let optimalPeriod = eligiblePeriods[0]
-    let lowestLoad = getCurrentLoad(optimalPeriod.code, category, currentAllocations)
-
-    for (const period of eligiblePeriods.slice(1)) {
+    // Find optimal period with capacity-aware distribution
+    // Strategy: Select period with lowest utilization percentage (not just lowest count)
+    const periodOptions = filteredPeriods.map((period) => {
       const load = getCurrentLoad(period.code, category, currentAllocations)
-      if (load < lowestLoad) {
-        optimalPeriod = period
-        lowestLoad = load
+      const capacity = getCapacityForPeriod(period.code, category, capacityMap)
+      const available = capacity - load
+      const utilizationPercent = capacity > 0 ? (load / capacity) * 100 : 100
+
+      return {
+        period,
+        load,
+        capacity,
+        available,
+        utilizationPercent,
       }
+    })
+
+    // Sort by utilization percentage (lowest first) to achieve even distribution
+    periodOptions.sort((a, b) => a.utilizationPercent - b.utilizationPercent)
+
+    // Find first period with available capacity
+    const optimalOption = periodOptions.find((opt) => opt.available > 0)
+
+    if (!optimalOption) {
+      console.error(
+        `No capacity available for certification ${cert.id} (${cert.pilots?.first_name} ${cert.pilots?.last_name}), ` +
+          `category ${category}, expiry ${cert.expiry_date}. All ${filteredPeriods.length} eligible periods are full.`
+      )
+      continue // Skip this certification - cannot be scheduled
     }
 
-    // Check capacity
-    const capacity = getCapacityForPeriod(optimalPeriod.code, category, capacityMap)
-    if (lowestLoad >= capacity) {
-      console.warn(`Capacity exceeded for ${optimalPeriod.code}, category ${category}`)
-    }
+    const optimalPeriod = optimalOption.period
 
     // Create renewal plan
     // Ensure planned date falls within renewal window

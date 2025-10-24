@@ -1,103 +1,104 @@
-<!-- Powered by BMAD™ Core -->
+# Task: Create Document
 
-# Create Document from Template (YAML Driven)
+**Task ID**: create-doc
+**Version**: 1.0.0
+**Purpose**: Create structured documents from BMAD templates
 
-## ⚠️ CRITICAL EXECUTION NOTICE ⚠️
+---
 
-**THIS IS AN EXECUTABLE WORKFLOW - NOT REFERENCE MATERIAL**
+## Overview
 
-When this task is invoked:
+This task creates documents using BMAD templates. It prompts for necessary information and generates a complete document based on the selected template.
 
-1. **DISABLE ALL EFFICIENCY OPTIMIZATIONS** - This workflow requires full user interaction
-2. **MANDATORY STEP-BY-STEP EXECUTION** - Each section must be processed sequentially with user feedback
-3. **ELICITATION IS REQUIRED** - When `elicit: true`, you MUST use the 1-9 format and wait for user response
-4. **NO SHORTCUTS ALLOWED** - Complete documents cannot be created without following this workflow
+---
 
-**VIOLATION INDICATOR:** If you create a complete document without user interaction, you have violated this workflow.
+## Inputs
 
-## Critical: Template Discovery
+- **template**: Template file name from `.bmad-core/templates/` (required)
+- **output_path**: Where to save the document (optional, defaults to `docs/`)
 
-If a YAML Template has not been provided, list all templates from .bmad-core/templates or ask the user to provide another.
+---
 
-## CRITICAL: Mandatory Elicitation Format
+## Process
 
-**When `elicit: true`, this is a HARD STOP requiring user interaction:**
+### Step 1: Load Template
+Load the specified template from `.bmad-core/templates/{template}`
 
-**YOU MUST:**
+### Step 2: Extract Template Metadata
+Read the YAML frontmatter to understand:
+- template_name
+- template_version
+- template_type
+- description
+- output_format
 
-1. Present section content
-2. Provide detailed rationale (explain trade-offs, assumptions, decisions made)
-3. **STOP and present numbered options 1-9:**
-   - **Option 1:** Always "Proceed to next section"
-   - **Options 2-9:** Select 8 methods from data/elicitation-methods
-   - End with: "Select 1-9 or just type your question/feedback:"
-4. **WAIT FOR USER RESPONSE** - Do not proceed until user selects option or provides feedback
+### Step 3: Gather Required Information
+Prompt user for placeholders found in template:
+- {project_name}
+- {feature_name}
+- {author}
+- {date}
+- {story_id}
+- {epic_name}
+- etc.
 
-**WORKFLOW VIOLATION:** Creating content for elicit=true sections without user interaction violates this task.
+Use project config (`.bmad-core/core-config.yaml`) for defaults where available.
 
-**NEVER ask yes/no questions or use any other format.**
+### Step 4: Generate Document
+Replace all placeholders with provided values.
 
-## Processing Flow
+### Step 5: Interactive Completion
+Present the document structure and guide user through completing each section:
 
-1. **Parse YAML template** - Load template metadata and sections
-2. **Set preferences** - Show current mode (Interactive), confirm output file
-3. **Process each section:**
-   - Skip if condition unmet
-   - Check agent permissions (owner/editors) - note if section is restricted to specific agents
-   - Draft content using section instruction
-   - Present content + detailed rationale
-   - **IF elicit: true** → MANDATORY 1-9 options format
-   - Save to file if possible
-4. **Continue until complete**
+1. Show section heading
+2. Show section description/purpose
+3. Prompt user for content
+4. Fill in section
+5. Move to next section
 
-## Detailed Rationale Requirements
+### Step 6: Save Document
+Save completed document to:
+- Default: `{output_folder}/{template_type}-{feature_name}-{date}.md`
+- Custom: User-specified path
 
-When presenting section content, ALWAYS include rationale that explains:
+### Step 7: Confirm Completion
+Display summary:
+- Document path
+- Document type
+- Sections completed
+- Next steps
 
-- Trade-offs and choices made (what was chosen over alternatives and why)
-- Key assumptions made during drafting
-- Interesting or questionable decisions that need user attention
-- Areas that might need validation
+---
 
-## Elicitation Results Flow
+## Output
 
-After user selects elicitation method (2-9):
+- Completed markdown document saved to specified location
+- Summary of document creation
 
-1. Execute method from data/elicitation-methods
-2. Present results with insights
-3. Offer options:
-   - **1. Apply changes and update section**
-   - **2. Return to elicitation menu**
-   - **3. Ask any questions or engage further with this elicitation**
+---
 
-## Agent Permissions
+## Example Usage
 
-When processing sections with agent permission fields:
+```
+*create-doc brownfield-prd-tmpl.yaml
+```
 
-- **owner**: Note which agent role initially creates/populates the section
-- **editors**: List agent roles allowed to modify the section
-- **readonly**: Mark sections that cannot be modified after creation
+User is prompted for:
+1. Feature name
+2. Author (defaults from config)
+3. Section content (guided through each section)
 
-**For sections with restricted access:**
+Output: `docs/prd-feature-name-2025-10-24.md`
 
-- Include a note in the generated document indicating the responsible agent
-- Example: "_(This section is owned by dev-agent and can only be modified by dev-agent)_"
+---
 
-## YOLO Mode
+## Notes
 
-User can type `#yolo` to toggle to YOLO mode (process all sections at once).
+- Uses config from `.bmad-core/core-config.yaml` for defaults
+- Supports all templates in `.bmad-core/templates/`
+- Output format determined by template
+- Interactive mode for section completion
 
-## CRITICAL REMINDERS
+---
 
-**❌ NEVER:**
-
-- Ask yes/no questions for elicitation
-- Use any format other than 1-9 numbered options
-- Create new elicitation methods
-
-**✅ ALWAYS:**
-
-- Use exact 1-9 format when elicit: true
-- Select options 2-9 from data/elicitation-methods only
-- Provide detailed rationale explaining decisions
-- End with "Select 1-9 or just type your question/feedback:"
+*BMAD Method - Document Creation Task*

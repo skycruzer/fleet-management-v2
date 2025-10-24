@@ -35,6 +35,9 @@ export function getGracePeriod(category: string): number {
 /**
  * Calculate renewal window for a certification
  * Returns the start and end dates when renewal can occur
+ *
+ * Note: The renewal window END is one day BEFORE expiry, not on expiry date.
+ * This ensures renewals happen before the certification expires.
  */
 export function calculateRenewalWindow(
   expiryDate: Date,
@@ -42,10 +45,12 @@ export function calculateRenewalWindow(
 ): { start: Date; end: Date } {
   const gracePeriod = getGracePeriod(category)
   const windowStart = subDays(expiryDate, gracePeriod)
+  // End date is one day before expiry to ensure renewal happens before expiration
+  const windowEnd = subDays(expiryDate, 1)
 
   return {
     start: windowStart,
-    end: expiryDate,
+    end: windowEnd,
   }
 }
 

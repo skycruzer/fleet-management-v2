@@ -24,20 +24,22 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
+// Focus on checks with grace periods suitable for advance planning
+// - Flight Checks: 90-day grace period
+// - Simulator Checks: 90-day grace period
+// - Ground Courses Refresher: 60-day grace period
+// This enables even distribution of renewals across roster periods throughout the year
 const CATEGORIES = [
-  'Pilot Medical',
   'Flight Checks',
   'Simulator Checks',
   'Ground Courses Refresher',
-  'ID Cards',
-  'Foreign Pilot Work Permit',
-  'Travel Visa',
 ]
 
 export default function GeneratePlanPage() {
   const router = useRouter()
   const [monthsAhead, setMonthsAhead] = useState(12)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  // Pre-select both Flight and Simulator Checks by default
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(CATEGORIES)
   const [clearExisting, setClearExisting] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
 
@@ -112,7 +114,7 @@ export default function GeneratePlanPage() {
         <div>
           <h1 className="text-foreground text-3xl font-bold">Generate Renewal Plan</h1>
           <p className="text-muted-foreground mt-1">
-            Configure and generate certification renewal schedule
+            Generate renewal schedule for Flight, Simulator, and Ground Courses (60-90 day grace periods)
           </p>
         </div>
       </div>
@@ -146,7 +148,9 @@ export default function GeneratePlanPage() {
           <Card className="p-6">
             <h2 className="text-foreground mb-4 text-xl font-semibold">Category Filter</h2>
             <p className="text-muted-foreground mb-4 text-sm">
-              Select specific categories to plan, or leave empty to plan all categories
+              All three categories selected by default. These certifications have grace periods
+              (60-90 days) suitable for advance planning, allowing renewals to be evenly distributed
+              across roster periods throughout the year.
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {CATEGORIES.map((category) => (
@@ -238,11 +242,11 @@ export default function GeneratePlanPage() {
           <Card className="bg-blue-50 p-6">
             <h3 className="mb-2 font-semibold text-blue-900">How It Works</h3>
             <ul className="space-y-2 text-sm text-blue-700">
-              <li>• Fetches all certifications expiring in time horizon</li>
-              <li>• Calculates renewal windows based on grace periods</li>
+              <li>• Fetches checks expiring in time horizon (Flight, Simulator, Ground Courses)</li>
+              <li>• Grace periods: 90 days (Flight/Simulator), 60 days (Ground Courses)</li>
               <li>• Assigns to roster periods with lowest load</li>
-              <li>• Ensures capacity limits are respected</li>
-              <li>• Prevents clustering of renewals</li>
+              <li>• Respects capacity: Flight (4), Simulator (6), Ground (8) pilots per period</li>
+              <li>• Distributes renewals evenly throughout the year</li>
             </ul>
           </Card>
 

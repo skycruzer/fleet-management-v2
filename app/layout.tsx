@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { ErrorBoundary } from '@/components/error-boundary'
@@ -7,6 +8,14 @@ import { Providers } from './providers'
 import { SkipLinks, SkipToMainContent, SkipToNavigation } from '@/components/ui/skip-link'
 import { RouteChangeFocusManager } from '@/components/ui/route-change-focus'
 import './globals.css'
+
+// Professional Inter font - Modern, readable, supports 100+ languages
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+  weight: ['300', '400', '500', '600', '700', '800'],
+})
 
 export const metadata: Metadata = {
   title: {
@@ -75,7 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
-      <body className="bg-background min-h-screen font-sans antialiased">
+      <body className={`${inter.variable} bg-background min-h-screen font-sans antialiased`}>
         <ErrorBoundary>
           <Providers>
             <ThemeProvider

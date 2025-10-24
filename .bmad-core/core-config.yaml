@@ -1,23 +1,63 @@
-# <!-- Powered by BMAD™ Core -->
-markdownExploder: true
-qa:
-  qaLocation: docs/qa
-prd:
-  prdFile: docs/prd.md
-  prdVersion: v4
-  prdSharded: true
-  prdShardedLocation: docs/prd
-  epicFilePattern: epic-{n}*.md
-architecture:
-  architectureFile: docs/architecture.md
-  architectureVersion: v4
-  architectureSharded: true
-  architectureShardedLocation: docs/architecture
-customTechnicalDocuments: null
+# BMAD Core Configuration
+# Fleet Management V2 - B767 Pilot Management System
+# Version: 6.0.0
+# Date: 2025-10-24
+
+# User Configuration
+user_name: Maurice
+communication_language: English
+document_output_language: English
+output_folder: '{project-root}/docs'
+
+# Project Configuration
+project:
+  name: Fleet Management V2
+  description: B767 Pilot Management System with certification tracking and leave management
+  type: fullstack-web
+
+# Technology Stack
+stack:
+  framework: Next.js 15.5.4
+  language: TypeScript 5.7.3
+  ui: React 19.1.0
+  styling: Tailwind CSS 4.1.0
+  database: Supabase PostgreSQL
+  testing: Playwright 1.55.0
+
+# Development Standards
 devLoadAlwaysFiles:
-  - docs/architecture/coding-standards.md
-  - docs/architecture/tech-stack.md
-  - docs/architecture/source-tree.md
-devDebugLog: .ai/debug-log.md
-devStoryLocation: docs/stories
-slashPrefix: BMad
+  - CLAUDE.md
+  - PROFESSIONAL-UI-DESIGN-SYSTEM.md
+  - UX-PERFORMANCE-IMPROVEMENTS.md
+
+# Code Quality Standards
+codeQuality:
+  linting: true
+  formatting: prettier
+  typeChecking: strict
+  testCoverage: 60
+
+# Story Management
+stories:
+  location: '{project-root}/stories'
+  template: user-story
+  status_values:
+    - draft
+    - ready
+    - in_progress
+    - blocked
+    - ready_for_review
+    - completed
+
+# Development Workflow
+workflow:
+  requireTests: true
+  requireDocumentation: true
+  requireCodeReview: true
+
+# Agent Configuration
+agents:
+  dev:
+    name: James
+    role: Full Stack Developer
+    focus: code_implementation

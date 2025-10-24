@@ -1,6 +1,7 @@
 /**
- * Pilot Detail View Page
- * Displays comprehensive pilot information
+ * Pilot Detail View Page - Professional Aviation-Inspired Design
+ * Displays comprehensive pilot information with modern UI
+ * @version 3.0.0 - Complete redesign with aviation theme
  */
 
 'use client'
@@ -13,6 +14,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useConfirm } from '@/components/ui/confirm-dialog'
 import Link from 'next/link'
 import { CertificationCategoryGroup } from '@/components/certifications/certification-category-group'
+import { motion } from 'framer-motion'
+import {
+  User,
+  Briefcase,
+  Calendar,
+  MapPin,
+  Shield,
+  Award,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  ArrowLeft,
+  Edit,
+  Trash2,
+  FileText,
+  Plane,
+  Star,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Pilot {
   id: string
@@ -29,8 +51,10 @@ interface Pilot {
   passport_number: string | null
   passport_expiry: string | null
   contract_type: string | null
+  contract_type_id: string | null
   captain_qualifications: any
   qualification_notes: string | null
+  rhs_captain_expiry: string | null
   created_at: string
   updated_at: string
   certificationStatus: {
@@ -38,6 +62,21 @@ interface Pilot {
     expiring: number
     expired: number
   }
+}
+
+const fadeIn = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+}
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
 }
 
 export default function PilotDetailPage() {
@@ -90,7 +129,6 @@ export default function PilotDetailPage() {
       const data = await response.json()
 
       if (data.success) {
-        // Sort certifications by expiry date within the response
         const sortedCerts = (data.data || []).sort((a: any, b: any) => {
           if (!a.expiry_date) return 1
           if (!b.expiry_date) return -1
@@ -121,11 +159,8 @@ export default function PilotDetailPage() {
       const result = await response.json()
 
       if (result.success) {
-        // Refresh certifications
         await fetchCertifications()
-        // Also refresh pilot details to update certification status summary
         await fetchPilotDetails()
-        // Clear editing state
         setEditingCertId(null)
         setEditExpiryDate('')
       } else {
@@ -158,14 +193,6 @@ export default function PilotDetailPage() {
     fetchCertifications()
   }
 
-  // Utility function for status badge colors (currently unused)
-  // function getStatusColor(cert: any): string {
-  //   if (!cert.status) return 'bg-gray-100 text-gray-800'
-  //   if (cert.status.color === 'red') return 'bg-red-100 text-red-800'
-  //   if (cert.status.color === 'yellow') return 'bg-yellow-100 text-yellow-800'
-  //   return 'bg-green-100 text-green-800'
-  // }
-
   async function handleDelete() {
     const confirmed = await confirm({
       title: 'Delete Pilot',
@@ -176,9 +203,7 @@ export default function PilotDetailPage() {
       variant: 'destructive',
     })
 
-    if (!confirmed) {
-      return
-    }
+    if (!confirmed) return
 
     try {
       setDeleting(true)
@@ -192,7 +217,6 @@ export default function PilotDetailPage() {
         throw new Error(result.error || 'Failed to delete pilot')
       }
 
-      // Success - redirect to pilots list
       router.push('/dashboard/pilots')
       router.refresh()
     } catch (err) {
@@ -233,49 +257,61 @@ export default function PilotDetailPage() {
 
   function parseCaptainQualifications(qualifications: any): string[] {
     if (!qualifications) return []
+
+    // Handle array format: ["line_captain", "training_captain"]
     if (Array.isArray(qualifications)) {
-      return qualifications.map((q) => {
-        if (q === 'line_captain') return 'Line Captain'
-        if (q === 'training_captain') return 'Training Captain'
-        if (q === 'examiner') return 'Examiner'
-        return q
-      })
+      return qualifications
+        .map((q) => {
+          if (q === 'line_captain') return 'Line Captain'
+          if (q === 'training_captain') return 'Training Captain'
+          if (q === 'examiner') return 'Examiner'
+          return q
+        })
+        .filter(Boolean)
     }
-    // Handle JSONB object format
-    const quals: string[] = []
-    if (qualifications.line_captain) quals.push('Line Captain')
-    if (qualifications.training_captain) quals.push('Training Captain')
-    if (qualifications.examiner) quals.push('Examiner')
-    return quals
+
+    // Handle JSONB object format: {line_captain: true, training_captain: true, examiner: false}
+    if (typeof qualifications === 'object') {
+      const quals: string[] = []
+      if (qualifications.line_captain === true) quals.push('Line Captain')
+      if (qualifications.training_captain === true) quals.push('Training Captain')
+      if (qualifications.examiner === true) quals.push('Examiner')
+      return quals
+    }
+
+    return []
   }
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Card className="p-12 text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <span className="animate-spin text-3xl">⏳</span>
-            <p className="text-muted-foreground">Loading pilot details...</p>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="mb-4 flex justify-center">
+            <Plane className="h-12 w-12 animate-pulse text-primary" />
           </div>
-        </Card>
+          <p className="text-lg text-muted-foreground">Loading pilot details...</p>
+        </motion.div>
       </div>
     )
   }
 
   if (error || !pilot) {
     return (
-      <div className="space-y-6">
-        <Card className="p-12 text-center">
-          <div className="space-y-4">
-            <span className="text-6xl">❌</span>
-            <div>
-              <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
-              <p className="text-muted-foreground">{error || 'Pilot not found'}</p>
-            </div>
-            <Link href="/dashboard/pilots">
-              <Button variant="outline">← Back to Pilots</Button>
-            </Link>
-          </div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Card className="max-w-md p-12 text-center">
+          <XCircle className="mx-auto mb-4 h-16 w-16 text-red-600" />
+          <h3 className="mb-2 text-xl font-bold text-foreground">Error</h3>
+          <p className="mb-6 text-muted-foreground">{error || 'Pilot not found'}</p>
+          <Link href="/dashboard/pilots">
+            <Button variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Pilots
+            </Button>
+          </Link>
         </Card>
       </div>
     )
@@ -283,7 +319,7 @@ export default function PilotDetailPage() {
 
   const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name].filter(Boolean).join(' ')
 
-  // Group certifications by category and sort
+  // Group certifications by category
   const groupedCertifications = certifications.reduce(
     (acc, cert) => {
       const category = cert.check_type?.category || 'Other'
@@ -296,272 +332,358 @@ export default function PilotDetailPage() {
     {} as Record<string, typeof certifications>
   )
 
-  // Sort categories alphabetically
   const sortedCategories = Object.keys(groupedCertifications).sort()
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center space-x-3">
-            <h2 className="text-foreground text-2xl font-bold">{fullName}</h2>
-            <span
-              className={`rounded-full px-3 py-1 text-sm font-medium ${
-                pilot.is_active ? 'bg-green-100 text-green-800' : 'bg-muted text-foreground'
-              }`}
-            >
-              {pilot.is_active ? 'Active' : 'Inactive'}
-            </span>
-          </div>
-          <p className="text-muted-foreground mt-1">
-            {pilot.role} • Employee ID: {pilot.employee_id}
-            {pilot.seniority_number && ` • Seniority #${pilot.seniority_number}`}
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Link href="/dashboard/pilots">
-            <Button variant="outline">← Back to Pilots</Button>
-          </Link>
-          <Link href={`/dashboard/pilots/${pilot.id}/edit`}>
-            <Button className="bg-primary hover:bg-primary/90 text-white">Edit Pilot</Button>
-          </Link>
-          <Button
-            variant="outline"
-            onClick={handleDelete}
-            disabled={deleting}
-            className="border-destructive/20 text-red-600 hover:bg-red-50"
-          >
-            {deleting ? 'Deleting...' : 'Delete'}
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6 pb-12">
+      {/* Hero Section with Gradient Background */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-600 via-primary to-sky-800 p-8 text-white shadow-2xl"
+      >
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
-      {/* Certification Status Summary */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Card className="border-green-200 bg-green-50 p-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">✅</span>
-            <div>
-              <p className="text-foreground text-2xl font-bold">
-                {pilot.certificationStatus.current}
-              </p>
-              <p className="text-muted-foreground text-sm font-medium">Current Certifications</p>
+        <div className="relative">
+          <div className="mb-6 flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              {/* Avatar placeholder */}
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm ring-4 ring-white/30">
+                {pilot.role === 'Captain' ? (
+                  <Star className="h-10 w-10 text-yellow-300" />
+                ) : (
+                  <User className="h-10 w-10 text-white" />
+                )}
+              </div>
+              <div>
+                <h1 className="mb-2 text-4xl font-bold">{fullName}</h1>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
+                    {pilot.role}
+                  </span>
+                  <span
+                    className={cn(
+                      'rounded-full px-4 py-1.5 text-sm font-semibold backdrop-blur-sm',
+                      pilot.is_active
+                        ? 'bg-green-500/30 ring-1 ring-green-300/50'
+                        : 'bg-gray-500/30 ring-1 ring-gray-300/50'
+                    )}
+                  >
+                    {pilot.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                  {pilot.seniority_number && (
+                    <span className="rounded-full bg-yellow-500/30 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm ring-1 ring-yellow-300/50">
+                      Seniority #{pilot.seniority_number}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </Card>
-        <Card className="border-yellow-200 bg-yellow-50 p-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">⚠️</span>
-            <div>
-              <p className="text-foreground text-2xl font-bold">
-                {pilot.certificationStatus.expiring}
-              </p>
-              <p className="text-muted-foreground text-sm font-medium">Expiring Soon</p>
-            </div>
-          </div>
-        </Card>
-        <Card className="border-destructive/20 bg-red-50 p-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">❌</span>
-            <div>
-              <p className="text-foreground text-2xl font-bold">
-                {pilot.certificationStatus.expired}
-              </p>
-              <p className="text-muted-foreground text-sm font-medium">Expired Certifications</p>
-            </div>
-          </div>
-        </Card>
-      </div>
 
-      {/* View & Edit Certifications Button */}
-      <div className="flex justify-center">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <Link href="/dashboard/pilots">
+                <Button variant="secondary" size="sm">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+              </Link>
+              <Link href={`/dashboard/pilots/${pilot.id}/edit`}>
+                <Button variant="secondary" size="sm">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
+              </Link>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+                disabled={deleting}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                {deleting ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+              <div className="mb-1 text-sm font-medium text-white/80">Employee ID</div>
+              <div className="text-2xl font-bold">{pilot.employee_id}</div>
+            </div>
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+              <div className="mb-1 text-sm font-medium text-white/80">Years in Service</div>
+              <div className="text-2xl font-bold">{calculateYearsInService(pilot.commencement_date)}</div>
+            </div>
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+              <div className="mb-1 text-sm font-medium text-white/80">Contract Type</div>
+              <div className="text-2xl font-bold">{pilot.contract_type || 'N/A'}</div>
+            </div>
+            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
+              <div className="mb-1 text-sm font-medium text-white/80">Nationality</div>
+              <div className="text-2xl font-bold">{pilot.nationality || 'N/A'}</div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Certification Status Cards */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 gap-4 md:grid-cols-3"
+      >
+        <motion.div variants={fadeIn}>
+          <Card className="group relative overflow-hidden border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 transition-all hover:shadow-lg">
+            <div className="absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-green-500/10" />
+            <div className="relative flex items-center justify-between">
+              <div>
+                <p className="mb-1 text-sm font-medium text-green-700">Current</p>
+                <p className="text-4xl font-bold text-green-900">{pilot.certificationStatus.current}</p>
+                <p className="mt-1 text-xs text-green-600">Certifications</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500/20">
+                <CheckCircle2 className="h-7 w-7 text-green-600" />
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={fadeIn}>
+          <Card className="group relative overflow-hidden border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50 p-6 transition-all hover:shadow-lg">
+            <div className="absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-yellow-500/10" />
+            <div className="relative flex items-center justify-between">
+              <div>
+                <p className="mb-1 text-sm font-medium text-yellow-700">Expiring Soon</p>
+                <p className="text-4xl font-bold text-yellow-900">{pilot.certificationStatus.expiring}</p>
+                <p className="mt-1 text-xs text-yellow-600">Within 30 days</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-yellow-500/20">
+                <AlertCircle className="h-7 w-7 text-yellow-600" />
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={fadeIn}>
+          <Card className="group relative overflow-hidden border-red-200 bg-gradient-to-br from-red-50 to-rose-50 p-6 transition-all hover:shadow-lg">
+            <div className="absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-red-500/10" />
+            <div className="relative flex items-center justify-between">
+              <div>
+                <p className="mb-1 text-sm font-medium text-red-700">Expired</p>
+                <p className="text-4xl font-bold text-red-900">{pilot.certificationStatus.expired}</p>
+                <p className="mt-1 text-xs text-red-600">Needs renewal</p>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500/20">
+                <XCircle className="h-7 w-7 text-red-600" />
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      </motion.div>
+
+      {/* View Certifications Button */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="flex justify-center"
+      >
         <Button
           onClick={handleOpenCertificationsModal}
-          className="bg-primary hover:bg-primary/90 text-white"
           size="lg"
+          className="bg-gradient-to-r from-sky-600 to-primary text-white shadow-lg transition-all hover:from-sky-700 hover:to-primary/90 hover:shadow-xl"
         >
-          📋 View & Edit Certifications
+          <FileText className="mr-2 h-5 w-5" />
+          View & Edit Certifications
         </Button>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Basic Information */}
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            Basic Information
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Employee ID:</span>
-              <span className="text-foreground font-medium">{pilot.employee_id}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Full Name:</span>
-              <span className="text-foreground font-medium">{fullName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Rank:</span>
-              <span className="text-foreground font-medium">{pilot.role}</span>
-            </div>
-            {pilot.seniority_number && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Seniority Number:</span>
-                <span className="text-foreground font-medium">#{pilot.seniority_number}</span>
+      {/* Information Grid */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 gap-6 lg:grid-cols-2"
+      >
+        {/* Personal Information */}
+        <motion.div variants={fadeIn}>
+          <Card className="h-full p-6 transition-all hover:shadow-md">
+            <div className="mb-4 flex items-center gap-3 border-b pb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <User className="h-5 w-5 text-primary" />
               </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Status:</span>
-              <span className="text-foreground font-medium">
-                {pilot.is_active ? 'Active' : 'Inactive'}
-              </span>
+              <h3 className="text-lg font-semibold text-foreground">Personal Information</h3>
             </div>
-          </div>
-        </Card>
+            <div className="space-y-4">
+              <InfoRow icon={User} label="Full Name" value={fullName} />
+              <InfoRow icon={Calendar} label="Date of Birth" value={formatDate(pilot.date_of_birth)} />
+              <InfoRow icon={TrendingUp} label="Age" value={calculateAge(pilot.date_of_birth)} />
+              <InfoRow icon={MapPin} label="Nationality" value={pilot.nationality || 'Not specified'} />
+            </div>
+          </Card>
+        </motion.div>
 
         {/* Employment Information */}
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            Employment Information
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Contract Type:</span>
-              <span className="text-foreground font-medium">
-                {pilot.contract_type || 'Not specified'}
-              </span>
+        <motion.div variants={fadeIn}>
+          <Card className="h-full p-6 transition-all hover:shadow-md">
+            <div className="mb-4 flex items-center gap-3 border-b pb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+                <Briefcase className="h-5 w-5 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Employment Details</h3>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Commencement Date:</span>
-              <span className="text-foreground font-medium">
-                {formatDate(pilot.commencement_date)}
-              </span>
+            <div className="space-y-4">
+              <InfoRow icon={Shield} label="Employee ID" value={pilot.employee_id} />
+              <InfoRow icon={Award} label="Rank" value={pilot.role} />
+              <InfoRow icon={Star} label="Seniority Number" value={pilot.seniority_number ? `#${pilot.seniority_number}` : 'Not assigned'} />
+              <InfoRow icon={Briefcase} label="Contract Type" value={pilot.contract_type || 'Not specified'} />
+              <InfoRow icon={Calendar} label="Commencement Date" value={formatDate(pilot.commencement_date)} />
+              <InfoRow icon={Clock} label="Years in Service" value={calculateYearsInService(pilot.commencement_date)} />
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Years in Service:</span>
-              <span className="text-foreground font-medium">
-                {calculateYearsInService(pilot.commencement_date)}
-              </span>
-            </div>
-          </div>
-        </Card>
-
-        {/* Personal Information */}
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            Personal Information
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Date of Birth:</span>
-              <span className="text-foreground font-medium">{formatDate(pilot.date_of_birth)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Age:</span>
-              <span className="text-foreground font-medium">
-                {calculateAge(pilot.date_of_birth)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Nationality:</span>
-              <span className="text-foreground font-medium">
-                {pilot.nationality || 'Not specified'}
-              </span>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        </motion.div>
 
         {/* Passport Information */}
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            Passport Information
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Passport Number:</span>
-              <span className="text-foreground font-medium">
-                {pilot.passport_number || 'Not specified'}
-              </span>
+        <motion.div variants={fadeIn}>
+          <Card className="h-full p-6 transition-all hover:shadow-md">
+            <div className="mb-4 flex items-center gap-3 border-b pb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
+                <Shield className="h-5 w-5 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Passport Information</h3>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Passport Expiry:</span>
-              <span className="text-foreground font-medium">
-                {formatDate(pilot.passport_expiry)}
-              </span>
+            <div className="space-y-4">
+              <InfoRow icon={Shield} label="Passport Number" value={pilot.passport_number || 'Not specified'} />
+              <InfoRow icon={Calendar} label="Expiry Date" value={formatDate(pilot.passport_expiry)} />
             </div>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </motion.div>
+
+        {/* Professional Details */}
+        <motion.div variants={fadeIn}>
+          <Card className="h-full p-6 transition-all hover:shadow-md">
+            <div className="mb-4 flex items-center gap-3 border-b pb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
+                <Award className="h-5 w-5 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Professional Details</h3>
+            </div>
+            <div className="space-y-4">
+              {pilot.role === 'Captain' && pilot.rhs_captain_expiry && (
+                <InfoRow
+                  icon={Calendar}
+                  label="RHS Captain Expiry"
+                  value={formatDate(pilot.rhs_captain_expiry)}
+                />
+              )}
+              {pilot.qualification_notes ? (
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-muted-foreground">Qualification Notes</p>
+                    <p className="mt-0.5 text-sm font-semibold text-foreground whitespace-pre-wrap">
+                      {pilot.qualification_notes}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <FileText className="h-4 w-4" />
+                  <p className="text-sm">No qualification notes recorded</p>
+                </div>
+              )}
+            </div>
+          </Card>
+        </motion.div>
+      </motion.div>
 
       {/* Captain Qualifications - Only show if Captain */}
       {pilot.role === 'Captain' && (
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            Captain Qualifications
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {parseCaptainQualifications(pilot.captain_qualifications).length > 0 ? (
-              parseCaptainQualifications(pilot.captain_qualifications).map((qual, index) => (
-                <span
-                  key={index}
-                  className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm font-medium"
-                >
-                  {qual}
-                </span>
-              ))
-            ) : (
-              <p className="text-muted-foreground">No qualifications specified</p>
-            )}
-          </div>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="p-6 transition-all hover:shadow-md">
+            <div className="mb-4 flex items-center gap-3 border-b pb-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/10">
+                <Award className="h-5 w-5 text-yellow-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Captain Qualifications</h3>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {parseCaptainQualifications(pilot.captain_qualifications).length > 0 ? (
+                parseCaptainQualifications(pilot.captain_qualifications).map((qual, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-500 to-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-md"
+                  >
+                    <Star className="h-4 w-4" />
+                    {qual}
+                  </span>
+                ))
+              ) : (
+                <p className="text-muted-foreground">No qualifications recorded</p>
+              )}
+            </div>
+          </Card>
+        </motion.div>
       )}
 
       {/* System Information */}
-      <Card className="p-6">
-        <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-          System Information
-        </h3>
-        <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Created:</span>
-            <span className="text-foreground font-medium">{formatDate(pilot.created_at)}</span>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Card className="p-6 transition-all hover:shadow-md">
+          <div className="mb-4 flex items-center gap-3 border-b pb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-500/10">
+              <Clock className="h-5 w-5 text-gray-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">System Information</h3>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Last Updated:</span>
-            <span className="text-foreground font-medium">{formatDate(pilot.updated_at)}</span>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <InfoRow icon={Calendar} label="Record Created" value={formatDate(pilot.created_at)} />
+            <InfoRow icon={Calendar} label="Last Updated" value={formatDate(pilot.updated_at)} />
           </div>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Certifications Modal */}
       <Dialog open={showCertificationsModal} onOpenChange={setShowCertificationsModal}>
-        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[80vh] max-w-6xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl">
-              Certifications for {fullName}
-            </DialogTitle>
+            <DialogTitle className="text-2xl">Certifications for {fullName}</DialogTitle>
           </DialogHeader>
 
           {loadingCertifications ? (
             <div className="flex items-center justify-center py-12">
-              <span className="animate-spin text-3xl">⏳</span>
-              <p className="text-muted-foreground ml-3">Loading certifications...</p>
+              <Plane className="mr-3 h-8 w-8 animate-pulse text-primary" />
+              <p className="text-muted-foreground">Loading certifications...</p>
             </div>
           ) : certifications.length === 0 ? (
             <div className="py-12 text-center">
+              <FileText className="mx-auto mb-4 h-16 w-16 text-muted-foreground/50" />
               <p className="text-muted-foreground">No certifications found for this pilot.</p>
             </div>
           ) : (
             <div className="space-y-4">
               {/* Category Overview */}
-              <Card className="p-4 bg-muted/30">
+              <Card className="bg-muted/30 p-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-foreground text-sm font-semibold">Certification Categories</h4>
-                  <div className="text-muted-foreground text-sm">
+                  <h4 className="text-sm font-semibold text-foreground">Certification Categories</h4>
+                  <div className="text-sm text-muted-foreground">
                     {sortedCategories.length} categories • {certifications.length} total certifications
                   </div>
                 </div>
-                <p className="text-muted-foreground mt-2 text-xs">
+                <p className="mt-2 text-xs text-muted-foreground">
                   Certifications are grouped by category and sorted by expiry date.
                 </p>
               </Card>
@@ -589,6 +711,29 @@ export default function PilotDetailPage() {
 
       {/* Confirmation Dialog */}
       <ConfirmDialog />
+    </div>
+  )
+}
+
+// InfoRow Component
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: any
+  label: string
+  value: string | number
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="mt-0.5 truncate text-sm font-semibold text-foreground">{value}</p>
+      </div>
     </div>
   )
 }
