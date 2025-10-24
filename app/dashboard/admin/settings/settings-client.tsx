@@ -28,12 +28,6 @@ export function SettingsClient({ settings }: SettingsClientProps) {
   const editingSetting = localSettings.find((s) => s.id === editingSettingId)
 
   function handleEdit(setting: SystemSetting) {
-    console.log('🔵 handleEdit called for setting:', {
-      id: setting.id,
-      key: setting.key,
-      isProtected: isProtected(setting),
-      is_system: (setting as any).is_system,
-    })
     setEditingSettingId(setting.id)
     setEditValue(JSON.stringify(setting.value, null, 2))
     setEditDescription(setting.description || '')
@@ -73,17 +67,12 @@ export function SettingsClient({ settings }: SettingsClientProps) {
       const result = await response.json()
 
       if (result.success) {
-        console.log('✅ Setting saved successfully:', result.data.key)
-
         // Update local state
-        setLocalSettings((prev) =>
-          prev.map((s) => (s.id === editingSettingId ? result.data : s))
-        )
+        setLocalSettings((prev) => prev.map((s) => (s.id === editingSettingId ? result.data : s)))
         handleClose()
 
         // Reload page for critical settings that affect multiple pages
         if (result.data.key === 'app_title' || result.data.key === 'pilot_requirements') {
-          console.log(`🔄 ${result.data.key} updated - refreshing page to apply changes...`)
           window.location.reload()
         }
       } else {
@@ -103,17 +92,10 @@ export function SettingsClient({ settings }: SettingsClientProps) {
   // Filter settings by category
   const uncategorizedSettings = localSettings.filter((s) => {
     const cat = (s as any).category
-    return !cat || (cat !== 'fleet' && cat !== 'certification' && cat !== 'leave' && cat !== 'system')
+    return (
+      !cat || (cat !== 'fleet' && cat !== 'certification' && cat !== 'leave' && cat !== 'system')
+    )
   })
-
-  // Debug: Log uncategorized settings
-  console.log('🟢 Uncategorized Settings:', uncategorizedSettings.map(s => ({
-    key: s.key,
-    id: s.id,
-    isProtected: isProtected(s),
-    is_system: (s as any).is_system,
-    category: (s as any).category,
-  })))
 
   return (
     <>
@@ -297,7 +279,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                       <div className="flex items-center space-x-2">
                         <p className="text-foreground text-sm font-medium">{setting.key}</p>
                         {(setting as any).is_system && (
-                          <span className="bg-red-100 text-red-800 rounded-full px-2 py-0.5 text-xs">
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-800">
                             Protected
                           </span>
                         )}
@@ -366,7 +348,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                     {setting.description || 'No description'}
                   </td>
                   <td className="text-muted-foreground px-4 py-4 text-sm">
-                    <pre className="max-w-xs overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+                    <pre className="max-w-xs overflow-hidden text-xs text-ellipsis whitespace-nowrap">
                       {JSON.stringify(setting.value)}
                     </pre>
                   </td>
@@ -382,7 +364,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                         {(setting as any).is_active !== false ? 'ACTIVE' : 'INACTIVE'}
                       </span>
                       {(setting as any).is_system && (
-                        <span className="bg-red-100 text-red-800 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
+                        <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
                           PROTECTED
                         </span>
                       )}
@@ -414,13 +396,13 @@ export function SettingsClient({ settings }: SettingsClientProps) {
 
       {/* Edit Modal */}
       <Dialog open={!!editingSettingId} onOpenChange={handleClose}>
-        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+        <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col">
           <DialogHeader>
             <DialogTitle className="text-2xl">Edit Setting: {editingSetting?.key}</DialogTitle>
           </DialogHeader>
 
           {/* Scrollable content area */}
-          <div className="space-y-4 overflow-y-auto flex-1 pr-2">
+          <div className="flex-1 space-y-4 overflow-y-auto pr-2">
             {/* Description */}
             <div>
               <Label htmlFor="description">Description</Label>
@@ -451,7 +433,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
           </div>
 
           {/* Fixed actions at bottom */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t mt-4">
+          <div className="mt-4 flex items-center justify-end space-x-3 border-t pt-4">
             <Button variant="outline" onClick={handleClose} disabled={saving}>
               Cancel
             </Button>
