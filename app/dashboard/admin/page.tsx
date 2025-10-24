@@ -1,15 +1,14 @@
 /**
- * Admin Settings Page
- * System configuration and administrative settings
+ * Admin Dashboard Page
+ * Clean, organized admin interface with better spacing and readability
  */
 
 export const dynamic = 'force-dynamic'
 
 import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
-
-export const metadata = dashboardMetadata.admin
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import {
   getAdminStats,
@@ -19,6 +18,9 @@ import {
   getCheckTypeCategories,
 } from '@/lib/services/admin-service'
 import { format } from 'date-fns'
+import { Users, CheckCircle2, FileText, Database, UserPlus, Settings, List } from 'lucide-react'
+
+export const metadata = dashboardMetadata.admin
 
 export default async function AdminPage() {
   // Fetch all data in parallel
@@ -31,111 +33,152 @@ export default async function AdminPage() {
   ])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-8">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-foreground text-xl sm:text-2xl font-bold">Admin Settings</h2>
-          <p className="text-muted-foreground mt-1 text-sm">System configuration and user management</p>
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-muted-foreground mt-2">System configuration and user management</p>
         </div>
-        <Link href="/dashboard/admin/users/new" className="w-full sm:w-auto">
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto">
-            Add User
+        <Link href="/dashboard/admin/users/new">
+          <Button size="lg" className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            Add New User
           </Button>
         </Link>
       </div>
 
       {/* System Status Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-green-200 bg-green-50 p-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">✅</span>
-            <div>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
               <p className="text-muted-foreground text-sm font-medium">System Status</p>
-              <p className="text-foreground mt-1 text-lg font-bold">All Systems Operational</p>
+              <p className="text-foreground text-2xl font-bold">Operational</p>
+            </div>
+            <div className="rounded-full bg-green-100 p-3">
+              <CheckCircle2 className="h-6 w-6 text-green-600" />
             </div>
           </div>
         </Card>
 
-        <Card className="border-primary/20 bg-primary/5 p-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">👥</span>
-            <div>
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
               <p className="text-muted-foreground text-sm font-medium">Active Users</p>
-              <p className="text-foreground mt-1 text-lg font-bold">
-                {stats.totalAdmins + stats.totalManagers} Admin, {stats.totalPilots} Pilots
+              <p className="text-foreground text-2xl font-bold">
+                {stats.totalAdmins + stats.totalManagers + stats.totalPilots}
               </p>
+              <p className="text-muted-foreground text-xs">
+                {stats.totalAdmins + stats.totalManagers} staff, {stats.totalPilots} pilots
+              </p>
+            </div>
+            <div className="rounded-full bg-blue-100 p-3">
+              <Users className="h-6 w-6 text-blue-600" />
             </div>
           </div>
         </Card>
 
-        <Card className="border-purple-200 bg-purple-50 p-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">📋</span>
-            <div>
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
               <p className="text-muted-foreground text-sm font-medium">Check Types</p>
-              <p className="text-foreground mt-1 text-lg font-bold">
-                {stats.totalCheckTypes} Types
-              </p>
+              <p className="text-foreground text-2xl font-bold">{stats.totalCheckTypes}</p>
+              <p className="text-muted-foreground text-xs">certification types</p>
+            </div>
+            <div className="rounded-full bg-purple-100 p-3">
+              <FileText className="h-6 w-6 text-purple-600" />
             </div>
           </div>
         </Card>
 
-        <Card className="border-orange-200 bg-orange-50 p-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">📊</span>
-            <div>
-              <p className="text-muted-foreground text-sm font-medium">Total Records</p>
-              <p className="text-foreground mt-1 text-lg font-bold">
-                {stats.totalCertifications} Certs
-              </p>
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <p className="text-muted-foreground text-sm font-medium">Certifications</p>
+              <p className="text-foreground text-2xl font-bold">{stats.totalCertifications}</p>
+              <p className="text-muted-foreground text-xs">total records</p>
+            </div>
+            <div className="rounded-full bg-orange-100 p-3">
+              <Database className="h-6 w-6 text-orange-600" />
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Admin Users Section */}
+      {/* Quick Actions */}
       <Card className="p-6">
-        <h3 className="text-foreground mb-4 text-lg font-semibold">Admin & Manager Users</h3>
+        <h2 className="text-foreground mb-6 text-xl font-semibold">Quick Actions</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Link href="/dashboard/admin/users/new">
+            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
+              <div className="rounded-lg bg-blue-100 p-3">
+                <UserPlus className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="font-semibold">Add New User</p>
+                <p className="text-muted-foreground text-xs">Create admin or manager</p>
+              </div>
+            </Button>
+          </Link>
+
+          <Link href="/dashboard/admin/check-types">
+            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
+              <div className="rounded-lg bg-purple-100 p-3">
+                <List className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="font-semibold">Manage Check Types</p>
+                <p className="text-muted-foreground text-xs">Edit certification types</p>
+              </div>
+            </Button>
+          </Link>
+
+          <Link href="/dashboard/admin/settings">
+            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
+              <div className="rounded-lg bg-green-100 p-3">
+                <Settings className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="font-semibold">System Settings</p>
+                <p className="text-muted-foreground text-xs">Configure preferences</p>
+              </div>
+            </Button>
+          </Link>
+        </div>
+      </Card>
+
+      {/* Admin Users */}
+      <Card className="p-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-foreground text-xl font-semibold">Admin & Manager Users</h2>
+            <p className="text-muted-foreground mt-1 text-sm">System administrators and managers</p>
+          </div>
+          <Badge variant="secondary">{users.length} users</Badge>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="divide-border min-w-full divide-y">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Name
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Email
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Role
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Created
-                </th>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b text-left">
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Name</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Email</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Role</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Created</th>
               </tr>
             </thead>
-            <tbody className="divide-border divide-y">
+            <tbody className="divide-y">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-muted/50">
-                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
-                    {user.name}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {user.email}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        user.role === 'admin'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-primary/10 text-primary'
-                      }`}
-                    >
+                <tr key={user.id} className="group hover:bg-muted/50">
+                  <td className="text-foreground py-4 text-sm font-medium">{user.name}</td>
+                  <td className="text-muted-foreground py-4 text-sm">{user.email}</td>
+                  <td className="py-4">
+                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
                       {user.role.toUpperCase()}
-                    </span>
+                    </Badge>
                   </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
+                  <td className="text-muted-foreground py-4 text-sm">
                     {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
                   </td>
                 </tr>
@@ -143,60 +186,53 @@ export default async function AdminPage() {
             </tbody>
           </table>
         </div>
-        <div className="text-muted-foreground mt-4 text-sm">Showing {users.length} users</div>
       </Card>
 
       {/* Check Types by Category */}
       <Card className="p-6">
-        <h3 className="text-foreground mb-4 text-lg font-semibold">
-          Check Types Configuration ({checkTypes.length} total)
-        </h3>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-foreground text-xl font-semibold">Check Types Configuration</h2>
+            <p className="text-muted-foreground mt-1 text-sm">Certification types by category</p>
+          </div>
+          <Badge variant="secondary">{checkTypes.length} types</Badge>
+        </div>
 
         {/* Category Stats */}
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => {
             const count = checkTypes.filter((ct) => ct.category === category).length
             return (
-              <Card key={category} className="bg-muted/50 p-4">
+              <Card key={category} className="bg-muted/30 p-4">
                 <p className="text-muted-foreground text-sm font-medium">{category}</p>
-                <p className="text-foreground mt-1 text-2xl font-bold">{count}</p>
+                <p className="text-foreground mt-2 text-3xl font-bold">{count}</p>
               </Card>
             )
           })}
         </div>
 
-        {/* Check Types Table */}
+        {/* Check Types Table - Showing first 10 for better readability */}
         <div className="overflow-x-auto">
-          <table className="divide-border min-w-full divide-y">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Code
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Description
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Category
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Updated
-                </th>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b text-left">
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Code</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Description</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Category</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Updated</th>
               </tr>
             </thead>
-            <tbody className="divide-border divide-y">
-              {checkTypes.slice(0, 15).map((checkType) => (
-                <tr key={checkType.id} className="hover:bg-muted/50">
-                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
+            <tbody className="divide-y">
+              {checkTypes.slice(0, 10).map((checkType) => (
+                <tr key={checkType.id} className="group hover:bg-muted/50">
+                  <td className="text-foreground py-4 text-sm font-medium">
                     {checkType.check_code}
                   </td>
-                  <td className="text-foreground px-4 py-4 text-sm">
-                    {checkType.check_description}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
+                  <td className="text-foreground py-4 text-sm">{checkType.check_description}</td>
+                  <td className="text-muted-foreground py-4 text-sm">
                     {checkType.category || 'N/A'}
                   </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
+                  <td className="text-muted-foreground py-4 text-sm">
                     {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
                   </td>
                 </tr>
@@ -204,99 +240,57 @@ export default async function AdminPage() {
             </tbody>
           </table>
         </div>
-        <div className="text-muted-foreground mt-4 text-sm">
-          Showing {Math.min(15, checkTypes.length)} of {checkTypes.length} check types
-        </div>
+
+        {checkTypes.length > 10 && (
+          <div className="mt-4 text-center">
+            <Link href="/dashboard/admin/check-types">
+              <Button variant="outline" size="sm">
+                View All {checkTypes.length} Check Types
+              </Button>
+            </Link>
+          </div>
+        )}
       </Card>
 
       {/* Contract Types */}
       <Card className="p-6">
-        <h3 className="text-foreground mb-4 text-lg font-semibold">Contract Types</h3>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-foreground text-xl font-semibold">Contract Types</h2>
+            <p className="text-muted-foreground mt-1 text-sm">Employment contract types</p>
+          </div>
+          <Badge variant="secondary">{contractTypes.length} types</Badge>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="divide-border min-w-full divide-y">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Name
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Description
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Status
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Created
-                </th>
+          <table className="w-full">
+            <thead>
+              <tr className="border-b text-left">
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Name</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Description</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Status</th>
+                <th className="text-muted-foreground pb-3 text-sm font-medium">Created</th>
               </tr>
             </thead>
-            <tbody className="divide-border divide-y">
+            <tbody className="divide-y">
               {contractTypes.map((contract) => (
-                <tr key={contract.id} className="hover:bg-muted/50">
-                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
-                    {contract.name}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm">
+                <tr key={contract.id} className="group hover:bg-muted/50">
+                  <td className="text-foreground py-4 text-sm font-medium">{contract.name}</td>
+                  <td className="text-muted-foreground py-4 text-sm">
                     {contract.description || 'N/A'}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        contract.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-muted text-foreground'
-                      }`}
-                    >
+                  <td className="py-4">
+                    <Badge variant={contract.is_active ? 'default' : 'secondary'}>
                       {contract.is_active ? 'ACTIVE' : 'INACTIVE'}
-                    </span>
+                    </Badge>
                   </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
+                  <td className="text-muted-foreground py-4 text-sm">
                     {format(new Date(contract.created_at), 'MMM dd, yyyy')}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="text-muted-foreground mt-4 text-sm">
-          Showing {contractTypes.length} contract types
-        </div>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
-        <h3 className="text-foreground mb-4 text-lg font-semibold">Quick Actions</h3>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Link href="/dashboard/admin/users/new" className="block">
-            <Button
-              variant="outline"
-              className="flex h-auto w-full flex-col items-start py-4 transition-all hover:bg-white hover:shadow-md"
-            >
-              <span className="mb-2 text-2xl">👤</span>
-              <span className="font-semibold">Add New User</span>
-              <span className="text-muted-foreground text-xs">Create admin or manager account</span>
-            </Button>
-          </Link>
-          <Link href="/dashboard/admin/check-types" className="block">
-            <Button
-              variant="outline"
-              className="flex h-auto w-full flex-col items-start py-4 transition-all hover:bg-white hover:shadow-md"
-            >
-              <span className="mb-2 text-2xl">📋</span>
-              <span className="font-semibold">Manage Check Types</span>
-              <span className="text-muted-foreground text-xs">Add or edit certification types</span>
-            </Button>
-          </Link>
-          <Link href="/dashboard/admin/settings" className="block">
-            <Button
-              variant="outline"
-              className="flex h-auto w-full flex-col items-start py-4 transition-all hover:bg-white hover:shadow-md"
-            >
-              <span className="mb-2 text-2xl">⚙️</span>
-              <span className="font-semibold">System Settings</span>
-              <span className="text-muted-foreground text-xs">Configure system preferences</span>
-            </Button>
-          </Link>
         </div>
       </Card>
     </div>
