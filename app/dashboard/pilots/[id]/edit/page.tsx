@@ -39,6 +39,12 @@ interface Pilot {
   captain_qualifications: any
 }
 
+interface ContractType {
+  id: string
+  name: string
+  description: string | null
+}
+
 export default function EditPilotPage() {
   const router = useRouter()
   const params = useParams()
@@ -48,6 +54,8 @@ export default function EditPilotPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [pilot, setPilot] = useState<Pilot | null>(null)
+  const [contractTypes, setContractTypes] = useState<ContractType[]>([])
+  const [loadingContractTypes, setLoadingContractTypes] = useState(true)
 
   const {
     register,
@@ -60,6 +68,26 @@ export default function EditPilotPage() {
   })
 
   const selectedRole = watch('role')
+
+  // Fetch contract types on component mount
+  useEffect(() => {
+    async function fetchContractTypes() {
+      try {
+        const response = await fetch('/api/contract-types')
+        const result = await response.json()
+
+        if (result.success && result.data) {
+          setContractTypes(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch contract types:', error)
+      } finally {
+        setLoadingContractTypes(false)
+      }
+    }
+
+    fetchContractTypes()
+  }, [])
 
   useEffect(() => {
     if (pilotId) {
@@ -124,8 +152,7 @@ export default function EditPilotPage() {
       const processedData = {
         ...data,
         // Convert is_active to boolean (handle both boolean and string inputs)
-        is_active:
-          typeof data.is_active === 'boolean' ? data.is_active : data.is_active === 'true',
+        is_active: typeof data.is_active === 'boolean' ? data.is_active : data.is_active === 'true',
       }
 
       const response = await fetch(`/api/pilots/${pilotId}`, {
@@ -188,7 +215,10 @@ export default function EditPilotPage() {
         items={[
           { label: 'Admin Dashboard', href: '/dashboard' },
           { label: 'Pilots', href: '/dashboard/pilots' },
-          { label: `${pilot?.first_name} ${pilot?.last_name}`, href: `/dashboard/pilots/${pilotId}` },
+          {
+            label: `${pilot?.first_name} ${pilot?.last_name}`,
+            href: `/dashboard/pilots/${pilotId}`,
+          },
           { label: 'Edit' },
         ]}
       />
@@ -333,14 +363,21 @@ export default function EditPilotPage() {
                   {...register('contract_type', {
                     setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                   })}
-                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  disabled={loadingContractTypes}
+                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">Select contract type...</option>
-                  <option value="Full-time">Full-time</option>
-                  <option value="Commuting 18/10">Commuting 18/10</option>
-                  <option value="Commuting 36/20">Commuting 36/20</option>
-                  <option value="Tours 21/21">Tours 21/21</option>
+                  <option value="">
+                    {loadingContractTypes ? 'Loading...' : 'Select contract type...'}
+                  </option>
+                  {contractTypes.map((ct) => (
+                    <option key={ct.id} value={ct.name}>
+                      {ct.name}
+                    </option>
+                  ))}
                 </select>
+                {errors.contract_type && (
+                  <p className="text-sm text-red-600">{errors.contract_type.message}</p>
+                )}
               </div>
 
               {/* Commencement Date */}

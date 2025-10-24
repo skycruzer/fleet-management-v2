@@ -73,7 +73,8 @@ function getCertificationStatus(expiryDate: Date | null) {
       daysUntilExpiry,
     }
   }
-  if (daysUntilExpiry <= 30) {
+  // Changed from <= 30 to <= 90 to capture all certifications expiring within 90 days
+  if (daysUntilExpiry <= 90) {
     return {
       color: 'yellow' as const,
       label: 'Expiring Soon' as const,
@@ -122,16 +123,16 @@ export async function getCertifications(
     async () => {
       const supabase = await createClient()
 
-  try {
-    // Calculate pagination range
-    const from = (page - 1) * pageSize
-    const to = from + pageSize - 1
+      try {
+        // Calculate pagination range
+        const from = (page - 1) * pageSize
+        const to = from + pageSize - 1
 
-    // Build query with eager loading (single JOIN query - eliminates N+1)
-    let query = supabase
-      .from('pilot_checks')
-      .select(
-        `
+        // Build query with eager loading (single JOIN query - eliminates N+1)
+        let query = supabase
+          .from('pilot_checks')
+          .select(
+            `
         id,
         pilot_id,
         check_type_id,
@@ -152,61 +153,61 @@ export async function getCertifications(
           category
         )
       `,
-        { count: 'exact' }
-      )
-      .range(from, to)
+            { count: 'exact' }
+          )
+          .range(from, to)
 
-    // Apply filters
-    if (filters?.pilotId) {
-      query = query.eq('pilot_id', filters.pilotId)
-    }
-    if (filters?.checkTypeId) {
-      query = query.eq('check_type_id', filters.checkTypeId)
-    }
+        // Apply filters
+        if (filters?.pilotId) {
+          query = query.eq('pilot_id', filters.pilotId)
+        }
+        if (filters?.checkTypeId) {
+          query = query.eq('check_type_id', filters.checkTypeId)
+        }
 
-    // Apply status filter (date-based)
-    if (filters?.status && filters.status !== 'all') {
-      const today = new Date()
-      if (filters.status === 'expired') {
-        query = query.lt('expiry_date', today.toISOString())
-      } else if (filters.status === 'expiring') {
-        const thirtyDaysFromNow = new Date()
-        thirtyDaysFromNow.setDate(today.getDate() + 30)
-        query = query
-          .gte('expiry_date', today.toISOString())
-          .lte('expiry_date', thirtyDaysFromNow.toISOString())
-      } else if (filters.status === 'current') {
-        const thirtyDaysFromNow = new Date()
-        thirtyDaysFromNow.setDate(today.getDate() + 30)
-        query = query.gt('expiry_date', thirtyDaysFromNow.toISOString())
+        // Apply status filter (date-based)
+        if (filters?.status && filters.status !== 'all') {
+          const today = new Date()
+          if (filters.status === 'expired') {
+            query = query.lt('expiry_date', today.toISOString())
+          } else if (filters.status === 'expiring') {
+            const thirtyDaysFromNow = new Date()
+            thirtyDaysFromNow.setDate(today.getDate() + 30)
+            query = query
+              .gte('expiry_date', today.toISOString())
+              .lte('expiry_date', thirtyDaysFromNow.toISOString())
+          } else if (filters.status === 'current') {
+            const thirtyDaysFromNow = new Date()
+            thirtyDaysFromNow.setDate(today.getDate() + 30)
+            query = query.gt('expiry_date', thirtyDaysFromNow.toISOString())
+          }
+        }
+
+        query = query.order('expiry_date', { ascending: true, nullsFirst: false })
+
+        const { data, error, count } = await query
+
+        if (error) throw error
+
+        const certificationsWithStatus = (data || []).map((cert: any) => ({
+          ...cert,
+          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null),
+        }))
+
+        return {
+          certifications: certificationsWithStatus,
+          total: count || 0,
+          page,
+          pageSize,
+        }
+      } catch (error) {
+        logError(error as Error, {
+          source: 'certification-service:getCertifications',
+          severity: ErrorSeverity.HIGH,
+          metadata: { operation: 'fetchCertifications' },
+        })
+        throw error
       }
-    }
-
-    query = query.order('expiry_date', { ascending: true, nullsFirst: false })
-
-    const { data, error, count } = await query
-
-    if (error) throw error
-
-    const certificationsWithStatus = (data || []).map((cert: any) => ({
-      ...cert,
-      status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null),
-    }))
-
-    return {
-      certifications: certificationsWithStatus,
-      total: count || 0,
-      page,
-      pageSize,
-    }
-  } catch (error) {
-    logError(error as Error, {
-      source: 'certification-service:getCertifications',
-      severity: ErrorSeverity.HIGH,
-      metadata: { operation: 'fetchCertifications' },
-    })
-    throw error
-  }
     },
     5 * 60 * 1000 // 5 minute cache TTL
   )
@@ -416,6 +417,10 @@ export async function createCertification(
       description: `Created certification for pilot ID: ${data.pilot_id}`,
     })
 
+    // Invalidate certification cache to ensure fresh data is fetched
+    const { invalidateCacheByTag } = await import('./cache-service')
+    invalidateCacheByTag('certifications')
+
     return data
   } catch (error) {
     logError(error as Error, {
@@ -469,6 +474,10 @@ export async function updateCertification(
       description: `Updated certification for pilot ID: ${data.pilot_id}`,
     })
 
+    // Invalidate certification cache to ensure fresh data is fetched
+    const { invalidateCacheByTag } = await import('./cache-service')
+    invalidateCacheByTag('certifications')
+
     return data
   } catch (error) {
     logError(error as Error, {
@@ -508,6 +517,10 @@ export async function deleteCertification(certificationId: string): Promise<void
         description: `Deleted certification for pilot ID: ${oldData.pilot_id}`,
       })
     }
+
+    // Invalidate certification cache to ensure fresh data is fetched
+    const { invalidateCacheByTag } = await import('./cache-service')
+    invalidateCacheByTag('certifications')
   } catch (error) {
     logError(error as Error, {
       source: 'certification-service:deleteCertification',

@@ -36,7 +36,8 @@ import {
   CheckSquare,
   AlertTriangle,
   Plane,
-  ScrollText
+  ScrollText,
+  RefreshCw,
 } from 'lucide-react'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -55,16 +56,61 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // Navigation links for both desktop and mobile
   const navLinks = [
-    { href: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" aria-hidden="true" />, label: 'Dashboard' },
-    { href: '/dashboard/pilots', icon: <Users className="h-5 w-5" aria-hidden="true" />, label: 'Pilots' },
-    { href: '/dashboard/certifications', icon: <FileText className="h-5 w-5" aria-hidden="true" />, label: 'Certifications' },
-    { href: '/dashboard/leave', icon: <Calendar className="h-5 w-5" aria-hidden="true" />, label: 'Leave Requests' },
-    { href: '/dashboard/flight-requests', icon: <Plane className="h-5 w-5" aria-hidden="true" />, label: 'Flight Requests' },
-    { href: '/dashboard/tasks', icon: <CheckSquare className="h-5 w-5" aria-hidden="true" />, label: 'Tasks' },
-    { href: '/dashboard/disciplinary', icon: <AlertTriangle className="h-5 w-5" aria-hidden="true" />, label: 'Disciplinary' },
-    { href: '/dashboard/audit-logs', icon: <ScrollText className="h-5 w-5" aria-hidden="true" />, label: 'Audit Logs' },
-    { href: '/dashboard/analytics', icon: <TrendingUp className="h-5 w-5" aria-hidden="true" />, label: 'Analytics' },
-    { href: '/dashboard/admin', icon: <Settings className="h-5 w-5" aria-hidden="true" />, label: 'Settings' },
+    {
+      href: '/dashboard',
+      icon: <LayoutDashboard className="h-5 w-5" aria-hidden="true" />,
+      label: 'Dashboard',
+    },
+    {
+      href: '/dashboard/pilots',
+      icon: <Users className="h-5 w-5" aria-hidden="true" />,
+      label: 'Pilots',
+    },
+    {
+      href: '/dashboard/certifications',
+      icon: <FileText className="h-5 w-5" aria-hidden="true" />,
+      label: 'Certifications',
+    },
+    {
+      href: '/dashboard/renewal-planning',
+      icon: <RefreshCw className="h-5 w-5" aria-hidden="true" />,
+      label: 'Renewal Planning',
+    },
+    {
+      href: '/dashboard/leave',
+      icon: <Calendar className="h-5 w-5" aria-hidden="true" />,
+      label: 'Leave Requests',
+    },
+    {
+      href: '/dashboard/flight-requests',
+      icon: <Plane className="h-5 w-5" aria-hidden="true" />,
+      label: 'Flight Requests',
+    },
+    {
+      href: '/dashboard/tasks',
+      icon: <CheckSquare className="h-5 w-5" aria-hidden="true" />,
+      label: 'Tasks',
+    },
+    {
+      href: '/dashboard/disciplinary',
+      icon: <AlertTriangle className="h-5 w-5" aria-hidden="true" />,
+      label: 'Disciplinary',
+    },
+    {
+      href: '/dashboard/audit-logs',
+      icon: <ScrollText className="h-5 w-5" aria-hidden="true" />,
+      label: 'Audit Logs',
+    },
+    {
+      href: '/dashboard/analytics',
+      icon: <TrendingUp className="h-5 w-5" aria-hidden="true" />,
+      label: 'Analytics',
+    },
+    {
+      href: '/dashboard/admin',
+      icon: <Settings className="h-5 w-5" aria-hidden="true" />,
+      label: 'Settings',
+    },
   ]
 
   return (
@@ -77,7 +123,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <div className="bg-muted/50 flex h-screen">
         {/* Desktop Sidebar - Hidden on mobile */}
-        <aside className="hidden lg:flex border-border bg-card w-64 flex-col border-r" role="navigation" aria-label="Main navigation">
+        <aside
+          className="border-border bg-card hidden w-64 flex-col border-r lg:flex"
+          role="navigation"
+          aria-label="Main navigation"
+        >
           {/* Logo */}
           <div className="border-border flex h-16 items-center border-b px-6">
             <Link href="/dashboard" className="flex items-center space-x-2">
@@ -128,7 +178,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {/* Main Content */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Desktop Header - Hidden on mobile */}
-          <header className="hidden lg:flex border-border bg-card h-16 items-center justify-between border-b px-6">
+          <header className="border-border bg-card hidden h-16 items-center justify-between border-b px-6 lg:flex">
             <h1 className="text-foreground text-lg font-semibold" suppressHydrationWarning>
               {appTitle}
             </h1>
@@ -136,7 +186,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </header>
 
           {/* Page Content */}
-          <main id="main-content" className="bg-muted/50 flex-1 overflow-y-auto p-4 sm:p-6" role="main" aria-label="Main content">
+          <main
+            id="main-content"
+            className="bg-muted/50 flex-1 overflow-y-auto p-4 sm:p-6"
+            role="main"
+            aria-label="Main content"
+          >
             {children}
           </main>
         </div>

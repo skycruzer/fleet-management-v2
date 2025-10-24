@@ -17,7 +17,7 @@ import { formatDate } from '@/lib/utils/date-utils'
 
 export interface PilotTableRow {
   id: string
-  seniority: number | null
+  seniority_number: number | null
   first_name: string
   last_name: string
   role: string
@@ -37,16 +37,16 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       pilot.first_name.toLowerCase().includes(searchStr) ||
       pilot.last_name.toLowerCase().includes(searchStr) ||
       pilot.role.toLowerCase().includes(searchStr) ||
-      (pilot.seniority?.toString() || '').includes(searchStr)
+      (pilot.seniority_number?.toString() || '').includes(searchStr)
     )
   }, [])
 
-  const { filteredData, filterQuery, setFilterQuery} = useTableFilter(pilots, filterFn)
+  const { filteredData, filterQuery, setFilterQuery } = useTableFilter(pilots, filterFn)
 
   // Export function
   const handleExport = React.useCallback(() => {
     const exportColumns = [
-      { header: 'Seniority', accessor: (row: PilotTableRow) => row.seniority ?? '' },
+      { header: 'Seniority', accessor: (row: PilotTableRow) => row.seniority_number ?? '' },
       { header: 'First Name', accessor: (row: PilotTableRow) => row.first_name },
       { header: 'Last Name', accessor: (row: PilotTableRow) => row.last_name },
       { header: 'Rank', accessor: (row: PilotTableRow) => row.role },
@@ -54,7 +54,10 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
         header: 'Commencement Date',
         accessor: (row: PilotTableRow) => formatDate(row.commencement_date),
       },
-      { header: 'Status', accessor: (row: PilotTableRow) => (row.is_active ? 'Active' : 'Inactive') },
+      {
+        header: 'Status',
+        accessor: (row: PilotTableRow) => (row.is_active ? 'Active' : 'Inactive'),
+      },
     ]
 
     exportToCSV(filteredData, exportColumns, generateFilename('pilots'))
@@ -65,11 +68,11 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
     {
       id: 'seniority',
       header: 'Seniority',
-      accessorKey: 'seniority',
+      accessorKey: 'seniority_number',
       sortable: true,
       cell: (row) => (
-        <span className="font-medium text-muted-foreground">
-          {row.seniority ? `#${row.seniority}` : '-'}
+        <span className="text-muted-foreground font-medium">
+          {row.seniority_number ? `#${row.seniority_number}` : '-'}
         </span>
       ),
     },
@@ -90,9 +93,7 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       accessorKey: 'role',
       sortable: true,
       cell: (row) => (
-        <Badge variant={row.role === 'Captain' ? 'default' : 'secondary'}>
-          {row.role}
-        </Badge>
+        <Badge variant={row.role === 'Captain' ? 'default' : 'secondary'}>{row.role}</Badge>
       ),
     },
     {
@@ -119,12 +120,20 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       cell: (row) => (
         <div className="flex items-center gap-2">
           <Link href={`/dashboard/pilots/${row.id}`}>
-            <Button size="sm" variant="ghost" aria-label={`View ${row.first_name} ${row.last_name}`}>
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label={`View ${row.first_name} ${row.last_name}`}
+            >
               <Eye className="h-4 w-4" aria-hidden="true" />
             </Button>
           </Link>
           <Link href={`/dashboard/pilots/${row.id}/edit`}>
-            <Button size="sm" variant="ghost" aria-label={`Edit ${row.first_name} ${row.last_name}`}>
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label={`Edit ${row.first_name} ${row.last_name}`}
+            >
               <Pencil className="h-4 w-4" aria-hidden="true" />
             </Button>
           </Link>

@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,10 +19,18 @@ import Link from 'next/link'
 
 type PilotFormData = z.infer<typeof PilotCreateSchema>
 
+interface ContractType {
+  id: string
+  name: string
+  description: string | null
+}
+
 export default function NewPilotPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [contractTypes, setContractTypes] = useState<ContractType[]>([])
+  const [loadingContractTypes, setLoadingContractTypes] = useState(true)
 
   const {
     register,
@@ -38,6 +46,26 @@ export default function NewPilotPage() {
   })
 
   const selectedRole = watch('role')
+
+  // Fetch contract types on component mount
+  useEffect(() => {
+    async function fetchContractTypes() {
+      try {
+        const response = await fetch('/api/contract-types')
+        const result = await response.json()
+
+        if (result.success && result.data) {
+          setContractTypes(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch contract types:', error)
+      } finally {
+        setLoadingContractTypes(false)
+      }
+    }
+
+    fetchContractTypes()
+  }, [])
 
   const onSubmit = async (data: PilotFormData) => {
     setIsSubmitting(true)
@@ -197,13 +225,21 @@ export default function NewPilotPage() {
                 <select
                   id="contract_type"
                   {...register('contract_type')}
-                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  disabled={loadingContractTypes}
+                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">Select contract type...</option>
-                  <option value="Fixed Term">Fixed Term</option>
-                  <option value="Permanent">Permanent</option>
-                  <option value="Contract">Contract</option>
+                  <option value="">
+                    {loadingContractTypes ? 'Loading...' : 'Select contract type...'}
+                  </option>
+                  {contractTypes.map((ct) => (
+                    <option key={ct.id} value={ct.name}>
+                      {ct.name}
+                    </option>
+                  ))}
                 </select>
+                {errors.contract_type && (
+                  <p className="text-sm text-red-600">{errors.contract_type.message}</p>
+                )}
               </div>
 
               {/* Commencement Date */}

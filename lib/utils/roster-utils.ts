@@ -681,6 +681,30 @@ export interface FinalReviewAlert {
  *
  * @returns Final review alert with all relevant data
  */
+/**
+ * Get all roster periods that fall within a date range
+ * Used for renewal planning to find eligible roster periods
+ */
+export function getRosterPeriodsInRange(startDate: Date, endDate: Date): RosterPeriod[] {
+  const periods: RosterPeriod[] = []
+  let currentDate = new Date(startDate)
+
+  while (currentDate <= endDate) {
+    const period = getRosterPeriodFromDate(currentDate)
+
+    // Avoid duplicates
+    if (!periods.some((p) => p.code === period.code)) {
+      periods.push(period)
+    }
+
+    // Move to next roster period (28 days)
+    currentDate = new Date(currentDate)
+    currentDate.setDate(currentDate.getDate() + 28)
+  }
+
+  return periods
+}
+
 export function getFinalReviewAlert(): FinalReviewAlert {
   const REVIEW_WINDOW_DAYS = 22
   const now = new Date()
