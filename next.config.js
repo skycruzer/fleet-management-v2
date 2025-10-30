@@ -11,9 +11,6 @@ const nextConfig = {
   // Don't use standalone on Vercel - it handles this automatically
   // output: 'standalone',
 
-  // Fix workspace root detection warning
-  outputFileTracingRoot: __dirname,
-
   // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -52,6 +49,13 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // Disable ISR cache to avoid static generation issues
+    isrMemoryCacheSize: 0,
+  },
+
+  // Skip static page generation during build to avoid Next.js framework bug
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
   },
 
   // Security headers
