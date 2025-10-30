@@ -1,15 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true, // Temporarily disable during build for deployment
-  },
   typescript: {
     ignoreBuildErrors: false, // Keep TypeScript strict
   },
 
   // Don't use standalone on Vercel - it handles this automatically
   // output: 'standalone',
+
+  // Turbopack configuration (required in Next.js 16 when using webpack)
+  turbopack: {},
 
   // Image optimization
   images: {
