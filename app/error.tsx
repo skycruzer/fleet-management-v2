@@ -1,17 +1,14 @@
+/**
+ * Application Error Page
+ * @author Maurice Rondeau
+ */
+
 'use client'
 
 import { useEffect } from 'react'
-import { logger } from '@/lib/services/logging-service'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
-import Link from 'next/link'
 
-/**
- * Global Error Boundary
- * Catches unhandled errors in the React component tree
- * Logs errors to Better Stack and displays user-friendly error message
- */
 export default function Error({
   error,
   reset,
@@ -20,57 +17,50 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    // Log error to Better Stack
-    logger.error('React error boundary caught error', {
-      error: error.message,
-      stack: error.stack,
-      digest: error.digest,
-      component: 'GlobalErrorBoundary',
-    })
+    console.error('Application error:', error)
   }, [error])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md p-8">
-        <div className="flex flex-col items-center space-y-6 text-center">
-          {/* Error Icon */}
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-            <AlertTriangle className="h-8 w-8 text-red-600" />
-          </div>
-
-          {/* Error Message */}
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-gray-900">Something went wrong!</h2>
-            <p className="text-gray-600">
-              We've been notified and are working on a fix. Please try again.
-            </p>
-          </div>
-
-          {/* Error Details (Development Only) */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="w-full rounded-lg bg-gray-100 p-4 text-left">
-              <p className="font-mono text-sm break-words text-gray-700">{error.message}</p>
-              {error.digest && (
-                <p className="mt-2 text-xs text-gray-500">Error ID: {error.digest}</p>
-              )}
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex w-full gap-3">
-            <Button onClick={reset} className="flex-1" variant="default">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Try Again
-            </Button>
-            <Link href="/dashboard" className="flex-1">
-              <Button variant="outline" className="w-full">
-                <Home className="mr-2 h-4 w-4" />
-                Go Home
-              </Button>
-            </Link>
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
+      <div className="max-w-lg space-y-6 text-center">
+        {/* Error Icon */}
+        <div className="flex justify-center">
+          <div className="bg-destructive/20 rounded-full p-6">
+            <AlertTriangle className="text-destructive h-16 w-16" />
           </div>
         </div>
-      </Card>
+
+        {/* Error Title */}
+        <h2 className="text-foreground text-3xl font-bold">Something went wrong</h2>
+
+        {/* Error Message */}
+        <p className="text-muted-foreground">
+          {process.env.NODE_ENV === 'development'
+            ? error.message || 'An unexpected error occurred'
+            : 'An unexpected error occurred. Please try again.'}
+        </p>
+
+        {/* Error ID */}
+        {error.digest && (
+          <p className="text-muted-foreground font-mono text-sm">Error ID: {error.digest}</p>
+        )}
+
+        {/* Action Buttons */}
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button onClick={() => reset()} className="w-full sm:w-auto">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Try Again
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => (window.location.href = '/')}
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Go Home
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
