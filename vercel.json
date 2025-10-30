@@ -1,7 +1,6 @@
 {
   "buildCommand": "npm run build || true",
   "framework": "nextjs",
-  "installCommand": "npm install --legacy-peer-deps",
   "env": {
     "TURBOPACK": "0",
     "NEXT_TELEMETRY_DISABLED": "1",
