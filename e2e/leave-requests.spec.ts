@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
+import { loginAndNavigate } from './helpers/auth-helpers'
 
 test.describe('Leave Requests - Pilot Portal', () => {
   test.beforeEach(async ({ page }) => {
-    // Assume authentication is handled
-    await page.goto('/portal/leave')
+    // Login as pilot and navigate to leave requests page
+    await loginAndNavigate(page, '/portal/leave-requests')
   })
 
   test('should display leave requests list', async ({ page }) => {

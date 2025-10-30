@@ -98,7 +98,8 @@ export function FormDatePickerWrapper({
                 mode="single"
                 selected={field.value ? new Date(field.value) : undefined}
                 onSelect={(date) => {
-                  field.onChange(date ? date.toISOString() : null)
+                  // Format as YYYY-MM-DD to match validation schema
+                  field.onChange(date ? format(date, 'yyyy-MM-dd') : null)
                 }}
                 disabled={(date) => {
                   if (disableFuture && date > new Date()) return true

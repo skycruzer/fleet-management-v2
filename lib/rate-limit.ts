@@ -1,6 +1,8 @@
 /**
  * Rate Limiting Module using Upstash Redis
  *
+ * Developer: Maurice Rondeau
+ *
  * Provides distributed rate limiting for Server Actions to prevent spam and DoS attacks.
  *
  * Rate Limits:
@@ -12,6 +14,8 @@
  * - Authentication: 10 per minute
  * - Password Reset: 3 per hour
  *
+ * @version 2.0.0
+ * @updated 2025-10-27 - Added developer attribution
  * @see https://upstash.com/docs/redis/features/ratelimit
  */
 

@@ -57,7 +57,7 @@ export default async function SystemSettingsPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-purple-200 bg-purple-50 p-6">
+        <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🔒</span>
             <div>

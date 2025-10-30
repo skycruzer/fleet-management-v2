@@ -2,14 +2,20 @@
  * Unified Certification Form Component
  * Handles both create and edit modes for certification management
  *
- * @version 1.0.0
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: This form includes CSRF token protection for all submissions
+ *
+ * @version 1.1.0
  * @since 2025-10-17
+ * @updated 2025-10-27 - Added CSRF protection
  */
 
 'use client'
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useCsrfToken } from '@/lib/providers/csrf-provider'
 import {
   CertificationCreateSchema,
   CertificationUpdateSchema,
@@ -55,6 +61,9 @@ export function CertificationForm({
   checkTypes = [],
   showPilotSelect = true,
 }: CertificationFormProps) {
+  // CSRF token for form protection
+  const { csrfToken, isLoading: csrfLoading } = useCsrfToken()
+
   const form = useForm<CertificationCreate | CertificationUpdate>({
     resolver: zodResolver(mode === 'create' ? CertificationCreateSchema : CertificationUpdateSchema),
     defaultValues: defaultValues ?? {
@@ -68,6 +77,8 @@ export function CertificationForm({
   })
 
   const handleSubmit = async (data: CertificationCreate | CertificationUpdate) => {
+    // Note: CSRF token is handled via fetchWithCsrf() in the parent component
+    // or via header in API calls. This form passes data to parent onSubmit.
     await onSubmit(data)
   }
 
@@ -161,9 +172,11 @@ export function CertificationForm({
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === 'create' ? 'Create Certification' : 'Update Certification'}
+            <Button type="submit" disabled={isLoading || csrfLoading || !csrfToken}>
+              {(isLoading || csrfLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {csrfLoading
+                ? 'Loading...'
+                : mode === 'create' ? 'Create Certification' : 'Update Certification'}
             </Button>
           </CardFooter>
         </form>

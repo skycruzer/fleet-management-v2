@@ -16,7 +16,6 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 
@@ -53,9 +52,13 @@ export async function getPilotAnalytics() {
             (retirementDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
           )
 
+          // Count pilots retiring within 2 years
           if (yearsToRetirement <= 2 && yearsToRetirement >= 0) {
             acc.retirementPlanning.retiringIn2Years++
-          } else if (yearsToRetirement <= 5 && yearsToRetirement >= 0) {
+          }
+
+          // Count pilots retiring within 5 years (inclusive of 2-year count)
+          if (yearsToRetirement <= 5 && yearsToRetirement >= 0) {
             acc.retirementPlanning.retiringIn5Years++
           }
         }
@@ -382,6 +385,390 @@ export async function getRiskAnalytics() {
       source: 'AnalyticsService',
       severity: ErrorSeverity.MEDIUM,
       metadata: { operation: 'getRiskAnalytics' },
+    })
+    throw error
+  }
+}
+
+// =====================================================
+// Advanced Analytics Functions (Improvement #3)
+// Added: 2025-10-25
+// =====================================================
+
+/**
+ * Get multi-year retirement forecast (10-year outlook)
+ * Returns year-by-year breakdown of expected retirements
+ *
+ * @param retirementAge - Standard retirement age (default: 65)
+ * @param yearsAhead - Number of years to forecast (default: 10)
+ * @returns Multi-year forecast with captain/FO/total breakdowns
+ *
+ * @example
+ * const forecast = await getMultiYearRetirementForecast(65, 10)
+ * // Returns: [{ year: 2025, captains: 2, firstOfficers: 1, total: 3 }, ...]
+ */
+export async function getMultiYearRetirementForecast(
+  retirementAge: number = 65,
+  yearsAhead: number = 10
+): Promise<
+  Array<{
+    year: number
+    captains: number
+    firstOfficers: number
+    total: number
+    yearLabel: string
+  }>
+> {
+  const supabase = await createClient()
+
+  try {
+    // @ts-ignore - Supabase type inference issue with select fields
+    const { data: pilots, error } = await supabase
+      .from('pilots')
+      .select('id, rank, date_of_birth, status')
+      .eq('status', 'active')
+
+    if (error) throw error
+    if (!pilots) return []
+
+    const currentYear = new Date().getFullYear()
+    const forecast: Array<{
+      year: number
+      captains: number
+      firstOfficers: number
+      total: number
+      yearLabel: string
+    }> = []
+
+    // Generate forecast for each year
+    for (let i = 0; i < yearsAhead; i++) {
+      const targetYear = currentYear + i
+      let captains = 0
+      let firstOfficers = 0
+
+      // @ts-ignore - Type inference issue with pilots array
+      pilots?.forEach((pilot: any) => {
+        if (!pilot.date_of_birth) return
+
+        const birthDate = new Date(pilot.date_of_birth)
+        const retirementYear = birthDate.getFullYear() + retirementAge
+
+        if (retirementYear === targetYear) {
+          if (pilot.rank === 'Captain') {
+            captains++
+          } else if (pilot.rank === 'First Officer') {
+            firstOfficers++
+          }
+        }
+      })
+
+      forecast.push({
+        year: targetYear,
+        captains,
+        firstOfficers,
+        total: captains + firstOfficers,
+        yearLabel: `${targetYear}`,
+      })
+    }
+
+    return forecast
+  } catch (error) {
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'getMultiYearRetirementForecast',
+        retirementAge,
+        yearsAhead,
+      },
+    })
+    throw error
+  }
+}
+
+/**
+ * Predict crew shortages based on retirement forecast and minimum crew requirements
+ * Identifies months where crew levels may fall below operational minimums
+ *
+ * @param retirementAge - Standard retirement age (default: 65)
+ * @param minimumCaptains - Minimum captains required (default: 10)
+ * @param minimumFirstOfficers - Minimum first officers required (default: 10)
+ * @returns Shortage predictions with severity levels and recommendations
+ *
+ * @example
+ * const shortages = await predictCrewShortages(65, 10, 10)
+ * // Returns critical periods, recommendations, and impact analysis
+ */
+export async function predictCrewShortages(
+  retirementAge: number = 65,
+  minimumCaptains: number = 10,
+  minimumFirstOfficers: number = 10
+): Promise<{
+  criticalPeriods: Array<{
+    startMonth: string
+    endMonth: string
+    severity: 'high' | 'critical'
+    captainShortage: number
+    firstOfficerShortage: number
+    impactDescription: string
+  }>
+  recommendations: Array<{
+    priority: 'immediate' | 'high' | 'medium'
+    action: string
+    timeline: string
+    impact: string
+  }>
+  summary: {
+    totalCriticalMonths: number
+    worstCaseShortage: number
+    timeToFirstShortage: number | null
+  }
+}> {
+  const supabase = await createClient()
+
+  try {
+    // @ts-ignore - Supabase type inference issue with select fields
+    const { data: pilots, error } = await supabase
+      .from('pilots')
+      .select('id, rank, date_of_birth, status')
+      .eq('status', 'active')
+
+    if (error) throw error
+    if (!pilots) {
+      return { criticalPeriods: [], recommendations: [], summary: { totalCriticalMonths: 0, worstCaseShortage: 0, timeToFirstShortage: null } }
+    }
+
+    const now = new Date()
+    // @ts-ignore - Type inference issue with pilots array
+    const currentCaptains = pilots?.filter((p: any) => p.rank === 'Captain').length || 0
+    // @ts-ignore - Type inference issue with pilots array
+    const currentFirstOfficers = pilots?.filter((p: any) => p.rank === 'First Officer').length || 0
+
+    const criticalPeriods: Array<{
+      startMonth: string
+      endMonth: string
+      severity: 'high' | 'critical'
+      captainShortage: number
+      firstOfficerShortage: number
+      impactDescription: string
+    }> = []
+
+    // Analyze next 60 months (5 years)
+    let availableCaptains = currentCaptains
+    let availableFirstOfficers = currentFirstOfficers
+    let inCriticalPeriod = false
+    let periodStartMonth = ''
+
+    for (let monthOffset = 0; monthOffset < 60; monthOffset++) {
+      const targetDate = new Date(now)
+      targetDate.setMonth(targetDate.getMonth() + monthOffset)
+      const monthLabel = targetDate.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+
+      // Calculate retirements this month
+      let captainRetirements = 0
+      let firstOfficerRetirements = 0
+
+      // @ts-ignore - Type inference issue with pilots array
+      pilots?.forEach((pilot: any) => {
+        if (!pilot.date_of_birth) return
+
+        const birthDate = new Date(pilot.date_of_birth)
+        const retirementDate = new Date(birthDate)
+        retirementDate.setFullYear(retirementDate.getFullYear() + retirementAge)
+
+        const retirementMonth = retirementDate.getMonth()
+        const retirementYear = retirementDate.getFullYear()
+
+        if (
+          retirementMonth === targetDate.getMonth() &&
+          retirementYear === targetDate.getFullYear()
+        ) {
+          if (pilot.rank === 'Captain') {
+            captainRetirements++
+          } else if (pilot.rank === 'First Officer') {
+            firstOfficerRetirements++
+          }
+        }
+      })
+
+      availableCaptains -= captainRetirements
+      availableFirstOfficers -= firstOfficerRetirements
+
+      // Check for shortages
+      const captainShortage = Math.max(0, minimumCaptains - availableCaptains)
+      const firstOfficerShortage = Math.max(0, minimumFirstOfficers - availableFirstOfficers)
+
+      if (captainShortage > 0 || firstOfficerShortage > 0) {
+        if (!inCriticalPeriod) {
+          inCriticalPeriod = true
+          periodStartMonth = monthLabel
+        }
+      } else {
+        if (inCriticalPeriod) {
+          // End of critical period
+          const severity: 'high' | 'critical' =
+            captainShortage >= 3 || firstOfficerShortage >= 3 ? 'critical' : 'high'
+
+          criticalPeriods.push({
+            startMonth: periodStartMonth,
+            endMonth: monthLabel,
+            severity,
+            captainShortage,
+            firstOfficerShortage,
+            impactDescription: `Shortage of ${captainShortage} captains and ${firstOfficerShortage} first officers`,
+          })
+
+          inCriticalPeriod = false
+        }
+      }
+    }
+
+    // Generate recommendations
+    const recommendations: Array<{
+      priority: 'immediate' | 'high' | 'medium'
+      action: string
+      timeline: string
+      impact: string
+    }> = []
+
+    if (criticalPeriods.length > 0) {
+      const firstCriticalPeriod = criticalPeriods[0]
+
+      if (firstCriticalPeriod.severity === 'critical') {
+        recommendations.push({
+          priority: 'immediate',
+          action: 'Accelerate recruitment for Captain and First Officer positions',
+          timeline: 'Next 3-6 months',
+          impact: 'Prevent operational capacity shortfall',
+        })
+
+        recommendations.push({
+          priority: 'immediate',
+          action: 'Identify First Officers eligible for Captain upgrade',
+          timeline: 'Next 1-2 months',
+          impact: 'Build internal promotion pipeline',
+        })
+      }
+
+      recommendations.push({
+        priority: 'high',
+        action: 'Review and optimize succession planning process',
+        timeline: 'Next 6 months',
+        impact: 'Ensure smooth knowledge transfer',
+      })
+
+      recommendations.push({
+        priority: 'medium',
+        action: 'Consider contract extensions for retiring pilots',
+        timeline: 'As needed',
+        impact: 'Provide temporary capacity buffer',
+      })
+    }
+
+    // Calculate summary metrics
+    const worstCaseShortage = Math.max(
+      ...criticalPeriods.map((p) => p.captainShortage + p.firstOfficerShortage),
+      0
+    )
+
+    const timeToFirstShortage =
+      criticalPeriods.length > 0
+        ? Math.floor(
+            (new Date(criticalPeriods[0].startMonth).getTime() - now.getTime()) /
+              (1000 * 60 * 60 * 24 * 30)
+          )
+        : null
+
+    return {
+      criticalPeriods,
+      recommendations,
+      summary: {
+        totalCriticalMonths: criticalPeriods.length,
+        worstCaseShortage,
+        timeToFirstShortage,
+      },
+    }
+  } catch (error) {
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'predictCrewShortages',
+        minimumCaptains,
+        minimumFirstOfficers,
+      },
+    })
+    throw error
+  }
+}
+
+/**
+ * Get historical retirement trends from materialized view
+ * Provides year-over-year comparison and trend analysis
+ *
+ * @returns Historical retirement trends with averages and comparisons
+ *
+ * @example
+ * const trends = await getHistoricalRetirementTrends()
+ * // Returns: [{ year: 2025, total: 3, avgAge: 65, trend: 'increasing' }, ...]
+ */
+export async function getHistoricalRetirementTrends(): Promise<
+  Array<{
+    year: number
+    captainRetirements: number
+    firstOfficerRetirements: number
+    totalRetirements: number
+    avgRetirementAge: number
+    trend: 'increasing' | 'stable' | 'decreasing'
+  }>
+> {
+  const supabase = await createClient()
+
+  try {
+    // @ts-ignore - Materialized view not yet in generated types until migration is deployed
+    const { data: trends, error } = await (supabase as any)
+      .from('mv_historical_retirement_trends')
+      .select('*')
+      .order('year', { ascending: true })
+
+    if (error) throw error
+
+    if (!trends || trends.length === 0) {
+      return []
+    }
+
+    // Calculate trend for each year
+    // @ts-ignore - Materialized view type not in generated types yet
+    const trendData = trends.map((yearData: any, index: number) => {
+      let trend: 'increasing' | 'stable' | 'decreasing' = 'stable'
+
+      if (index > 0) {
+        const previousYear = trends[index - 1] as any
+        const change = yearData.total_retirements - previousYear.total_retirements
+
+        if (change > 0) {
+          trend = 'increasing'
+        } else if (change < 0) {
+          trend = 'decreasing'
+        }
+      }
+
+      return {
+        year: yearData.year,
+        captainRetirements: yearData.captain_retirements || 0,
+        firstOfficerRetirements: yearData.first_officer_retirements || 0,
+        totalRetirements: yearData.total_retirements || 0,
+        avgRetirementAge: Math.round(yearData.avg_retirement_age || 65),
+        trend,
+      }
+    })
+
+    return trendData
+  } catch (error) {
+    logError(error as Error, {
+      source: 'AnalyticsService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getHistoricalRetirementTrends' },
     })
     throw error
   }

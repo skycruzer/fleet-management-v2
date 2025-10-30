@@ -1,6 +1,14 @@
 /**
  * Leave Requests API Route
  * Handles leave request listing and creation
+ *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ * RATE LIMITING: 20 mutation requests per minute per IP
+ *
+ * @version 2.1.0
+ * @updated 2025-10-27 - Added rate limiting
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -11,6 +19,8 @@ import {
 } from '@/lib/services/leave-service'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
 import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
 /**
  * GET /api/leave-requests
@@ -73,8 +83,14 @@ export async function GET(_request: NextRequest) {
  * POST /api/leave-requests
  * Create a new leave request
  */
-export async function POST(_request: NextRequest) {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // Check authentication
     const supabase = await createClient()
     const {
@@ -86,7 +102,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Parse and validate request body
-    const body = await _request.json()
+    const body = await request.json()
     const validatedData = LeaveRequestCreateSchema.parse(body)
 
     // Check for conflicts before creating
@@ -148,4 +164,4 @@ export async function POST(_request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

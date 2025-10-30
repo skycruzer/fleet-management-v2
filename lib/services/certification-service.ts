@@ -12,7 +12,6 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 import { differenceInDays } from 'date-fns'
@@ -442,18 +441,30 @@ export async function updateCertification(
   const supabase = await createClient()
 
   try {
+    console.log('🔧 [updateCertification] Starting update for certification:', certificationId)
+    console.log('🔧 [updateCertification] Received data:', JSON.stringify(certificationData, null, 2))
+
     // Fetch old data for audit trail
-    const { data: oldData } = await supabase
+    const { data: oldData, error: fetchError } = await supabase
       .from('pilot_checks')
       .select('*')
       .eq('id', certificationId)
       .single()
+
+    if (fetchError) {
+      console.error('❌ [updateCertification] Error fetching old data:', fetchError)
+      throw fetchError
+    }
+
+    console.log('🔧 [updateCertification] Old data expiry_date:', oldData?.expiry_date)
 
     const cleanedData = Object.fromEntries(
       Object.entries(certificationData)
         .filter(([_, value]) => value !== undefined)
         .map(([key, value]) => [key, value === '' ? null : value])
     )
+
+    console.log('🔧 [updateCertification] Cleaned data being sent to DB:', JSON.stringify(cleanedData, null, 2))
 
     const { data, error } = await supabase
       .from('pilot_checks')
@@ -462,7 +473,13 @@ export async function updateCertification(
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('❌ [updateCertification] Database error:', error)
+      throw error
+    }
+
+    console.log('✅ [updateCertification] Database updated successfully')
+    console.log('✅ [updateCertification] New data expiry_date:', data?.expiry_date)
 
     // Audit log the update
     await createAuditLog({
@@ -474,12 +491,18 @@ export async function updateCertification(
       description: `Updated certification for pilot ID: ${data.pilot_id}`,
     })
 
+    console.log('✅ [updateCertification] Audit log created')
+
     // Invalidate certification cache to ensure fresh data is fetched
     const { invalidateCacheByTag } = await import('./cache-service')
     invalidateCacheByTag('certifications')
 
+    console.log('✅ [updateCertification] Cache invalidated')
+    console.log('✅ [updateCertification] Update complete, returning data')
+
     return data
   } catch (error) {
+    console.error('❌ [updateCertification] Error in updateCertification:', error)
     logError(error as Error, {
       source: 'certification-service:updateCertification',
       severity: ErrorSeverity.HIGH,
@@ -544,7 +567,7 @@ export async function bulkDeleteCertifications(
   try {
     // Use PostgreSQL function for atomic bulk delete
     const { data, error } = await supabase.rpc('bulk_delete_certifications', {
-      certification_ids: certificationIds,
+      p_certification_ids: certificationIds,
     })
 
     if (error) {
@@ -609,7 +632,7 @@ export async function batchUpdateCertifications(
 
     // Use PostgreSQL function for atomic batch update
     const { data, error } = await supabase.rpc('batch_update_certifications', {
-      updates: updatesJson,
+      p_updates: updatesJson,
     })
 
     if (error) {

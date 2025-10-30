@@ -18,7 +18,8 @@ import {
   getCheckTypeCategories,
 } from '@/lib/services/admin-service'
 import { format } from 'date-fns'
-import { Users, CheckCircle2, FileText, Database, UserPlus, Settings, List } from 'lucide-react'
+import { Users, CheckCircle2, FileText, Database, UserPlus, Settings, List, UserCheck } from 'lucide-react'
+import { Breadcrumb } from '@/components/navigation/breadcrumb'
 
 export const metadata = dashboardMetadata.admin
 
@@ -34,6 +35,9 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-8 p-8">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb />
+
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -86,8 +90,8 @@ export default async function AdminPage() {
               <p className="text-foreground text-2xl font-bold">{stats.totalCheckTypes}</p>
               <p className="text-muted-foreground text-xs">certification types</p>
             </div>
-            <div className="rounded-full bg-purple-100 p-3">
-              <FileText className="h-6 w-6 text-purple-600" />
+            <div className="rounded-full bg-primary/10 p-3">
+              <FileText className="h-6 w-6 text-primary" />
             </div>
           </div>
         </Card>
@@ -124,8 +128,8 @@ export default async function AdminPage() {
 
           <Link href="/dashboard/admin/check-types">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-purple-100 p-3">
-                <List className="h-5 w-5 text-purple-600" />
+              <div className="rounded-lg bg-primary/10 p-3">
+                <List className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-semibold">Manage Check Types</p>
@@ -142,6 +146,18 @@ export default async function AdminPage() {
               <div>
                 <p className="font-semibold">System Settings</p>
                 <p className="text-muted-foreground text-xs">Configure preferences</p>
+              </div>
+            </Button>
+          </Link>
+
+          <Link href="/dashboard/admin/pilot-registrations">
+            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
+              <div className="rounded-lg bg-purple-100 p-3">
+                <UserCheck className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="font-semibold">Pilot Registrations</p>
+                <p className="text-muted-foreground text-xs">Review pending approvals</p>
               </div>
             </Button>
           </Link>

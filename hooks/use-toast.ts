@@ -7,11 +7,20 @@ import type { ToastActionElement, ToastProps } from '@/components/ui/toast'
 const TOAST_LIMIT = 5
 const TOAST_REMOVE_DELAY = 5000
 
+// Toast duration configuration based on variant
+const TOAST_DURATIONS = {
+  success: 3000,    // 3 seconds for success messages
+  destructive: 7000, // 7 seconds for error messages
+  warning: 5000,     // 5 seconds for warnings
+  default: 5000,     // 5 seconds for default toasts
+} as const
+
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  duration?: number // Optional custom duration in milliseconds
 }
 
 const actionTypes = {
@@ -54,7 +63,7 @@ interface State {
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-const addToRemoveQueue = (toastId: string) => {
+const addToRemoveQueue = (toastId: string, duration?: number) => {
   if (toastTimeouts.has(toastId)) {
     return
   }
@@ -65,9 +74,27 @@ const addToRemoveQueue = (toastId: string) => {
       type: 'REMOVE_TOAST',
       toastId: toastId,
     })
-  }, TOAST_REMOVE_DELAY)
+  }, duration || TOAST_REMOVE_DELAY)
 
   toastTimeouts.set(toastId, timeout)
+}
+
+// Helper function to get duration based on toast variant
+function getToastDuration(variant?: string, customDuration?: number): number {
+  if (customDuration !== undefined) {
+    return customDuration
+  }
+
+  switch (variant) {
+    case 'success':
+      return TOAST_DURATIONS.success
+    case 'destructive':
+      return TOAST_DURATIONS.destructive
+    case 'warning':
+      return TOAST_DURATIONS.warning
+    default:
+      return TOAST_DURATIONS.default
+  }
 }
 
 export const reducer = (state: State, action: Action): State => {
@@ -90,10 +117,11 @@ export const reducer = (state: State, action: Action): State => {
       const { toastId } = action
 
       if (toastId) {
-        addToRemoveQueue(toastId)
+        const toast = state.toasts.find((t) => t.id === toastId)
+        addToRemoveQueue(toastId, toast?.duration)
       } else {
         state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
+          addToRemoveQueue(toast.id, toast.duration)
         })
       }
 
@@ -214,6 +242,9 @@ function useToast() {
     toast: (props: Toast) => {
       const id = genId()
 
+      // Calculate duration based on variant or use custom duration
+      const duration = getToastDuration(props.variant as string | undefined, props.duration)
+
       const update = (props: ToasterToast) =>
         dispatch({
           type: 'UPDATE_TOAST',
@@ -226,6 +257,7 @@ function useToast() {
         toast: {
           ...props,
           id,
+          duration,
           open: true,
           onOpenChange: (open) => {
             if (!open) dismiss()
@@ -249,6 +281,11 @@ export { useToast, toast }
  * Standalone toast function
  *
  * Can be used outside of React components for imperative toast notifications.
+ * Automatically configures duration based on variant:
+ * - success: 3 seconds
+ * - destructive: 7 seconds
+ * - warning: 5 seconds
+ * - default: 5 seconds
  *
  * @example
  * // In a service file or utility function
@@ -272,9 +309,20 @@ export { useToast, toast }
  *     throw error
  *   }
  * }
+ *
+ * @example
+ * // Custom duration override
+ * toast({
+ *   title: "Important",
+ *   description: "This stays visible longer",
+ *   duration: 10000, // 10 seconds
+ * })
  */
 function toast(props: Toast) {
   const id = genId()
+
+  // Calculate duration based on variant or use custom duration
+  const duration = getToastDuration(props.variant as string | undefined, props.duration)
 
   const update = (props: ToasterToast) =>
     dispatch({
@@ -288,6 +336,7 @@ function toast(props: Toast) {
     toast: {
       ...props,
       id,
+      duration,
       open: true,
       onOpenChange: (open) => {
         if (!open) dismiss()

@@ -7,7 +7,6 @@
  * @spec 001-missing-core-features (US5)
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'

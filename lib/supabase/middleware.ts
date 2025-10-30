@@ -9,6 +9,7 @@ import {
   getClientIp,
   createRateLimitResponse,
 } from '@/lib/rate-limit'
+import { validateSessionFromCookie } from '@/lib/auth/pilot-session'
 
 export async function updateSession(request: NextRequest) {
   // ============================================================================
@@ -109,10 +110,29 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Pilot Portal Protection (US1)
-  if (!user && request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login') && !request.nextUrl.pathname.startsWith('/portal/register')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/portal/login'
-    return NextResponse.redirect(url)
+  // Check both Supabase Auth AND custom pilot session cookies
+  if (request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login') && !request.nextUrl.pathname.startsWith('/portal/register')) {
+    // Check for custom pilot session cookie (bcrypt-authenticated pilots)
+    const pilotSessionCookie = request.cookies.get('pilot_session_token')
+    const pilotSession = validateSessionFromCookie(pilotSessionCookie?.value)
+
+    console.log('🔍 Middleware Portal Check:', {
+      path: request.nextUrl.pathname,
+      hasCookie: !!pilotSessionCookie,
+      cookieValueLength: pilotSessionCookie?.value?.length,
+      hasSupabaseUser: !!user,
+      hasPilotSession: !!pilotSession,
+    })
+
+    // If no Supabase user AND no valid pilot session, redirect to login
+    if (!user && !pilotSession) {
+      console.log('❌ No valid auth - redirecting to login')
+      const url = request.nextUrl.clone()
+      url.pathname = '/portal/login'
+      return NextResponse.redirect(url)
+    } else {
+      console.log('✅ Auth valid - allowing access')
+    }
   }
 
   // Role-Based Routing (US1)

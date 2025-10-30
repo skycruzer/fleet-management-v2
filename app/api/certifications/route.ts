@@ -1,6 +1,14 @@
 /**
  * Certifications API Route
  * Handles certification listing and creation
+ *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ * RATE LIMITING: 20 mutation requests per minute per IP
+ *
+ * @version 2.1.0
+ * @updated 2025-10-27 - Added rate limiting
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -8,6 +16,8 @@ import { getCertifications, createCertification } from '@/lib/services/certifica
 import { CertificationCreateSchema } from '@/lib/validations/certification-validation'
 import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
 /**
  * GET /api/certifications
@@ -65,8 +75,14 @@ export async function GET(_request: NextRequest) {
  * POST /api/certifications
  * Create a new certification
  */
-export async function POST(_request: NextRequest) {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // Check authentication
     const supabase = await createClient()
     const {
@@ -80,7 +96,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Parse and validate request body
-    const body = await _request.json()
+    const body = await request.json()
     const validatedData = CertificationCreateSchema.parse(body)
 
     // Create certification
@@ -113,4 +129,4 @@ export async function POST(_request: NextRequest) {
       status: 500,
     })
   }
-}
+})

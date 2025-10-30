@@ -5,7 +5,7 @@
  * Handles year selection and displays renewal planning data
  */
 
-import { Calendar, RefreshCw, Download, AlertTriangle } from 'lucide-react'
+import { Calendar, RefreshCw, Download, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -48,9 +48,18 @@ export function RenewalPlanningDashboard({
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Generate year options: current year - 1 to current year + 5
+  // Generate year options: Always show selectedYear and extend range dynamically
   const currentYear = new Date().getFullYear()
-  const yearOptions = Array.from({ length: 7 }, (_, i) => currentYear - 1 + i)
+
+  // Determine the range based on selected year
+  const minYear = Math.min(currentYear - 1, selectedYear - 2) // Always include 2 years before selected
+  const maxYear = Math.max(currentYear + 5, selectedYear + 3) // Always include 3 years after selected
+
+  // Generate dynamic year range
+  const yearOptions = Array.from(
+    { length: maxYear - minYear + 1 },
+    (_, i) => minYear + i
+  )
 
   const handleYearChange = (year: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -272,6 +281,34 @@ export function RenewalPlanningDashboard({
         )}
       </Card>
 
+      {/* Year Navigation */}
+      <div className="flex items-center justify-center gap-4">
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => handleYearChange((selectedYear - 1).toString())}
+          className="flex items-center gap-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+          Previous Year ({selectedYear - 1})
+        </Button>
+
+        <div className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-primary-foreground">
+          <Calendar className="h-5 w-5" />
+          <span className="text-lg font-semibold">{selectedYear}</span>
+        </div>
+
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={() => handleYearChange((selectedYear + 1).toString())}
+          className="flex items-center gap-2"
+        >
+          Next Year ({selectedYear + 1})
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
+
       {/* Help Text */}
       <Card className="bg-blue-50 p-6">
         <h3 className="font-semibold text-blue-900">How to Use Renewal Planning</h3>
@@ -293,6 +330,10 @@ export function RenewalPlanningDashboard({
           </li>
           <li>
             • <strong>Generate Plan</strong> to create or update renewal schedule for all pilots
+          </li>
+          <li>
+            • <strong>Use Previous/Next Year buttons</strong> to navigate through years - the year
+            range will automatically extend as you navigate
           </li>
           <li>• Capacity limits: Medical (4), Flight (4), Simulator (6), Ground (8) per period</li>
         </ul>

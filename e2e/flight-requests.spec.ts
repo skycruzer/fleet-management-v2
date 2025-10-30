@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test'
+import { loginAndNavigate } from './helpers/auth-helpers'
 
 test.describe('Flight Requests - Pilot Portal', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/portal/flight-requests')
+    // Login as pilot and navigate to flight requests page
+    await loginAndNavigate(page, '/portal/flight-requests')
   })
 
   test('should display flight requests page', async ({ page }) => {
@@ -197,7 +199,8 @@ test.describe('Flight Requests - Admin Dashboard', () => {
 
 test.describe('Flight Request Types', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/portal/flight-requests')
+    // Login as pilot and navigate to flight requests page
+    await loginAndNavigate(page, '/portal/flight-requests')
   })
 
   test('should support additional flight requests', async ({ page }) => {

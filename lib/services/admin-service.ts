@@ -3,7 +3,6 @@
  * Handles administrative operations including user management, check types, and system settings
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 
 // ============================================================================

@@ -76,7 +76,7 @@ export default function LeaveRequestForm() {
         <select
           id="request_type"
           {...form.register('request_type')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="ANNUAL">Annual Leave</option>
           <option value="RDO">Rostered Day Off (RDO)</option>
@@ -101,7 +101,7 @@ export default function LeaveRequestForm() {
           type="date"
           id="start_date"
           {...form.register('start_date')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.start_date && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.start_date.message}</p>
@@ -117,7 +117,7 @@ export default function LeaveRequestForm() {
           type="date"
           id="end_date"
           {...form.register('end_date')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.end_date && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.end_date.message}</p>
@@ -134,7 +134,7 @@ export default function LeaveRequestForm() {
           {...form.register('reason')}
           rows={3}
           placeholder="Optional notes about your leave request..."
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.reason && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.reason.message}</p>
@@ -164,7 +164,7 @@ export default function LeaveRequestForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+        className="w-full rounded-md bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:hover:bg-primary"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Leave Request'}
       </button>

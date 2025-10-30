@@ -117,7 +117,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
           <select
             id="action_type"
             {...form.register('action_type', { required: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
             <option value="VERBAL_WARNING">Verbal Warning</option>
             <option value="WRITTEN_WARNING">Written Warning</option>
@@ -143,7 +143,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             type="date"
             id="action_date"
             {...form.register('action_date', { required: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
           {form.formState.errors.action_date && (
             <p className="mt-1 text-sm text-red-600">Action date is required</p>
@@ -161,7 +161,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
           <select
             id="issued_by"
             {...form.register('issued_by', { required: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
             <option value="">Select user</option>
             {users.map((user) => (
@@ -184,7 +184,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             type="time"
             id="action_time"
             {...form.register('action_time')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
           id="description"
           {...form.register('description', { required: true })}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           placeholder="Describe the action taken..."
         />
         {form.formState.errors.description && (
@@ -217,7 +217,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             type="text"
             id="location"
             {...form.register('location')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             placeholder="e.g., Port Moresby"
           />
         </div>
@@ -230,7 +230,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
           <select
             id="status"
             {...form.register('status')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
             <option value="PENDING">Pending</option>
             <option value="COMPLETED">Completed</option>
@@ -250,7 +250,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             <select
               id="warning_level"
               {...form.register('warning_level')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="">Select level</option>
               <option value="FIRST">First Warning</option>
@@ -268,7 +268,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
               type="date"
               id="appeal_deadline"
               {...form.register('appeal_deadline')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -285,7 +285,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
               type="number"
               id="suspension_days"
               {...form.register('suspension_days', { valueAsNumber: true })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               placeholder="Number of days"
             />
           </div>
@@ -299,7 +299,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
               type="date"
               id="effective_date"
               {...form.register('effective_date')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
@@ -312,7 +312,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
               type="date"
               id="expiry_date"
               {...form.register('expiry_date')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             type="checkbox"
             id="follow_up_required"
             {...form.register('follow_up_required')}
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700"
           />
           <label htmlFor="follow_up_required" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
             Follow-up Required
@@ -343,7 +343,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             type="date"
             id="follow_up_date"
             {...form.register('follow_up_date')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
         </div>
       )}
@@ -357,7 +357,7 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
           id="action_notes"
           {...form.register('action_notes')}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           placeholder="Any additional notes or context..."
         />
       </div>
@@ -381,14 +381,14 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
         <button
           type="button"
           onClick={() => form.reset()}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         >
           Reset
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:hover:bg-primary"
         >
           {isSubmitting ? 'Adding...' : 'Add Action'}
         </button>

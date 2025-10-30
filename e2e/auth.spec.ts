@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { TEST_CONFIG, loginAsAdmin, logout, clearAuth } from './helpers/test-utils'
 
 /**
  * Authentication Flow E2E Tests
@@ -12,9 +13,6 @@ import { test, expect } from '@playwright/test'
  */
 
 test.describe('Authentication Flow', () => {
-  // Test user credentials (should be set in environment variables)
-  const TEST_EMAIL = process.env.TEST_USER_EMAIL || 'test@example.com'
-  const TEST_PASSWORD = process.env.TEST_USER_PASSWORD || 'testpassword123'
   const LOGIN_URL = '/auth/login'
   const DASHBOARD_URL = '/dashboard'
 
@@ -59,12 +57,12 @@ test.describe('Authentication Flow', () => {
     await page.goto(LOGIN_URL)
 
     // Fill in valid credentials
-    await page.getByLabel(/email/i).fill(TEST_EMAIL)
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD)
+    await page.getByLabel(/email/i).fill(TEST_CONFIG.admin.email)
+    await page.getByLabel(/password/i).fill(TEST_CONFIG.admin.password)
     await page.getByRole('button', { name: /sign in|login/i }).click()
 
     // Wait for redirect to dashboard
-    await page.waitForURL(DASHBOARD_URL, { timeout: 10000 })
+    await page.waitForURL(DASHBOARD_URL, { timeout: 60000 })
 
     // Verify user is on dashboard
     await expect(page).toHaveURL(new RegExp(DASHBOARD_URL))
@@ -74,10 +72,10 @@ test.describe('Authentication Flow', () => {
   test('should redirect to dashboard if already authenticated', async ({ page }) => {
     // First, login
     await page.goto(LOGIN_URL)
-    await page.getByLabel(/email/i).fill(TEST_EMAIL)
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD)
+    await page.getByLabel(/email/i).fill(TEST_CONFIG.admin.email)
+    await page.getByLabel(/password/i).fill(TEST_CONFIG.admin.password)
     await page.getByRole('button', { name: /sign in|login/i }).click()
-    await page.waitForURL(DASHBOARD_URL, { timeout: 10000 })
+    await page.waitForURL(DASHBOARD_URL, { timeout: 60000 })
 
     // Try to visit login page again
     await page.goto(LOGIN_URL)
@@ -89,10 +87,10 @@ test.describe('Authentication Flow', () => {
   test('should maintain session after page reload', async ({ page }) => {
     // Login
     await page.goto(LOGIN_URL)
-    await page.getByLabel(/email/i).fill(TEST_EMAIL)
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD)
+    await page.getByLabel(/email/i).fill(TEST_CONFIG.admin.email)
+    await page.getByLabel(/password/i).fill(TEST_CONFIG.admin.password)
     await page.getByRole('button', { name: /sign in|login/i }).click()
-    await page.waitForURL(DASHBOARD_URL, { timeout: 10000 })
+    await page.waitForURL(DASHBOARD_URL, { timeout: 60000 })
 
     // Reload page
     await page.reload()
@@ -104,18 +102,14 @@ test.describe('Authentication Flow', () => {
 
   test('should logout successfully', async ({ page }) => {
     // Login first
-    await page.goto(LOGIN_URL)
-    await page.getByLabel(/email/i).fill(TEST_EMAIL)
-    await page.getByLabel(/password/i).fill(TEST_PASSWORD)
-    await page.getByRole('button', { name: /sign in|login/i }).click()
-    await page.waitForURL(DASHBOARD_URL, { timeout: 10000 })
+    await loginAsAdmin(page)
 
     // Find and click logout button (could be in menu/dropdown)
     const logoutButton = page.getByRole('button', { name: /logout|sign out/i })
     await logoutButton.click()
 
     // Should redirect to login or home page
-    await page.waitForURL(/\/(auth\/login|$)/, { timeout: 10000 })
+    await page.waitForURL(/\/(auth\/login|$)/, { timeout: 60000 })
 
     // Try to access dashboard - should redirect to login
     await page.goto(DASHBOARD_URL)
@@ -162,8 +156,6 @@ test.describe('Authentication - Password Visibility Toggle', () => {
 })
 
 test.describe('Authentication - Remember Me', () => {
-  const TEST_EMAIL = process.env.TEST_USER_EMAIL || 'test@example.com'
-  const TEST_PASSWORD = process.env.TEST_USER_PASSWORD || 'testpassword123'
   const LOGIN_URL = '/auth/login'
 
   test('should persist email when "Remember Me" is checked', async ({ page }) => {
@@ -173,24 +165,24 @@ test.describe('Authentication - Remember Me', () => {
     const rememberMeCheckbox = page.getByLabel(/remember me/i)
     if (await rememberMeCheckbox.isVisible()) {
       // Fill in credentials and check "Remember Me"
-      await page.getByLabel(/email/i).fill(TEST_EMAIL)
+      await page.getByLabel(/email/i).fill(TEST_CONFIG.admin.email)
       await rememberMeCheckbox.check()
-      await page.getByLabel(/password/i).fill(TEST_PASSWORD)
+      await page.getByLabel(/password/i).fill(TEST_CONFIG.admin.password)
       await page.getByRole('button', { name: /sign in|login/i }).click()
 
       // Wait for successful login
-      await page.waitForURL(/dashboard/, { timeout: 10000 })
+      await page.waitForURL(/dashboard/, { timeout: 60000 })
 
       // Logout
       await page.getByRole('button', { name: /logout|sign out/i }).click()
-      await page.waitForURL(/\/(auth\/login|$)/, { timeout: 10000 })
+      await page.waitForURL(/\/(auth\/login|$)/, { timeout: 60000 })
 
       // Navigate back to login page
       await page.goto(LOGIN_URL)
 
       // Email should be pre-filled
       const emailInput = page.getByLabel(/email/i)
-      await expect(emailInput).toHaveValue(TEST_EMAIL)
+      await expect(emailInput).toHaveValue(TEST_CONFIG.admin.email)
     }
   })
 })

@@ -1,9 +1,20 @@
-import 'server-only'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/types/supabase'
 import { env } from '@/lib/env'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+
+// Custom fetch with increased timeout for better reliability
+// Using AbortController for timeout since undici doesn't support timeout option
+const customFetch: typeof fetch = (input, init?) => {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 30000) // 30 seconds
+
+  return fetch(input, {
+    ...init,
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout))
+}
 
 export async function createClient() {
   try {
@@ -52,6 +63,9 @@ export async function createClient() {
             })
           }
         },
+      },
+      global: {
+        fetch: customFetch,
       },
     })
   } catch (error) {

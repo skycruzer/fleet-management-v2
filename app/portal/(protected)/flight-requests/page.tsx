@@ -44,6 +44,7 @@ export default function FlightRequestsPage() {
   const [requests, setRequests] = useState<FlightRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>('')
+  const [deletingRequestId, setDeletingRequestId] = useState<string | null>(null)
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'>(
     'ALL'
   )
@@ -76,6 +77,9 @@ export default function FlightRequestsPage() {
       return
     }
 
+    setDeletingRequestId(requestId)
+    setError('')
+
     try {
       const response = await fetch(`/api/portal/flight-requests?id=${requestId}`, {
         method: 'DELETE',
@@ -84,14 +88,17 @@ export default function FlightRequestsPage() {
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        alert(result.error || 'Failed to cancel request')
+        setError(result.error || 'Failed to cancel request')
+        setDeletingRequestId(null)
         return
       }
 
       // Refresh list
       fetchFlightRequests()
+      setDeletingRequestId(null)
     } catch (err) {
-      alert('An unexpected error occurred')
+      setError('An unexpected error occurred while canceling the request')
+      setDeletingRequestId(null)
     }
   }
 
@@ -143,7 +150,7 @@ export default function FlightRequestsPage() {
   const getRequestTypeColor = (type: string) => {
     const colors: Record<string, string> = {
       ADDITIONAL_FLIGHT: 'bg-blue-500',
-      ROUTE_CHANGE: 'bg-purple-500',
+      ROUTE_CHANGE: 'bg-primary/50',
       SCHEDULE_SWAP: 'bg-orange-500',
       OTHER: 'bg-gray-500',
     }
@@ -208,12 +215,6 @@ export default function FlightRequestsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/portal/dashboard">
-            <Button variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-          </Link>
           <Link href="/portal/flight-requests/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
@@ -314,9 +315,14 @@ export default function FlightRequestsPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => cancelRequest(request.id)}
+                      disabled={deletingRequestId === request.id}
                       className="text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {deletingRequestId === request.id ? (
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
                     </Button>
                   )}
                 </div>

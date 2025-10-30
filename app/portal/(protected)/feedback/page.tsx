@@ -29,17 +29,33 @@ export default function FeedbackPage() {
     setSubmitError(null)
 
     try {
-      // TODO: Implement API call to submit feedback
-      // For now, just simulate submission
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      // Submit feedback to API
+      const response = await fetch('/api/portal/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category: formData.category,
+          subject: formData.subject,
+          message: formData.message,
+          is_anonymous: false,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit feedback')
+      }
 
       setSubmitSuccess(true)
       setFormData({ category: '', subject: '', message: '' })
 
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitSuccess(false), 5000)
-    } catch (error) {
-      setSubmitError('Failed to submit feedback. Please try again.')
+    } catch (error: any) {
+      setSubmitError(error.message || 'Failed to submit feedback. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -52,7 +68,7 @@ export default function FeedbackPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <MessageSquare className="h-8 w-8 text-blue-600" />
+              <MessageSquare className="h-8 w-8 text-primary" />
               <div>
                 <h1 className="text-foreground text-xl font-bold">Submit Feedback</h1>
                 <p className="text-muted-foreground text-xs">
@@ -60,12 +76,6 @@ export default function FeedbackPage() {
                 </p>
               </div>
             </div>
-            <Link href="/portal/dashboard">
-              <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
-              </Button>
-            </Link>
           </div>
         </div>
       </header>

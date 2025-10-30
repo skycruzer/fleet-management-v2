@@ -1,0 +1,34 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+   ▲ Next.js 16.0.0 (Turbopack)
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+     · serverActions
+
+   Creating an optimized production build ...
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+ ✓ Compiled successfully in 6.7s
+   Running TypeScript ...
+Failed to compile.
+
+./lib/services/dashboard-service-v3.ts:314:34
+Type error: No overload matches this call.
+  Overload 1 of 4, '(value: string | number | Date): Date', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type 'string | number | Date'.
+      Type 'null' is not assignable to type 'string | number | Date'.
+  Overload 2 of 4, '(value: string | number): Date', gave the following error.
+    Argument of type 'string | null' is not assignable to parameter of type 'string | number'.
+      Type 'null' is not assignable to type 'string | number'.
+
+[0m [90m 312 |[39m
+ [90m 313 |[39m     [90m// Check if data is recent (within last 10 minutes)[39m
+[31m[1m>[22m[39m[90m 314 |[39m     [36mconst[39m lastRefresh [33m=[39m [36mnew[39m [33mDate[39m(data[33m.[39mlast_refreshed)
+ [90m     |[39m                                  [31m[1m^[22m[39m
+ [90m 315 |[39m     [36mconst[39m tenMinutesAgo [33m=[39m [36mnew[39m [33mDate[39m([33mDate[39m[33m.[39mnow() [33m-[39m [35m10[39m [33m*[39m [35m60[39m [33m*[39m [35m1000[39m)
+ [90m 316 |[39m
+ [90m 317 |[39m     [36mreturn[39m lastRefresh [33m>[39m tenMinutesAgo[0m
+Next.js build worker exited with code: 1 and signal: null

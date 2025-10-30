@@ -13,7 +13,6 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 import { createAuditLog } from './audit-service'
@@ -27,6 +26,7 @@ async function safeRevalidate(tag: string) {
     // Only run on server
     if (typeof window === 'undefined') {
       const { revalidateTag } = await import('next/cache')
+      // Revalidate cache tag to ensure fresh data
       revalidateTag(tag)
     }
   } catch (error) {
@@ -351,6 +351,88 @@ export async function getPilotById(pilotId: string): Promise<PilotWithCertificat
 }
 
 /**
+ * Get pilot by Supabase Auth user_id
+ * Used by pilot portal to identify which pilot record belongs to the logged-in user
+ * @param userId - Supabase Auth user ID
+ * @returns Promise<PilotWithCertifications | null>
+ */
+export async function getPilotByUserId(userId: string): Promise<PilotWithCertifications | null> {
+  const supabase = await createClient()
+
+  try {
+    const { data: pilot, error: pilotError } = await supabase
+      .from('pilots')
+      .select('*')
+      .eq('user_id', userId)
+      .single()
+
+    if (pilotError) {
+      if (pilotError.code === 'PGRST116') {
+        return null
+      }
+      throw pilotError
+    }
+    if (!pilot) return null
+
+    const { data: checks, error: checksError } = await supabase
+      .from('pilot_checks')
+      .select(
+        `
+        id,
+        expiry_date,
+        check_types (
+          id,
+          check_code,
+          check_description,
+          category
+        )
+      `
+      )
+      .eq('pilot_id', pilot.id)
+
+    if (checksError) {
+      logWarning('Failed to fetch pilot checks', {
+        source: 'PilotService',
+        metadata: {
+          operation: 'getPilotByUserId',
+          userId,
+          error: checksError.message,
+        },
+      })
+    }
+
+    const certifications = checks || []
+    const certificationCounts = certifications.reduce(
+      (acc: any, check: any) => {
+        const status = getCertificationStatus(
+          check.expiry_date ? new Date(check.expiry_date) : null
+        )
+        if (status.color === 'green') acc.current++
+        else if (status.color === 'yellow') acc.expiring++
+        else if (status.color === 'red') acc.expired++
+        return acc
+      },
+      { current: 0, expiring: 0, expired: 0 }
+    )
+
+    return {
+      ...pilot,
+      certificationStatus: certificationCounts,
+    }
+  } catch (error) {
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'getPilotByUserId',
+        userId,
+      },
+    })
+    throw error
+  }
+}
+
+/**
  * Get pilot statistics
  * CACHED: 5 minutes (pilot stats update moderately)
  */
@@ -524,8 +606,8 @@ export async function createPilotWithCertifications(
 
     // Use PostgreSQL function for atomic creation
     const { data, error } = await supabase.rpc('create_pilot_with_certifications', {
-      pilot_data: pilotJson,
-      certifications: certificationsJson,
+      p_pilot_data: pilotJson,
+      p_certifications: certificationsJson,
     })
 
     if (error) {
@@ -585,8 +667,12 @@ export async function updatePilot(
   const supabase = await createClient()
 
   try {
+    console.log('🔧 [updatePilot] Starting update for pilot:', pilotId)
+    console.log('🔧 [updatePilot] Received data:', JSON.stringify(pilotData, null, 2))
+
     // Fetch old data for audit trail
     const { data: oldData } = await supabase.from('pilots').select('*').eq('id', pilotId).single()
+    console.log('🔧 [updatePilot] Old data role:', oldData?.role)
 
     let seniorityNumber = undefined
     if (pilotData.commencement_date) {
@@ -598,11 +684,15 @@ export async function updatePilot(
       seniority_number: seniorityNumber,
     }
 
+    console.log('🔧 [updatePilot] Update data before cleaning:', JSON.stringify(updateData, null, 2))
+
     const cleanedData = Object.fromEntries(
       Object.entries(updateData)
         .filter(([_, value]) => value !== undefined)
         .map(([key, value]) => [key, value === '' ? null : value])
     )
+
+    console.log('🔧 [updatePilot] Cleaned data being sent to DB:', JSON.stringify(cleanedData, null, 2))
 
     const { data, error } = await supabase
       .from('pilots')
@@ -611,7 +701,13 @@ export async function updatePilot(
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('❌ [updatePilot] Database error:', error)
+      throw error
+    }
+
+    console.log('✅ [updatePilot] Database updated successfully')
+    console.log('✅ [updatePilot] New data role:', data?.role)
 
     // Audit log the update
     await createAuditLog({
@@ -627,8 +723,10 @@ export async function updatePilot(
     await safeRevalidate('pilots')
     await safeRevalidate('pilot-stats')
 
+    console.log('✅ [updatePilot] Update complete, returning data')
     return data
   } catch (error) {
+    console.error('❌ [updatePilot] Error in updatePilot:', error)
     logError(error as Error, {
       source: 'PilotService',
       severity: ErrorSeverity.HIGH,

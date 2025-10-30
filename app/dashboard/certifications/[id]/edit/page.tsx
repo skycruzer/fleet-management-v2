@@ -102,9 +102,10 @@ export default function EditCertificationPage() {
         return
       }
 
-      // Success - redirect to certifications list
-      router.push('/dashboard/certifications')
+      // Success - refresh to revalidate cache, then redirect
       router.refresh()
+      await new Promise(resolve => setTimeout(resolve, 100)) // Brief delay for cache update
+      router.push('/dashboard/certifications')
     } catch (err) {
       setError('An unexpected error occurred')
     } finally {

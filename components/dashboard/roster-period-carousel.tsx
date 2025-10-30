@@ -16,7 +16,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { format } from 'date-fns'
 import {
   getCurrentRosterPeriodObject,
@@ -31,6 +31,9 @@ export function RosterPeriodCarousel() {
   const [currentRoster, setCurrentRoster] = useState<RosterPeriod | null>(null)
   const [futureRosters, setFutureRosters] = useState<RosterPeriod[]>([])
   const [countdown, setCountdown] = useState<RosterCountdown | null>(null)
+  const [showScrollControls, setShowScrollControls] = useState(false)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // Initialize roster data
@@ -55,103 +58,89 @@ export function RosterPeriodCarousel() {
     return () => clearInterval(interval)
   }, [])
 
-  // Auto-scroll functionality (right to left)
+  // Check scroll position and update button states
+  const updateScrollButtons = () => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const { scrollLeft, scrollWidth, clientWidth } = container
+    setCanScrollLeft(scrollLeft > 0)
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10) // 10px threshold
+  }
+
+  // Auto-scroll functionality (right to left) - disabled to prevent width issues
+  // User can manually scroll through the 13 roster periods
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current
     if (!scrollContainer || futureRosters.length === 0) return
 
-    const scrollSpeed = 1 // Pixels per frame (increased for visibility)
-    let isPaused = false
-    let animationFrameId: number
+    // Set up scroll listener to update button states
+    scrollContainer.addEventListener('scroll', updateScrollButtons)
 
-    const autoScroll = () => {
-      if (!isPaused && scrollContainer) {
-        // Get the total scrollable width
-        const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth
-
-        // Only scroll if there's content to scroll
-        if (maxScroll > 0) {
-          scrollContainer.scrollLeft += scrollSpeed
-
-          // Reset to beginning when reaching halfway (for seamless loop)
-          // Since we duplicate the content, reset at halfway point
-          const halfwayPoint = scrollContainer.scrollWidth / 2
-          if (scrollContainer.scrollLeft >= halfwayPoint) {
-            scrollContainer.scrollLeft = 0
-          }
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(autoScroll)
-    }
-
-    // Start auto-scrolling after a brief delay
-    const startDelay = setTimeout(() => {
-      animationFrameId = requestAnimationFrame(autoScroll)
-    }, 2000)
-
-    // Pause on hover
-    const handleMouseEnter = () => {
-      isPaused = true
-    }
-
-    const handleMouseLeave = () => {
-      isPaused = false
-    }
-
-    scrollContainer.addEventListener('mouseenter', handleMouseEnter)
-    scrollContainer.addEventListener('mouseleave', handleMouseLeave)
+    // Initial check
+    updateScrollButtons()
 
     return () => {
-      clearTimeout(startDelay)
-      cancelAnimationFrame(animationFrameId)
-      scrollContainer.removeEventListener('mouseenter', handleMouseEnter)
-      scrollContainer.removeEventListener('mouseleave', handleMouseLeave)
+      scrollContainer.removeEventListener('scroll', updateScrollButtons)
     }
   }, [futureRosters])
+
+  // Scroll left/right handlers
+  const handleScrollLeft = () => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const cardWidth = 272 // 256px + 16px gap
+    container.scrollBy({ left: -cardWidth, behavior: 'smooth' })
+  }
+
+  const handleScrollRight = () => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const cardWidth = 272 // 256px + 16px gap
+    container.scrollBy({ left: cardWidth, behavior: 'smooth' })
+  }
 
   if (!currentRoster || !countdown) {
     return null
   }
 
   return (
-    <div className="space-y-4">
+    <div className="w-full max-w-full space-y-6 overflow-hidden" style={{ minWidth: 0 }}>
       {/* Current Roster Period with Countdown */}
-      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 p-6">
-        <div className="flex items-center justify-between">
+      <Card className="w-full border-blue-200 bg-gradient-to-r from-blue-50 to-primary/10 p-6" style={{ minWidth: 0 }}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <Badge variant="default" className="text-sm font-semibold bg-blue-600">
+            <div className="mb-2 flex items-center gap-3">
+              <Badge variant="default" className="bg-blue-600 text-sm font-semibold">
                 CURRENT ROSTER
               </Badge>
-              <h3 className="text-2xl font-bold text-foreground">
-                {currentRoster.code}
-              </h3>
+              <h3 className="text-2xl font-bold text-foreground">{currentRoster.code}</h3>
             </div>
-            <p className="text-muted-foreground text-sm mb-3">
-              {format(currentRoster.startDate, 'MMM dd')} - {format(currentRoster.endDate, 'MMM dd, yyyy')}
+            <p className="mb-3 text-sm text-muted-foreground">
+              {format(currentRoster.startDate, 'MMM dd')} -{' '}
+              {format(currentRoster.endDate, 'MMM dd, yyyy')}
             </p>
 
             {/* Countdown Display */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-3xl">⏱️</span>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-medium">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
                     Time Until Next Roster
                   </p>
-                  <p className="text-lg font-bold text-blue-700">
-                    {formatCountdown(countdown)}
-                  </p>
+                  <p className="text-lg font-bold text-blue-700">{formatCountdown(countdown)}</p>
                 </div>
               </div>
 
-              <div className="h-12 w-px bg-border" />
+              <div className="hidden h-12 w-px bg-border sm:block" />
 
               <div className="flex items-center gap-2">
                 <span className="text-2xl">📅</span>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-medium">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
                     Days Remaining
                   </p>
                   <p className="text-lg font-bold text-purple-700">
@@ -163,15 +152,13 @@ export function RosterPeriodCarousel() {
           </div>
 
           {/* Next Roster Preview */}
-          <div className="hidden lg:flex items-center gap-3 pl-6 border-l border-border">
+          <div className="flex items-center gap-3 border-t border-border pt-4 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             <ChevronRight className="h-6 w-6 text-muted-foreground" />
             <div>
-              <p className="text-xs text-muted-foreground uppercase font-medium mb-1">
+              <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">
                 Next Roster
               </p>
-              <p className="text-xl font-bold text-foreground">
-                {countdown.nextRoster.code}
-              </p>
+              <p className="text-xl font-bold text-foreground">{countdown.nextRoster.code}</p>
               <p className="text-xs text-muted-foreground">
                 Starts {format(countdown.nextRoster.startDate, 'MMM dd, yyyy')}
               </p>
@@ -181,81 +168,103 @@ export function RosterPeriodCarousel() {
       </Card>
 
       {/* Upcoming Rosters Carousel */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-foreground text-sm font-semibold flex items-center gap-2">
+      <div className="w-full max-w-full overflow-hidden" style={{ minWidth: 0 }}>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <span className="text-lg">🗓️</span>
             Next 13 Roster Periods
           </h3>
           <Badge variant="outline" className="text-xs">
-            Auto-scrolling • Hover to pause
+            Hover to scroll
           </Badge>
         </div>
 
         <div
-          ref={scrollContainerRef}
-          className="relative overflow-x-scroll overflow-y-hidden pb-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
-          style={{
-            scrollBehavior: 'auto',
-          }}
+          className="relative"
+          onMouseEnter={() => setShowScrollControls(true)}
+          onMouseLeave={() => setShowScrollControls(false)}
         >
-          <div className="flex gap-3 w-max">
-            {/* Render rosters twice for seamless infinite scroll */}
-            {[...futureRosters, ...futureRosters].map((roster, index) => {
-              const displayIndex = index % futureRosters.length
+          {/* Left Navigation Button */}
+          {showScrollControls && canScrollLeft && (
+            <button
+              onClick={handleScrollLeft}
+              className="absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+            </button>
+          )}
+
+          {/* Right Navigation Button */}
+          {showScrollControls && canScrollRight && (
+            <button
+              onClick={handleScrollRight}
+              className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+            </button>
+          )}
+
+          <div
+            ref={scrollContainerRef}
+            className="scrollbar-thumb-border scrollbar-track-transparent relative w-full max-w-full overflow-x-auto overflow-y-hidden pb-2 scrollbar-thin"
+            style={{
+              scrollBehavior: 'auto',
+              minWidth: 0,
+              maxWidth: '100%',
+            }}
+          >
+          <div className="flex gap-3">
+            {/* Render rosters once - removed duplication to prevent horizontal scroll */}
+            {futureRosters.map((roster, index) => {
               return (
                 <Card
                   key={`${roster.code}-${index}`}
-                  className={`flex-shrink-0 w-64 p-4 transition-all hover:shadow-md ${
-                    displayIndex === 0
-                      ? 'border-purple-200 bg-purple-50/50'
+                  className={`w-64 flex-shrink-0 p-4 transition-all hover:shadow-md ${
+                    index === 0
+                      ? 'border-primary/20 bg-primary/5/50'
                       : 'border-border bg-background'
                   }`}
                 >
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <Badge
-                      variant={displayIndex === 0 ? 'default' : 'outline'}
-                      className={`text-xs mb-1 ${
-                        displayIndex === 0
-                          ? 'bg-purple-600'
-                          : 'border-muted-foreground/30'
-                      }`}
-                    >
-                      {displayIndex === 0 ? 'NEXT' : `+${displayIndex + 1}`}
-                    </Badge>
-                    <p className="text-xl font-bold text-foreground">
-                      {roster.code}
-                    </p>
+                  <div className="mb-2 flex items-start justify-between">
+                    <div>
+                      <Badge
+                        variant={index === 0 ? 'default' : 'outline'}
+                        className={`mb-1 text-xs ${
+                          index === 0 ? 'bg-purple-600' : 'border-muted-foreground/30'
+                        }`}
+                      >
+                        {index === 0 ? 'NEXT' : `+${index + 1}`}
+                      </Badge>
+                      <p className="text-xl font-bold text-foreground">{roster.code}</p>
+                    </div>
+                    <span className="text-2xl">{index === 0 ? '🎯' : '📆'}</span>
                   </div>
-                  <span className="text-2xl">
-                    {displayIndex === 0 ? '🎯' : '📆'}
-                  </span>
-                </div>
 
-                <div className="space-y-1 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Starts:</span>
-                    <span className="text-foreground font-medium">
-                      {format(roster.startDate, 'MMM dd')}
-                    </span>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Starts:</span>
+                      <span className="font-medium text-foreground">
+                        {format(roster.startDate, 'MMM dd')}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Ends:</span>
+                      <span className="font-medium text-foreground">
+                        {format(roster.endDate, 'MMM dd')}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border pt-1">
+                      <span className="text-muted-foreground">Year:</span>
+                      <span className="font-semibold text-foreground">{roster.year}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Ends:</span>
-                    <span className="text-foreground font-medium">
-                      {format(roster.endDate, 'MMM dd')}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-border">
-                    <span className="text-muted-foreground">Year:</span>
-                    <span className="text-foreground font-semibold">
-                      {roster.year}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            )})}
+                </Card>
+              )
+            })}
           </div>
+        </div>
         </div>
       </div>
     </div>

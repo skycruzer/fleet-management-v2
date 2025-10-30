@@ -193,40 +193,15 @@ export default function DocsPage() {
             <CardDescription>Get help and additional resources</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <h3 className="mb-2 font-semibold">Documentation Files</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <Link href="#" className="text-primary hover:underline flex items-center">
-                      README.md
-                      <ExternalLink className="ml-1 h-3 w-3" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-primary hover:underline flex items-center">
-                      CLAUDE.md - AI Assistant Guide
-                      <ExternalLink className="ml-1 h-3 w-3" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="#" className="text-primary hover:underline flex items-center">
-                      SETUP.md - Installation Guide
-                      <ExternalLink className="ml-1 h-3 w-3" />
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h3 className="mb-2 font-semibold">Technical Stack</h3>
-                <ul className="space-y-1 text-sm">
-                  <li>Next.js 15.5.6 with App Router</li>
-                  <li>React 19.1.0</li>
-                  <li>TypeScript 5.7.3 (strict mode)</li>
-                  <li>Supabase PostgreSQL</li>
-                  <li>Tailwind CSS 4.1.0</li>
-                </ul>
-              </div>
+            <div>
+              <h3 className="mb-2 font-semibold">Technical Stack</h3>
+              <ul className="space-y-1 text-sm">
+                <li>Next.js 15.5.6 with App Router</li>
+                <li>React 19.1.0</li>
+                <li>TypeScript 5.7.3 (strict mode)</li>
+                <li>Supabase PostgreSQL</li>
+                <li>Tailwind CSS 4.1.0</li>
+              </ul>
             </div>
 
             <div className="bg-muted mt-6 rounded-lg p-4">

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getAllFlightRequests, getFlightRequestStats } from '@/lib/services/flight-request-service'
+import { getAllLeaveRequests } from '@/lib/services/leave-service'
 import FlightRequestsTable from '@/components/admin/FlightRequestsTable'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
@@ -40,32 +41,67 @@ export default async function AdminFlightRequestsPage() {
   const flightRequestsResult = await getAllFlightRequests()
   const flightStatsResult = await getFlightRequestStats()
 
+  // Fetch RDO/SDO requests from leave_requests table
+  const allLeaveRequests = await getAllLeaveRequests()
+  const rdoSdoRequests = allLeaveRequests.filter(
+    req => req.request_type === 'RDO' || req.request_type === 'SDO'
+  )
+
+  // Convert RDO/SDO leave requests to flight request format for display
+  const convertedRdoSdo = rdoSdoRequests.map(req => ({
+    id: req.id,
+    pilot_id: req.pilot_id,
+    request_type: req.request_type as 'RDO' | 'SDO',
+    flight_date: req.start_date,
+    description: `${req.request_type} Request: ${req.start_date} to ${req.end_date}`,
+    reason: req.reason || null,
+    status: req.status,
+    review_comments: req.review_comments || null,
+    reviewed_by: req.reviewed_by || null,
+    reviewed_at: req.reviewed_at || null,
+    created_at: req.created_at,
+    updated_at: req.created_at, // Use created_at as fallback for updated_at
+    pilots: req.pilots,
+    // Extract pilot information for table display
+    pilot_name: req.pilots ? `${req.pilots.first_name} ${req.pilots.last_name}` : 'Unknown',
+    pilot_rank: req.pilots?.role || null, // Fixed: use role instead of rank
+    reviewer_name: null // Will be populated when reviewed
+  }))
+
   const flightRequests = flightRequestsResult.success ? flightRequestsResult.data || [] : []
-  const stats = flightStatsResult.success && flightStatsResult.data
-    ? flightStatsResult.data
-    : {
-        total: 0,
-        pending: 0,
-        under_review: 0,
-        approved: 0,
-        denied: 0,
-        by_type: {
-          additional_flight: 0,
-          route_change: 0,
-          schedule_swap: 0,
-          other: 0,
-        },
-      }
+
+  // Combine flight requests with RDO/SDO requests
+  // Type cast to FlightRequest[] for table compatibility
+  const allRequests = [...flightRequests, ...convertedRdoSdo] as any[]
+
+  // Calculate combined stats
+  const combinedStats = {
+    total: allRequests.length,
+    pending: allRequests.filter(r => r.status === 'PENDING').length,
+    under_review: allRequests.filter(r => r.status === 'UNDER_REVIEW').length,
+    approved: allRequests.filter(r => r.status === 'APPROVED').length,
+    denied: allRequests.filter(r => r.status === 'DENIED').length,
+    by_type: {
+      additional_flight: allRequests.filter(r => r.request_type === 'ADDITIONAL_FLIGHT').length,
+      route_change: allRequests.filter(r => r.request_type === 'ROUTE_CHANGE').length,
+      schedule_swap: allRequests.filter(r => r.request_type === 'SCHEDULE_SWAP').length,
+      rdo: allRequests.filter(r => r.request_type === 'RDO').length,
+      sdo: allRequests.filter(r => r.request_type === 'SDO').length,
+      other: allRequests.filter(r => r.request_type === 'OTHER').length,
+    },
+  }
+
+  const stats = combinedStats
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Flight Requests Management
+          Flight & Off-Duty Requests Management
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Review and manage pilot flight requests for additional flights, route changes, and schedule swaps
+          Review and manage pilot flight requests, RDO, SDO, and schedule changes
         </p>
       </div>
 
@@ -79,19 +115,21 @@ export default async function AdminFlightRequestsPage() {
       </div>
 
       {/* Request Type Breakdown */}
-      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-6">
         <TypeCard title="Additional Flights" value={stats.by_type.additional_flight} />
         <TypeCard title="Route Changes" value={stats.by_type.route_change} />
         <TypeCard title="Schedule Swaps" value={stats.by_type.schedule_swap} />
+        <TypeCard title="RDO Requests" value={stats.by_type.rdo} />
+        <TypeCard title="SDO Requests" value={stats.by_type.sdo} />
         <TypeCard title="Other Requests" value={stats.by_type.other} />
       </div>
 
       {/* Flight Requests Table */}
       <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
         <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-          All Flight Requests
+          All Flight & Off-Duty Requests
         </h2>
-        <FlightRequestsTable requests={flightRequests} />
+        <FlightRequestsTable requests={allRequests} />
       </div>
     </div>
   )

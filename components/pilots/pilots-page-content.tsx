@@ -18,7 +18,7 @@ export async function PilotsPageContent() {
     <>
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-        <Card className="border-primary/20 bg-primary/5 p-6">
+        <Card className="border-primary/20 bg-primary/5 p-6 dark:border-primary/30 dark:bg-primary/10">
           <div className="flex items-center space-x-3">
             <Users className="text-primary h-8 w-8" aria-hidden="true" />
             <div>
@@ -38,16 +38,16 @@ export async function PilotsPageContent() {
         </Card>
         <Card className="p-6">
           <div className="flex items-center space-x-3">
-            <User className="h-8 w-8 text-green-600" aria-hidden="true" />
+            <User className="h-8 w-8 text-green-600 dark:text-green-500" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{firstOfficers}</p>
               <p className="text-muted-foreground text-sm font-medium">First Officers</p>
             </div>
           </div>
         </Card>
-        <Card className="border-green-200 bg-green-50 p-6">
+        <Card className="border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950/50">
           <div className="flex items-center space-x-3">
-            <CheckCircle className="h-8 w-8 text-green-600" aria-hidden="true" />
+            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-500" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{activePilots}</p>
               <p className="text-muted-foreground text-sm font-medium">Active</p>

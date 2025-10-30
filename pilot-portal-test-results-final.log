@@ -1,0 +1,79 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/pilot-portal.spec.ts:41:7 › Pilot Portal › should load login page successfully (1.2s)
+  ✓  2 [chromium] › e2e/pilot-portal.spec.ts:51:7 › Pilot Portal › should login successfully and redirect to dashboard (9.1s)
+  ✘  3 [chromium] › e2e/pilot-portal.spec.ts:66:7 › Pilot Portal › should display profile data correctly (11.0s)
+  ✘  4 [chromium] › e2e/pilot-portal.spec.ts:91:7 › Pilot Portal › should display certifications correctly (12.1s)
+  ✓  5 [chromium] › e2e/pilot-portal.spec.ts:121:7 › Pilot Portal › should display leave requests page (20.2s)
+  ✓  6 [chromium] › e2e/pilot-portal.spec.ts:142:7 › Pilot Portal › should display flight requests page (10.0s)
+  ✓  7 [chromium] › e2e/pilot-portal.spec.ts:157:7 › Pilot Portal › should have working navigation menu (7.7s)
+  ✓  8 [chromium] › e2e/pilot-portal.spec.ts:176:7 › Pilot Portal › should logout successfully (7.4s)
+
+
+  1) [chromium] › e2e/pilot-portal.spec.ts:66:7 › Pilot Portal › should display profile data correctly 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.text-foreground, [class*="profile"]').filter({ hasText: /Rondeau|RONDEAU/i })
+    Expected: visible
+    Error: strict mode violation: locator('.text-foreground, [class*="profile"]').filter({ hasText: /Rondeau|RONDEAU/i }) resolved to 2 elements:
+        1) <p class="mt-0.5 truncate text-sm font-semibold text-foreground">MAURICE RONDEAU</p> aka getByText('MAURICE RONDEAU', { exact: true })
+        2) <p class="mt-0.5 truncate text-sm font-semibold text-foreground">mrondeau@airniugini.com.pg</p> aka locator('#main-content').getByText('mrondeau@airniugini.com.pg')
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.text-foreground, [class*="profile"]').filter({ hasText: /Rondeau|RONDEAU/i })[22m
+
+
+      86 |     const profileContent = page.locator('.text-foreground, [class*="profile"]')
+      87 |     await expect(profileContent.filter({ hasText: 'Maurice' })).toBeVisible()
+    > 88 |     await expect(profileContent.filter({ hasText: /Rondeau|RONDEAU/i })).toBeVisible()
+         |                                                                          ^
+      89 |   })
+      90 |
+      91 |   test('should display certifications correctly', async ({ page }) => {
+        at /Users/skycruzer/Desktop/fleet-management-v2/e2e/pilot-portal.spec.ts:88:74
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/pilot-portal-Pilot-Portal--2dd48-play-profile-data-correctly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/pilot-portal-Pilot-Portal--2dd48-play-profile-data-correctly-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/pilot-portal-Pilot-Portal--2dd48-play-profile-data-correctly-chromium/error-context.md
+
+  2) [chromium] › e2e/pilot-portal.spec.ts:91:7 › Pilot Portal › should display certifications correctly 
+
+    Error: page.waitForSelector: Unexpected token "=" while parsing css selector "[class*="card"], [class*="grid"], [class*="list"], text=Loading". Did you mean to CSS.escape it?
+    Call log:
+    [2m  - waiting for [class*="card"], [class*="grid"], [class*="list"], text=Loading to be visible[22m
+
+
+      105 |     // Wait for content to load (either certification data or loading state)
+      106 |     // Maurice has 34 certifications, so we should see content
+    > 107 |     await page.waitForSelector('[class*="card"], [class*="grid"], [class*="list"], text=Loading', {
+          |                ^
+      108 |       timeout: 10000,
+      109 |       state: 'visible'
+      110 |     })
+        at /Users/skycruzer/Desktop/fleet-management-v2/e2e/pilot-portal.spec.ts:107:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/pilot-portal-Pilot-Portal--c1140-ay-certifications-correctly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/pilot-portal-Pilot-Portal--c1140-ay-certifications-correctly-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/pilot-portal-Pilot-Portal--c1140-ay-certifications-correctly-chromium/error-context.md
+
+  2 failed
+    [chromium] › e2e/pilot-portal.spec.ts:66:7 › Pilot Portal › should display profile data correctly 
+    [chromium] › e2e/pilot-portal.spec.ts:91:7 › Pilot Portal › should display certifications correctly 
+  6 passed (1.4m)
+
+[36m  Serving HTML report at http://localhost:49177. Press Ctrl+C to quit.[39m

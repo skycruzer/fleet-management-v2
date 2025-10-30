@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { ThemeProvider } from 'next-themes'
 
 /**
  * Query Client Configuration
@@ -78,14 +79,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient()
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {/* React Query DevTools - only visible in development */}
-      <ReactQueryDevtools
-        initialIsOpen={false}
-        buttonPosition="bottom-left"
-        position="bottom"
-      />
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        {/* React Query DevTools - only visible in development */}
+        <ReactQueryDevtools
+          initialIsOpen={false}
+          buttonPosition="bottom-left"
+          position="bottom"
+        />
+      </QueryClientProvider>
+    </ThemeProvider>
   )
 }

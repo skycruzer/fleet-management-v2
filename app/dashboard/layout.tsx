@@ -6,10 +6,14 @@
  */
 
 import type { Metadata } from 'next'
+import { getAppTitle } from '@/lib/services/admin-service'
 
-export const metadata: Metadata = {
-  title: 'Admin Dashboard | Fleet Management',
-  description: 'Administrative dashboard for fleet management and pilot operations',
+export async function generateMetadata(): Promise<Metadata> {
+  const appTitle = await getAppTitle()
+  return {
+    title: `Admin Dashboard | ${appTitle}`,
+    description: 'Administrative dashboard for fleet management and pilot operations',
+  }
 }
 
 export const dynamic = 'force-dynamic'
@@ -66,11 +70,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: 'Certifications',
     },
     {
-      href: '/dashboard/renewal-planning',
-      icon: <RefreshCw className="h-5 w-5" aria-hidden="true" />,
-      label: 'Renewal Planning',
-    },
-    {
       href: '/dashboard/leave',
       icon: <Calendar className="h-5 w-5" aria-hidden="true" />,
       label: 'Leave Requests',
@@ -79,6 +78,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
       href: '/dashboard/flight-requests',
       icon: <Plane className="h-5 w-5" aria-hidden="true" />,
       label: 'Flight Requests',
+    },
+    {
+      href: '/dashboard/renewal-planning',
+      icon: <RefreshCw className="h-5 w-5" aria-hidden="true" />,
+      label: 'Renewal Planning',
+    },
+    {
+      href: '/dashboard/analytics',
+      icon: <TrendingUp className="h-5 w-5" aria-hidden="true" />,
+      label: 'Analytics',
+    },
+    {
+      href: '/dashboard/admin',
+      icon: <Settings className="h-5 w-5" aria-hidden="true" />,
+      label: 'Admin Dashboard',
     },
     {
       href: '/dashboard/tasks',
@@ -96,14 +110,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: 'Audit Logs',
     },
     {
-      href: '/dashboard/analytics',
-      icon: <TrendingUp className="h-5 w-5" aria-hidden="true" />,
-      label: 'Analytics',
-    },
-    {
-      href: '/dashboard/admin',
+      href: '/dashboard/settings',
       icon: <Settings className="h-5 w-5" aria-hidden="true" />,
-      label: 'Settings',
+      label: 'My Settings',
     },
   ]
 
@@ -116,14 +125,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <MobileNav user={user} navLinks={navLinks} />
 
       {/* Professional Layout */}
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="flex min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-900">
         {/* Professional Sidebar - Hidden on mobile */}
         <div className="hidden lg:block">
           <ProfessionalSidebar />
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 lg:ml-64">
+        <div className="flex-1 overflow-x-hidden lg:ml-64">
           {/* Professional Header - Hidden on mobile */}
           <div className="hidden lg:block">
             <ProfessionalHeader />
@@ -132,7 +141,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {/* Page Content */}
           <main
             id="main-content"
-            className="min-h-screen bg-slate-50 p-6 dark:bg-slate-900"
+            className="min-h-screen w-full max-w-full overflow-x-hidden bg-slate-50 p-6 dark:bg-slate-900"
             role="main"
             aria-label="Main content"
           >

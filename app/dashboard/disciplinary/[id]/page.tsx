@@ -16,9 +16,9 @@ export const dynamic = 'force-dynamic'
  */
 
 interface DisciplinaryDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function DisciplinaryDetailPage({ params }: DisciplinaryDetailPageProps) {
@@ -31,14 +31,17 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
     redirect('/auth/login')
   }
 
+  // Await params in Next.js 16
+  const { id } = await params
+
   // Validate UUID format
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  if (!uuidRegex.test(params.id)) {
+  if (!uuidRegex.test(id)) {
     notFound()
   }
 
   // Fetch matter with timeline
-  const matterResult = await getMatterWithTimeline(params.id)
+  const matterResult = await getMatterWithTimeline(id)
 
   if (!matterResult.success || !matterResult.data) {
     notFound()
@@ -87,7 +90,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       case 'ACTION_TAKEN':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
       case 'APPEALED':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
     }

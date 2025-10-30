@@ -53,10 +53,11 @@ export default function PilotRegisterPage() {
       first_name: '',
       last_name: '',
       rank: 'Captain',
-      employee_id: '',
-      date_of_birth: '',
-      phone_number: '',
-      address: '',
+      // Optional fields use undefined, not empty string (Zod .optional() requires undefined)
+      employee_id: undefined,
+      date_of_birth: undefined,
+      phone_number: undefined,
+      address: undefined,
     },
   })
 
@@ -65,21 +66,24 @@ export default function PilotRegisterPage() {
     setError('')
 
     try {
+      // Call the registration API endpoint which handles password hashing
       const response = await fetch('/api/portal/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data),
       })
 
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        setError(result.error || 'Registration failed. Please try again.')
+        setError(result.error?.message || result.message || 'Registration failed. Please try again.')
         setIsLoading(false)
         return
       }
 
-      // Show success message
+      // Success - show success message
       setSuccess(true)
       setIsLoading(false)
 
@@ -88,6 +92,7 @@ export default function PilotRegisterPage() {
         router.push('/portal/login')
       }, 3000)
     } catch (err) {
+      console.error('Registration error:', err)
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
     }
@@ -323,7 +328,7 @@ export default function PilotRegisterPage() {
 
             <div className="text-center text-sm text-gray-600">
               Already have an account?{' '}
-              <Link href="/portal/login" className="font-medium text-blue-600 hover:text-blue-500">
+              <Link href="/portal/login" className="font-medium text-primary hover:text-blue-500">
                 Sign in here
               </Link>
             </div>

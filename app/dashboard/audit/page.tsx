@@ -189,9 +189,9 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
                   {stats.totalTables}
                 </p>
               </div>
-              <div className="rounded-full bg-purple-100 p-3 dark:bg-purple-900/20">
+              <div className="rounded-full bg-primary/10 p-3 dark:bg-purple-900/20">
                 <svg
-                  className="h-6 w-6 text-purple-600 dark:text-purple-400"
+                  className="h-6 w-6 text-primary dark:text-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

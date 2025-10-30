@@ -62,12 +62,20 @@ export default function EditPilotPage() {
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<PilotFormData>({
     resolver: zodResolver(PilotUpdateSchema),
   })
 
   const selectedRole = watch('role')
+
+  // Clear captain qualifications when role changes to First Officer
+  useEffect(() => {
+    if (selectedRole === 'First Officer') {
+      setValue('captain_qualifications', [])
+    }
+  }, [selectedRole, setValue])
 
   // Fetch contract types on component mount
   useEffect(() => {

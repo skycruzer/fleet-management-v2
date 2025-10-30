@@ -8,7 +8,6 @@
  * @since 2025-10-22
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'

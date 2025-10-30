@@ -72,6 +72,18 @@ export const AUTH_ERRORS = {
     category: ErrorCategory.AUTHORIZATION,
     severity: ErrorSeverity.WARNING,
   },
+  CSRF_MISSING: {
+    message: 'CSRF token is missing',
+    action: 'Please refresh the page and try again',
+    category: ErrorCategory.AUTHENTICATION,
+    severity: ErrorSeverity.ERROR,
+  },
+  CSRF_INVALID: {
+    message: 'CSRF token is invalid or expired',
+    action: 'Please refresh the page and try again',
+    category: ErrorCategory.AUTHENTICATION,
+    severity: ErrorSeverity.ERROR,
+  },
 } as const
 
 // ===================================
@@ -363,6 +375,18 @@ export const FEEDBACK_ERRORS = {
     action: 'Choose from the available categories',
     category: ErrorCategory.VALIDATION,
     severity: ErrorSeverity.WARNING,
+  },
+  RESPONSE_FAILED: {
+    message: 'Unable to add admin response to feedback. Please try again.',
+    action: 'Verify your admin permissions and retry',
+    category: ErrorCategory.DATABASE,
+    severity: ErrorSeverity.ERROR,
+  },
+  EXPORT_FAILED: {
+    message: 'Unable to export feedback data. Please try again.',
+    action: 'Check your permissions and retry',
+    category: ErrorCategory.DATABASE,
+    severity: ErrorSeverity.ERROR,
   },
 } as const
 

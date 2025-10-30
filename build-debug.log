@@ -1,0 +1,33 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+ ⚠ Invalid next.config.js options detected: 
+ ⚠     Unrecognized key(s) in object: 'turbo'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+   ▲ Next.js 15.5.6 (Turbopack)
+   - Environments: .env.local, .env.production
+   - Experiments (use with caution):
+     · serverActions
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+ ○ (serwist) Serwist is disabled.
+ ○ (serwist) Serwist is disabled.
+ ✓ Compiled successfully in 14.9s
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+Redis configuration missing. Caching will be disabled.
+Redis configuration missing. Caching will be disabled.
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages (0/61) ...
+Error: <Html> should not be imported outside of pages/_document.
+Read more: https://nextjs.org/docs/messages/no-document-import-in-page
+    at x (.next/server/chunks/5611.js:6:1351)
+Error occurred prerendering page "/404". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: <Html> should not be imported outside of pages/_document.
+Read more: https://nextjs.org/docs/messages/no-document-import-in-page
+    at x (.next/server/chunks/5611.js:6:1351)
+Export encountered an error on /_error: /404, exiting the build.
+ ⨯ Next.js build worker exited with code: 1 and signal: null

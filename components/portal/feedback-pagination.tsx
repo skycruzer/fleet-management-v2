@@ -160,7 +160,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           {pagination.hasPrev ? (
             <Link href={buildPageUrl(pagination.page - 1)}>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 aria-label="Go to previous page"
               >
                 ← Previous
@@ -197,7 +197,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
                 <button
                   className={`px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                     isCurrentPage
-                      ? 'bg-blue-600 text-white focus:ring-blue-500'
+                      ? 'bg-blue-600 text-white focus:ring-primary'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-400'
                   }`}
                   aria-label={`Go to page ${pageNum}`}
@@ -215,7 +215,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           {pagination.hasNext ? (
             <Link href={buildPageUrl(pagination.page + 1)}>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 aria-label="Go to next page"
               >
                 Next →

@@ -1,0 +1,28 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+   ▲ Next.js 16.0.0 (Turbopack)
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+     · serverActions
+
+   Creating an optimized production build ...
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+ ✓ Compiled successfully in 8.9s
+   Running TypeScript ...
+Failed to compile.
+
+./lib/services/pilot-flight-service.ts:71:28
+Type error: Property 'flight_date' does not exist on type '{ request_type: "REQUEST_FLIGHT" | "REQUEST_DAY_OFF" | "REQUEST_SUBSTITUTE_DAY_OFF" | "REQUEST_OTHER_DUTY"; request_date: string; description: string; roster_period?: string | undefined; reason?: string | undefined; }'.
+
+[0m [90m 69 |[39m       pilot_user_id[33m:[39m pilot[33m.[39mid[33m,[39m
+ [90m 70 |[39m       request_type[33m:[39m request[33m.[39mrequest_type[33m,[39m
+[31m[1m>[22m[39m[90m 71 |[39m       flight_date[33m:[39m request[33m.[39mflight_date[33m,[39m
+ [90m    |[39m                            [31m[1m^[22m[39m
+ [90m 72 |[39m       description[33m:[39m request[33m.[39mdescription[33m,[39m
+ [90m 73 |[39m       reason[33m:[39m request[33m.[39mreason [33m||[39m [36mnull[39m[33m,[39m
+ [90m 74 |[39m       status[33m:[39m [32m'PENDING'[39m [36mas[39m [36mconst[39m[33m,[39m[0m
+Next.js build worker exited with code: 1 and signal: null

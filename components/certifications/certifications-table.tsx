@@ -85,7 +85,7 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       accessorFn: (row) => `${row.pilot?.last_name}, ${row.pilot?.first_name}`,
       cell: (row) => (
         <div className="flex flex-col">
-          <span className="font-medium">
+          <span className="font-medium text-foreground">
             {row.pilot?.first_name} {row.pilot?.last_name}
           </span>
           <span className="text-xs text-muted-foreground">
@@ -112,7 +112,7 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       accessorFn: (row) => row.check_type?.check_code || '',
       cell: (row) => (
         <div className="flex flex-col">
-          <span className="font-medium">{row.check_type?.check_code}</span>
+          <span className="font-medium text-foreground">{row.check_type?.check_code}</span>
           <span className="text-xs text-muted-foreground">
             {row.check_type?.check_description}
           </span>
@@ -125,7 +125,7 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       accessorFn: (row) => row.check_type?.category || '',
       sortable: true,
       cell: (row) => (
-        <span className="text-sm">
+        <span className="text-sm text-foreground">
           {row.check_type?.category || 'Uncategorized'}
         </span>
       ),
@@ -135,7 +135,7 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       header: 'Expiry Date',
       accessorKey: 'expiry_date',
       sortable: true,
-      cell: (row) => formatDate(row.expiry_date) || '-',
+      cell: (row) => <span className="text-foreground">{formatDate(row.expiry_date) || '-'}</span>,
     },
     {
       id: 'status',
@@ -156,9 +156,9 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
 
         const className =
           row.status.color === 'yellow'
-            ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+            ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400'
             : row.status.color === 'green'
-              ? 'bg-green-100 text-green-800 hover:bg-green-100'
+              ? 'bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400'
               : ''
 
         return (

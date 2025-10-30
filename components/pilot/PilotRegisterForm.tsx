@@ -36,7 +36,7 @@ export default function PilotRegisterForm() {
     setError(null)
 
     try {
-      const response = await fetch('/api/pilot/register', {
+      const response = await fetch('/api/portal/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -93,7 +93,7 @@ export default function PilotRegisterForm() {
             {...register('first_name')}
             type="text"
             id="first_name"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
           />
           {errors.first_name && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.first_name.message}</p>
@@ -109,7 +109,7 @@ export default function PilotRegisterForm() {
             {...register('last_name')}
             type="text"
             id="last_name"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
           />
           {errors.last_name && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.last_name.message}</p>
@@ -126,48 +126,65 @@ export default function PilotRegisterForm() {
           {...register('email')}
           type="email"
           id="email"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
         />
         {errors.email && (
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        {/* Password */}
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Password *
-          </label>
-          <input
-            {...register('password')}
-            type="password"
-            id="password"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-          />
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
-          )}
-        </div>
+      {/* Password */}
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Password *
+        </label>
+        <input
+          {...register('password')}
+          type="password"
+          id="password"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+        />
+        {errors.password && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
+        )}
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Must contain uppercase, lowercase, number, and special character
+        </p>
+      </div>
 
-        {/* Rank */}
-        <div>
-          <label htmlFor="rank" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Rank *
-          </label>
-          <select
-            {...register('rank')}
-            id="rank"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-          >
-            <option value="">Select rank</option>
-            <option value="Captain">Captain</option>
-            <option value="First Officer">First Officer</option>
-          </select>
-          {errors.rank && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.rank.message}</p>
-          )}
-        </div>
+      {/* Confirm Password */}
+      <div>
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Confirm Password *
+        </label>
+        <input
+          {...register('confirmPassword')}
+          type="password"
+          id="confirmPassword"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+        />
+        {errors.confirmPassword && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword.message}</p>
+        )}
+      </div>
+
+      {/* Rank */}
+      <div>
+        <label htmlFor="rank" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Rank *
+        </label>
+        <select
+          {...register('rank')}
+          id="rank"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+        >
+          <option value="">Select rank</option>
+          <option value="Captain">Captain</option>
+          <option value="First Officer">First Officer</option>
+        </select>
+        {errors.rank && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.rank.message}</p>
+        )}
       </div>
 
       {/* Employee ID (Optional) */}
@@ -179,7 +196,7 @@ export default function PilotRegisterForm() {
           {...register('employee_id')}
           type="text"
           id="employee_id"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
         />
         {errors.employee_id && (
           <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.employee_id.message}</p>
@@ -190,7 +207,7 @@ export default function PilotRegisterForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex w-full justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? 'Submitting...' : 'Register'}
       </button>

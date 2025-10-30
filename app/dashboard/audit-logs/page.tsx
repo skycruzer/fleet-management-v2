@@ -73,7 +73,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
       case 'SOFT_DELETE':
         return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
       case 'RESTORE':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
     }
@@ -101,7 +101,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tables Monitored</p>
-          <p className="mt-2 text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.totalTables}</p>
+          <p className="mt-2 text-3xl font-bold text-primary dark:text-primary">{stats.totalTables}</p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Recent Activity</p>
@@ -139,7 +139,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
           </div>
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Restores</p>
-            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+            <p className="text-2xl font-bold text-primary dark:text-primary">
               {stats.actionBreakdown.RESTORE}
             </p>
           </div>

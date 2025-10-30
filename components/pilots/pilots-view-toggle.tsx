@@ -19,7 +19,7 @@ interface PilotsViewToggleProps {
 }
 
 export function PilotsViewToggle({ groupedPilots, allPilots }: PilotsViewToggleProps) {
-  const [viewMode, setViewMode] = useState<'grouped' | 'table'>('grouped')
+  const [viewMode, setViewMode] = useState<'grouped' | 'table'>('table')
 
   // Sort ranks (Captain first, then First Officer, then others)
   const rankOrder = ['Captain', 'First Officer']

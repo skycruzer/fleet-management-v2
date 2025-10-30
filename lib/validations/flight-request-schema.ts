@@ -8,12 +8,15 @@ import { z } from 'zod'
 
 // Flight request submission schema
 export const FlightRequestSchema = z.object({
-  request_type: z.enum(['ADDITIONAL_FLIGHT', 'ROUTE_CHANGE', 'SCHEDULE_SWAP', 'OTHER'], {
-    message: 'Request type is required',
-  }),
-  flight_date: z
+  request_type: z.enum(
+    ['REQUEST_FLIGHT', 'REQUEST_DAY_OFF', 'REQUEST_SUBSTITUTE_DAY_OFF', 'REQUEST_OTHER_DUTY'],
+    {
+      message: 'Request type is required',
+    }
+  ),
+  request_date: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Flight date must be in YYYY-MM-DD format')
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Request date must be in YYYY-MM-DD format')
     .refine(
       (date) => {
         const requestDate = new Date(date)
@@ -21,11 +24,12 @@ export const FlightRequestSchema = z.object({
         today.setHours(0, 0, 0, 0)
         return requestDate >= today
       },
-      { message: 'Flight date cannot be in the past' }
+      { message: 'Request date cannot be in the past' }
     ),
+  roster_period: z.string().optional(), // Auto-calculated, optional in submission
   description: z
     .string()
-    .min(10, 'Description must be at least 10 characters')
+    .min(50, 'Description must be at least 50 characters')
     .max(2000, 'Description must be less than 2000 characters'),
   reason: z
     .string()
@@ -64,8 +68,8 @@ export type FlightRequestReviewInput = z.infer<typeof FlightRequestReviewSchema>
 export const FlightRequestFiltersSchema = z.object({
   status: z.enum(['PENDING', 'UNDER_REVIEW', 'APPROVED', 'DENIED']).optional(),
   pilot_id: z.string().uuid().optional(),
-  flight_date_from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  flight_date_to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  request_date_from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  request_date_to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().max(100).default(20),
 })

@@ -1,0 +1,7 @@
+{
+  "buildCommand": "npm run build",
+  "env": {
+    "TURBOPACK": "0",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
+}

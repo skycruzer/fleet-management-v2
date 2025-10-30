@@ -9,10 +9,11 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, Eye } from 'lucide-react'
 import { format } from 'date-fns'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import type { LeaveRequest } from '@/lib/services/leave-service'
@@ -21,12 +22,14 @@ interface LeaveRequestGroupProps {
   type: string
   roleGroups: Record<string, LeaveRequest[]>
   defaultExpanded?: boolean
+  onReview?: (request: LeaveRequest) => void
 }
 
 export function LeaveRequestGroup({
   type,
   roleGroups,
   defaultExpanded = true,
+  onReview,
 }: LeaveRequestGroupProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
 
@@ -103,7 +106,7 @@ export function LeaveRequestGroup({
                 {stats.denied} Denied
               </Badge>
             )}
-            <Badge variant="outline" className="text-xs border-purple-500 bg-purple-50 text-purple-800">
+            <Badge variant="outline" className="text-xs border-purple-500 bg-primary/5 text-primary-foreground">
               {stats.totalDays} Days
             </Badge>
           </div>
@@ -163,6 +166,11 @@ export function LeaveRequestGroup({
                         <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Status
                         </th>
+                        {onReview && (
+                          <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Actions
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border bg-background">
@@ -211,6 +219,47 @@ export function LeaveRequestGroup({
                               {req.status}
                             </span>
                           </td>
+                          {onReview && (
+                            <td className="px-4 py-4 whitespace-nowrap text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {/* View Details Button - Always visible */}
+                                <Link href={`/dashboard/leave/${req.id}`}>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs"
+                                  >
+                                    <Eye className="h-3 w-3 mr-1" />
+                                    View
+                                  </Button>
+                                </Link>
+
+                                {/* Review Button - Only for pending requests */}
+                                {req.status === 'PENDING' && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => onReview(req)}
+                                    className="text-xs"
+                                  >
+                                    Review
+                                  </Button>
+                                )}
+
+                                {/* Reviewed Status - For non-pending requests */}
+                                {req.status !== 'PENDING' && req.reviewed_by && (
+                                  <div className="text-xs text-muted-foreground">
+                                    Reviewed
+                                    {req.reviewed_at && (
+                                      <div className="text-xs">
+                                        {format(new Date(req.reviewed_at), 'MMM dd, yyyy')}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       )})}
                     </tbody>

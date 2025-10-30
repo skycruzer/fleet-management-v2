@@ -11,7 +11,6 @@ import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DashboardNavLink } from './dashboard-nav-link'
-import { ThemeToggle } from '@/components/theme-toggle'
 
 interface MobileNavProps {
   user: {
@@ -110,23 +109,20 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
             </div>
           </Link>
 
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label={isOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={isOpen}
-              className="h-11 w-11" // Touch-optimized size (44px)
-            >
-              {isOpen ? (
-                <X className="h-6 w-6" aria-hidden="true" />
-              ) : (
-                <Menu className="h-6 w-6" aria-hidden="true" />
-              )}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isOpen}
+            className="h-11 w-11" // Touch-optimized size (44px)
+          >
+            {isOpen ? (
+              <X className="h-6 w-6" aria-hidden="true" />
+            ) : (
+              <Menu className="h-6 w-6" aria-hidden="true" />
+            )}
+          </Button>
         </div>
       </header>
 

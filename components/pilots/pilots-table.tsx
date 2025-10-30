@@ -82,7 +82,7 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       sortable: true,
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       cell: (row) => (
-        <span className="font-medium">
+        <span className="font-medium text-foreground">
           {row.first_name} {row.last_name}
         </span>
       ),
@@ -101,7 +101,9 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       header: 'Commencement Date',
       accessorKey: 'commencement_date',
       sortable: true,
-      cell: (row) => formatDate(row.commencement_date) || '-',
+      cell: (row) => (
+        <span className="text-foreground">{formatDate(row.commencement_date) || '-'}</span>
+      ),
     },
     {
       id: 'status',

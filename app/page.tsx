@@ -37,7 +37,7 @@ export default function HomePage() {
             {/* CTA Buttons */}
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Button size="lg" className="px-8 py-6 text-base" asChild>
-                <Link href="/dashboard">
+                <Link href="/auth/login">
                   Admin Dashboard
                 </Link>
               </Button>

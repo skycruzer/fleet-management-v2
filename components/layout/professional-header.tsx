@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Bell, Moon, Sun, User, Settings, LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Bell, Moon, Sun, User, Settings, LogOut } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { GlobalSearch } from '@/components/search/global-search'
 
 interface Notification {
   id: string
@@ -44,27 +46,42 @@ const mockNotifications: Notification[] = [
 
 export function ProfessionalHeader() {
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
 
   const unreadCount = mockNotifications.filter((n) => !n.read).length
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok || response.redirected) {
+        // Redirect to login page
+        window.location.href = '/auth/login'
+      } else {
+        console.error('Logout failed')
+        // Redirect to login anyway
+        window.location.href = '/auth/login'
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Redirect to login anyway
+      window.location.href = '/auth/login'
+    }
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
       <div className="flex h-16 items-center justify-between px-6">
-        {/* Left Section - Search */}
+        {/* Left Section - Global Search */}
         <div className="flex flex-1 items-center gap-4">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search pilots, certifications, leave requests..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-500 transition-colors focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder-slate-400 dark:focus:bg-slate-900"
-            />
-          </div>
+          <GlobalSearch />
         </div>
 
         {/* Right Section - Actions */}
@@ -121,23 +138,27 @@ export function ProfessionalHeader() {
                   </div>
                   <div className="max-h-96 overflow-y-auto">
                     {mockNotifications.map((notification) => (
-                      <div
+                      <button
                         key={notification.id}
+                        onClick={() => {
+                          setShowNotifications(false)
+                          router.push('/dashboard/audit-logs')
+                        }}
                         className={cn(
-                          'border-b border-slate-100 p-4 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700',
+                          'w-full border-b border-slate-100 p-4 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700',
                           !notification.read && 'bg-primary-50/50 dark:bg-primary-900/10'
                         )}
                       >
                         <div className="flex items-start gap-3">
                           <div
                             className={cn(
-                              'mt-1 h-2 w-2 rounded-full',
+                              'mt-1 h-2 w-2 rounded-full flex-shrink-0',
                               notification.type === 'warning' && 'bg-warning-500',
                               notification.type === 'success' && 'bg-success-500',
                               notification.type === 'info' && 'bg-primary-500'
                             )}
                           />
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <p className="font-medium text-slate-900 dark:text-white">
                               {notification.title}
                             </p>
@@ -149,11 +170,17 @@ export function ProfessionalHeader() {
                             </p>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                   <div className="p-4">
-                    <button className="w-full rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600">
+                    <button
+                      onClick={() => {
+                        setShowNotifications(false)
+                        router.push('/dashboard/audit-logs')
+                      }}
+                      className="w-full rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                    >
                       View All Notifications
                     </button>
                   </div>
@@ -206,7 +233,10 @@ export function ProfessionalHeader() {
                     </button>
                   </div>
                   <div className="border-t border-slate-200 p-2 dark:border-slate-700">
-                    <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-danger-600 transition-colors hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-900/20">
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-danger-600 transition-colors hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-900/20"
+                    >
                       <LogOut className="h-4 w-4" />
                       <span>Logout</span>
                     </button>

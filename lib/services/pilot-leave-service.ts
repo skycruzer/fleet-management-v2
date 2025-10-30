@@ -7,14 +7,13 @@
  * @spec 001-missing-core-features (US2)
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import {
   createLeaveRequestServer,
   deleteLeaveRequest,
   type LeaveRequest,
 } from './leave-service'
-import { getCurrentPilot } from './pilot-portal-service'
+import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import {
   isLateRequest,
@@ -43,19 +42,18 @@ export async function submitPilotLeaveRequest(
 ): Promise<ServiceResponse<LeaveRequest>> {
   try {
     // Get current pilot
-    const pilotResult = await getCurrentPilot()
-    if (!pilotResult.success || !pilotResult.data) {
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
       return {
         success: false,
         error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
       }
     }
 
-    const pilot = pilotResult.data
-
     // Prepare leave request data
+    // IMPORTANT: Use pilot.pilot_id (foreign key to pilots table), NOT pilot.id (pilot_users table ID)
     const leaveRequestData = {
-      pilot_id: pilot.id,
+      pilot_id: pilot.pilot_id!,
       request_type: request.request_type as
         | 'RDO'
         | 'SDO'
@@ -107,15 +105,13 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
     const supabase = await createClient()
 
     // Get current pilot
-    const pilotResult = await getCurrentPilot()
-    if (!pilotResult.success || !pilotResult.data) {
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
       return {
         success: false,
         error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
       }
     }
-
-    const pilot = pilotResult.data
 
     // Query leave requests using BOTH pilot_user_id AND pilot_id to catch all requests
     // Some requests may be stored under pilot_user_id, others under pilot_id
@@ -157,15 +153,13 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
     const supabase = await createClient()
 
     // Get current pilot
-    const pilotResult = await getCurrentPilot()
-    if (!pilotResult.success || !pilotResult.data) {
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
       return {
         success: false,
         error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
       }
     }
-
-    const pilot = pilotResult.data
 
     // Verify request belongs to pilot and is PENDING
     const { data: request, error: fetchError } = await supabase
@@ -182,7 +176,8 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
     }
 
     // Check ownership
-    if (request.pilot_id !== pilot.id) {
+    // IMPORTANT: Compare with pilot.pilot_id (foreign key to pilots table)
+    if (request.pilot_id !== pilot.pilot_id) {
       return {
         success: false,
         error: ERROR_MESSAGES.AUTH.FORBIDDEN.message,
@@ -229,21 +224,20 @@ export async function getPilotLeaveStats(): Promise<
     const supabase = await createClient()
 
     // Get current pilot
-    const pilotResult = await getCurrentPilot()
-    if (!pilotResult.success || !pilotResult.data) {
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
       return {
         success: false,
         error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
       }
     }
 
-    const pilot = pilotResult.data
-
     // Get counts by status
+    // IMPORTANT: Use pilot.pilot_id (foreign key to pilots table)
     const { data: requests, error } = await supabase
       .from('leave_requests')
       .select('status')
-      .eq('pilot_id', pilot.id)
+      .eq('pilot_id', pilot.pilot_id!)
 
     if (error) {
       return {

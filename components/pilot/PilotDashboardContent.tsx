@@ -174,7 +174,7 @@ function StatCard({
     blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
     yellow: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400',
     red: 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400',
-    purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
+    purple: 'bg-primary/5 text-primary dark:bg-purple-900/20 dark:text-primary',
   }
 
   return (

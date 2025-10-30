@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test'
+import { loginAndNavigate } from './helpers/auth-helpers'
 
 test.describe('Feedback System - Pilot Portal', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/portal/feedback')
+    // Login as pilot and navigate to feedback page
+    await loginAndNavigate(page, '/portal/feedback')
   })
 
   test('should display feedback page', async ({ page }) => {

@@ -1,0 +1,81 @@
+
+================================================================================
+  🚀 STARTING PILOT PORTAL COMPREHENSIVE TESTING
+================================================================================
+  ℹ️  Launching browser...
+(node:56760) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/skycruzer/Desktop/fleet-management-v2/test-pilot-portal-comprehensive.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/skycruzer/Desktop/fleet-management-v2/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✅ Browser launched successfully
+
+🧪 TEST 1: Navigate to Pilot Portal Login Page
+  ✅ Pilot login page loads - PASSED
+
+🧪 TEST 2: Pilot Login Authentication
+  ℹ️  Email entered
+  ℹ️  Password entered
+  ℹ️  Login button clicked
+  ❌ Pilot login successful - FAILED: Navigation timeout of 10000 ms exceeded
+  ℹ️  Screenshot saved: ./test-screenshots/pilot-portal-login-error-1761536952281.png
+
+🧪 TEST 3: Pilot Dashboard Page
+  ❌ Dashboard page displays correctly - FAILED: Content not found
+  ℹ️  Screenshot saved: ./test-screenshots/pilot-portal-dashboard-error-1761536954600.png
+
+🧪 TEST 4: Profile Page
+  ❌ Profile page loads with pilot data - FAILED: API status: N/A
+
+🧪 TEST 5: Certifications Page
+  ❌ Certifications page loads - FAILED: API status: N/A
+
+🧪 TEST 6: Leave Requests Page
+  ❌ Leave requests page loads - FAILED: API status: N/A
+
+🧪 TEST 7: Flight Requests Page
+  ❌ Flight requests page loads - FAILED: API status: N/A
+
+🧪 TEST 8: Notifications Page
+  ❌ Notifications page loads - FAILED: API status: N/A
+
+🧪 TEST 9: Feedback/Support Page
+  ❌ Feedback page loads - FAILED: Page not found
+
+🧪 TEST 10: Navigation Menu Functionality
+  ❌ Navigation menu functional - FAILED: Only 0 links found
+
+🧪 TEST 11: Create New Leave Request (Navigation)
+  ❌ New leave request form accessible - FAILED: Form not found
+
+🧪 TEST 12: Create New Flight Request (Navigation)
+  ❌ New flight request form accessible - FAILED: Form not found
+
+🧪 TEST 13: Mobile Responsive Design
+  ✅ Mobile responsive design works - PASSED
+
+🧪 TEST 14: Session Persistence
+  ❌ Session persists across navigation - FAILED: Session lost
+
+🧪 TEST 15: Logout Functionality
+  ⚠️  Logout button available - SKIPPED: Logout button not found in current implementation
+
+
+
+================================================================================
+  📡 API RESPONSE SUMMARY
+================================================================================
+  ⚠️  No API responses captured
+
+================================================================================
+  📊 TEST SUMMARY
+================================================================================
+Total Tests: 15
+✅ Passed: 2
+❌ Failed: 12
+⏭️  Skipped: 1
+📈 Success Rate: 14.3%
+================================================================================
+
+⚠️  12 test(s) failed. Review errors above.
+  ℹ️  Keeping browser open for 5 seconds...
+  ✅ Browser closed

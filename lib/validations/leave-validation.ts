@@ -38,9 +38,10 @@ export const RequestMethodEnum = z.enum(['EMAIL', 'ORACLE', 'LEAVE_BIDS', 'SYSTE
 const uuidSchema = z.string().uuid('Must be a valid UUID')
 
 /**
- * Date validation: Must be ISO date string
+ * Date validation: Must be ISO date string (YYYY-MM-DD format from HTML date inputs)
+ * Will be converted to ISO datetime in the API layer
  */
-const dateSchema = z.string().datetime({ message: 'Must be a valid ISO datetime string' })
+const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a valid date in YYYY-MM-DD format')
 
 /**
  * Roster period validation: Format "RP1/2025" through "RP13/2025"

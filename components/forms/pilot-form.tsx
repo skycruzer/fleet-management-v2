@@ -2,18 +2,23 @@
  * Unified Pilot Form Component
  * Handles both create and edit modes for pilot management
  *
+ * Developer: Maurice Rondeau
+ *
  * DEDUPLICATION: This form uses useDeduplicatedSubmit to prevent
  * duplicate submissions when users rapidly click the submit button.
  *
- * @version 2.0.0
+ * CSRF PROTECTION: This form includes CSRF token protection for all submissions
+ *
+ * @version 2.1.0
  * @since 2025-10-17
- * @updated 2025-10-19 - Added request deduplication
+ * @updated 2025-10-27 - Added CSRF protection
  */
 
 'use client'
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useCsrfToken } from '@/lib/providers/csrf-provider'
 import { PilotCreateSchema, PilotUpdateSchema, type PilotCreate, type PilotUpdate } from '@/lib/validations/pilot-validation'
 import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
@@ -42,6 +47,9 @@ export function PilotForm({
   onCancel,
   isLoading = false,
 }: PilotFormProps) {
+  // CSRF token for form protection
+  const { csrfToken, isLoading: csrfLoading } = useCsrfToken()
+
   const form = useForm<PilotCreate | PilotUpdate>({
     resolver: zodResolver(mode === 'create' ? PilotCreateSchema : PilotUpdateSchema),
     defaultValues: defaultValues ?? {
@@ -69,6 +77,8 @@ export function PilotForm({
     isSubmitting,
   } = useDeduplicatedSubmit(
     async (data: PilotCreate | PilotUpdate) => {
+      // Note: CSRF token is handled via fetchWithCsrf() in the parent component
+      // or via header in API calls. This form passes data to parent onSubmit.
       await onSubmit(data)
     },
     {
@@ -246,10 +256,12 @@ export function PilotForm({
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isLoading || isSubmitting}>
-              {(isLoading || isSubmitting) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" disabled={isLoading || isSubmitting || csrfLoading || !csrfToken}>
+              {(isLoading || isSubmitting || csrfLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting
                 ? mode === 'create' ? 'Creating...' : 'Updating...'
+                : csrfLoading
+                ? 'Loading...'
                 : mode === 'create' ? 'Create Pilot' : 'Update Pilot'}
             </Button>
           </CardFooter>

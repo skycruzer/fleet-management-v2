@@ -1,0 +1,15 @@
+
+Running 52 tests using 1 worker
+
+  ✘   1 [chromium] › e2e/auth.spec.ts:24:7 › Authentication Flow › should display login page with all required elements (6.4s)
+  ✘   2 [chromium] › e2e/auth.spec.ts:34:7 › Authentication Flow › should show validation errors for empty form submission (6.8s)
+  ✓   3 [chromium] › e2e/auth.spec.ts:44:7 › Authentication Flow › should show error for invalid credentials (2.3s)
+  ✓   4 [chromium] › e2e/auth.spec.ts:56:7 › Authentication Flow › should successfully login with valid credentials (5.2s)
+  ✘   5 [chromium] › e2e/auth.spec.ts:72:7 › Authentication Flow › should redirect to dashboard if already authenticated (9.5s)
+  ✓   6 [chromium] › e2e/auth.spec.ts:87:7 › Authentication Flow › should maintain session after page reload (17.6s)
+  ✘   7 [chromium] › e2e/auth.spec.ts:103:7 › Authentication Flow › should logout successfully (1.1m)
+  ✓   8 [chromium] › e2e/auth.spec.ts:119:7 › Authentication Flow › should protect dashboard routes when not authenticated (1.7s)
+  ✓   9 [chromium] › e2e/auth.spec.ts:127:7 › Authentication Flow › should protect pilot management routes when not authenticated (570ms)
+  ✘  10 [chromium] › e2e/auth.spec.ts:139:7 › Authentication - Password Visibility Toggle › should toggle password visibility (1.0m)
+  ✓  11 [chromium] › e2e/auth.spec.ts:161:7 › Authentication - Remember Me › should persist email when "Remember Me" is checked (1.0s)
+  ✓  12 [chromium] › e2e/certifications.spec.ts:23:7 › Certification Management - List View › should display certifications page (27.6s)

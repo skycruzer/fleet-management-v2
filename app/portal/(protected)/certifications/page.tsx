@@ -22,6 +22,8 @@ import {
   ArrowLeft,
   Search,
   Clock,
+  LayoutGrid,
+  List,
 } from 'lucide-react'
 
 interface Certification {
@@ -35,6 +37,7 @@ interface Certification {
 }
 
 type StatusFilter = 'all' | 'expired' | 'critical' | 'warning' | 'current'
+type ViewMode = 'card' | 'list'
 
 export default function CertificationsPage() {
   const [certifications, setCertifications] = useState<Certification[]>([])
@@ -43,6 +46,7 @@ export default function CertificationsPage() {
   const [error, setError] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [viewMode, setViewMode] = useState<ViewMode>('card')
 
   // Fetch certifications
   useEffect(() => {
@@ -222,12 +226,6 @@ export default function CertificationsPage() {
                 <p className="text-muted-foreground text-xs">{stats.total} total certifications</p>
               </div>
             </div>
-            <Link href="/portal/dashboard">
-              <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Dashboard
-              </Button>
-            </Link>
           </div>
         </div>
       </header>
@@ -292,6 +290,28 @@ export default function CertificationsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
+            </div>
+
+            {/* View Toggle */}
+            <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
+              <Button
+                variant={viewMode === 'card' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('card')}
+                className="gap-2"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Card
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="gap-2"
+              >
+                <List className="h-4 w-4" />
+                List
+              </Button>
             </div>
 
             {/* Filter Tabs */}
@@ -388,7 +408,8 @@ export default function CertificationsPage() {
                     {groupedCerts[category].length === 1 ? 'cert' : 'certs'}
                   </Badge>
                 </div>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {viewMode === 'card' ? (
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {groupedCerts[category].map((cert: Certification) => {
                     const status = getCertificationStatus(cert.expiry_date)
                     const StatusIcon = status.icon
@@ -466,6 +487,117 @@ export default function CertificationsPage() {
                     )
                   })}
                 </div>
+                ) : (
+                  <div className="space-y-2">
+                    {groupedCerts[category].map((cert: Certification) => {
+                      const status = getCertificationStatus(cert.expiry_date)
+                      const StatusIcon = status.icon
+
+                      return (
+                        <Card
+                          key={cert.id}
+                          className={`border-l-4 p-4 transition-all hover:shadow-md ${status.borderColor}`}
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            {/* Left: Status and Title */}
+                            <div className="flex flex-1 items-center gap-4">
+                              <StatusIcon className={`h-5 w-5 flex-shrink-0 ${status.textColor}`} />
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-foreground truncate font-bold">
+                                  {cert.check_types?.check_code || 'Unknown'}
+                                </h4>
+                                <p className="text-muted-foreground truncate text-sm">
+                                  {cert.check_types?.check_description || 'No description'}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Middle: Status Badge */}
+                            <Badge className={`${status.bgColor} ${status.textColor} border-0 flex-shrink-0`}>
+                              {status.status}
+                            </Badge>
+
+                            {/* Right: Expiry Info */}
+                            <div className="flex flex-shrink-0 items-center gap-4">
+                              {cert.expiry_date ? (
+                                <>
+                                  <div className="text-right">
+                                    <p className="text-sm font-semibold text-gray-700">
+                                      {status.daysRemaining !== null && status.status !== 'No Expiry' ? (
+                                        status.status === 'Expired' ? (
+                                          <span className="text-red-600">
+                                            Expired {status.daysRemaining} days ago
+                                          </span>
+                                        ) : (
+                                          <span>{status.daysRemaining} days remaining</span>
+                                        )
+                                      ) : (
+                                        'No expiry'
+                                      )}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      Expires:{' '}
+                                      {new Date(cert.expiry_date).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                      })}
+                                    </p>
+                                  </div>
+                                  {status.status !== 'Expired' && status.progressPercent !== null && (
+                                    <div className="h-16 w-16 flex-shrink-0">
+                                      <svg className="h-full w-full" viewBox="0 0 36 36">
+                                        <path
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                          fill="none"
+                                          stroke="#e5e7eb"
+                                          strokeWidth="3"
+                                        />
+                                        <path
+                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                          fill="none"
+                                          stroke={
+                                            status.filterKey === 'critical'
+                                              ? '#ea580c'
+                                              : status.filterKey === 'warning'
+                                                ? '#ca8a04'
+                                                : '#16a34a'
+                                          }
+                                          strokeWidth="3"
+                                          strokeDasharray={`${status.progressPercent}, 100`}
+                                        />
+                                        <text
+                                          x="18"
+                                          y="20.5"
+                                          className="text-xs font-semibold"
+                                          textAnchor="middle"
+                                          fill={
+                                            status.filterKey === 'critical'
+                                              ? '#ea580c'
+                                              : status.filterKey === 'warning'
+                                                ? '#ca8a04'
+                                                : '#16a34a'
+                                          }
+                                        >
+                                          {Math.round(status.progressPercent)}%
+                                        </text>
+                                      </svg>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <div className="flex items-center gap-2 text-sm text-gray-500">
+                                  <Clock className="h-4 w-4" />
+                                  <span>No expiry date</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             ))}
           </div>

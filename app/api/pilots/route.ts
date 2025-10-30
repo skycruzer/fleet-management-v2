@@ -1,6 +1,13 @@
 /**
  * Pilots API Route
  * Handles pilot listing and creation
+ *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ *
+ * @version 2.0.0
+ * @updated 2025-10-27 - Added CSRF protection
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,6 +16,7 @@ import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
 import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 
 /**
  * GET /api/pilots
@@ -55,10 +63,16 @@ export async function GET(_request: NextRequest) {
 /**
  * POST /api/pilots
  * Create a new pilot
- * Protected by rate limiting (20 requests/min)
+ * Protected by rate limiting (20 requests/min) and CSRF validation
  */
-export const POST = withRateLimit(async (_request: NextRequest) => {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // Check authentication
     const supabase = await createClient()
     const {
@@ -72,7 +86,7 @@ export const POST = withRateLimit(async (_request: NextRequest) => {
     }
 
     // Parse and validate request body
-    const body = await _request.json()
+    const body = await request.json()
     const validatedData = PilotCreateSchema.parse(body)
 
     // Create pilot

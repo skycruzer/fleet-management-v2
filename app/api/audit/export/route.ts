@@ -1,90 +1,138 @@
+/**
+ * Audit Trail Export API Route
+ * GET /api/audit/export
+ *
+ * Exports audit trail data to CSV format
+ * Supports filtering by entity type, entity ID, and date range
+ *
+ * @version 1.0.0
+ * @since 2025-10-25
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuditLogs, exportAuditLogsToCSV } from '@/lib/services/audit-service'
-import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { createClient } from '@/lib/supabase/server'
+import { exportAuditTrailCSV } from '@/lib/services/audit-service'
 
 /**
  * GET /api/audit/export
+ * Export audit trail to CSV
  *
- * Export audit logs to CSV format.
- * Applies the same filters as the main audit logs endpoint.
- * Returns CSV file for download.
- *
- * Query parameters (same as /api/audit):
- * - userEmail, tableName, action, recordId
- * - startDate, endDate
- * - searchQuery
- * - Max 10,000 records per export
- *
- * @spec 001-missing-core-features (US4, T071)
+ * Query Parameters:
+ * - entityType (required): Type of entity (leave_request, pilot_check, etc.)
+ * - entityId (optional): Specific entity UUID
+ * - startDate (optional): ISO date string for start of range
+ * - endDate (optional): ISO date string for end of range
+ * - tableName (optional): Database table name
+ * - operation (optional): Operation type (INSERT, UPDATE, DELETE)
+ * - userId (optional): User UUID who performed the action
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const searchParams = _request.nextUrl.searchParams
+    // Verify authentication
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
-    // Build filters from query params
-    const filters: any = {
-      pageSize: 10000, // Max export limit
-      page: 1,
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized - Please sign in' },
+        { status: 401 }
+      )
     }
 
-    const userEmail = searchParams.get('userEmail')
-    if (userEmail) {
-      filters.userEmail = userEmail
+    // Get user role to verify permissions
+    const { data: userData, error: userError } = await supabase
+      .from('an_users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (userError || !userData) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
     }
 
-    const tableName = searchParams.get('tableName')
-    if (tableName) {
-      filters.tableName = tableName
+    // Only Admin and Manager roles can export audit trails
+    if (!['Admin', 'Manager'].includes(userData.role)) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions to export audit trails' },
+        { status: 403 }
+      )
     }
 
-    const action = searchParams.get('action')
-    if (action) {
-      filters.action = action
-    }
-
-    const recordId = searchParams.get('recordId')
-    if (recordId) {
-      filters.recordId = recordId
-    }
-
+    // Parse query parameters
+    const searchParams = request.nextUrl.searchParams
+    const entityType = searchParams.get('entityType')
+    const entityId = searchParams.get('entityId')
     const startDateStr = searchParams.get('startDate')
-    if (startDateStr) {
-      filters.startDate = new Date(startDateStr)
-    }
-
     const endDateStr = searchParams.get('endDate')
-    if (endDateStr) {
-      filters.endDate = new Date(endDateStr)
+    const tableName = searchParams.get('tableName')
+    const operation = searchParams.get('operation')
+    const userId = searchParams.get('userId')
+
+    // Validate required parameters
+    if (!entityType) {
+      return NextResponse.json(
+        { error: 'entityType parameter is required' },
+        { status: 400 }
+      )
     }
 
-    const searchQuery = searchParams.get('searchQuery')
-    if (searchQuery) {
-      filters.searchQuery = searchQuery
+    // Parse dates if provided
+    const startDate = startDateStr ? new Date(startDateStr) : undefined
+    const endDate = endDateStr ? new Date(endDateStr) : undefined
+
+    // Validate dates
+    if (startDate && isNaN(startDate.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid startDate format. Use ISO 8601 format.' },
+        { status: 400 }
+      )
     }
 
-    // Fetch audit logs
-    const result = await getAuditLogs(filters)
+    if (endDate && isNaN(endDate.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid endDate format. Use ISO 8601 format.' },
+        { status: 400 }
+      )
+    }
 
-    // Convert to CSV
-    const csv = exportAuditLogsToCSV(result.logs)
+    // Build filters object
+    const filters = {
+      entityType,
+      entityId: entityId || undefined,
+      startDate,
+      endDate,
+      tableName: tableName || undefined,
+      operation: operation || undefined,
+      userId: userId || undefined,
+    }
 
-    // Generate filename with timestamp
-    const timestamp = new Date().toISOString().split('T')[0]
-    const filename = `audit-logs-${timestamp}.csv`
+    // Call service to generate CSV
+    const csvData = await exportAuditTrailCSV(filters)
 
-    // Return CSV file
-    return new NextResponse(csv, {
+    // Set headers for CSV download
+    const headers = new Headers()
+    headers.set('Content-Type', 'text/csv; charset=utf-8')
+    headers.set(
+      'Content-Disposition',
+      `attachment; filename="audit-trail-${entityType}-${new Date().toISOString().split('T')[0]}.csv"`
+    )
+    headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+
+    return new NextResponse(csvData, {
       status: 200,
-      headers: {
-        'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="${filename}"`,
-        'Cache-Control': 'no-cache',
-      },
+      headers,
     })
   } catch (error) {
-    console.error('Audit logs export error:', error)
+    console.error('Audit export error:', error)
+
     return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
+      { error: error instanceof Error ? error.message : 'Failed to export audit trail' },
       { status: 500 }
     )
   }

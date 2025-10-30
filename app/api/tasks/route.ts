@@ -1,7 +1,21 @@
+/**
+ * Tasks API Route
+ *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ * RATE LIMITING: 20 mutation requests per minute per IP
+ *
+ * @version 2.1.0
+ * @updated 2025-10-27 - Added rate limiting
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { getTasks, createTask, getTaskStats } from '@/lib/services/task-service'
 import { TaskInputSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
 /**
  * GET /api/tasks
@@ -139,9 +153,15 @@ export async function GET(_request: NextRequest) {
  *
  * @spec 001-missing-core-features (US5, T080)
  */
-export async function POST(_request: NextRequest) {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
-    const body = await _request.json()
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
+    const body = await request.json()
 
     // Validate input
     const validation = TaskInputSchema.safeParse(body)
@@ -177,4 +197,4 @@ export async function POST(_request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

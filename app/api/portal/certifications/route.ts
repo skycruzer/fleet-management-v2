@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentPilot } from '@/lib/services/pilot-portal-service'
+import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 
 /**
  * GET /api/portal/certifications
@@ -11,8 +11,8 @@ export async function GET() {
     const supabase = await createClient()
 
     // Get current pilot
-    const pilotResult = await getCurrentPilot()
-    if (!pilotResult.success || !pilotResult.data) {
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
       return NextResponse.json(
         {
           success: false,
@@ -22,7 +22,16 @@ export async function GET() {
       )
     }
 
-    const pilotUser = pilotResult.data
+    const pilotUser = pilot
+
+    // If pilot doesn't have a linked pilots table record, return empty certifications
+    if (!pilotUser.pilot_id) {
+      return NextResponse.json({
+        success: true,
+        data: [],
+        message: 'No pilot record linked - certifications not available',
+      })
+    }
 
     // Fetch pilot certifications with check types
     const { data: certifications, error } = await supabase
@@ -37,7 +46,7 @@ export async function GET() {
         )
       `
       )
-      .eq('pilot_id', pilotUser.pilot_id || pilotUser.id)
+      .eq('pilot_id', pilotUser.pilot_id)
       .order('expiry_date', { ascending: false })
 
     if (error) {

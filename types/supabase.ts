@@ -22,6 +22,7 @@ export type Database = {
           name: string
           role: string
           updated_at: string | null
+          user_type: string | null
         }
         Insert: {
           created_at?: string | null
@@ -30,6 +31,7 @@ export type Database = {
           name: string
           role: string
           updated_at?: string | null
+          user_type?: string | null
         }
         Update: {
           created_at?: string | null
@@ -38,6 +40,7 @@ export type Database = {
           name?: string
           role?: string
           updated_at?: string | null
+          user_type?: string | null
         }
         Relationships: []
       }
@@ -50,8 +53,8 @@ export type Database = {
           description: string | null
           id: string
           ip_address: unknown
-          new_data: Json | null
-          old_data: Json | null
+          new_values: Json | null
+          old_values: Json | null
           record_id: string
           table_name: string
           user_agent: string | null
@@ -67,8 +70,8 @@ export type Database = {
           description?: string | null
           id?: string
           ip_address?: unknown
-          new_data?: Json | null
-          old_data?: Json | null
+          new_values?: Json | null
+          old_values?: Json | null
           record_id: string
           table_name: string
           user_agent?: string | null
@@ -84,8 +87,8 @@ export type Database = {
           description?: string | null
           id?: string
           ip_address?: unknown
-          new_data?: Json | null
-          old_data?: Json | null
+          new_values?: Json | null
+          old_values?: Json | null
           record_id?: string
           table_name?: string
           user_agent?: string | null
@@ -211,6 +214,13 @@ export type Database = {
             foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
             columns: ["paired_pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -269,6 +279,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pilot_summary_optimized"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
             foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
@@ -601,6 +618,13 @@ export type Database = {
             foreignKeyName: "disciplinary_matters_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -676,6 +700,7 @@ export type Database = {
           created_by: string | null
           created_by_type: string | null
           description: string | null
+          display_order: number | null
           icon: string | null
           id: string
           is_archived: boolean | null
@@ -690,6 +715,7 @@ export type Database = {
           created_by?: string | null
           created_by_type?: string | null
           description?: string | null
+          display_order?: number | null
           icon?: string | null
           id?: string
           is_archived?: boolean | null
@@ -704,6 +730,7 @@ export type Database = {
           created_by?: string | null
           created_by_type?: string | null
           description?: string | null
+          display_order?: number | null
           icon?: string | null
           id?: string
           is_archived?: boolean | null
@@ -725,6 +752,230 @@ export type Database = {
             foreignKeyName: "feedback_categories_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "feedback_categories_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean | null
+          parent_comment_id: string | null
+          pilot_user_id: string
+          post_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          parent_comment_id?: string | null
+          pilot_user_id: string
+          post_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          parent_comment_id?: string | null
+          pilot_user_id?: string
+          post_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_likes: {
+        Row: {
+          created_at: string
+          id: string
+          pilot_user_id: string
+          post_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pilot_user_id: string
+          post_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pilot_user_id?: string
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_likes_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_likes_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "feedback_likes_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_posts: {
+        Row: {
+          admin_response: string | null
+          category_id: string | null
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean | null
+          pilot_user_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          upvotes: number | null
+        }
+        Insert: {
+          admin_response?: string | null
+          category_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          pilot_user_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          upvotes?: number | null
+        }
+        Update: {
+          admin_response?: string | null
+          category_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          pilot_user_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          upvotes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_posts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_posts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "feedback_posts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
             referencedRelation: "pilot_users"
             referencedColumns: ["id"]
           },
@@ -743,6 +994,7 @@ export type Database = {
           reviewed_at: string | null
           reviewed_by: string | null
           reviewer_comments: string | null
+          route_details: Json | null
           status: string | null
           updated_at: string | null
         }
@@ -758,6 +1010,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           reviewer_comments?: string | null
+          route_details?: Json | null
           status?: string | null
           updated_at?: string | null
         }
@@ -773,6 +1026,7 @@ export type Database = {
           reviewed_at?: string | null
           reviewed_by?: string | null
           reviewer_comments?: string | null
+          route_details?: Json | null
           status?: string | null
           updated_at?: string | null
         }
@@ -823,6 +1077,13 @@ export type Database = {
             foreignKeyName: "flight_requests_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -846,6 +1107,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pending_pilot_registrations"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flight_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
             foreignKeyName: "flight_requests_pilot_user_id_fkey"
@@ -895,6 +1163,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      leave_bid_options: {
+        Row: {
+          bid_id: string
+          created_at: string | null
+          end_date: string
+          id: string
+          priority: number
+          start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          bid_id: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          priority: number
+          start_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          bid_id?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          priority?: number
+          start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_bid_options_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "leave_bids"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leave_bids: {
         Row: {
@@ -995,6 +1301,13 @@ export type Database = {
             foreignKeyName: "leave_bids_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -1023,11 +1336,13 @@ export type Database = {
       }
       leave_requests: {
         Row: {
+          approved_by: string | null
           created_at: string | null
           days_count: number
           end_date: string
           id: string
           is_late_request: boolean | null
+          notes: string | null
           pilot_id: string | null
           pilot_user_id: string | null
           reason: string | null
@@ -1042,13 +1357,16 @@ export type Database = {
           start_date: string
           status: string | null
           submission_type: string | null
+          updated_at: string | null
         }
         Insert: {
+          approved_by?: string | null
           created_at?: string | null
           days_count: number
           end_date: string
           id?: string
           is_late_request?: boolean | null
+          notes?: string | null
           pilot_id?: string | null
           pilot_user_id?: string | null
           reason?: string | null
@@ -1063,13 +1381,16 @@ export type Database = {
           start_date: string
           status?: string | null
           submission_type?: string | null
+          updated_at?: string | null
         }
         Update: {
+          approved_by?: string | null
           created_at?: string | null
           days_count?: number
           end_date?: string
           id?: string
           is_late_request?: boolean | null
+          notes?: string | null
           pilot_id?: string | null
           pilot_user_id?: string | null
           reason?: string | null
@@ -1084,8 +1405,79 @@ export type Database = {
           start_date?: string
           status?: string | null
           submission_type?: string | null
+          updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "leave_requests_pilot_id_fkey"
             columns: ["pilot_id"]
@@ -1132,6 +1524,13 @@ export type Database = {
             foreignKeyName: "leave_requests_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -1160,6 +1559,13 @@ export type Database = {
             foreignKeyName: "leave_requests_pilot_user_id_fkey"
             columns: ["pilot_user_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "leave_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
             referencedRelation: "pilot_users"
             referencedColumns: ["id"]
           },
@@ -1168,6 +1574,91 @@ export type Database = {
             columns: ["reviewed_by"]
             isOneToOne: false
             referencedRelation: "an_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          link: string | null
+          message: string
+          read: boolean | null
+          recipient_id: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message: string
+          read?: boolean | null
+          recipient_id: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message?: string
+          read?: boolean | null
+          recipient_id?: string
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      password_reset_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          token: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "password_reset_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "password_reset_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "password_reset_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_users"
             referencedColumns: ["id"]
           },
         ]
@@ -1251,6 +1742,13 @@ export type Database = {
             foreignKeyName: "pilot_checks_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -1270,11 +1768,135 @@ export type Database = {
           },
         ]
       }
+      pilot_feedback: {
+        Row: {
+          admin_response: string | null
+          category: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          message: string
+          pilot_id: string
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          admin_response?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          message: string
+          pilot_id: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          message?: string
+          pilot_id?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_feedback_responded_by_fkey"
+            columns: ["responded_by"]
+            isOneToOne: false
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pilot_users: {
         Row: {
           address: string | null
           approved_at: string | null
           approved_by: string | null
+          auth_user_id: string | null
           created_at: string | null
           date_of_birth: string | null
           denial_reason: string | null
@@ -1284,37 +1906,45 @@ export type Database = {
           id: string
           last_login_at: string | null
           last_name: string
+          password_hash: string | null
           phone_number: string | null
+          pilot_id: string | null
           rank: string | null
           registration_approved: boolean | null
           registration_date: string | null
           seniority_number: number | null
           updated_at: string | null
+          user_type: string | null
         }
         Insert: {
           address?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          auth_user_id?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           denial_reason?: string | null
           email: string
           employee_id?: string | null
           first_name: string
-          id: string
+          id?: string
           last_login_at?: string | null
           last_name: string
+          password_hash?: string | null
           phone_number?: string | null
+          pilot_id?: string | null
           rank?: string | null
           registration_approved?: boolean | null
           registration_date?: string | null
           seniority_number?: number | null
           updated_at?: string | null
+          user_type?: string | null
         }
         Update: {
           address?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          auth_user_id?: string | null
           created_at?: string | null
           date_of_birth?: string | null
           denial_reason?: string | null
@@ -1324,12 +1954,15 @@ export type Database = {
           id?: string
           last_login_at?: string | null
           last_name?: string
+          password_hash?: string | null
           phone_number?: string | null
+          pilot_id?: string | null
           rank?: string | null
           registration_approved?: boolean | null
           registration_date?: string | null
           seniority_number?: number | null
           updated_at?: string | null
+          user_type?: string | null
         }
         Relationships: [
           {
@@ -1340,88 +1973,74 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "captain_qualifications_summary"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "detailed_expiring_checks"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "expiring_checks"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "expiring_checks_optimized"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_checks_overview"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_qualification_summary"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_report_summary"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_requirements_compliance"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_summary_optimized"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilots"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilots_with_contract_details"
-            referencedColumns: ["employee_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1447,6 +2066,7 @@ export type Database = {
           role: Database["public"]["Enums"]["pilot_role"]
           seniority_number: number | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           captain_qualifications?: Json | null
@@ -1469,6 +2089,7 @@ export type Database = {
           role: Database["public"]["Enums"]["pilot_role"]
           seniority_number?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           captain_qualifications?: Json | null
@@ -1491,6 +2112,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["pilot_role"]
           seniority_number?: number | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1718,6 +2340,7 @@ export type Database = {
           category_id: string | null
           checklist_items: Json | null
           completed_date: string | null
+          completion_date: string | null
           created_at: string | null
           created_by: string
           description: string | null
@@ -1743,6 +2366,7 @@ export type Database = {
           category_id?: string | null
           checklist_items?: Json | null
           completed_date?: string | null
+          completion_date?: string | null
           created_at?: string | null
           created_by: string
           description?: string | null
@@ -1768,6 +2392,7 @@ export type Database = {
           category_id?: string | null
           checklist_items?: Json | null
           completed_date?: string | null
+          completion_date?: string | null
           created_at?: string | null
           created_by?: string
           description?: string | null
@@ -1877,6 +2502,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "pilot_summary_optimized"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
             foreignKeyName: "tasks_related_pilot_id_fkey"
@@ -2051,6 +2683,13 @@ export type Database = {
             foreignKeyName: "pilot_checks_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -2137,6 +2776,13 @@ export type Database = {
             foreignKeyName: "pilot_checks_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -2213,6 +2859,13 @@ export type Database = {
             foreignKeyName: "pilot_checks_pilot_id_fkey"
             columns: ["pilot_id"]
             isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
             referencedRelation: "pilot_warning_history"
             referencedColumns: ["pilot_id"]
           },
@@ -2245,92 +2898,7 @@ export type Database = {
           rank: string | null
           registration_date: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "captain_qualifications_summary"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "detailed_expiring_checks"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "expiring_checks"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "expiring_checks_optimized"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilot_checks_overview"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilot_qualification_summary"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilot_report_summary"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilot_requirements_compliance"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilot_summary_optimized"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilot_warning_history"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilots"
-            referencedColumns: ["employee_id"]
-          },
-          {
-            foreignKeyName: "pilot_users_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "pilots_with_contract_details"
-            referencedColumns: ["employee_id"]
-          },
-        ]
+        Relationships: []
       }
       pilot_checks_overview: {
         Row: {
@@ -2407,6 +2975,23 @@ export type Database = {
         }
         Relationships: []
       }
+      pilot_user_mappings: {
+        Row: {
+          email: string | null
+          employee_id: string | null
+          first_name: string | null
+          last_login_at: string | null
+          last_name: string | null
+          pilot_created_at: string | null
+          pilot_id: string | null
+          pilot_user_created_at: string | null
+          pilot_user_id: string | null
+          rank: string | null
+          registration_approved: boolean | null
+          seniority_number: number | null
+        }
+        Relationships: []
+      }
       pilot_warning_history: {
         Row: {
           created_at: string | null
@@ -2461,12 +3046,6 @@ export type Database = {
       }
     }
     Functions: {
-      acknowledge_alert:
-        | {
-            Args: { acknowledger_email: string; alert_id: string }
-            Returns: boolean
-          }
-        | { Args: { alert_id: string }; Returns: boolean }
       add_crew_check: {
         Args: {
           p_certificate_number?: string
@@ -2483,33 +3062,27 @@ export type Database = {
       alert_level:
         | { Args: { days_until_expiry: number }; Returns: string }
         | { Args: { expiry_date: string }; Returns: string }
-      approve_leave_request:
-        | {
-            Args: {
-              p_comments?: string
-              p_request_id: string
-              p_reviewer_id: string
-              p_status: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_approval_notes?: string
-              p_approved_by: string
-              p_request_id: string
-            }
-            Returns: boolean
-          }
+      approve_leave_request: {
+        Args: {
+          p_approval_notes?: string
+          p_approved_by: string
+          p_request_id: string
+        }
+        Returns: boolean
+      }
       aus_to_date: { Args: { date_text: string }; Returns: string }
       auth_get_user_role: { Args: never; Returns: string }
       batch_update_certifications: {
-        Args: { updates: Json[] }
-        Returns: number
+        Args: { p_updates: Json[] }
+        Returns: {
+          error_count: number
+          errors: string[]
+          updated_count: number
+        }[]
       }
       bulk_delete_certifications: {
-        Args: { certification_ids: string[] }
-        Returns: number
+        Args: { p_certification_ids: string[] }
+        Returns: Json
       }
       calculate_check_status:
         | {
@@ -2550,33 +3123,24 @@ export type Database = {
         Args: { end_date: string; start_date: string }
         Returns: number
       }
-      calculate_optimal_renewal_date: {
-        Args: {
-          advance_renewal_days?: number
-          current_expiry_date: string
-          validity_period_months: number
-        }
-        Returns: string
-      }
-      calculate_pilot_to_hull_ratio: {
-        Args: never
-        Returns: {
-          active_aircraft: number
-          active_pilots: number
-          pilots_needed: number
-          required_ratio: number
-          status: string
-          surplus_shortage: number
-        }[]
-      }
+      calculate_optimal_renewal_date:
+        | { Args: { p_current_expiry_date: string }; Returns: string }
+        | {
+            Args: {
+              advance_renewal_days?: number
+              current_expiry_date: string
+              validity_period_months: number
+            }
+            Returns: string
+          }
       calculate_required_examiners: { Args: never; Returns: number }
       calculate_required_training_captains: { Args: never; Returns: number }
       calculate_years_in_service:
-        | { Args: { pilot_id: string }; Returns: number }
+        | { Args: { p_pilot_id: string }; Returns: number }
         | { Args: { commencement_date: string }; Returns: number }
       calculate_years_to_retirement:
-        | { Args: { pilot_id: string }; Returns: number }
         | { Args: { birth_date: string }; Returns: number }
+        | { Args: { pilot_id: string }; Returns: number }
       can_access_pilot_data: { Args: { pilot_uuid: string }; Returns: boolean }
       check_training_currency: {
         Args: never
@@ -2590,22 +3154,9 @@ export type Database = {
           risk_level: string
         }[]
       }
-      check_tri_tre_compliance: {
-        Args: never
-        Returns: {
-          total_pilots: number
-          total_tre: number
-          total_tri: number
-          tre_required: number
-          tre_status: string
-          tre_surplus_shortage: number
-          tri_required: number
-          tri_status: string
-          tri_surplus_shortage: number
-        }[]
-      }
-      cleanup_audit_logs: { Args: never; Returns: number }
+      cleanup_expired_password_reset_tokens: { Args: never; Returns: number }
       cleanup_old_expiry_alerts: { Args: never; Returns: number }
+      complete_task: { Args: { p_task_id: string }; Returns: boolean }
       create_audit_log: {
         Args: {
           p_action: string
@@ -2621,10 +3172,9 @@ export type Database = {
             Args: {
               p_link?: string
               p_message: string
-              p_metadata?: Json
+              p_recipient_id: string
               p_title: string
-              p_type?: string
-              p_user_id: string
+              p_type: Database["public"]["Enums"]["notification_type"]
             }
             Returns: string
           }
@@ -2642,136 +3192,70 @@ export type Database = {
             Returns: string
           }
       create_pilot_with_certifications: {
-        Args: { certifications: Json[]; pilot_data: Json }
-        Returns: string
+        Args: { p_certifications?: Json[]; p_pilot_data: Json }
+        Returns: {
+          certifications_created: number
+          employee_id: string
+          first_name: string
+          last_name: string
+          pilot_id: string
+          role: Database["public"]["Enums"]["pilot_role"]
+          seniority_number: number
+        }[]
       }
       current_user_email: { Args: never; Returns: string }
       current_user_is_an_admin: { Args: never; Returns: boolean }
-      daily_database_maintenance: { Args: never; Returns: Json }
-      daily_expiry_maintenance: { Args: never; Returns: Json }
-      daily_maintenance: {
-        Args: never
-        Returns: {
-          alerts_generated: number
-          maintenance_timestamp: string
-          status_updates: number
-        }[]
-      }
-      daily_status_update: {
-        Args: never
-        Returns: {
-          generated_notifications: number
-          updated_checks: number
-        }[]
-      }
       days_until_expiry: { Args: { expiry_date: string }; Returns: number }
-      delete_pilot_with_cascade: {
-        Args: { p_pilot_id: string }
-        Returns: boolean
-      }
+      delete_pilot_with_cascade: { Args: { p_pilot_id: string }; Returns: Json }
       excel_date_to_pg_date: { Args: { excel_serial: number }; Returns: string }
       find_check_type_by_code: { Args: { code: string }; Returns: string }
       find_crew_member_by_name: {
         Args: { search_name: string }
+        Returns: {
+          employee_id: string
+          full_name: string
+          is_active: boolean
+          pilot_id: string
+          role: Database["public"]["Enums"]["pilot_role"]
+        }[]
+      }
+      get_auth_user_from_pilot_user: {
+        Args: { p_pilot_user_id: string }
         Returns: string
-      }
-      generate_certification_alerts: { Args: never; Returns: number }
-      generate_check_alerts: { Args: never; Returns: number }
-      generate_compliance_report: {
-        Args: { end_date?: string; start_date?: string }
-        Returns: {
-          affected_crew: number
-          compliance_category: string
-          critical_events: number
-          event_types: Json
-          total_events: number
-        }[]
-      }
-      generate_comprehensive_expiry_alerts: { Args: never; Returns: number }
-      generate_expiry_alerts: { Args: never; Returns: undefined }
-      generate_simplified_expiry_alerts: {
-        Args: never
-        Returns: {
-          alert_level: string
-          alert_type: string
-          crew_member_id: string
-          days_until_expiry: number
-          description: string
-          expiry_date: string
-          title: string
-        }[]
-      }
-      get_certification_compliance_data: {
-        Args: never
-        Returns: {
-          compliance_rate: number
-          critical_alerts: number
-          expired_certifications: number
-          expiring_soon: number
-          total_certifications: number
-          valid_certifications: number
-        }[]
-      }
-      get_certification_stats: {
-        Args: never
-        Returns: {
-          critical_alerts: number
-          expired_certifications: number
-          expiring_soon: number
-          total_certifications: number
-          valid_certifications: number
-        }[]
       }
       get_check_category_distribution: {
         Args: never
         Returns: {
           category: string
-          count: number
+          check_count: number
         }[]
       }
       get_check_status: {
         Args: { expiry_date: string }
         Returns: Database["public"]["Enums"]["check_status"]
       }
-      get_crew_audit_trail: {
-        Args: { crew_member_uuid: string; days_back?: number }
-        Returns: {
-          changed_fields: string[]
-          compliance_category: string
-          details: Json
-          operation_timestamp: string
-          operation_type: string
-          regulatory_impact: boolean
-          table_name: string
-          user_email: string
-        }[]
-      }
       get_crew_expiry_summary: {
         Args: { crew_member_uuid: string }
         Returns: {
           compliance_status: string
-          crew_member_id: string
-          critical_count: number
           days_to_next_expiry: number
           employee_id: string
           expired_count: number
+          expiring_soon_count: number
           next_expiry_date: string
           next_expiry_type: string
+          pilot_id: string
           pilot_name: string
-          total_expiries: number
+          total_certifications: number
           valid_count: number
-          warning_count: number
         }[]
       }
       get_crew_member_expiring_items: {
-        Args: { p_crew_member_id: string; p_days_ahead?: number }
+        Args: { crew_member_id: string; days_threshold?: number }
         Returns: {
+          check_type_name: string
           days_until_expiry: number
-          description: string
           expiry_date: string
-          expiry_type: string
-          reference_id: string
-          reference_table: string
           status: string
         }[]
       }
@@ -2783,9 +3267,6 @@ export type Database = {
           should_show: boolean
         }[]
       }
-      get_current_pilot_id: { Args: never; Returns: string }
-      get_current_user_role: { Args: never; Returns: string }
-      get_dashboard_metrics: { Args: never; Returns: Json }
       get_database_performance_metrics: {
         Args: never
         Returns: {
@@ -2795,19 +3276,20 @@ export type Database = {
           status: string
         }[]
       }
-      get_expiring_checks: {
-        Args: { days_ahead?: number }
+      get_expiring_certifications_with_email: {
+        Args: { days_threshold?: number }
         Returns: {
           check_code: string
           check_description: string
-          check_id: string
-          days_remaining: number
+          check_type_id: string
+          days_until_expiry: number
+          email: string
           employee_id: string
           expiry_date: string
+          first_name: string
+          last_name: string
           pilot_id: string
-          pilot_name: string
-          priority: string
-          status: string
+          rank: string
         }[]
       }
       get_expiry_statistics: {
@@ -2821,29 +3303,10 @@ export type Database = {
       get_fleet_compliance_stats: {
         Args: never
         Returns: {
-          fully_compliant_pilots: number
-          overall_compliance_percentage: number
-          pilots_with_critical: number
-          pilots_with_expired: number
-          pilots_with_warnings: number
+          compliance_percentage: number
+          compliant_pilots: number
+          non_compliant_pilots: number
           total_pilots: number
-        }[]
-      }
-      get_fleet_expiry_statistics: {
-        Args: never
-        Returns: {
-          avg_days_to_next_expiry: number
-          critical_expiries: number
-          expired_expiries: number
-          expiries_next_30_days: number
-          expiries_next_60_days: number
-          expiries_next_90_days: number
-          pilots_with_critical: number
-          pilots_with_expired: number
-          pilots_with_warnings: number
-          total_expiries: number
-          total_pilots: number
-          warning_expiries: number
         }[]
       }
       get_monthly_expiry_data: {
@@ -2872,93 +3335,6 @@ export type Database = {
           updated_at: string
         }[]
       }
-      get_pilot_check_types: {
-        Args: { pilot_uuid: string }
-        Returns: {
-          check_type_code: string
-          check_type_id: string
-          check_type_name: string
-          completion_date: string
-          created_at: string
-          expiry_date: string
-          notes: string
-          renewal_date: string
-          status: string
-          updated_at: string
-          validity_date: string
-        }[]
-      }
-      get_pilot_compliance_stats: {
-        Args: { pilot_uuid: string }
-        Returns: {
-          compliance_percentage: number
-          critical_checks: number
-          expired_checks: number
-          total_checks: number
-          valid_checks: number
-          warning_checks: number
-        }[]
-      }
-      get_pilot_dashboard_data: {
-        Args: never
-        Returns: {
-          active_pilots: number
-          critical_alerts: number
-          examiners: number
-          expiring_soon: number
-          first_officers: number
-          line_captains: number
-          total_pilots: number
-          training_captains: number
-        }[]
-      }
-      get_pilot_data_with_checks: {
-        Args: never
-        Returns: {
-          completed_checks: number
-          compliance_percentage: number
-          display_name: string
-          email: string
-          employee_id: string
-          employee_status: string
-          full_name: string
-          hire_date: string
-          is_tre: boolean
-          is_tri: boolean
-          medical_certificate_expiry: string
-          nationality: string
-          passport_expiry_date: string
-          pilot_id: string
-          pilot_license_expiry: string
-          pilot_license_type: string
-          role_code: string
-          total_required_checks: number
-        }[]
-      }
-      get_pilot_details: {
-        Args: { pilot_uuid: string }
-        Returns: {
-          created_at: string
-          display_name: string
-          email: string
-          first_name: string
-          full_name: string
-          is_tre: boolean
-          is_tri: boolean
-          last_name: string
-          middle_name: string
-          nationality: string
-          notes: string
-          passport_expiry_date: string
-          passport_issue_date: string
-          passport_number: string
-          phone: string
-          pilot_id: string
-          role_code: string
-          status: string
-          updated_at: string
-        }[]
-      }
       get_pilot_expiries: {
         Args: never
         Returns: {
@@ -2968,30 +3344,43 @@ export type Database = {
           pilot_name: string
         }[]
       }
-      get_pilot_expiry_summary: {
-        Args: { pilot_uuid: string }
+      get_pilot_expiring_items: {
+        Args: { p_days_threshold?: number; p_pilot_id: string }
         Returns: {
-          critical_count: number
-          days_to_next_expiry: number
-          employee_id: string
-          expired_count: number
-          next_expiry_date: string
-          next_expiry_type: string
-          pilot_id: string
-          pilot_name: string
-          total_expiries: number
-          valid_count: number
-          warning_count: number
+          check_type_name: string
+          days_until_expiry: number
+          expiry_date: string
+          status: string
         }[]
       }
-      get_pilot_statistics: {
+      get_pilot_expiry_summary: {
+        Args: { p_pilot_id: string }
+        Returns: {
+          next_expiry_check_type: string
+          next_expiry_date: string
+        }[]
+      }
+      get_pilot_feedback_posts: {
+        Args: { p_limit?: number; p_offset?: number; p_pilot_user_id: string }
+        Returns: {
+          category_name: string
+          comment_count: number
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          status: string
+          title: string
+          updated_at: string
+          upvotes: number
+        }[]
+      }
+      get_pilot_fleet_expiry_statistics: {
         Args: never
         Returns: {
-          active_pilots: number
-          captain_count: number
-          first_officer_count: number
-          tre_count: number
-          tri_count: number
+          expired_count: number
+          expiring_count: number
+          time_period: string
         }[]
       }
       get_pilot_warning_count: { Args: { pilot_uuid: string }; Returns: number }
@@ -3016,10 +3405,6 @@ export type Database = {
         Args: { p_setting_type?: string; p_user_email: string }
         Returns: Json
       }
-      get_unread_notification_count: {
-        Args: { p_user_id: string }
-        Returns: number
-      }
       get_years_in_service: {
         Args: { commencement_date: string }
         Returns: number
@@ -3034,72 +3419,59 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_post_view_count: {
-        Args: { post_uuid: string }
-        Returns: undefined
-      }
       insert_crew_checks_batch: { Args: never; Returns: undefined }
-      is_admin:
-        | { Args: { user_id?: string }; Returns: boolean }
-        | { Args: never; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
       is_admin_user: { Args: never; Returns: boolean }
       is_current_user: { Args: { user_id: string }; Returns: boolean }
       is_manager_or_admin: { Args: never; Returns: boolean }
       is_pilot_owner: { Args: { pilot_uuid: string }; Returns: boolean }
       map_crew_name_to_id: { Args: { check_name: string }; Returns: string }
-      mark_check_complete:
-        | {
-            Args: {
-              p_check_type_code: string
-              p_completion_date?: string
-              p_crew_member_id: string
-              p_validity_months?: number
-            }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              check_id: string
-              completion_date: string
-              document_ref?: string
-              expiry_date: string
-            }
-            Returns: boolean
-          }
+      mark_check_complete: {
+        Args: {
+          p_check_type_code: string
+          p_completion_date?: string
+          p_crew_member_id: string
+          p_validity_months?: number
+        }
+        Returns: boolean
+      }
       parse_cert_date: { Args: { date_str: string }; Returns: string }
       parse_excel_date:
         | { Args: { excel_value: string }; Returns: string }
         | { Args: { excel_serial: number }; Returns: string }
-      process_pending_reminders: { Args: never; Returns: number }
       refresh_all_expiry_views: { Args: never; Returns: string }
       refresh_dashboard_metrics: { Args: never; Returns: undefined }
       refresh_dashboard_views: { Args: never; Returns: undefined }
       refresh_expiry_materialized_views: { Args: never; Returns: string }
       refresh_expiry_views: { Args: never; Returns: undefined }
       refresh_pilot_status: { Args: never; Returns: undefined }
-      safe_to_date: { Args: { date_str: string }; Returns: string }
-      search_pilots_by_name: {
-        Args: { search_term: string }
-        Returns: {
-          employee_id: string
-          first_name: string
-          id: string
-          last_name: string
-          role: string
-        }[]
+      remove_upvote_feedback_post: {
+        Args: { p_pilot_user_id: string; p_post_id: string }
+        Returns: boolean
       }
+      safe_to_date: { Args: { date_str: string }; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      submit_feedback_post_tx: {
+        Args: {
+          p_category_id?: string
+          p_content: string
+          p_is_anonymous?: boolean
+          p_pilot_user_id: string
+          p_title: string
+        }
+        Returns: string
+      }
       submit_flight_request_tx:
         | {
             Args: {
-              p_description: string
               p_flight_date: string
               p_pilot_user_id: string
               p_reason?: string
               p_request_type: string
+              p_route_details?: Json
             }
-            Returns: Json
+            Returns: string
           }
         | {
             Args: {
@@ -3111,51 +3483,19 @@ export type Database = {
             }
             Returns: string
           }
-      submit_leave_request_tx:
-        | {
-            Args: {
-              p_days_count: number
-              p_end_date: string
-              p_pilot_user_id: string
-              p_reason?: string
-              p_request_type: string
-              p_roster_period: string
-              p_start_date: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_end_date: string
-              p_notes?: string
-              p_pilot_id: string
-              p_roster_period: string
-              p_start_date: string
-            }
-            Returns: string
-          }
-      system_health_check: {
-        Args: never
-        Returns: {
-          check_name: string
-          details: string
-          recommendation: string
-          status: string
-        }[]
-      }
-      update_all_expiry_statuses: { Args: never; Returns: number }
-      update_certification_status: { Args: never; Returns: undefined }
-      update_check_expiry_dates: { Args: never; Returns: number }
-      update_check_statuses: { Args: never; Returns: number }
-      update_crew_instructor_status: {
+      submit_leave_request_tx: {
         Args: {
-          p_crew_member_id: string
-          p_is_tre?: boolean
-          p_is_tri?: boolean
+          p_days_count: number
+          p_end_date: string
+          p_notes?: string
+          p_pilot_user_id: string
+          p_reason?: string
+          p_request_type: string
+          p_start_date: string
         }
-        Returns: boolean
+        Returns: string
       }
-      update_pilot_checks_status: { Args: never; Returns: number }
+      update_certification_status: { Args: never; Returns: undefined }
       upsert_system_settings: {
         Args: {
           p_alert_days_critical?: number
@@ -3175,9 +3515,11 @@ export type Database = {
         }
         Returns: Json
       }
-      user_has_admin_role:
-        | { Args: never; Returns: boolean }
-        | { Args: { user_id: string }; Returns: boolean }
+      upvote_feedback_post: {
+        Args: { p_pilot_user_id: string; p_post_id: string }
+        Returns: boolean
+      }
+      user_has_admin_role: { Args: { user_id: string }; Returns: boolean }
       user_has_role: { Args: { required_roles: string[] }; Returns: boolean }
       validate_crew_member_completeness: {
         Args: never
@@ -3269,6 +3611,17 @@ export type Database = {
         | "ACKNOWLEDGED"
         | "FAILED"
         | "CANCELLED"
+      notification_type:
+        | "leave_request_submitted"
+        | "leave_request_approved"
+        | "leave_request_rejected"
+        | "leave_request_pending_review"
+        | "leave_bid_submitted"
+        | "leave_bid_approved"
+        | "leave_bid_rejected"
+        | "flight_request_submitted"
+        | "flight_request_approved"
+        | "flight_request_rejected"
       pilot_position: "captain" | "first_officer" | "second_officer" | "cadet"
       pilot_role: "Captain" | "First Officer"
       request_status:
@@ -3493,6 +3846,18 @@ export const Constants = {
         "ACKNOWLEDGED",
         "FAILED",
         "CANCELLED",
+      ],
+      notification_type: [
+        "leave_request_submitted",
+        "leave_request_approved",
+        "leave_request_rejected",
+        "leave_request_pending_review",
+        "leave_bid_submitted",
+        "leave_bid_approved",
+        "leave_bid_rejected",
+        "flight_request_submitted",
+        "flight_request_approved",
+        "flight_request_rejected",
       ],
       pilot_position: ["captain", "first_officer", "second_officer", "cadet"],
       pilot_role: ["Captain", "First Officer"],

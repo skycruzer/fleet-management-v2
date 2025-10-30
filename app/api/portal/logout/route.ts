@@ -3,15 +3,30 @@
  *
  * POST /api/portal/logout - Sign out pilot and clear session
  *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ * RATE LIMITING: 20 mutation requests per minute per IP
+ *
+ * @version 2.1.0
+ * @updated 2025-10-27 - Added rate limiting
  * @spec 001-missing-core-features (US1)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { pilotLogout } from '@/lib/services/pilot-portal-service'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
-export async function POST(_request: NextRequest) {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // Logout pilot
     const result = await pilotLogout()
 
@@ -39,4 +54,4 @@ export async function POST(_request: NextRequest) {
       status: 500,
     })
   }
-}
+})

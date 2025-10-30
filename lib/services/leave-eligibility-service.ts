@@ -64,7 +64,6 @@
  * - All business logic PRESERVED
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { differenceInDays, parseISO, isWithinInterval, eachDayOfInterval, addDays } from 'date-fns'
 

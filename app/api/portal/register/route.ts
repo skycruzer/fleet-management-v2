@@ -4,6 +4,14 @@
  * POST /api/portal/register - Submit pilot registration for approval
  * GET /api/portal/register?email=... - Check registration status
  *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ * RATE LIMITING: 5 registration attempts per minute per IP (prevents signup abuse)
+ * SAFE LOGGING: Uses sanitized logger to prevent credential/PII leakage
+ *
+ * @version 2.2.0
+ * @updated 2025-10-27 - Added safe logging with sanitization
  * @spec 001-missing-core-features (US1, US8)
  */
 
@@ -11,15 +19,37 @@ import { NextRequest, NextResponse } from 'next/server'
 import { submitPilotRegistration, getRegistrationStatus } from '@/lib/services/pilot-portal-service'
 import { PilotRegistrationSchema } from '@/lib/validations/pilot-portal-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { createSafeLogger } from '@/lib/utils/log-sanitizer'
+
+const logger = createSafeLogger('PortalRegistrationAPI')
 
 /**
  * POST - Submit new pilot registration
  */
-export async function POST(_request: NextRequest) {
+export const POST = withAuthRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // Parse and validate request body
-    const body = await _request.json()
-    const validation = PilotRegistrationSchema.safeParse(body)
+    const body = await request.json()
+
+    // Preprocess: Convert empty strings to undefined for optional fields
+    // This ensures Zod's .optional() validation works correctly
+    const preprocessedBody = {
+      ...body,
+      date_of_birth: body.date_of_birth === '' ? undefined : body.date_of_birth,
+      phone_number: body.phone_number === '' ? undefined : body.phone_number,
+      address: body.address === '' ? undefined : body.address,
+      employee_id: body.employee_id === '' ? undefined : body.employee_id,
+    }
+
+    const validation = PilotRegistrationSchema.safeParse(preprocessedBody)
 
     if (!validation.success) {
       const firstError = validation.error.issues[0]
@@ -53,12 +83,12 @@ export async function POST(_request: NextRequest) {
       message: 'Registration submitted successfully. Awaiting admin approval.',
     })
   } catch (error) {
-    console.error('Registration API error:', error)
+    logger.error('Registration API error', error)
     return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
       status: 500,
     })
   }
-}
+})
 
 /**
  * GET - Check registration status by email
@@ -105,7 +135,7 @@ export async function GET(_request: NextRequest) {
       data: result.data,
     })
   } catch (error) {
-    console.error('Get registration status API error:', error)
+    logger.error('Get registration status API error', error)
     return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
       status: 500,
     })

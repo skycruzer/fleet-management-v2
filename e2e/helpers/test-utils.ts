@@ -13,8 +13,19 @@ import { Page, expect } from '@playwright/test'
 
 // Environment variables
 export const TEST_CONFIG = {
-  email: process.env.TEST_USER_EMAIL || 'test@example.com',
-  password: process.env.TEST_USER_PASSWORD || 'testpassword123',
+  // Admin portal credentials (Supabase Auth)
+  admin: {
+    email: process.env.TEST_ADMIN_EMAIL || 'skycruzer@icloud.com',
+    password: process.env.TEST_ADMIN_PASSWORD || 'mron2393',
+  },
+  // Pilot portal credentials (Custom Auth via an_users table)
+  pilot: {
+    email: process.env.TEST_PILOT_EMAIL || 'mrondeau@airniugini.com.pg',
+    password: process.env.TEST_PILOT_PASSWORD || 'Lemakot@1972',
+  },
+  // Legacy config for backward compatibility
+  email: process.env.TEST_USER_EMAIL || 'skycruzer@icloud.com',
+  password: process.env.TEST_USER_PASSWORD || 'mron2393',
   baseUrl: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
   timeout: 10000,
 }
@@ -22,6 +33,7 @@ export const TEST_CONFIG = {
 /**
  * Login helper function
  * Authenticates a user and waits for dashboard redirect
+ * @deprecated Use loginAsAdmin() or loginAsPilot() instead for clearer intent
  */
 export async function login(page: Page, email?: string, password?: string) {
   const loginEmail = email || TEST_CONFIG.email
@@ -35,13 +47,53 @@ export async function login(page: Page, email?: string, password?: string) {
 }
 
 /**
+ * Login as admin (Supabase Auth)
+ * Authenticates admin user and waits for dashboard redirect
+ */
+export async function loginAsAdmin(page: Page) {
+  await page.goto('/auth/login')
+  await page.getByLabel(/email/i).fill(TEST_CONFIG.admin.email)
+  await page.getByLabel(/password/i).fill(TEST_CONFIG.admin.password)
+  await page.getByRole('button', { name: /sign in|login/i }).click()
+
+  // Wait for URL change
+  await page.waitForURL(/dashboard/, { timeout: 60000 })
+
+  // Wait for page to fully load (critical for Next.js 16)
+  await page.waitForLoadState('networkidle', { timeout: 60000 })
+
+  // Additional wait for hydration
+  await page.waitForTimeout(500)
+}
+
+/**
+ * Login as pilot (Custom Auth)
+ * Authenticates pilot user via pilot portal and waits for dashboard redirect
+ */
+export async function loginAsPilot(page: Page) {
+  await page.goto('/portal/login')
+  await page.fill('#email', TEST_CONFIG.pilot.email)
+  await page.fill('#password', TEST_CONFIG.pilot.password)
+  await page.click('button[type="submit"]')
+
+  // Wait for URL change
+  await page.waitForURL(/portal.*dashboard/, { timeout: 60000 })
+
+  // Wait for page to fully load (critical for Next.js 16)
+  await page.waitForLoadState('networkidle', { timeout: 60000 })
+
+  // Additional wait for hydration
+  await page.waitForTimeout(500)
+}
+
+/**
  * Logout helper function
  * Logs out the current user and verifies redirect
  */
 export async function logout(page: Page) {
   const logoutButton = page.getByRole('button', { name: /logout|sign out/i })
   await logoutButton.click()
-  await page.waitForURL(/\/(auth\/login|$)/, { timeout: TEST_CONFIG.timeout })
+  await page.waitForURL(/\/(auth\/login|portal\/login|$)/, { timeout: TEST_CONFIG.timeout })
 }
 
 /**

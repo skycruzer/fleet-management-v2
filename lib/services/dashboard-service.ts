@@ -19,7 +19,6 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { getOrSetCache } from './cache-service'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'

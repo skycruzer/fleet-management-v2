@@ -17,8 +17,8 @@ interface AuditLog {
   action: string
   table_name: string
   record_id: string | null
-  old_data: any
-  new_data: any
+  old_values: any
+  new_values: any
   description: string | null
   ip_address: string | null
   user_agent: string | null
@@ -33,8 +33,8 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
   const [viewMode, setViewMode] = useState<'diff' | 'side-by-side' | 'raw'>('diff')
 
   // Parse JSON values safely
-  const oldValues = auditLog.old_data || {}
-  const newValues = auditLog.new_data || {}
+  const oldValues = auditLog.old_values || {}
+  const newValues = auditLog.new_values || {}
 
   // Get all unique keys from both objects
   const allKeys = Array.from(

@@ -58,27 +58,46 @@ export const PilotRegistrationSchema = z
     rank: z.enum(['Captain', 'First Officer'], {
       message: 'Rank is required',
     }),
-    employee_id: z.string().max(50, 'Employee ID must be less than 50 characters').optional(),
+    employee_id: z
+      .string()
+      .max(50, 'Employee ID must be less than 50 characters')
+      .optional()
+      .or(z.literal('')), // Allow empty string
     date_of_birth: z
       .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, 'Date of birth must be in YYYY-MM-DD format')
       .optional()
+      .or(z.literal('')) // Allow empty string
       .refine(
         (date) => {
-          if (!date) return true
+          if (!date || date === '') return true // Allow empty
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false // Check format
           const dob = new Date(date)
           const today = new Date()
           const age = today.getFullYear() - dob.getFullYear()
-          return age >= 18 && age <= 100
+          const monthDiff = today.getMonth() - dob.getMonth()
+          const finalAge =
+            monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate()) ? age - 1 : age
+          return finalAge >= 18 && finalAge <= 100
         },
-        { message: 'Pilot must be between 18 and 100 years old' }
+        { message: 'Date must be in YYYY-MM-DD format and pilot must be 18-100 years old' }
       ),
     phone_number: z
       .string()
-      .max(20, 'Phone number must be less than 20 characters')
-      .regex(/^[+\d\s()-]+$/, 'Invalid phone number format')
-      .optional(),
-    address: z.string().max(500, 'Address must be less than 500 characters').optional(),
+      .optional()
+      .or(z.literal('')) // Allow empty string
+      .refine(
+        (phone) => {
+          if (!phone || phone === '') return true // Allow empty
+          if (phone.length > 20) return false // Check length
+          return /^[+\d\s()-]+$/.test(phone) // Check format
+        },
+        { message: 'Phone number must be valid and less than 20 characters' }
+      ),
+    address: z
+      .string()
+      .max(500, 'Address must be less than 500 characters')
+      .optional()
+      .or(z.literal('')), // Allow empty string
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',

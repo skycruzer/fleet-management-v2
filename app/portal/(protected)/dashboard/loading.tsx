@@ -25,7 +25,7 @@ export default function PortalDashboardLoading() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="space-y-6">
           {/* Welcome Card Skeleton */}
-          <Card className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
+          <Card className="bg-gradient-to-r from-blue-500 to-primary-foreground p-6">
             <div className="space-y-3">
               <Skeleton className="bg-muted/20 h-8 w-64" />
               <Skeleton className="bg-muted/20 h-4 w-48" />

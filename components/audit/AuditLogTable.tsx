@@ -19,8 +19,8 @@ interface AuditLog {
   action: string
   table_name: string
   record_id: string | null
-  old_data: any
-  new_data: any
+  old_values: any
+  new_values: any
   description: string | null
   ip_address: string | null
   user_agent: string | null
@@ -71,7 +71,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
       case 'DELETE':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
       case 'LOGIN':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
       case 'LOGOUT':
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
       default:

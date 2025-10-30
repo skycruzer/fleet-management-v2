@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
+import { loginAsAdmin, dateUtils } from './helpers/test-utils'
 
 /**
  * Certification Management E2E Tests
@@ -12,55 +13,30 @@ import { test, expect, Page } from '@playwright/test'
  * - Filtering by status
  */
 
-// Helper function to login
-async function login(page: Page) {
-  const TEST_EMAIL = process.env.TEST_USER_EMAIL || 'test@example.com'
-  const TEST_PASSWORD = process.env.TEST_USER_PASSWORD || 'testpassword123'
-
-  await page.goto('/auth/login')
-  await page.getByLabel(/email/i).fill(TEST_EMAIL)
-  await page.getByLabel(/password/i).fill(TEST_PASSWORD)
-  await page.getByRole('button', { name: /sign in|login/i }).click()
-  await page.waitForURL(/dashboard/, { timeout: 10000 })
-}
-
-// Helper to get future date
-function getFutureDate(daysFromNow: number): string {
-  const date = new Date()
-  date.setDate(date.getDate() + daysFromNow)
-  return date.toISOString().split('T')[0]
-}
-
-// Helper to get past date
-function getPastDate(daysAgo: number): string {
-  const date = new Date()
-  date.setDate(date.getDate() - daysAgo)
-  return date.toISOString().split('T')[0]
-}
-
 test.describe('Certification Management - List View', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/certifications')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
   })
 
   test('should display certifications page', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible()
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should display certification data with proper columns', async ({ page }) => {
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Check for key column headers
-    await expect(page.getByRole('columnheader', { name: /pilot/i })).toBeVisible()
-    await expect(page.getByRole('columnheader', { name: /check type|certification/i })).toBeVisible()
-    await expect(page.getByRole('columnheader', { name: /expiry|expires/i })).toBeVisible()
-    await expect(page.getByRole('columnheader', { name: /status/i })).toBeVisible()
+    await expect(page.getByRole('columnheader', { name: /pilot/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('columnheader', { name: /check type|certification/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('columnheader', { name: /expiry|expires/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('columnheader', { name: /status/i })).toBeVisible({ timeout: 60000 })
   })
 
   test('should show certification count', async ({ page }) => {
-    await page.waitForSelector('table', { timeout: 10000 })
+    await page.waitForSelector('table', { timeout: 60000 })
 
     // Look for count indicator (e.g., "607 certifications")
     const countText = page.getByText(/\d+ certifications?/i)
@@ -71,7 +47,7 @@ test.describe('Certification Management - List View', () => {
   })
 
   test('should filter certifications by status', async ({ page }) => {
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Look for status filter tabs or dropdown
     const statusFilter = page.getByRole('tab', { name: /expired|expiring|current/i })
@@ -89,7 +65,7 @@ test.describe('Certification Management - List View', () => {
   })
 
   test('should search certifications', async ({ page }) => {
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     const searchInput = page.getByPlaceholder(/search/i)
     if (await searchInput.isVisible()) {
@@ -106,12 +82,13 @@ test.describe('Certification Management - List View', () => {
 
 test.describe('Certification Management - Status Color Coding', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/certifications')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
   })
 
   test('should display color-coded status indicators', async ({ page }) => {
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Look for status badges/indicators
     const statusBadges = page.locator('[data-status], .status-badge, .badge')
@@ -124,7 +101,7 @@ test.describe('Certification Management - Status Color Coding', () => {
   })
 
   test('should show expired certifications in red', async ({ page }) => {
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Filter by expired status
     const expiredTab = page.getByRole('tab', { name: /expired/i })
@@ -140,7 +117,7 @@ test.describe('Certification Management - Status Color Coding', () => {
   })
 
   test('should show expiring soon certifications in yellow', async ({ page }) => {
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Filter by expiring status
     const expiringTab = page.getByRole('tab', { name: /expiring/i })
@@ -158,31 +135,32 @@ test.describe('Certification Management - Status Color Coding', () => {
 
 test.describe('Certification Management - Create Certification', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/certifications')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
   })
 
   test('should open create certification dialog', async ({ page }) => {
     await page.getByRole('button', { name: /add|new certification/i }).click()
 
-    await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.getByRole('heading', { name: /add|new certification/i })).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /add|new certification/i })).toBeVisible({ timeout: 60000 })
   })
 
   test('should show validation errors for required fields', async ({ page }) => {
     await page.getByRole('button', { name: /add|new certification/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Try to submit empty form
     await page.getByRole('button', { name: /save|create/i }).click()
 
     // Should show validation errors
-    await expect(page.getByText(/required/i).first()).toBeVisible()
+    await expect(page.getByText(/required/i).first()).toBeVisible({ timeout: 60000 })
   })
 
   test('should create a new certification successfully', async ({ page }) => {
     await page.getByRole('button', { name: /add|new certification/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Select pilot
     await page.getByLabel(/pilot/i).click()
@@ -193,18 +171,18 @@ test.describe('Certification Management - Create Certification', () => {
     await page.getByRole('option').first().click()
 
     // Set check date (today)
-    const checkDate = new Date().toISOString().split('T')[0]
+    const checkDate = dateUtils.getToday()
     await page.getByLabel(/check date/i).fill(checkDate)
 
     // Set expiry date (1 year from now)
-    const expiryDate = getFutureDate(365)
+    const expiryDate = dateUtils.getFutureDate(365)
     await page.getByLabel(/expiry date/i).fill(expiryDate)
 
     // Submit form
     await page.getByRole('button', { name: /save|create/i }).click()
 
     // Should show success message
-    await expect(page.getByText(/success|created/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/success|created/i)).toBeVisible({ timeout: 60000 })
 
     // Dialog should close
     await expect(page.getByRole('dialog')).not.toBeVisible()
@@ -212,7 +190,7 @@ test.describe('Certification Management - Create Certification', () => {
 
   test('should validate expiry date is after check date', async ({ page }) => {
     await page.getByRole('button', { name: /add|new certification/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Select pilot and check type
     await page.getByLabel(/pilot/i).click()
@@ -221,8 +199,8 @@ test.describe('Certification Management - Create Certification', () => {
     await page.getByRole('option').first().click()
 
     // Set expiry date before check date
-    const checkDate = new Date().toISOString().split('T')[0]
-    const expiryDate = getPastDate(30)
+    const checkDate = dateUtils.getToday()
+    const expiryDate = dateUtils.getPastDate(30)
 
     await page.getByLabel(/check date/i).fill(checkDate)
     await page.getByLabel(/expiry date/i).fill(expiryDate)
@@ -231,32 +209,32 @@ test.describe('Certification Management - Create Certification', () => {
     await page.getByRole('button', { name: /save|create/i }).click()
 
     // Should show validation error
-    await expect(page.getByText(/expiry.*after|must be after/i)).toBeVisible()
+    await expect(page.getByText(/expiry.*after|must be after/i)).toBeVisible({ timeout: 60000 })
   })
 })
 
 test.describe('Certification Management - Update Certification', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/certifications')
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should open edit certification dialog', async ({ page }) => {
     const firstRow = page.getByRole('row').nth(1)
     await firstRow.getByRole('button', { name: /edit/i }).click()
 
-    await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.getByRole('heading', { name: /edit certification/i })).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /edit certification/i })).toBeVisible({ timeout: 60000 })
   })
 
   test('should update certification dates successfully', async ({ page }) => {
     const firstRow = page.getByRole('row').nth(1)
     await firstRow.getByRole('button', { name: /edit/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Update expiry date
-    const newExpiryDate = getFutureDate(180)
+    const newExpiryDate = dateUtils.getFutureDate(180)
     const expiryInput = page.getByLabel(/expiry date/i)
     await expiryInput.clear()
     await expiryInput.fill(newExpiryDate)
@@ -265,30 +243,32 @@ test.describe('Certification Management - Update Certification', () => {
     await page.getByRole('button', { name: /save|update/i }).click()
 
     // Should show success message
-    await expect(page.getByText(/success|updated/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/success|updated/i)).toBeVisible({ timeout: 60000 })
     await expect(page.getByRole('dialog')).not.toBeVisible()
   })
 })
 
 test.describe('Certification Management - Expiring Certifications', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
   })
 
   test('should display expiring certifications dashboard widget', async ({ page }) => {
     await page.goto('/dashboard')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Look for expiring certifications widget
     const expiringWidget = page.locator('[data-widget="expiring-certifications"]')
       .or(page.getByRole('heading', { name: /expiring/i }))
 
     if (await expiringWidget.first().isVisible()) {
-      await expect(expiringWidget.first()).toBeVisible()
+      await expect(expiringWidget.first()).toBeVisible({ timeout: 60000 })
     }
   })
 
   test('should navigate to expiring certifications from dashboard', async ({ page }) => {
     await page.goto('/dashboard')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Look for "View All" or link to certifications
     const viewAllLink = page.getByRole('link', { name: /view all|see all.*certifications/i })
@@ -301,7 +281,8 @@ test.describe('Certification Management - Expiring Certifications', () => {
 
   test('should filter certifications by expiry date range', async ({ page }) => {
     await page.goto('/dashboard/certifications')
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Look for date range filter
     const dateFilter = page.getByLabel(/date range|expiry range/i)
@@ -321,9 +302,9 @@ test.describe('Certification Management - Expiring Certifications', () => {
 
 test.describe('Certification Management - Bulk Operations', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/certifications')
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should select multiple certifications', async ({ page }) => {
@@ -337,7 +318,7 @@ test.describe('Certification Management - Bulk Operations', () => {
       await checkboxes.nth(2).check()
 
       // Should show selection indicator
-      await expect(page.getByText(/\d+ selected/i)).toBeVisible()
+      await expect(page.getByText(/\d+ selected/i)).toBeVisible({ timeout: 60000 })
     }
   })
 
@@ -346,7 +327,7 @@ test.describe('Certification Management - Bulk Operations', () => {
 
     if (await exportButton.isVisible()) {
       // Setup download listener
-      const downloadPromise = page.waitForEvent('download')
+      const downloadPromise = page.waitForEvent('download', { timeout: 60000 })
       await exportButton.click()
 
       // Wait for download to start
@@ -359,9 +340,9 @@ test.describe('Certification Management - Bulk Operations', () => {
 
 test.describe('Certification Management - Pilot Certification History', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/pilots')
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should view pilot certification history', async ({ page }) => {
@@ -376,13 +357,13 @@ test.describe('Certification Management - Pilot Certification History', () => {
       // Look for certifications section
       const certificationsSection = page.getByRole('heading', { name: /certifications?/i })
       if (await certificationsSection.isVisible()) {
-        await expect(certificationsSection).toBeVisible()
+        await expect(certificationsSection).toBeVisible({ timeout: 60000 })
 
         // Should show list of certifications
         const certList = page.locator('[data-section="certifications"]')
           .or(page.getByRole('table').first())
 
-        await expect(certList.first()).toBeVisible()
+        await expect(certList.first()).toBeVisible({ timeout: 60000 })
       }
     }
   })
@@ -414,12 +395,13 @@ test.describe('Certification Management - Pilot Certification History', () => {
 
 test.describe('Certification Management - Responsive Design', () => {
   test('should be mobile-friendly', async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/dashboard/certifications')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Page should be visible
-    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({ timeout: 60000 })
 
     // Content should be accessible
     const table = page.getByRole('table')

@@ -1,0 +1,34 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+   ▲ Next.js 16.0.0 (Turbopack)
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+     · serverActions
+
+   Creating an optimized production build ...
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+ ✓ Compiled successfully in 8.0s
+   Running TypeScript ...
+Failed to compile.
+
+./lib/services/pilot-flight-service.ts:80:15
+Type error: No overload matches this call.
+  Overload 1 of 2, '(values: { created_at?: string | null | undefined; description: string; flight_date: string; id?: string | undefined; pilot_id: string; pilot_user_id?: string | null | undefined; reason?: string | null | undefined; ... 6 more ...; updated_at?: string | ... 1 more ... | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Argument of type '{ pilot_id: string; pilot_user_id: string; request_type: "REQUEST_FLIGHT" | "REQUEST_DAY_OFF" | "REQUEST_SUBSTITUTE_DAY_OFF" | "REQUEST_OTHER_DUTY"; request_date: string; description: string; reason: string | null; status: "PENDING"; }' is not assignable to parameter of type '{ created_at?: string | null | undefined; description: string; flight_date: string; id?: string | undefined; pilot_id: string; pilot_user_id?: string | null | undefined; reason?: string | null | undefined; ... 6 more ...; updated_at?: string | ... 1 more ... | undefined; }'.
+      Property 'flight_date' is missing in type '{ pilot_id: string; pilot_user_id: string; request_type: "REQUEST_FLIGHT" | "REQUEST_DAY_OFF" | "REQUEST_SUBSTITUTE_DAY_OFF" | "REQUEST_OTHER_DUTY"; request_date: string; description: string; reason: string | null; status: "PENDING"; }' but required in type '{ created_at?: string | null | undefined; description: string; flight_date: string; id?: string | undefined; pilot_id: string; pilot_user_id?: string | null | undefined; reason?: string | null | undefined; ... 6 more ...; updated_at?: string | ... 1 more ... | undefined; }'.
+  Overload 2 of 2, '(values: { created_at?: string | null | undefined; description: string; flight_date: string; id?: string | undefined; pilot_id: string; pilot_user_id?: string | null | undefined; reason?: string | null | undefined; ... 6 more ...; updated_at?: string | ... 1 more ... | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
+    Argument of type '{ pilot_id: string; pilot_user_id: string; request_type: "REQUEST_FLIGHT" | "REQUEST_DAY_OFF" | "REQUEST_SUBSTITUTE_DAY_OFF" | "REQUEST_OTHER_DUTY"; request_date: string; description: string; reason: string | null; status: "PENDING"; }' is not assignable to parameter of type '{ created_at?: string | null | undefined; description: string; flight_date: string; id?: string | undefined; pilot_id: string; pilot_user_id?: string | null | undefined; reason?: string | null | undefined; ... 6 more ...; updated_at?: string | ... 1 more ... | undefined; }[]'.
+      Type '{ pilot_id: string; pilot_user_id: string; request_type: "REQUEST_FLIGHT" | "REQUEST_DAY_OFF" | "REQUEST_SUBSTITUTE_DAY_OFF" | "REQUEST_OTHER_DUTY"; request_date: string; description: string; reason: string | null; status: "PENDING"; }' is missing the following properties from type '{ created_at?: string | null | undefined; description: string; flight_date: string; id?: string | undefined; pilot_id: string; pilot_user_id?: string | null | undefined; reason?: string | null | undefined; ... 6 more ...; updated_at?: string | ... 1 more ... | undefined; }[]': length, pop, push, concat, and 29 more.
+
+[0m [90m 78 |[39m     [36mconst[39m { data[33m:[39m createdRequest[33m,[39m error[33m:[39m insertError } [33m=[39m [36mawait[39m supabase
+ [90m 79 |[39m       [33m.[39m[36mfrom[39m([32m'flight_requests'[39m)
+[31m[1m>[22m[39m[90m 80 |[39m       [33m.[39minsert(flightRequestData)
+ [90m    |[39m               [31m[1m^[22m[39m
+ [90m 81 |[39m       [33m.[39mselect()
+ [90m 82 |[39m       [33m.[39msingle()
+ [90m 83 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null

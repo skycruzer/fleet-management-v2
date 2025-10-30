@@ -1,0 +1,28 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+   ▲ Next.js 16.0.0 (Turbopack)
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · optimizePackageImports
+     · serverActions
+
+   Creating an optimized production build ...
+[@serwist/next] WARNING: You are using '@serwist/next' with `next dev --turbopack`, but Serwist doesn't support Turbopack at the moment. It is recommended that you set `disable` to `process.env.NODE_ENV !== "production"`. Follow https://github.com/serwist/serwist/issues/54 for progress on Serwist + Turbopack. You can also suppress this warning by setting SERWIST_SUPPRESS_TURBOPACK_WARNING=1.
+ ✓ Compiled successfully in 7.6s
+   Running TypeScript ...
+Failed to compile.
+
+./lib/services/leave-service.ts:355:7
+Type error: Object literal may only specify known properties, and 'p_reviewer_id' does not exist in type '{ p_approval_notes?: string | undefined; p_approved_by: string; p_request_id: string; }'.
+
+[0m [90m 353 |[39m     [36mconst[39m { data[33m,[39m error } [33m=[39m [36mawait[39m supabase[33m.[39mrpc([32m'approve_leave_request'[39m[33m,[39m {
+ [90m 354 |[39m       p_request_id[33m:[39m requestId[33m,[39m
+[31m[1m>[22m[39m[90m 355 |[39m       p_reviewer_id[33m:[39m reviewedBy[33m,[39m
+ [90m     |[39m       [31m[1m^[22m[39m
+ [90m 356 |[39m       p_status[33m:[39m status[33m,[39m
+ [90m 357 |[39m       p_comments[33m:[39m reviewComments [33m||[39m undefined[33m,[39m
+ [90m 358 |[39m     })[0m
+Next.js build worker exited with code: 1 and signal: null

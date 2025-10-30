@@ -22,7 +22,7 @@ test.describe('Portal Error Detection', () => {
     })
 
     console.log('🌐 Navigating to portal...')
-    await page.goto('http://localhost:3001/portal', {
+    await page.goto('http://localhost:3000/portal', {
       waitUntil: 'networkidle',
       timeout: 30000
     })

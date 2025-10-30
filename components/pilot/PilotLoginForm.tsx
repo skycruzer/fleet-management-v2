@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PilotLoginSchema, type PilotLoginInput } from '@/lib/validations/pilot-portal-schema'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Loader2, ArrowRight } from 'lucide-react'
 
 export default function PilotLoginForm() {
   const router = useRouter()
@@ -78,7 +80,7 @@ export default function PilotLoginForm() {
           type="email"
           id="email"
           autoComplete="email"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
           placeholder="pilot@airniugini.com"
         />
         {errors.email && (
@@ -96,7 +98,7 @@ export default function PilotLoginForm() {
           type="password"
           id="password"
           autoComplete="current-password"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
           placeholder="••••••••"
         />
         {errors.password && (
@@ -105,13 +107,76 @@ export default function PilotLoginForm() {
       </div>
 
       {/* Submit Button */}
-      <button
+      <motion.button
         type="submit"
         disabled={isSubmitting}
-        className="flex w-full justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
+        whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+        whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+        className="relative w-full overflow-hidden rounded-md bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
       >
-        {isSubmitting ? 'Signing in...' : 'Sign In'}
-      </button>
+        {/* Animated progress bar */}
+        <AnimatePresence>
+          {isSubmitting && (
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              exit={{ x: '100%' }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+            />
+          )}
+        </AnimatePresence>
+
+        <span className="relative z-10 flex items-center justify-center gap-2">
+          <AnimatePresence mode="wait">
+            {isSubmitting ? (
+              <motion.span
+                key="loading"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center gap-2"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                >
+                  <Loader2 className="h-5 w-5" />
+                </motion.div>
+                <span>Authenticating...</span>
+              </motion.span>
+            ) : (
+              <motion.span
+                key="signin"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center gap-2"
+              >
+                <span>Sign In</span>
+                <motion.div
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                >
+                  <ArrowRight className="h-5 w-5" />
+                </motion.div>
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </span>
+      </motion.button>
     </form>
   )
 }

@@ -44,8 +44,8 @@ export default function NewLeaveRequestPage() {
   } = useForm<LeaveRequestFormData>({
     resolver: zodResolver(LeaveRequestCreateSchema),
     defaultValues: {
-      request_date: new Date().toISOString(),
-      request_method: 'SYSTEM',
+      request_date: new Date().toISOString().split('T')[0], // Format as YYYY-MM-DD
+      request_method: 'EMAIL',
       is_late_request: false,
     },
   })
@@ -95,18 +95,28 @@ export default function NewLeaveRequestPage() {
   }
 
   const onSubmit = async (data: LeaveRequestFormData) => {
+    console.log('Form submitted with data:', data)
     setIsSubmitting(true)
     setError(null)
+
+    // Convert date strings to ISO datetime strings for API
+    const formattedData = {
+      ...data,
+      start_date: new Date(data.start_date + 'T00:00:00Z').toISOString(),
+      end_date: new Date(data.end_date + 'T23:59:59Z').toISOString(),
+      request_date: new Date(data.request_date + 'T00:00:00Z').toISOString(),
+    }
     setConflicts([])
 
     try {
       const response = await fetch('/api/leave-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(formattedData),
       })
 
       const result = await response.json()
+      console.log('API response:', result)
 
       if (!response.ok) {
         throw new Error(result.error || 'Failed to create leave request')
@@ -122,9 +132,16 @@ export default function NewLeaveRequestPage() {
       router.push('/dashboard/leave')
       router.refresh()
     } catch (err) {
+      console.error('Submit error:', err)
       setError(err instanceof Error ? err.message : 'Failed to create leave request')
       setIsSubmitting(false)
     }
+  }
+
+  // Add error handler for form validation errors
+  const onError = (errors: any) => {
+    console.error('Form validation errors:', errors)
+    setError('Please check all required fields and correct any errors')
   }
 
   if (loadingData) {
@@ -155,11 +172,29 @@ export default function NewLeaveRequestPage() {
 
       {/* Form Card */}
       <Card className="p-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
           {/* Error Message */}
           {error && (
             <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {/* Validation Errors Summary */}
+          {Object.keys(errors).length > 0 && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+              <p className="mb-2 text-sm font-medium text-red-900">
+                ⚠️ Please fix the following errors:
+              </p>
+              <ul className="list-inside list-disc space-y-1 text-sm text-red-700">
+                {errors.pilot_id && <li>Pilot selection is required</li>}
+                {errors.request_type && <li>Leave type is required</li>}
+                {errors.start_date && <li>{errors.start_date.message}</li>}
+                {errors.end_date && <li>{errors.end_date.message}</li>}
+                {errors.request_date && <li>{errors.request_date.message}</li>}
+                {errors.request_method && <li>Request method is required</li>}
+                {errors.reason && <li>{errors.reason.message}</li>}
+              </ul>
             </div>
           )}
 
@@ -314,10 +349,10 @@ export default function NewLeaveRequestPage() {
                     errors.request_method ? 'border-red-500' : 'border-border'
                   }`}
                 >
-                  <option value="SYSTEM">System (Online Form)</option>
                   <option value="EMAIL">Email</option>
                   <option value="ORACLE">Oracle</option>
                   <option value="LEAVE_BIDS">Leave Bids</option>
+                  <option value="SYSTEM">System (Online Form)</option>
                 </select>
                 {errors.request_method && (
                   <p className="text-sm text-red-600">{errors.request_method.message}</p>

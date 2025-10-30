@@ -15,8 +15,18 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Plus, Calendar, CheckCircle, XCircle, Clock, Trash2, ArrowLeft } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Plus, Calendar, CheckCircle, XCircle, Clock, Trash2, CalendarCheck } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
+import { LeaveBidForm } from '@/components/portal/leave-bid-form'
+import { LeaveRequestForm } from '@/components/portal/leave-request-form'
 
 interface LeaveRequest {
   id: string
@@ -34,14 +44,32 @@ interface LeaveRequest {
   created_at: string | null
 }
 
+interface LeaveBid {
+  id: string
+  bid_year: number
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'
+  created_at: string
+  updated_at: string | null
+  leave_bid_options: Array<{
+    id: string
+    priority: number
+    start_date: string
+    end_date: string
+  }>
+}
+
 export default function LeaveRequestsPage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([])
+  const [leaveBids, setLeaveBids] = useState<LeaveBid[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'DENIED'>('ALL')
+  const [isLeaveBidDialogOpen, setIsLeaveBidDialogOpen] = useState(false)
+  const [isLeaveRequestDialogOpen, setIsLeaveRequestDialogOpen] = useState(false)
 
   useEffect(() => {
     fetchLeaveRequests()
+    fetchLeaveBids()
   }, [])
 
   const fetchLeaveRequests = async () => {
@@ -60,6 +88,23 @@ export default function LeaveRequestsPage() {
     } catch (err) {
       setError('An unexpected error occurred')
       setIsLoading(false)
+    }
+  }
+
+  const fetchLeaveBids = async () => {
+    try {
+      const response = await fetch('/api/portal/leave-bids')
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        // Don't set error for leave bids, just log it
+        console.error('Failed to fetch leave bids:', result.error)
+        return
+      }
+
+      setLeaveBids(result.data || [])
+    } catch (err) {
+      console.error('Failed to fetch leave bids:', err)
     }
   }
 
@@ -121,7 +166,7 @@ export default function LeaveRequestsPage() {
       SDO: 'bg-indigo-500',
       ANNUAL: 'bg-green-500',
       SICK: 'bg-red-500',
-      LSL: 'bg-purple-500',
+      LSL: 'bg-primary/50',
       LWOP: 'bg-gray-500',
       MATERNITY: 'bg-pink-500',
       COMPASSIONATE: 'bg-orange-500',
@@ -162,18 +207,55 @@ export default function LeaveRequestsPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/portal/dashboard">
-            <Button variant="outline">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-          </Link>
-          <Link href="/portal/leave-requests/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Request
-            </Button>
-          </Link>
+          {/* New Leave Request Modal */}
+          <Dialog open={isLeaveRequestDialogOpen} onOpenChange={setIsLeaveRequestDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default">
+                <Plus className="mr-2 h-4 w-4" />
+                New Leave Request
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Submit Leave Request</DialogTitle>
+                <DialogDescription>Request time off from your roster</DialogDescription>
+              </DialogHeader>
+              <LeaveRequestForm
+                csrfToken=""
+                onSuccess={() => {
+                  setIsLeaveRequestDialogOpen(false)
+                  fetchLeaveRequests() // Refresh the list
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* Leave Bid Modal */}
+          <Dialog open={isLeaveBidDialogOpen} onOpenChange={setIsLeaveBidDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="default"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+              >
+                <CalendarCheck className="mr-2 h-4 w-4" />
+                Submit Leave Bid
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[900px]">
+              <DialogHeader>
+                <DialogTitle>Annual Leave Bid</DialogTitle>
+                <DialogDescription>
+                  Submit your preferred leave dates for the year ahead
+                </DialogDescription>
+              </DialogHeader>
+              <LeaveBidForm
+                onSuccess={() => {
+                  setIsLeaveBidDialogOpen(false)
+                  fetchLeaveBids() // Refresh the leave bids list
+                }}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -226,12 +308,10 @@ export default function LeaveRequestsPage() {
                 : `No ${filter.toLowerCase()} leave requests`}
             </p>
             {filter === 'ALL' && (
-              <Link href="/portal/leave-requests/new">
-                <Button className="mt-4">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Submit Your First Request
-                </Button>
-              </Link>
+              <Button className="mt-4" onClick={() => setIsLeaveRequestDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Submit Your First Request
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -307,6 +387,124 @@ export default function LeaveRequestsPage() {
           ))}
         </div>
       )}
+
+      {/* Leave Bids History Section */}
+      <div className="mt-12">
+        <h2 className="mb-4 text-2xl font-bold">Leave Bids History</h2>
+        <p className="mb-6 text-gray-600">
+          All your annual leave bid submissions across all years
+        </p>
+
+        {leaveBids.length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <CalendarCheck className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <p className="text-gray-500">No leave bids submitted yet</p>
+              <Button
+                className="mt-4 bg-gradient-to-r from-cyan-500 to-blue-600"
+                onClick={() => setIsLeaveBidDialogOpen(true)}
+              >
+                <CalendarCheck className="mr-2 h-4 w-4" />
+                Submit Your First Leave Bid
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {leaveBids.map((bid) => {
+              const getBidStatusBadge = (status: string) => {
+                switch (status) {
+                  case 'PENDING':
+                    return (
+                      <Badge
+                        variant="outline"
+                        className="border-yellow-300 bg-yellow-100 text-yellow-800"
+                      >
+                        <Clock className="mr-1 h-3 w-3" />
+                        Pending Review
+                      </Badge>
+                    )
+                  case 'APPROVED':
+                    return (
+                      <Badge
+                        variant="outline"
+                        className="border-green-300 bg-green-100 text-green-800"
+                      >
+                        <CheckCircle className="mr-1 h-3 w-3" />
+                        Approved
+                      </Badge>
+                    )
+                  case 'REJECTED':
+                    return (
+                      <Badge
+                        variant="outline"
+                        className="border-red-300 bg-red-100 text-red-800"
+                      >
+                        <XCircle className="mr-1 h-3 w-3" />
+                        Rejected
+                      </Badge>
+                    )
+                  default:
+                    return <Badge variant="outline">{status}</Badge>
+                }
+              }
+
+              return (
+                <Card key={bid.id} className="transition-shadow hover:shadow-md">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="mb-2 flex items-center gap-3">
+                          <Badge className="bg-cyan-500">Year {bid.bid_year}</Badge>
+                          {getBidStatusBadge(bid.status)}
+                        </div>
+                        <CardTitle className="text-xl">
+                          Annual Leave Bid for {bid.bid_year}
+                        </CardTitle>
+                        <CardDescription>
+                          {bid.leave_bid_options.length} preference
+                          {bid.leave_bid_options.length !== 1 ? 's' : ''} • Submitted{' '}
+                          {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true })}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent>
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-gray-700">Leave Preferences:</p>
+                      {bid.leave_bid_options
+                        .sort((a, b) => a.priority - b.priority)
+                        .map((option) => (
+                          <div
+                            key={option.id}
+                            className="flex items-start justify-between rounded-md border border-gray-200 bg-gray-50 p-3"
+                          >
+                            <div className="flex-1">
+                              <p className="mb-1 text-sm font-semibold text-gray-900">
+                                Priority {option.priority}
+                              </p>
+                              <p className="text-sm text-gray-700">
+                                {format(new Date(option.start_date), 'MMM dd, yyyy')} -{' '}
+                                {format(new Date(option.end_date), 'MMM dd, yyyy')}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+
+                    {bid.updated_at && bid.status !== 'PENDING' && (
+                      <p className="mt-4 text-xs text-gray-500">
+                        Reviewed {formatDistanceToNow(new Date(bid.updated_at), { addSuffix: true })}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

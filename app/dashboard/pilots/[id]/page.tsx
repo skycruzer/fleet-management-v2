@@ -35,6 +35,13 @@ import {
   Star,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import {
+  calculateRetirementCountdown,
+  formatRetirementCountdown,
+  formatRetirementDate,
+} from '@/lib/utils/retirement-utils'
+import { RetirementCountdownBadge } from '@/components/pilots/RetirementCountdownBadge'
+import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
 
 interface Pilot {
   id: string
@@ -89,6 +96,7 @@ export default function PilotDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [retirementAge, setRetirementAge] = useState<number>(65) // Default to 65, will be updated from API
 
   // Certification modal state
   const [showCertificationsModal, setShowCertificationsModal] = useState(false)
@@ -112,6 +120,10 @@ export default function PilotDetailPage() {
 
       if (data.success) {
         setPilot(data.data)
+        // Update retirement age from system settings
+        if (data.systemSettings?.pilot_retirement_age) {
+          setRetirementAge(data.systemSettings.pilot_retirement_age)
+        }
       } else {
         setError(data.error || 'Failed to fetch pilot details')
       }
@@ -125,8 +137,29 @@ export default function PilotDetailPage() {
   async function fetchCertifications() {
     try {
       setLoadingCertifications(true)
-      const response = await fetch(`/api/certifications?pilotId=${pilotId}&pageSize=100`)
+      // CRITICAL: Add timestamp to bust browser cache completely
+      const timestamp = new Date().getTime()
+      console.log('🔄 [FETCH] Fetching certifications at:', new Date().toISOString())
+      const response = await fetch(
+        `/api/certifications?pilotId=${pilotId}&pageSize=100&_t=${timestamp}`,
+        {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          },
+        }
+      )
       const data = await response.json()
+      console.log('📦 [FETCH] Received certifications:', data.data?.length, 'records')
+
+      if (data.data && data.data.length > 0) {
+        console.log('📅 [FETCH] Sample expiry dates:', data.data.slice(0, 3).map((c: any) => ({
+          id: c.id,
+          type: c.check_type,
+          expiry: c.expiry_date
+        })))
+      }
 
       if (data.success) {
         const sortedCerts = (data.data || []).sort((a: any, b: any) => {
@@ -135,9 +168,10 @@ export default function PilotDetailPage() {
           return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()
         })
         setCertifications(sortedCerts)
+        console.log('✅ [FETCH] State updated with', sortedCerts.length, 'certifications')
       }
     } catch (err) {
-      console.error('Failed to fetch certifications:', err)
+      console.error('❌ [FETCH] Failed to fetch certifications:', err)
     } finally {
       setLoadingCertifications(false)
     }
@@ -148,6 +182,8 @@ export default function PilotDetailPage() {
 
     try {
       setSavingCert(true)
+      console.log('💾 [SAVE] Saving certification:', certId, 'with date:', editExpiryDate)
+
       const response = await fetch(`/api/certifications/${certId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -157,16 +193,29 @@ export default function PilotDetailPage() {
       })
 
       const result = await response.json()
+      console.log('📤 [SAVE] API Response:', result)
 
       if (result.success) {
+        console.log('✅ [SAVE] Save successful, fetching updated data...')
+
+        // Fetch updated data (with cache-busting enabled in fetchCertifications)
         await fetchCertifications()
         await fetchPilotDetails()
+
+        // Clear editing state
         setEditingCertId(null)
         setEditExpiryDate('')
+
+        // Refresh router to update any server components
+        router.refresh()
+
+        console.log('🎉 [SAVE] Complete - editing state cleared')
       } else {
+        console.error('❌ [SAVE] Failed:', result.error)
         alert(result.error || 'Failed to update certification')
       }
     } catch (err) {
+      console.error('❌ [SAVE] Exception:', err)
       alert('Failed to update certification')
     } finally {
       setSavingCert(false)
@@ -194,16 +243,23 @@ export default function PilotDetailPage() {
   }
 
   async function handleDelete() {
-    const confirmed = await confirm({
-      title: 'Delete Pilot',
-      description:
-        'Are you sure you want to delete this pilot? This will permanently delete the pilot record and all associated certifications and leave requests. This action cannot be undone.',
-      confirmText: 'Delete Pilot',
-      cancelText: 'Cancel',
-      variant: 'destructive',
-    })
+    try {
+      const confirmed = await confirm({
+        title: 'Delete Pilot',
+        description:
+          'Are you sure you want to delete this pilot? This will permanently delete the pilot record and all associated certifications and leave requests. This action cannot be undone.',
+        confirmText: 'Delete Pilot',
+        cancelText: 'Cancel',
+        variant: 'destructive',
+      })
 
-    if (!confirmed) return
+      if (!confirmed) return
+    } catch (err) {
+      // If confirm dialog fails to render, don't proceed with deletion
+      console.error('Confirmation dialog error:', err)
+      setError('Failed to show confirmation dialog')
+      return
+    }
 
     try {
       setDeleting(true)
@@ -377,6 +433,11 @@ export default function PilotDetailPage() {
                       Seniority #{pilot.seniority_number}
                     </span>
                   )}
+                  <RetirementCountdownBadge
+                    dateOfBirth={pilot.date_of_birth}
+                    retirementAge={retirementAge}
+                    compact={false}
+                  />
                 </div>
               </div>
             </div>
@@ -408,22 +469,14 @@ export default function PilotDetailPage() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
             <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
               <div className="mb-1 text-sm font-medium text-white/80">Employee ID</div>
               <div className="text-2xl font-bold">{pilot.employee_id}</div>
             </div>
             <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
-              <div className="mb-1 text-sm font-medium text-white/80">Years in Service</div>
-              <div className="text-2xl font-bold">{calculateYearsInService(pilot.commencement_date)}</div>
-            </div>
-            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
               <div className="mb-1 text-sm font-medium text-white/80">Contract Type</div>
-              <div className="text-2xl font-bold">{pilot.contract_type || 'N/A'}</div>
-            </div>
-            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
-              <div className="mb-1 text-sm font-medium text-white/80">Nationality</div>
-              <div className="text-2xl font-bold">{pilot.nationality || 'N/A'}</div>
+              <div className="text-2xl font-bold">{pilot.contract_type || 'Not Set'}</div>
             </div>
           </div>
         </div>
@@ -502,6 +555,20 @@ export default function PilotDetailPage() {
         </Button>
       </motion.div>
 
+      {/* Retirement Information Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+      >
+        <RetirementInformationCard
+          dateOfBirth={pilot.date_of_birth}
+          commencementDate={pilot.commencement_date}
+          retirementAge={retirementAge}
+          pilotName={fullName}
+        />
+      </motion.div>
+
       {/* Information Grid */}
       <motion.div
         variants={staggerContainer}
@@ -567,8 +634,8 @@ export default function PilotDetailPage() {
         <motion.div variants={fadeIn}>
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-                <Award className="h-5 w-5 text-purple-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/50/10">
+                <Award className="h-5 w-5 text-primary" />
               </div>
               <h3 className="text-lg font-semibold text-foreground">Professional Details</h3>
             </div>

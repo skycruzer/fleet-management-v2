@@ -6,6 +6,13 @@
  * - GET: Get all flight requests for current pilot
  * - DELETE: Cancel pending flight request
  *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST and DELETE methods require CSRF token validation
+ * RATE LIMITING: 20 mutation requests per minute per IP
+ *
+ * @version 2.1.0
+ * @updated 2025-10-27 - Added rate limiting
  * @spec 001-missing-core-features (US3)
  */
 
@@ -17,15 +24,23 @@ import {
 } from '@/lib/services/pilot-flight-service'
 import { FlightRequestSchema } from '@/lib/validations/flight-request-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
 /**
  * POST - Submit Flight Request
  *
  * Allows authenticated pilot to submit a new flight request.
  */
-export async function POST(_request: NextRequest) {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
-    const body = await _request.json()
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
+    const body = await request.json()
 
     // Validate request data
     const validation = FlightRequestSchema.safeParse(body)
@@ -72,7 +87,7 @@ export async function POST(_request: NextRequest) {
       status: 500,
     })
   }
-}
+})
 
 /**
  * GET - Get Flight Requests
@@ -116,9 +131,15 @@ export async function GET(_request: NextRequest) {
  * Allows pilot to cancel their own pending flight request.
  * Query params: ?id=<request_id>
  */
-export async function DELETE(_request: NextRequest) {
+export const DELETE = withRateLimit(async (request: NextRequest) => {
   try {
-    const { searchParams } = new URL(_request.url)
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
+    const { searchParams } = new URL(request.url)
     const requestId = searchParams.get('id')
 
     if (!requestId) {
@@ -163,4 +184,4 @@ export async function DELETE(_request: NextRequest) {
       status: 500,
     })
   }
-}
+})

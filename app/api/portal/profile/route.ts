@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentPilot } from '@/lib/services/pilot-portal-service'
+import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { getPilotRequirements } from '@/lib/services/admin-service'
 
 /**
  * GET /api/portal/profile
@@ -11,8 +12,8 @@ export async function GET() {
     const supabase = await createClient()
 
     // Get current pilot
-    const pilotResult = await getCurrentPilot()
-    if (!pilotResult.success || !pilotResult.data) {
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
       return NextResponse.json(
         {
           success: false,
@@ -22,30 +23,77 @@ export async function GET() {
       )
     }
 
-    const pilotUser = pilotResult.data
+    // Get requirements first
+    const requirements = await getPilotRequirements()
 
-    // Fetch full pilot details from pilots table
-    const { data: pilotDetails, error } = await supabase
-      .from('pilots')
-      .select('*')
-      .eq('id', pilotUser.pilot_id || pilotUser.id)
-      .single()
+    // Check if pilot has a linked pilots table record
+    if (pilot.pilot_id) {
+      // Fetch full pilot details from pilots table
+      const { data: pilotData, error: pilotError } = await supabase
+        .from('pilots')
+        .select('*')
+        .eq('id', pilot.pilot_id)
+        .single()
 
-    if (error) {
-      console.error('Fetch pilot details error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to fetch pilot details',
+      if (pilotError) {
+        console.error('Fetch pilot details error:', pilotError)
+        // Fall back to pilot_users data
+        return NextResponse.json({
+          success: true,
+          data: {
+            id: pilot.id,
+            first_name: pilot.first_name,
+            last_name: pilot.last_name,
+            rank: pilot.rank,
+            email: pilot.email,
+            employee_id: pilot.employee_id,
+            seniority_number: null,
+            date_of_birth: null,
+            commencement_date: null,
+            status: 'active',
+            phone_number: null,
+            address: null,
+          },
+          systemSettings: {
+            pilot_retirement_age: requirements.pilot_retirement_age,
+          },
+        })
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...pilotData,
+          email: pilot.email,
         },
-        { status: 500 }
-      )
+        systemSettings: {
+          pilot_retirement_age: requirements.pilot_retirement_age,
+        },
+      })
+    } else {
+      // Pilot only exists in pilot_users table (no linked pilots record)
+      // Return data from pilot_users
+      return NextResponse.json({
+        success: true,
+        data: {
+          id: pilot.id,
+          first_name: pilot.first_name,
+          last_name: pilot.last_name,
+          rank: pilot.rank,
+          email: pilot.email,
+          employee_id: pilot.employee_id,
+          seniority_number: null,
+          date_of_birth: null,
+          commencement_date: null,
+          status: 'active',
+          phone_number: null,
+          address: null,
+        },
+        systemSettings: {
+          pilot_retirement_age: requirements.pilot_retirement_age,
+        },
+      })
     }
-
-    return NextResponse.json({
-      success: true,
-      data: pilotDetails,
-    })
   } catch (error) {
     console.error('Profile API error:', error)
     return NextResponse.json(

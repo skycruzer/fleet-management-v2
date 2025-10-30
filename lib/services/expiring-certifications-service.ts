@@ -6,18 +6,19 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
+import { getAlertThresholds } from './admin-service'
 
 /**
- * Get certification status based on expiry date
+ * Get certification status based on expiry date and alert thresholds
  * Red: Expired (days_until_expiry < 0)
- * Yellow: Expiring soon (days_until_expiry ≤ 30)
- * Green: Current (days_until_expiry > 30)
+ * Yellow: Expiring soon (days_until_expiry ≤ warning_30_days)
+ * Green: Current (days_until_expiry > warning_30_days)
  */
-function getCertificationStatus(expiryDate: Date) {
+async function getCertificationStatus(expiryDate: Date) {
+  const thresholds = await getAlertThresholds()
   const today = new Date()
   const daysUntilExpiry = Math.ceil(
     (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
@@ -26,7 +27,7 @@ function getCertificationStatus(expiryDate: Date) {
   if (daysUntilExpiry < 0) {
     return { color: 'red', label: 'Expired', daysUntilExpiry }
   }
-  if (daysUntilExpiry <= 30) {
+  if (daysUntilExpiry <= thresholds.warning_30_days) {
     return { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry }
   }
   return { color: 'green', label: 'Current', daysUntilExpiry }
@@ -164,8 +165,8 @@ export async function getExpiringCertifications(daysAhead: number = 60): Promise
     }
 
     // Transform the data to match the expected format
-    const result = (expiringChecks || [])
-      .map((check: any): ExpiringCertification | null => {
+    const transformedCertifications = await Promise.all(
+      (expiringChecks || []).map(async (check: any): Promise<ExpiringCertification | null> => {
         // First, validate that we have a proper expiry_date
         if (!check.expiry_date) {
           logWarning('Missing expiry_date for check', {
@@ -244,6 +245,8 @@ export async function getExpiringCertifications(daysAhead: number = 60): Promise
           rosterDisplay = `${rosterPeriod} (Estimated)`
         }
 
+        const status = await getCertificationStatus(expiryDate)
+
         return {
           pilotName:
             `${check.pilots?.first_name || ''} ${check.pilots?.middle_name ? `${check.pilots.middle_name} ` : ''}${check.pilots?.last_name || ''}`.trim(),
@@ -252,16 +255,18 @@ export async function getExpiringCertifications(daysAhead: number = 60): Promise
           checkDescription: check.check_types?.check_description || '',
           category: check.check_types?.category || '',
           expiryDate,
-          status: getCertificationStatus(expiryDate),
+          status,
           expiry_roster_period: rosterPeriod,
           expiry_roster_display: rosterDisplay,
         }
       })
+    )
+
+    const result = transformedCertifications
       .filter((cert): cert is ExpiringCertification => cert !== null) // Remove null entries from invalid dates
       .filter((cert) => {
-        // Only include certifications that are actually expiring soon (0 to daysAhead)
-        // Exclude expired certifications (negative days)
-        return cert.status.daysUntilExpiry >= 0 && cert.status.daysUntilExpiry <= daysAhead
+        // Include both expired certifications (negative days) and those expiring soon (0 to daysAhead)
+        return cert.status.daysUntilExpiry <= daysAhead
       })
 
     return result

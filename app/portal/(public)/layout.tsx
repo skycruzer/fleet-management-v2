@@ -15,7 +15,9 @@ export default function PublicPortalLayout({ children }: { children: React.React
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <main id="main-content">{children}</main>
+        <main id="main-content" suppressHydrationWarning>
+          {children}
+        </main>
       </div>
     </ErrorBoundary>
   )

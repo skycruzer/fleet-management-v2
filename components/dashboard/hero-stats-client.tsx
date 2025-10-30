@@ -51,7 +51,7 @@ export function HeroStatsClient({ stats }: HeroStatsClientProps) {
       variants={container}
       initial="hidden"
       animate="show"
-      className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
     >
       {stats.map((stat) => {
         const Icon = iconMap[stat.icon as keyof typeof iconMap] || Users

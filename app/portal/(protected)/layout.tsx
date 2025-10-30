@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getCurrentPilot } from '@/lib/services/pilot-portal-service'
+import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { PilotPortalSidebar } from '@/components/layout/pilot-portal-sidebar'
+import { PortalToastHandler } from '@/components/portal/portal-toast-handler'
+import { QueryProvider } from '@/providers/query-provider'
 
 /**
  * Portal Layout
@@ -19,24 +22,33 @@ export const dynamic = 'force-dynamic'
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   // Check authentication - shared auth logic for all portal pages
-  const result = await getCurrentPilot()
+  const pilot = await getCurrentPilot()
 
-  if (!result.success || !result.data) {
-    redirect('/portal/login')
-  }
-
-  const pilot = result.data
-
-  // Check if pilot record exists (approved registration)
   if (!pilot) {
     redirect('/portal/login')
   }
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <main id="main-content">{children}</main>
-      </div>
+      <QueryProvider>
+        <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+          {/* Pilot Portal Sidebar */}
+          <PilotPortalSidebar
+            pilotName={`${pilot.first_name} ${pilot.last_name}`}
+            pilotRank={pilot.rank || undefined}
+            employeeId={pilot.employee_id || undefined}
+            email={pilot.email || undefined}
+          />
+
+          {/* Main Content */}
+          <main id="main-content" className="flex-1 pt-16 md:ml-64 md:pt-0">
+            {children}
+          </main>
+
+          {/* Toast Notifications Handler */}
+          <PortalToastHandler />
+        </div>
+      </QueryProvider>
     </ErrorBoundary>
   )
 }

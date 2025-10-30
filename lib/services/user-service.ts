@@ -6,7 +6,6 @@
  * @since 2025-10-18
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'

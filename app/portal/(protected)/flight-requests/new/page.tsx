@@ -64,8 +64,8 @@ export default function NewFlightRequestPage() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'ADDITIONAL_FLIGHT',
-      flight_date: '',
+      request_type: 'REQUEST_FLIGHT',
+      request_date: '',
       description: '',
       reason: '',
     },
@@ -191,18 +191,18 @@ export default function NewFlightRequestPage() {
 
             {/* Flight Date */}
             <div className="space-y-2">
-              <Label htmlFor="flight_date">Flight Date *</Label>
+              <Label htmlFor="request_date">Flight Date *</Label>
               <Input
-                id="flight_date"
+                id="request_date"
                 type="date"
-                {...form.register('flight_date')}
+                {...form.register('request_date')}
                 disabled={isLoading}
               />
               <p className="text-xs text-gray-500">
                 Select the date for your requested flight
               </p>
-              {form.formState.errors.flight_date && (
-                <p className="text-sm text-red-500">{form.formState.errors.flight_date.message}</p>
+              {form.formState.errors.request_date && (
+                <p className="text-sm text-red-500">{form.formState.errors.request_date.message}</p>
               )}
             </div>
 

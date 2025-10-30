@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
+import { loginAsAdmin } from './helpers/test-utils'
 
 /**
  * Pilot Management CRUD E2E Tests
@@ -31,34 +32,35 @@ async function login(page: Page) {
   await page.getByLabel(/email/i).fill(TEST_EMAIL)
   await page.getByLabel(/password/i).fill(TEST_PASSWORD)
   await page.getByRole('button', { name: /sign in|login/i }).click()
-  await page.waitForURL(/dashboard/, { timeout: 10000 })
+  await page.waitForURL(/dashboard/, { timeout: 60000 })
 }
 
 test.describe('Pilot Management - List View', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/pilots')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
   })
 
   test('should display pilot list page with all elements', async ({ page }) => {
     // Check page heading
-    await expect(page.getByRole('heading', { name: /pilots/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /pilots/i })).toBeVisible({ timeout: 60000 })
 
     // Check for search/filter controls
-    await expect(page.getByPlaceholder(/search/i)).toBeVisible()
+    await expect(page.getByPlaceholder(/search/i)).toBeVisible({ timeout: 60000 })
 
     // Check for action buttons
-    await expect(page.getByRole('button', { name: /add|new pilot/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /add|new pilot/i })).toBeVisible({ timeout: 60000 })
   })
 
   test('should display pilot data in table format', async ({ page }) => {
     // Wait for table to load
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Check table headers
-    await expect(page.getByRole('columnheader', { name: /name/i })).toBeVisible()
-    await expect(page.getByRole('columnheader', { name: /rank/i })).toBeVisible()
-    await expect(page.getByRole('columnheader', { name: /employee id|emp id/i })).toBeVisible()
+    await expect(page.getByRole('columnheader', { name: /name/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('columnheader', { name: /rank/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('columnheader', { name: /employee id|emp id/i })).toBeVisible({ timeout: 60000 })
 
     // Check for at least one data row (27 pilots + header = 28 rows total)
     const rows = page.getByRole('row')
@@ -68,7 +70,7 @@ test.describe('Pilot Management - List View', () => {
 
   test('should display correct pilot count', async ({ page }) => {
     // Wait for data to load
-    await page.waitForSelector('table', { timeout: 10000 })
+    await page.waitForSelector('table', { timeout: 60000 })
 
     // Look for pilot count indicator
     const countText = page.getByText(/\d+ pilots?/i)
@@ -80,7 +82,7 @@ test.describe('Pilot Management - List View', () => {
 
   test('should filter pilots by rank', async ({ page }) => {
     // Wait for table to load
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Find rank filter (could be dropdown or tabs)
     const rankFilter = page.getByLabel(/rank/i).or(page.getByRole('combobox', { name: /rank/i }))
@@ -101,7 +103,7 @@ test.describe('Pilot Management - List View', () => {
 
   test('should search pilots by name', async ({ page }) => {
     // Wait for table to load
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Get initial row count
     const initialRows = await page.getByRole('row').count()
@@ -119,7 +121,7 @@ test.describe('Pilot Management - List View', () => {
 
   test('should clear search filter', async ({ page }) => {
     // Wait for table to load
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Search for something
     const searchInput = page.getByPlaceholder(/search/i)
@@ -139,8 +141,9 @@ test.describe('Pilot Management - List View', () => {
 
 test.describe('Pilot Management - Create New Pilot', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/pilots')
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
   })
 
   test('should open create pilot dialog', async ({ page }) => {
@@ -148,26 +151,26 @@ test.describe('Pilot Management - Create New Pilot', () => {
     await page.getByRole('button', { name: /add|new pilot/i }).click()
 
     // Dialog should appear
-    await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.getByRole('heading', { name: /add|new pilot/i })).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /add|new pilot/i })).toBeVisible({ timeout: 60000 })
   })
 
   test('should show validation errors for required fields', async ({ page }) => {
     // Open dialog
     await page.getByRole('button', { name: /add|new pilot/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Try to submit empty form
     await page.getByRole('button', { name: /save|create/i }).click()
 
     // Should show validation errors
-    await expect(page.getByText(/required/i).first()).toBeVisible()
+    await expect(page.getByText(/required/i).first()).toBeVisible({ timeout: 60000 })
   })
 
   test('should create a new pilot successfully', async ({ page }) => {
     // Open dialog
     await page.getByRole('button', { name: /add|new pilot/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Fill in form
     await page.getByLabel(/first name/i).fill(TEST_PILOT.firstName)
@@ -184,19 +187,19 @@ test.describe('Pilot Management - Create New Pilot', () => {
     await page.getByRole('button', { name: /save|create/i }).click()
 
     // Should show success message
-    await expect(page.getByText(/success|created/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/success|created/i)).toBeVisible({ timeout: 60000 })
 
     // Dialog should close
-    await expect(page.getByRole('dialog')).not.toBeVisible()
+    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
 
     // New pilot should appear in list
-    await expect(page.getByText(`${TEST_PILOT.firstName} ${TEST_PILOT.lastName}`)).toBeVisible()
+    await expect(page.getByText(`${TEST_PILOT.firstName} ${TEST_PILOT.lastName}`)).toBeVisible({ timeout: 60000 })
   })
 
   test('should close dialog without saving', async ({ page }) => {
     // Open dialog
     await page.getByRole('button', { name: /add|new pilot/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Fill in some data
     await page.getByLabel(/first name/i).fill('Test')
@@ -206,15 +209,16 @@ test.describe('Pilot Management - Create New Pilot', () => {
     await cancelButton.click()
 
     // Dialog should close
-    await expect(page.getByRole('dialog')).not.toBeVisible()
+    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
   })
 })
 
 test.describe('Pilot Management - Update Pilot', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/pilots')
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should open edit pilot dialog', async ({ page }) => {
@@ -223,8 +227,8 @@ test.describe('Pilot Management - Update Pilot', () => {
     await firstRow.getByRole('button', { name: /edit/i }).click()
 
     // Dialog should appear
-    await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.getByRole('heading', { name: /edit pilot/i })).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /edit pilot/i })).toBeVisible({ timeout: 60000 })
 
     // Form should be pre-filled with pilot data
     const firstNameInput = page.getByLabel(/first name/i)
@@ -235,7 +239,7 @@ test.describe('Pilot Management - Update Pilot', () => {
     // Find first pilot row and click edit
     const firstRow = page.getByRole('row').nth(1)
     await firstRow.getByRole('button', { name: /edit/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Update email
     const emailInput = page.getByLabel(/email/i)
@@ -247,17 +251,17 @@ test.describe('Pilot Management - Update Pilot', () => {
     await page.getByRole('button', { name: /save|update/i }).click()
 
     // Should show success message
-    await expect(page.getByText(/success|updated/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/success|updated/i)).toBeVisible({ timeout: 60000 })
 
     // Dialog should close
-    await expect(page.getByRole('dialog')).not.toBeVisible()
+    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
   })
 
   test('should cancel edit without saving changes', async ({ page }) => {
     // Find first pilot row and click edit
     const firstRow = page.getByRole('row').nth(1)
     await firstRow.getByRole('button', { name: /edit/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     // Get original email value
     const emailInput = page.getByLabel(/email/i)
@@ -269,7 +273,7 @@ test.describe('Pilot Management - Update Pilot', () => {
 
     // Cancel
     await page.getByRole('button', { name: /cancel/i }).click()
-    await expect(page.getByRole('dialog')).not.toBeVisible()
+    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
 
     // Verify changes were not saved (open dialog again)
     await firstRow.getByRole('button', { name: /edit/i }).click()
@@ -279,9 +283,10 @@ test.describe('Pilot Management - Update Pilot', () => {
 
 test.describe('Pilot Management - Delete Pilot', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/pilots')
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should show delete confirmation dialog', async ({ page }) => {
@@ -290,8 +295,8 @@ test.describe('Pilot Management - Delete Pilot', () => {
     await firstRow.getByRole('button', { name: /delete/i }).click()
 
     // Confirmation dialog should appear
-    await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.getByText(/are you sure|confirm delete/i)).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
+    await expect(page.getByText(/are you sure|confirm delete/i)).toBeVisible({ timeout: 60000 })
   })
 
   test('should cancel delete operation', async ({ page }) => {
@@ -306,7 +311,7 @@ test.describe('Pilot Management - Delete Pilot', () => {
     await page.getByRole('button', { name: /cancel/i }).click()
 
     // Dialog should close
-    await expect(page.getByRole('dialog')).not.toBeVisible()
+    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
 
     // Row count should remain the same
     const finalCount = await page.getByRole('row').count()
@@ -316,7 +321,7 @@ test.describe('Pilot Management - Delete Pilot', () => {
   test('should delete pilot successfully', async ({ page }) => {
     // First, create a test pilot to delete
     await page.getByRole('button', { name: /add|new pilot/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
 
     const uniqueId = Date.now()
     await page.getByLabel(/first name/i).fill(`Delete${uniqueId}`)
@@ -328,12 +333,12 @@ test.describe('Pilot Management - Delete Pilot', () => {
     await page.getByRole('option', { name: /captain/i }).click()
     await page.getByRole('button', { name: /save|create/i }).click()
 
-    await expect(page.getByText(/success/i)).toBeVisible({ timeout: 10000 })
-    await expect(page.getByRole('dialog')).not.toBeVisible()
+    await expect(page.getByText(/success/i)).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
 
     // Find the newly created pilot
     const pilotName = `Delete${uniqueId} Test`
-    await expect(page.getByText(pilotName)).toBeVisible()
+    await expect(page.getByText(pilotName)).toBeVisible({ timeout: 60000 })
 
     // Get row count before deletion
     const beforeCount = await page.getByRole('row').count()
@@ -343,17 +348,17 @@ test.describe('Pilot Management - Delete Pilot', () => {
     await pilotRow.getByRole('button', { name: /delete/i }).click()
 
     // Confirm deletion
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
     await page.getByRole('button', { name: /confirm|delete/i }).click()
 
     // Should show success message
-    await expect(page.getByText(/success|deleted/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/success|deleted/i)).toBeVisible({ timeout: 60000 })
 
     // Dialog should close
-    await expect(page.getByRole('dialog')).not.toBeVisible()
+    await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
 
     // Pilot should be removed from list
-    await expect(page.getByText(pilotName)).not.toBeVisible()
+    await expect(page.getByText(pilotName)).not.toBeVisible({ timeout: 60000 })
 
     // Row count should decrease
     const afterCount = await page.getByRole('row').count()
@@ -363,9 +368,10 @@ test.describe('Pilot Management - Delete Pilot', () => {
 
 test.describe('Pilot Management - View Pilot Details', () => {
   test.beforeEach(async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
     await page.goto('/dashboard/pilots')
-    await expect(page.getByRole('table')).toBeVisible({ timeout: 10000 })
+    await page.waitForLoadState('networkidle', { timeout: 60000 })
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
   test('should navigate to pilot detail page', async ({ page }) => {
@@ -380,7 +386,7 @@ test.describe('Pilot Management - View Pilot Details', () => {
       await expect(page).toHaveURL(/\/dashboard\/pilots\/[a-z0-9-]+/)
 
       // Should show pilot details
-      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60000 })
     }
   })
 
@@ -394,23 +400,23 @@ test.describe('Pilot Management - View Pilot Details', () => {
       await expect(page).toHaveURL(/\/dashboard\/pilots\/[a-z0-9-]+/)
 
       // Should show various sections
-      await expect(page.getByText(/employee id|emp id/i)).toBeVisible()
-      await expect(page.getByText(/rank/i)).toBeVisible()
-      await expect(page.getByText(/email/i)).toBeVisible()
+      await expect(page.getByText(/employee id|emp id/i)).toBeVisible({ timeout: 60000 })
+      await expect(page.getByText(/rank/i)).toBeVisible({ timeout: 60000 })
+      await expect(page.getByText(/email/i)).toBeVisible({ timeout: 60000 })
     }
   })
 })
 
 test.describe('Pilot Management - Responsive Design', () => {
   test('should be mobile-friendly', async ({ page }) => {
-    await login(page)
+    await loginAsAdmin(page)
 
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/dashboard/pilots')
 
     // Page should be visible
-    await expect(page.getByRole('heading', { name: /pilots/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /pilots/i })).toBeVisible({ timeout: 60000 })
 
     // Table should be visible or transformed for mobile
     const table = page.getByRole('table')

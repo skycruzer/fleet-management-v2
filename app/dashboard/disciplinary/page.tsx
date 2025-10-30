@@ -109,7 +109,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       case 'ACTION_TAKEN':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
       case 'APPEALED':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
     }
@@ -234,15 +234,12 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                   Incident Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
               {matters.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     No disciplinary matters found
                   </td>
                 </tr>
@@ -281,11 +278,6 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                       {new Date(matter.incident_date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className="text-gray-600 dark:text-gray-400 italic">
-                        Actions tracking removed
-                      </span>
                     </td>
                   </tr>
                 ))

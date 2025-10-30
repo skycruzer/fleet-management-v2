@@ -18,6 +18,8 @@ import {
   CheckCircle,
   Palmtree,
   Info,
+  Download,
+  FileText,
 } from 'lucide-react'
 
 interface AnalyticsData {
@@ -94,6 +96,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     fetchAnalytics()
@@ -121,6 +124,37 @@ export default function AnalyticsPage() {
   async function handleRefresh() {
     setRefreshing(true)
     await fetchAnalytics()
+  }
+
+  async function handleExport(format: 'csv' | 'pdf') {
+    if (!analytics) return
+
+    try {
+      setExporting(true)
+      const response = await fetch('/api/analytics/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ format, data: analytics }),
+      })
+
+      if (!response.ok) throw new Error('Export failed')
+
+      // Download the file
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `fleet-analytics-${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'txt' : 'csv'}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (err) {
+      console.error('Export error:', err)
+      alert('Failed to export analytics data')
+    } finally {
+      setExporting(false)
+    }
   }
 
   if (loading) {
@@ -236,10 +270,10 @@ export default function AnalyticsPage() {
           </p>
         </Card>
 
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 p-6">
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-100 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <Target className="h-10 w-10 text-purple-600" aria-hidden="true" />
-            <span className="text-3xl font-bold text-purple-900">{analytics.fleet.readiness}%</span>
+            <Target className="h-10 w-10 text-primary" aria-hidden="true" />
+            <span className="text-3xl font-bold text-primary-foreground">{analytics.fleet.readiness}%</span>
           </div>
           <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Readiness</h3>
           <p className="text-muted-foreground mt-1 text-xs">Overall operational readiness</p>
@@ -478,15 +512,46 @@ export default function AnalyticsPage() {
       </Card>
 
       {/* Export Section */}
-      <Card className="bg-primary/5 border-primary/20 p-4">
-        <div className="flex items-start space-x-3">
-          <Info className="h-6 w-6 text-blue-600" aria-hidden="true" />
-          <div className="flex-1">
-            <p className="text-foreground text-sm font-medium">Analytics Data Export</p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Data refreshes automatically. Use the Refresh button to get the latest metrics. Export
-              functionality coming soon.
-            </p>
+      <Card className="bg-primary/5 border-primary/20 p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-3">
+            <Info className="h-6 w-6 text-blue-600" aria-hidden="true" />
+            <div className="flex-1">
+              <p className="text-foreground text-sm font-medium">Analytics Dashboard</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Data refreshes automatically. Export your analytics data for offline analysis and reporting.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => handleExport('csv')}
+              disabled={exporting}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              {exporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Download className="h-4 w-4" aria-hidden="true" />
+              )}
+              Export CSV
+            </Button>
+            <Button
+              onClick={() => handleExport('pdf')}
+              disabled={exporting}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              {exporting ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <FileText className="h-4 w-4" aria-hidden="true" />
+              )}
+              Export Report
+            </Button>
           </div>
         </div>
       </Card>

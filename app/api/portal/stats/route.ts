@@ -7,7 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentPilot, getPilotPortalStats } from '@/lib/services/pilot-portal-service'
+import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 
 /**
@@ -16,14 +17,14 @@ import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 export async function GET(_request: NextRequest) {
   try {
     // Get current pilot
-    const pilotResult = await getCurrentPilot()
-    if (!pilotResult.success || !pilotResult.data) {
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
         status: 401,
       })
     }
 
-    const pilotId = pilotResult.data.id
+    const pilotId = pilot.id
 
     // Get portal stats
     const statsResult = await getPilotPortalStats(pilotId)

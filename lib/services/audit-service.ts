@@ -15,7 +15,6 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { format, subDays, startOfDay, endOfDay } from 'date-fns'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
@@ -46,8 +45,8 @@ export interface AuditLog {
   action: string
   table_name: string
   record_id: string
-  old_data: any
-  new_data: any
+  old_values: any
+  new_values: any
   changed_fields: string[] | null
   description: string | null
   ip_address: any
@@ -208,8 +207,8 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
       action: params.action,
       table_name: params.tableName,
       record_id: params.recordId,
-      old_data: params.oldData || null,
-      new_data: params.newData || null,
+      old_values: params.oldData || null,
+      new_values: params.newData || null,
       changed_fields: changedFields,
       description: params.description || null,
       ip_address: params.ipAddress || null,
@@ -933,4 +932,508 @@ export async function getPilotAuditTrail(
     })
     return []
   }
+}
+
+// ===================================
+// AUDIT LOG CHANGE ANALYSIS
+// ===================================
+
+/**
+ * Field change information
+ */
+export interface FieldChange {
+  field: string
+  oldValue: any
+  newValue: any
+  changeType: 'added' | 'removed' | 'modified'
+  displayOldValue?: string
+  displayNewValue?: string
+}
+
+export interface UnchangedField {
+  field: string
+  value: any
+  displayValue?: string
+}
+
+export interface AuditLogChanges {
+  auditLogId: string
+  changedFields: FieldChange[]
+  unchangedFields: UnchangedField[]
+  operation: string
+  timestamp: string
+}
+
+/**
+ * Get detailed change analysis for a specific audit log entry
+ * Compares old_values and new_values to identify changed fields
+ *
+ * @param auditLogId - UUID of the audit log entry
+ * @returns Detailed change analysis with before/after values
+ */
+export async function getAuditLogChanges(
+  auditLogId: string
+): Promise<AuditLogChanges | null> {
+  try {
+    const supabase = await createClient()
+
+    // Fetch the audit log entry
+    const { data: auditLog, error } = await supabase
+      .from('audit_logs')
+      .select('*')
+      .eq('id', auditLogId)
+      .single()
+
+    if (error || !auditLog) {
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getAuditLogChanges', auditLogId },
+      })
+      return null
+    }
+
+    const changedFields: FieldChange[] = []
+    const unchangedFields: UnchangedField[] = []
+
+    const oldValues = (auditLog.old_values as Record<string, any>) || {}
+    const newValues = (auditLog.new_values as Record<string, any>) || {}
+
+    // Get all unique field names from both objects
+    const allFields = new Set([
+      ...Object.keys(oldValues),
+      ...Object.keys(newValues),
+    ])
+
+    // Analyze each field
+    for (const field of allFields) {
+      const oldValue = oldValues[field]
+      const newValue = newValues[field]
+
+      // Skip internal system fields
+      if (['created_at', 'updated_at', 'id'].includes(field)) {
+        continue
+      }
+
+      // Field was added
+      if (oldValue === undefined && newValue !== undefined) {
+        changedFields.push({
+          field,
+          oldValue: null,
+          newValue,
+          changeType: 'added',
+          displayOldValue: 'null',
+          displayNewValue: formatDisplayValue(newValue),
+        })
+      }
+      // Field was removed
+      else if (oldValue !== undefined && newValue === undefined) {
+        changedFields.push({
+          field,
+          oldValue,
+          newValue: null,
+          changeType: 'removed',
+          displayOldValue: formatDisplayValue(oldValue),
+          displayNewValue: 'null',
+        })
+      }
+      // Field was modified
+      else if (
+        oldValue !== undefined &&
+        newValue !== undefined &&
+        JSON.stringify(oldValue) !== JSON.stringify(newValue)
+      ) {
+        changedFields.push({
+          field,
+          oldValue,
+          newValue,
+          changeType: 'modified',
+          displayOldValue: formatDisplayValue(oldValue),
+          displayNewValue: formatDisplayValue(newValue),
+        })
+      }
+      // Field unchanged
+      else if (
+        oldValue !== undefined &&
+        newValue !== undefined &&
+        JSON.stringify(oldValue) === JSON.stringify(newValue)
+      ) {
+        unchangedFields.push({
+          field,
+          value: newValue,
+          displayValue: formatDisplayValue(newValue),
+        })
+      }
+    }
+
+    return {
+      auditLogId,
+      changedFields,
+      unchangedFields,
+      operation: auditLog.action || 'UNKNOWN',
+      timestamp: auditLog.created_at,
+    }
+  } catch (error) {
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getAuditLogChanges', auditLogId },
+    })
+    return null
+  }
+}
+
+/**
+ * Format a value for display in the UI
+ */
+function formatDisplayValue(value: any): string {
+  if (value === null || value === undefined) {
+    return 'null'
+  }
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false'
+  }
+  if (typeof value === 'object') {
+    if (value instanceof Date) {
+      return format(value, 'yyyy-MM-dd HH:mm:ss')
+    }
+    return JSON.stringify(value, null, 2)
+  }
+  return String(value)
+}
+
+// ===================================
+// APPROVAL WORKFLOW HISTORY
+// ===================================
+
+/**
+ * Approval workflow timeline entry
+ */
+export interface ApprovalTimelineEntry {
+  timestamp: Date
+  action: 'submitted' | 'approved' | 'denied' | 'cancelled' | 'updated'
+  performedBy: {
+    id: string
+    name: string
+    email: string
+    role: string
+  } | null
+  reason?: string
+  oldStatus?: string
+  newStatus?: string
+  changedFields?: string[]
+  metadata?: Record<string, any>
+}
+
+export interface ApprovalHistory {
+  leaveRequestId: string
+  timeline: ApprovalTimelineEntry[]
+  currentStatus: string
+  submittedAt: Date
+  lastModifiedAt: Date
+}
+
+/**
+ * Get approval workflow history for a leave request
+ * Shows all status transitions and approval reasons
+ *
+ * @param leaveRequestId - UUID of the leave request
+ * @returns Complete approval workflow history
+ */
+export async function getLeaveRequestApprovalHistory(
+  leaveRequestId: string
+): Promise<ApprovalHistory | null> {
+  try {
+    const supabase = await createClient()
+
+    // Get the leave request details
+    // @ts-ignore - Supabase type inference issue
+    const { data: leaveRequest, error: leaveError } = await supabase
+      .from('leave_requests')
+      .select('status, created_at, updated_at')
+      .eq('id', leaveRequestId)
+      .single()
+
+    if (leaveError || !leaveRequest) {
+      logError(leaveError as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getLeaveRequestApprovalHistory', leaveRequestId },
+      })
+      return null
+    }
+
+    // Get all audit logs for this leave request
+    const { data: auditLogs, error: auditError } = await supabase
+      .from('audit_logs')
+      .select(`
+        *,
+        an_users!audit_logs_user_id_fkey (
+          id,
+          email,
+          role
+        )
+      `)
+      .eq('entity_type', 'leave_request')
+      .eq('entity_id', leaveRequestId)
+      .order('created_at', { ascending: true })
+
+    if (auditError) {
+      logError(auditError as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'getLeaveRequestApprovalHistory', leaveRequestId },
+      })
+      return null
+    }
+
+    const timeline: ApprovalTimelineEntry[] = []
+
+    // Process each audit log entry
+    for (const log of auditLogs || []) {
+      const oldValues = (log.old_values as Record<string, any>) || {}
+      const newValues = (log.new_values as Record<string, any>) || {}
+      // @ts-ignore - description is a string, not an object
+      const metadata = (log.description as unknown as Record<string, any>) || {}
+      const user = log.an_users as any
+
+      // Determine the action type based on operation and status changes
+      let action: ApprovalTimelineEntry['action'] = 'updated'
+      const oldStatus = oldValues.status
+      const newStatus = newValues.status
+
+      if (log.action === 'INSERT') {
+        action = 'submitted'
+      } else if (oldStatus && newStatus) {
+        if (newStatus === 'APPROVED') {
+          action = 'approved'
+        } else if (newStatus === 'DENIED') {
+          action = 'denied'
+        } else if (newStatus === 'CANCELLED') {
+          action = 'cancelled'
+        }
+      }
+
+      // Extract performer information
+      const performedBy = user
+        ? {
+            id: user.id,
+            name: user.email?.split('@')[0] || 'Unknown',
+            email: user.email || 'unknown@email.com',
+            role: user.role || 'Unknown',
+          }
+        : null
+
+      // Identify changed fields
+      const changedFields: string[] = []
+      const allFields = new Set([
+        ...Object.keys(oldValues),
+        ...Object.keys(newValues),
+      ])
+
+      for (const field of allFields) {
+        if (
+          JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])
+        ) {
+          changedFields.push(field)
+        }
+      }
+
+      timeline.push({
+        timestamp: new Date(log.created_at),
+        action,
+        performedBy,
+        reason: metadata.reason || log.description || undefined,
+        oldStatus,
+        newStatus,
+        changedFields: changedFields.length > 0 ? changedFields : undefined,
+        metadata,
+      })
+    }
+
+    return {
+      leaveRequestId,
+      timeline,
+      currentStatus: (leaveRequest as any).status,
+      submittedAt: new Date((leaveRequest as any).created_at),
+      lastModifiedAt: new Date((leaveRequest as any).updated_at || (leaveRequest as any).created_at),
+    }
+  } catch (error) {
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'getLeaveRequestApprovalHistory', leaveRequestId },
+    })
+    return null
+  }
+}
+
+// ===================================
+// CSV EXPORT
+// ===================================
+
+/**
+ * Export filters for audit trail CSV
+ */
+export interface ExportAuditFilters {
+  entityType?: string
+  entityId?: string
+  startDate?: Date
+  endDate?: Date
+  tableName?: string
+  operation?: string
+  userId?: string
+}
+
+/**
+ * Export audit trail to CSV format
+ * Returns a CSV string with all relevant audit log fields
+ *
+ * @param filters - Optional filters to limit the export
+ * @returns CSV string ready for download
+ */
+export async function exportAuditTrailCSV(
+  filters: ExportAuditFilters = {}
+): Promise<string> {
+  try {
+    const supabase = await createClient()
+
+    // Build the query
+    let query = supabase
+      .from('audit_logs')
+      .select(`
+        *,
+        an_users!audit_logs_user_id_fkey (
+          email,
+          role
+        )
+      `)
+      .order('created_at', { ascending: false })
+
+    // Apply filters
+    if (filters.entityType) {
+      query = query.eq('entity_type', filters.entityType)
+    }
+
+    if (filters.entityId) {
+      query = query.eq('entity_id', filters.entityId)
+    }
+
+    if (filters.tableName) {
+      query = query.eq('table_name', filters.tableName)
+    }
+
+    if (filters.operation) {
+      query = query.eq('operation', filters.operation)
+    }
+
+    if (filters.userId) {
+      query = query.eq('user_id', filters.userId)
+    }
+
+    if (filters.startDate) {
+      query = query.gte('created_at', startOfDay(filters.startDate).toISOString())
+    }
+
+    if (filters.endDate) {
+      query = query.lte('created_at', endOfDay(filters.endDate).toISOString())
+    }
+
+    const { data: auditLogs, error } = await query
+
+    if (error) {
+      logError(error as Error, {
+        source: 'AuditService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'exportAuditTrailCSV', filters },
+      })
+      throw error
+    }
+
+    // CSV headers
+    const headers = [
+      'Timestamp',
+      'Operation',
+      'Entity Type',
+      'Entity ID',
+      'Table Name',
+      'User Email',
+      'User Role',
+      'Action',
+      'Description',
+      'Changed Fields',
+    ]
+
+    // Build CSV rows
+    const rows = (auditLogs || []).map((log) => {
+      const user = log.an_users as any
+      const oldValues = (log.old_values as Record<string, any>) || {}
+      const newValues = (log.new_values as Record<string, any>) || {}
+
+      // Identify changed fields
+      const changedFields: string[] = []
+      const allFields = new Set([
+        ...Object.keys(oldValues),
+        ...Object.keys(newValues),
+      ])
+
+      for (const field of allFields) {
+        if (
+          JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])
+        ) {
+          changedFields.push(field)
+        }
+      }
+
+      return [
+        log.created_at,
+        log.action || '',
+        log.table_name || '',
+        log.record_id || '',
+        log.table_name || '',
+        user?.email || 'System',
+        user?.role || 'System',
+        log.action || '',
+        escapeCsvValue(log.description || ''),
+        changedFields.join(', '),
+      ]
+    })
+
+    // Combine headers and rows
+    const csv = [
+      headers.join(','),
+      ...rows.map((row) => row.map(escapeCsvValue).join(',')),
+    ].join('\n')
+
+    return csv
+  } catch (error) {
+    logError(error as Error, {
+      source: 'AuditService',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { operation: 'exportAuditTrailCSV', filters },
+    })
+    throw error
+  }
+}
+
+/**
+ * Escape CSV values to handle commas, quotes, and newlines
+ */
+function escapeCsvValue(value: any): string {
+  if (value === null || value === undefined) {
+    return ''
+  }
+
+  const stringValue = String(value)
+
+  // If the value contains comma, quote, or newline, wrap in quotes and escape quotes
+  if (
+    stringValue.includes(',') ||
+    stringValue.includes('"') ||
+    stringValue.includes('\n')
+  ) {
+    return `"${stringValue.replace(/"/g, '""')}"`
+  }
+
+  return stringValue
 }

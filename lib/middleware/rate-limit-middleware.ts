@@ -1,6 +1,8 @@
 /**
  * Rate Limiting Middleware for API Routes
  *
+ * Developer: Maurice Rondeau
+ *
  * Protects mutation endpoints from abuse using Upstash Redis
  *
  * Usage:
@@ -9,41 +11,88 @@
  * export const POST = withRateLimit(async (request) => {
  *   // Your handler logic
  * })
+ *
+ * @version 2.0.0
+ * @updated 2025-10-27 - Added developer attribution, fixed env variable names
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
-// Initialize Redis client
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_URL || '',
-  token: process.env.UPSTASH_REDIS_TOKEN || '',
+// ============================================================================
+// REDIS CLIENT CONFIGURATION
+// ============================================================================
+
+/**
+ * Check if Redis credentials are configured
+ */
+const isRedisConfigured =
+  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN
+
+/**
+ * Initialize Redis client with environment variables
+ * Returns null if credentials are not configured (development mode)
+ */
+const redis = isRedisConfigured
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    })
+  : null
+
+// ============================================================================
+// MOCK RATE LIMITER (Development Mode)
+// ============================================================================
+
+/**
+ * Type for rate limiter (real or mock)
+ */
+type RateLimiter = Ratelimit | ReturnType<typeof createMockRateLimiter>
+
+/**
+ * Mock rate limiter that always returns success
+ * Used when Redis is not configured (development mode)
+ */
+const createMockRateLimiter = () => ({
+  limit: async () => ({
+    success: true,
+    limit: 999,
+    remaining: 999,
+    reset: Date.now() + 60000,
+    pending: Promise.resolve(),
+  }),
 })
 
 // Rate limiters for different endpoint types
-export const readRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
-  analytics: true,
-})
+export const readRateLimit: RateLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(100, '1 m'), // 100 requests per minute
+      analytics: true,
+    })
+  : createMockRateLimiter()
 
-export const mutationRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(20, '1 m'), // 20 requests per minute
-  analytics: true,
-})
+export const mutationRateLimit: RateLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(20, '1 m'), // 20 requests per minute
+      analytics: true,
+    })
+  : createMockRateLimiter()
 
-export const authRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '1 m'), // 5 attempts per minute
-  analytics: true,
-})
+export const authRateLimit: RateLimiter = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '1 m'), // 5 attempts per minute
+      analytics: true,
+    })
+  : createMockRateLimiter()
 
 /**
  * Rate limit configuration for different HTTP methods
  */
-const rateLimitByMethod: Record<string, Ratelimit> = {
+const rateLimitByMethod: Record<string, RateLimiter> = {
   GET: readRateLimit,
   POST: mutationRateLimit,
   PUT: mutationRateLimit,
@@ -71,7 +120,7 @@ function getIdentifier(request: NextRequest): string {
  */
 export function withRateLimit(
   handler: (request: NextRequest) => Promise<NextResponse>,
-  customLimit?: Ratelimit
+  customLimit?: RateLimiter
 ) {
   return async (request: NextRequest) => {
     try {
@@ -144,11 +193,13 @@ export function withAuthRateLimit(
 export function withStrictRateLimit(
   handler: (request: NextRequest) => Promise<NextResponse>
 ) {
-  const strictLimit = new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(10, '1 m'), // 10 requests per minute
-    analytics: true,
-  })
+  const strictLimit = redis
+    ? new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(10, '1 m'), // 10 requests per minute
+        analytics: true,
+      })
+    : createMockRateLimiter()
 
   return withRateLimit(handler, strictLimit)
 }

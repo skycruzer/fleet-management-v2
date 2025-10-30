@@ -94,7 +94,7 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
       value: stats.pending_leave_requests,
       icon: Calendar,
       description: 'Awaiting approval',
-      color: 'text-blue-600',
+      color: 'text-primary',
     },
     {
       title: 'Pending Flight Requests',
@@ -108,7 +108,7 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
       value: stats.total_pilots,
       icon: FileText,
       description: 'Active pilots',
-      color: 'text-purple-600',
+      color: 'text-primary',
     },
   ]
 

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
-import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { OfflineIndicator } from '@/components/ui/offline-indicator'
@@ -72,10 +71,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#020617' },
-  ],
+  themeColor: '#ffffff',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -87,29 +83,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} bg-background min-h-screen font-sans antialiased`}>
         <ErrorBoundary>
           <Providers>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {/* PWA Offline Indicator */}
-              <OfflineIndicator />
+            {/* PWA Offline Indicator */}
+            <OfflineIndicator />
 
-              {/* Skip Links for Accessibility */}
-              <SkipLinks>
-                <SkipToMainContent />
-                <SkipToNavigation />
-              </SkipLinks>
+            {/* Skip Links for Accessibility */}
+            <SkipLinks>
+              <SkipToMainContent />
+              <SkipToNavigation />
+            </SkipLinks>
 
-              {/* Route Change Focus Manager */}
-              <RouteChangeFocusManager />
+            {/* Route Change Focus Manager */}
+            <RouteChangeFocusManager />
 
-              <div className="relative flex min-h-screen flex-col">
-                <div className="flex-1">{children}</div>
-              </div>
-              <Toaster />
-            </ThemeProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <div className="flex-1">{children}</div>
+            </div>
+            <Toaster />
           </Providers>
         </ErrorBoundary>
       </body>

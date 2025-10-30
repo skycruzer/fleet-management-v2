@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { CheckCircle2, AlertCircle, Clock, FileCheck, ChevronRight } from 'lucide-react'
+import { CheckCircle2, FileCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ComplianceCategory {
@@ -51,13 +51,13 @@ export function ComplianceOverviewClient({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
+    <div className="grid w-full gap-6 md:grid-cols-2">
       {/* Main Compliance Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg lg:col-span-1 dark:border-slate-700 dark:bg-slate-800"
+        className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
       >
         <div className="relative">
           <div className="mb-4 flex items-center justify-between">
@@ -162,7 +162,7 @@ export function ComplianceOverviewClient({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-800"
+        className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800"
       >
         <div className="border-b border-slate-200 p-6 dark:border-slate-700">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -213,90 +213,6 @@ export function ComplianceOverviewClient({
             })}
           </div>
         </div>
-      </motion.div>
-
-      {/* Action Items */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm lg:col-span-3 dark:border-slate-700 dark:bg-slate-800"
-      >
-        <div className="bg-warning-50 dark:bg-warning-900/20 border-b border-slate-200 p-6 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="bg-warning-500 flex h-10 w-10 items-center justify-center rounded-lg">
-              <AlertCircle className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900 dark:text-white">Urgent Action Items</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                {actionItems.length} items require immediate attention
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {actionItems.length > 0 ? (
-          <>
-            <div className="divide-y divide-slate-200 dark:divide-slate-700">
-              {actionItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  className="group flex items-center justify-between p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={cn(
-                        'flex h-8 w-8 items-center justify-center rounded-full',
-                        item.priority === 'high' && 'bg-danger-100 dark:bg-danger-900/30',
-                        item.priority === 'medium' && 'bg-warning-100 dark:bg-warning-900/30',
-                        item.priority === 'low' && 'bg-primary-100 dark:bg-primary-900/30'
-                      )}
-                    >
-                      <Clock
-                        className={cn(
-                          'h-4 w-4',
-                          item.priority === 'high' && 'text-danger-600 dark:text-danger-400',
-                          item.priority === 'medium' && 'text-warning-600 dark:text-warning-400',
-                          item.priority === 'low' && 'text-primary-600 dark:text-primary-400'
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900 dark:text-white">{item.title}</p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
-                        Due:{' '}
-                        {new Date(item.dueDate).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="border-t border-slate-200 p-4 dark:border-slate-700">
-              <button className="w-full rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600">
-                View All Action Items
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="p-8 text-center">
-            <CheckCircle2 className="text-success-500 mx-auto mb-2 h-12 w-12" />
-            <p className="text-lg font-semibold text-slate-900 dark:text-white">All Clear!</p>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              No urgent action items at this time
-            </p>
-          </div>
-        )}
       </motion.div>
     </div>
   )

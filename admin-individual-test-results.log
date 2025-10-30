@@ -1,0 +1,137 @@
+
+================================================================================
+  🧪 INDIVIDUAL ADMIN PAGE TESTING
+================================================================================
+
+(node:64281) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/skycruzer/Desktop/fleet-management-v2/test-admin-pages-individually.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/skycruzer/Desktop/fleet-management-v2/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+📝 Step 1: Logging into Admin Portal...
+
+✅ Login successful
+
+================================================================================
+  📊 TESTING EACH PAGE INDIVIDUALLY
+================================================================================
+
+
+🧪 Testing: Dashboard Overview
+   URL: /dashboard
+   Current URL: http://localhost:3000/dashboard
+   Page Title: Dashboard | Fleet Management V2 | Fleet Management V2
+   📡 No API calls detected
+   Content: ✅ Present
+   ✅ Status: PASSED
+
+🧪 Testing: Pilots Management
+   URL: /dashboard/pilots
+   Current URL: http://localhost:3000/dashboard/pilots
+   Page Title: Admin Dashboard | B767 FLEET | Fleet Management V2
+   📡 No API calls detected
+   ❌ Console Errors:
+      - A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. 
+   Content: ✅ Present
+   ❌ Status: NO_API
+
+🧪 Testing: Certifications Management
+   URL: /dashboard/certifications
+   Current URL: http://localhost:3000/dashboard/certifications
+   Page Title: Admin Dashboard | B767 FLEET | Fleet Management V2
+   📡 No API calls detected
+   Content: ✅ Present
+   ❌ Status: NO_API
+
+🧪 Testing: Leave Requests Management
+   URL: /dashboard/leave-requests
+   Current URL: http://localhost:3000/dashboard/leave-requests
+   Page Title: Fleet Management V2
+   📡 No API calls detected
+   ❌ Console Errors:
+      - Failed to load resource: the server responded with a status of 404 (Not Found)
+      - A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. 
+   Content: ❌ Missing
+   ❌ Status: NO_API
+
+🧪 Testing: Analytics Dashboard
+   URL: /dashboard/analytics
+   Current URL: http://localhost:3000/dashboard/analytics
+   Page Title: Admin Dashboard | B767 FLEET | Fleet Management V2
+   📡 API Calls:
+      ✅ /api/analytics: 200
+   Content: ✅ Present
+   ✅ Status: PASSED
+
+🧪 Testing: Flight Requests
+   URL: /dashboard/flight-requests
+   Current URL: http://localhost:3000/dashboard/flight-requests
+   Page Title: Admin Dashboard | B767 FLEET | Fleet Management V2
+   📡 No API calls detected
+   Content: ✅ Present
+   ❌ Status: NO_API
+
+🧪 Testing: Tasks Management
+   URL: /dashboard/tasks
+   Current URL: http://localhost:3000/dashboard/tasks
+   Page Title: Admin Dashboard | B767 FLEET | Fleet Management V2
+   📡 No API calls detected
+   ❌ Console Errors:
+      - A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. 
+   Content: ✅ Present
+   ❌ Status: NO_API
+
+🧪 Testing: Admin Settings
+   URL: /dashboard/admin/settings
+   Current URL: http://localhost:3000/dashboard/admin/settings
+   Page Title: System Settings | Fleet Management V2
+   📡 No API calls detected
+   Content: ✅ Present
+   ✅ Status: PASSED
+
+🧪 Testing: Audit Logs
+   URL: /dashboard/audit-logs
+   Current URL: http://localhost:3000/dashboard/audit-logs
+   Page Title: Admin Dashboard | B767 FLEET | Fleet Management V2
+   📡 No API calls detected
+   Content: ✅ Present
+   ❌ Status: NO_API
+
+================================================================================
+  📊 DETAILED TEST SUMMARY
+================================================================================
+
+Total Pages Tested: 9
+✅ Fully Working: 3
+❌ Issues Found: 6
+
+PAGES WITH ISSUES:
+
+1. Pilots Management - NO_API
+   URL: /dashboard/pilots
+
+2. Certifications Management - NO_API
+   URL: /dashboard/certifications
+
+3. Leave Requests Management - NO_API
+   URL: /dashboard/leave-requests
+
+4. Flight Requests - NO_API
+   URL: /dashboard/flight-requests
+
+5. Tasks Management - NO_API
+   URL: /dashboard/tasks
+
+6. Audit Logs - NO_API
+   URL: /dashboard/audit-logs
+
+================================================================================
+
+💡 Browser will stay open for manual inspection.
+   Close browser window when done.
+
+Warning: Detected unsettled top-level await at file:///Users/skycruzer/Desktop/fleet-management-v2/test-admin-pages-individually.js:264
+await new Promise(() => {})
+^
+
+
+

@@ -3,6 +3,13 @@
 /**
  * Flight Request Form Component
  * Client component for submitting flight requests with validation
+ *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: This form uses CSRF token via props for security
+ *
+ * @version 1.1.0
+ * @updated 2025-10-27 - Added developer attribution
  */
 
 import { useRouter } from 'next/navigation'
@@ -98,7 +105,7 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
         </label>
         <select
           {...register('request_type')}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-primary"
         >
           <option value="ADDITIONAL_FLIGHT">Additional Flight</option>
           <option value="ROUTE_CHANGE">Route Change</option>

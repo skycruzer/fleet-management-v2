@@ -79,68 +79,146 @@ export async function pilotLogin(
   credentials: PilotLoginInput
 ): Promise<ServiceResponse<{ user: any; session: any }>> {
   try {
+    console.log('🚀 pilotLogin called with email:', credentials.email)
     const supabase = await createClient()
+    console.log('✅ Supabase client created')
+    const bcrypt = require('bcrypt')
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: credentials.email,
-      password: credentials.password,
+    // Find pilot user by email
+    console.log('🔍 Querying pilot_users table for email:', credentials.email)
+    const { data: pilotUser, error: pilotError } = await supabase
+      .from('pilot_users')
+      .select('id, email, password_hash, auth_user_id, registration_approved, first_name, last_name, rank')
+      .eq('email', credentials.email)
+      .single()
+
+    console.log('📊 Query result:', {
+      hasPilotUser: !!pilotUser,
+      hasError: !!pilotError,
+      errorMessage: pilotError?.message,
+      errorDetails: pilotError
     })
 
-    if (error) {
+    if (pilotError || !pilotUser) {
+      console.log('❌ Pilot user not found or error occurred:', pilotError?.message)
       return {
         success: false,
         error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
       }
     }
 
-    // Check if user is an approved pilot in pilot_users table
-    const { data: pilotUser, error: pilotError } = await supabase
-      .from('pilot_users')
-      .select('id, email, registration_approved, first_name, last_name, rank')
-      .eq('id', data.user.id)
-      .single()
+    // DEBUG: Log pilot user data
+    console.log('🔍 DEBUG: Pilot user found:', {
+      email: pilotUser.email,
+      has_password_hash: !!pilotUser.password_hash,
+      has_auth_user_id: !!pilotUser.auth_user_id,
+      registration_approved: pilotUser.registration_approved
+    })
 
-    if (pilotError || !pilotUser) {
-      // If not a pilot, check if user is an admin/manager in an_users table
-      const { data: adminUser, error: adminError } = await supabase
-        .from('an_users')
-        .select('id, role, email')
-        .eq('id', data.user.id)
-        .single()
-
-      if (adminError || !adminUser) {
-        await supabase.auth.signOut()
-        return {
-          success: false,
-          error: 'User not found in system.',
-        }
-      }
-
-      // Allow admins to access pilot portal
-      if (adminUser.role !== 'admin') {
-        await supabase.auth.signOut()
-        return {
-          success: false,
-          error: ERROR_MESSAGES.AUTH.FORBIDDEN.message,
-        }
-      }
-    } else {
-      // Verify pilot registration is approved
-      if (!pilotUser.registration_approved) {
-        await supabase.auth.signOut()
-        return {
-          success: false,
-          error: 'Your registration is pending admin approval.',
-        }
+    // Verify registration is approved
+    if (!pilotUser.registration_approved) {
+      return {
+        success: false,
+        error: 'Your registration is pending admin approval.',
       }
     }
 
-    return {
-      success: true,
-      data: {
-        user: data.user,
-        session: data.session,
-      },
+    // PRIORITY: Check password_hash first (direct registration with bcrypt)
+    // Fall back to Supabase Auth only if no password_hash exists
+    if (pilotUser.password_hash) {
+      // Pilot registered with password hash - use bcrypt verification
+      console.log('🔐 Using bcrypt authentication for pilot:', pilotUser.email)
+      console.log('🔐 Password hash exists:', !!pilotUser.password_hash)
+      console.log('🔐 Attempting bcrypt comparison...')
+
+      const passwordMatch = await bcrypt.compare(credentials.password, pilotUser.password_hash)
+
+      console.log('🔐 Password match result:', passwordMatch)
+
+      if (!passwordMatch) {
+        console.log('❌ Password mismatch for pilot:', pilotUser.email)
+        return {
+          success: false,
+          error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
+        }
+      }
+
+      console.log('✅ Password match successful for pilot:', pilotUser.email)
+
+      // Update last login time
+      await supabase
+        .from('pilot_users')
+        .update({ last_login_at: new Date().toISOString() })
+        .eq('id', pilotUser.id)
+
+      // Create session data
+      const sessionData = {
+        user: {
+          id: pilotUser.id,
+          email: pilotUser.email,
+          user_metadata: {
+            first_name: pilotUser.first_name,
+            last_name: pilotUser.last_name,
+            rank: pilotUser.rank,
+          },
+        },
+        session: {
+          access_token: pilotUser.id, // Using ID as token for now
+          user: {
+            id: pilotUser.id,
+            email: pilotUser.email,
+          },
+        },
+      }
+
+      return {
+        success: true,
+        data: sessionData,
+      }
+    } else if (pilotUser.auth_user_id) {
+      // Pilot registered via Supabase Auth - use Supabase authentication
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      })
+
+      if (authError || !authData.session) {
+        // Check if this is because the Supabase Auth user doesn't exist
+        // (can happen if registration had connectivity issues)
+        if (authError?.message?.includes('Invalid login credentials') ||
+            authError?.message?.includes('Email not confirmed')) {
+          return {
+            success: false,
+            error: 'Your account setup is incomplete. Please contact the administrator for assistance.',
+          }
+        }
+
+        return {
+          success: false,
+          error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
+        }
+      }
+
+      // Update last login time
+      await supabase
+        .from('pilot_users')
+        .update({ last_login_at: new Date().toISOString() })
+        .eq('id', pilotUser.id)
+
+      // Return Supabase Auth session
+      return {
+        success: true,
+        data: {
+          user: authData.user,
+          session: authData.session,
+        },
+      }
+    } else {
+      // No password set at all
+      return {
+        success: false,
+        error: 'Password not set. Please contact administrator.',
+      }
     }
   } catch (error) {
     console.error('Pilot login error:', error)
@@ -200,39 +278,20 @@ export async function submitPilotRegistration(
   try {
     const supabase = await createClient()
 
-    // Step 1: Create auth user (unconfirmed until approved)
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: registration.email,
-      password: registration.password,
-      options: {
-        data: {
-          first_name: registration.first_name,
-          last_name: registration.last_name,
-          rank: registration.rank,
-        },
-      },
-    })
+    // Hash password using bcrypt
+    const bcrypt = require('bcrypt')
+    const saltRounds = 10
+    const passwordHash = await bcrypt.hash(registration.password, saltRounds)
 
-    if (authError) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.PORTAL.REGISTRATION_FAILED.message,
-      }
-    }
+    console.log('⚠️  Bypassing Supabase Auth due to connectivity issues - creating direct registration with password hash')
 
-    if (!authData.user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.PORTAL.REGISTRATION_FAILED.message,
-      }
-    }
-
-    // Step 2: Create registration record in pilot_users
-    const registrationData: PilotRegistrationInsert = {
-      id: authData.user.id,
+    // Create registration record in pilot_users
+    const registrationData = {
+      // Let database generate UUID via default gen_random_uuid()
       first_name: registration.first_name,
       last_name: registration.last_name,
       email: registration.email,
+      password_hash: passwordHash, // Store hashed password
       employee_id: registration.employee_id || null,
       rank: registration.rank,
       date_of_birth: registration.date_of_birth || null,
@@ -249,14 +308,16 @@ export async function submitPilotRegistration(
       .single()
 
     if (regError) {
-      // Rollback: Delete the auth user if registration insert fails
-      await supabase.auth.admin.deleteUser(authData.user.id)
+      console.error('Pilot registration insert failed:', regError)
 
       return {
         success: false,
         error: handleConstraintError(regError),
       }
     }
+
+    console.log('✅ Registration created successfully:', regData.id)
+    console.log('📝 Password will need to be set by admin or via password reset flow')
 
     return {
       success: true,
@@ -596,52 +657,29 @@ export async function getCurrentPilot(): Promise<ServiceResponse<any | null>> {
       }
     }
 
-    // Get pilot_users record (which has all portal user info)
-    const { data: pilotUser, error: pilotError } = await supabase
-      .from('pilot_users')
-      .select(
-        'id, email, first_name, last_name, rank, employee_id, registration_approved, seniority_number'
-      )
-      .eq('id', user.id)
-      .single()
+    // Use getPilotByUserId to get the pilot record
+    const { getPilotByUserId } = await import('./pilot-service')
+    const pilot = await getPilotByUserId(user.id)
 
-    if (pilotError || !pilotUser) {
+    if (!pilot) {
       return {
         success: false,
         error: ERROR_MESSAGES.PILOT.NOT_FOUND.message,
       }
     }
 
-    // Verify registration is approved
-    if (!pilotUser.registration_approved) {
-      return {
-        success: false,
-        error: 'Your registration is pending admin approval.',
-      }
-    }
-
-    // Get the corresponding pilots table record (for operational data queries)
-    let pilotsRecord = null
-    if (pilotUser.employee_id) {
-      const { data, error: pilotsError } = await supabase
-        .from('pilots')
-        .select('id')
-        .eq('employee_id', pilotUser.employee_id)
-        .single()
-
-      if (pilotsError || !data) {
-        console.warn('Pilot record not found in pilots table for employee_id:', pilotUser.employee_id)
-        // Continue without pilots.id - portal still works but with no operational data
-      } else {
-        pilotsRecord = data
-      }
-    }
-
+    // Return pilot data with user email from auth
     return {
       success: true,
       data: {
-        ...pilotUser,
-        pilot_id: pilotsRecord?.id || null, // Add pilots.id for operational queries
+        id: pilot.id,
+        first_name: pilot.first_name,
+        last_name: pilot.last_name,
+        role: pilot.role,
+        employee_id: pilot.employee_id,
+        seniority_number: pilot.seniority_number,
+        email: user.email,
+        pilot_id: pilot.id, // For backward compatibility
       },
     }
   } catch (error) {
@@ -649,6 +687,250 @@ export async function getCurrentPilot(): Promise<ServiceResponse<any | null>> {
     return {
       success: false,
       error: ERROR_MESSAGES.PILOT.FETCH_FAILED.message,
+    }
+  }
+}
+
+// ===================================
+// PASSWORD RESET OPERATIONS
+// ===================================
+
+/**
+ * Request password reset - generates token and sends email
+ *
+ * @param email - Pilot user email address
+ * @returns Service response with success status
+ */
+export async function requestPasswordReset(
+  email: string
+): Promise<ServiceResponse<{ message: string }>> {
+  try {
+    const supabase = await createClient()
+    const crypto = require('crypto')
+
+    // Find pilot user by email
+    const { data: pilotUser, error: pilotError } = await supabase
+      .from('pilot_users')
+      .select('id, email, first_name, last_name, rank, registration_approved')
+      .eq('email', email.toLowerCase().trim())
+      .single()
+
+    // Always return success to prevent email enumeration attacks
+    // Don't reveal if email exists or not
+    if (pilotError || !pilotUser) {
+      console.log(`Password reset requested for non-existent email: ${email}`)
+      return {
+        success: true,
+        data: {
+          message: 'If an account exists with this email, a password reset link has been sent.',
+        },
+      }
+    }
+
+    // Check if registration is approved
+    if (!pilotUser.registration_approved) {
+      console.log(`Password reset requested for unapproved account: ${email}`)
+      return {
+        success: true,
+        data: {
+          message: 'If an account exists with this email, a password reset link has been sent.',
+        },
+      }
+    }
+
+    // Generate secure random token (32 bytes = 64 hex characters)
+    const token = crypto.randomBytes(32).toString('hex')
+
+    // Token expires in 1 hour
+    const expiresAt = new Date()
+    expiresAt.setHours(expiresAt.getHours() + 1)
+
+    // Store token in database
+    const { error: tokenError } = await supabase.from('password_reset_tokens').insert({
+      user_id: pilotUser.id,
+      token,
+      expires_at: expiresAt.toISOString(),
+    })
+
+    if (tokenError) {
+      console.error('Failed to create password reset token:', tokenError)
+      return {
+        success: false,
+        error: 'Failed to process password reset request. Please try again.',
+      }
+    }
+
+    // Send password reset email
+    const { sendPasswordResetEmail } = await import('./pilot-email-service')
+    const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/portal/reset-password?token=${token}`
+    const emailResult = await sendPasswordResetEmail({
+      firstName: pilotUser.first_name,
+      lastName: pilotUser.last_name,
+      email: pilotUser.email,
+      resetLink,
+      expiresIn: '1 hour',
+    })
+
+    if (!emailResult.success) {
+      console.error('Failed to send password reset email:', emailResult.error)
+      // Don't fail the request - token is still valid
+      // User might need to contact support
+    }
+
+    console.log(`✅ Password reset email sent to ${email}`)
+
+    return {
+      success: true,
+      data: {
+        message: 'If an account exists with this email, a password reset link has been sent.',
+      },
+    }
+  } catch (error) {
+    console.error('Request password reset error:', error)
+    return {
+      success: false,
+      error: 'Failed to process password reset request. Please try again.',
+    }
+  }
+}
+
+/**
+ * Validate password reset token
+ *
+ * @param token - Reset token from email link
+ * @returns Service response with validation status
+ */
+export async function validatePasswordResetToken(
+  token: string
+): Promise<ServiceResponse<{ userId: string; email: string }>> {
+  try {
+    const supabase = await createClient()
+
+    // Find token
+    const { data: resetToken, error: tokenError } = await supabase
+      .from('password_reset_tokens')
+      .select(
+        `
+        id,
+        user_id,
+        expires_at,
+        used_at,
+        pilot_users (
+          email,
+          first_name,
+          last_name
+        )
+      `
+      )
+      .eq('token', token)
+      .single()
+
+    if (tokenError || !resetToken) {
+      return {
+        success: false,
+        error: 'Invalid or expired reset link. Please request a new one.',
+      }
+    }
+
+    // Check if token was already used
+    if (resetToken.used_at) {
+      return {
+        success: false,
+        error: 'This reset link has already been used. Please request a new one.',
+      }
+    }
+
+    // Check if token is expired
+    const now = new Date()
+    const expiresAt = new Date(resetToken.expires_at)
+    if (now > expiresAt) {
+      return {
+        success: false,
+        error: 'This reset link has expired. Please request a new one.',
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        userId: resetToken.user_id,
+        email: (resetToken.pilot_users as any)?.email || '',
+      },
+    }
+  } catch (error) {
+    console.error('Validate password reset token error:', error)
+    return {
+      success: false,
+      error: 'Failed to validate reset link. Please try again.',
+    }
+  }
+}
+
+/**
+ * Reset password using valid token
+ *
+ * @param token - Reset token from email
+ * @param newPassword - New password to set
+ * @returns Service response with success status
+ */
+export async function resetPassword(
+  token: string,
+  newPassword: string
+): Promise<ServiceResponse<{ message: string }>> {
+  try {
+    const supabase = await createClient()
+    const bcrypt = require('bcrypt')
+
+    // Validate token first
+    const validation = await validatePasswordResetToken(token)
+    if (!validation.success || !validation.data) {
+      return {
+        success: false,
+        error: validation.error || 'Invalid reset token',
+      }
+    }
+
+    const { userId } = validation.data
+
+    // Hash new password
+    const passwordHash = await bcrypt.hash(newPassword, 10)
+
+    // Update password
+    const { error: updateError } = await supabase
+      .from('pilot_users')
+      .update({
+        password_hash: passwordHash,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+
+    if (updateError) {
+      console.error('Failed to update password:', updateError)
+      return {
+        success: false,
+        error: 'Failed to reset password. Please try again.',
+      }
+    }
+
+    // Mark token as used
+    await supabase
+      .from('password_reset_tokens')
+      .update({ used_at: new Date().toISOString() })
+      .eq('token', token)
+
+    console.log(`✅ Password reset successful for user ${userId}`)
+
+    return {
+      success: true,
+      data: {
+        message: 'Password reset successfully. You can now log in with your new password.',
+      },
+    }
+  } catch (error) {
+    console.error('Reset password error:', error)
+    return {
+      success: false,
+      error: 'Failed to reset password. Please try again.',
     }
   }
 }

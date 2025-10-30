@@ -30,6 +30,9 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>('')
+  const [markingAsReadId, setMarkingAsReadId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [markingAllAsRead, setMarkingAllAsRead] = useState(false)
 
   useEffect(() => {
     fetchNotifications()
@@ -55,6 +58,8 @@ export default function NotificationsPage() {
   }
 
   const markAsRead = async (notificationId: string) => {
+    setMarkingAsReadId(notificationId)
+
     try {
       const response = await fetch('/api/portal/notifications', {
         method: 'PATCH',
@@ -67,13 +72,20 @@ export default function NotificationsPage() {
         setNotifications((prev) =>
           prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
         )
+      } else {
+        setError('Failed to mark notification as read')
       }
+      setMarkingAsReadId(null)
     } catch (err) {
       console.error('Failed to mark notification as read:', err)
+      setError('An unexpected error occurred while updating notification')
+      setMarkingAsReadId(null)
     }
   }
 
   const markAllAsRead = async () => {
+    setMarkingAllAsRead(true)
+
     try {
       const response = await fetch('/api/portal/notifications', {
         method: 'PATCH',
@@ -84,13 +96,20 @@ export default function NotificationsPage() {
       if (response.ok) {
         // Update local state
         setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+      } else {
+        setError('Failed to mark all notifications as read')
       }
+      setMarkingAllAsRead(false)
     } catch (err) {
       console.error('Failed to mark all notifications as read:', err)
+      setError('An unexpected error occurred while updating notifications')
+      setMarkingAllAsRead(false)
     }
   }
 
   const deleteNotification = async (notificationId: string) => {
+    setDeletingId(notificationId)
+
     try {
       const response = await fetch(`/api/portal/notifications?id=${notificationId}`, {
         method: 'DELETE',
@@ -99,9 +118,14 @@ export default function NotificationsPage() {
       if (response.ok) {
         // Remove from local state
         setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
+      } else {
+        setError('Failed to delete notification')
       }
+      setDeletingId(null)
     } catch (err) {
       console.error('Failed to delete notification:', err)
+      setError('An unexpected error occurred while deleting notification')
+      setDeletingId(null)
     }
   }
 
@@ -113,7 +137,7 @@ export default function NotificationsPage() {
       flight_denied: 'bg-orange-500',
       certification_expiring: 'bg-yellow-500',
       certification_expired: 'bg-red-600',
-      task_assigned: 'bg-purple-500',
+      task_assigned: 'bg-primary/50',
       registration_approved: 'bg-green-600',
       registration_denied: 'bg-red-600',
       system_alert: 'bg-gray-500',
@@ -149,8 +173,8 @@ export default function NotificationsPage() {
         </div>
 
         {unreadCount > 0 && (
-          <Button onClick={markAllAsRead} variant="outline">
-            Mark All as Read
+          <Button onClick={markAllAsRead} variant="outline" disabled={markingAllAsRead}>
+            {markingAllAsRead ? 'Marking...' : 'Mark All as Read'}
           </Button>
         )}
       </div>
@@ -195,16 +219,22 @@ export default function NotificationsPage() {
 
                   <div className="flex gap-2">
                     {!notification.read && (
-                      <Button variant="ghost" size="sm" onClick={() => markAsRead(notification.id)}>
-                        Mark as Read
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => markAsRead(notification.id)}
+                        disabled={markingAsReadId === notification.id}
+                      >
+                        {markingAsReadId === notification.id ? 'Marking...' : 'Mark as Read'}
                       </Button>
                     )}
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteNotification(notification.id)}
+                      disabled={deletingId === notification.id}
                     >
-                      Delete
+                      {deletingId === notification.id ? 'Deleting...' : 'Delete'}
                     </Button>
                   </div>
                 </div>

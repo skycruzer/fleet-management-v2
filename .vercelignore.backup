@@ -1,0 +1,64 @@
+# Development files
+.env.local
+.env*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test files
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# Documentation
+*.md
+!README.md
+docs/
+screenshots/
+e2e/
+
+# Build artifacts
+.next/
+out/
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Node modules (already in .gitignore but explicit here)
+node_modules/
+
+# Scripts and tools
+scripts/
+*.mjs
+*.sh
+
+# Database
+supabase/
+*.sql
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# BMad and QA files
+.bmad-core/
+stories/
+todos/
+openspec/

@@ -7,70 +7,33 @@ export const dynamic = 'force-dynamic'
 
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import {
-  Mail,
-  Phone,
-  MessageSquare,
-  FileQuestion,
-  ArrowLeft,
-  BookOpen,
-  Video,
-  Clock,
-  CheckCircle2,
-} from 'lucide-react'
+import { FileQuestion, ArrowLeft, BookOpen, Video, CheckCircle2 } from 'lucide-react'
+import { SupportContactButtons } from '@/components/support/support-contact-buttons'
 
 export const metadata = {
   title: 'Support & Help - Fleet Management V2',
   description: 'Get help and support for the Fleet Management System',
 }
 
-const supportChannels = [
-  {
-    icon: Mail,
-    title: 'Email Support',
-    description: 'Get help via email within 24 hours',
-    contact: 'support@fleetmanagement.com',
-    response: '24 hours',
-    color: 'blue',
-  },
-  {
-    icon: Phone,
-    title: 'Phone Support',
-    description: 'Speak directly with our support team',
-    contact: '+1 (555) 123-4567',
-    response: 'Immediate',
-    color: 'green',
-  },
-  {
-    icon: MessageSquare,
-    title: 'Live Chat',
-    description: 'Chat with our support team in real-time',
-    contact: 'Available Monday-Friday, 9am-5pm',
-    response: '5 minutes',
-    color: 'purple',
-  },
-]
-
 const quickLinks = [
   {
     icon: BookOpen,
     title: 'Documentation',
     description: 'Browse our comprehensive documentation',
-    href: '/docs',
+    href: '/dashboard/docs',
   },
   {
     icon: Video,
     title: 'Video Tutorials',
     description: 'Watch step-by-step video guides',
-    href: '/tutorials',
+    href: '/dashboard/tutorials',
   },
   {
     icon: FileQuestion,
     title: 'FAQs',
     description: 'Find answers to common questions',
-    href: '/faqs',
+    href: '/dashboard/faqs',
   },
 ]
 
@@ -103,10 +66,10 @@ export default function SupportPage() {
       </div>
 
       {/* Support Status */}
-      <Card className="border-green-200 bg-green-50 p-6">
+      <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30 p-6">
         <div className="flex items-center gap-4">
-          <div className="rounded-full bg-green-100 p-3">
-            <CheckCircle2 className="h-6 w-6 text-green-600" />
+          <div className="rounded-full bg-green-100 dark:bg-green-900/50 p-3">
+            <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
             <h3 className="text-foreground text-lg font-semibold">Support Available</h3>
@@ -120,44 +83,7 @@ export default function SupportPage() {
       {/* Support Channels */}
       <div>
         <h2 className="text-foreground mb-6 text-xl font-semibold">Contact Support</h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {supportChannels.map((channel) => {
-            const Icon = channel.icon
-            const bgColor =
-              channel.color === 'blue'
-                ? 'bg-blue-100'
-                : channel.color === 'green'
-                  ? 'bg-green-100'
-                  : 'bg-purple-100'
-            const textColor =
-              channel.color === 'blue'
-                ? 'text-blue-600'
-                : channel.color === 'green'
-                  ? 'text-green-600'
-                  : 'text-purple-600'
-
-            return (
-              <Card key={channel.title} className="p-6">
-                <div className="mb-4 flex items-start justify-between">
-                  <div className={`rounded-lg ${bgColor} p-3`}>
-                    <Icon className={`h-6 w-6 ${textColor}`} />
-                  </div>
-                  <Badge variant="secondary" className="gap-1">
-                    <Clock className="h-3 w-3" />
-                    {channel.response}
-                  </Badge>
-                </div>
-                <h3 className="text-foreground mb-2 text-lg font-semibold">{channel.title}</h3>
-                <p className="text-muted-foreground mb-4 text-sm">{channel.description}</p>
-                <p className="text-foreground mb-4 font-medium">{channel.contact}</p>
-                <Button className="w-full gap-2">
-                  Contact Now
-                  <Icon className="h-4 w-4" />
-                </Button>
-              </Card>
-            )
-          })}
-        </div>
+        <SupportContactButtons />
       </div>
 
       {/* Quick Links */}
@@ -190,7 +116,7 @@ export default function SupportPage() {
           {commonIssues.map((issue, index) => (
             <Link
               key={index}
-              href={`/faqs#${issue.toLowerCase().replace(/\s+/g, '-')}`}
+              href={`/dashboard/faqs#${issue.toLowerCase().replace(/\s+/g, '-')}`}
               className="group hover:border-primary hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-4 transition-all"
             >
               <FileQuestion className="text-muted-foreground group-hover:text-primary h-5 w-5" />

@@ -4,6 +4,13 @@
  * GET /api/portal/registration-approval - Get pending registrations
  * POST /api/portal/registration-approval - Approve/deny registration
  *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ * RATE LIMITING: 20 mutation requests per minute per IP
+ *
+ * @version 2.1.0
+ * @updated 2025-10-27 - Added rate limiting
  * @spec 001-missing-core-features (US8)
  */
 
@@ -15,6 +22,8 @@ import {
 import { RegistrationApprovalSchema } from '@/lib/validations/pilot-portal-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
 /**
  * Verify admin role middleware
@@ -87,8 +96,14 @@ export async function GET(_request: NextRequest) {
 /**
  * POST - Approve or deny registration (admin only)
  */
-export async function POST(_request: NextRequest) {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // Verify admin
     const { authorized, user } = await verifyAdmin()
     if (!authorized || !user) {
@@ -96,7 +111,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // Parse and validate request body
-    const body = await _request.json()
+    const body = await request.json()
     const { registrationId, ...approvalData } = body
 
     if (!registrationId) {
@@ -154,4 +169,4 @@ export async function POST(_request: NextRequest) {
       status: 500,
     })
   }
-}
+})

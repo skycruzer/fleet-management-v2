@@ -3,6 +3,13 @@
 /**
  * Feedback Form Component
  * Client component for submitting feedback with validation
+ *
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: This form uses CSRF token via props for security
+ *
+ * @version 1.1.0
+ * @updated 2025-10-27 - Added developer attribution
  */
 
 import { useForm } from 'react-hook-form'
@@ -111,7 +118,7 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
           type="checkbox"
           id="is_anonymous"
           {...register('is_anonymous')}
-          className="h-5 w-5 cursor-pointer rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          className="h-5 w-5 cursor-pointer rounded border-gray-300 text-primary focus:ring-primary"
         />
       </div>
 
@@ -123,7 +130,7 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
           </label>
           <select
             {...register('category_id')}
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-primary"
           >
             <option value="">Select a category</option>
             {categories.map((category) => (

@@ -6,7 +6,6 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
@@ -98,7 +97,7 @@ export async function getAllLeaveRequests(): Promise<LeaveRequest[]> {
       .select(
         `
         *,
-        pilots (
+        pilots!leave_requests_pilot_id_fkey (
           first_name,
           middle_name,
           last_name,
@@ -143,7 +142,7 @@ export async function getLeaveRequestById(requestId: string): Promise<LeaveReque
       .select(
         `
         *,
-        pilots (
+        pilots!pilot_id (
           first_name,
           middle_name,
           last_name,
@@ -196,7 +195,7 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
       .select(
         `
         *,
-        pilots (
+        pilots!pilot_id (
           first_name,
           middle_name,
           last_name,
@@ -353,9 +352,8 @@ export async function updateLeaveRequestStatus(
     // Use PostgreSQL function for atomic approval with audit log
     const { data, error } = await supabase.rpc('approve_leave_request', {
       p_request_id: requestId,
-      p_reviewer_id: reviewedBy,
-      p_status: status,
-      p_comments: reviewComments || undefined,
+      p_approved_by: reviewedBy,
+      p_approval_notes: reviewComments,
     })
 
     if (error) {
@@ -488,7 +486,7 @@ export async function getPendingLeaveRequests(): Promise<LeaveRequest[]> {
       .select(
         `
         *,
-        pilots (
+        pilots!pilot_id (
           first_name,
           middle_name,
           last_name,
@@ -535,7 +533,7 @@ export async function checkLeaveConflicts(
       .select(
         `
         *,
-        pilots (
+        pilots!pilot_id (
           first_name,
           middle_name,
           last_name,
@@ -586,7 +584,7 @@ export async function getLeaveRequestsByRosterPeriod(
       .select(
         `
         *,
-        pilots (
+        pilots!pilot_id (
           first_name,
           middle_name,
           last_name,

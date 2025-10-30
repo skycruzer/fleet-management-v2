@@ -7,20 +7,25 @@ export const dynamic = 'force-dynamic'
 
 import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
-
-export const metadata = dashboardMetadata.leave
 import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/ui/empty-state'
 import Link from 'next/link'
 import { getAllLeaveRequests } from '@/lib/services/leave-service'
-import { LeaveRequestGroup } from '@/components/leave/leave-request-group'
-import { FileText, CheckCircle, BarChart3, XCircle, Calendar, Plus } from 'lucide-react'
+import { LeaveRequestsClient } from '@/components/leave/leave-requests-client'
+import { FileText, CheckCircle, BarChart3, XCircle, Plus } from 'lucide-react'
+
+export const metadata = dashboardMetadata.leave
 
 export default async function LeaveRequestsPage() {
   // Fetch leave requests data
-  const requests = await getAllLeaveRequests()
+  const allRequests = await getAllLeaveRequests()
 
-  // Calculate stats from the data
+  // Filter out RDO and SDO requests (they belong in Flight Requests page)
+  const requests = allRequests.filter(req => req.request_type !== 'RDO' && req.request_type !== 'SDO')
+
+  // Get unique roster periods from requests
+  const uniquePeriods = Array.from(new Set(requests.map((req) => req.roster_period).filter(Boolean))) as string[]
+
+  // Calculate stats from the data (excluding RDO/SDO)
   const stats = requests.reduce(
     (acc, req) => {
       acc.total++
@@ -32,36 +37,6 @@ export default async function LeaveRequestsPage() {
     },
     { total: 0, pending: 0, approved: 0, denied: 0, totalDays: 0 }
   )
-
-  // Group leave requests by type -> role -> sort by start date
-  const groupedRequests = requests.reduce(
-    (acc, req) => {
-      const type = req.request_type || 'Other'
-      const role = (req.pilots?.role as 'Captain' | 'First Officer') || 'Unknown'
-
-      if (!acc[type]) {
-        acc[type] = { Captain: [], 'First Officer': [], Unknown: [] }
-      }
-      if (!acc[type][role]) {
-        acc[type][role] = []
-      }
-      acc[type][role].push(req)
-      return acc
-    },
-    {} as Record<string, Record<string, typeof requests>>
-  )
-
-  // Sort requests within each role by start date
-  Object.keys(groupedRequests).forEach((type) => {
-    Object.keys(groupedRequests[type]).forEach((role) => {
-      groupedRequests[type][role].sort(
-        (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
-      )
-    })
-  })
-
-  // Sort types alphabetically
-  const sortedTypes = Object.keys(groupedRequests).sort()
 
   return (
     <div className="space-y-6">
@@ -90,27 +65,27 @@ export default async function LeaveRequestsPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-green-200 bg-green-50 p-6">
+        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50 p-6">
           <div className="flex items-center space-x-3">
-            <CheckCircle className="h-8 w-8 text-green-600" aria-hidden="true" />
+            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-500" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.approved}</p>
               <p className="text-muted-foreground text-sm font-medium">Approved</p>
             </div>
           </div>
         </Card>
-        <Card className="border-destructive/20 bg-red-50 p-6">
+        <Card className="border-destructive/20 bg-red-50 dark:border-red-800 dark:bg-red-950/50 p-6">
           <div className="flex items-center space-x-3">
-            <XCircle className="h-8 w-8 text-red-600" aria-hidden="true" />
+            <XCircle className="h-8 w-8 text-red-600 dark:text-red-500" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.denied}</p>
               <p className="text-muted-foreground text-sm font-medium">Denied</p>
             </div>
           </div>
         </Card>
-        <Card className="border-purple-200 bg-purple-50 p-6">
+        <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
-            <BarChart3 className="h-8 w-8 text-purple-600" aria-hidden="true" />
+            <BarChart3 className="h-8 w-8 text-primary" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.totalDays}</p>
               <p className="text-muted-foreground text-sm font-medium">Total Days</p>
@@ -119,43 +94,8 @@ export default async function LeaveRequestsPage() {
         </Card>
       </div>
 
-      {/* Leave Request Type Overview */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-foreground text-lg font-semibold">Request Types</h3>
-          <div className="text-muted-foreground text-sm">
-            {sortedTypes.length} types • {requests.length} total requests
-          </div>
-        </div>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Leave requests are grouped by type and role, sorted by start date within each group.
-        </p>
-      </Card>
-
-      {/* Grouped Leave Requests by Type and Role */}
-      <div className="space-y-4">
-        {sortedTypes.map((type) => (
-          <LeaveRequestGroup
-            key={type}
-            type={type}
-            roleGroups={groupedRequests[type]}
-            defaultExpanded
-          />
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {requests.length === 0 && (
-        <EmptyState
-          icon={Calendar}
-          title="No leave requests found"
-          description="Submit your first leave request to get started with the leave management system."
-          action={{
-            label: 'Submit Leave Request',
-            href: '/dashboard/leave/new',
-          }}
-        />
-      )}
+      {/* Client Component with Filtering and Review */}
+      <LeaveRequestsClient requests={requests} availablePeriods={uniquePeriods} />
     </div>
   )
 }

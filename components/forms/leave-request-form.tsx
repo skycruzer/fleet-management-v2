@@ -2,14 +2,20 @@
  * Unified Leave Request Form Component
  * Handles both create and edit modes for leave request management
  *
- * @version 1.0.0
+ * Developer: Maurice Rondeau
+ *
+ * CSRF PROTECTION: This form includes CSRF token protection for all submissions
+ *
+ * @version 1.1.0
  * @since 2025-10-17
+ * @updated 2025-10-27 - Added CSRF protection
  */
 
 'use client'
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useCsrfToken } from '@/lib/providers/csrf-provider'
 import {
   LeaveRequestCreateSchema,
   LeaveRequestUpdateSchema,
@@ -53,6 +59,9 @@ export function LeaveRequestForm({
   pilots = [],
   showPilotSelect = true,
 }: LeaveRequestFormProps) {
+  // CSRF token for form protection
+  const { csrfToken, isLoading: csrfLoading } = useCsrfToken()
+
   const form = useForm<LeaveRequestCreate | LeaveRequestUpdate>({
     resolver: zodResolver(
       mode === 'create' ? LeaveRequestCreateSchema : LeaveRequestUpdateSchema
@@ -62,7 +71,7 @@ export function LeaveRequestForm({
       request_type: undefined,
       start_date: '',
       end_date: '',
-      request_date: new Date().toISOString(),
+      request_date: new Date().toISOString().split('T')[0], // Format as YYYY-MM-DD
       request_method: 'SYSTEM',
       reason: '',
       is_late_request: false,
@@ -70,6 +79,8 @@ export function LeaveRequestForm({
   })
 
   const handleSubmit = async (data: LeaveRequestCreate | LeaveRequestUpdate) => {
+    // Note: CSRF token is handled via fetchWithCsrf() in the parent component
+    // or via header in API calls. This form passes data to parent onSubmit.
     await onSubmit(data)
   }
 
@@ -218,9 +229,11 @@ export function LeaveRequestForm({
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {mode === 'create' ? 'Submit Request' : 'Update Request'}
+            <Button type="submit" disabled={isLoading || csrfLoading || !csrfToken}>
+              {(isLoading || csrfLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {csrfLoading
+                ? 'Loading...'
+                : mode === 'create' ? 'Submit Request' : 'Update Request'}
             </Button>
           </CardFooter>
         </form>

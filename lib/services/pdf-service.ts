@@ -16,7 +16,6 @@
  * @since 2025-10-17
  */
 
-import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { differenceInDays, differenceInYears, format, addYears } from 'date-fns'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
