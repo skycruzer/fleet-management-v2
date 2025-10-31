@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Bell, Moon, Sun, User, Settings, LogOut } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -10,47 +10,85 @@ import { GlobalSearch } from '@/components/search/global-search'
 
 interface Notification {
   id: string
+  recipient_id: string
   title: string
   message: string
-  time: string
-  read: boolean
-  type: 'info' | 'warning' | 'success'
+  type: string
+  read: boolean | null
+  created_at: string | null
+  link?: string | null
+  updated_at?: string | null
 }
-
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    title: 'Certification Expiring',
-    message: 'John Doe - Medical Certificate expires in 15 days',
-    time: '5 min ago',
-    read: false,
-    type: 'warning',
-  },
-  {
-    id: '2',
-    title: 'Leave Request Approved',
-    message: 'Sarah Smith - Leave request for RP12/2025 approved',
-    time: '1 hour ago',
-    read: false,
-    type: 'success',
-  },
-  {
-    id: '3',
-    title: 'System Update',
-    message: 'Fleet Management system updated to v2.1.0',
-    time: '2 hours ago',
-    read: true,
-    type: 'info',
-  },
-]
 
 export function ProfessionalHeader() {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const [showNotifications, setShowNotifications] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch notifications on mount
+  useEffect(() => {
+    fetchNotifications()
+  }, [])
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/notifications')
+      const data = await response.json()
+
+      if (data.success) {
+        setNotifications(Array.isArray(data.data) ? data.data : [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleNotificationClick = async (notification: Notification) => {
+    try {
+      // Mark as read
+      await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId: notification.id }),
+      })
+
+      // Close dropdown
+      setShowNotifications(false)
+
+      // Navigate to link or notifications page
+      if (notification.link) {
+        router.push(notification.link)
+      } else {
+        router.push('/dashboard/notifications')
+      }
+
+      // Refresh notifications
+      fetchNotifications()
+    } catch (error) {
+      console.error('Failed to handle notification click:', error)
+    }
+  }
+
+  const formatTimeAgo = (dateString: string | null) => {
+    if (!dateString) return 'Recently'
+
+    const date = new Date(dateString)
+    const now = new Date()
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+    if (seconds < 60) return 'Just now'
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`
+    return date.toLocaleDateString()
+  }
   const [showUserMenu, setShowUserMenu] = useState(false)
 
-  const unreadCount = mockNotifications.filter((n) => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length
 
   const handleLogout = async () => {
     try {
@@ -94,11 +132,7 @@ export function ProfessionalHeader() {
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </motion.button>
 
           {/* Notifications */}
@@ -112,7 +146,7 @@ export function ProfessionalHeader() {
             >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-danger-500 text-xs font-semibold text-white">
+                <span className="bg-danger-500 absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold text-white">
                   {unreadCount}
                 </span>
               )}
@@ -129,55 +163,61 @@ export function ProfessionalHeader() {
                   className="absolute right-0 mt-2 w-96 rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800"
                 >
                   <div className="border-b border-slate-200 p-4 dark:border-slate-700">
-                    <h3 className="font-semibold text-slate-900 dark:text-white">
-                      Notifications
-                    </h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">Notifications</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
                       You have {unreadCount} unread notification{unreadCount !== 1 && 's'}
                     </p>
                   </div>
                   <div className="max-h-96 overflow-y-auto">
-                    {mockNotifications.map((notification) => (
-                      <button
-                        key={notification.id}
-                        onClick={() => {
-                          setShowNotifications(false)
-                          router.push('/dashboard/audit-logs')
-                        }}
-                        className={cn(
-                          'w-full border-b border-slate-100 p-4 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700',
-                          !notification.read && 'bg-primary-50/50 dark:bg-primary-900/10'
-                        )}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div
-                            className={cn(
-                              'mt-1 h-2 w-2 rounded-full flex-shrink-0',
-                              notification.type === 'warning' && 'bg-warning-500',
-                              notification.type === 'success' && 'bg-success-500',
-                              notification.type === 'info' && 'bg-primary-500'
-                            )}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-slate-900 dark:text-white">
-                              {notification.title}
-                            </p>
-                            <p className="text-sm text-slate-600 dark:text-slate-400">
-                              {notification.message}
-                            </p>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
-                              {notification.time}
-                            </p>
+                    {loading ? (
+                      <div className="p-4 text-center text-sm text-slate-500">
+                        Loading notifications...
+                      </div>
+                    ) : notifications.length === 0 ? (
+                      <div className="p-4 text-center text-sm text-slate-500">
+                        No new notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <button
+                          key={notification.id}
+                          onClick={() => handleNotificationClick(notification)}
+                          className={cn(
+                            'w-full border-b border-slate-100 p-4 text-left transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700',
+                            !notification.read && 'bg-primary-50/50 dark:bg-primary-900/10'
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={cn(
+                                'mt-1 h-2 w-2 flex-shrink-0 rounded-full',
+                                notification.type === 'warning' && 'bg-warning-500',
+                                notification.type === 'success' && 'bg-success-500',
+                                notification.type === 'error' && 'bg-red-500',
+                                notification.type === 'info' && 'bg-primary-500'
+                              )}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-slate-900 dark:text-white">
+                                {notification.title}
+                              </p>
+                              <p className="text-sm text-slate-600 dark:text-slate-400">
+                                {notification.message}
+                              </p>
+                              <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
+                                {formatTimeAgo(notification.created_at)}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                        </button>
+                      ))
+                    )}
                   </div>
                   <div className="p-4">
                     <button
                       onClick={() => {
                         setShowNotifications(false)
-                        router.push('/dashboard/audit-logs')
+                        router.push('/dashboard/notifications')
                       }}
                       className="w-full rounded-lg bg-slate-100 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
                     >
@@ -198,12 +238,10 @@ export function ProfessionalHeader() {
               className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
               aria-label="User menu"
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-700">
+              <div className="from-primary-500 to-primary-700 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br">
                 <User className="h-4 w-4 text-white" />
               </div>
-              <span className="text-sm font-medium text-slate-900 dark:text-white">
-                Admin User
-              </span>
+              <span className="text-sm font-medium text-slate-900 dark:text-white">Admin User</span>
             </motion.button>
 
             {/* User Dropdown */}
@@ -235,7 +273,7 @@ export function ProfessionalHeader() {
                   <div className="border-t border-slate-200 p-2 dark:border-slate-700">
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-danger-600 transition-colors hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-900/20"
+                      className="text-danger-600 hover:bg-danger-50 dark:text-danger-400 dark:hover:bg-danger-900/20 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors"
                     >
                       <LogOut className="h-4 w-4" />
                       <span>Logout</span>

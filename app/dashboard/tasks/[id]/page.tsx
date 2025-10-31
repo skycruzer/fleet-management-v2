@@ -1,24 +1,17 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect, notFound } from 'next/navigation'
-import { getTaskById, getTaskCategories } from '@/lib/services/task-service'
-import TaskForm from '@/components/tasks/TaskForm'
-import Link from 'next/link'
-// Force dynamic rendering to prevent static generation at build time
-export const dynamic = 'force-dynamic'
-
-
 /**
- * Task Detail/Edit Page (Admin)
- *
- * View and edit task details.
- *
- * @spec 001-missing-core-features (US5)
+ * Task Detail Page
+ * Author: Maurice Rondeau
+ * Displays individual task details with full metadata
  */
 
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { getTask } from '@/lib/services/task-service'
+import Link from 'next/link'
+import { ArrowLeft, Calendar, User, CheckCircle, Clock } from 'lucide-react'
+
 interface TaskDetailPageProps {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
@@ -31,145 +24,171 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
     redirect('/auth/login')
   }
 
-  // Validate UUID format
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  if (!uuidRegex.test(params.id)) {
-    notFound()
-  }
-
-  // Fetch task
-  const taskResult = await getTaskById(params.id)
+  const { id } = await params
+  const taskResult = await getTask(id)
 
   if (!taskResult.success || !taskResult.data) {
-    notFound()
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold text-gray-900">Task Not Found</h1>
+        <p className="mt-2 text-gray-600">The task you are looking for does not exist.</p>
+        <Link
+          href="/dashboard/tasks"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Tasks
+        </Link>
+      </div>
+    )
   }
 
   const task = taskResult.data
 
-  // Fetch users for assignment
-  const { data: users } = await supabase
-    .from('an_users')
-    .select('id, email, name')
-    .order('name', { ascending: true })
-
-  // Fetch pilots for task relations
-  const { data: pilots } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, role')
-    .order('last_name', { ascending: true })
-
-  // Fetch categories
-  const categoriesResult = await getTaskCategories()
-  const categories = categoriesResult.success ? categoriesResult.data : []
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'TODO':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
-      case 'DONE':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-    }
+  const statusColors: Record<string, string> = {
+    PENDING: 'bg-yellow-100 text-yellow-800',
+    IN_PROGRESS: 'bg-blue-100 text-blue-800',
+    COMPLETED: 'bg-green-100 text-green-800',
+    CANCELLED: 'bg-gray-100 text-gray-800',
   }
 
+  const priorityColors: Record<string, string> = {
+    LOW: 'bg-gray-100 text-gray-800',
+    MEDIUM: 'bg-yellow-100 text-yellow-800',
+    HIGH: 'bg-orange-100 text-orange-800',
+    CRITICAL: 'bg-red-100 text-red-800',
+  }
+
+  const isOverdue =
+    task.due_date && new Date(task.due_date) < new Date() && task.status !== 'COMPLETED'
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Back Button */}
-      <div className="mb-6">
+    <div className="mx-auto max-w-4xl p-6">
+      <div className="mb-6 flex items-center justify-between">
         <Link
           href="/dashboard/tasks"
-          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
+          <ArrowLeft className="h-4 w-4" />
           Back to Tasks
+        </Link>
+        <Link
+          href={`/dashboard/tasks/${task.id}/edit`}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
+          Edit Task
         </Link>
       </div>
 
-      {/* Page Header */}
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{task.title}</h1>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(task.status)}`}>
-              {task.status.replace('_', ' ')}
-            </span>
-            {task.created_at && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Created {new Date(task.created_at).toLocaleDateString()}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Task Metadata */}
-      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Task Information</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Created By</p>
-            <p className="mt-1 text-gray-900 dark:text-white">
-              {task.created_user?.name || task.created_user?.email || 'Unknown'}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned To</p>
-            <p className="mt-1 text-gray-900 dark:text-white">
-              {task.assigned_user?.name || task.assigned_user?.email || 'Unassigned'}
-            </p>
-          </div>
-          {task.category && (
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Category</p>
-              <p className="mt-1 text-gray-900 dark:text-white">{task.category.name}</p>
-            </div>
-          )}
-          {task.related_pilot && (
-            <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Related Pilot</p>
-              <p className="mt-1 text-gray-900 dark:text-white">
-                {task.related_pilot.rank} {task.related_pilot.first_name} {task.related_pilot.last_name}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Edit Form */}
-      <div className="mx-auto max-w-3xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Edit Task</h2>
-        <TaskForm task={task} users={users || []} pilots={pilots || []} categories={categories} />
-      </div>
-
-      {/* Subtasks Section */}
-      {task.subtasks && task.subtasks.length > 0 && (
-        <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-            Subtasks ({task.subtasks.length})
-          </h2>
-          <div className="space-y-2">
-            {task.subtasks.map((subtask) => (
-              <Link
-                key={subtask.id}
-                href={`/dashboard/tasks/${subtask.id}`}
-                className="flex items-center justify-between rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900/50"
+      <div className="overflow-hidden rounded-lg bg-white shadow">
+        <div className="border-b border-gray-200 bg-gray-50 p-6">
+          <div className="mb-4 flex items-start justify-between">
+            <h1 className="text-3xl font-bold text-gray-900">{task.title}</h1>
+            <div className="flex gap-2">
+              <span
+                className={`rounded-full px-3 py-1 text-sm font-medium ${statusColors[task.status] || statusColors.PENDING}`}
               >
-                <span className="text-gray-900 dark:text-white">{subtask.title}</span>
-                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(subtask.status)}`}>
-                  {subtask.status}
-                </span>
-              </Link>
-            ))}
+                {task.status.replace('_', ' ')}
+              </span>
+              <span
+                className={`rounded-full px-3 py-1 text-sm font-medium ${priorityColors[task.priority] || priorityColors.MEDIUM}`}
+              >
+                {task.priority}
+              </span>
+            </div>
           </div>
         </div>
-      )}
+
+        <div className="grid grid-cols-1 gap-6 border-b border-gray-200 p-6 md:grid-cols-2">
+          {task.assigned_to && (
+            <div className="flex items-center gap-3">
+              <User className="h-5 w-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">Assigned To</p>
+                <p className="font-medium text-gray-900">{task.assigned_to}</p>
+              </div>
+            </div>
+          )}
+
+          {task.due_date && (
+            <div className="flex items-center gap-3">
+              <Calendar className="h-5 w-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">Due Date</p>
+                <p className={`font-medium ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
+                  {new Date(task.due_date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                  {isOverdue && <span className="ml-2 text-sm">(Overdue)</span>}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {task.created_at && (
+            <div className="flex items-center gap-3">
+              <Clock className="h-5 w-5 text-gray-400" />
+              <div>
+                <p className="text-sm text-gray-500">Created</p>
+                <p className="font-medium text-gray-900">
+                  {new Date(task.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {task.completed_at && (
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <div>
+                <p className="text-sm text-gray-500">Completed</p>
+                <p className="font-medium text-gray-900">
+                  {new Date(task.completed_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="p-6">
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">Description</h2>
+          {task.description ? (
+            <div className="prose max-w-none text-gray-700">
+              <p className="whitespace-pre-wrap">{task.description}</p>
+            </div>
+          ) : (
+            <p className="text-gray-500 italic">No description provided</p>
+          )}
+        </div>
+
+        {task.metadata && Object.keys(task.metadata).length > 0 && (
+          <div className="border-t border-gray-200 bg-gray-50 p-6">
+            <h2 className="mb-3 text-lg font-semibold text-gray-900">Additional Information</h2>
+            <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {Object.entries(task.metadata).map(([key, value]) => (
+                <div key={key}>
+                  <dt className="text-sm font-medium text-gray-500">
+                    {key.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                  </dt>
+                  <dd className="mt-1 text-sm text-gray-900">
+                    {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
