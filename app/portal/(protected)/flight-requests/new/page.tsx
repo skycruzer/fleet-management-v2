@@ -48,9 +48,14 @@ const REQUEST_TYPES = [
   },
   { value: 'ROUTE_CHANGE', label: 'Route Change', description: 'Request to change assigned route' },
   {
-    value: 'SCHEDULE_SWAP',
-    label: 'Schedule Swap',
-    description: 'Request to swap with another pilot',
+    value: 'SCHEDULE_PREFERENCE',
+    label: 'Schedule Preference',
+    description: 'Request for preferred schedule',
+  },
+  {
+    value: 'TRAINING_FLIGHT',
+    label: 'Training Flight',
+    description: 'Request for training flight',
   },
   { value: 'OTHER', label: 'Other', description: 'Other flight-related requests' },
 ] as const
@@ -64,8 +69,8 @@ export default function NewFlightRequestPage() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'REQUEST_FLIGHT',
-      request_date: '',
+      request_type: 'ADDITIONAL_FLIGHT',
+      flight_date: '',
       description: '',
       reason: '',
     },
@@ -98,7 +103,7 @@ export default function NewFlightRequestPage() {
       setTimeout(() => {
         router.push('/portal/flight-requests')
       }, 2000)
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
     }
@@ -166,7 +171,9 @@ export default function NewFlightRequestPage() {
             <div className="space-y-2">
               <Label htmlFor="request_type">Request Type *</Label>
               <Select
-                onValueChange={(value) => form.setValue('request_type', value as any)}
+                onValueChange={(value) =>
+                  form.setValue('request_type', value as FlightRequestInput['request_type'])
+                }
                 defaultValue={form.getValues('request_type')}
                 disabled={isLoading}
               >
@@ -191,18 +198,16 @@ export default function NewFlightRequestPage() {
 
             {/* Flight Date */}
             <div className="space-y-2">
-              <Label htmlFor="request_date">Flight Date *</Label>
+              <Label htmlFor="flight_date">Flight Date *</Label>
               <Input
-                id="request_date"
+                id="flight_date"
                 type="date"
-                {...form.register('request_date')}
+                {...form.register('flight_date')}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">
-                Select the date for your requested flight
-              </p>
-              {form.formState.errors.request_date && (
-                <p className="text-sm text-red-500">{form.formState.errors.request_date.message}</p>
+              <p className="text-xs text-gray-500">Select the date for your requested flight</p>
+              {form.formState.errors.flight_date && (
+                <p className="text-sm text-red-500">{form.formState.errors.flight_date.message}</p>
               )}
             </div>
 
