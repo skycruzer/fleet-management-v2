@@ -14,7 +14,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FlightRequestSchema, type FlightRequestInput } from '@/lib/validations/flight-request-schema'
+import {
+  FlightRequestSchema,
+  type FlightRequestInput,
+} from '@/lib/validations/flight-request-schema'
 import { getRosterPeriodFromDate } from '@/lib/utils/roster-utils'
 
 export default function FlightRequestForm() {
@@ -27,30 +30,30 @@ export default function FlightRequestForm() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'REQUEST_FLIGHT',
-      request_date: '',
+      request_type: 'ADDITIONAL_FLIGHT',
+      flight_date: '',
       description: '',
       reason: '',
     },
   })
 
-  // Watch request_date changes to calculate roster period
-  const requestDate = form.watch('request_date')
+  // Watch flight_date changes to calculate roster period
+  const flightDate = form.watch('flight_date')
 
   useEffect(() => {
-    if (requestDate) {
+    if (flightDate) {
       try {
-        const rosterPeriod = getRosterPeriodFromDate(new Date(requestDate))
+        const rosterPeriod = getRosterPeriodFromDate(new Date(flightDate))
         setCalculatedRosterPeriod(rosterPeriod.code)
         // Update form with calculated roster period
         form.setValue('roster_period', rosterPeriod.code)
-      } catch (error) {
+      } catch {
         setCalculatedRosterPeriod('')
       }
     } else {
       setCalculatedRosterPeriod('')
     }
-  }, [requestDate, form])
+  }, [flightDate, form])
 
   const onSubmit = async (data: FlightRequestInput) => {
     setIsSubmitting(true)
@@ -80,7 +83,7 @@ export default function FlightRequestForm() {
         setSuccess(false)
         router.refresh()
       }, 2000)
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
     } finally {
       setIsSubmitting(false)
@@ -91,40 +94,47 @@ export default function FlightRequestForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       {/* Request Type */}
       <div>
-        <label htmlFor="request_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="request_type"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Request Type <span className="text-red-500">*</span>
         </label>
         <select
           id="request_type"
           {...form.register('request_type')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
-          <option value="REQUEST_FLIGHT">Request a Flight to Operate</option>
-          <option value="REQUEST_DAY_OFF">Request a Day Off (RDO)</option>
-          <option value="REQUEST_SUBSTITUTE_DAY_OFF">Request Substitute Day Off (SDO)</option>
-          <option value="REQUEST_OTHER_DUTY">Request Other Duty</option>
+          <option value="ADDITIONAL_FLIGHT">Additional Flight</option>
+          <option value="ROUTE_CHANGE">Route Change</option>
+          <option value="SCHEDULE_PREFERENCE">Schedule Preference</option>
+          <option value="TRAINING_FLIGHT">Training Flight</option>
+          <option value="OTHER">Other</option>
         </select>
         {form.formState.errors.request_type && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.request_type.message}</p>
         )}
       </div>
 
-      {/* Request Date */}
+      {/* Flight Date */}
       <div>
-        <label htmlFor="request_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Date <span className="text-red-500">*</span>
+        <label
+          htmlFor="flight_date"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
+          Flight Date <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
-          id="request_date"
-          {...form.register('request_date')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          id="flight_date"
+          {...form.register('flight_date')}
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
-        {form.formState.errors.request_date && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.request_date.message}</p>
+        {form.formState.errors.flight_date && (
+          <p className="mt-1 text-sm text-red-600">{form.formState.errors.flight_date.message}</p>
         )}
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Select the date for your request
+          Select the date for your flight request
         </p>
       </div>
 
@@ -142,7 +152,10 @@ export default function FlightRequestForm() {
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="description"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Description <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -150,19 +163,22 @@ export default function FlightRequestForm() {
           {...form.register('description')}
           rows={3}
           placeholder="Describe your flight request (route, requirements, etc.)..."
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.description && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.description.message}</p>
         )}
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Minimum 10 characters, maximum 2000 characters
+          Minimum 50 characters, maximum 2000 characters
         </p>
       </div>
 
       {/* Reason (Optional) */}
       <div>
-        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="reason"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Reason (Optional)
         </label>
         <textarea
@@ -170,14 +186,12 @@ export default function FlightRequestForm() {
           {...form.register('reason')}
           rows={2}
           placeholder="Additional reasoning for your request..."
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.reason && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.reason.message}</p>
         )}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Maximum 1000 characters
-        </p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Maximum 1000 characters</p>
       </div>
 
       {/* Error Message */}
@@ -200,7 +214,7 @@ export default function FlightRequestForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:hover:bg-primary"
+        className="bg-primary hover:bg-primary/90 focus:ring-primary dark:bg-primary dark:hover:bg-primary w-full rounded-md px-4 py-2 text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Request'}
       </button>
