@@ -6,7 +6,7 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getTask } from '@/lib/services/task-service'
+import { getTaskById } from '@/lib/services/task-service'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, User, CheckCircle, Clock } from 'lucide-react'
 
@@ -25,7 +25,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   }
 
   const { id } = await params
-  const taskResult = await getTask(id)
+  const taskResult = await getTaskById(id)
 
   if (!taskResult.success || !taskResult.data) {
     return (
