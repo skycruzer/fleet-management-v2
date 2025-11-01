@@ -143,13 +143,13 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
             </div>
           )}
 
-          {task.completed_at && (
+          {task.completed_date && (
             <div className="flex items-center gap-3">
               <CheckCircle className="h-5 w-5 text-green-500" />
               <div>
                 <p className="text-sm text-gray-500">Completed</p>
                 <p className="font-medium text-gray-900">
-                  {new Date(task.completed_at).toLocaleDateString('en-US', {
+                  {new Date(task.completed_date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -171,21 +171,28 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           )}
         </div>
 
-        {task.metadata && Object.keys(task.metadata).length > 0 && (
+        {task.tags && Object.keys(task.tags as object).length > 0 && (
           <div className="border-t border-gray-200 bg-gray-50 p-6">
-            <h2 className="mb-3 text-lg font-semibold text-gray-900">Additional Information</h2>
-            <dl className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {Object.entries(task.metadata).map(([key, value]) => (
-                <div key={key}>
-                  <dt className="text-sm font-medium text-gray-500">
-                    {key.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900">
-                    {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <h2 className="mb-3 text-lg font-semibold text-gray-900">Tags</h2>
+            <div className="flex flex-wrap gap-2">
+              {Array.isArray(task.tags)
+                ? (task.tags as string[]).map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
+                    >
+                      {tag}
+                    </span>
+                  ))
+                : Object.entries(task.tags as object).map(([key, value]) => (
+                    <span
+                      key={key}
+                      className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
+                    >
+                      {key}: {String(value)}
+                    </span>
+                  ))}
+            </div>
           </div>
         )}
       </div>
