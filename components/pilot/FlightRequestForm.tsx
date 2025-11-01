@@ -30,11 +30,11 @@ export default function FlightRequestForm() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'ADDITIONAL_FLIGHT' as FlightRequestInput['request_type'],
+      request_type: 'ADDITIONAL_FLIGHT',
       flight_date: '',
       description: '',
       reason: '',
-    },
+    } satisfies Partial<FlightRequestInput>,
   })
 
   // Watch flight_date changes to calculate roster period
