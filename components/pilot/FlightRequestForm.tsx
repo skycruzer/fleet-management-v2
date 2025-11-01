@@ -30,7 +30,7 @@ export default function FlightRequestForm() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'ADDITIONAL_FLIGHT',
+      request_type: 'ADDITIONAL_FLIGHT' as FlightRequestInput['request_type'],
       flight_date: '',
       description: '',
       reason: '',
