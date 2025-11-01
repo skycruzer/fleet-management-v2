@@ -5,6 +5,7 @@
  */
 
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import {
   getUserNotifications,
@@ -12,6 +13,20 @@ import {
 } from '@/lib/services/notification-service'
 import Link from 'next/link'
 import { ArrowLeft, Bell, CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-react'
+
+// Server action for marking all notifications as read
+async function markAllAsReadAction(formData: FormData) {
+  'use server'
+  const userId = formData.get('userId') as string
+
+  if (!userId) {
+    return
+  }
+
+  await markAllNotificationsAsRead(userId)
+  revalidatePath('/dashboard/notifications')
+  redirect('/dashboard/notifications')
+}
 
 export default async function NotificationsPage() {
   const supabase = await createClient()
@@ -73,7 +88,7 @@ export default async function NotificationsPage() {
           </Link>
         </div>
         {unreadNotifications.length > 0 && (
-          <form action={markAllNotificationsAsRead}>
+          <form action={markAllAsReadAction}>
             <input type="hidden" name="userId" value={user.id} />
             <button
               type="submit"
