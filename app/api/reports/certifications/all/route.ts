@@ -38,8 +38,9 @@ export async function POST(request: NextRequest) {
           role
         ),
         check_types (
-          check_name,
-          check_category
+          check_code,
+          check_description,
+          category
         )
       `)
       .order('created_at', { ascending: false })
@@ -68,8 +69,9 @@ export async function POST(request: NextRequest) {
       'Employee Number': cert.pilots?.employee_id || 'N/A',
       'Pilot Name': cert.pilots ? `${cert.pilots.first_name} ${cert.pilots.last_name}` : 'N/A',
       'Rank': cert.pilots?.role || 'N/A',
-      'Check Type': cert.check_types?.check_name || 'N/A',
-      'Check Category': cert.check_types?.check_category || 'N/A',
+      'Check Code': cert.check_types?.check_code || 'N/A',
+      'Check Description': cert.check_types?.check_description || 'N/A',
+      'Category': cert.check_types?.category || 'N/A',
       'Created Date': cert.created_at,
       'Expiry Date': cert.expiry_date,
       'Updated Date': cert.updated_at,
