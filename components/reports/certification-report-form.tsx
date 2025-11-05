@@ -16,9 +16,22 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormDescription,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
@@ -133,7 +146,8 @@ export function CertificationReportForm() {
     if (previewError) {
       toast({
         title: 'Preview Failed',
-        description: previewError instanceof Error ? previewError.message : 'Failed to generate preview',
+        description:
+          previewError instanceof Error ? previewError.message : 'Failed to generate preview',
         variant: 'destructive',
       })
       setShouldFetchPreview(false)
@@ -154,7 +168,9 @@ export function CertificationReportForm() {
       toast({
         title: 'Export Failed',
         description:
-          exportMutation.error instanceof Error ? exportMutation.error.message : 'Failed to export PDF',
+          exportMutation.error instanceof Error
+            ? exportMutation.error.message
+            : 'Failed to export PDF',
         variant: 'destructive',
       })
     }
@@ -249,10 +265,14 @@ export function CertificationReportForm() {
                 <FormItem>
                   <FormLabel>Completion Date From</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} onChange={(e) => {
-                      field.onChange(e)
-                      handleFormChange()
-                    }} />
+                    <Input
+                      type="date"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        handleFormChange()
+                      }}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -264,10 +284,14 @@ export function CertificationReportForm() {
                 <FormItem>
                   <FormLabel>Completion Date To</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} onChange={(e) => {
-                      field.onChange(e)
-                      handleFormChange()
-                    }} />
+                    <Input
+                      type="date"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        handleFormChange()
+                      }}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -284,17 +308,20 @@ export function CertificationReportForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Expiry Threshold (Days)</FormLabel>
-                <Select onValueChange={(value) => {
-                  field.onChange(value)
-                  handleFormChange()
-                }} defaultValue={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value)
+                    handleFormChange()
+                  }}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select expiry threshold" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">All certifications</SelectItem>
+                    <SelectItem value="all">All certifications</SelectItem>
                     <SelectItem value="30">Expiring in 30 days</SelectItem>
                     <SelectItem value="60">Expiring in 60 days</SelectItem>
                     <SelectItem value="90">Expiring in 90 days</SelectItem>
@@ -302,9 +329,7 @@ export function CertificationReportForm() {
                     <SelectItem value="365">Expiring in 1 year</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Filter certifications by days until expiry
-                </FormDescription>
+                <FormDescription>Filter certifications by days until expiry</FormDescription>
               </FormItem>
             )}
           />
@@ -323,7 +348,12 @@ export function CertificationReportForm() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => form.setValue('checkTypes', checkTypes.map(ct => ct.id))}
+                        onClick={() =>
+                          form.setValue(
+                            'checkTypes',
+                            checkTypes.map((ct) => ct.id)
+                          )
+                        }
                         className="h-7 text-xs"
                       >
                         Select All
@@ -348,7 +378,7 @@ export function CertificationReportForm() {
                     <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2 mt-2 max-h-48 overflow-y-auto border rounded-md p-3">
+                  <div className="mt-2 grid max-h-48 grid-cols-2 gap-2 overflow-y-auto rounded-md border p-3">
                     {checkTypes.map((checkType) => (
                       <FormField
                         key={checkType.id}
@@ -358,7 +388,7 @@ export function CertificationReportForm() {
                           return (
                             <FormItem
                               key={checkType.id}
-                              className="flex flex-row items-center space-x-2 space-y-0"
+                              className="flex flex-row items-center space-y-0 space-x-2"
                             >
                               <FormControl>
                                 <Checkbox
@@ -372,7 +402,7 @@ export function CertificationReportForm() {
                                   }}
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm font-normal cursor-pointer">
+                              <FormLabel className="cursor-pointer text-sm font-normal">
                                 {checkType.check_description || checkType.check_code}
                               </FormLabel>
                             </FormItem>
@@ -422,14 +452,17 @@ export function CertificationReportForm() {
                 control={form.control}
                 name="rankCaptain"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={(checked) => {
-                        field.onChange(checked)
-                        handleFormChange()
-                      }} />
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked)
+                          handleFormChange()
+                        }}
+                      />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">Captain</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Captain</FormLabel>
                   </FormItem>
                 )}
               />
@@ -437,14 +470,17 @@ export function CertificationReportForm() {
                 control={form.control}
                 name="rankFirstOfficer"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={(checked) => {
-                        field.onChange(checked)
-                        handleFormChange()
-                      }} />
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked)
+                          handleFormChange()
+                        }}
+                      />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">First Officer</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">First Officer</FormLabel>
                   </FormItem>
                 )}
               />
@@ -453,9 +489,9 @@ export function CertificationReportForm() {
 
           {/* Active Filters Badge */}
           {activeFilterCount > 0 && (
-            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Active filters:</span>
+            <div className="bg-muted/50 flex items-center gap-2 rounded-md p-3">
+              <Filter className="text-muted-foreground h-4 w-4" />
+              <span className="text-muted-foreground text-sm">Active filters:</span>
               <Badge variant="secondary" className="font-normal">
                 {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'}
               </Badge>
@@ -477,15 +513,23 @@ export function CertificationReportForm() {
               onClick={form.handleSubmit(handlePreview)}
               disabled={isLoading}
             >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Eye className="mr-2 h-4 w-4" />
+              )}
               Preview
             </Button>
             <Button type="button" onClick={form.handleSubmit(handleExport)} disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
               Export PDF
             </Button>
             <Button type="button" variant="secondary" onClick={handleEmail} disabled={isLoading}>
-              <Mail className="h-4 w-4 mr-2" />
+              <Mail className="mr-2 h-4 w-4" />
               Email Report
             </Button>
           </div>
