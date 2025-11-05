@@ -12,6 +12,7 @@ import {
   getRiskAnalytics,
 } from '@/lib/services/analytics-service'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/analytics
@@ -75,12 +76,10 @@ export async function GET(_request: NextRequest) {
     })
   } catch (error) {
     console.error('GET /api/analytics error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch analytics',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getAnalytics',
+      endpoint: '/api/analytics'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

@@ -18,20 +18,28 @@ import type { Database } from '@/types/supabase'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
-import { unstable_cache } from 'next/cache'
+import { unstable_cache, revalidatePath, revalidateTag } from 'next/cache'
 
 // Helper to safely revalidate tags (server-side only)
-async function safeRevalidate(tag: string) {
+function safeRevalidate(tag: string) {
   try {
-    // Only run on server
-    if (typeof window === 'undefined') {
-      const { revalidateTag } = await import('next/cache')
-      // Revalidate cache tag to ensure fresh data
-      revalidateTag(tag)
+    // Revalidate the cache tag
+    // Note: revalidateTag has type definition issues in Next.js 16, using path revalidation instead
+    // revalidateTag(tag)
+
+    // Revalidate common paths based on tag
+    if (tag === 'pilots') {
+      revalidatePath('/dashboard/pilots')
+      revalidatePath('/dashboard/admin')
+      revalidatePath('/api/pilots')
+    } else if (tag === 'certifications') {
+      revalidatePath('/dashboard/certifications')
+      revalidatePath('/dashboard/certifications/expiring')
+    } else if (tag === 'dashboard') {
+      revalidatePath('/dashboard')
     }
   } catch (error) {
-    // Silently fail - revalidation is not critical
-    console.warn(`Failed to revalidate tag: ${tag}`, error)
+    console.error('Cache revalidation failed:', error)
   }
 }
 import { getPilotRequirements } from './admin-service'

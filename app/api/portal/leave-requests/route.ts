@@ -29,6 +29,7 @@ import {
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * POST - Submit Leave Request
@@ -84,11 +85,13 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'Leave request submitted successfully',
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Submit leave request API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'submitLeaveRequest',
+      endpoint: '/api/portal/leave-requests'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })
 
@@ -120,11 +123,13 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get leave requests API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getLeaveRequests',
+      endpoint: '/api/portal/leave-requests'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -197,10 +202,12 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
       success: true,
       message: 'Leave request cancelled successfully',
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Cancel leave request API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'cancelLeaveRequest',
+      endpoint: '/api/portal/leave-requests'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

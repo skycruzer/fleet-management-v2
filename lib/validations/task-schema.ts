@@ -47,7 +47,7 @@ export const TaskUpdateSchema = z.object({
     .max(5000, 'Description must be less than 5000 characters')
     .nullable()
     .optional(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED']).optional(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'BLOCKED', 'COMPLETED', 'CANCELLED']).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   assigned_to: z
     .string()
@@ -69,14 +69,14 @@ export type TaskUpdate = z.infer<typeof TaskUpdateSchema>
 
 // Kanban move schema (simplified update for drag-drop)
 export const TaskKanbanMoveSchema = z.object({
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'BLOCKED', 'COMPLETED']),
 })
 
 export type TaskKanbanMove = z.infer<typeof TaskKanbanMoveSchema>
 
 // Task filters schema
 export const TaskFiltersSchema = z.object({
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED']).optional(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'BLOCKED', 'COMPLETED', 'CANCELLED']).optional(),
   assigned_to: z.string().optional(), // Can be UUID or 'me'
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   tags: z.string().optional(), // Comma-separated tags

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/portal/certifications
@@ -64,14 +65,12 @@ export async function GET() {
       success: true,
       data: certifications || [],
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Certifications API error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'An unexpected error occurred',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getPilotCertifications',
+      endpoint: '/api/portal/certifications'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
 import { getTaskById, updateTask, deleteTask } from '@/lib/services/task-service'
 import { TaskUpdateSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import {
+  verifyRequestAuthorization,
+  ResourceType,
+} from '@/lib/middleware/authorization-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/tasks/[id]
@@ -10,9 +19,9 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  *
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const taskId = params.id
+    const { id: taskId } = await params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -33,10 +42,11 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Task GET [id] error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getTaskById',
+      taskId: (await params).id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -62,16 +72,59 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
  * - tags: Updated tags array
  * - checklist_items: Updated checklist items
  *
+ * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function PATCH(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const taskId = params.id
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(_request)
+    if (csrfError) return csrfError
+
+    const supabase = await createClient()
+
+    // Check authentication
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
+    const { id: taskId } = await params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(taskId)) {
       return NextResponse.json({ success: false, error: 'Invalid task ID format' }, { status: 400 })
+    }
+
+    // AUTHORIZATION: Verify user owns this task or is Admin/Manager
+    const authResult = await verifyRequestAuthorization(
+      _request,
+      ResourceType.TASK,
+      taskId
+    )
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { success: false, error: authResult.error },
+        { status: authResult.statusCode }
+      )
     }
 
     const body = await _request.json()
@@ -100,13 +153,19 @@ export async function PATCH(_request: NextRequest, { params }: { params: { id: s
       )
     }
 
+    // Revalidate all affected paths to clear Next.js cache
+    revalidatePath('/dashboard/tasks')
+    revalidatePath(`/dashboard/tasks/${taskId}`)
+    revalidatePath(`/dashboard/tasks/${taskId}/edit`)
+
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Task PATCH error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'updateTask',
+      taskId: (await params).id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -118,16 +177,59 @@ export async function PATCH(_request: NextRequest, { params }: { params: { id: s
  * Query parameters:
  * - deleteSubtasks: Set to 'true' to delete subtasks as well (default: false)
  *
+ * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const taskId = params.id
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(_request)
+    if (csrfError) return csrfError
+
+    const supabase = await createClient()
+
+    // Check authentication
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
+    const { id: taskId } = await params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(taskId)) {
       return NextResponse.json({ success: false, error: 'Invalid task ID format' }, { status: 400 })
+    }
+
+    // AUTHORIZATION: Verify user owns this task or is Admin/Manager
+    const authResult = await verifyRequestAuthorization(
+      _request,
+      ResourceType.TASK,
+      taskId
+    )
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { success: false, error: authResult.error },
+        { status: authResult.statusCode }
+      )
     }
 
     // Check if deleteSubtasks flag is set
@@ -143,15 +245,19 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
       )
     }
 
+    // Revalidate tasks list after deletion
+    revalidatePath('/dashboard/tasks')
+
     return NextResponse.json(
       { success: true, message: 'Task deleted successfully' },
       { status: 200 }
     )
   } catch (error) {
     console.error('Task DELETE error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'deleteTask',
+      taskId: (await params).id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

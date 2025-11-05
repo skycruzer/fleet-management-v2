@@ -21,6 +21,7 @@ import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/leave-requests
@@ -69,13 +70,11 @@ export async function GET(_request: NextRequest) {
     })
   } catch (error) {
     console.error('GET /api/leave-requests error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch leave requests',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getAllLeaveRequests',
+      endpoint: '/api/leave-requests'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -156,12 +155,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create leave request',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'createLeaveRequest',
+      endpoint: '/api/leave-requests'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

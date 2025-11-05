@@ -22,9 +22,9 @@ export const DisciplinaryMatterSchema = z.object({
     .string()
     .min(10, 'Description must be at least 10 characters')
     .max(5000, 'Description must be less than 5000 characters'),
-  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], {
+  severity: z.enum(['low', 'medium', 'high', 'critical'], {
     message: 'Invalid severity level',
-  }).default('MEDIUM'),
+  }).default('medium'),
 })
 
 export type DisciplinaryMatterInput = z.infer<typeof DisciplinaryMatterSchema>
@@ -42,10 +42,10 @@ export const DisciplinaryMatterUpdateSchema = z.object({
     .min(10, 'Description must be at least 10 characters')
     .max(5000, 'Description must be less than 5000 characters')
     .optional(),
-  status: z.enum(['OPEN', 'UNDER_INVESTIGATION', 'RESOLVED', 'CLOSED'], {
+  status: z.enum(['open', 'under_review', 'resolved', 'closed'], {
     message: 'Invalid status',
   }).optional(),
-  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+  severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   resolution: z
     .string()
     .min(10, 'Resolution must be at least 10 characters')
@@ -53,14 +53,14 @@ export const DisciplinaryMatterUpdateSchema = z.object({
     .optional(),
 }).refine(
   (data) => {
-    // If status is RESOLVED or CLOSED, resolution is required
-    if ((data.status === 'RESOLVED' || data.status === 'CLOSED') && !data.resolution) {
+    // If status is resolved or closed, resolution is required
+    if ((data.status === 'resolved' || data.status === 'closed') && !data.resolution) {
       return false
     }
     return true
   },
   {
-    message: 'Resolution is required when matter is marked as RESOLVED or CLOSED',
+    message: 'Resolution is required when matter is marked as resolved or closed',
     path: ['resolution'],
   }
 )
@@ -97,8 +97,8 @@ export type DisciplinaryActionInput = z.infer<typeof DisciplinaryActionSchema>
 // Disciplinary matter filters schema
 export const DisciplinaryMatterFiltersSchema = z.object({
   pilot_id: z.string().uuid().optional(),
-  status: z.enum(['OPEN', 'UNDER_INVESTIGATION', 'RESOLVED', 'CLOSED']).optional(),
-  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+  status: z.enum(['open', 'under_review', 'resolved', 'closed']).optional(),
+  severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   matter_type: z.enum(['investigation', 'verbal_warning', 'written_warning', 'suspension', 'other']).optional(),
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().max(100).default(20),

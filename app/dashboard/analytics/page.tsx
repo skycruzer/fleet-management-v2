@@ -32,6 +32,20 @@ interface AnalyticsData {
     retirementPlanning: {
       retiringIn2Years: number
       retiringIn5Years: number
+      pilotsRetiringIn2Years: Array<{
+        id: string
+        name: string
+        rank: string
+        retirementDate: string
+        yearsToRetirement: number
+      }>
+      pilotsRetiringIn5Years: Array<{
+        id: string
+        name: string
+        rank: string
+        retirementDate: string
+        yearsToRetirement: number
+      }>
     }
   }
   certification: {
@@ -315,24 +329,64 @@ export default function AnalyticsPage() {
           <div className="space-y-4">
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1">
                   <div className="text-muted-foreground text-sm">Retiring in 2 Years</div>
                   <div className="mt-1 text-2xl font-bold text-yellow-900">
                     {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
                   </div>
+                  {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.map((pilot) => (
+                        <div
+                          key={pilot.id}
+                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                        >
+                          <span className="font-medium text-yellow-900">
+                            {pilot.rank} {pilot.name}
+                          </span>
+                          <span className="text-xs text-yellow-700">
+                            {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <AlertTriangle className="h-8 w-8 text-red-600" aria-hidden="true" />
+                <AlertTriangle className="h-8 w-8 flex-shrink-0 text-red-600" aria-hidden="true" />
               </div>
             </div>
             <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-muted-foreground text-sm">Retiring in 5 Years</div>
+                <div className="flex-1">
+                  <div className="text-muted-foreground text-sm">Retiring in 3-5 Years</div>
                   <div className="mt-1 text-2xl font-bold text-orange-900">
-                    {analytics.pilot.retirementPlanning.retiringIn5Years} pilots
+                    {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length} pilots
                   </div>
+                  {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.map((pilot) => (
+                        <div
+                          key={pilot.id}
+                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                        >
+                          <span className="font-medium text-orange-900">
+                            {pilot.rank} {pilot.name}
+                          </span>
+                          <span className="text-xs text-orange-700">
+                            {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <Calendar className="h-8 w-8 text-yellow-600" aria-hidden="true" />
+                <Calendar className="h-8 w-8 flex-shrink-0 text-yellow-600" aria-hidden="true" />
               </div>
             </div>
           </div>

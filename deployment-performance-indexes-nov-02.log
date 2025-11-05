@@ -1,0 +1,12 @@
+Vercel CLI 48.6.7
+Retrieving project…
+Deploying rondeaumaurice-5086s-projects/fleet-management-v2
+Uploading [--------------------] (0.0B/16.7KB)
+Uploading [=============-------] (11.6KB/16.7KB)
+Uploading [===============-----] (13.3KB/16.7KB)
+Uploading [====================] (16.7KB/16.7KB)
+Inspect: https://vercel.com/rondeaumaurice-5086s-projects/fleet-management-v2/C18J9sJXw86n45gCUqYDFsUYFBej [35s]
+Production: https://fleet-management-v2-pzftlm0ur-rondeaumaurice-5086s-projects.vercel.app [35s]
+https://fleet-management-v2-pzftlm0ur-rondeaumaurice-5086s-projects.vercel.appQueued
+Building
+Error: The file "/vercel/path0/.next/routes-manifest.json" couldn't be found. This is often caused by a misconfiguration in your project.

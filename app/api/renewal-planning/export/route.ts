@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -121,13 +122,10 @@ export async function GET(request: Request) {
     })
   } catch (error: any) {
     console.error('Error exporting renewal plans:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to export renewal plans',
-        details: error.message,
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'exportRenewalPlansToCSV',
+      endpoint: '/api/renewal-planning/export'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

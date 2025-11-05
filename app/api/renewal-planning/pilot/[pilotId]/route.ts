@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getPilotRenewalPlan } from '@/lib/services/certification-renewal-planning-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function GET(
   _request: NextRequest,
@@ -60,13 +61,12 @@ export async function GET(
     })
   } catch (error: any) {
     console.error('Error fetching pilot renewal plan:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch pilot renewal plan',
-        details: error.message,
-      },
-      { status: 500 }
-    )
+    const { pilotId } = await params
+    const sanitized = sanitizeError(error, {
+      operation: 'getPilotRenewalPlan',
+      resourceId: pilotId,
+      endpoint: '/api/renewal-planning/pilot/[pilotId]'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

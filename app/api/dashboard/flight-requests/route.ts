@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllFlightRequests, getFlightRequestStats } from '@/lib/services/flight-request-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/dashboard/flight-requests
@@ -75,9 +76,10 @@ export async function GET(_request: NextRequest) {
     )
   } catch (error) {
     console.error('Admin flight-requests GET error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.FLIGHT.FETCH_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getAllFlightRequests',
+      endpoint: '/api/dashboard/flight-requests'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

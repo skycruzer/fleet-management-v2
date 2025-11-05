@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -139,9 +140,10 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Export error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to export analytics data' },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'exportAnalytics',
+      endpoint: '/api/analytics/export'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * POST /api/pilot/logout
@@ -47,12 +48,10 @@ export async function POST(_request: NextRequest) {
     )
   } catch (error) {
     console.error('Pilot logout error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: ERROR_MESSAGES.NETWORK.SERVER_ERROR.message,
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'pilotLogout',
+      endpoint: '/api/pilot/logout'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

@@ -19,6 +19,7 @@ import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/pilots/[id]
@@ -63,14 +64,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     })
   } catch (error: any) {
     console.error('Error fetching pilot:', error)
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Failed to fetch pilot',
-      },
-      { status: 500 }
-    )
+    const { id: pilotId } = await params
+    const sanitized = sanitizeError(error, {
+      operation: 'getPilotById',
+      resourceId: pilotId,
+      endpoint: '/api/pilots/[id]'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -142,19 +142,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
   } catch (error: any) {
     console.error('❌ [API] Error updating pilot:', error)
-
-    // Handle specific error cases
-    if (error.message?.includes('not found')) {
-      return NextResponse.json({ success: false, error: 'Pilot not found' }, { status: 404 })
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Failed to update pilot',
-      },
-      { status: 500 }
-    )
+    const { id: pilotId } = await params
+    const sanitized = sanitizeError(error, {
+      operation: 'updatePilot',
+      resourceId: pilotId,
+      endpoint: '/api/pilots/[id]'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -211,18 +205,12 @@ export async function DELETE(
     })
   } catch (error: any) {
     console.error('Error deleting pilot:', error)
-
-    // Handle specific error cases
-    if (error.message?.includes('not found')) {
-      return NextResponse.json({ success: false, error: 'Pilot not found' }, { status: 404 })
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Failed to delete pilot',
-      },
-      { status: 500 }
-    )
+    const { id: pilotId } = await params
+    const sanitized = sanitizeError(error, {
+      operation: 'deletePilot',
+      resourceId: pilotId,
+      endpoint: '/api/pilots/[id]'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

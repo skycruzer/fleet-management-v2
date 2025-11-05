@@ -9,7 +9,7 @@ import { z } from 'zod'
 // Flight request submission schema
 export const FlightRequestSchema = z.object({
   request_type: z.enum(
-    ['ADDITIONAL_FLIGHT', 'ROUTE_CHANGE', 'SCHEDULE_PREFERENCE', 'TRAINING_FLIGHT', 'OTHER'],
+    ['FLIGHT_REQUEST', 'RDO', 'SDO', 'OFFICE_DAY'],
     {
       message: 'Request type is required',
     }
@@ -29,7 +29,7 @@ export const FlightRequestSchema = z.object({
   roster_period: z.string().optional(), // Auto-calculated, optional in submission
   description: z
     .string()
-    .min(50, 'Description must be at least 50 characters')
+    .min(10, 'Description must be at least 10 characters')
     .max(2000, 'Description must be less than 2000 characters'),
   reason: z.string().max(1000, 'Reason must be less than 1000 characters').optional(),
 })

@@ -2,10 +2,15 @@
  * Notifications API
  * Author: Maurice Rondeau
  * Endpoints for fetching and managing user notifications
+ *
+ * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
 import { getUserNotifications, markNotificationAsRead } from '@/lib/services/notification-service'
 
 export async function GET() {
@@ -36,8 +41,12 @@ export async function GET() {
   }
 }
 
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
   try {
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const supabase = await createClient()
     const {
       data: { user },
@@ -45,6 +54,15 @@ export async function PATCH(request: Request) {
 
     if (!user) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
     }
 
     const body = await request.json()

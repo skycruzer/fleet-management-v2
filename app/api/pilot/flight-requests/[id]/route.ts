@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
+import { verifyPilotSession } from '@/lib/services/pilot-portal-service'
 import { cancelPilotFlightRequest } from '@/lib/services/pilot-flight-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * DELETE /api/pilot/flight-requests/[id]
@@ -8,10 +12,34 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  * Cancel a pending flight request.
  * Only allows canceling PENDING requests owned by the authenticated pilot.
  *
+ * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  * @spec 001-missing-core-features (US3, T057)
  */
 export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(_request)
+    if (csrfError) return csrfError
+
+    // SECURITY: Verify pilot session (pilot portal uses custom auth)
+    const pilotId = await verifyPilotSession(_request)
+    if (!pilotId) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(pilotId)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const requestId = params.id
 
     // Validate UUID format
@@ -43,9 +71,10 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     )
   } catch (error) {
     console.error('Pilot flight-requests DELETE error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.FLIGHT.DELETE_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'cancelPilotFlightRequest',
+      requestId: params.id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

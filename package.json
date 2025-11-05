@@ -61,6 +61,7 @@
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.6",
     "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "csrf": "^3.1.0",

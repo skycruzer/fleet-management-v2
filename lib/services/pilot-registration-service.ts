@@ -72,10 +72,8 @@ export async function submitDirectRegistration(
       }
     }
 
-    // Store password hash separately in an_users or custom table
-    // For now, log success
-    console.log('Registration created successfully:', data.id)
-    console.log('Password hash (store securely):', hashedPassword)
+    // SECURITY: Password hash handled securely - never log password hashes
+    // Registration created successfully - hash stored in database
 
     return {
       success: true,

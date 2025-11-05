@@ -20,6 +20,7 @@ import { z } from 'zod'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const logger = createSafeLogger('ForgotPasswordAPI')
 
@@ -68,14 +69,12 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       },
       { status: 200 }
     )
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Forgot password API error', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to process password reset request. Please try again.',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'forgotPassword',
+      endpoint: '/api/portal/forgot-password'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

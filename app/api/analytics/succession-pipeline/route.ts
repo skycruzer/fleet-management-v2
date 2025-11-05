@@ -14,6 +14,7 @@ import {
 } from '@/lib/services/succession-planning-service'
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function GET(request: NextRequest) {
   try {
@@ -72,9 +73,10 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching succession pipeline:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch succession pipeline data' },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getSuccessionPipeline',
+      endpoint: '/api/analytics/succession-pipeline'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

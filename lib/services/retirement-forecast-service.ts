@@ -66,10 +66,6 @@ export async function getRetirementForecast(
   }
 
   const today = new Date()
-  const twoYearsFromNow = new Date(today)
-  twoYearsFromNow.setFullYear(today.getFullYear() + 2)
-  const fiveYearsFromNow = new Date(today)
-  fiveYearsFromNow.setFullYear(today.getFullYear() + 5)
 
   const twoYearPilots: RetirementForecast['twoYears']['pilots'] = []
   const fiveYearPilots: RetirementForecast['fiveYears']['pilots'] = []
@@ -81,8 +77,12 @@ export async function getRetirementForecast(
     const retirementDate = new Date(birthDate)
     retirementDate.setFullYear(birthDate.getFullYear() + retirementAge)
 
-    // Already retired
-    if (retirementDate <= today) return
+    // Calculate years to retirement with precise decimal value (no rounding)
+    const yearsToRetirement =
+      (retirementDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+
+    // Already retired (negative years)
+    if (yearsToRetirement < 0) return
 
     const monthsUntilRetirement = Math.floor(
       (retirementDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24 * 30.44)
@@ -96,13 +96,14 @@ export async function getRetirementForecast(
       monthsUntilRetirement,
     }
 
-    // Retiring within 2 years
-    if (retirementDate <= twoYearsFromNow) {
+    // Retiring within 2 years (STRICTLY less than 2.0 years)
+    // Example: 2.86 years is NOT included (correctly excluded)
+    if (yearsToRetirement >= 0 && yearsToRetirement < 2.0) {
       twoYearPilots.push(pilotData)
     }
 
-    // Retiring within 5 years
-    if (retirementDate <= fiveYearsFromNow) {
+    // Retiring within 5 years (STRICTLY less than 5.0 years)
+    if (yearsToRetirement >= 0 && yearsToRetirement < 5.0) {
       fiveYearPilots.push(pilotData)
     }
   })

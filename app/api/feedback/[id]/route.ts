@@ -6,15 +6,25 @@
  * @route GET /api/feedback/[id] - Get feedback details
  * @route PUT /api/feedback/[id] - Update feedback (status or add response)
  * @auth Admin Supabase Authentication
+ *
+ * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
 import {
   getFeedbackById,
   updateFeedbackStatus,
   addAdminResponse,
 } from '@/lib/services/feedback-service'
+import {
+  verifyRequestAuthorization,
+  ResourceType,
+} from '@/lib/middleware/authorization-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 interface RouteContext {
   params: Promise<{
@@ -61,10 +71,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
     })
   } catch (error) {
     console.error('❌ [API] Error in GET /api/feedback/[id]:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getFeedbackById',
+      feedbackId: (await context.params).id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -79,6 +90,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const { id } = await context.params
     console.log(`🌐 [API PUT /api/feedback/${id}] Request received`)
 
@@ -93,6 +108,29 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
+    // AUTHORIZATION: Verify user can update this feedback (Admin/Manager only)
+    const authResult = await verifyRequestAuthorization(
+      request,
+      ResourceType.FEEDBACK,
+      id
+    )
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { success: false, error: authResult.error },
+        { status: authResult.statusCode }
       )
     }
 
@@ -148,9 +186,10 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     )
   } catch (error) {
     console.error('❌ [API] Error in PUT /api/feedback/[id]:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'updateFeedback',
+      feedbackId: (await context.params).id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

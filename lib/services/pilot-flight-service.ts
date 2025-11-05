@@ -22,7 +22,7 @@ export interface FlightRequest {
   id: string
   pilot_id: string
   pilot_user_id?: string
-  request_type: 'ADDITIONAL_FLIGHT' | 'ROUTE_CHANGE' | 'SCHEDULE_SWAP' | 'OTHER'
+  request_type: 'FLIGHT_REQUEST' | 'RDO' | 'SDO' | 'OFFICE_DAY'
   flight_date: string
   description: string
   reason?: string | null
@@ -68,7 +68,7 @@ export async function submitPilotFlightRequest(
       pilot_id: pilot.pilot_id!,
       pilot_user_id: pilot.id,
       request_type: request.request_type,
-      flight_date: request.request_date,
+      flight_date: request.flight_date,
       description: request.description,
       reason: request.reason || null,
       status: 'PENDING' as const,

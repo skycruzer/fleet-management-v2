@@ -31,12 +31,12 @@ interface TaskKanbanProps {
   tasks: TaskWithRelations[]
 }
 
-type KanbanStatus = 'TODO' | 'IN_PROGRESS' | 'DONE'
+type KanbanStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED'
 
 const KANBAN_COLUMNS: { status: KanbanStatus; title: string; color: string }[] = [
   { status: 'TODO', title: 'To Do', color: 'bg-gray-100 dark:bg-gray-800' },
   { status: 'IN_PROGRESS', title: 'In Progress', color: 'bg-blue-100 dark:bg-blue-900/20' },
-  { status: 'DONE', title: 'Done', color: 'bg-green-100 dark:bg-green-900/20' },
+  { status: 'COMPLETED', title: 'Completed', color: 'bg-green-100 dark:bg-green-900/20' },
 ]
 
 // Sortable Task Card wrapper
@@ -62,9 +62,9 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
   const [activeTask, setActiveTask] = useState<TaskWithRelations | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
 
-  // Filter tasks by Kanban-compatible statuses (exclude CANCELLED)
+  // Filter tasks by Kanban-compatible statuses (exclude CANCELLED and BLOCKED)
   const kanbanTasks = tasks.filter((t) =>
-    ['TODO', 'IN_PROGRESS', 'DONE'].includes(t.status)
+    ['TODO', 'IN_PROGRESS', 'COMPLETED'].includes(t.status)
   ) as (TaskWithRelations & { status: KanbanStatus })[]
 
   // Group tasks by status

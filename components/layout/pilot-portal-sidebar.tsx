@@ -112,21 +112,21 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
   return (
     <>
       {/* Mobile Header with Hamburger */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-cyan-200 bg-white/95 px-4 backdrop-blur-sm md:hidden">
+      <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 px-4 backdrop-blur-sm md:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
             <Plane className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-cyan-900">Pilot Portal</h1>
-            <p className="text-xs text-cyan-700">Crew Access</p>
+            <h1 className="text-lg font-bold text-foreground">Pilot Portal</h1>
+            <p className="text-xs text-muted-foreground">Crew Access</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <NotificationBell />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-cyan-900 hover:bg-cyan-100"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground hover:bg-slate-100 dark:hover:bg-slate-800"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -155,16 +155,16 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
           x: isDesktop ? 0 : (mobileMenuOpen ? 0 : -280),
         }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="fixed left-0 top-0 z-50 h-screen w-64 border-r border-cyan-200 bg-gradient-to-b from-cyan-50 to-blue-50 md:z-40"
+        className="fixed left-0 top-0 z-50 h-screen w-64 border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 md:z-40"
       >
       {/* Logo Header */}
-      <div className="flex h-16 items-center gap-3 border-b border-cyan-200 bg-white/50 px-6 backdrop-blur-sm">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-md">
+      <div className="flex h-16 items-center gap-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
           <Plane className="h-5 w-5 text-white" />
         </div>
         <div className="flex-1">
-          <h1 className="text-lg font-bold text-cyan-900">Pilot Portal</h1>
-          <p className="text-xs text-cyan-700">Crew Access</p>
+          <h1 className="text-lg font-bold text-foreground">Pilot Portal</h1>
+          <p className="text-xs text-muted-foreground">Crew Access</p>
         </div>
         {/* Notification Bell */}
         <NotificationBell />
@@ -172,19 +172,19 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
 
       {/* Pilot Info */}
       {(pilotName || pilotRank) && (
-        <div className="border-b border-cyan-200 bg-white/30 p-4">
+        <div className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 shadow-lg">
-              <UserCircle className="h-7 w-7 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+              <UserCircle className="h-7 w-7 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-cyan-900">{pilotRank || 'Pilot'}</p>
-              <p className="text-sm text-cyan-700">{pilotName || 'Welcome'}</p>
+              <p className="font-semibold text-foreground">{pilotRank || 'Pilot'}</p>
+              <p className="text-sm text-muted-foreground">{pilotName || 'Welcome'}</p>
               {employeeId && (
-                <p className="text-xs text-cyan-600 mt-1">ID: {employeeId}</p>
+                <p className="text-xs text-muted-foreground mt-1">ID: {employeeId}</p>
               )}
               {email && (
-                <p className="text-xs text-cyan-600 truncate">{email}</p>
+                <p className="text-xs text-muted-foreground truncate">{email}</p>
               )}
             </div>
           </div>
@@ -196,37 +196,26 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
         <div className="space-y-1">
           {/* Dashboard Link */}
           <Link href="/portal/dashboard" onClick={closeMobileMenu}>
-            <motion.div
-              whileHover={{ x: 4 }}
-              whileTap={{ scale: 0.98 }}
+            <div
               className={cn(
-                'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all',
+                'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                 isActive('/portal/dashboard')
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
-                  : 'text-cyan-900 hover:bg-white/50 hover:shadow-sm'
+                  ? 'bg-primary-600 text-white'
+                  : 'text-foreground hover:bg-slate-100 dark:hover:bg-slate-800'
               )}
             >
-              {/* Active indicator */}
-              {isActive('/portal/dashboard') && (
-                <motion.div
-                  layoutId="pilotActiveIndicator"
-                  className="absolute left-0 h-10 w-1 rounded-r-full bg-cyan-700"
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                />
-              )}
-
               <Cloud
                 className={cn(
                   'h-5 w-5 transition-colors',
-                  isActive('/portal/dashboard') ? 'text-white' : 'text-cyan-600 group-hover:text-cyan-700'
+                  isActive('/portal/dashboard') ? 'text-white' : 'text-muted-foreground group-hover:text-foreground'
                 )}
               />
 
               <div className="flex-1">
                 <div className="font-semibold">Dashboard</div>
                 <div className={cn(
-                  "text-xs",
-                  isActive('/portal/dashboard') ? 'text-cyan-100' : 'text-cyan-600'
+                  "text-sm",
+                  isActive('/portal/dashboard') ? 'text-white/80' : 'text-muted-foreground'
                 )}>
                   Home & overview
                 </div>
@@ -239,11 +228,11 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
                   isActive('/portal/dashboard') && 'opacity-100'
                 )}
               />
-            </motion.div>
+            </div>
           </Link>
 
           {/* Divider */}
-          <div className="my-3 border-t border-cyan-200"></div>
+          <div className="my-3 border-t border-slate-200 dark:border-slate-700"></div>
 
           {/* Navigation Items */}
           {navigationItems.map((item) => {
@@ -252,37 +241,26 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
 
             return (
               <Link key={item.href} href={item.href} onClick={closeMobileMenu}>
-                <motion.div
-                  whileHover={{ x: 4 }}
-                  whileTap={{ scale: 0.98 }}
+                <div
                   className={cn(
-                    'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-all',
+                    'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                     active
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
-                      : 'text-cyan-900 hover:bg-white/50 hover:shadow-sm'
+                      ? 'bg-primary-600 text-white'
+                      : 'text-foreground hover:bg-slate-100 dark:hover:bg-slate-800'
                   )}
                 >
-                  {/* Active indicator */}
-                  {active && (
-                    <motion.div
-                      layoutId="pilotActiveIndicator"
-                      className="absolute left-0 h-10 w-1 rounded-r-full bg-cyan-700"
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    />
-                  )}
-
                   <Icon
                     className={cn(
                       'h-5 w-5 transition-colors',
-                      active ? 'text-white' : 'text-cyan-600 group-hover:text-cyan-700'
+                      active ? 'text-white' : 'text-muted-foreground group-hover:text-foreground'
                     )}
                   />
 
                   <div className="flex-1">
                     <div className="font-semibold">{item.title}</div>
                     <div className={cn(
-                      "text-xs",
-                      active ? 'text-cyan-100' : 'text-cyan-600'
+                      "text-sm",
+                      active ? 'text-white/80' : 'text-muted-foreground'
                     )}>
                       {item.description}
                     </div>
@@ -295,7 +273,7 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
                       active && 'opacity-100'
                     )}
                   />
-                </motion.div>
+                </div>
               </Link>
             )
           })}
@@ -303,16 +281,14 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
       </nav>
 
       {/* Bottom Section - Logout */}
-      <div className="border-t border-cyan-200 bg-white/30 p-4">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+      <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+        <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-lg bg-gradient-to-r from-red-500 to-red-600 px-4 py-3 text-sm font-medium text-white shadow-lg transition-all hover:from-red-600 hover:to-red-700 hover:shadow-xl"
+          className="flex w-full items-center gap-3 rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700"
         >
           <LogOut className="h-5 w-5" />
           <span>Logout</span>
-        </motion.button>
+        </button>
       </div>
     </motion.aside>
   </>

@@ -5,6 +5,7 @@ import {
   getCurrentPilotLeaveRequests,
 } from '@/lib/services/pilot-leave-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/pilot/leave
@@ -26,10 +27,11 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Pilot leave GET error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.LEAVE.FETCH_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getCurrentPilotLeaveRequests',
+      endpoint: '/api/pilot/leave'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -77,9 +79,10 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json({ success: true, data: result.data }, { status: 201 })
   } catch (error) {
     console.error('Pilot leave POST error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.LEAVE.CREATE_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'submitPilotLeaveRequest',
+      endpoint: '/api/pilot/leave'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

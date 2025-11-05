@@ -17,6 +17,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/pilots
@@ -54,9 +55,11 @@ export async function GET(_request: NextRequest) {
     })
   } catch (error) {
     console.error('GET /api/pilots error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.FETCH_FAILED, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getPilots',
+      endpoint: '/api/pilots'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -115,8 +118,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.CREATE_FAILED, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'createPilot',
+      endpoint: '/api/pilots'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

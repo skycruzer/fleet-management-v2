@@ -13,15 +13,20 @@
  * - After critical data corrections
  * - During testing/debugging
  *
- * @version 1.0.0
+ * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  * @since 2025-10-27
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { redisCacheService } from '@/lib/services/redis-cache-service'
 import { refreshDashboardMetrics } from '@/lib/services/dashboard-service-v4'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * POST /api/cache/invalidate
@@ -33,8 +38,12 @@ import { refreshDashboardMetrics } from '@/lib/services/dashboard-service-v4'
  *   "pattern": "fleet:*"        // Optional: pattern to match
  * }
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const supabase = await createClient()
 
     // Verify user is authenticated and is admin
@@ -47,15 +56,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is admin
-    const { data: userData } = await supabase
-      .from('an_users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
 
-    if (!userData || userData.role !== 'Admin') {
-      return NextResponse.json({ success: false, error: 'Forbidden - Admin only' }, { status: 403 })
+    // AUTHORIZATION: Admin-only endpoint
+    const roleCheck = await requireRole(request, [UserRole.ADMIN])
+    if (!roleCheck.authorized) {
+      return NextResponse.json(
+        { success: false, error: roleCheck.error },
+        { status: roleCheck.statusCode }
+      )
     }
 
     const body = await request.json()
@@ -108,13 +124,11 @@ export async function POST(request: Request) {
       },
     })
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'invalidateCache',
+      method: 'POST'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -122,8 +136,12 @@ export async function POST(request: Request) {
  * DELETE /api/cache/invalidate
  * Flush ALL cache (dangerous - use sparingly!)
  */
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const supabase = await createClient()
 
     // Verify user is authenticated and is admin
@@ -136,15 +154,22 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user is admin
-    const { data: userData } = await supabase
-      .from('an_users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+    // SECURITY: Rate limiting (strict for destructive cache flush)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
 
-    if (!userData || userData.role !== 'Admin') {
-      return NextResponse.json({ success: false, error: 'Forbidden - Admin only' }, { status: 403 })
+    // AUTHORIZATION: Admin-only endpoint (destructive operation)
+    const roleCheck = await requireRole(request, [UserRole.ADMIN])
+    if (!roleCheck.authorized) {
+      return NextResponse.json(
+        { success: false, error: roleCheck.error },
+        { status: roleCheck.statusCode }
+      )
     }
 
     // Flush all cache
@@ -174,12 +199,10 @@ export async function DELETE(request: Request) {
       },
     })
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'flushAllCache',
+      method: 'DELETE'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

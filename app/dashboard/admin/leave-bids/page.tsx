@@ -9,6 +9,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { FileText } from 'lucide-react'
+import Link from 'next/link'
 import { LeaveBidReviewTable } from '@/components/admin/leave-bid-review-table'
 import { LeaveBidAnnualCalendar } from '@/components/admin/leave-bid-annual-calendar'
 
@@ -62,21 +65,54 @@ export default async function AdminLeaveBidsPage() {
     console.error('Error fetching leave bids:', error)
   }
 
-  const bids = (leaveBids || []) as any[]
+  // Transform bids to add bid_year derived from leave_bid_options start_date
+  const bids = (leaveBids || []).map((bid: any) => {
+    // Extract year from first leave bid option start_date
+    let bidYear = new Date().getFullYear() + 1 // Default to next year
+    if (bid.leave_bid_options && bid.leave_bid_options.length > 0) {
+      const firstOption = bid.leave_bid_options[0]
+      if (firstOption.start_date) {
+        bidYear = new Date(firstOption.start_date).getFullYear()
+      }
+    }
+    return {
+      ...bid,
+      bid_year: bidYear
+    }
+  })
 
   // Separate by status
   const pendingBids = bids.filter((b) => b.status === 'PENDING' || b.status === 'PROCESSING')
   const approvedBids = bids.filter((b) => b.status === 'APPROVED')
   const rejectedBids = bids.filter((b) => b.status === 'REJECTED')
 
+  // Calculate year from bids
+  const defaultYear = new Date().getFullYear() + 1
+  const bidYear = bids.length > 0 ? bids[0].bid_year : defaultYear
+
   return (
     <div className="container mx-auto space-y-6 p-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Leave Bid Management</h1>
-        <p className="mt-1 text-muted-foreground">
-          Review and approve annual leave bids from pilots
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Leave Bid Management</h1>
+          <p className="mt-1 text-muted-foreground">
+            Review and approve annual leave bids from pilots
+          </p>
+        </div>
+
+        {/* PDF Export Button */}
+        {bids.length > 0 && (
+          <Link
+            href={`/api/leave-bids/export-pdf?year=${bidYear}`}
+            target="_blank"
+          >
+            <Button variant="outline" size="sm">
+              <FileText className="mr-2 h-4 w-4" />
+              Export PDF
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Statistics */}

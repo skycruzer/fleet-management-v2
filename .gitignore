@@ -36,6 +36,16 @@ yarn-error.log*
 .env.production.local
 .env.production
 .env*.production
+.env*.tmp
+.env*.backup
+*.env.tmp
+*.env.backup
+
+# Test environment files (NEVER commit test credentials)
+.env.test
+.env.test.local
+playwright/.env
+playwright/.env.local
 
 # vercel
 .vercel

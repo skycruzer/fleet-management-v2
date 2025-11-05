@@ -23,6 +23,7 @@ import { revalidatePath } from 'next/cache'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 type RouteContext = {
   params: Promise<{ id: string }>
@@ -65,13 +66,13 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     })
   } catch (error) {
     console.error('GET /api/certifications/[id] error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch certification',
-      },
-      { status: 500 }
-    )
+    const { id } = await context.params
+    const sanitized = sanitizeError(error, {
+      operation: 'getCertificationById',
+      resourceId: id,
+      endpoint: '/api/certifications/[id]'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -175,13 +176,13 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       )
     }
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update certification',
-      },
-      { status: 500 }
-    )
+    const { id } = await context.params
+    const sanitized = sanitizeError(error, {
+      operation: 'updateCertification',
+      resourceId: id,
+      endpoint: '/api/certifications/[id]'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -229,12 +230,12 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     })
   } catch (error) {
     console.error('DELETE /api/certifications/[id] error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete certification',
-      },
-      { status: 500 }
-    )
+    const { id } = await context.params
+    const sanitized = sanitizeError(error, {
+      operation: 'deleteCertification',
+      resourceId: id,
+      endpoint: '/api/certifications/[id]'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

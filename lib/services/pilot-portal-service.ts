@@ -18,6 +18,7 @@ import {
   PilotRegistrationInput,
   RegistrationApprovalInput,
 } from '@/lib/validations/pilot-portal-schema'
+import { createPilotSession, validatePilotSession, revokePilotSession, getCurrentPilotSession } from './session-service'
 
 // Type aliases for cleaner code
 type PilotRegistration = Database['public']['Tables']['pilot_users']['Row']
@@ -73,19 +74,19 @@ interface PortalStats {
  * Pilot login with email and password
  *
  * @param credentials - Login credentials
+ * @param metadata - Optional request metadata (IP address, user agent)
  * @returns Service response with user session
  */
 export async function pilotLogin(
-  credentials: PilotLoginInput
+  credentials: PilotLoginInput,
+  metadata?: { ipAddress?: string; userAgent?: string }
 ): Promise<ServiceResponse<{ user: any; session: any }>> {
   try {
-    console.log('🚀 pilotLogin called with email:', credentials.email)
+    // SECURITY: Authentication attempt (email not logged for privacy)
     const supabase = await createClient()
-    console.log('✅ Supabase client created')
     const bcrypt = require('bcrypt')
 
     // Find pilot user by email
-    console.log('🔍 Querying pilot_users table for email:', credentials.email)
     const { data: pilotUser, error: pilotError } = await supabase
       .from('pilot_users')
       .select('id, email, password_hash, auth_user_id, registration_approved, first_name, last_name, rank')
@@ -100,20 +101,11 @@ export async function pilotLogin(
     })
 
     if (pilotError || !pilotUser) {
-      console.log('❌ Pilot user not found or error occurred:', pilotError?.message)
       return {
         success: false,
         error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
       }
     }
-
-    // DEBUG: Log pilot user data
-    console.log('🔍 DEBUG: Pilot user found:', {
-      email: pilotUser.email,
-      has_password_hash: !!pilotUser.password_hash,
-      has_auth_user_id: !!pilotUser.auth_user_id,
-      registration_approved: pilotUser.registration_approved
-    })
 
     // Verify registration is approved
     if (!pilotUser.registration_approved) {
@@ -127,23 +119,19 @@ export async function pilotLogin(
     // Fall back to Supabase Auth only if no password_hash exists
     if (pilotUser.password_hash) {
       // Pilot registered with password hash - use bcrypt verification
-      console.log('🔐 Using bcrypt authentication for pilot:', pilotUser.email)
-      console.log('🔐 Password hash exists:', !!pilotUser.password_hash)
-      console.log('🔐 Attempting bcrypt comparison...')
+      // SECURITY: Using bcrypt authentication
 
       const passwordMatch = await bcrypt.compare(credentials.password, pilotUser.password_hash)
 
-      console.log('🔐 Password match result:', passwordMatch)
-
       if (!passwordMatch) {
-        console.log('❌ Password mismatch for pilot:', pilotUser.email)
+        // SECURITY: Password mismatch - do not log details
         return {
           success: false,
           error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
         }
       }
 
-      console.log('✅ Password match successful for pilot:', pilotUser.email)
+      // SECURITY: Password validated successfully
 
       // Update last login time
       await supabase
@@ -151,7 +139,18 @@ export async function pilotLogin(
         .update({ last_login_at: new Date().toISOString() })
         .eq('id', pilotUser.id)
 
-      // Create session data
+      // SECURITY FIX: Create secure server-side session (no longer using user ID as token)
+      const sessionResult = await createPilotSession(pilotUser.id, metadata)
+
+      if (!sessionResult.success || !sessionResult.sessionToken) {
+        console.error('Failed to create pilot session:', sessionResult.error)
+        return {
+          success: false,
+          error: 'Session creation failed. Please try again.',
+        }
+      }
+
+      // Return session data with secure token
       const sessionData = {
         user: {
           id: pilotUser.id,
@@ -163,7 +162,7 @@ export async function pilotLogin(
           },
         },
         session: {
-          access_token: pilotUser.id, // Using ID as token for now
+          access_token: sessionResult.sessionToken, // ✅ Secure cryptographic token
           user: {
             id: pilotUser.id,
             email: pilotUser.email,
@@ -236,14 +235,29 @@ export async function pilotLogin(
  */
 export async function pilotLogout(): Promise<ServiceResponse<null>> {
   try {
+    // SECURITY FIX: Revoke secure server-side session
+    const session = await getCurrentPilotSession()
+
+    if (session) {
+      // Revoke the secure session
+      const revokeResult = await revokePilotSession(session.session_token, 'User logout')
+
+      if (!revokeResult.success) {
+        console.error('Failed to revoke session:', revokeResult.error)
+        return {
+          success: false,
+          error: 'Logout failed. Please try again.',
+        }
+      }
+    }
+
+    // Also sign out from Supabase Auth (for pilots using Supabase Auth)
     const supabase = await createClient()
     const { error } = await supabase.auth.signOut()
 
     if (error) {
-      return {
-        success: false,
-        error: 'Logout failed. Please try again.',
-      }
+      // Log error but don't fail - session already revoked
+      console.error('Supabase auth sign out error:', error)
     }
 
     return {
@@ -283,7 +297,7 @@ export async function submitPilotRegistration(
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(registration.password, saltRounds)
 
-    console.log('⚠️  Bypassing Supabase Auth due to connectivity issues - creating direct registration with password hash')
+    // SECURITY: Creating direct registration with bcrypt password hash
 
     // Create registration record in pilot_users
     const registrationData = {
@@ -316,8 +330,7 @@ export async function submitPilotRegistration(
       }
     }
 
-    console.log('✅ Registration created successfully:', regData.id)
-    console.log('📝 Password will need to be set by admin or via password reset flow')
+    // SECURITY: Registration created successfully (ID not logged for privacy)
 
     return {
       success: true,
@@ -451,7 +464,7 @@ export async function reviewPilotRegistration(
     if (approval.status === 'APPROVED' && registration.id) {
       // Note: Pilot operational record creation is handled separately
       // when employee_id is assigned to the pilot_users record
-      console.log(`Pilot registration approved for user ${registration.id}`)
+      // SECURITY: Pilot registration approved (user ID not logged)
     }
 
     // Step 3: If denied, optionally delete the auth user
@@ -718,7 +731,7 @@ export async function requestPasswordReset(
     // Always return success to prevent email enumeration attacks
     // Don't reveal if email exists or not
     if (pilotError || !pilotUser) {
-      console.log(`Password reset requested for non-existent email: ${email}`)
+      // SECURITY: Password reset requested for non-existent email (email not logged)
       return {
         success: true,
         data: {
@@ -729,7 +742,7 @@ export async function requestPasswordReset(
 
     // Check if registration is approved
     if (!pilotUser.registration_approved) {
-      console.log(`Password reset requested for unapproved account: ${email}`)
+      // SECURITY: Password reset requested for unapproved account (email not logged)
       return {
         success: true,
         data: {
@@ -777,7 +790,7 @@ export async function requestPasswordReset(
       // User might need to contact support
     }
 
-    console.log(`✅ Password reset email sent to ${email}`)
+    // SECURITY: Password reset email sent (email not logged for privacy)
 
     return {
       success: true,
@@ -918,7 +931,7 @@ export async function resetPassword(
       .update({ used_at: new Date().toISOString() })
       .eq('token', token)
 
-    console.log(`✅ Password reset successful for user ${userId}`)
+    // SECURITY: Password reset successful
 
     return {
       success: true,
@@ -934,3 +947,39 @@ export async function resetPassword(
     }
   }
 }
+
+/**
+ * Verify pilot session from API request
+ * SECURITY: Validates secure session token
+ *
+ * Usage in API routes:
+ * ```typescript
+ * const pilotId = await verifyPilotSession(request)
+ * if (!pilotId) {
+ *   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+ * }
+ * ```
+ *
+ * @param request - NextRequest object from API route
+ * @returns Pilot user ID if valid session, null otherwise
+ */
+export async function verifyPilotSession(
+  request?: Request
+): Promise<string | null> {
+  try {
+    // Validate session token (from cookie or header)
+    const validation = await validatePilotSession()
+
+    if (!validation.isValid || !validation.userId) {
+      return null
+    }
+
+    return validation.userId
+  } catch (error) {
+    console.error('Session verification error:', error)
+    return null
+  }
+}
+
+// Note: getCurrentPilot function moved to lib/auth/pilot-helpers.ts
+// to avoid duplicate function definitions. Import from there if needed.

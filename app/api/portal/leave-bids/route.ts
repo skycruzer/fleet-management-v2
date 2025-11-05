@@ -20,30 +20,31 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   submitLeaveBid,
   getCurrentPilotLeaveBids,
+  cancelLeaveBid,
   type LeaveBidInput,
 } from '@/lib/services/leave-bid-service'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { z } from 'zod'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * Validation Schema for Leave Bid Submission
  *
- * IMPORTANT: Database schema uses:
- * - roster_period_code (string): e.g., "RP13/2025"
- * - preferred_dates (string): JSON string of date ranges
- * - alternative_dates (string | null): JSON string of alternative date ranges
- * - priority (string): e.g., "HIGH", "MEDIUM", "LOW"
- * - reason (string): justification for leave bid
+ * Accepts form structure with bid_year and array of options.
+ * Each option includes priority (number), start_date, end_date, and roster_periods.
  */
-const LeaveBidSchema = z.object({
-  roster_period_code: z.string().regex(/^RP(1[0-3]|[1-9])\/\d{4}$/, 'Invalid roster period format (expected RP1/2025 through RP13/2025)'),
-  preferred_dates: z.string().min(1, 'Preferred dates are required'),
-  alternative_dates: z.string().optional().nullable(),
-  priority: z.enum(['HIGH', 'MEDIUM', 'LOW']),
-  reason: z.string().min(10, 'Reason must be at least 10 characters').max(500, 'Reason cannot exceed 500 characters'),
-  notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional().nullable(),
+const LeaveBidOptionSchema = z.object({
+  priority: z.number().int().min(1).max(10),
+  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
+  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
+  roster_periods: z.array(z.string()).optional(),
+})
+
+const LeaveBidFormSchema = z.object({
+  bid_year: z.number().int().min(2025).max(2030),
+  options: z.array(LeaveBidOptionSchema).min(1, 'At least one leave option is required'),
 })
 
 /**
@@ -61,8 +62,8 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     const body = await request.json()
 
-    // Validate request data
-    const validation = LeaveBidSchema.safeParse(body)
+    // Validate request data using form schema
+    const validation = LeaveBidFormSchema.safeParse(body)
 
     if (!validation.success) {
       return NextResponse.json(
@@ -78,7 +79,22 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    const bidData: LeaveBidInput = validation.data
+    const { bid_year, options } = validation.data
+
+    // Transform form data to service layer format
+    // For now, use the first option's roster period as the main one
+    // and serialize all options as JSON for preferred_dates
+    const primaryOption = options[0]
+    const roster_period_code = primaryOption.roster_periods?.[0] || `RP1/${bid_year}`
+
+    const bidData: LeaveBidInput = {
+      roster_period_code,
+      preferred_dates: JSON.stringify(options), // Store all options as JSON
+      alternative_dates: null,
+      priority: 'MEDIUM', // Default priority
+      reason: `Leave bid for ${bid_year} with ${options.length} preferred option(s)`,
+      notes: null,
+    }
 
     // Submit leave bid via service layer
     const result = await submitLeaveBid(bidData)
@@ -102,11 +118,13 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'Leave bid submitted successfully',
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Submit leave bid API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'submitLeaveBid',
+      endpoint: '/api/portal/leave-bids'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })
 
@@ -138,10 +156,67 @@ export async function GET(request: NextRequest) {
       success: true,
       data: result.data || [],
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get leave bids API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getLeaveBids',
+      endpoint: '/api/portal/leave-bids'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
+  }
+}
+
+/**
+ * DELETE - Cancel Leave Bid
+ *
+ * Allows pilot to cancel a pending leave bid.
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json()
+
+    // Validate bid ID
+    if (!body.bidId) {
+      return NextResponse.json(
+        formatApiError(
+          {
+            message: 'Bid ID is required',
+            category: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('bidId').category,
+            severity: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('bidId').severity,
+          },
+          400
+        ),
+        { status: 400 }
+      )
+    }
+
+    // Cancel leave bid via service layer
+    const result = await cancelLeaveBid(body.bidId)
+
+    if (!result.success) {
+      return NextResponse.json(
+        formatApiError(
+          {
+            message: result.error || 'Failed to cancel leave bid',
+            category: ERROR_MESSAGES.LEAVE.DELETE_FAILED.category,
+            severity: ERROR_MESSAGES.LEAVE.DELETE_FAILED.severity,
+          },
+          result.error?.includes('Unauthorized') ? 401 : 500
+        ),
+        { status: result.error?.includes('Unauthorized') ? 401 : 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Leave bid cancelled successfully',
+    })
+  } catch (error: any) {
+    console.error('Cancel leave bid API error:', error)
+    const sanitized = sanitizeError(error, {
+      operation: 'cancelLeaveBid',
+      endpoint: '/api/portal/leave-bids'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

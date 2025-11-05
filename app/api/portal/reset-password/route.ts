@@ -19,6 +19,7 @@ import { z } from 'zod'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const logger = createSafeLogger('ResetPasswordAPI')
 
@@ -78,15 +79,13 @@ export async function GET(request: Request) {
         email: result.data?.email,
       },
     })
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Token validation API error', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to validate reset link. Please try again.',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'validateResetToken',
+      endpoint: '/api/portal/reset-password'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -135,14 +134,12 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       success: true,
       message: result.data?.message || 'Password reset successfully',
     })
-  } catch (error) {
+  } catch (error: any) {
     logger.error('Reset password API error', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to reset password. Please try again.',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'resetPassword',
+      endpoint: '/api/portal/reset-password'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

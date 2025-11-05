@@ -1,0 +1,14 @@
+Vercel CLI 48.6.7
+Retrieving project…
+Deploying rondeaumaurice-5086s-projects/fleet-management-v2
+Uploading [--------------------] (0.0B/818B)
+Uploading [====================] (818.0B/818B)
+Inspect: https://vercel.com/rondeaumaurice-5086s-projects/fleet-management-v2/479CEJVU5tB3nChVfnH5Vx6Mj6AL [5s]
+Production: https://fleet-management-v2-81mwrpn32-rondeaumaurice-5086s-projects.vercel.app [5s]
+https://fleet-management-v2-81mwrpn32-rondeaumaurice-5086s-projects.vercel.appQueued
+Building
+Completing
+
+Common next commands:
+- `vercel inspect fleet-management-v2-81mwrpn32-rondeaumaurice-5086s-projects.vercel.app --logs`
+- `vercel redeploy fleet-management-v2-81mwrpn32-rondeaumaurice-5086s-projects.vercel.app`

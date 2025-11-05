@@ -11,23 +11,36 @@ import { Page, expect } from '@playwright/test'
  * - Data cleanup
  */
 
-// Environment variables
+// Environment variables - SECURITY: All test credentials MUST be set via environment variables
+// DO NOT hardcode production credentials in this file
 export const TEST_CONFIG = {
   // Admin portal credentials (Supabase Auth)
   admin: {
-    email: process.env.TEST_ADMIN_EMAIL || 'skycruzer@icloud.com',
-    password: process.env.TEST_ADMIN_PASSWORD || 'mron2393',
+    email: process.env.TEST_ADMIN_EMAIL || throwMissingEnvError('TEST_ADMIN_EMAIL'),
+    password: process.env.TEST_ADMIN_PASSWORD || throwMissingEnvError('TEST_ADMIN_PASSWORD'),
   },
   // Pilot portal credentials (Custom Auth via an_users table)
   pilot: {
-    email: process.env.TEST_PILOT_EMAIL || 'mrondeau@airniugini.com.pg',
-    password: process.env.TEST_PILOT_PASSWORD || 'Lemakot@1972',
+    email: process.env.TEST_PILOT_EMAIL || throwMissingEnvError('TEST_PILOT_EMAIL'),
+    password: process.env.TEST_PILOT_PASSWORD || throwMissingEnvError('TEST_PILOT_PASSWORD'),
   },
   // Legacy config for backward compatibility
-  email: process.env.TEST_USER_EMAIL || 'skycruzer@icloud.com',
-  password: process.env.TEST_USER_PASSWORD || 'mron2393',
+  email: process.env.TEST_USER_EMAIL || throwMissingEnvError('TEST_USER_EMAIL'),
+  password: process.env.TEST_USER_PASSWORD || throwMissingEnvError('TEST_USER_PASSWORD'),
   baseUrl: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
   timeout: 10000,
+}
+
+/**
+ * Throws error if required environment variable is missing
+ * Prevents tests from running with hardcoded credentials
+ */
+function throwMissingEnvError(varName: string): never {
+  throw new Error(
+    `SECURITY: ${varName} environment variable is required. ` +
+    `Set it in .env.test.local or CI environment. ` +
+    `Never hardcode production credentials in test files.`
+  )
 }
 
 /**

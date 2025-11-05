@@ -89,8 +89,8 @@ export default function DisciplinaryMatterForm({
           pilot_id: '',
           incident_date: '',
           incident_type_id: '',
-          severity: 'MODERATE',
-          status: 'REPORTED',
+          severity: 'medium',
+          status: 'open',
           assigned_to: undefined,
           aircraft_registration: '',
           flight_number: '',
@@ -113,10 +113,27 @@ export default function DisciplinaryMatterForm({
       const url = isEdit ? `/api/disciplinary/${matter.id}` : '/api/disciplinary'
       const method = isEdit ? 'PATCH' : 'POST'
 
+      // Convert empty strings to null for UUID fields
+      const sanitizedData = {
+        ...data,
+        assigned_to: data.assigned_to === '' ? null : data.assigned_to,
+        incident_type_id: data.incident_type_id === '' ? null : data.incident_type_id,
+        pilot_id: data.pilot_id === '' ? null : data.pilot_id,
+        aircraft_registration: data.aircraft_registration === '' ? null : data.aircraft_registration,
+        flight_number: data.flight_number === '' ? null : data.flight_number,
+        location: data.location === '' ? null : data.location,
+        corrective_actions: data.corrective_actions === '' ? null : data.corrective_actions,
+        impact_on_operations: data.impact_on_operations === '' ? null : data.impact_on_operations,
+        regulatory_body: data.regulatory_body === '' ? null : data.regulatory_body,
+        notification_date: data.notification_date === '' ? null : data.notification_date,
+        due_date: data.due_date === '' ? null : data.due_date,
+        resolution_notes: data.resolution_notes === '' ? null : data.resolution_notes,
+      }
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(sanitizedData),
       })
 
       const result = await response.json()
@@ -251,10 +268,10 @@ export default function DisciplinaryMatterForm({
             {...form.register('severity', { required: true })}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
-            <option value="MINOR">Minor</option>
-            <option value="MODERATE">Moderate</option>
-            <option value="SERIOUS">Serious</option>
-            <option value="CRITICAL">Critical</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
           </select>
           {form.formState.errors.severity && (
             <p className="mt-1 text-sm text-red-600">Severity is required</p>
@@ -274,13 +291,10 @@ export default function DisciplinaryMatterForm({
             {...form.register('status', { required: true })}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
-            <option value="REPORTED">Reported</option>
-            <option value="UNDER_INVESTIGATION">Under Investigation</option>
-            <option value="PENDING_DECISION">Pending Decision</option>
-            <option value="ACTION_TAKEN">Action Taken</option>
-            <option value="RESOLVED">Resolved</option>
-            <option value="CLOSED">Closed</option>
-            <option value="APPEALED">Appealed</option>
+            <option value="open">Open</option>
+            <option value="under_review">Under Review</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
           </select>
           {form.formState.errors.status && (
             <p className="mt-1 text-sm text-red-600">Status is required</p>

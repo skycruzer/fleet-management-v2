@@ -3,16 +3,50 @@
  * PUT /api/renewal-planning/:planId/confirm
  *
  * Confirms a planned renewal (moves status from 'planned' to 'confirmed')
+ *
+ * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
 import { confirmRenewalPlan } from '@/lib/services/certification-renewal-planning-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ planId: string }> }
 ) {
   try {
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
+    const supabase = await createClient()
+
+    // Check authentication
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const { planId } = await params
     const body = await request.json()
     const { userId } = body
@@ -35,13 +69,12 @@ export async function PUT(
     })
   } catch (error: any) {
     console.error('Error confirming renewal plan:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to confirm renewal plan',
-        details: error.message,
-      },
-      { status: 500 }
-    )
+    const { planId } = await params
+    const sanitized = sanitizeError(error, {
+      operation: 'confirmRenewalPlan',
+      resourceId: planId,
+      endpoint: '/api/renewal-planning/[planId]/confirm'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

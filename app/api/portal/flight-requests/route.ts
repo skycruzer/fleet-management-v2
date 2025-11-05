@@ -26,6 +26,7 @@ import { FlightRequestSchema } from '@/lib/validations/flight-request-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * POST - Submit Flight Request
@@ -81,11 +82,13 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'Flight request submitted successfully',
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Submit flight request API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'submitFlightRequest',
+      endpoint: '/api/portal/flight-requests'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })
 
@@ -117,11 +120,13 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get flight requests API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getFlightRequests',
+      endpoint: '/api/portal/flight-requests'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -178,10 +183,12 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
       success: true,
       message: 'Flight request cancelled successfully',
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Cancel flight request API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'cancelFlightRequest',
+      endpoint: '/api/portal/flight-requests'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

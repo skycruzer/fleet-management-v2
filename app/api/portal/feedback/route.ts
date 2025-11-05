@@ -18,6 +18,7 @@ import {
 import { PilotFeedbackSchema } from '@/lib/validations/pilot-feedback-schema'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * POST /api/portal/feedback
@@ -51,13 +52,23 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     console.error('POST /api/portal/feedback error:', error)
 
     if (error.name === 'ZodError') {
+      // Log detailed validation errors for debugging
+      console.error('Zod validation errors:', JSON.stringify(error.errors, null, 2))
       return NextResponse.json(
-        { error: 'Invalid feedback data', details: error.errors },
+        {
+          error: 'Invalid feedback data',
+          details: error.errors,
+          message: error.errors[0]?.message || 'Validation failed'
+        },
         { status: 400 }
       )
     }
 
-    return NextResponse.json({ error: 'Failed to submit feedback' }, { status: 500 })
+    const sanitized = sanitizeError(error, {
+      operation: 'submitFeedback',
+      endpoint: '/api/portal/feedback'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })
 
@@ -77,8 +88,12 @@ export async function GET() {
     }
 
     return NextResponse.json({ success: true, data: result.data })
-  } catch (error) {
+  } catch (error: any) {
     console.error('GET /api/portal/feedback error:', error)
-    return NextResponse.json({ error: 'Failed to fetch feedback' }, { status: 500 })
+    const sanitized = sanitizeError(error, {
+      operation: 'getFeedback',
+      endpoint: '/api/portal/feedback'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

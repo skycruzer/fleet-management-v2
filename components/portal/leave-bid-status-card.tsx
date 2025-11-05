@@ -35,22 +35,22 @@ interface LeaveBidStatusCardProps {
 export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
   if (!bids || bids.length === 0) {
     return (
-      <Card className="border-gray-200">
-        <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-slate-50">
+      <Card>
+        <CardHeader className="border-b">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-gray-400 to-gray-500 shadow-sm">
-              <Calendar className="h-5 w-5 text-white" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+              <Calendar className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-xl text-gray-900">Leave Bids</CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardTitle className="text-xl">Leave Bids</CardTitle>
+              <CardDescription>
                 Your annual leave bid submissions
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          <p className="text-center text-gray-500">No leave bids submitted yet</p>
+          <p className="text-center text-muted-foreground">No leave bids submitted yet</p>
         </CardContent>
       </Card>
     )
@@ -107,13 +107,13 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
     <div className="space-y-4">
       {/* Approved Bids Alert */}
       {approvedBids.length > 0 && (
-        <Alert className="border-green-300 bg-gradient-to-r from-green-50 to-emerald-50">
-          <CheckCircle className="h-5 w-5 text-green-600" />
+        <Alert className="border-green-300 dark:border-green-800 bg-green-50 dark:bg-green-950/30">
+          <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
           <AlertDescription className="ml-2">
-            <span className="font-semibold text-green-900">
+            <span className="font-semibold text-green-900 dark:text-green-100">
               Great news! Your leave bid for {approvedBids[0].roster_period_code} has been approved.
             </span>
-            <p className="mt-1 text-sm text-green-700">
+            <p className="mt-1 text-sm text-green-700 dark:text-green-200">
               Check the details below to see which options were selected.
             </p>
           </AlertDescription>
@@ -121,16 +121,16 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
       )}
 
       {/* Main Card */}
-      <Card className="border-cyan-200">
-        <CardHeader className="border-b border-cyan-100 bg-gradient-to-r from-cyan-50 to-blue-50">
+      <Card>
+        <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 shadow-sm">
-                <Calendar className="h-5 w-5 text-white" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-xl text-cyan-900">Leave Bids</CardTitle>
-                <CardDescription className="text-cyan-700">
+                <CardTitle className="text-xl">Leave Bids</CardTitle>
+                <CardDescription>
                   Your annual leave bid submissions
                 </CardDescription>
               </div>
@@ -200,7 +200,7 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
 
                         {/* Status Indicator for Approved Bids */}
                         {bid.status === 'APPROVED' && option.priority === 1 && (
-                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-600">
+                          <Badge className="bg-green-600">
                             Selected
                           </Badge>
                         )}

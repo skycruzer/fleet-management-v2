@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotRequirements } from '@/lib/services/admin-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/portal/profile
@@ -94,14 +95,12 @@ export async function GET() {
         },
       })
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Profile API error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'An unexpected error occurred',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getPilotProfile',
+      endpoint: '/api/portal/profile'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

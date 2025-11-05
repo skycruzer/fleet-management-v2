@@ -30,7 +30,7 @@ export default function FlightRequestForm() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'ADDITIONAL_FLIGHT',
+      request_type: 'FLIGHT_REQUEST',
       flight_date: '',
       description: '',
       reason: '',
@@ -105,11 +105,10 @@ export default function FlightRequestForm() {
           {...form.register('request_type')}
           className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
-          <option value="ADDITIONAL_FLIGHT">Additional Flight</option>
-          <option value="ROUTE_CHANGE">Route Change</option>
-          <option value="SCHEDULE_PREFERENCE">Schedule Preference</option>
-          <option value="TRAINING_FLIGHT">Training Flight</option>
-          <option value="OTHER">Other</option>
+          <option value="FLIGHT_REQUEST">Flight</option>
+          <option value="RDO">RDO</option>
+          <option value="SDO">SDO</option>
+          <option value="OFFICE_DAY">Office</option>
         </select>
         {form.formState.errors.request_type && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.request_type.message}</p>

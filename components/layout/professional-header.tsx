@@ -238,7 +238,7 @@ export function ProfessionalHeader() {
               className="flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
               aria-label="User menu"
             >
-              <div className="from-primary-500 to-primary-700 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-600">
                 <User className="h-4 w-4 text-white" />
               </div>
               <span className="text-sm font-medium text-slate-900 dark:text-white">Admin User</span>

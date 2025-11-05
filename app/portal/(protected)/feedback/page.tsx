@@ -29,21 +29,28 @@ export default function FeedbackPage() {
     setSubmitError(null)
 
     try {
+      // Submit data - category is required, subject and message are trimmed
+      const sanitizedData = {
+        category: formData.category,
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+        is_anonymous: false,
+      }
+
+      // Debug: Log what we're sending
+      console.log('Submitting feedback data:', sanitizedData)
+
       // Submit feedback to API
       const response = await fetch('/api/portal/feedback', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          category: formData.category,
-          subject: formData.subject,
-          message: formData.message,
-          is_anonymous: false,
-        }),
+        body: JSON.stringify(sanitizedData),
       })
 
       const result = await response.json()
+      console.log('API response:', result)
 
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit feedback')

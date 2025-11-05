@@ -60,8 +60,8 @@ export default async function AdminPage() {
               <p className="text-muted-foreground text-sm font-medium">System Status</p>
               <p className="text-foreground text-2xl font-bold">Operational</p>
             </div>
-            <div className="rounded-full bg-green-100 p-3">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
+              <CheckCircle2 className="h-6 w-6 text-success" />
             </div>
           </div>
         </Card>
@@ -73,12 +73,12 @@ export default async function AdminPage() {
               <p className="text-foreground text-2xl font-bold">
                 {stats.totalAdmins + stats.totalManagers + stats.totalPilots}
               </p>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground text-sm">
                 {stats.totalAdmins + stats.totalManagers} staff, {stats.totalPilots} pilots
               </p>
             </div>
-            <div className="rounded-full bg-blue-100 p-3">
-              <Users className="h-6 w-6 text-blue-600" />
+            <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
+              <Users className="h-6 w-6 text-primary" />
             </div>
           </div>
         </Card>
@@ -88,9 +88,9 @@ export default async function AdminPage() {
             <div className="space-y-2">
               <p className="text-muted-foreground text-sm font-medium">Check Types</p>
               <p className="text-foreground text-2xl font-bold">{stats.totalCheckTypes}</p>
-              <p className="text-muted-foreground text-xs">certification types</p>
+              <p className="text-muted-foreground text-sm">certification types</p>
             </div>
-            <div className="rounded-full bg-primary/10 p-3">
+            <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
               <FileText className="h-6 w-6 text-primary" />
             </div>
           </div>
@@ -101,10 +101,10 @@ export default async function AdminPage() {
             <div className="space-y-2">
               <p className="text-muted-foreground text-sm font-medium">Certifications</p>
               <p className="text-foreground text-2xl font-bold">{stats.totalCertifications}</p>
-              <p className="text-muted-foreground text-xs">total records</p>
+              <p className="text-muted-foreground text-sm">total records</p>
             </div>
-            <div className="rounded-full bg-orange-100 p-3">
-              <Database className="h-6 w-6 text-orange-600" />
+            <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
+              <Database className="h-6 w-6 text-primary" />
             </div>
           </div>
         </Card>
@@ -116,48 +116,48 @@ export default async function AdminPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link href="/dashboard/admin/users/new">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-blue-100 p-3">
-                <UserPlus className="h-5 w-5 text-blue-600" />
+              <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
+                <UserPlus className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-semibold">Add New User</p>
-                <p className="text-muted-foreground text-xs">Create admin or manager</p>
+                <p className="text-muted-foreground text-sm">Create admin or manager</p>
               </div>
             </Button>
           </Link>
 
           <Link href="/dashboard/admin/check-types">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-primary/10 p-3">
+              <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
                 <List className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-semibold">Manage Check Types</p>
-                <p className="text-muted-foreground text-xs">Edit certification types</p>
+                <p className="text-muted-foreground text-sm">Edit certification types</p>
               </div>
             </Button>
           </Link>
 
           <Link href="/dashboard/admin/settings">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-green-100 p-3">
-                <Settings className="h-5 w-5 text-green-600" />
+              <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
+                <Settings className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-semibold">System Settings</p>
-                <p className="text-muted-foreground text-xs">Configure preferences</p>
+                <p className="text-muted-foreground text-sm">Configure preferences</p>
               </div>
             </Button>
           </Link>
 
           <Link href="/dashboard/admin/pilot-registrations">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-purple-100 p-3">
-                <UserCheck className="h-5 w-5 text-purple-600" />
+              <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
+                <UserCheck className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="font-semibold">Pilot Registrations</p>
-                <p className="text-muted-foreground text-xs">Review pending approvals</p>
+                <p className="text-muted-foreground text-sm">Review pending approvals</p>
               </div>
             </Button>
           </Link>

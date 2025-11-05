@@ -5,6 +5,7 @@ import {
   getCurrentPilotFlightRequests,
 } from '@/lib/services/pilot-flight-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/pilot/flight-requests
@@ -26,10 +27,11 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Pilot flight-requests GET error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.FLIGHT.FETCH_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getCurrentPilotFlightRequests',
+      endpoint: '/api/pilot/flight-requests'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -79,9 +81,10 @@ export async function POST(_request: NextRequest) {
     return NextResponse.json({ success: true, data: result.data }, { status: 201 })
   } catch (error) {
     console.error('Pilot flight-requests POST error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.FLIGHT.CREATE_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'submitPilotFlightRequest',
+      endpoint: '/api/pilot/flight-requests'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

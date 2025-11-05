@@ -5,7 +5,7 @@
  * Displays all leave bids with review and approval functionality
  */
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { CheckCircle, XCircle, Clock, Eye, ChevronDown, ChevronUp } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, Eye, Edit, ChevronDown, ChevronUp } from 'lucide-react'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 
@@ -241,9 +241,9 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
               </TableHeader>
               <TableBody>
                 {filteredBids.map((bid) => (
-                  <>
+                  <React.Fragment key={bid.id}>
                     {/* Main Row */}
-                    <TableRow key={bid.id} className="hover:bg-gray-50">
+                    <TableRow className="hover:bg-gray-50">
                       <TableCell>
                         <Button
                           variant="ghost"
@@ -273,30 +273,55 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                       </TableCell>
                       <TableCell>{getStatusBadge(bid.status)}</TableCell>
                       <TableCell className="text-right">
-                        {bid.status === 'PENDING' && (
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleApprove(bid.id)}
-                              disabled={actionLoading === bid.id}
-                              className="border-green-300 text-green-700 hover:bg-green-50"
-                            >
-                              <CheckCircle className="mr-1 h-3 w-3" />
-                              Approve
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleReject(bid.id)}
-                              disabled={actionLoading === bid.id}
-                              className="border-red-300 text-red-700 hover:bg-red-50"
-                            >
-                              <XCircle className="mr-1 h-3 w-3" />
-                              Reject
-                            </Button>
-                          </div>
-                        )}
+                        <div className="flex justify-end gap-2">
+                          {/* View Button - Always Available */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push(`/dashboard/admin/leave-bids/${bid.id}`)}
+                            className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                          >
+                            <Eye className="mr-1 h-3 w-3" />
+                            View
+                          </Button>
+
+                          {/* Edit Button - Always Available */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push(`/dashboard/admin/leave-bids/${bid.id}/edit`)}
+                            className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                          >
+                            <Edit className="mr-1 h-3 w-3" />
+                            Edit
+                          </Button>
+
+                          {/* Approve/Reject - Only for Pending */}
+                          {bid.status === 'PENDING' && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleApprove(bid.id)}
+                                disabled={actionLoading === bid.id}
+                                className="border-green-300 text-green-700 hover:bg-green-50"
+                              >
+                                <CheckCircle className="mr-1 h-3 w-3" />
+                                Approve
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleReject(bid.id)}
+                                disabled={actionLoading === bid.id}
+                                className="border-red-300 text-red-700 hover:bg-red-50"
+                              >
+                                <XCircle className="mr-1 h-3 w-3" />
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
 
@@ -344,7 +369,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>

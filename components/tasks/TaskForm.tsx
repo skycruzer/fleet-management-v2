@@ -37,7 +37,18 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
   const isEdit = !!task
 
   const form = useForm<TaskInput | TaskUpdate>({
-    resolver: zodResolver(isEdit ? TaskUpdateSchema : TaskInputSchema),
+    resolver: async (data, context, options) => {
+      // Transform empty strings to undefined before validation
+      const transformedData = {
+        ...data,
+        assigned_to: data.assigned_to === '' ? undefined : data.assigned_to,
+        due_date: data.due_date === '' ? undefined : data.due_date,
+      }
+
+      // Use the appropriate schema based on edit mode
+      const schema = isEdit ? TaskUpdateSchema : TaskInputSchema
+      return zodResolver(schema)(transformedData, context, options)
+    },
     defaultValues: isEdit
       ? {
           title: task.title,
@@ -66,10 +77,17 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
       const url = isEdit ? `/api/tasks/${task.id}` : '/api/tasks'
       const method = isEdit ? 'PATCH' : 'POST'
 
+      // Sanitize: Convert empty strings to null for optional fields
+      const sanitizedData = {
+        ...data,
+        assigned_to: data.assigned_to === '' ? null : data.assigned_to,
+        due_date: data.due_date === '' ? null : data.due_date,
+      }
+
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(sanitizedData),
       })
 
       const result = await response.json()
@@ -79,12 +97,14 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
         return
       }
 
-      // Success
+      // Success - refresh cache BEFORE navigating
       if (onSuccess) {
         onSuccess()
       } else {
-        router.push('/dashboard/tasks')
         router.refresh()
+        // Small delay to ensure cache refresh completes
+        await new Promise(resolve => setTimeout(resolve, 100))
+        router.push('/dashboard/tasks')
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -164,7 +184,8 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
             >
               <option value="TODO">To Do</option>
               <option value="IN_PROGRESS">In Progress</option>
-              <option value="DONE">Done</option>
+              <option value="BLOCKED">Blocked</option>
+              <option value="COMPLETED">Completed</option>
               <option value="CANCELLED">Cancelled</option>
             </select>
             {isEdit && 'status' in form.formState.errors && form.formState.errors.status && (

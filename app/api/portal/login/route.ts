@@ -9,18 +9,35 @@
  * NOTE: No CSRF protection on login (user has no session yet, CSRF token generated after login)
  * SAFE LOGGING: Uses sanitized logger to prevent credential/PII leakage
  *
- * @version 2.1.0
+ * @version 4.0.0 - SECURITY: Added account lockout protection (brute force prevention)
+ * @updated 2025-11-04 - Integrated account lockout service
+ * @updated 2025-11-04 - Implemented secure server-side session management
  * @updated 2025-10-27 - Added safe logging with sanitization
  * @spec 001-missing-core-features (US1)
+ *
+ * SECURITY FEATURES:
+ * - Session Fixation Protection: Cryptographically secure 32-byte tokens
+ * - Brute Force Protection: Account lockout after 5 failed attempts (30 min)
+ * - Failed attempt tracking: 15-minute rolling window
+ * - Email notifications: Lockout and unlock alerts
+ * - Sessions stored server-side in pilot_sessions table
+ * - HTTP-only, secure cookies
+ * - Automatic expiry after 24 hours
+ * - Session revocation on logout
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { pilotLogin } from '@/lib/services/pilot-portal-service'
 import { PilotLoginSchema } from '@/lib/validations/pilot-portal-schema'
 import { ERROR_MESSAGES, formatApiError, ErrorCategory, ErrorSeverity } from '@/lib/utils/error-messages'
-import { createPilotSession } from '@/lib/auth/pilot-session'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
+import {
+  checkAccountLockout,
+  recordFailedAttempt,
+  clearFailedAttempts,
+} from '@/lib/services/account-lockout-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const logger = createSafeLogger('PortalLoginAPI')
 
@@ -98,40 +115,98 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       )
     }
 
-    // Authenticate pilot
-    const result = await pilotLogin(validation.data)
+    // Extract request metadata for session tracking
+    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] ||
+                     request.headers.get('x-real-ip') ||
+                     undefined
+    const userAgent = request.headers.get('user-agent') || undefined
+
+    const { email } = validation.data
+
+    // SECURITY: Check if account is locked (brute force protection)
+    const lockoutStatus = await checkAccountLockout(email)
+
+    if (!lockoutStatus.success) {
+      logger.error('Failed to check account lockout status', { email })
+      return NextResponse.json(
+        formatApiError(
+          {
+            message: 'Unable to verify account status. Please try again later.',
+            category: ErrorCategory.NETWORK,
+            severity: ErrorSeverity.ERROR,
+          },
+          500
+        ),
+        { status: 500 }
+      )
+    }
+
+    if (lockoutStatus.data?.isLocked) {
+      logger.warn('Login attempt on locked account', {
+        email,
+        remainingTime: lockoutStatus.data.remainingTime,
+        lockedUntil: lockoutStatus.data.lockedUntil,
+      })
+
+      return NextResponse.json(
+        formatApiError(
+          {
+            message: `Account is temporarily locked due to multiple failed login attempts. Please try again in ${lockoutStatus.data.remainingTime} minutes.`,
+            category: ErrorCategory.AUTHENTICATION,
+            severity: ErrorSeverity.ERROR,
+          },
+          423 // 423 Locked
+        ),
+        {
+          status: 423,
+          headers: {
+            'Retry-After': String((lockoutStatus.data.remainingTime || 5) * 60), // Seconds
+          },
+        }
+      )
+    }
+
+    // Authenticate pilot (creates secure session internally)
+    const result = await pilotLogin(validation.data, {
+      ipAddress,
+      userAgent,
+    })
 
     if (!result.success) {
+      // SECURITY: Record failed login attempt
+      logger.warn('Failed login attempt', { email, ipAddress })
+      await recordFailedAttempt(email, ipAddress)
+
       return NextResponse.json(formatApiError(ERROR_MESSAGES.PORTAL.LOGIN_FAILED, 401), {
         status: 401,
       })
     }
 
-    // Create response with session cookie
+    // SECURITY: Clear failed attempts after successful login
+    await clearFailedAttempts(email)
+
+    // SECURITY: Session is now created server-side with secure tokens
+    // No longer need to manually create session cookies here
     const response = NextResponse.json({
       success: true,
       data: {
         user: result.data?.user,
-        // Session is managed via httpOnly cookies
+        // Session managed via secure HTTP-only cookies
       },
     })
 
-    // Set session cookie for bcrypt-authenticated pilots
-    const pilotUser = result.data?.user
-    if (pilotUser?.id && pilotUser?.email) {
-      const sessionToken = await createPilotSession(pilotUser.id, pilotUser.email, response)
-      logger.info('Session cookie created', {
-        userId: pilotUser.id,
-        email: pilotUser.email,
-        hasToken: Boolean(sessionToken)
-      })
-    }
+    logger.info('Pilot authenticated successfully', {
+      userId: result.data?.user?.id,
+      hasSecureSession: true,
+    })
 
     return response
   } catch (error) {
     logger.error('Login API error', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'pilotLogin',
+      endpoint: '/api/portal/login'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

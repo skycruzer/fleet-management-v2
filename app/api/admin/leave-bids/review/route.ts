@@ -15,6 +15,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
@@ -45,7 +46,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       .eq('id', user.id)
       .single()
 
-    if (!adminUser || !['Admin', 'Manager'].includes(adminUser.role)) {
+    if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
       return NextResponse.json(
         { success: false, error: 'Forbidden - Admin or Manager access required' },
         { status: 403 }
@@ -116,14 +117,12 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         rosterPeriodCode: updatedBid.roster_period_code,
       },
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in leave bid review API:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'An unexpected error occurred while processing the request',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'reviewLeaveBid',
+      endpoint: '/api/admin/leave-bids/review'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

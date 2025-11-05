@@ -1,0 +1,498 @@
+/**
+ * Reports Service - Centralized Report Generation
+ * Author: Maurice Rondeau
+ * Date: November 4, 2025
+ *
+ * Generates reports for Leave Requests, Flight Requests, and Certifications
+ * Supports preview, PDF export, and email delivery via Resend
+ *
+ * Phase 2.1: Redis-style caching for improved performance
+ * Phase 2.3: Server-side pagination (50 records/page)
+ */
+
+import { createClient } from '@/lib/supabase/server'
+import { getOrSetCache, invalidateCacheByTag } from '@/lib/services/cache-service'
+import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
+/**
+ * Pagination configuration
+ */
+const DEFAULT_PAGE_SIZE = 50
+const MAX_PAGE_SIZE = 200
+
+/**
+ * Cache configuration for reports
+ */
+const REPORT_CACHE_CONFIG = {
+  TTL_SECONDS: 300, // 5 minutes
+  TAGS: {
+    LEAVE: 'reports:leave',
+    FLIGHT: 'reports:flight',
+    CERTIFICATIONS: 'reports:certifications',
+  },
+}
+
+/**
+ * Generate cache key from report type and filters
+ */
+function generateCacheKey(reportType: ReportType, filters: ReportFilters): string {
+  // Sort filter keys for consistent cache keys
+  const filterString = JSON.stringify(filters, Object.keys(filters).sort())
+  const hash = Buffer.from(filterString).toString('base64').substring(0, 32)
+  return `report:${reportType}:${hash}`
+}
+
+/**
+ * Calculate pagination metadata
+ */
+function calculatePagination(
+  totalRecords: number,
+  currentPage: number = 1,
+  pageSize: number = DEFAULT_PAGE_SIZE
+): PaginationMeta {
+  const safePageSize = Math.min(pageSize, MAX_PAGE_SIZE)
+  const totalPages = Math.ceil(totalRecords / safePageSize)
+  const safePage = Math.max(1, Math.min(currentPage, totalPages || 1))
+
+  return {
+    currentPage: safePage,
+    pageSize: safePageSize,
+    totalRecords,
+    totalPages,
+    hasNextPage: safePage < totalPages,
+    hasPrevPage: safePage > 1,
+  }
+}
+
+/**
+ * Apply pagination to data array
+ */
+function paginateData<T>(data: T[], page: number = 1, pageSize: number = DEFAULT_PAGE_SIZE): T[] {
+  const safePageSize = Math.min(pageSize, MAX_PAGE_SIZE)
+  const start = (page - 1) * safePageSize
+  const end = start + safePageSize
+  return data.slice(start, end)
+}
+
+/**
+ * Generate Leave Requests Report
+ * Phase 2.3: Now supports pagination
+ */
+export async function generateLeaveReport(filters: ReportFilters): Promise<ReportData> {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('leave_requests')
+    .select(`
+      *,
+      pilot:pilots!leave_requests_pilot_id_fkey (
+        first_name,
+        last_name,
+        employee_id,
+        role
+      )
+    `)
+    .order('start_date', { ascending: false })
+
+  // Apply filters
+  if (filters.dateRange) {
+    query = query
+      .gte('start_date', filters.dateRange.startDate)
+      .lte('end_date', filters.dateRange.endDate)
+  }
+
+  if (filters.status && filters.status.length > 0) {
+    query = query.in('status', filters.status)
+  }
+
+  if (filters.rank && filters.rank.length > 0) {
+    // This requires a subquery or join - we'll filter client-side
+  }
+
+  if (filters.rosterPeriod) {
+    query = query.eq('roster_period', filters.rosterPeriod)
+  }
+
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    query = query.in('roster_period', filters.rosterPeriods)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    throw new Error(`Failed to fetch leave requests: ${error.message}`)
+  }
+
+  // Filter by rank if needed (client-side)
+  let filteredData = data || []
+  if (filters.rank && filters.rank.length > 0) {
+    filteredData = filteredData.filter((item: any) =>
+      filters.rank!.includes(item.pilot?.role)
+    )
+  }
+
+  // Calculate summary statistics (before pagination)
+  const summary = {
+    totalRequests: filteredData.length,
+    pending: filteredData.filter((r: any) => r.status === 'pending').length,
+    approved: filteredData.filter((r: any) => r.status === 'approved').length,
+    rejected: filteredData.filter((r: any) => r.status === 'rejected').length,
+    captainRequests: filteredData.filter((r: any) => r.pilot?.role === 'Captain').length,
+    firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.role === 'First Officer').length,
+  }
+
+  // Apply pagination
+  const page = filters.page || 1
+  const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
+  const paginatedData = paginateData(filteredData, page, pageSize)
+  const pagination = calculatePagination(filteredData.length, page, pageSize)
+
+  return {
+    title: 'Leave Requests Report',
+    description: 'Comprehensive report of all leave requests',
+    generatedAt: new Date().toISOString(),
+    generatedBy: 'System', // TODO: Get from auth context
+    filters,
+    data: paginatedData,
+    summary,
+    pagination,
+  }
+}
+
+/**
+ * Generate Flight Requests Report
+ * Phase 2.3: Now supports pagination
+ */
+export async function generateFlightRequestReport(filters: ReportFilters): Promise<ReportData> {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('flight_requests')
+    .select(`
+      *,
+      pilot:pilots!flight_requests_pilot_id_fkey (
+        first_name,
+        last_name,
+        employee_id,
+        role
+      )
+    `)
+    .order('flight_date', { ascending: false })
+
+  // Apply filters
+  if (filters.dateRange) {
+    query = query
+      .gte('flight_date', filters.dateRange.startDate)
+      .lte('flight_date', filters.dateRange.endDate)
+  }
+
+  if (filters.status && filters.status.length > 0) {
+    query = query.in('status', filters.status)
+  }
+
+  // Note: flight_requests table does not have roster_period column
+  // Roster period filtering is not applicable for flight requests
+
+  const { data, error } = await query
+
+  if (error) {
+    throw new Error(`Failed to fetch flight requests: ${error.message}`)
+  }
+
+  // Filter by rank if needed
+  let filteredData = data || []
+  if (filters.rank && filters.rank.length > 0) {
+    filteredData = filteredData.filter((item: any) =>
+      filters.rank!.includes(item.pilot?.role)
+    )
+  }
+
+  // Calculate summary statistics (before pagination)
+  const summary = {
+    totalRequests: filteredData.length,
+    pending: filteredData.filter((r: any) => r.status === 'pending').length,
+    approved: filteredData.filter((r: any) => r.status === 'approved').length,
+    rejected: filteredData.filter((r: any) => r.status === 'rejected').length,
+    uniqueDescriptions: [...new Set(filteredData.map((r: any) => r.description))].length,
+  }
+
+  // Apply pagination
+  const page = filters.page || 1
+  const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
+  const paginatedData = paginateData(filteredData, page, pageSize)
+  const pagination = calculatePagination(filteredData.length, page, pageSize)
+
+  return {
+    title: 'Flight Requests Report',
+    description: 'Comprehensive report of all flight requests',
+    generatedAt: new Date().toISOString(),
+    generatedBy: 'System',
+    filters,
+    data: paginatedData,
+    summary,
+    pagination,
+  }
+}
+
+/**
+ * Generate Certifications Report
+ */
+export async function generateCertificationsReport(filters: ReportFilters): Promise<ReportData> {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('pilot_checks')
+    .select(`
+      *,
+      pilot:pilots!pilot_checks_pilot_id_fkey (
+        first_name,
+        last_name,
+        employee_id,
+        role
+      ),
+      check_type:check_types!pilot_checks_check_type_id_fkey (
+        check_code,
+        check_description,
+        category
+      )
+    `)
+    .order('completion_date', { ascending: false })
+
+  // Apply filters
+  if (filters.dateRange) {
+    query = query
+      .gte('completion_date', filters.dateRange.startDate)
+      .lte('completion_date', filters.dateRange.endDate)
+  }
+
+  if (filters.checkType) {
+    query = query.eq('check_type_id', filters.checkType)
+  }
+
+  if (filters.checkTypes && filters.checkTypes.length > 0) {
+    query = query.in('check_type_id', filters.checkTypes)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    throw new Error(`Failed to fetch certifications: ${error.message}`)
+  }
+
+  // Filter by rank if needed
+  let filteredData = data || []
+  if (filters.rank && filters.rank.length > 0) {
+    filteredData = filteredData.filter((item: any) =>
+      filters.rank!.includes(item.pilot?.role)
+    )
+  }
+
+  // Calculate expiry and filter by threshold
+  const today = new Date()
+  const dataWithExpiry = filteredData.map((cert: any) => {
+    const expiryDate = new Date(cert.expiry_date)
+    const daysUntilExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+
+    return {
+      ...cert,
+      daysUntilExpiry,
+      isExpired: daysUntilExpiry < 0,
+      isExpiringSoon: daysUntilExpiry >= 0 && daysUntilExpiry <= 90,
+    }
+  })
+
+  // Filter by expiry threshold if provided
+  let finalData = dataWithExpiry
+  if (filters.expiryThreshold !== undefined) {
+    finalData = dataWithExpiry.filter((cert: any) =>
+      cert.daysUntilExpiry <= filters.expiryThreshold!
+    )
+  }
+
+  // Calculate summary statistics (before pagination)
+  const summary = {
+    totalCertifications: finalData.length,
+    expired: finalData.filter((c: any) => c.isExpired).length,
+    expiringSoon: finalData.filter((c: any) => c.isExpiringSoon && !c.isExpired).length,
+    current: finalData.filter((c: any) => !c.isExpired && !c.isExpiringSoon).length,
+    uniquePilots: [...new Set(finalData.map((c: any) => c.pilot_id))].length,
+  }
+
+  // Apply pagination
+  const page = filters.page || 1
+  const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
+  const paginatedData = paginateData(finalData, page, pageSize)
+  const pagination = calculatePagination(finalData.length, page, pageSize)
+
+  return {
+    title: 'Certifications Report',
+    description: 'Comprehensive report of pilot certifications and compliance',
+    generatedAt: new Date().toISOString(),
+    generatedBy: 'System',
+    filters,
+    data: paginatedData,
+    summary,
+    pagination,
+  }
+}
+
+/**
+ * Generate PDF from Report Data
+ */
+export function generatePDF(report: ReportData, reportType: ReportType): Buffer {
+  const doc = new jsPDF()
+  const pageWidth = doc.internal.pageSize.getWidth()
+
+  // Header
+  doc.setFontSize(20)
+  doc.setFont('helvetica', 'bold')
+  doc.text(report.title, pageWidth / 2, 20, { align: 'center' })
+
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Generated: ${new Date(report.generatedAt).toLocaleString()}`, pageWidth / 2, 28, { align: 'center' })
+
+  // Summary section
+  let yPos = 40
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Summary', 14, yPos)
+
+  yPos += 10
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+
+  if (report.summary) {
+    Object.entries(report.summary).forEach(([key, value]) => {
+      const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
+      doc.text(`${label}: ${value}`, 14, yPos)
+      yPos += 6
+    })
+  }
+
+  yPos += 10
+
+  // Data table based on report type
+  if (reportType === 'leave') {
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Status', 'Roster Period']],
+      body: report.data.map((item: any) => [
+        `${item.pilot?.first_name} ${item.pilot?.last_name}`,
+        item.pilot?.role || 'N/A',
+        item.request_type || item.leave_type,
+        new Date(item.start_date).toLocaleDateString(),
+        new Date(item.end_date).toLocaleDateString(),
+        item.status,
+        item.roster_period || 'N/A',
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185] },
+    })
+  } else if (reportType === 'flight-requests') {
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Pilot', 'Rank', 'Type', 'Flight Date', 'Description', 'Status']],
+      body: report.data.map((item: any) => [
+        `${item.pilot?.first_name} ${item.pilot?.last_name}`,
+        item.pilot?.role || 'N/A',
+        item.request_type,
+        new Date(item.flight_date).toLocaleDateString(),
+        item.description,
+        item.status,
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185] },
+    })
+  } else if (reportType === 'certifications') {
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Pilot', 'Rank', 'Check Type', 'Completion', 'Expiry', 'Days Until Expiry', 'Status']],
+      body: report.data.map((item: any) => [
+        `${item.pilot?.first_name} ${item.pilot?.last_name}`,
+        item.pilot?.role || 'N/A',
+        item.check_type?.check_description || item.check_type?.check_code || 'N/A',
+        new Date(item.completion_date).toLocaleDateString(),
+        new Date(item.expiry_date).toLocaleDateString(),
+        item.daysUntilExpiry,
+        item.isExpired ? 'EXPIRED' : item.isExpiringSoon ? 'EXPIRING SOON' : 'CURRENT',
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185] },
+      bodyStyles: {
+        cellPadding: 2,
+      },
+      didParseCell: (data) => {
+        // Color code status column
+        if (data.column.index === 6 && data.section === 'body') {
+          const status = data.cell.text[0]
+          if (status === 'EXPIRED') {
+            data.cell.styles.textColor = [231, 76, 60] // Red
+            data.cell.styles.fontStyle = 'bold'
+          } else if (status === 'EXPIRING SOON') {
+            data.cell.styles.textColor = [241, 196, 15] // Yellow/Orange
+            data.cell.styles.fontStyle = 'bold'
+          }
+        }
+      },
+    })
+  }
+
+  // Footer with page numbers
+  const pageCount = doc.getNumberOfPages()
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i)
+    doc.setFontSize(8)
+    doc.text(
+      `Page ${i} of ${pageCount}`,
+      pageWidth / 2,
+      doc.internal.pageSize.getHeight() - 10,
+      { align: 'center' }
+    )
+  }
+
+  return Buffer.from(doc.output('arraybuffer'))
+}
+
+/**
+ * Main report generation function with caching
+ */
+export async function generateReport(reportType: ReportType, filters: ReportFilters): Promise<ReportData> {
+  // Generate cache key from report type and filters
+  const cacheKey = generateCacheKey(reportType, filters)
+
+  // Use getOrSetCache for automatic cache management
+  return getOrSetCache(
+    cacheKey,
+    async () => {
+      // Generate report based on type
+      switch (reportType) {
+        case 'leave':
+          return generateLeaveReport(filters)
+        case 'flight-requests':
+          return generateFlightRequestReport(filters)
+        case 'certifications':
+          return generateCertificationsReport(filters)
+        default:
+          throw new Error(`Unknown report type: ${reportType}`)
+      }
+    },
+    REPORT_CACHE_CONFIG.TTL_SECONDS
+  )
+}
+
+/**
+ * Invalidate report cache when data is mutated
+ * Call this from API routes that modify leave requests, flight requests, or certifications
+ */
+export function invalidateReportCache(reportType?: ReportType): void {
+  if (reportType) {
+    // Invalidate specific report type
+    invalidateCacheByTag(REPORT_CACHE_CONFIG.TAGS[reportType.toUpperCase().replace('-', '_') as keyof typeof REPORT_CACHE_CONFIG.TAGS])
+  } else {
+    // Invalidate all reports
+    Object.values(REPORT_CACHE_CONFIG.TAGS).forEach(tag => invalidateCacheByTag(tag))
+  }
+}

@@ -18,6 +18,7 @@ import { pilotLogout } from '@/lib/services/pilot-portal-service'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
@@ -48,10 +49,12 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       success: true,
       message: 'Logged out successfully',
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Logout API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'pilotLogout',
+      endpoint: '/api/portal/logout'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

@@ -22,6 +22,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import type { PilotDashboardMetrics } from '@/types/database-views'
 
 /**
@@ -75,13 +76,11 @@ export async function POST(request: Request) {
       },
     })
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'refreshDashboardMetrics',
+      method: 'POST'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -158,12 +157,10 @@ export async function GET(request: Request) {
       },
     })
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getDashboardHealth',
+      method: 'GET'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

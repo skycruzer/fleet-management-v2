@@ -3,13 +3,47 @@
  * POST /api/renewal-planning/generate
  *
  * Generates complete renewal plan for all pilots based on certification expiry dates
+ *
+ * Developer: Maurice Rondeau
+ * @version 2.0.0
+ * @updated 2025-11-02 - Added authentication and role validation
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { generateRenewalPlan } from '@/lib/services/certification-renewal-planning-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient()
+
+    // Check authentication
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Please log in' },
+        { status: 401 }
+      )
+    }
+
+    // Verify admin/manager role (lowercase!)
+    const { data: adminUser } = await supabase
+      .from('an_users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden - Admin or Manager access required' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
     const { monthsAhead = 12, categories, pilotIds } = body
 
@@ -50,13 +84,10 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error generating renewal plan:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to generate renewal plan',
-        details: error.message,
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'generateRenewalPlan',
+      endpoint: '/api/renewal-planning/generate'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

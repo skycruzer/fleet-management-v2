@@ -18,6 +18,7 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/dashboard/flight-requests/[id]
@@ -55,10 +56,11 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Admin flight-requests GET [id] error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.FLIGHT.FETCH_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getFlightRequestById',
+      requestId: (await params).id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -137,9 +139,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Admin flight-requests PATCH [id] error:', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.FLIGHT.UPDATE_FAILED.message },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'reviewFlightRequest',
+      requestId: (await params).id
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

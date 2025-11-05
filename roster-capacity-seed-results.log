@@ -1,0 +1,24 @@
+
+🌱 SEEDING ROSTER PERIOD CAPACITY
+
+============================================================
+
+📅 Generated 26 roster periods
+   - 2025: RP01-RP13 (13 periods)
+   - 2026: RP01-RP13 (13 periods)
+
+⚠️  Roster period capacity data already exists
+   Run this to clear existing data first:
+   DELETE FROM roster_period_capacity;
+
+❓ Clear existing data and re-seed? (yes/no): 
+✅ Existing data cleared
+
+📝 Inserting roster period capacity records...
+
+❌ Error inserting data: {
+  code: '23514',
+  details: 'Failing row contains (95c9130b-8034-46b7-b671-7d78f38f9ff4, RP01/2025, 2024-12-07, 2025-01-03, {"Flight Checks": 4, "Simulator Checks": 6, "Ground Courses Refr..., {"Flight Checks": 0, "Simulator Checks": 0, "Ground Courses Refr..., 2025-11-02 04:12:40.889348+00, 2025-11-02 04:12:40.889348+00).',
+  hint: null,
+  message: 'new row for relation "roster_period_capacity" violates check constraint "chk_roster_period_capacity_format_valid"'
+}

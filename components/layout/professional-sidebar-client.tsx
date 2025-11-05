@@ -29,6 +29,7 @@ import {
   Settings,
   FileType,
   ClockAlert,
+  FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -117,6 +118,11 @@ const navigationSections: NavSection[] = [
         title: 'Analytics',
         href: '/dashboard/analytics',
         icon: BarChart3,
+      },
+      {
+        title: 'Reports',
+        href: '/dashboard/reports',
+        icon: FileText,
       },
     ],
   },
@@ -252,7 +258,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
     >
       {/* Logo Header */}
       <div className="flex h-16 items-center gap-3 border-b border-slate-700 px-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary-500 to-primary-700">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
           <Plane className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -303,13 +309,11 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
 
                         return (
                           <Link key={item.href} href={item.href}>
-                            <motion.div
-                              whileHover={{ x: 4 }}
-                              whileTap={{ scale: 0.98 }}
+                            <div
                               className={cn(
-                                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                                 active
-                                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20'
+                                  ? 'bg-primary-600 text-white'
                                   : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                               )}
                             >
@@ -355,7 +359,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                                   active && 'opacity-100'
                                 )}
                               />
-                            </motion.div>
+                            </div>
                           </Link>
                         )
                       })}
@@ -374,13 +378,11 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
 
               return (
                 <Link href={settingsItem.href}>
-                  <motion.div
-                    whileHover={{ x: 4 }}
-                    whileTap={{ scale: 0.98 }}
+                  <div
                     className={cn(
-                      'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                      'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                       active
-                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20'
+                        ? 'bg-primary-600 text-white'
                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     )}
                   >
@@ -408,7 +410,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                         active && 'opacity-100'
                       )}
                     />
-                  </motion.div>
+                  </div>
                 </Link>
               )
             })()}
@@ -418,9 +420,9 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
 
       {/* Bottom Section - Support CTA */}
       <div className="border-t border-slate-700 p-4">
-        <div className="rounded-lg bg-gradient-to-br from-primary-600 to-primary-800 p-4">
+        <div className="rounded-lg bg-primary-700 p-4">
           <div className="mb-2 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-accent-400" />
+            <AlertCircle className="h-5 w-5 text-white" />
             <h3 className="font-semibold text-white">Need Help?</h3>
           </div>
           <p className="mb-3 text-sm text-slate-200">
@@ -428,7 +430,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           </p>
           <Link
             href="/dashboard/support"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-primary-700 transition-all hover:bg-slate-50"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-slate-50"
           >
             Get Support
             <ChevronRight className="h-4 w-4" />
@@ -436,15 +438,13 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         </div>
 
         {/* Logout Button */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <button
           onClick={handleLogout}
           className="mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
         >
           <LogOut className="h-5 w-5" />
           <span>Logout</span>
-        </motion.button>
+        </button>
       </div>
     </motion.aside>
   )

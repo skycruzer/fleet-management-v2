@@ -28,11 +28,26 @@ export async function getPilotAnalytics() {
   try {
     const { data: pilots, error } = await supabase
       .from('pilots')
-      .select('role, is_active, date_of_birth, commencement_date')
+      .select('id, first_name, last_name, role, is_active, date_of_birth, commencement_date')
 
     if (error) throw error
 
     const now = new Date()
+    const retiringIn2YearsPilots: Array<{
+      id: string
+      name: string
+      rank: string
+      retirementDate: string
+      yearsToRetirement: number
+    }> = []
+    const retiringIn5YearsPilots: Array<{
+      id: string
+      name: string
+      rank: string
+      retirementDate: string
+      yearsToRetirement: number
+    }> = []
+
     const stats = (pilots || []).reduce(
       (acc, pilot) => {
         acc.total++
@@ -43,7 +58,7 @@ export async function getPilotAnalytics() {
         else if (pilot.role === 'First Officer') acc.firstOfficers++
 
         // Calculate retirement metrics
-        if (pilot.date_of_birth) {
+        if (pilot.date_of_birth && pilot.is_active) {
           const birthDate = new Date(pilot.date_of_birth)
           const retirementDate = new Date(birthDate)
           retirementDate.setFullYear(retirementDate.getFullYear() + 65)
@@ -52,14 +67,28 @@ export async function getPilotAnalytics() {
             (retirementDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
           )
 
-          // Count pilots retiring within 2 years
-          if (yearsToRetirement <= 2 && yearsToRetirement >= 0) {
-            acc.retirementPlanning.retiringIn2Years++
+          const pilotInfo = {
+            id: pilot.id,
+            name: `${pilot.first_name} ${pilot.last_name}`,
+            rank: pilot.role || 'Unknown',
+            retirementDate: retirementDate.toISOString().split('T')[0],
+            yearsToRetirement,
           }
 
-          // Count pilots retiring within 5 years (inclusive of 2-year count)
-          if (yearsToRetirement <= 5 && yearsToRetirement >= 0) {
+          // Only count active pilots who haven't retired yet
+          // Count pilots retiring within 2 years (0-2 years inclusive)
+          if (yearsToRetirement >= 0 && yearsToRetirement <= 2) {
+            acc.retirementPlanning.retiringIn2Years++
+            retiringIn2YearsPilots.push(pilotInfo)
+          }
+
+          // Count pilots retiring within 5 years (0-5 years inclusive)
+          if (yearsToRetirement >= 0 && yearsToRetirement <= 5) {
             acc.retirementPlanning.retiringIn5Years++
+            if (yearsToRetirement > 2) {
+              // Only add pilots not already in 2-year list
+              retiringIn5YearsPilots.push(pilotInfo)
+            }
           }
         }
 
@@ -74,9 +103,15 @@ export async function getPilotAnalytics() {
         retirementPlanning: {
           retiringIn2Years: 0,
           retiringIn5Years: 0,
+          pilotsRetiringIn2Years: [] as typeof retiringIn2YearsPilots,
+          pilotsRetiringIn5Years: [] as typeof retiringIn5YearsPilots,
         },
       }
     )
+
+    // Add pilot lists to retirement planning
+    stats.retirementPlanning.pilotsRetiringIn2Years = retiringIn2YearsPilots
+    stats.retirementPlanning.pilotsRetiringIn5Years = retiringIn5YearsPilots
 
     return stats
   } catch (error) {

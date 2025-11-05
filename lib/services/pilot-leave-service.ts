@@ -52,6 +52,7 @@ export async function submitPilotLeaveRequest(
 
     // Prepare leave request data
     // IMPORTANT: Use pilot.pilot_id (foreign key to pilots table), NOT pilot.id (pilot_users table ID)
+    // Database uses DATE type for start_date/end_date, so send YYYY-MM-DD format only
     const leaveRequestData = {
       pilot_id: pilot.pilot_id!,
       request_type: request.request_type as
@@ -63,8 +64,8 @@ export async function submitPilotLeaveRequest(
         | 'LWOP'
         | 'MATERNITY'
         | 'COMPASSIONATE',
-      start_date: `${request.start_date}T00:00:00.000Z`, // Convert to ISO datetime
-      end_date: `${request.end_date}T23:59:59.999Z`, // Convert to ISO datetime
+      start_date: request.start_date, // Send as YYYY-MM-DD (DATE type in database)
+      end_date: request.end_date, // Send as YYYY-MM-DD (DATE type in database)
       request_date: getTodayISO(),
       request_method: 'SYSTEM' as const,
       reason: request.reason || undefined,

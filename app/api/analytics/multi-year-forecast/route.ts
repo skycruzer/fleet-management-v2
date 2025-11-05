@@ -9,6 +9,7 @@
 
 import { getMultiYearRetirementForecast } from '@/lib/services/analytics-service'
 import { NextRequest, NextResponse } from 'next/server'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,9 +22,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(forecast)
   } catch (error) {
     console.error('Error fetching multi-year retirement forecast:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch multi-year retirement forecast' },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getMultiYearForecast',
+      endpoint: '/api/analytics/multi-year-forecast'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

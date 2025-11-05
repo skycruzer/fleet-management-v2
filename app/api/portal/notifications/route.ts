@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,11 +30,12 @@ export async function GET(request: NextRequest) {
       success: true,
       data: [],
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Notifications API error:', error)
-    return NextResponse.json(
-      formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500),
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'getPilotNotifications',
+      endpoint: '/api/portal/notifications'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

@@ -10,18 +10,29 @@
  * RATE LIMITING: 5 registration attempts per minute per IP (prevents signup abuse)
  * SAFE LOGGING: Uses sanitized logger to prevent credential/PII leakage
  *
- * @version 2.2.0
+ * @version 3.0.0 - SECURITY: Added password complexity validation
+ * @updated 2025-11-04 - Integrated password validation service
  * @updated 2025-10-27 - Added safe logging with sanitization
  * @spec 001-missing-core-features (US1, US8)
+ *
+ * SECURITY FEATURES:
+ * - Password strength validation (min 12 chars, complexity requirements)
+ * - Common password blocking (100+ entries)
+ * - Keyboard pattern detection
+ * - Sequential pattern detection
+ * - Real-time strength scoring (0-4 scale)
+ * - Email-in-password detection
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { submitPilotRegistration, getRegistrationStatus } from '@/lib/services/pilot-portal-service'
 import { PilotRegistrationSchema } from '@/lib/validations/pilot-portal-schema'
-import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { ERROR_MESSAGES, formatApiError, ErrorCategory, ErrorSeverity } from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
+import { validatePassword } from '@/lib/services/password-validation-service'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const logger = createSafeLogger('PortalRegistrationAPI')
 
@@ -68,6 +79,49 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       )
     }
 
+    // SECURITY: Validate password strength
+    const passwordValidation = await validatePassword(
+      validation.data.password,
+      validation.data.email
+    )
+
+    if (!passwordValidation.isValid) {
+      logger.warn('Registration rejected: weak password', {
+        email: validation.data.email,
+        score: passwordValidation.score,
+        errors: passwordValidation.errors,
+      })
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Password does not meet security requirements',
+          category: ErrorCategory.VALIDATION,
+          severity: ErrorSeverity.ERROR,
+          details: {
+            errors: passwordValidation.errors,
+            suggestions: passwordValidation.suggestions,
+            score: passwordValidation.score,
+            requirements: {
+              minLength: 12,
+              requireUppercase: true,
+              requireLowercase: true,
+              requireNumber: true,
+              requireSpecial: true,
+              notCommon: true,
+            },
+          },
+          statusCode: 400,
+        },
+        { status: 400 }
+      )
+    }
+
+    logger.info('Password validation passed', {
+      email: validation.data.email,
+      score: passwordValidation.score,
+    })
+
     // Submit registration
     const result = await submitPilotRegistration(validation.data)
 
@@ -84,9 +138,11 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     })
   } catch (error) {
     logger.error('Registration API error', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'submitPilotRegistration',
+      endpoint: '/api/portal/register'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })
 
@@ -136,8 +192,10 @@ export async function GET(_request: NextRequest) {
     })
   } catch (error) {
     logger.error('Get registration status API error', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getRegistrationStatus',
+      endpoint: '/api/portal/register'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

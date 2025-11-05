@@ -19,6 +19,7 @@ import { z } from 'zod'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 // Request schema validation
 const ReviewSchema = z.object({
@@ -98,11 +99,12 @@ export async function PUT(
     )
   } catch (error) {
     console.error('Error reviewing leave request:', error)
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : 'Failed to review leave request',
-      },
-      { status: 500 }
-    )
+    const { id: requestId } = await params
+    const sanitized = sanitizeError(error, {
+      operation: 'updateLeaveRequestStatus',
+      resourceId: requestId,
+      endpoint: '/api/leave-requests/[id]/review'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

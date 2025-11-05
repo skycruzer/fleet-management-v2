@@ -5,7 +5,7 @@
  * Handles year selection and displays renewal planning data
  */
 
-import { Calendar, RefreshCw, Download, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar, RefreshCw, Download, AlertTriangle, ChevronLeft, ChevronRight, FileText } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -19,6 +19,7 @@ import {
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { formatDate } from '@/lib/utils/date-utils'
+import { EmailRenewalPlanButton } from './email-renewal-plan-button'
 
 interface RosterPeriodSummary {
   rosterPeriod: string
@@ -110,6 +111,17 @@ export function RenewalPlanningDashboard({
               Export CSV
             </Button>
           </Link>
+          <Link
+            href={totalPlanned > 0 ? `/api/renewal-planning/export-pdf?year=${selectedYear}` : '#'}
+            target={totalPlanned > 0 ? '_blank' : undefined}
+            className={totalPlanned === 0 ? 'pointer-events-none' : ''}
+          >
+            <Button variant="outline" size="sm" disabled={totalPlanned === 0}>
+              <FileText className="mr-2 h-4 w-4" />
+              Export PDF
+            </Button>
+          </Link>
+          <EmailRenewalPlanButton year={selectedYear} hasData={totalPlanned > 0} />
           <Link href={`/dashboard/renewal-planning/generate?year=${selectedYear}`}>
             <Button size="sm">
               <RefreshCw className="mr-2 h-4 w-4" />

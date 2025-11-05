@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET - Get portal dashboard statistics
@@ -47,10 +48,12 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: statsResult.data,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get portal stats API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getPortalStats',
+      endpoint: '/api/portal/stats'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

@@ -10,6 +10,7 @@
 
 import { predictCrewShortages } from '@/lib/services/analytics-service'
 import { NextRequest, NextResponse } from 'next/server'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,9 +28,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(predictions)
   } catch (error) {
     console.error('Error fetching crew shortage predictions:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch crew shortage predictions' },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'predictCrewShortages',
+      endpoint: '/api/analytics/crew-shortage-predictions'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

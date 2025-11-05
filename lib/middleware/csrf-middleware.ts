@@ -2,12 +2,19 @@
  * CSRF Protection Middleware
  *
  * Developer: Maurice Rondeau
+ * Date: November 4, 2025
  *
  * Validates CSRF tokens on all state-changing requests (POST, PUT, DELETE, PATCH)
  * to prevent Cross-Site Request Forgery attacks.
  *
- * @version 1.1.0
+ * @version 2.0.0 - SECURITY: Fully implemented CSRF protection
  * @since 2025-10-27
+ *
+ * Security Implementation:
+ * - Double Submit Cookie pattern (stateless CSRF protection)
+ * - Cryptographically secure random tokens
+ * - Token validation on all mutations
+ * - Automatic token rotation
  *
  * Usage:
  * ```typescript
@@ -21,22 +28,82 @@
  * ```
  */
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import crypto from 'crypto'
 
-// Stub function - CSRF implementation pending
-async function verifyCsrfTokenFromRequest(_req: NextRequest): Promise<boolean> {
-  // TODO: Implement CSRF token verification
-  return true
+/**
+ * CSRF token cookie name
+ */
+const CSRF_COOKIE_NAME = 'csrf-token'
+
+/**
+ * CSRF token header name (must match client-side implementation)
+ */
+const CSRF_HEADER_NAME = 'x-csrf-token'
+
+/**
+ * Generate a cryptographically secure CSRF token
+ */
+export function generateCsrfToken(): string {
+  return crypto.randomBytes(32).toString('base64url')
 }
 
-// Stub function - error formatting pending
+/**
+ * Verify CSRF token from request
+ * Implements Double Submit Cookie pattern:
+ * - Token must be present in both cookie and header
+ * - Both tokens must match exactly
+ */
+async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
+  try {
+    // Get token from header (sent by client with request)
+    const headerToken = req.headers.get(CSRF_HEADER_NAME)
+
+    if (!headerToken) {
+      console.warn('CSRF validation failed: Missing CSRF token in header')
+      return false
+    }
+
+    // Get token from cookie (set by server)
+    const cookieStore = await cookies()
+    const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value
+
+    if (!cookieToken) {
+      console.warn('CSRF validation failed: Missing CSRF token in cookie')
+      return false
+    }
+
+    // Tokens must match exactly (constant-time comparison)
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(headerToken),
+      Buffer.from(cookieToken)
+    )
+
+    if (!isValid) {
+      console.warn('CSRF validation failed: Token mismatch')
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('CSRF validation error:', error)
+    return false
+  }
+}
+
+/**
+ * Format API error response
+ */
 function formatApiError(message: { message: string }, status: number) {
   return { error: message.message, status }
 }
 
-// Stub error messages - pending implementation
+/**
+ * Error messages
+ */
 const ERROR_MESSAGES = {
   AUTH: {
-    CSRF_INVALID: { message: 'Invalid CSRF token' }
+    CSRF_INVALID: { message: 'Invalid or missing CSRF token. Please refresh the page and try again.' }
   }
 }
 

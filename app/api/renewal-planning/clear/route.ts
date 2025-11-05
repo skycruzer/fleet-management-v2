@@ -4,14 +4,60 @@
  *
  * Deletes all existing renewal plans from the database
  * Use with caution - this is a destructive operation
+ *
+ * Developer: Maurice Rondeau
+ * @version 3.0.0 - SECURITY: Added CSRF protection and rate limiting
+ * @updated 2025-11-04 - Critical security hardening
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/rate-limit'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
     const supabase = await createClient()
+
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
+    // Check authentication
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Please log in' },
+        { status: 401 }
+      )
+    }
+
+    // SECURITY: Rate limiting (strict for destructive operations)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
+    // Verify admin/manager role (lowercase!)
+    const { data: adminUser } = await supabase
+      .from('an_users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden - Admin or Manager access required' },
+        { status: 403 }
+      )
+    }
 
     // Delete all renewal plans
     const { error } = await supabase
@@ -27,13 +73,10 @@ export async function DELETE() {
     })
   } catch (error: any) {
     console.error('Error clearing renewal plans:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to clear renewal plans',
-        details: error.message,
-      },
-      { status: 500 }
-    )
+    const sanitized = sanitizeError(error, {
+      operation: 'clearAllRenewalPlans',
+      endpoint: '/api/renewal-planning/clear'
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }

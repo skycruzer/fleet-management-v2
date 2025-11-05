@@ -24,6 +24,7 @@ import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * Verify admin role middleware
@@ -85,11 +86,13 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get pending registrations API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getPendingRegistrations',
+      endpoint: '/api/portal/registration-approval'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -163,10 +166,12 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Review registration API error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'reviewRegistration',
+      endpoint: '/api/portal/registration-approval'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

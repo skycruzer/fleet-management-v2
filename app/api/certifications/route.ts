@@ -18,6 +18,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/certifications
@@ -65,9 +66,11 @@ export async function GET(_request: NextRequest) {
     })
   } catch (error) {
     console.error('GET /api/certifications error:', error)
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.CERTIFICATION.FETCH_FAILED, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'getCertifications',
+      endpoint: '/api/certifications'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 }
 
@@ -125,8 +128,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    return NextResponse.json(formatApiError(ERROR_MESSAGES.CERTIFICATION.CREATE_FAILED, 500), {
-      status: 500,
+    const sanitized = sanitizeError(error, {
+      operation: 'createCertification',
+      endpoint: '/api/certifications'
     })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
 })

@@ -42,22 +42,25 @@ import Link from 'next/link'
 
 const REQUEST_TYPES = [
   {
-    value: 'ADDITIONAL_FLIGHT',
-    label: 'Additional Flight',
-    description: 'Request to fly additional sectors',
-  },
-  { value: 'ROUTE_CHANGE', label: 'Route Change', description: 'Request to change assigned route' },
-  {
-    value: 'SCHEDULE_PREFERENCE',
-    label: 'Schedule Preference',
-    description: 'Request for preferred schedule',
+    value: 'FLIGHT_REQUEST',
+    label: 'Flight',
+    description: 'Request for additional flight assignment',
   },
   {
-    value: 'TRAINING_FLIGHT',
-    label: 'Training Flight',
-    description: 'Request for training flight',
+    value: 'RDO',
+    label: 'RDO',
+    description: 'Rostered Day Off request',
   },
-  { value: 'OTHER', label: 'Other', description: 'Other flight-related requests' },
+  {
+    value: 'SDO',
+    label: 'SDO',
+    description: 'Scheduled Day Off request',
+  },
+  {
+    value: 'OFFICE_DAY',
+    label: 'Office',
+    description: 'Office duty day request',
+  },
 ] as const
 
 export default function NewFlightRequestPage() {
@@ -69,7 +72,7 @@ export default function NewFlightRequestPage() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'ADDITIONAL_FLIGHT',
+      request_type: 'FLIGHT_REQUEST',
       flight_date: '',
       description: '',
       reason: '',

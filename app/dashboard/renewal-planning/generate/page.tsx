@@ -21,7 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 
 // Focus on checks with grace periods suitable for advance planning
@@ -37,6 +37,8 @@ const CATEGORIES = [
 
 export default function GeneratePlanPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const year = searchParams.get('year') || new Date().getFullYear().toString()
   const [monthsAhead, setMonthsAhead] = useState(12)
   // Pre-select both Flight and Simulator Checks by default
   const [selectedCategories, setSelectedCategories] = useState<string[]>(CATEGORIES)
@@ -89,9 +91,9 @@ export default function GeneratePlanPage() {
         `Successfully generated ${result.data.totalPlans} renewal plans across ${result.data.rosterPeriodSummary.length} roster periods!`
       )
 
-      // Redirect to main planning page
+      // Redirect to main planning page with year parameter preserved
       setTimeout(() => {
-        router.push('/dashboard/renewal-planning')
+        router.push(`/dashboard/renewal-planning?year=${year}`)
       }, 1500)
     } catch (error: any) {
       console.error('Error generating renewal plan:', error)
@@ -105,7 +107,7 @@ export default function GeneratePlanPage() {
     <div className="space-y-6 p-8">
       {/* Header */}
       <div className="flex items-center space-x-4">
-        <Link href="/dashboard/renewal-planning">
+        <Link href={`/dashboard/renewal-planning?year=${year}`}>
           <Button variant="outline" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Planning

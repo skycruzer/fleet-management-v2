@@ -1,0 +1,33 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/skycruzer/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/skycruzer/Desktop/fleet-management-v2/package-lock.json
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Environments: .env.local, .env.production
+   - Experiments (use with caution):
+     · optimizePackageImports
+     · serverActions
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 9.6s
+   Running TypeScript ...
+Failed to compile.
+
+./app/api/reports/certifications/renewal-schedule/route.ts:50:44
+Type error: Property 'expiry_date' does not exist on type 'ExpiringCertification'. Did you mean 'expiryDate'?
+
+[0m [90m 48 |[39m         [90m// Convert certifications to calendar events[39m
+ [90m 49 |[39m         [36mconst[39m events [33m=[39m expiringCerts[33m.[39mmap((cert) [33m=>[39m {
+[31m[1m>[22m[39m[90m 50 |[39m           [36mconst[39m expiryDate [33m=[39m [36mnew[39m [33mDate[39m(cert[33m.[39mexpiry_date)
+ [90m    |[39m                                            [31m[1m^[22m[39m
+ [90m 51 |[39m           [36mconst[39m reminderDate [33m=[39m [36mnew[39m [33mDate[39m(expiryDate)
+ [90m 52 |[39m           reminderDate[33m.[39msetDate(reminderDate[33m.[39mgetDate() [33m-[39m [35m30[39m) [90m// Reminder 30 days before[39m
+ [90m 53 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null
