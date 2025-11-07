@@ -85,11 +85,13 @@ export async function POST(request: Request) {
       userId: user.id,
       email: user.email,
       reportType,
-      filterCount: Object.keys(filters || {}).length,
+      filterCount: filters ? Object.keys(filters).length : 0,
       timestamp: new Date().toISOString(),
     })
 
-    const report = await generateReport(reportType, filters || {})
+    // Preview uses pagination (fullExport=false) but includes user context
+    // Use empty object if filters is undefined
+    const report = await generateReport(reportType, filters ?? {}, false, user.email || user.id)
 
     log?.info('Report preview generated successfully', {
       userId: user.id,

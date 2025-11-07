@@ -91,8 +91,9 @@ export async function POST(request: Request) {
       timestamp: new Date().toISOString(),
     })
 
-    // Generate report data
-    const report = await generateReport(reportType, filters || {})
+    // Generate report data with fullExport=true and user context
+    // Use empty object if filters is undefined
+    const report = await generateReport(reportType, filters ?? {}, true, user.email || user.id)
 
     // Generate PDF
     const pdfBuffer = generatePDF(report, reportType)

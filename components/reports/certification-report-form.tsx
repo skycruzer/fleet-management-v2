@@ -125,7 +125,7 @@ export function CertificationReportForm() {
       }
     }
 
-    if (values.expiryThreshold) {
+    if (values.expiryThreshold && values.expiryThreshold !== 'all') {
       filters.expiryThreshold = parseInt(values.expiryThreshold, 10)
     }
 

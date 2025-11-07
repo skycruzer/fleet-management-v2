@@ -649,6 +649,104 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
 }
 
 /**
+ * Get pilot details with retirement information
+ *
+ * @param pilotId - Pilot ID from pilots table
+ * @returns Service response with pilot details
+ */
+export async function getPilotDetailsWithRetirement(
+  pilotId: string
+): Promise<ServiceResponse<{
+  id: string
+  first_name: string
+  last_name: string
+  middle_name: string | null
+  date_of_birth: string
+  commencement_date: string
+}>> {
+  try {
+    const supabase = await createClient()
+
+    const { data: pilot, error } = await supabase
+      .from('pilots')
+      .select('id, first_name, last_name, middle_name, date_of_birth, commencement_date')
+      .eq('id', pilotId)
+      .single()
+
+    if (error || !pilot) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('pilot details').message,
+      }
+    }
+
+    return {
+      success: true,
+      data: pilot,
+    }
+  } catch (error) {
+    console.error('Get pilot details error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('pilot details').message,
+    }
+  }
+}
+
+/**
+ * Get pilot leave bids
+ *
+ * @param pilotId - Pilot ID from pilots table
+ * @param limit - Maximum number of bids to return (default: 5)
+ * @returns Service response with leave bids
+ */
+export async function getPilotLeaveBids(
+  pilotId: string,
+  limit: number = 5
+): Promise<ServiceResponse<any[]>> {
+  try {
+    const supabase = await createClient()
+
+    const { data: leaveBids, error } = await supabase
+      .from('leave_bids')
+      .select(`
+        id,
+        roster_period_code,
+        status,
+        created_at,
+        updated_at,
+        leave_bid_options (
+          id,
+          priority,
+          start_date,
+          end_date
+        )
+      `)
+      .eq('pilot_id', pilotId)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (error) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('leave bids').message,
+      }
+    }
+
+    return {
+      success: true,
+      data: leaveBids || [],
+    }
+  } catch (error) {
+    console.error('Get pilot leave bids error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.DATABASE.FETCH_FAILED('leave bids').message,
+    }
+  }
+}
+
+/**
  * Get current authenticated pilot information
  *
  * @returns Service response with pilot user data (includes both pilot_users.id and pilots.id)

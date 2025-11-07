@@ -17,7 +17,6 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 export const metadata = portalMetadata.dashboard
-import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilot as getAuthPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { Card } from '@/components/ui/card'
@@ -35,8 +34,6 @@ import { RetirementInformationCard } from '@/components/pilots/RetirementInforma
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 
 export default async function PilotDashboardPage() {
-  const supabase = await createClient()
-
   // Get pilot user data (layout already handles authentication, this is just for data)
   const pilotUser = await getAuthPilot()
 
@@ -69,16 +66,12 @@ export default async function PilotDashboardPage() {
   const statsResult = await getPilotPortalStats(pilotUser.pilot_id || pilotUser.id)
   const stats = statsResult.success && statsResult.data ? statsResult.data : null
 
-  // Fetch complete pilot data from pilots table for retirement info
+  // Fetch complete pilot data from pilots table for retirement info using service layer
   let pilotData = null
   if (pilotUser.pilot_id) {
-    const { data: pilot } = await supabase
-      .from('pilots')
-      .select('id, first_name, last_name, middle_name, date_of_birth, commencement_date')
-      .eq('id', pilotUser.pilot_id)
-      .single()
-
-    pilotData = pilot
+    const { getPilotDetailsWithRetirement } = await import('@/lib/services/pilot-portal-service')
+    const pilotResult = await getPilotDetailsWithRetirement(pilotUser.pilot_id)
+    pilotData = pilotResult.success ? pilotResult.data : null
   }
 
   // Use default retirement age (system_settings table doesn't exist yet)
@@ -87,27 +80,10 @@ export default async function PilotDashboardPage() {
     ? [pilotData.first_name, pilotData.middle_name, pilotData.last_name].filter(Boolean).join(' ')
     : [pilotUser.first_name, pilotUser.middle_name, pilotUser.last_name].filter(Boolean).join(' ')
 
-  // Fetch leave bids for this pilot
-  const { data: leaveBids } = await supabase
-    .from('leave_bids')
-    .select(
-      `
-      id,
-      roster_period_code,
-      status,
-      created_at,
-      updated_at,
-      leave_bid_options (
-        id,
-        priority,
-        start_date,
-        end_date
-      )
-    `
-    )
-    .eq('pilot_id', pilotUser.pilot_id || pilotUser.id)
-    .order('created_at', { ascending: false })
-    .limit(5)
+  // Fetch leave bids for this pilot using service layer
+  const { getPilotLeaveBids } = await import('@/lib/services/pilot-portal-service')
+  const leaveBidsResult = await getPilotLeaveBids(pilotUser.pilot_id || pilotUser.id, 5)
+  const leaveBids = leaveBidsResult.success ? leaveBidsResult.data : []
 
   return (
     <div className="min-h-screen">

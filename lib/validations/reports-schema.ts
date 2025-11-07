@@ -44,6 +44,8 @@ export const DateRangeSchema = z.object({
 
 /**
  * Report Filters Schema
+ * Phase 2.6: Clarified validation logic - date range counts as a valid filter
+ * Phase 2.7: Added pagination parameters, made filters optional (no refinement)
  */
 export const ReportFiltersSchema = z.object({
   dateRange: DateRangeSchema.optional(),
@@ -53,40 +55,27 @@ export const ReportFiltersSchema = z.object({
   rosterPeriods: z.array(z.string()).optional(),
   checkTypes: z.array(z.string().uuid()).optional(),
   expiryThreshold: z.number().int().min(0).max(365).optional(),
-}).refine(
-  (data) => {
-    // At least one filter should be provided (excluding date range)
-    const hasFilter =
-      (data.status && data.status.length > 0) ||
-      (data.rank && data.rank.length > 0) ||
-      data.rosterPeriod ||
-      (data.rosterPeriods && data.rosterPeriods.length > 0) ||
-      (data.checkTypes && data.checkTypes.length > 0) ||
-      data.expiryThreshold !== undefined
-
-    // Date range is optional but encouraged
-    return hasFilter || data.dateRange !== undefined
-  },
-  {
-    message: 'At least one filter must be provided',
-    path: ['filters'],
-  }
-)
+  // Pagination parameters (used by service layer)
+  page: z.number().int().min(1).optional(),
+  pageSize: z.number().int().min(1).max(200).optional(),
+})
 
 /**
  * Report Preview Request Schema
+ * Phase 2.7: Removed problematic .default({}) that conflicted with validation
  */
 export const ReportPreviewRequestSchema = z.object({
   reportType: ReportTypeSchema,
-  filters: ReportFiltersSchema.optional().default({}),
+  filters: ReportFiltersSchema.optional(),
 })
 
 /**
  * Report Export Request Schema
+ * Phase 2.7: Removed problematic .default({}) that conflicted with validation
  */
 export const ReportExportRequestSchema = z.object({
   reportType: ReportTypeSchema,
-  filters: ReportFiltersSchema.optional().default({}),
+  filters: ReportFiltersSchema.optional(),
 })
 
 /**
@@ -98,10 +87,11 @@ export const EmailRecipientsSchema = z.array(
 
 /**
  * Report Email Request Schema
+ * Phase 2.7: Removed problematic .default({}) that conflicted with validation
  */
 export const ReportEmailRequestSchema = z.object({
   reportType: ReportTypeSchema,
-  filters: ReportFiltersSchema.optional().default({}),
+  filters: ReportFiltersSchema.optional(),
   recipients: EmailRecipientsSchema,
   subject: z.string().max(200).optional(),
   message: z.string().max(5000).optional(),
