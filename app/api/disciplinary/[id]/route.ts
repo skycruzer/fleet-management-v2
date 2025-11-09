@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
@@ -183,6 +184,17 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
+    // Revalidate disciplinary pages to clear Next.js cache
+    revalidatePath('/dashboard/disciplinary')
+    revalidatePath(`/dashboard/disciplinary/${id}`)
+    revalidatePath(`/dashboard/disciplinary/${id}/edit`)
+    revalidatePath('/dashboard')
+    revalidatePath('/api/disciplinary')
+    // Also revalidate pilot detail page
+    if (result.data?.pilot_id) {
+      revalidatePath(`/dashboard/pilots/${result.data.pilot_id}`)
+    }
+
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {
     console.error('Error in PATCH /api/disciplinary/[id]:', error)
@@ -256,6 +268,11 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       }
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
+
+    // Revalidate disciplinary pages to clear Next.js cache
+    revalidatePath('/dashboard/disciplinary')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/disciplinary')
 
     return NextResponse.json(
       { success: true, message: 'Matter closed successfully' },

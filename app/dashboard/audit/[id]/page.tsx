@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { getAuditLogById } from '@/lib/services/audit-service'
-import AuditLogDetail from '@/components/audit/AuditLogDetail'
+import AuditLogDetail from '@/components/audit/audit-log-detail'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'

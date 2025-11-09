@@ -334,3 +334,72 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
     }
   }
 }
+
+/**
+ * Review leave bid (approve or reject)
+ * Admin/Manager only
+ *
+ * @param bidId - Leave bid ID
+ * @param action - 'approve' or 'reject'
+ * @returns ServiceResponse with updated bid data
+ */
+export async function reviewLeaveBid(
+  bidId: string,
+  action: 'approve' | 'reject'
+): Promise<ServiceResponse<{ bidId: string; status: string; rosterPeriodCode: string }>> {
+  try {
+    const supabase = await createClient()
+
+    // Validate action
+    if (!['approve', 'reject'].includes(action)) {
+      return {
+        success: false,
+        error: 'Invalid action. Must be "approve" or "reject"',
+      }
+    }
+
+    // Determine new status
+    const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED'
+
+    // Update bid status
+    const { data: updatedBid, error: updateError } = await supabase
+      .from('leave_bids')
+      .update({
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', bidId)
+      .select('id, roster_period_code, pilot_id, status')
+      .single()
+
+    if (updateError) {
+      console.error('Error updating leave bid:', updateError)
+      return {
+        success: false,
+        error: `Failed to ${action} bid: ${updateError.message}`,
+      }
+    }
+
+    if (!updatedBid) {
+      return {
+        success: false,
+        error: 'Leave bid not found',
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        bidId: updatedBid.id,
+        status: updatedBid.status,
+        rosterPeriodCode: updatedBid.roster_period_code,
+      },
+    }
+  } catch (error) {
+    console.error('Review leave bid error:', error)
+    return {
+      success: false,
+      error: 'Failed to review leave bid',
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getAllFlightRequests, getFlightRequestStats } from '@/lib/services/flight-request-service'
-import FlightRequestsTable from '@/components/admin/FlightRequestsTable'
+import FlightRequestsTable from '@/components/admin/flight-requests-table'
 
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'

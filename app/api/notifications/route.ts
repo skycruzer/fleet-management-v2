@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
@@ -80,6 +81,11 @@ export async function PATCH(request: NextRequest) {
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
+
+    // Revalidate notification pages to clear Next.js cache
+    revalidatePath('/dashboard/notifications')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/notifications')
 
     return NextResponse.json({ success: true })
   } catch (error) {

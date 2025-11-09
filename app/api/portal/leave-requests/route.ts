@@ -17,6 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import {
   submitPilotLeaveRequest,
   getCurrentPilotLeaveRequests,
@@ -79,6 +80,13 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         { status: 500 }
       )
     }
+
+    // Revalidate portal pages to clear Next.js cache
+    revalidatePath('/portal/leave-requests')
+    revalidatePath('/portal/dashboard')
+    revalidatePath('/api/portal/leave-requests')
+    // Also revalidate admin dashboard
+    revalidatePath('/dashboard/leave-requests')
 
     return NextResponse.json({
       success: true,
@@ -197,6 +205,13 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
         { status: result.error === ERROR_MESSAGES.AUTH.FORBIDDEN.message ? 403 : 500 }
       )
     }
+
+    // Revalidate portal pages to clear Next.js cache
+    revalidatePath('/portal/leave-requests')
+    revalidatePath('/portal/dashboard')
+    revalidatePath('/api/portal/leave-requests')
+    // Also revalidate admin dashboard
+    revalidatePath('/dashboard/leave-requests')
 
     return NextResponse.json({
       success: true,

@@ -30,7 +30,7 @@ import {
   Calendar,
   Plane,
 } from 'lucide-react'
-import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
+import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 
 export default async function PilotDashboardPage() {

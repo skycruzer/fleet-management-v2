@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getPilotById, updatePilot, deletePilot } from '@/lib/services/pilot-service'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import { createClient } from '@/lib/supabase/server'
@@ -135,6 +136,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     console.log('✅ [API] Pilot updated successfully')
     console.log('📤 [API] Returning updated pilot with role:', updatedPilot.role)
 
+    // Revalidate pilot pages to clear Next.js cache
+    revalidatePath('/dashboard/pilots')
+    revalidatePath(`/dashboard/pilots/${pilotId}`)
+    revalidatePath(`/dashboard/pilots/${pilotId}/edit`)
+    revalidatePath('/dashboard')
+    revalidatePath('/api/pilots')
+
     return NextResponse.json({
       success: true,
       data: updatedPilot,
@@ -198,6 +206,11 @@ export async function DELETE(
 
     // Delete pilot using service layer (includes cascade deletion)
     await deletePilot(pilotId)
+
+    // Revalidate pilot pages to clear Next.js cache
+    revalidatePath('/dashboard/pilots')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/pilots')
 
     return NextResponse.json({
       success: true,

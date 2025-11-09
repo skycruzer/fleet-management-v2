@@ -17,6 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import {
   submitLeaveBid,
   getCurrentPilotLeaveBids,
@@ -112,6 +113,14 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         { status: result.error?.includes('Unauthorized') ? 401 : 500 }
       )
     }
+
+    // Revalidate leave bid pages to clear Next.js cache
+    revalidatePath('/portal/leave-bids')
+    revalidatePath('/portal/dashboard')
+    revalidatePath('/api/portal/leave-bids')
+    // Also revalidate admin dashboard
+    revalidatePath('/dashboard/leave-bids')
+    revalidatePath('/dashboard/admin/leave-bids')
 
     return NextResponse.json({
       success: true,

@@ -14,7 +14,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import PilotRegisterForm from '@/components/pilot/PilotRegisterForm'
+import PilotRegisterForm from '@/components/pilot/pilot-register-form'
 
 export const metadata: Metadata = {
   title: 'Pilot Registration | Fleet Management',

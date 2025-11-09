@@ -40,8 +40,8 @@ import {
   formatRetirementCountdown,
   formatRetirementDate,
 } from '@/lib/utils/retirement-utils'
-import { RetirementCountdownBadge } from '@/components/pilots/RetirementCountdownBadge'
-import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
+import { RetirementCountdownBadge } from '@/components/pilots/retirement-countdown-badge'
+import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 
 interface Pilot {
   id: string

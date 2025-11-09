@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
@@ -148,6 +149,12 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         )
       }
 
+      // Revalidate feedback pages to clear Next.js cache
+      revalidatePath('/dashboard/feedback')
+      revalidatePath(`/dashboard/feedback/${id}`)
+      revalidatePath('/dashboard')
+      revalidatePath('/api/feedback')
+
       return NextResponse.json({
         success: true,
         message: 'Admin response added successfully',
@@ -172,6 +179,12 @@ export async function PUT(request: NextRequest, context: RouteContext) {
           { status: 500 }
         )
       }
+
+      // Revalidate feedback pages to clear Next.js cache
+      revalidatePath('/dashboard/feedback')
+      revalidatePath(`/dashboard/feedback/${id}`)
+      revalidatePath('/dashboard')
+      revalidatePath('/api/feedback')
 
       return NextResponse.json({
         success: true,

@@ -7,6 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
@@ -86,6 +87,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         { status: 404 }
       )
     }
+
+    // Revalidate leave bid pages to clear Next.js cache
+    revalidatePath('/dashboard/leave-bids')
+    revalidatePath(`/dashboard/leave-bids/${id}`)
+    revalidatePath('/dashboard/admin/leave-bids')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/admin/leave-bids')
 
     return NextResponse.json({
       success: true,

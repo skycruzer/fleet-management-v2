@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getIncidentTypes } from '@/lib/services/disciplinary-service'
-import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatterForm'
+import DisciplinaryMatterForm from '@/components/disciplinary/disciplinary-matter-form'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 

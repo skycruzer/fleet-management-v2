@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getAllUsers, createUser, getUsersByRole } from '@/lib/services/user-service'
 import { UserCreateSchema } from '@/lib/validations/user-validation'
 import { createClient } from '@/lib/supabase/server'
@@ -70,6 +71,12 @@ export async function POST(_request: NextRequest) {
 
     // Create user
     const newUser = await createUser(validatedData)
+
+    // Revalidate user pages to clear Next.js cache
+    revalidatePath('/dashboard/users')
+    revalidatePath('/dashboard/admin/users')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/users')
 
     return NextResponse.json(
       {

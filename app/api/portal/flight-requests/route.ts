@@ -17,6 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import {
   submitPilotFlightRequest,
   getCurrentPilotFlightRequests,
@@ -76,6 +77,13 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         { status: 500 }
       )
     }
+
+    // Revalidate portal pages to clear Next.js cache
+    revalidatePath('/portal/flight-requests')
+    revalidatePath('/portal/dashboard')
+    revalidatePath('/api/portal/flight-requests')
+    // Also revalidate admin dashboard
+    revalidatePath('/dashboard/flight-requests')
 
     return NextResponse.json({
       success: true,
@@ -178,6 +186,13 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
         { status: statusCode }
       )
     }
+
+    // Revalidate portal pages to clear Next.js cache
+    revalidatePath('/portal/flight-requests')
+    revalidatePath('/portal/dashboard')
+    revalidatePath('/api/portal/flight-requests')
+    // Also revalidate admin dashboard
+    revalidatePath('/dashboard/flight-requests')
 
     return NextResponse.json({
       success: true,

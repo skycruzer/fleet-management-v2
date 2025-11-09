@@ -7,8 +7,8 @@
  * CSRF PROTECTION: POST method requires CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
  *
- * @version 2.1.0
- * @updated 2025-10-27 - Added rate limiting
+ * @version 3.0.0 - Refactored to use service layer
+ * @updated 2025-11-09 - Service layer refactoring
  */
 
 import { createClient } from '@/lib/supabase/server'
@@ -16,6 +16,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { reviewLeaveBid } from '@/lib/services/leave-bid-service'
+import { revalidatePath } from 'next/cache'
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
@@ -64,41 +66,19 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    if (!['approve', 'reject'].includes(action)) {
+    // Use service layer for bid review
+    const result = await reviewLeaveBid(bidId, action)
+
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid action. Must be "approve" or "reject"' },
-        { status: 400 }
+        { success: false, error: result.error },
+        { status: result.error === 'Leave bid not found' ? 404 : 500 }
       )
     }
 
-    // Determine new status
-    const newStatus = action === 'approve' ? 'APPROVED' : 'REJECTED'
-
-    // Update bid status
-    const { data: updatedBid, error: updateError } = await supabase
-      .from('leave_bids')
-      .update({
-        status: newStatus,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', bidId)
-      .select('id, roster_period_code, pilot_id, status')
-      .single()
-
-    if (updateError) {
-      console.error('Error updating leave bid:', updateError)
-      return NextResponse.json(
-        { success: false, error: `Failed to ${action} bid: ${updateError.message}` },
-        { status: 500 }
-      )
-    }
-
-    if (!updatedBid) {
-      return NextResponse.json(
-        { success: false, error: 'Leave bid not found' },
-        { status: 404 }
-      )
-    }
+    // Revalidate affected paths
+    revalidatePath('/dashboard/admin/leave-bids')
+    revalidatePath('/api/admin/leave-bids')
 
     // TODO: Send notification to pilot
     // This will be implemented when notification system is ready
@@ -111,14 +91,9 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     return NextResponse.json({
       success: true,
       message: `Leave bid ${action}d successfully`,
-      data: {
-        bidId: updatedBid.id,
-        status: updatedBid.status,
-        rosterPeriodCode: updatedBid.roster_period_code,
-      },
+      data: result.data,
     })
   } catch (error: any) {
-    console.error('Error in leave bid review API:', error)
     const sanitized = sanitizeError(error, {
       operation: 'reviewLeaveBid',
       endpoint: '/api/admin/leave-bids/review'

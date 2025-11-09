@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { updateLeaveRequestStatus } from '@/lib/services/leave-service'
 import { z } from 'zod'
@@ -88,6 +89,12 @@ export async function PUT(
       user.id,
       comments
     )
+
+    // Revalidate leave request pages to clear Next.js cache
+    revalidatePath('/dashboard/leave-requests')
+    revalidatePath(`/dashboard/leave-requests/${requestId}`)
+    revalidatePath('/dashboard')
+    revalidatePath('/api/leave-requests')
 
     return NextResponse.json(
       {

@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getFlightRequestById, reviewFlightRequest } from '@/lib/services/flight-request-service'
 import { FlightRequestReviewSchema } from '@/lib/validations/flight-request-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
@@ -135,6 +136,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       return NextResponse.json({ success: false, error: result.error }, { status: statusCode })
     }
+
+    // Revalidate flight request pages to clear Next.js cache
+    revalidatePath('/dashboard/flight-requests')
+    revalidatePath(`/dashboard/flight-requests/${requestId}`)
+    revalidatePath('/dashboard')
+    revalidatePath('/api/dashboard/flight-requests')
+    // Also revalidate portal pages
+    revalidatePath('/portal/flight-requests')
 
     return NextResponse.json({ success: true, data: result.data }, { status: 200 })
   } catch (error) {

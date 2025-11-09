@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import {
   submitFeedback,
   getCurrentPilotFeedback,
@@ -46,6 +47,13 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })
     }
+
+    // Revalidate portal pages to clear Next.js cache
+    revalidatePath('/portal/feedback')
+    revalidatePath('/portal/dashboard')
+    revalidatePath('/api/portal/feedback')
+    // Also revalidate admin dashboard
+    revalidatePath('/dashboard/feedback')
 
     return NextResponse.json({ success: true, data: result.data })
   } catch (error: any) {

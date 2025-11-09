@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getTasks, createTask, getTaskStats } from '@/lib/services/task-service'
 import { TaskInputSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
@@ -188,6 +189,11 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
+
+    // Revalidate task pages to clear Next.js cache
+    revalidatePath('/dashboard/tasks')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/tasks')
 
     return NextResponse.json({ success: true, data: result.data }, { status: 201 })
   } catch (error) {

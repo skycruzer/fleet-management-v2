@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { getMatters, createMatter, getMatterStats } from '@/lib/services/disciplinary-service'
 
@@ -205,6 +206,15 @@ export async function POST(_request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+    }
+
+    // Revalidate disciplinary pages to clear Next.js cache
+    revalidatePath('/dashboard/disciplinary')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/disciplinary')
+    // Also revalidate pilot detail page
+    if (result.data?.pilot_id) {
+      revalidatePath(`/dashboard/pilots/${result.data.pilot_id}`)
     }
 
     return NextResponse.json({ success: true, data: result.data }, { status: 201 })

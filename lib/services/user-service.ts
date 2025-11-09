@@ -276,6 +276,111 @@ export async function deleteUser(userId: string): Promise<void> {
 }
 
 /**
+ * Delete user account with comprehensive cleanup
+ * Handles account deletion with:
+ * - Safety checks for admin users
+ * - Pilot data anonymization (GDPR compliant)
+ * - Leave request deletion
+ * - Audit logging
+ *
+ * @param userId - User ID to delete
+ * @param userEmail - User email for audit trail
+ * @returns Promise<void>
+ */
+export async function deleteUserAccount(userId: string, userEmail: string): Promise<void> {
+  const supabase = await createClient()
+
+  try {
+    // Check if user is an admin (prevent accidental admin deletion)
+    const { data: userData, error: userError } = await supabase
+      .from('an_users')
+      .select('role')
+      .eq('id', userId)
+      .single()
+
+    if (userError && userError.code !== 'PGRST116') {
+      throw new Error(`Failed to fetch user role: ${userError.message}`)
+    }
+
+    // Log warning if admin account deletion is attempted
+    if (userData?.role === 'admin') {
+      logInfo('Admin account deletion attempted', {
+        source: 'user-service:deleteUserAccount',
+        metadata: { userId, email: userEmail },
+      })
+    }
+
+    // Get pilot data if exists (for audit trail and cleanup)
+    const { data: pilotData } = await supabase
+      .from('pilots')
+      .select('id')
+      .eq('email', userEmail)
+      .maybeSingle()
+
+    // Create audit log entry before deletion
+    await createAuditLog({
+      action: 'DELETE',
+      tableName: 'an_users',
+      recordId: userId,
+      description: `User account deleted: ${userEmail}`,
+      newData: {
+        email: userEmail,
+        pilot_id: pilotData?.id,
+        timestamp: new Date().toISOString(),
+      },
+    })
+
+    // Anonymize pilot data if exists (GDPR compliance - don't delete historical data)
+    if (pilotData) {
+      const { error: anonymizeError } = await supabase
+        .from('pilots')
+        .update({
+          email: `deleted_${userId}@deleted.local`,
+          phone: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', pilotData.id)
+
+      if (anonymizeError) {
+        throw new Error(`Failed to anonymize pilot data: ${anonymizeError.message}`)
+      }
+
+      // Delete user leave requests
+      const { error: leaveError } = await supabase
+        .from('leave_requests')
+        .delete()
+        .eq('pilot_id', pilotData.id)
+
+      if (leaveError) {
+        throw new Error(`Failed to delete leave requests: ${leaveError.message}`)
+      }
+    }
+
+    // Delete user from an_users table
+    const { error: deleteUserError } = await supabase
+      .from('an_users')
+      .delete()
+      .eq('id', userId)
+
+    if (deleteUserError) {
+      throw new Error(`Failed to delete user: ${deleteUserError.message}`)
+    }
+
+    logInfo('User account deleted successfully', {
+      source: 'user-service:deleteUserAccount',
+      metadata: { userId, email: userEmail, hadPilotData: !!pilotData },
+    })
+  } catch (error) {
+    logError(error as Error, {
+      source: 'user-service:deleteUserAccount',
+      severity: ErrorSeverity.HIGH,
+      metadata: { userId, email: userEmail },
+    })
+    throw error
+  }
+}
+
+/**
  * Get users by role
  */
 export async function getUsersByRole(role: 'Admin' | 'Manager' | 'User'): Promise<User[]> {

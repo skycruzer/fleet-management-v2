@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getCertifications, createCertification } from '@/lib/services/certification-service'
 import { CertificationCreateSchema } from '@/lib/validations/certification-validation'
 import { createClient } from '@/lib/supabase/server'
@@ -104,6 +105,15 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     // Create certification
     const newCertification = await createCertification(validatedData)
+
+    // Revalidate certification pages to clear Next.js cache
+    revalidatePath('/dashboard/certifications')
+    revalidatePath('/dashboard')
+    revalidatePath('/api/certifications')
+    // Also revalidate pilot detail page
+    if (newCertification.pilot_id) {
+      revalidatePath(`/dashboard/pilots/${newCertification.pilot_id}`)
+    }
 
     return NextResponse.json(
       {
