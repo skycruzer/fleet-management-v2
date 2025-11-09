@@ -1,13 +1,63 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: '13.0.5'
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
+      account_lockouts: {
+        Row: {
+          created_at: string | null
+          email: string
+          failed_attempts: number
+          id: string
+          locked_at: string | null
+          locked_until: string
+          reason: string | null
+          unlocked_at: string | null
+          unlocked_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          failed_attempts?: number
+          id?: string
+          locked_at?: string | null
+          locked_until: string
+          reason?: string | null
+          unlocked_at?: string | null
+          unlocked_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          failed_attempts?: number
+          id?: string
+          locked_at?: string | null
+          locked_until?: string
+          reason?: string | null
+          unlocked_at?: string | null
+          unlocked_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_lockouts_unlocked_by_fkey"
+            columns: ["unlocked_by"]
+            isOneToOne: false
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       an_users: {
         Row: {
           created_at: string | null
@@ -149,158 +199,158 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'certification_renewal_plans_check_type_id_fkey'
-            columns: ['check_type_id']
+            foreignKeyName: "certification_renewal_plans_check_type_id_fkey"
+            columns: ["check_type_id"]
             isOneToOne: false
-            referencedRelation: 'check_types'
-            referencedColumns: ['id']
+            referencedRelation: "check_types"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "certification_renewal_plans_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_paired_pilot_id_fkey'
-            columns: ['paired_pilot_id']
+            foreignKeyName: "certification_renewal_plans_paired_pilot_id_fkey"
+            columns: ["paired_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'certification_renewal_plans_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "certification_renewal_plans_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -400,11 +450,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'digital_forms_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "digital_forms_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -441,25 +491,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'disciplinary_audit_log_matter_id_fkey'
-            columns: ['matter_id']
+            foreignKeyName: "disciplinary_audit_log_matter_id_fkey"
+            columns: ["matter_id"]
             isOneToOne: false
-            referencedRelation: 'disciplinary_matters'
-            referencedColumns: ['id']
+            referencedRelation: "disciplinary_matters"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_audit_log_matter_id_fkey'
-            columns: ['matter_id']
+            foreignKeyName: "disciplinary_audit_log_matter_id_fkey"
+            columns: ["matter_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['matter_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["matter_id"]
           },
           {
-            foreignKeyName: 'disciplinary_audit_log_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "disciplinary_audit_log_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -553,102 +603,102 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'disciplinary_matters_assigned_to_fkey'
-            columns: ['assigned_to']
+            foreignKeyName: "disciplinary_matters_assigned_to_fkey"
+            columns: ["assigned_to"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_incident_type_id_fkey'
-            columns: ['incident_type_id']
+            foreignKeyName: "disciplinary_matters_incident_type_id_fkey"
+            columns: ["incident_type_id"]
             isOneToOne: false
-            referencedRelation: 'incident_types'
-            referencedColumns: ['id']
+            referencedRelation: "incident_types"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "disciplinary_matters_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_reported_by_fkey'
-            columns: ['reported_by']
+            foreignKeyName: "disciplinary_matters_reported_by_fkey"
+            columns: ["reported_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'disciplinary_matters_resolved_by_fkey'
-            columns: ['resolved_by']
+            foreignKeyName: "disciplinary_matters_resolved_by_fkey"
+            columns: ["resolved_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -685,6 +735,33 @@ export type Database = {
           is_active?: boolean | null
           name?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      failed_login_attempts: {
+        Row: {
+          attempted_at: string | null
+          created_at: string | null
+          email: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          attempted_at?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          attempted_at?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -736,25 +813,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'feedback_categories_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "feedback_categories_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_categories_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "feedback_categories_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'feedback_categories_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "feedback_categories_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -791,39 +868,39 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'feedback_comments_parent_comment_id_fkey'
-            columns: ['parent_comment_id']
+            foreignKeyName: "feedback_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
             isOneToOne: false
-            referencedRelation: 'feedback_comments'
-            referencedColumns: ['id']
+            referencedRelation: "feedback_comments"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_comments_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_comments_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'feedback_comments_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_comments_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_comments_post_id_fkey'
-            columns: ['post_id']
+            foreignKeyName: "feedback_comments_post_id_fkey"
+            columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: 'feedback_posts'
-            referencedColumns: ['id']
+            referencedRelation: "feedback_posts"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -848,32 +925,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'feedback_likes_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_likes_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_likes_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_likes_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'feedback_likes_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_likes_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_likes_post_id_fkey'
-            columns: ['post_id']
+            foreignKeyName: "feedback_likes_post_id_fkey"
+            columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: 'feedback_posts'
-            referencedColumns: ['id']
+            referencedRelation: "feedback_posts"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -925,53 +1002,53 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'feedback_posts_category_id_fkey'
-            columns: ['category_id']
+            foreignKeyName: "feedback_posts_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: 'feedback_categories'
-            referencedColumns: ['id']
+            referencedRelation: "feedback_categories"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_posts_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_posts_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'feedback_posts_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "feedback_posts_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_posts_reviewed_by_fkey'
-            columns: ['reviewed_by']
+            foreignKeyName: "feedback_posts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'feedback_posts_reviewed_by_fkey'
-            columns: ['reviewed_by']
+            foreignKeyName: "feedback_posts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'feedback_posts_reviewed_by_fkey'
-            columns: ['reviewed_by']
+            foreignKeyName: "feedback_posts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1026,102 +1103,102 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "flight_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "flight_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "flight_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'flight_requests_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "flight_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'flight_requests_reviewed_by_fkey'
-            columns: ['reviewed_by']
+            foreignKeyName: "flight_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1188,11 +1265,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'leave_bid_options_bid_id_fkey'
-            columns: ['bid_id']
+            foreignKeyName: "leave_bid_options_bid_id_fkey"
+            columns: ["bid_id"]
             isOneToOne: false
-            referencedRelation: 'leave_bids'
-            referencedColumns: ['id']
+            referencedRelation: "leave_bids"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1250,81 +1327,81 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_bids_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_bids_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_bids_reviewed_by_fkey'
-            columns: ['reviewed_by']
+            foreignKeyName: "leave_bids_reviewed_by_fkey"
+            columns: ["reviewed_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1403,172 +1480,172 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "leave_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "leave_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "leave_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'leave_requests_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
+            foreignKeyName: "leave_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'leave_requests_reviewed_by_fkey'
-            columns: ['reviewed_by']
+            foreignKeyName: "leave_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1581,7 +1658,7 @@ export type Database = {
           read: boolean | null
           recipient_id: string
           title: string
-          type: Database['public']['Enums']['notification_type']
+          type: Database["public"]["Enums"]["notification_type"]
           updated_at: string | null
         }
         Insert: {
@@ -1592,7 +1669,7 @@ export type Database = {
           read?: boolean | null
           recipient_id: string
           title: string
-          type: Database['public']['Enums']['notification_type']
+          type: Database["public"]["Enums"]["notification_type"]
           updated_at?: string | null
         }
         Update: {
@@ -1603,7 +1680,75 @@ export type Database = {
           read?: boolean | null
           recipient_id?: string
           title?: string
-          type?: Database['public']['Enums']['notification_type']
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      password_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          password_hash: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          password_hash: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          password_hash?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "password_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      password_policies: {
+        Row: {
+          created_at: string | null
+          id: string
+          max_age_days: number | null
+          min_length: number | null
+          prevent_reuse_count: number | null
+          require_lowercase: boolean | null
+          require_number: boolean | null
+          require_special: boolean | null
+          require_uppercase: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          max_age_days?: number | null
+          min_length?: number | null
+          prevent_reuse_count?: number | null
+          require_lowercase?: boolean | null
+          require_number?: boolean | null
+          require_special?: boolean | null
+          require_uppercase?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          max_age_days?: number | null
+          min_length?: number | null
+          prevent_reuse_count?: number | null
+          require_lowercase?: boolean | null
+          require_number?: boolean | null
+          require_special?: boolean | null
+          require_uppercase?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1635,25 +1780,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'password_reset_tokens_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "password_reset_tokens_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'password_reset_tokens_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "password_reset_tokens_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
           },
           {
-            foreignKeyName: 'password_reset_tokens_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "password_reset_tokens_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1684,81 +1829,81 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pilot_checks_check_type_id_fkey'
-            columns: ['check_type_id']
+            foreignKeyName: "pilot_checks_check_type_id_fkey"
+            columns: ["check_type_id"]
             isOneToOne: false
-            referencedRelation: 'check_types'
-            referencedColumns: ['id']
+            referencedRelation: "check_types"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1807,81 +1952,81 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_feedback_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_feedback_responded_by_fkey'
-            columns: ['responded_by']
+            foreignKeyName: "pilot_feedback_responded_by_fkey"
+            columns: ["responded_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1960,81 +2105,81 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pilot_users_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "pilot_users_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_users_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_users_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2057,7 +2202,7 @@ export type Database = {
           passport_number: string | null
           qualification_notes: string | null
           rhs_captain_expiry: string | null
-          role: Database['public']['Enums']['pilot_role']
+          role: Database["public"]["Enums"]["pilot_role"]
           seniority_number: number | null
           updated_at: string
           user_id: string | null
@@ -2080,7 +2225,7 @@ export type Database = {
           passport_number?: string | null
           qualification_notes?: string | null
           rhs_captain_expiry?: string | null
-          role: Database['public']['Enums']['pilot_role']
+          role: Database["public"]["Enums"]["pilot_role"]
           seniority_number?: number | null
           updated_at?: string
           user_id?: string | null
@@ -2103,18 +2248,18 @@ export type Database = {
           passport_number?: string | null
           qualification_notes?: string | null
           rhs_captain_expiry?: string | null
-          role?: Database['public']['Enums']['pilot_role']
+          role?: Database["public"]["Enums"]["pilot_role"]
           seniority_number?: number | null
           updated_at?: string
           user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'fk_pilots_contract_type_id'
-            columns: ['contract_type_id']
+            foreignKeyName: "fk_pilots_contract_type_id"
+            columns: ["contract_type_id"]
             isOneToOne: false
-            referencedRelation: 'contract_types'
-            referencedColumns: ['id']
+            referencedRelation: "contract_types"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2163,51 +2308,78 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'renewal_plan_history_changed_by_fkey'
-            columns: ['changed_by']
+            foreignKeyName: "renewal_plan_history_changed_by_fkey"
+            columns: ["changed_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'renewal_plan_history_renewal_plan_id_fkey'
-            columns: ['renewal_plan_id']
+            foreignKeyName: "renewal_plan_history_renewal_plan_id_fkey"
+            columns: ["renewal_plan_id"]
             isOneToOne: false
-            referencedRelation: 'certification_renewal_plans'
-            referencedColumns: ['id']
+            referencedRelation: "certification_renewal_plans"
+            referencedColumns: ["id"]
           },
         ]
       }
-      roster_period_capacity: {
+      report_email_settings: {
         Row: {
           created_at: string
-          current_allocations: Json
+          description: string | null
           id: string
-          max_pilots_per_category: Json
-          period_end_date: string
-          period_start_date: string
-          roster_period: string
+          setting_key: string
+          setting_value: string
           updated_at: string
         }
         Insert: {
           created_at?: string
-          current_allocations?: Json
+          description?: string | null
           id?: string
-          max_pilots_per_category?: Json
-          period_end_date: string
-          period_start_date: string
-          roster_period: string
+          setting_key: string
+          setting_value: string
           updated_at?: string
         }
         Update: {
           created_at?: string
-          current_allocations?: Json
+          description?: string | null
           id?: string
-          max_pilots_per_category?: Json
+          setting_key?: string
+          setting_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      roster_period_capacity: {
+        Row: {
+          flight_capacity: number | null
+          ground_capacity: number | null
+          medical_capacity: number | null
+          notes: string | null
+          period_end_date: string
+          period_start_date: string
+          roster_period: string
+          simulator_capacity: number | null
+        }
+        Insert: {
+          flight_capacity?: number | null
+          ground_capacity?: number | null
+          medical_capacity?: number | null
+          notes?: string | null
+          period_end_date: string
+          period_start_date: string
+          roster_period: string
+          simulator_capacity?: number | null
+        }
+        Update: {
+          flight_capacity?: number | null
+          ground_capacity?: number | null
+          medical_capacity?: number | null
+          notes?: string | null
           period_end_date?: string
           period_start_date?: string
           roster_period?: string
-          updated_at?: string
+          simulator_capacity?: number | null
         }
         Relationships: []
       }
@@ -2271,25 +2443,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'task_audit_log_task_id_fkey'
-            columns: ['task_id']
+            foreignKeyName: "task_audit_log_task_id_fkey"
+            columns: ["task_id"]
             isOneToOne: false
-            referencedRelation: 'active_tasks_dashboard'
-            referencedColumns: ['id']
+            referencedRelation: "active_tasks_dashboard"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'task_audit_log_task_id_fkey'
-            columns: ['task_id']
+            foreignKeyName: "task_audit_log_task_id_fkey"
+            columns: ["task_id"]
             isOneToOne: false
-            referencedRelation: 'tasks'
-            referencedColumns: ['id']
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'task_audit_log_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "task_audit_log_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2407,123 +2579,123 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'tasks_assigned_to_fkey'
-            columns: ['assigned_to']
+            foreignKeyName: "tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_category_id_fkey'
-            columns: ['category_id']
+            foreignKeyName: "tasks_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: 'task_categories'
-            referencedColumns: ['id']
+            referencedRelation: "task_categories"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "tasks_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_parent_task_id_fkey'
-            columns: ['parent_task_id']
+            foreignKeyName: "tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
             isOneToOne: false
-            referencedRelation: 'active_tasks_dashboard'
-            referencedColumns: ['id']
+            referencedRelation: "active_tasks_dashboard"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_parent_task_id_fkey'
-            columns: ['parent_task_id']
+            foreignKeyName: "tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
             isOneToOne: false
-            referencedRelation: 'tasks'
-            referencedColumns: ['id']
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_matter_id_fkey'
-            columns: ['related_matter_id']
+            foreignKeyName: "tasks_related_matter_id_fkey"
+            columns: ["related_matter_id"]
             isOneToOne: false
-            referencedRelation: 'disciplinary_matters'
-            referencedColumns: ['id']
+            referencedRelation: "disciplinary_matters"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_matter_id_fkey'
-            columns: ['related_matter_id']
+            foreignKeyName: "tasks_related_matter_id_fkey"
+            columns: ["related_matter_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['matter_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["matter_id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_related_pilot_id_fkey'
-            columns: ['related_pilot_id']
+            foreignKeyName: "tasks_related_pilot_id_fkey"
+            columns: ["related_pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2548,25 +2720,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'tasks_assigned_to_fkey'
-            columns: ['assigned_to']
+            foreignKeyName: "tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_category_id_fkey'
-            columns: ['category_id']
+            foreignKeyName: "tasks_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: 'task_categories'
-            referencedColumns: ['id']
+            referencedRelation: "task_categories"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'tasks_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "tasks_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: 'an_users'
-            referencedColumns: ['id']
+            referencedRelation: "an_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2577,7 +2749,7 @@ export type Database = {
           first_name: string | null
           id: string | null
           last_name: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
         }
         Insert: {
           captain_qualifications?: Json | null
@@ -2585,7 +2757,7 @@ export type Database = {
           first_name?: string | null
           id?: string | null
           last_name?: string | null
-          role?: Database['public']['Enums']['pilot_role'] | null
+          role?: Database["public"]["Enums"]["pilot_role"] | null
         }
         Update: {
           captain_qualifications?: Json | null
@@ -2593,7 +2765,7 @@ export type Database = {
           first_name?: string | null
           id?: string | null
           last_name?: string | null
-          role?: Database['public']['Enums']['pilot_role'] | null
+          role?: Database["public"]["Enums"]["pilot_role"] | null
         }
         Relationships: []
       }
@@ -2620,86 +2792,86 @@ export type Database = {
           id: string | null
           last_name: string | null
           pilot_id: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
           status: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'pilot_checks_check_type_id_fkey'
-            columns: ['check_type_id']
+            foreignKeyName: "pilot_checks_check_type_id_fkey"
+            columns: ["check_type_id"]
             isOneToOne: false
-            referencedRelation: 'check_types'
-            referencedColumns: ['id']
+            referencedRelation: "check_types"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2718,81 +2890,81 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pilot_checks_check_type_id_fkey'
-            columns: ['check_type_id']
+            foreignKeyName: "pilot_checks_check_type_id_fkey"
+            columns: ["check_type_id"]
             isOneToOne: false
-            referencedRelation: 'check_types'
-            referencedColumns: ['id']
+            referencedRelation: "check_types"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2808,74 +2980,74 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'pilot_checks_pilot_id_fkey'
-            columns: ['pilot_id']
+            foreignKeyName: "pilot_checks_pilot_id_fkey"
+            columns: ["pilot_id"]
             isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2901,7 +3073,7 @@ export type Database = {
           first_name: string | null
           last_name: string | null
           pilot_id: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
         }
         Relationships: []
       }
@@ -2913,7 +3085,7 @@ export type Database = {
           first_name: string | null
           id: string | null
           last_name: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
           total_checks: number | null
         }
         Relationships: []
@@ -2929,17 +3101,17 @@ export type Database = {
           first_name: string | null
           id: string | null
           last_name: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
           seniority_number: number | null
           total_checks: number | null
         }
         Relationships: [
           {
-            foreignKeyName: 'fk_pilots_contract_type_id'
-            columns: ['contract_type_id']
+            foreignKeyName: "fk_pilots_contract_type_id"
+            columns: ["contract_type_id"]
             isOneToOne: false
-            referencedRelation: 'contract_types'
-            referencedColumns: ['id']
+            referencedRelation: "contract_types"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2949,7 +3121,7 @@ export type Database = {
           first_name: string | null
           id: string | null
           last_name: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
           total_checks: number | null
           valid_checks: number | null
         }
@@ -2963,7 +3135,7 @@ export type Database = {
           first_name: string | null
           id: string | null
           last_name: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
           seniority_number: number | null
           total_certifications: number | null
         }
@@ -3024,17 +3196,17 @@ export type Database = {
           passport_number: string | null
           qualification_notes: string | null
           rhs_captain_expiry: string | null
-          role: Database['public']['Enums']['pilot_role'] | null
+          role: Database["public"]["Enums"]["pilot_role"] | null
           seniority_number: number | null
           updated_at: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'fk_pilots_contract_type_id'
-            columns: ['contract_type_id']
+            foreignKeyName: "fk_pilots_contract_type_id"
+            columns: ["contract_type_id"]
             isOneToOne: false
-            referencedRelation: 'contract_types'
-            referencedColumns: ['id']
+            referencedRelation: "contract_types"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -3148,8 +3320,14 @@ export type Database = {
           risk_level: string
         }[]
       }
+      cleanup_expired_lockouts: { Args: never; Returns: undefined }
       cleanup_expired_password_reset_tokens: { Args: never; Returns: number }
       cleanup_old_expiry_alerts: { Args: never; Returns: number }
+      cleanup_old_failed_attempts: { Args: never; Returns: undefined }
+      cleanup_password_history: {
+        Args: { user_uuid: string }
+        Returns: undefined
+      }
       complete_task: { Args: { p_task_id: string }; Returns: boolean }
       create_audit_log: {
         Args: {
@@ -3168,7 +3346,7 @@ export type Database = {
               p_message: string
               p_recipient_id: string
               p_title: string
-              p_type: Database['public']['Enums']['notification_type']
+              p_type: Database["public"]["Enums"]["notification_type"]
             }
             Returns: string
           }
@@ -3193,7 +3371,7 @@ export type Database = {
           first_name: string
           last_name: string
           pilot_id: string
-          role: Database['public']['Enums']['pilot_role']
+          role: Database["public"]["Enums"]["pilot_role"]
           seniority_number: number
         }[]
       }
@@ -3210,7 +3388,7 @@ export type Database = {
           full_name: string
           is_active: boolean
           pilot_id: string
-          role: Database['public']['Enums']['pilot_role']
+          role: Database["public"]["Enums"]["pilot_role"]
         }[]
       }
       get_auth_user_from_pilot_user: {
@@ -3226,7 +3404,7 @@ export type Database = {
       }
       get_check_status: {
         Args: { expiry_date: string }
-        Returns: Database['public']['Enums']['check_status']
+        Returns: Database["public"]["Enums"]["check_status"]
       }
       get_crew_expiry_summary: {
         Args: { crew_member_uuid: string }
@@ -3303,12 +3481,18 @@ export type Database = {
           total_pilots: number
         }[]
       }
+      get_lockout_expiry: { Args: { user_email: string }; Returns: string }
       get_monthly_expiry_data: {
         Args: never
         Returns: {
           count: number
           month: string
         }[]
+      }
+      get_password_age_days: { Args: { user_uuid: string }; Returns: number }
+      get_password_history_count: {
+        Args: { user_uuid: string }
+        Returns: number
       }
       get_pending_pilot_registrations: {
         Args: never
@@ -3395,6 +3579,10 @@ export type Database = {
           renewal_cost_estimate: number
         }[]
       }
+      get_report_email_recipients: {
+        Args: { category_name: string }
+        Returns: string
+      }
       get_system_settings: {
         Args: { p_setting_type?: string; p_user_email: string }
         Returns: Json
@@ -3414,6 +3602,7 @@ export type Database = {
         Returns: boolean
       }
       insert_crew_checks_batch: { Args: never; Returns: undefined }
+      is_account_locked: { Args: { user_email: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_admin_user: { Args: never; Returns: boolean }
       is_current_user: { Args: { user_id: string }; Returns: boolean }
@@ -3525,73 +3714,105 @@ export type Database = {
       }
     }
     Enums: {
-      assignment_type: 'FLIGHT' | 'STANDBY' | 'TRAINING' | 'OFFICE' | 'LEAVE' | 'SICK' | 'REST'
+      assignment_type:
+        | "FLIGHT"
+        | "STANDBY"
+        | "TRAINING"
+        | "OFFICE"
+        | "LEAVE"
+        | "SICK"
+        | "REST"
       audit_action:
-        | 'CREATE'
-        | 'UPDATE'
-        | 'DELETE'
-        | 'VIEW'
-        | 'APPROVE'
-        | 'REJECT'
-        | 'LOGIN'
-        | 'LOGOUT'
-        | 'EXPORT'
+        | "CREATE"
+        | "UPDATE"
+        | "DELETE"
+        | "VIEW"
+        | "APPROVE"
+        | "REJECT"
+        | "LOGIN"
+        | "LOGOUT"
+        | "EXPORT"
       certification_category:
-        | 'LICENCE'
-        | 'MEDICAL'
-        | 'IDENTITY'
-        | 'PASSPORT'
-        | 'AIRCRAFT_TYPE'
-        | 'TRAINING'
-        | 'OPERATIONAL'
-        | 'SIMULATOR'
-      certification_status: 'VALID' | 'EXPIRING' | 'EXPIRED' | 'PENDING_RENEWAL' | 'NOT_APPLICABLE'
+        | "LICENCE"
+        | "MEDICAL"
+        | "IDENTITY"
+        | "PASSPORT"
+        | "AIRCRAFT_TYPE"
+        | "TRAINING"
+        | "OPERATIONAL"
+        | "SIMULATOR"
+      certification_status:
+        | "VALID"
+        | "EXPIRING"
+        | "EXPIRED"
+        | "PENDING_RENEWAL"
+        | "NOT_APPLICABLE"
       check_category:
-        | 'MEDICAL'
-        | 'LICENSE'
-        | 'TRAINING'
-        | 'QUALIFICATION'
-        | 'SECURITY'
-        | 'RECENCY'
-        | 'LANGUAGE'
+        | "MEDICAL"
+        | "LICENSE"
+        | "TRAINING"
+        | "QUALIFICATION"
+        | "SECURITY"
+        | "RECENCY"
+        | "LANGUAGE"
       check_status:
-        | 'EXPIRED'
-        | 'EXPIRING_7_DAYS'
-        | 'EXPIRING_30_DAYS'
-        | 'EXPIRING_60_DAYS'
-        | 'EXPIRING_90_DAYS'
-        | 'CURRENT'
+        | "EXPIRED"
+        | "EXPIRING_7_DAYS"
+        | "EXPIRING_30_DAYS"
+        | "EXPIRING_60_DAYS"
+        | "EXPIRING_90_DAYS"
+        | "CURRENT"
       crew_role:
-        | 'CAPTAIN'
-        | 'FIRST_OFFICER'
-        | 'SECOND_OFFICER'
-        | 'TRAINING_CAPTAIN'
-        | 'CHECK_CAPTAIN'
-      leave_type: 'RDO' | 'SDO' | 'ANN' | 'SCK' | 'LSL' | 'COMP' | 'MAT' | 'PAT' | 'UNPAID'
+        | "CAPTAIN"
+        | "FIRST_OFFICER"
+        | "SECOND_OFFICER"
+        | "TRAINING_CAPTAIN"
+        | "CHECK_CAPTAIN"
+      leave_type:
+        | "RDO"
+        | "SDO"
+        | "ANN"
+        | "SCK"
+        | "LSL"
+        | "COMP"
+        | "MAT"
+        | "PAT"
+        | "UNPAID"
       notification_level:
-        | '90_DAYS'
-        | '60_DAYS'
-        | '30_DAYS'
-        | '14_DAYS'
-        | '7_DAYS'
-        | 'EXPIRED'
-        | 'CRITICAL'
-      notification_status: 'PENDING' | 'SENT' | 'ACKNOWLEDGED' | 'FAILED' | 'CANCELLED'
+        | "90_DAYS"
+        | "60_DAYS"
+        | "30_DAYS"
+        | "14_DAYS"
+        | "7_DAYS"
+        | "EXPIRED"
+        | "CRITICAL"
+      notification_status:
+        | "PENDING"
+        | "SENT"
+        | "ACKNOWLEDGED"
+        | "FAILED"
+        | "CANCELLED"
       notification_type:
-        | 'leave_request_submitted'
-        | 'leave_request_approved'
-        | 'leave_request_rejected'
-        | 'leave_request_pending_review'
-        | 'leave_bid_submitted'
-        | 'leave_bid_approved'
-        | 'leave_bid_rejected'
-        | 'flight_request_submitted'
-        | 'flight_request_approved'
-        | 'flight_request_rejected'
-      pilot_position: 'captain' | 'first_officer' | 'second_officer' | 'cadet'
-      pilot_role: 'Captain' | 'First Officer'
-      request_status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'EXPIRED'
-      visa_type: 'Australia' | 'China' | 'New Zealand' | 'Japan' | 'Canada'
+        | "leave_request_submitted"
+        | "leave_request_approved"
+        | "leave_request_rejected"
+        | "leave_request_pending_review"
+        | "leave_bid_submitted"
+        | "leave_bid_approved"
+        | "leave_bid_rejected"
+        | "flight_request_submitted"
+        | "flight_request_approved"
+        | "flight_request_rejected"
+      pilot_position: "captain" | "first_officer" | "second_officer" | "cadet"
+      pilot_role: "Captain" | "First Officer"
+      request_status:
+        | "DRAFT"
+        | "PENDING"
+        | "APPROVED"
+        | "REJECTED"
+        | "CANCELLED"
+        | "EXPIRED"
+      visa_type: "Australia" | "China" | "New Zealand" | "Japan" | "Canada"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3599,31 +3820,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -3632,23 +3855,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -3657,23 +3880,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -3682,115 +3905,152 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
   public: {
     Enums: {
-      assignment_type: ['FLIGHT', 'STANDBY', 'TRAINING', 'OFFICE', 'LEAVE', 'SICK', 'REST'],
+      assignment_type: [
+        "FLIGHT",
+        "STANDBY",
+        "TRAINING",
+        "OFFICE",
+        "LEAVE",
+        "SICK",
+        "REST",
+      ],
       audit_action: [
-        'CREATE',
-        'UPDATE',
-        'DELETE',
-        'VIEW',
-        'APPROVE',
-        'REJECT',
-        'LOGIN',
-        'LOGOUT',
-        'EXPORT',
+        "CREATE",
+        "UPDATE",
+        "DELETE",
+        "VIEW",
+        "APPROVE",
+        "REJECT",
+        "LOGIN",
+        "LOGOUT",
+        "EXPORT",
       ],
       certification_category: [
-        'LICENCE',
-        'MEDICAL',
-        'IDENTITY',
-        'PASSPORT',
-        'AIRCRAFT_TYPE',
-        'TRAINING',
-        'OPERATIONAL',
-        'SIMULATOR',
+        "LICENCE",
+        "MEDICAL",
+        "IDENTITY",
+        "PASSPORT",
+        "AIRCRAFT_TYPE",
+        "TRAINING",
+        "OPERATIONAL",
+        "SIMULATOR",
       ],
-      certification_status: ['VALID', 'EXPIRING', 'EXPIRED', 'PENDING_RENEWAL', 'NOT_APPLICABLE'],
+      certification_status: [
+        "VALID",
+        "EXPIRING",
+        "EXPIRED",
+        "PENDING_RENEWAL",
+        "NOT_APPLICABLE",
+      ],
       check_category: [
-        'MEDICAL',
-        'LICENSE',
-        'TRAINING',
-        'QUALIFICATION',
-        'SECURITY',
-        'RECENCY',
-        'LANGUAGE',
+        "MEDICAL",
+        "LICENSE",
+        "TRAINING",
+        "QUALIFICATION",
+        "SECURITY",
+        "RECENCY",
+        "LANGUAGE",
       ],
       check_status: [
-        'EXPIRED',
-        'EXPIRING_7_DAYS',
-        'EXPIRING_30_DAYS',
-        'EXPIRING_60_DAYS',
-        'EXPIRING_90_DAYS',
-        'CURRENT',
+        "EXPIRED",
+        "EXPIRING_7_DAYS",
+        "EXPIRING_30_DAYS",
+        "EXPIRING_60_DAYS",
+        "EXPIRING_90_DAYS",
+        "CURRENT",
       ],
       crew_role: [
-        'CAPTAIN',
-        'FIRST_OFFICER',
-        'SECOND_OFFICER',
-        'TRAINING_CAPTAIN',
-        'CHECK_CAPTAIN',
+        "CAPTAIN",
+        "FIRST_OFFICER",
+        "SECOND_OFFICER",
+        "TRAINING_CAPTAIN",
+        "CHECK_CAPTAIN",
       ],
-      leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID'],
+      leave_type: [
+        "RDO",
+        "SDO",
+        "ANN",
+        "SCK",
+        "LSL",
+        "COMP",
+        "MAT",
+        "PAT",
+        "UNPAID",
+      ],
       notification_level: [
-        '90_DAYS',
-        '60_DAYS',
-        '30_DAYS',
-        '14_DAYS',
-        '7_DAYS',
-        'EXPIRED',
-        'CRITICAL',
+        "90_DAYS",
+        "60_DAYS",
+        "30_DAYS",
+        "14_DAYS",
+        "7_DAYS",
+        "EXPIRED",
+        "CRITICAL",
       ],
-      notification_status: ['PENDING', 'SENT', 'ACKNOWLEDGED', 'FAILED', 'CANCELLED'],
+      notification_status: [
+        "PENDING",
+        "SENT",
+        "ACKNOWLEDGED",
+        "FAILED",
+        "CANCELLED",
+      ],
       notification_type: [
-        'leave_request_submitted',
-        'leave_request_approved',
-        'leave_request_rejected',
-        'leave_request_pending_review',
-        'leave_bid_submitted',
-        'leave_bid_approved',
-        'leave_bid_rejected',
-        'flight_request_submitted',
-        'flight_request_approved',
-        'flight_request_rejected',
+        "leave_request_submitted",
+        "leave_request_approved",
+        "leave_request_rejected",
+        "leave_request_pending_review",
+        "leave_bid_submitted",
+        "leave_bid_approved",
+        "leave_bid_rejected",
+        "flight_request_submitted",
+        "flight_request_approved",
+        "flight_request_rejected",
       ],
-      pilot_position: ['captain', 'first_officer', 'second_officer', 'cadet'],
-      pilot_role: ['Captain', 'First Officer'],
-      request_status: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'EXPIRED'],
-      visa_type: ['Australia', 'China', 'New Zealand', 'Japan', 'Canada'],
+      pilot_position: ["captain", "first_officer", "second_officer", "cadet"],
+      pilot_role: ["Captain", "First Officer"],
+      request_status: [
+        "DRAFT",
+        "PENDING",
+        "APPROVED",
+        "REJECTED",
+        "CANCELLED",
+        "EXPIRED",
+      ],
+      visa_type: ["Australia", "China", "New Zealand", "Japan", "Canada"],
     },
   },
 } as const

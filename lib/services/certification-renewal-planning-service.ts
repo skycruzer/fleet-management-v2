@@ -380,14 +380,31 @@ export async function getRosterPeriodCapacity(
 
   // Group by category
   const categoryBreakdown: RosterPeriodSummary['categoryBreakdown'] = {}
-  const maxPilots = capacity.max_pilots_per_category as Record<string, number>
+  // Map category names to capacity columns
+  const getCategoryCapacity = (category: string) => {
+    switch (category?.toLowerCase()) {
+      case 'medical':
+        return capacity.medical_capacity || 4
+      case 'flight':
+      case 'flight check':
+        return capacity.flight_capacity || 4
+      case 'simulator':
+      case 'sim':
+        return capacity.simulator_capacity || 6
+      case 'ground':
+      case 'ground school':
+        return capacity.ground_capacity || 8
+      default:
+        return 8 // Default capacity
+    }
+  }
 
   renewals.forEach((renewal) => {
     const category = renewal.check_type?.category || 'Unknown'
     if (!categoryBreakdown[category]) {
       categoryBreakdown[category] = {
         plannedCount: 0,
-        capacity: maxPilots[category] || 0,
+        capacity: getCategoryCapacity(category),
         pilots: [],
       }
     }
@@ -401,7 +418,12 @@ export async function getRosterPeriodCapacity(
   })
 
   const totalPlanned = renewals.length
-  const totalCapacity = Object.values(maxPilots).reduce((sum, cap) => sum + cap, 0)
+  // Calculate total capacity from all category columns
+  const totalCapacity =
+    (capacity.medical_capacity || 4) +
+    (capacity.flight_capacity || 4) +
+    (capacity.simulator_capacity || 6) +
+    (capacity.ground_capacity || 8)
 
   return {
     rosterPeriod: capacity.roster_period,
@@ -410,7 +432,7 @@ export async function getRosterPeriodCapacity(
     categoryBreakdown,
     totalPlannedRenewals: totalPlanned,
     totalCapacity,
-    utilizationPercentage: (totalPlanned / totalCapacity) * 100,
+    utilizationPercentage: totalCapacity > 0 ? (totalPlanned / totalCapacity) * 100 : 0,
   }
 }
 
@@ -591,8 +613,22 @@ function getCapacityForPeriod(
   const capacity = capacityMap.get(rosterPeriod)
   if (!capacity) return 8 // Default capacity
 
-  const maxPilots = capacity.max_pilots_per_category as Record<string, number>
-  return maxPilots[category] || 8
+  // Map category names to capacity columns
+  switch (category?.toLowerCase()) {
+    case 'medical':
+      return capacity.medical_capacity || 4
+    case 'flight':
+    case 'flight check':
+      return capacity.flight_capacity || 4
+    case 'simulator':
+    case 'sim':
+      return capacity.simulator_capacity || 6
+    case 'ground':
+    case 'ground school':
+      return capacity.ground_capacity || 8
+    default:
+      return 8 // Default capacity
+  }
 }
 
 function calculatePriority(expiryDate: Date): number {

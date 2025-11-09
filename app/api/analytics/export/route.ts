@@ -148,8 +148,11 @@ export async function POST(request: NextRequest) {
     let responseBody: BodyInit
     if (Buffer.isBuffer(exportResult.content)) {
       responseBody = new Uint8Array(exportResult.content)
-    } else {
+    } else if (typeof exportResult.content === 'string') {
       responseBody = exportResult.content
+    } else {
+      // Handle other possible types
+      responseBody = exportResult.content as BodyInit
     }
 
     return new NextResponse(responseBody, {
