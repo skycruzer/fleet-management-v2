@@ -3,6 +3,10 @@
 /**
  * Test Roster Period Rollover Logic
  * Verify RP13/YYYY correctly rolls to RP01/(YYYY+1)
+ *
+ * CORRECT LOGIC:
+ * - RP13/2025: Nov 8 - Dec 5, 2025
+ * - RP01/2026: Dec 6, 2025 - Jan 2, 2026
  */
 
 console.log('\n🧪 Testing Roster Period Rollover Logic\n');
@@ -10,23 +14,23 @@ console.log('══════════════════════�
 
 // Test cases
 const testCases = [
-  { date: '2025-11-07', expected: 'RP10/2025' },
-  { date: '2025-11-08', expected: 'RP11/2025' },
-  { date: '2025-12-05', expected: 'RP11/2025' },
-  { date: '2025-12-06', expected: 'RP12/2025' },
-  { date: '2026-01-02', expected: 'RP12/2025' },
-  { date: '2026-01-03', expected: 'RP13/2025' },
-  { date: '2026-01-30', expected: 'RP13/2025' },
-  { date: '2026-01-31', expected: 'RP01/2026' }, // ROLLOVER!
-  { date: '2026-02-27', expected: 'RP01/2026' },
-  { date: '2026-02-28', expected: 'RP02/2026' },
+  { date: '2025-10-11', expected: 'RP12/2025' },  // -28 days from anchor
+  { date: '2025-11-07', expected: 'RP12/2025' },  // Last day of RP12
+  { date: '2025-11-08', expected: 'RP13/2025' },  // ANCHOR - First day of RP13
+  { date: '2025-11-15', expected: 'RP13/2025' },  // Middle of RP13
+  { date: '2025-12-05', expected: 'RP13/2025' },  // Last day of RP13
+  { date: '2025-12-06', expected: 'RP01/2026' },  // ROLLOVER! First day of RP01/2026
+  { date: '2025-12-15', expected: 'RP01/2026' },  // Middle of RP01/2026
+  { date: '2026-01-02', expected: 'RP01/2026' },  // Last day of RP01/2026
+  { date: '2026-01-03', expected: 'RP02/2026' },  // First day of RP02/2026
+  { date: '2026-01-30', expected: 'RP02/2026' },  // Last day of RP02/2026
 ];
 
 console.log('Test Cases:\n');
 
-// Known anchor - CORRECTED to match database
-const anchorDate = new Date('2025-10-11');
-const anchorNumber = 10;  // Changed from 12 to 10
+// CORRECTED ANCHOR: RP13/2025 starts on 2025-11-08
+const anchorDate = new Date('2025-11-08');
+const anchorNumber = 13;
 const anchorYear = 2025;
 const ROSTER_DURATION = 28;
 const PERIODS_PER_YEAR = 13;
@@ -82,8 +86,8 @@ console.log('══════════════════════�
 if (failed === 0) {
   console.log('✅ All tests passed! Rollover logic is correct.\n');
   console.log('Key Confirmation:');
-  console.log('  • RP13/2025 ends on 2026-01-30');
-  console.log('  • RP01/2026 starts on 2026-01-31');
+  console.log('  • RP13/2025: Nov 8 - Dec 5, 2025');
+  console.log('  • RP01/2026: Dec 6, 2025 - Jan 2, 2026');
   console.log('  • Rollover from RP13 → RP01 working correctly\n');
 } else {
   console.log('❌ Some tests failed. Rollover logic needs review.\n');

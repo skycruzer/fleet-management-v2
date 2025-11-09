@@ -32,7 +32,7 @@
  * - After RP13/YYYY, the next period is RP1/(YYYY+1)
  *
  * KNOWN ANCHOR POINT (CRITICAL):
- * - RP10/2025 starts on October 11, 2025
+ * - RP13/2025 starts on November 8, 2025
  * - This is our reference point for all calculations
  * - All past and future roster periods are calculated from this anchor
  *
@@ -41,34 +41,35 @@
  * ========================================
  *
  * FORWARD CALCULATION (Future Periods):
- * 1. Calculate days from anchor date (Oct 11, 2025)
+ * 1. Calculate days from anchor date (Nov 8, 2025)
  * 2. Divide by 28 to get number of complete periods passed
- * 3. Add to anchor period number (12) to get current period
+ * 3. Add to anchor period number (13) to get current period
  * 4. If number > 13, subtract 13 and increment year
  *
  * BACKWARD CALCULATION (Past Periods):
  * 1. Calculate negative days from anchor date
  * 2. Divide by 28 (floor division for negative numbers)
- * 3. Subtract from anchor period number (12)
+ * 3. Subtract from anchor period number (13)
  * 4. If number <= 0, add 13 and decrement year
  *
  * EXAMPLE CALCULATIONS:
  *
- * Date: October 25, 2025 (14 days after RP10/2025 start)
- * - Days since anchor: 14
- * - Periods passed: floor(14/28) = 0
- * - Result: RP10/2025 (same period, still within 28 days)
+ * Date: November 15, 2025 (7 days after RP13/2025 start)
+ * - Days since anchor: 7
+ * - Periods passed: floor(7/28) = 0
+ * - Result: RP13/2025 (same period, still within 28 days)
  *
- * Date: November 8, 2025 (28 days after RP10/2025 start)
+ * Date: December 6, 2025 (28 days after RP13/2025 start)
  * - Days since anchor: 28
  * - Periods passed: floor(28/28) = 1
- * - Result: RP11/2025 (next period)
+ * - Current number: 13 + 1 = 14 → wraps to RP01/2026
+ * - Result: RP01/2026 (next period, year rollover)
  *
- * Date: December 6, 2025 (56 days after RP10/2025 start)
+ * Date: January 3, 2026 (56 days after RP13/2025 start)
  * - Days since anchor: 56
  * - Periods passed: floor(56/28) = 2
- * - Current number: 10 + 2 = 12
- * - Result: RP12/2025
+ * - Current number: 13 + 2 = 15 → wraps to RP02/2026
+ * - Result: RP02/2026
  *
  * ========================================
  * LEAVE REQUEST RULES
@@ -205,10 +206,10 @@ const PERIODS_PER_YEAR = 13
  * CRITICAL: All roster period calculations derive from this reference
  *
  * ANCHOR DETAILS:
- * - Period: RP12/2025
- * - Start Date: October 11, 2025 (Saturday)
- * - End Date: November 7, 2025 (Friday) [28 days later]
- * - Next Period: RP13/2025 starts November 8, 2025
+ * - Period: RP13/2025
+ * - Start Date: November 8, 2025 (Saturday)
+ * - End Date: December 5, 2025 (Friday) [28 days later]
+ * - Next Period: RP01/2026 starts December 6, 2025
  *
  * MAINTENANCE NOTE:
  * - Verify this date with fleet operations before changing
@@ -216,9 +217,9 @@ const PERIODS_PER_YEAR = 13
  * - Must coordinate with leave request system migration
  */
 const KNOWN_ROSTER = {
-  number: 10,
+  number: 13,
   year: 2025,
-  startDate: new Date('2025-10-11'),
+  startDate: new Date('2025-11-08'),
 }
 
 // ========================================
@@ -260,9 +261,9 @@ export interface RosterPeriod {
  * 5. Calculate start/end dates and remaining days
  *
  * EXAMPLES:
- * - Oct 15, 2025 → RP12/2025 (4 days into period)
- * - Nov 10, 2025 → RP13/2025 (2 days into period)
- * - Dec 10, 2025 → RP1/2026 (in new year cycle)
+ * - Nov 15, 2025 → RP13/2025 (7 days into period)
+ * - Dec 10, 2025 → RP01/2026 (4 days into period, new year cycle)
+ * - Jan 10, 2026 → RP02/2026 (7 days into period)
  *
  * @returns Current roster period with all calculated fields
  */
@@ -405,7 +406,7 @@ export function getPreviousRosterPeriodObject(current: RosterPeriod): RosterPeri
 /**
  * Format roster period for display
  *
- * OUTPUT FORMAT: "RP12/2025: Oct 11 - Nov 07, 2025"
+ * OUTPUT FORMAT: "RP13/2025: Nov 08 - Dec 05, 2025"
  *
  * @param roster - The roster period to format
  * @returns Human-readable roster period string
@@ -477,9 +478,9 @@ export function getRosterDates(roster: RosterPeriod): Date[] {
  * Used for multi-period leave requests and reporting
  *
  * EXAMPLES:
- * - Oct 15 to Oct 25 (both in RP12/2025) → [RP12/2025]
- * - Oct 25 to Nov 10 (spans two periods) → [RP12/2025, RP13/2025]
- * - Dec 1 to Jan 15 (spans year) → [RP13/2025, RP1/2026]
+ * - Nov 15 to Nov 25 (both in RP13/2025) → [RP13/2025]
+ * - Nov 25 to Dec 10 (spans two periods) → [RP13/2025, RP01/2026]
+ * - Dec 1 to Jan 15 (spans year) → [RP13/2025, RP01/2026, RP02/2026]
  *
  * @param startDate - Range start date
  * @param endDate - Range end date
