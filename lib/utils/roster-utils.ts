@@ -32,7 +32,7 @@
  * - After RP13/YYYY, the next period is RP1/(YYYY+1)
  *
  * KNOWN ANCHOR POINT (CRITICAL):
- * - RP12/2025 starts on October 11, 2025
+ * - RP10/2025 starts on October 11, 2025
  * - This is our reference point for all calculations
  * - All past and future roster periods are calculated from this anchor
  *
@@ -54,22 +54,21 @@
  *
  * EXAMPLE CALCULATIONS:
  *
- * Date: October 25, 2025 (14 days after RP12/2025 start)
+ * Date: October 25, 2025 (14 days after RP10/2025 start)
  * - Days since anchor: 14
  * - Periods passed: floor(14/28) = 0
- * - Result: RP12/2025 (same period, still within 28 days)
+ * - Result: RP10/2025 (same period, still within 28 days)
  *
- * Date: November 8, 2025 (28 days after RP12/2025 start)
+ * Date: November 8, 2025 (28 days after RP10/2025 start)
  * - Days since anchor: 28
  * - Periods passed: floor(28/28) = 1
- * - Result: RP13/2025 (next period)
+ * - Result: RP11/2025 (next period)
  *
- * Date: December 6, 2025 (56 days after RP12/2025 start)
+ * Date: December 6, 2025 (56 days after RP10/2025 start)
  * - Days since anchor: 56
  * - Periods passed: floor(56/28) = 2
- * - Current number: 12 + 2 = 14
- * - After wraparound: 14 - 13 = 1, year + 1
- * - Result: RP1/2026 (new year)
+ * - Current number: 10 + 2 = 12
+ * - Result: RP12/2025
  *
  * ========================================
  * LEAVE REQUEST RULES
@@ -217,7 +216,7 @@ const PERIODS_PER_YEAR = 13
  * - Must coordinate with leave request system migration
  */
 const KNOWN_ROSTER = {
-  number: 12,
+  number: 10,
   year: 2025,
   startDate: new Date('2025-10-11'),
 }
