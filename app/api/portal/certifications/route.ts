@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { getPilotCertifications } from '@/lib/services/pilot-certification-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
  * GET /api/portal/certifications
  * Fetch all certifications for the authenticated pilot
+ * Refactored to use pilot-certification-service
  */
 export async function GET() {
   try {
-    const supabase = await createClient()
-
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
@@ -23,10 +22,8 @@ export async function GET() {
       )
     }
 
-    const pilotUser = pilot
-
     // If pilot doesn't have a linked pilots table record, return empty certifications
-    if (!pilotUser.pilot_id) {
+    if (!pilot.pilot_id) {
       return NextResponse.json({
         success: true,
         data: [],
@@ -34,36 +31,12 @@ export async function GET() {
       })
     }
 
-    // Fetch pilot certifications with check types
-    const { data: certifications, error } = await supabase
-      .from('pilot_checks')
-      .select(
-        `
-        *,
-        check_types (
-          check_code,
-          check_description,
-          category
-        )
-      `
-      )
-      .eq('pilot_id', pilotUser.pilot_id)
-      .order('expiry_date', { ascending: false })
-
-    if (error) {
-      console.error('Fetch certifications error:', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Failed to fetch certifications',
-        },
-        { status: 500 }
-      )
-    }
+    // Use service layer to fetch certifications
+    const certifications = await getPilotCertifications(pilot.pilot_id)
 
     return NextResponse.json({
       success: true,
-      data: certifications || [],
+      data: certifications,
     })
   } catch (error: any) {
     console.error('Certifications API error:', error)

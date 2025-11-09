@@ -15,6 +15,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
+import { deleteUserAccount } from '@/lib/services/account-deletion-service'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -43,78 +44,25 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Check if user is an admin (prevent accidental admin deletion)
-    const { data: userData, error: userError } = await supabase
-      .from('an_users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (userError) {
-      console.error('Error fetching user role:', userError)
-    }
-
-    // If user is admin, add extra confirmation (in real implementation)
-    if (userData?.role === 'admin') {
-      console.warn('Admin account deletion attempted:', user.id)
-      // In production, you might want to require additional confirmation
-      // or prevent admin deletion entirely
-    }
-
-    // Get pilot data if exists (for audit trail)
-    const { data: pilotData } = await supabase
-      .from('pilots')
-      .select('id')
-      .eq('email', user.email || '')
-      .single()
-
-    // Create audit log entry before deletion
-    await supabase.from('audit_logs').insert({
-      user_id: user.id,
-      action: 'account_deletion',
-      table_name: 'an_users',
-      record_id: user.id,
-      description: `User account deleted: ${user.email}`,
-      new_values: {
-        email: user.email,
-        pilot_id: pilotData?.id,
-        timestamp: new Date().toISOString(),
-      },
+    // Use service layer to handle account deletion
+    const result = await deleteUserAccount({
+      userId: user.id,
+      userEmail: user.email || undefined,
+      preserveAuditTrail: true,
+      anonymizeData: true,
     })
 
-    // Anonymize pilot data if exists (instead of deleting for compliance)
-    if (pilotData) {
-      await supabase
-        .from('pilots')
-        .update({
-          email: `deleted_${user.id}@deleted.local`,
-          phone: null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', pilotData.id)
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, message: result.message },
+        { status: 400 }
+      )
     }
-
-    // Delete user leave requests
-    if (pilotData) {
-      await supabase.from('leave_requests').delete().eq('pilot_id', pilotData.id)
-    }
-
-    // Delete user from an_users table
-    const { error: deleteUserError } = await supabase.from('an_users').delete().eq('id', user.id)
-
-    if (deleteUserError) {
-      throw deleteUserError
-    }
-
-    // Delete auth user (this will cascade to related tables)
-    // Note: This requires service role key in production
-    // For now, we'll rely on Supabase RLS and manual cleanup
-    // In production, you'd use:
-    // await supabaseAdmin.auth.admin.deleteUser(user.id)
 
     return NextResponse.json({
       success: true,
-      message: 'Account deleted successfully',
+      message: result.message,
+      deletedEntities: result.deletedEntities,
     })
   } catch (error) {
     console.error('Error deleting account:', error)

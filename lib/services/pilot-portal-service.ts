@@ -661,8 +661,8 @@ export async function getPilotDetailsWithRetirement(
   first_name: string
   last_name: string
   middle_name: string | null
-  date_of_birth: string
-  commencement_date: string
+  date_of_birth: string | null
+  commencement_date: string | null
 }>> {
   try {
     const supabase = await createClient()

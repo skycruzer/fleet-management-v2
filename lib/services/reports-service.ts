@@ -79,8 +79,13 @@ function paginateData<T>(data: T[], page: number = 1, pageSize: number = DEFAULT
 /**
  * Generate Leave Requests Report
  * Phase 2.3: Now supports pagination
+ * Phase 2.6: Added fullExport flag and user context
  */
-export async function generateLeaveReport(filters: ReportFilters): Promise<ReportData> {
+export async function generateLeaveReport(
+  filters: ReportFilters,
+  fullExport: boolean = false,
+  generatedBy?: string
+): Promise<ReportData> {
   const supabase = await createClient()
 
   let query = supabase
@@ -143,7 +148,21 @@ export async function generateLeaveReport(filters: ReportFilters): Promise<Repor
     firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.role === 'First Officer').length,
   }
 
-  // Apply pagination
+  // For full exports (PDF/Email), return all data without pagination
+  if (fullExport) {
+    return {
+      title: 'Leave Requests Report',
+      description: 'Comprehensive report of all leave requests',
+      generatedAt: new Date().toISOString(),
+      generatedBy: generatedBy || 'System',
+      filters,
+      data: filteredData,
+      summary,
+      pagination: undefined,
+    }
+  }
+
+  // For preview, apply pagination
   const page = filters.page || 1
   const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
   const paginatedData = paginateData(filteredData, page, pageSize)
@@ -153,7 +172,7 @@ export async function generateLeaveReport(filters: ReportFilters): Promise<Repor
     title: 'Leave Requests Report',
     description: 'Comprehensive report of all leave requests',
     generatedAt: new Date().toISOString(),
-    generatedBy: 'System', // TODO: Get from auth context
+    generatedBy: generatedBy || 'System',
     filters,
     data: paginatedData,
     summary,
@@ -164,8 +183,13 @@ export async function generateLeaveReport(filters: ReportFilters): Promise<Repor
 /**
  * Generate Flight Requests Report
  * Phase 2.3: Now supports pagination
+ * Phase 2.6: Added fullExport flag and user context
  */
-export async function generateFlightRequestReport(filters: ReportFilters): Promise<ReportData> {
+export async function generateFlightRequestReport(
+  filters: ReportFilters,
+  fullExport: boolean = false,
+  generatedBy?: string
+): Promise<ReportData> {
   const supabase = await createClient()
 
   let query = supabase
@@ -218,7 +242,21 @@ export async function generateFlightRequestReport(filters: ReportFilters): Promi
     uniqueDescriptions: [...new Set(filteredData.map((r: any) => r.description))].length,
   }
 
-  // Apply pagination
+  // For full exports (PDF/Email), return all data without pagination
+  if (fullExport) {
+    return {
+      title: 'Flight Requests Report',
+      description: 'Comprehensive report of all flight requests',
+      generatedAt: new Date().toISOString(),
+      generatedBy: generatedBy || 'System',
+      filters,
+      data: filteredData,
+      summary,
+      pagination: undefined,
+    }
+  }
+
+  // For preview, apply pagination
   const page = filters.page || 1
   const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
   const paginatedData = paginateData(filteredData, page, pageSize)
@@ -228,7 +266,7 @@ export async function generateFlightRequestReport(filters: ReportFilters): Promi
     title: 'Flight Requests Report',
     description: 'Comprehensive report of all flight requests',
     generatedAt: new Date().toISOString(),
-    generatedBy: 'System',
+    generatedBy: generatedBy || 'System',
     filters,
     data: paginatedData,
     summary,
@@ -238,8 +276,13 @@ export async function generateFlightRequestReport(filters: ReportFilters): Promi
 
 /**
  * Generate Certifications Report
+ * Phase 2.6: Added fullExport flag and user context
  */
-export async function generateCertificationsReport(filters: ReportFilters): Promise<ReportData> {
+export async function generateCertificationsReport(
+  filters: ReportFilters,
+  fullExport: boolean = false,
+  generatedBy?: string
+): Promise<ReportData> {
   const supabase = await createClient()
 
   let query = supabase
@@ -320,7 +363,21 @@ export async function generateCertificationsReport(filters: ReportFilters): Prom
     uniquePilots: [...new Set(finalData.map((c: any) => c.pilot_id))].length,
   }
 
-  // Apply pagination
+  // For full exports (PDF/Email), return all data without pagination
+  if (fullExport) {
+    return {
+      title: 'Certifications Report',
+      description: 'Comprehensive report of pilot certifications and compliance',
+      generatedAt: new Date().toISOString(),
+      generatedBy: generatedBy || 'System',
+      filters,
+      data: finalData,
+      summary,
+      pagination: undefined,
+    }
+  }
+
+  // For preview, apply pagination
   const page = filters.page || 1
   const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
   const paginatedData = paginateData(finalData, page, pageSize)
@@ -330,7 +387,7 @@ export async function generateCertificationsReport(filters: ReportFilters): Prom
     title: 'Certifications Report',
     description: 'Comprehensive report of pilot certifications and compliance',
     generatedAt: new Date().toISOString(),
-    generatedBy: 'System',
+    generatedBy: generatedBy || 'System',
     filters,
     data: paginatedData,
     summary,
@@ -458,23 +515,42 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
 
 /**
  * Main report generation function with caching
+ * Phase 2.6: Added fullExport and generatedBy parameters
  */
-export async function generateReport(reportType: ReportType, filters: ReportFilters): Promise<ReportData> {
-  // Generate cache key from report type and filters
+export async function generateReport(
+  reportType: ReportType,
+  filters: ReportFilters,
+  fullExport: boolean = false,
+  generatedBy?: string
+): Promise<ReportData> {
+  // For full exports, skip caching to ensure we get fresh, complete data
+  if (fullExport) {
+    switch (reportType) {
+      case 'leave':
+        return generateLeaveReport(filters, true, generatedBy)
+      case 'flight-requests':
+        return generateFlightRequestReport(filters, true, generatedBy)
+      case 'certifications':
+        return generateCertificationsReport(filters, true, generatedBy)
+      default:
+        throw new Error(`Unknown report type: ${reportType}`)
+    }
+  }
+
+  // For preview (paginated), use caching
   const cacheKey = generateCacheKey(reportType, filters)
 
-  // Use getOrSetCache for automatic cache management
   return getOrSetCache(
     cacheKey,
     async () => {
       // Generate report based on type
       switch (reportType) {
         case 'leave':
-          return generateLeaveReport(filters)
+          return generateLeaveReport(filters, false, generatedBy)
         case 'flight-requests':
-          return generateFlightRequestReport(filters)
+          return generateFlightRequestReport(filters, false, generatedBy)
         case 'certifications':
-          return generateCertificationsReport(filters)
+          return generateCertificationsReport(filters, false, generatedBy)
         default:
           throw new Error(`Unknown report type: ${reportType}`)
       }

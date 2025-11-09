@@ -5,21 +5,24 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { format } from 'date-fns'
+import { exportAnalyticsData } from '@/lib/services/export-service'
+import type { AnalyticsExportData, ExportFormat } from '@/lib/services/export-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export const dynamic = 'force-dynamic'
 
+// Legacy functions kept for reference but not used (using export-service instead)
 /**
  * Export analytics data to CSV format
+ * @deprecated Use export-service.ts instead
  */
 async function exportToCSV(data: any) {
-  const timestamp = format(new Date(), 'yyyy-MM-dd-HHmmss')
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
 
   // Pilot Distribution CSV
   const pilotCSV = [
     ['Fleet Analytics Report'],
-    [`Generated: ${format(new Date(), 'PPpp')}`],
+    [`Generated: ${new Date().toLocaleString()}`],
     [''],
     ['PILOT DISTRIBUTION'],
     ['Metric', 'Count'],
@@ -70,16 +73,17 @@ async function exportToCSV(data: any) {
 
 /**
  * Export analytics data to PDF format
+ * @deprecated Use export-service.ts instead
  */
 async function exportToPDF(data: any) {
   // For now, return a simple text-based PDF placeholder
   // In production, you'd use a library like jsPDF or Puppeteer
 
-  const timestamp = format(new Date(), 'yyyy-MM-dd-HHmmss')
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
 
   const pdfContent = `
 Fleet Analytics Report
-Generated: ${format(new Date(), 'PPpp')}
+Generated: ${new Date().toLocaleString()}
 
 PILOT DISTRIBUTION
 Total Pilots: ${data.pilot.total}
@@ -130,14 +134,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No data provided' }, { status: 400 })
     }
 
-    // Export based on format
-    if (exportFormat === 'csv') {
-      return await exportToCSV(data)
-    } else if (exportFormat === 'pdf') {
-      return await exportToPDF(data)
+    // Validate data structure
+    const analyticsData: AnalyticsExportData = data
+
+    // Use service layer to generate export
+    const exportResult = exportAnalyticsData(analyticsData, {
+      format: exportFormat as ExportFormat,
+      includeTimestamp: true,
+      title: 'Fleet Analytics Report',
+    })
+
+    // Convert Buffer to Uint8Array for NextResponse compatibility
+    let responseBody: BodyInit
+    if (Buffer.isBuffer(exportResult.content)) {
+      responseBody = new Uint8Array(exportResult.content)
     } else {
-      return NextResponse.json({ success: false, error: 'Invalid format' }, { status: 400 })
+      responseBody = exportResult.content
     }
+
+    return new NextResponse(responseBody, {
+      status: 200,
+      headers: {
+        'Content-Type': exportResult.mimeType,
+        'Content-Disposition': `attachment; filename="${exportResult.filename}"`,
+      },
+    })
   } catch (error) {
     console.error('Export error:', error)
     const sanitized = sanitizeError(error, {
