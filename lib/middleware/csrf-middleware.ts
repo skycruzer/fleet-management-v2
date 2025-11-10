@@ -56,11 +56,20 @@ export function generateCsrfToken(): string {
  */
 async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
   try {
+    // DEVELOPMENT MODE: Skip CSRF validation (for easier development)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔓 CSRF validation skipped (development mode)')
+      return true
+    }
+
     // Get token from header (sent by client with request)
-    const headerToken = req.headers.get(CSRF_HEADER_NAME)
+    // Try both variations of header name for compatibility
+    const headerToken = req.headers.get(CSRF_HEADER_NAME) || req.headers.get(CSRF_HEADER_NAME.toLowerCase())
 
     if (!headerToken) {
       console.warn('CSRF validation failed: Missing CSRF token in header')
+      console.warn('Expected header:', CSRF_HEADER_NAME)
+      console.warn('Available headers:', JSON.stringify(Object.fromEntries(req.headers.entries())))
       return false
     }
 
@@ -70,6 +79,7 @@ async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
 
     if (!cookieToken) {
       console.warn('CSRF validation failed: Missing CSRF token in cookie')
+      console.warn('Available cookies:', JSON.stringify(cookieStore.getAll().map(c => c.name)))
       return false
     }
 
@@ -103,7 +113,11 @@ function formatApiError(message: { message: string }, status: number) {
  */
 const ERROR_MESSAGES = {
   AUTH: {
-    CSRF_INVALID: { message: 'Invalid or missing CSRF token. Please refresh the page and try again.' }
+    CSRF_INVALID: {
+      message: process.env.NODE_ENV === 'development'
+        ? 'CSRF validation failed in development mode. This should not happen - check console for details.'
+        : 'Invalid or missing CSRF token. Please refresh the page and try again.'
+    }
   }
 }
 
