@@ -56,6 +56,12 @@ export function generateCsrfToken(): string {
  */
 async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
   try {
+    // CHECK FEATURE FLAG: Skip CSRF if explicitly disabled
+    if (process.env.ENABLE_CSRF_PROTECTION === 'false') {
+      console.log('🔓 CSRF validation disabled (ENABLE_CSRF_PROTECTION=false)')
+      return true
+    }
+
     // DEVELOPMENT MODE: Skip CSRF validation (for easier development)
     if (process.env.NODE_ENV === 'development') {
       console.log('🔓 CSRF validation skipped (development mode)')
@@ -64,7 +70,8 @@ async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
 
     // Get token from header (sent by client with request)
     // Try both variations of header name for compatibility
-    const headerToken = req.headers.get(CSRF_HEADER_NAME) || req.headers.get(CSRF_HEADER_NAME.toLowerCase())
+    const headerToken =
+      req.headers.get(CSRF_HEADER_NAME) || req.headers.get(CSRF_HEADER_NAME.toLowerCase())
 
     if (!headerToken) {
       console.warn('CSRF validation failed: Missing CSRF token in header')
@@ -79,15 +86,12 @@ async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
 
     if (!cookieToken) {
       console.warn('CSRF validation failed: Missing CSRF token in cookie')
-      console.warn('Available cookies:', JSON.stringify(cookieStore.getAll().map(c => c.name)))
+      console.warn('Available cookies:', JSON.stringify(cookieStore.getAll().map((c) => c.name)))
       return false
     }
 
     // Tokens must match exactly (constant-time comparison)
-    const isValid = crypto.timingSafeEqual(
-      Buffer.from(headerToken),
-      Buffer.from(cookieToken)
-    )
+    const isValid = crypto.timingSafeEqual(Buffer.from(headerToken), Buffer.from(cookieToken))
 
     if (!isValid) {
       console.warn('CSRF validation failed: Token mismatch')
@@ -114,16 +118,15 @@ function formatApiError(message: { message: string }, status: number) {
 const ERROR_MESSAGES = {
   AUTH: {
     CSRF_INVALID: {
-      message: process.env.NODE_ENV === 'development'
-        ? 'CSRF validation failed in development mode. This should not happen - check console for details.'
-        : 'Invalid or missing CSRF token. Please refresh the page and try again.'
-    }
-  }
+      message:
+        process.env.NODE_ENV === 'development'
+          ? 'CSRF validation failed in development mode. This should not happen - check console for details.'
+          : 'Invalid or missing CSRF token. Please refresh the page and try again.',
+    },
+  },
 }
 
-export function withCsrfProtection(
-  handler: (req: NextRequest) => Promise<NextResponse>
-) {
+export function withCsrfProtection(handler: (req: NextRequest) => Promise<NextResponse>) {
   return async (req: NextRequest): Promise<NextResponse> => {
     // Only check CSRF for state-changing methods
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
@@ -131,10 +134,9 @@ export function withCsrfProtection(
       const isValid = await verifyCsrfTokenFromRequest(req)
 
       if (!isValid) {
-        return NextResponse.json(
-          formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403),
-          { status: 403 }
-        )
+        return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), {
+          status: 403,
+        })
       }
     }
 
@@ -160,18 +162,15 @@ export function withCsrfProtection(
 export async function validateCsrf(req: NextRequest): Promise<NextResponse | null> {
   // Only check CSRF for state-changing methods
   if (!['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
-    return null;
+    return null
   }
 
   // Verify CSRF token
-  const isValid = await verifyCsrfTokenFromRequest(req);
+  const isValid = await verifyCsrfTokenFromRequest(req)
 
   if (!isValid) {
-    return NextResponse.json(
-      formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403),
-      { status: 403 }
-    );
+    return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), { status: 403 })
   }
 
-  return null;
+  return null
 }
