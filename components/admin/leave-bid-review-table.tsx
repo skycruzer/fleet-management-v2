@@ -21,6 +21,7 @@ import {
 import { CheckCircle, XCircle, Clock, Eye, Edit, ChevronDown, ChevronUp } from 'lucide-react'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface LeaveBidOption {
   id: string
@@ -55,6 +56,7 @@ interface LeaveBidReviewTableProps {
 }
 
 export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
+  const { csrfToken } = useCsrfToken()
   const router = useRouter()
   const [expandedBid, setExpandedBid] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
@@ -111,7 +113,10 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
     try {
       const response = await fetch('/api/admin/leave-bids/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify({ bidId, action: 'approve' }),
       })
 
@@ -143,7 +148,10 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
     try {
       const response = await fetch('/api/admin/leave-bids/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify({ bidId, action: 'reject' }),
       })
 

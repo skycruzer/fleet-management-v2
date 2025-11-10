@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationBell } from '@/components/portal/notification-bell'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface NavItem {
   title: string
@@ -67,6 +68,7 @@ interface PilotPortalSidebarProps {
 }
 
 export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: PilotPortalSidebarProps) {
+  const { csrfToken } = useCsrfToken()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -92,6 +94,7 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
       })
 

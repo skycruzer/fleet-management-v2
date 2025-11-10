@@ -20,6 +20,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Calendar, Trash2, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { getRosterPeriodFromDate, getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface LeaveBidOption {
   priority: number
@@ -33,6 +34,7 @@ interface LeaveBidFormProps {
 }
 
 export function LeaveBidForm({ onSuccess }: LeaveBidFormProps = {}) {
+  const { csrfToken } = useCsrfToken()
   const currentYear = new Date().getFullYear()
   const [bidYear, setBidYear] = useState<number>(currentYear + 1)
   const [options, setOptions] = useState<LeaveBidOption[]>([
@@ -146,6 +148,7 @@ export function LeaveBidForm({ onSuccess }: LeaveBidFormProps = {}) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify({
           bid_year: bidYear,

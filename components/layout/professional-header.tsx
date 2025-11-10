@@ -7,6 +7,7 @@ import { useTheme } from 'next-themes'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { GlobalSearch } from '@/components/search/global-search'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface Notification {
   id: string
@@ -21,6 +22,7 @@ interface Notification {
 }
 
 export function ProfessionalHeader() {
+  const { csrfToken } = useCsrfToken()
   const { theme, setTheme } = useTheme()
   const router = useRouter()
   const [showNotifications, setShowNotifications] = useState(false)
@@ -52,7 +54,10 @@ export function ProfessionalHeader() {
       // Mark as read
       await fetch('/api/notifications', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify({ notificationId: notification.id }),
       })
 
@@ -96,6 +101,7 @@ export function ProfessionalHeader() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
       })
 

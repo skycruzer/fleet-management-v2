@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Pencil, Plus } from 'lucide-react'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface CertificationCategory {
   id: string
@@ -29,6 +30,7 @@ interface CertificationCategory {
 }
 
 export function CertificationCategoryManager() {
+  const { csrfToken } = useCsrfToken()
   const [categories, setCategories] = useState<CertificationCategory[]>([])
   const [loading, setLoading] = useState(true)
   const [editingCategory, setEditingCategory] = useState<CertificationCategory | null>(null)
@@ -106,7 +108,10 @@ export function CertificationCategoryManager() {
 
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify(formData),
       })
 

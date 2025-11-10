@@ -23,6 +23,7 @@ import { createClient } from '../../lib/supabase/client'
 import { toast } from 'sonner'
 import { Loader2, AlertTriangle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface DeleteAccountDialogProps {
   open: boolean
@@ -31,6 +32,7 @@ interface DeleteAccountDialogProps {
 }
 
 export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAccountDialogProps) {
+  const { csrfToken } = useCsrfToken()
   const [isDeleting, setIsDeleting] = useState(false)
   const [confirmText, setConfirmText] = useState('')
   const [acknowledgeWarnings, setAcknowledgeWarnings] = useState({
@@ -69,6 +71,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
       })
 

@@ -32,6 +32,7 @@ import {
   FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface NavItem {
   title: string
@@ -191,6 +192,7 @@ interface ProfessionalSidebarClientProps {
 }
 
 export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClientProps) {
+  const { csrfToken } = useCsrfToken()
   const pathname = usePathname()
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
 
@@ -231,6 +233,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
       })
 
