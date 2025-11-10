@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import {
   Dialog,
   DialogContent,
@@ -122,6 +123,7 @@ export function CertificationFormDialog({
   const router = useRouter()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { csrfToken } = useCsrfToken()
 
   const form = useForm<CertificationFormData>({
     resolver: zodResolver(certificationFormSchema),
@@ -188,14 +190,11 @@ export function CertificationFormDialog({
 
       const method = mode === 'create' ? 'POST' : 'PUT'
 
-      // Get CSRF token from meta tag
-      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify(payload),
       })
