@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { TaskInputSchema, TaskUpdateSchema, type TaskInput, type TaskUpdate } from '@/lib/validations/task-schema'
 import type { TaskWithRelations } from '@/lib/services/task-service'
 import type { Database } from '@/types/supabase'
@@ -33,6 +34,7 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { csrfToken } = useCsrfToken()
 
   const isEdit = !!task
 
@@ -86,7 +88,10 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
 
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify(sanitizedData),
       })
 
