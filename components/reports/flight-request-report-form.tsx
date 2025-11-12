@@ -36,6 +36,8 @@ const formSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   statusPending: z.boolean().default(false),
+  statusSubmitted: z.boolean().default(false),
+  statusInReview: z.boolean().default(false),
   statusApproved: z.boolean().default(false),
   statusRejected: z.boolean().default(false),
   rankCaptain: z.boolean().default(false),
@@ -68,6 +70,8 @@ export function FlightRequestReportForm() {
       startDate: '',
       endDate: '',
       statusPending: false,
+      statusSubmitted: false,
+      statusInReview: false,
       statusApproved: false,
       statusRejected: false,
       rankCaptain: false,
@@ -87,9 +91,11 @@ export function FlightRequestReportForm() {
     }
 
     const statuses = []
-    if (values.statusPending) statuses.push('pending')
-    if (values.statusApproved) statuses.push('approved')
-    if (values.statusRejected) statuses.push('rejected')
+    if (values.statusPending) statuses.push('PENDING')
+    if (values.statusSubmitted) statuses.push('SUBMITTED')
+    if (values.statusInReview) statuses.push('IN_REVIEW')
+    if (values.statusApproved) statuses.push('APPROVED')
+    if (values.statusRejected) statuses.push('REJECTED')
     if (statuses.length > 0) filters.status = statuses
 
     const ranks = []
@@ -191,9 +197,11 @@ export function FlightRequestReportForm() {
     }
 
     // Apply status filters
-    form.setValue('statusPending', filters.status?.includes('pending') || false)
-    form.setValue('statusApproved', filters.status?.includes('approved') || false)
-    form.setValue('statusRejected', filters.status?.includes('rejected') || false)
+    form.setValue('statusPending', filters.status?.includes('PENDING') || false)
+    form.setValue('statusSubmitted', filters.status?.includes('SUBMITTED') || false)
+    form.setValue('statusInReview', filters.status?.includes('IN_REVIEW') || false)
+    form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
+    form.setValue('statusRejected', filters.status?.includes('REJECTED') || false)
 
     // Apply rank filters
     form.setValue('rankCaptain', filters.rank?.includes('Captain') || false)
@@ -255,6 +263,8 @@ export function FlightRequestReportForm() {
                   size="sm"
                   onClick={() => {
                     form.setValue('statusPending', true)
+                    form.setValue('statusSubmitted', true)
+                    form.setValue('statusInReview', true)
                     form.setValue('statusApproved', true)
                     form.setValue('statusRejected', true)
                   }}
@@ -268,6 +278,8 @@ export function FlightRequestReportForm() {
                   size="sm"
                   onClick={() => {
                     form.setValue('statusPending', false)
+                    form.setValue('statusSubmitted', false)
+                    form.setValue('statusInReview', false)
                     form.setValue('statusApproved', false)
                     form.setValue('statusRejected', false)
                   }}
@@ -290,6 +302,36 @@ export function FlightRequestReportForm() {
                       }} />
                     </FormControl>
                     <FormLabel className="font-normal cursor-pointer">Pending</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="statusSubmitted"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={(checked) => {
+                        field.onChange(checked)
+                        handleFormChange()
+                      }} />
+                    </FormControl>
+                    <FormLabel className="font-normal cursor-pointer">Submitted</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="statusInReview"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={(checked) => {
+                        field.onChange(checked)
+                        handleFormChange()
+                      }} />
+                    </FormControl>
+                    <FormLabel className="font-normal cursor-pointer">In Review</FormLabel>
                   </FormItem>
                 )}
               />
