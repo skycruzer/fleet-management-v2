@@ -135,14 +135,15 @@ export async function generateLeaveReport(
   }
 
   // Calculate summary statistics (before pagination)
+  // Note: workflow_status values are UPPERCASE in database
   const summary = {
     totalRequests: filteredData.length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pending: filteredData.filter((r: any) => r.workflow_status === 'pending').length,
+    pending: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'PENDING').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approved: filteredData.filter((r: any) => r.workflow_status === 'approved').length,
+    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rejected: filteredData.filter((r: any) => r.workflow_status === 'rejected').length,
+    rejected: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'REJECTED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -236,16 +237,17 @@ export async function generateFlightRequestReport(
   }
 
   // Calculate summary statistics (before pagination)
+  // Note: workflow_status values are UPPERCASE in database
   const summary = {
     totalRequests: filteredData.length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pending: filteredData.filter((r: any) => r.workflow_status === 'pending').length,
+    pending: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'PENDING').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approved: filteredData.filter((r: any) => r.workflow_status === 'approved').length,
+    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rejected: filteredData.filter((r: any) => r.workflow_status === 'rejected').length,
+    rejected: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'REJECTED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    uniqueDescriptions: [...new Set(filteredData.map((r: any) => r.description))].length,
+    uniqueDescriptions: [...new Set(filteredData.map((r: any) => r.notes || r.reason))].filter(Boolean).length,
   }
 
   // For full exports (PDF/Email), return all data without pagination
@@ -307,13 +309,13 @@ export async function generateCertificationsReport(
         category
       )
     `)
-    .order('completion_date', { ascending: false })
+    .order('expiry_date', { ascending: true })
 
-  // Apply filters
+  // Apply filters (pilot_checks has expiry_date, not completion_date)
   if (filters.dateRange) {
     query = query
-      .gte('completion_date', filters.dateRange.startDate)
-      .lte('completion_date', filters.dateRange.endDate)
+      .gte('expiry_date', filters.dateRange.startDate)
+      .lte('expiry_date', filters.dateRange.endDate)
   }
 
   if (filters.checkType) {
@@ -482,13 +484,12 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
   } else if (reportType === 'certifications') {
     autoTable(doc, {
       startY: yPos,
-      head: [['Pilot', 'Rank', 'Check Type', 'Completion', 'Expiry', 'Days Until Expiry', 'Status']],
+      head: [['Pilot', 'Rank', 'Check Type', 'Expiry', 'Days Until Expiry', 'Status']],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: report.data.map((item: any) => [
         `${item.pilot?.first_name} ${item.pilot?.last_name}`,
         item.pilot?.role || 'N/A',
         item.check_type?.check_description || item.check_type?.check_code || 'N/A',
-        new Date(item.completion_date).toLocaleDateString(),
         new Date(item.expiry_date).toLocaleDateString(),
         item.daysUntilExpiry,
         item.isExpired ? 'EXPIRED' : item.isExpiringSoon ? 'EXPIRING SOON' : 'CURRENT',
