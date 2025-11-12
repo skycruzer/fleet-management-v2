@@ -224,18 +224,19 @@ export async function calculateCrewAvailability(
   // Get all leave requests that overlap with the date range
   // Include both APPROVED and PENDING requests
   const { data: leaveRequests, error: leaveError } = await supabase
-    .from('leave_requests')
+    .from('pilot_requests')
     .select(
       `
       id,
       pilot_id,
       start_date,
       end_date,
-      status,
+      workflow_status,
       pilots!inner (id, role)
     `
     )
-    .in('status', ['APPROVED', 'PENDING'])
+    .eq('request_category', 'LEAVE')
+    .in('workflow_status', ['APPROVED', 'PENDING'])
     .or(`start_date.lte.${endDate},end_date.gte.${startDate}`)
 
   if (leaveError) {
@@ -256,6 +257,7 @@ export async function calculateCrewAvailability(
 
     // Count pilots on leave for this specific date
     const onLeaveToday = relevantLeave.filter((lr) => {
+      if (!lr.start_date || !lr.end_date) return false
       const leaveStart = parseISO(lr.start_date)
       const leaveEnd = parseISO(lr.end_date)
       return isWithinInterval(day, { start: leaveStart, end: leaveEnd })
@@ -317,7 +319,7 @@ export async function getConflictingPendingRequests(
 
   // Get all PENDING leave requests for same role with overlapping or nearby dates
   const { data: pendingRequests, error } = await supabase
-    .from('leave_requests')
+    .from('pilot_requests')
     .select(
       `
       id,
@@ -337,7 +339,8 @@ export async function getConflictingPendingRequests(
       )
     `
     )
-    .eq('status', 'PENDING')
+    .eq('request_category', 'LEAVE')
+    .eq('workflow_status', 'PENDING')
     .gte('end_date', request.startDate) // Ends on or after our start
     .lte('start_date', request.endDate) // Starts on or before our end
 
@@ -731,7 +734,7 @@ export async function checkLeaveEligibility(
     // Get already approved leave for these dates (excluding current conflicting requests)
     const conflictingRequestIds = allConflictingRequests.map((r) => r.requestId).filter((id) => id)
     let existingLeaveQuery = supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select(
         `
         id,
@@ -739,7 +742,8 @@ export async function checkLeaveEligibility(
         pilots!inner (id, role)
       `
       )
-      .eq('status', 'APPROVED')
+      .eq('request_category', 'LEAVE')
+      .eq('workflow_status', 'APPROVED')
       .gte('end_date', request.startDate)
       .lte('start_date', request.endDate)
 
@@ -968,13 +972,14 @@ export async function getAlternativePilotRecommendations(
 
   // Get leave status for each pilot in the date range
   const { data: leaveRequests } = await supabase
-    .from('leave_requests')
-    .select('pilot_id, start_date, end_date, status')
+    .from('pilot_requests')
+    .select('pilot_id, start_date, end_date, workflow_status')
+    .eq('request_category', 'LEAVE')
     .in(
       'pilot_id',
       pilots.map((p) => p.id)
     )
-    .in('status', ['APPROVED', 'PENDING'])
+    .in('workflow_status', ['APPROVED', 'PENDING'])
     .or(`start_date.lte.${endDate},end_date.gte.${startDate}`)
 
   // Build recommendations
@@ -982,9 +987,9 @@ export async function getAlternativePilotRecommendations(
     const pilotLeave = (leaveRequests || []).filter((lr) => lr.pilot_id === pilot.id)
 
     let status: 'AVAILABLE' | 'ON_LEAVE' | 'PENDING_LEAVE' = 'AVAILABLE'
-    if (pilotLeave.some((lr) => lr.status === 'APPROVED')) {
+    if (pilotLeave.some((lr) => lr.workflow_status === 'APPROVED')) {
       status = 'ON_LEAVE'
-    } else if (pilotLeave.some((lr) => lr.status === 'PENDING')) {
+    } else if (pilotLeave.some((lr) => lr.workflow_status === 'PENDING')) {
       status = 'PENDING_LEAVE'
     }
 
@@ -1030,7 +1035,7 @@ export async function checkBulkLeaveEligibility(rosterPeriod: string): Promise<{
 
   // Get all pending requests for the roster period
   const { data: requests, error } = await supabase
-    .from('leave_requests')
+    .from('pilot_requests')
     .select(
       `
       id,
@@ -1041,8 +1046,9 @@ export async function checkBulkLeaveEligibility(rosterPeriod: string): Promise<{
       pilots!inner (role)
     `
     )
+    .eq('request_category', 'LEAVE')
     .eq('roster_period', rosterPeriod)
-    .eq('status', 'PENDING')
+    .eq('workflow_status', 'PENDING')
     .order('start_date', { ascending: true })
 
   if (error || !requests) {
@@ -1063,6 +1069,9 @@ export async function checkBulkLeaveEligibility(rosterPeriod: string): Promise<{
   for (const req of requests) {
     // Skip requests without valid pilot_id or request_type
     if (!req.pilot_id || !req.request_type) continue
+
+    // Skip requests with missing date information
+    if (!req.start_date || !req.end_date) continue
 
     const check = await checkLeaveEligibility({
       requestId: req.id,

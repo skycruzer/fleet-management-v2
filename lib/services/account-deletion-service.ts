@@ -90,18 +90,20 @@ export async function deleteUserAccount(
 
     // Delete or anonymize related data
     if (pilotId) {
-      // Delete leave requests
+      // Delete leave requests from unified pilot_requests table
       const { count: leaveCount } = await supabase
-        .from('leave_requests')
+        .from('pilot_requests')
         .delete({ count: 'exact' })
         .eq('pilot_id', pilotId)
+        .eq('request_category', 'LEAVE')
       leaveRequestsDeleted = leaveCount || 0
 
-      // Delete flight requests
+      // Delete flight requests from unified pilot_requests table
       const { count: flightCount } = await supabase
-        .from('flight_requests')
+        .from('pilot_requests')
         .delete({ count: 'exact' })
         .eq('pilot_id', pilotId)
+        .eq('request_category', 'FLIGHT')
       flightRequestsDeleted = flightCount || 0
 
       // Note: 'feedback' table might not exist in current schema
@@ -233,15 +235,17 @@ export async function checkDeletionSafety(userId: string): Promise<{
 
   if (pilotId) {
     const { count: leaveCount } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select('*', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
+      .eq('request_category', 'LEAVE')
     leaveRequests = leaveCount || 0
 
     const { count: flightCount } = await supabase
-      .from('flight_requests')
+      .from('pilot_requests')
       .select('*', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
+      .eq('request_category', 'FLIGHT')
     flightRequests = flightCount || 0
 
     // Note: 'feedback' table might not exist in current schema

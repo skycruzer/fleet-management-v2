@@ -540,7 +540,7 @@ export async function getAdminStats(): Promise<AdminStats> {
         supabase.from('pilots').select('*', { count: 'exact', head: true }),
         supabase.from('check_types').select('*', { count: 'exact', head: true }),
         supabase.from('pilot_checks').select('*', { count: 'exact', head: true }),
-        supabase.from('leave_requests').select('*', { count: 'exact', head: true }),
+        supabase.from('pilot_requests').select('*', { count: 'exact', head: true }).eq('request_category', 'LEAVE'),
       ])
 
     // Count admins and managers separately

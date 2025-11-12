@@ -2,11 +2,12 @@
  * Leave Statistics Service
  * Calculate approved days and fairness metrics
  *
+ * @author Maurice Rondeau
  * Priority System:
  * 1. SENIORITY (Primary): Lower number = More senior = Higher priority
  * 2. DAYS TAKEN (Secondary): Fewer approved days = Higher priority
  *
- * @version 1.0.0
+ * @version 2.0.0 - Migrated to pilot_requests unified table
  * @since 2025-10-26
  */
 
@@ -48,10 +49,11 @@ export async function getApprovedDaysForYear(
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('leave_requests')
+    .from('pilot_requests')
     .select('start_date, end_date')
+    .eq('request_category', 'LEAVE')
     .eq('pilot_id', pilotId)
-    .eq('status', 'APPROVED')
+    .eq('workflow_status', 'APPROVED')
     .gte('start_date', `${year}-01-01`)
     .lte('start_date', `${year}-12-31`)
 
@@ -66,6 +68,7 @@ export async function getApprovedDaysForYear(
 
   // Calculate total days for all approved requests
   const totalDays = data.reduce((total, request) => {
+    if (!request.start_date || !request.end_date) return total
     const start = parseISO(request.start_date)
     const end = parseISO(request.end_date)
     const days = differenceInDays(end, start) + 1 // +1 to include both start and end dates
@@ -85,10 +88,11 @@ export async function getPendingDaysForYear(
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('leave_requests')
+    .from('pilot_requests')
     .select('start_date, end_date')
+    .eq('request_category', 'LEAVE')
     .eq('pilot_id', pilotId)
-    .eq('status', 'PENDING')
+    .eq('workflow_status', 'PENDING')
     .gte('start_date', `${year}-01-01`)
     .lte('start_date', `${year}-12-31`)
 
@@ -102,6 +106,7 @@ export async function getPendingDaysForYear(
   }
 
   const totalDays = data.reduce((total, request) => {
+    if (!request.start_date || !request.end_date) return total
     const start = parseISO(request.start_date)
     const end = parseISO(request.end_date)
     const days = differenceInDays(end, start) + 1

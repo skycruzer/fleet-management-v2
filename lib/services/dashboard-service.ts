@@ -129,8 +129,9 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
 
         // Query 3: Leave request stats with status and date only
         supabase
-          .from('leave_requests')
-          .select('status, created_at')
+          .from('pilot_requests')
+          .select('workflow_status, created_at')
+          .eq('request_category', 'LEAVE')
           .order('created_at', { ascending: false }),
 
         // Query 4: Active pilots for retirement calculation
@@ -231,9 +232,9 @@ async function computeDashboardMetrics(): Promise<DashboardMetrics> {
     // Calculate leave stats
     const leaveStats = leaveRequests.reduce(
       (acc, req: any) => {
-        if (req.status === 'PENDING') acc.pending++
-        else if (req.status === 'APPROVED') acc.approved++
-        else if (req.status === 'DENIED') acc.denied++
+        if (req.workflow_status === 'PENDING') acc.pending++
+        else if (req.workflow_status === 'APPROVED') acc.approved++
+        else if (req.workflow_status === 'DENIED') acc.denied++
 
         const reqDate = new Date(req.created_at)
         if (reqDate.getMonth() === currentMonth && reqDate.getFullYear() === currentYear) {
@@ -341,8 +342,9 @@ export async function getRecentActivity(): Promise<
         .limit(3),
 
       supabase
-        .from('leave_requests')
-        .select('id, pilot_id, request_type, status, created_at')
+        .from('pilot_requests')
+        .select('id, pilot_id, request_type, workflow_status, created_at')
+        .eq('request_category', 'LEAVE')
         .order('created_at', { ascending: false })
         .limit(3),
     ])
@@ -366,12 +368,12 @@ export async function getRecentActivity(): Promise<
     if (recentLeaveRequests.data) {
       recentLeaveRequests.data.forEach((request: any) => {
         const color =
-          request.status === 'APPROVED' ? 'green' : request.status === 'DENIED' ? 'red' : 'amber'
+          request.workflow_status === 'APPROVED' ? 'green' : request.workflow_status === 'DENIED' ? 'red' : 'amber'
 
         activity.push({
           id: `leave-${request.id}`,
-          title: `${request.request_type} Request ${request.status}`,
-          description: `Leave request ${request.status.toLowerCase()}`,
+          title: `${request.request_type} Request ${request.workflow_status}`,
+          description: `Leave request ${request.workflow_status.toLowerCase()}`,
           timestamp: new Date(request.created_at),
           color,
         })

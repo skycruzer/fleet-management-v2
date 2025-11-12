@@ -225,17 +225,18 @@ export async function getLeaveAnalytics() {
 
   try {
     const { data: leaveRequests, error } = await supabase
-      .from('leave_requests')
-      .select('status, request_type, days_count, created_at')
+      .from('pilot_requests')
+      .select('workflow_status, request_type, days_count, created_at')
+      .eq('request_category', 'LEAVE')
 
     if (error) throw error
 
     const stats = (leaveRequests || []).reduce(
       (acc, req: any) => {
         acc.total++
-        if (req.status === 'PENDING') acc.pending++
-        else if (req.status === 'APPROVED') acc.approved++
-        else if (req.status === 'DENIED') acc.denied++
+        if (req.workflow_status === 'PENDING') acc.pending++
+        else if (req.workflow_status === 'APPROVED') acc.approved++
+        else if (req.workflow_status === 'DENIED') acc.denied++
 
         // Type breakdown
         const type = req.request_type || 'Unknown'

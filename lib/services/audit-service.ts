@@ -1149,9 +1149,10 @@ export async function getLeaveRequestApprovalHistory(
     // Get the leave request details
     // @ts-ignore - Supabase type inference issue
     const { data: leaveRequest, error: leaveError } = await supabase
-      .from('leave_requests')
-      .select('status, created_at, updated_at')
+      .from('pilot_requests')
+      .select('workflow_status, created_at, updated_at')
       .eq('id', leaveRequestId)
+      .eq('request_category', 'LEAVE')
       .single()
 
     if (leaveError || !leaveRequest) {
@@ -1199,8 +1200,8 @@ export async function getLeaveRequestApprovalHistory(
 
       // Determine the action type based on operation and status changes
       let action: ApprovalTimelineEntry['action'] = 'updated'
-      const oldStatus = oldValues.status
-      const newStatus = newValues.status
+      const oldStatus = oldValues.workflow_status
+      const newStatus = newValues.workflow_status
 
       if (log.action === 'INSERT') {
         action = 'submitted'
@@ -1254,7 +1255,7 @@ export async function getLeaveRequestApprovalHistory(
     return {
       leaveRequestId,
       timeline,
-      currentStatus: (leaveRequest as any).status,
+      currentStatus: (leaveRequest as any).workflow_status,
       submittedAt: new Date((leaveRequest as any).created_at),
       lastModifiedAt: new Date((leaveRequest as any).updated_at || (leaveRequest as any).created_at),
     }

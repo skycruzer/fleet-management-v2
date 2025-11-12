@@ -1,9 +1,11 @@
 /**
  * Pilot Portal Leave Request Service
  *
+ * @author Maurice Rondeau
  * Pilot-facing service layer for leave request operations.
  * Provides simplified, permission-safe wrappers around core leave service.
  *
+ * @version 2.0.0 - Migrated to pilot_requests unified table
  * @spec 001-missing-core-features (US2)
  */
 
@@ -34,8 +36,9 @@ export interface ServiceResponse<T = void> {
  * Automatically:
  * - Sets pilot_id to current authenticated pilot
  * - Sets request_date to today
- * - Sets request_method to 'SYSTEM'
+ * - Sets submission_channel to 'SYSTEM'
  * - Calculates is_late_request flag
+ * - Adds denormalized fields (name, rank, employee_number)
  */
 export async function submitPilotLeaveRequest(
   request: PilotLeaveRequestInput
@@ -67,12 +70,12 @@ export async function submitPilotLeaveRequest(
       start_date: request.start_date, // Send as YYYY-MM-DD (DATE type in database)
       end_date: request.end_date, // Send as YYYY-MM-DD (DATE type in database)
       request_date: getTodayISO(),
-      request_method: 'SYSTEM' as const,
+      submission_channel: 'SYSTEM' as const,
       reason: request.reason || undefined,
       is_late_request: isLateRequest(request.start_date),
     }
 
-    // Create leave request using core service
+    // Create leave request using core service (which now handles denormalized fields)
     const createdRequest = await createLeaveRequestServer(leaveRequestData)
 
     if (!createdRequest) {
@@ -114,12 +117,12 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
       }
     }
 
-    // Query leave requests using BOTH pilot_user_id AND pilot_id to catch all requests
-    // Some requests may be stored under pilot_user_id, others under pilot_id
+    // Query leave requests from unified pilot_requests table
     const { data: requests, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select('*')
-      .or(`pilot_user_id.eq.${pilot.id},pilot_id.eq.${pilot.pilot_id || pilot.id}`)
+      .eq('request_category', 'LEAVE')
+      .eq('pilot_id', pilot.pilot_id!)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -164,8 +167,9 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
 
     // Verify request belongs to pilot and is PENDING
     const { data: request, error: fetchError } = await supabase
-      .from('leave_requests')
-      .select('id, pilot_id, status, request_type, start_date, end_date')
+      .from('pilot_requests')
+      .select('id, pilot_id, workflow_status, request_type, start_date, end_date')
+      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
       .single()
 
@@ -186,7 +190,7 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
     }
 
     // Check if pending
-    if (request.status !== 'PENDING') {
+    if (request.workflow_status !== 'PENDING') {
       return {
         success: false,
         error: 'Only pending leave requests can be cancelled',
@@ -233,11 +237,12 @@ export async function getPilotLeaveStats(): Promise<
       }
     }
 
-    // Get counts by status
+    // Get counts by status from unified pilot_requests table
     // IMPORTANT: Use pilot.pilot_id (foreign key to pilots table)
     const { data: requests, error } = await supabase
-      .from('leave_requests')
-      .select('status')
+      .from('pilot_requests')
+      .select('workflow_status')
+      .eq('request_category', 'LEAVE')
       .eq('pilot_id', pilot.pilot_id!)
 
     if (error) {
@@ -249,9 +254,9 @@ export async function getPilotLeaveStats(): Promise<
 
     const stats = {
       total: requests?.length || 0,
-      pending: requests?.filter((r) => r.status === 'PENDING').length || 0,
-      approved: requests?.filter((r) => r.status === 'APPROVED').length || 0,
-      denied: requests?.filter((r) => r.status === 'DENIED').length || 0,
+      pending: requests?.filter((r) => r.workflow_status === 'PENDING').length || 0,
+      approved: requests?.filter((r) => r.workflow_status === 'APPROVED').length || 0,
+      denied: requests?.filter((r) => r.workflow_status === 'DENIED').length || 0,
     }
 
     return {

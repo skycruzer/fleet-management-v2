@@ -122,10 +122,10 @@ async function fetchCheckTypes() {
 async function fetchLeaveRequests(pilotId?: string) {
   const supabase = await createClient()
 
-  let query = supabase.from('leave_requests').select(`
+  let query = supabase.from('pilot_requests').select(`
       *,
       pilot:pilots(*)
-    `)
+    `).eq('request_category', 'LEAVE')
 
   if (pilotId) {
     query = query.eq('pilot_id', pilotId)

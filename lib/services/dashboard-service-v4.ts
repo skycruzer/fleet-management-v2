@@ -293,8 +293,9 @@ export async function getRecentActivity(): Promise<
         .limit(3),
 
       supabase
-        .from('leave_requests')
-        .select('id, pilot_id, request_type, status, created_at')
+        .from('pilot_requests')
+        .select('id, pilot_id, request_type, workflow_status, created_at')
+        .eq('request_category', 'LEAVE')
         .order('created_at', { ascending: false })
         .limit(3),
     ])
@@ -318,12 +319,12 @@ export async function getRecentActivity(): Promise<
     if (recentLeaveRequests.data) {
       recentLeaveRequests.data.forEach((request: any) => {
         const color =
-          request.status === 'APPROVED' ? 'green' : request.status === 'DENIED' ? 'red' : 'amber'
+          request.workflow_status === 'APPROVED' ? 'green' : request.workflow_status === 'DENIED' ? 'red' : 'amber'
 
         activity.push({
           id: `leave-${request.id}`,
-          title: `${request.request_type} Request ${request.status}`,
-          description: `Leave request ${request.status.toLowerCase()}`,
+          title: `${request.request_type} Request ${request.workflow_status}`,
+          description: `Leave request ${request.workflow_status.toLowerCase()}`,
           timestamp: new Date(request.created_at),
           color,
         })

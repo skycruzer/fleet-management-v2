@@ -1,8 +1,12 @@
 /**
  * Flight Request Service (Admin)
+ * Author: Maurice Rondeau
  *
  * Admin-facing service layer for flight request review and management.
  * Provides functions for admins to review, approve, and deny pilot flight requests.
+ *
+ * MIGRATED: Now uses unified pilot_requests table (request_category='FLIGHT')
+ * Previously used deprecated flight_requests table
  *
  * @spec 001-missing-core-features (US3, T056)
  */
@@ -25,6 +29,8 @@ export interface ServiceResponse<T = void> {
  * Retrieves all flight requests with pilot information.
  * Includes filters for status, date range, etc.
  * Sorted by created_at descending (newest first).
+ *
+ * MIGRATED: Uses pilot_requests table with request_category='FLIGHT'
  */
 export async function getAllFlightRequests(filters?: {
   status?: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
@@ -47,9 +53,9 @@ export async function getAllFlightRequests(filters?: {
       }
     }
 
-    // Build query
+    // Build query - MIGRATED to pilot_requests table
     let query = supabase
-      .from('flight_requests')
+      .from('pilot_requests')
       .select(`
         *,
         pilots:pilot_id (
@@ -58,17 +64,14 @@ export async function getAllFlightRequests(filters?: {
           last_name,
           role,
           employee_id
-        ),
-        an_users:reviewed_by (
-          id,
-          name
         )
       `)
+      .eq('request_category', 'FLIGHT')
       .order('created_at', { ascending: false })
 
-    // Apply filters
+    // Apply filters - MIGRATED: status -> workflow_status
     if (filters?.status) {
-      query = query.eq('status', filters.status)
+      query = query.eq('workflow_status', filters.status)
     }
     if (filters?.pilot_id) {
       query = query.eq('pilot_id', filters.pilot_id)
@@ -93,13 +96,12 @@ export async function getAllFlightRequests(filters?: {
     // Transform joined data
     const transformedRequests = (requests || []).map((req: any) => ({
       ...req,
+      description: req.reason || req.notes || 'Flight request',
       pilot_name: req.pilots
         ? `${req.pilots.first_name} ${req.pilots.last_name}`
         : 'Unknown Pilot',
       pilot_rank: req.pilots?.role || 'Unknown',
-      reviewer_name: req.an_users
-        ? `${req.an_users.first_name} ${req.an_users.last_name}`
-        : null,
+      reviewer_name: undefined, // Reviewer info not joined (no FK relationship)
     }))
 
     return {
@@ -119,6 +121,8 @@ export async function getAllFlightRequests(filters?: {
  * Get Flight Request by ID (Admin View)
  *
  * Retrieves a single flight request with full details.
+ *
+ * MIGRATED: Uses pilot_requests table with request_category='FLIGHT'
  */
 export async function getFlightRequestById(
   requestId: string
@@ -138,8 +142,9 @@ export async function getFlightRequestById(
       }
     }
 
+    // MIGRATED to pilot_requests table
     const { data: request, error } = await supabase
-      .from('flight_requests')
+      .from('pilot_requests')
       .select(`
         *,
         pilots:pilot_id (
@@ -148,12 +153,9 @@ export async function getFlightRequestById(
           last_name,
           role,
           employee_id
-        ),
-        an_users:reviewed_by (
-          id,
-          name
         )
       `)
+      .eq('request_category', 'FLIGHT')
       .eq('id', requestId)
       .single()
 
@@ -167,11 +169,12 @@ export async function getFlightRequestById(
     // Transform joined data
     const transformedRequest = {
       ...request,
+      description: request.reason || request.notes || 'Flight request',
       pilot_name: request.pilots
         ? `${request.pilots.first_name} ${request.pilots.last_name}`
         : 'Unknown Pilot',
       pilot_rank: request.pilots?.role || 'Unknown',
-      reviewer_name: request.an_users?.name || null,
+      reviewer_name: undefined, // Reviewer info not joined (no FK relationship)
     }
 
     return {
@@ -192,6 +195,8 @@ export async function getFlightRequestById(
  *
  * Allows admin to approve or deny a flight request.
  * Creates audit log and notification for the pilot.
+ *
+ * MIGRATED: Uses pilot_requests table with workflow_status field
  */
 export async function reviewFlightRequest(
   requestId: string,
@@ -212,10 +217,11 @@ export async function reviewFlightRequest(
       }
     }
 
-    // Get existing request to verify it exists
+    // Get existing request to verify it exists - MIGRATED to pilot_requests
     const { data: existingRequest, error: fetchError } = await supabase
-      .from('flight_requests')
+      .from('pilot_requests')
       .select('*')
+      .eq('request_category', 'FLIGHT')
       .eq('id', requestId)
       .single()
 
@@ -226,16 +232,17 @@ export async function reviewFlightRequest(
       }
     }
 
-    // Update request with review
+    // Update request with review - MIGRATED: status -> workflow_status, review fields updated
     const { data: updatedRequest, error: updateError } = await supabase
-      .from('flight_requests')
+      .from('pilot_requests')
       .update({
-        status: reviewData.status,
-        reviewer_comments: reviewData.reviewer_comments || null,
+        workflow_status: reviewData.status,
+        review_comments: reviewData.reviewer_comments || null,
         reviewed_by: user.id,
         reviewed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
+      .eq('request_category', 'FLIGHT')
       .eq('id', requestId)
       .select()
       .single()
@@ -248,25 +255,31 @@ export async function reviewFlightRequest(
       }
     }
 
-    // Create audit log
+    // Create audit log - table name updated to pilot_requests
     await createAuditLog({
       action: 'UPDATE',
-      tableName: 'flight_requests',
+      tableName: 'pilot_requests',
       recordId: requestId,
       oldData: {
-        status: existingRequest.status,
-        reviewer_comments: existingRequest.reviewer_comments,
+        workflow_status: existingRequest.workflow_status,
+        review_comments: existingRequest.review_comments,
       },
       newData: {
-        status: reviewData.status,
-        reviewer_comments: reviewData.reviewer_comments,
+        workflow_status: reviewData.status,
+        review_comments: reviewData.reviewer_comments,
       },
-      description: `Flight request ${reviewData.status.toLowerCase()}`,
+      description: `Flight request ${reviewData.status.toLowerCase()} (request_category=FLIGHT)`,
     })
+
+    // Add description field for type compatibility
+    const responseData = {
+      ...updatedRequest,
+      description: updatedRequest.reason || updatedRequest.notes || 'Flight request',
+    }
 
     return {
       success: true,
-      data: updatedRequest as FlightRequest,
+      data: responseData as FlightRequest,
     }
   } catch (error) {
     console.error('Review flight request error:', error)
@@ -281,6 +294,8 @@ export async function reviewFlightRequest(
  * Get Flight Request Statistics (Admin Dashboard)
  *
  * Retrieves aggregated statistics for all flight requests.
+ *
+ * MIGRATED: Uses pilot_requests table with request_category='FLIGHT'
  */
 export async function getFlightRequestStats(): Promise<ServiceResponse<{
   total: number
@@ -310,10 +325,11 @@ export async function getFlightRequestStats(): Promise<ServiceResponse<{
       }
     }
 
-    // Get all requests
+    // Get all flight requests - MIGRATED to pilot_requests with request_category filter
     const { data: requests, error } = await supabase
-      .from('flight_requests')
-      .select('status, request_type')
+      .from('pilot_requests')
+      .select('workflow_status, request_type')
+      .eq('request_category', 'FLIGHT')
 
     if (error) {
       return {
@@ -322,12 +338,13 @@ export async function getFlightRequestStats(): Promise<ServiceResponse<{
       }
     }
 
+    // MIGRATED: status -> workflow_status in aggregations
     const stats = {
       total: requests?.length || 0,
-      pending: requests?.filter((r) => r.status === 'PENDING').length || 0,
-      under_review: requests?.filter((r) => r.status === 'UNDER_REVIEW').length || 0,
-      approved: requests?.filter((r) => r.status === 'APPROVED').length || 0,
-      denied: requests?.filter((r) => r.status === 'DENIED').length || 0,
+      pending: requests?.filter((r) => r.workflow_status === 'PENDING').length || 0,
+      under_review: requests?.filter((r) => r.workflow_status === 'UNDER_REVIEW').length || 0,
+      approved: requests?.filter((r) => r.workflow_status === 'APPROVED').length || 0,
+      denied: requests?.filter((r) => r.workflow_status === 'DENIED').length || 0,
       by_type: {
         additional_flight: requests?.filter((r) => r.request_type === 'additional_flight').length || 0,
         route_change: requests?.filter((r) => r.request_type === 'route_change').length || 0,

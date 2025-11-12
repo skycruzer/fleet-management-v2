@@ -2,13 +2,15 @@
  * Leave Service
  * Comprehensive CRUD operations for leave requests
  *
- * @version 2.0.0
+ * @author Maurice Rondeau
+ * @version 3.0.0 - Migrated to pilot_requests unified table
  * @since 2025-10-17
  */
 
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
+import { getRosterPeriodDetails } from '@/lib/utils/roster-utils'
 
 export interface LeaveRequest {
   id: string
@@ -27,10 +29,10 @@ export interface LeaveRequest {
   start_date: string
   end_date: string
   days_count: number
-  status: 'PENDING' | 'APPROVED' | 'DENIED'
+  workflow_status: 'PENDING' | 'APPROVED' | 'DENIED'
   reason?: string | null
   request_date?: string | null // Date when the request was made (separate from created_at)
-  request_method?: 'EMAIL' | 'ORACLE' | 'LEAVE_BIDS' | 'SYSTEM' | null // How the request was submitted
+  submission_channel?: 'EMAIL' | 'ORACLE' | 'LEAVE_BIDS' | 'SYSTEM' | null // How the request was submitted
   is_late_request?: boolean | null // Flag for requests with less than 21 days advance notice
   created_at: string | null
   reviewed_by?: string | null
@@ -56,7 +58,7 @@ export interface LeaveRequestFormData {
   start_date: string
   end_date: string
   request_date: string
-  request_method: 'ORACLE' | 'EMAIL' | 'LEAVE_BIDS' | 'SYSTEM'
+  submission_channel: 'ORACLE' | 'EMAIL' | 'LEAVE_BIDS' | 'SYSTEM'
   reason?: string
   is_late_request?: boolean
 }
@@ -93,22 +95,20 @@ export async function getAllLeaveRequests(): Promise<LeaveRequest[]> {
 
   try {
     const { data: requests, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select(
         `
         *,
-        pilots!leave_requests_pilot_id_fkey (
+        pilots!pilot_requests_pilot_id_fkey (
           first_name,
           middle_name,
           last_name,
           employee_id,
           role
-        ),
-        reviewer:an_users!reviewed_by (
-          name
         )
       `
       )
+      .eq('request_category', 'LEAVE')
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -120,7 +120,7 @@ export async function getAllLeaveRequests(): Promise<LeaveRequest[]> {
         : 'Unknown Pilot',
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
-      reviewer_name: request.reviewer?.name || null,
+      reviewer_name: null, // Reviewer name no longer fetched via FK join
     })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
@@ -138,7 +138,7 @@ export async function getLeaveRequestById(requestId: string): Promise<LeaveReque
 
   try {
     const { data: request, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select(
         `
         *,
@@ -148,12 +148,10 @@ export async function getLeaveRequestById(requestId: string): Promise<LeaveReque
           last_name,
           employee_id,
           role
-        ),
-        reviewer:an_users!reviewed_by (
-          name
         )
       `
       )
+      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
       .single()
 
@@ -173,7 +171,7 @@ export async function getLeaveRequestById(requestId: string): Promise<LeaveReque
         : 'Unknown Pilot',
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
-      reviewer_name: request.reviewer?.name || null,
+      reviewer_name: null, // Reviewer name no longer fetched via FK join
     } as LeaveRequest
   } catch (error) {
     logError(error as Error, {
@@ -191,7 +189,7 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
 
   try {
     const { data: requests, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select(
         `
         *,
@@ -201,12 +199,10 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
           last_name,
           employee_id,
           role
-        ),
-        reviewer:an_users!reviewed_by (
-          name
         )
       `
       )
+      .eq('request_category', 'LEAVE')
       .eq('pilot_id', pilotId)
       .order('created_at', { ascending: false })
 
@@ -219,7 +215,7 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
         : 'Unknown Pilot',
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
-      reviewer_name: request.reviewer?.name || null,
+      reviewer_name: null, // Reviewer name no longer fetched via FK join
     })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
@@ -244,27 +240,50 @@ export async function createLeaveRequestServer(
     // Calculate roster period from start date
     const rosterPeriod = getRosterPeriodFromDate(new Date(requestData.start_date))
 
-    const { data, error } = await supabase
-      .from('leave_requests')
+    // Get pilot details for denormalized fields
+    const { data: pilot, error: pilotError } = await supabase
+      .from('pilots')
+      .select('first_name, middle_name, last_name, employee_id, role')
+      .eq('id', requestData.pilot_id)
+      .single()
+
+    if (pilotError || !pilot) {
+      throw new Error('Pilot not found')
+    }
+
+    const pilotName = `${pilot.first_name} ${pilot.middle_name ? `${pilot.middle_name} ` : ''}${pilot.last_name}`.trim()
+
+    // Calculate roster period details
+    const rosterDetails = getRosterPeriodDetails(rosterPeriod)
+
+    const { data, error} = await supabase
+      .from('pilot_requests')
       .insert({
+        request_category: 'LEAVE',
         pilot_id: requestData.pilot_id,
+        name: pilotName,
+        rank: pilot.role,
+        employee_number: pilot.employee_id,
         request_type: requestData.request_type,
         roster_period: rosterPeriod,
+        roster_period_start_date: rosterDetails.startDate,
+        roster_deadline_date: rosterDetails.deadlineDate,
+        roster_publish_date: rosterDetails.publishDate,
         start_date: requestData.start_date,
         end_date: requestData.end_date,
         days_count: daysCount,
-        request_date: requestData.request_date,
-        request_method: requestData.request_method,
-        reason: requestData.reason,
+        submission_date: requestData.request_date || new Date().toISOString(),
+        submission_channel: requestData.submission_channel,
+        notes: requestData.reason,
         is_late_request: requestData.is_late_request || false,
-        status: 'PENDING',
+        workflow_status: 'PENDING',
       })
       .select()
       .single()
 
     if (error) {
       // Check if error is a unique constraint violation
-      if (error.code === '23505' && error.message.includes('leave_requests_pilot_dates_unique')) {
+      if (error.code === '23505' && error.message.includes('pilot_requests_pilot_dates_unique')) {
         const duplicateError = new Error(
           'A leave request for these dates already exists. Please check your existing requests or contact your supervisor.'
         )
@@ -277,7 +296,7 @@ export async function createLeaveRequestServer(
     // Audit log the creation
     await createAuditLog({
       action: 'INSERT',
-      tableName: 'leave_requests',
+      tableName: 'pilot_requests',
       recordId: data.id,
       newData: data,
       description: `Created ${data.request_type} leave request for pilot ID: ${data.pilot_id} (${data.start_date} to ${data.end_date})`,
@@ -316,8 +335,9 @@ export async function updateLeaveRequestServer(
     }
 
     const { data, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .update(updateData)
+      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
       .select()
       .single()
@@ -398,18 +418,23 @@ export async function deleteLeaveRequest(requestId: string): Promise<void> {
   try {
     // First check if the request is pending
     const { data: request, error: fetchError } = await supabase
-      .from('leave_requests')
-      .select('status')
+      .from('pilot_requests')
+      .select('workflow_status')
+      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
       .single()
 
     if (fetchError) throw fetchError
 
-    if (request.status !== 'PENDING') {
+    if (request.workflow_status !== 'PENDING') {
       throw new Error('Cannot delete a leave request that has already been reviewed')
     }
 
-    const { error } = await supabase.from('leave_requests').delete().eq('id', requestId)
+    const { error } = await supabase
+      .from('pilot_requests')
+      .delete()
+      .eq('request_category', 'LEAVE')
+      .eq('id', requestId)
 
     if (error) throw error
   } catch (error) {
@@ -428,8 +453,9 @@ export async function getLeaveRequestStats(): Promise<LeaveRequestStats> {
 
   try {
     const { data: requests, error } = await supabase
-      .from('leave_requests')
-      .select('status, request_type')
+      .from('pilot_requests')
+      .select('workflow_status, request_type')
+      .eq('request_category', 'LEAVE')
 
     if (error) throw error
 
@@ -438,9 +464,9 @@ export async function getLeaveRequestStats(): Promise<LeaveRequestStats> {
         acc.total++
 
         // Count by status
-        if (request.status === 'PENDING') acc.pending++
-        else if (request.status === 'APPROVED') acc.approved++
-        else if (request.status === 'DENIED') acc.denied++
+        if (request.workflow_status === 'PENDING') acc.pending++
+        else if (request.workflow_status === 'APPROVED') acc.approved++
+        else if (request.workflow_status === 'DENIED') acc.denied++
 
         // Count by type
         acc.byType[request.request_type as keyof typeof acc.byType]++
@@ -482,7 +508,7 @@ export async function getPendingLeaveRequests(): Promise<LeaveRequest[]> {
 
   try {
     const { data: requests, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select(
         `
         *,
@@ -495,7 +521,8 @@ export async function getPendingLeaveRequests(): Promise<LeaveRequest[]> {
         )
       `
       )
-      .eq('status', 'PENDING')
+      .eq('request_category', 'LEAVE')
+      .eq('workflow_status', 'PENDING')
       .order('created_at', { ascending: true }) // Oldest first for review
 
     if (error) throw error
@@ -529,7 +556,7 @@ export async function checkLeaveConflicts(
 
   try {
     let query = supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select(
         `
         *,
@@ -542,8 +569,9 @@ export async function checkLeaveConflicts(
         )
       `
       )
+      .eq('request_category', 'LEAVE')
       .eq('pilot_id', pilotId)
-      .in('status', ['PENDING', 'APPROVED'])
+      .in('workflow_status', ['PENDING', 'APPROVED'])
       .or(`and(start_date.lte.${endDate},end_date.gte.${startDate})`)
 
     if (excludeRequestId) {
@@ -580,7 +608,7 @@ export async function getLeaveRequestsByRosterPeriod(
 
   try {
     const { data: requests, error } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select(
         `
         *,
@@ -590,12 +618,10 @@ export async function getLeaveRequestsByRosterPeriod(
           last_name,
           employee_id,
           role
-        ),
-        reviewer:an_users!reviewed_by (
-          name
         )
       `
       )
+      .eq('request_category', 'LEAVE')
       .eq('roster_period', rosterPeriod)
       .order('start_date', { ascending: true })
 
@@ -608,7 +634,7 @@ export async function getLeaveRequestsByRosterPeriod(
         : 'Unknown Pilot',
       employee_id: request.pilots?.employee_id || 'N/A',
       pilot_role: request.pilots?.role || null,
-      reviewer_name: request.reviewer?.name || null,
+      reviewer_name: null, // Reviewer name no longer fetched via FK join
     })) as LeaveRequest[]
   } catch (error) {
     logError(error as Error, {
