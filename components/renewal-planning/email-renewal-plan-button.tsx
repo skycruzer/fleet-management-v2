@@ -22,7 +22,11 @@ interface EmailRenewalPlanButtonProps {
   hasData?: boolean
 }
 
-export function EmailRenewalPlanButton({ year, disabled, hasData = true }: EmailRenewalPlanButtonProps) {
+export function EmailRenewalPlanButton({
+  year,
+  disabled,
+  hasData = true,
+}: EmailRenewalPlanButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -43,8 +47,11 @@ export function EmailRenewalPlanButton({ year, disabled, hasData = true }: Email
       if (!response.ok) {
         // Handle specific error cases
         if (response.status === 404) {
-          toast.error('No Data Available', {
-            description: data.details || `No renewal plans found for ${year}`,
+          toast.error('No Renewal Plans Generated', {
+            description:
+              data.details ||
+              `No renewal plans found for ${year}. Please click "Generate Renewal Plan" first to create plans for this year.`,
+            duration: 6000,
           })
         } else if (response.status === 503) {
           // Email service not configured

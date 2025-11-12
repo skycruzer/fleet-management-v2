@@ -5,7 +5,14 @@
  * Handles year selection and displays renewal planning data
  */
 
-import { Calendar, RefreshCw, Download, AlertTriangle, ChevronLeft, ChevronRight, FileText } from 'lucide-react'
+import {
+  Calendar,
+  RefreshCw,
+  Download,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -20,6 +27,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { formatDate } from '@/lib/utils/date-utils'
 import { EmailRenewalPlanButton } from './email-renewal-plan-button'
+import { ExportPDFButton } from './export-pdf-button'
 
 interface RosterPeriodSummary {
   rosterPeriod: string
@@ -57,10 +65,7 @@ export function RenewalPlanningDashboard({
   const maxYear = Math.max(currentYear + 5, selectedYear + 3) // Always include 3 years after selected
 
   // Generate dynamic year range
-  const yearOptions = Array.from(
-    { length: maxYear - minYear + 1 },
-    (_, i) => minYear + i
-  )
+  const yearOptions = Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i)
 
   const handleYearChange = (year: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -111,16 +116,7 @@ export function RenewalPlanningDashboard({
               Export CSV
             </Button>
           </Link>
-          <Link
-            href={totalPlanned > 0 ? `/api/renewal-planning/export-pdf?year=${selectedYear}` : '#'}
-            target={totalPlanned > 0 ? '_blank' : undefined}
-            className={totalPlanned === 0 ? 'pointer-events-none' : ''}
-          >
-            <Button variant="outline" size="sm" disabled={totalPlanned === 0}>
-              <FileText className="mr-2 h-4 w-4" />
-              Export PDF
-            </Button>
-          </Link>
+          <ExportPDFButton year={selectedYear} hasData={totalPlanned > 0} />
           <EmailRenewalPlanButton year={selectedYear} hasData={totalPlanned > 0} />
           <Link href={`/dashboard/renewal-planning/generate?year=${selectedYear}`}>
             <Button size="sm">
@@ -305,7 +301,7 @@ export function RenewalPlanningDashboard({
           Previous Year ({selectedYear - 1})
         </Button>
 
-        <div className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-primary-foreground">
+        <div className="bg-primary text-primary-foreground flex items-center gap-2 rounded-lg px-6 py-3">
           <Calendar className="h-5 w-5" />
           <span className="text-lg font-semibold">{selectedYear}</span>
         </div>
