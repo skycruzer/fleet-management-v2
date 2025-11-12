@@ -177,32 +177,30 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
     setIsSubmitting(true)
 
     try {
-      // Determine API endpoint based on category
-      let endpoint = '/api/requests/quick-entry'
-      if (data.request_category === 'LEAVE') {
-        endpoint = '/api/leave-requests'
-      } else if (data.request_category === 'FLIGHT') {
-        endpoint = '/api/flight-requests'
-      } else if (data.request_category === 'LEAVE_BID') {
-        endpoint = '/api/leave-bids'
+      // Get selected pilot details
+      const selectedPilot = pilots.find((p) => p.id === data.pilot_id)
+      if (!selectedPilot) {
+        throw new Error('Selected pilot not found')
       }
 
-      // Prepare payload
+      // Prepare unified request payload
       const payload = {
         pilot_id: data.pilot_id,
+        employee_number: selectedPilot.employee_id,
+        rank: selectedPilot.role,
+        name: `${selectedPilot.first_name} ${selectedPilot.last_name}`,
+        request_category: data.request_category,
         request_type:
           data.request_category === 'LEAVE' ? data.leave_type : data.flight_type,
+        submission_channel: data.submission_channel,
         start_date: data.start_date,
         end_date: data.end_date || data.start_date,
         reason: data.reason,
-        request_date: new Date().toISOString(),
-        request_method: data.submission_channel,
-        source_reference: data.source_reference,
         notes: data.notes,
-        is_late_request: deadlineStatus?.status === 'late',
+        source_reference: data.source_reference,
       }
 
-      const response = await fetch(endpoint, {
+      const response = await fetch('/api/requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,12 +211,23 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
       const result = await response.json()
 
       if (!response.ok) {
+        // Show conflict information if available
+        if (result.conflicts && result.conflicts.length > 0) {
+          const conflictMessages = result.conflicts.map((c: any) => c.message).join('; ')
+          throw new Error(`${result.error}\n\nConflicts: ${conflictMessages}`)
+        }
         throw new Error(result.error || 'Failed to submit request')
+      }
+
+      // Show success with any warnings
+      let description = `${data.request_category} request successfully created for roster period ${rosterPeriod}`
+      if (result.warnings && result.warnings.length > 0) {
+        description += `\n\nWarnings: ${result.warnings.join('; ')}`
       }
 
       toast({
         title: 'Request Submitted',
-        description: `${data.request_category} request successfully created for roster period ${rosterPeriod}`,
+        description,
       })
 
       // Reset form and close

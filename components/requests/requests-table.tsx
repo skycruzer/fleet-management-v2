@@ -80,6 +80,13 @@ export interface PilotRequest {
   is_past_deadline: boolean
   priority_score: number
   reason: string | null
+  conflict_flags?: string[]
+  availability_impact?: {
+    captains_before?: number
+    captains_after?: number
+    fos_before?: number
+    fos_after?: number
+  } | null
   pilot?: {
     first_name: string
     last_name: string
@@ -523,7 +530,7 @@ export function RequestsTable({
                 </TableCell>
                 <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
                 <TableCell>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap">
                     {request.is_late_request && (
                       <Badge variant="outline" className="text-yellow-600 border-yellow-600">
                         <Clock className="h-3 w-3 mr-1" />
@@ -534,6 +541,12 @@ export function RequestsTable({
                       <Badge variant="outline" className="text-red-600 border-red-600">
                         <AlertTriangle className="h-3 w-3 mr-1" />
                         Past
+                      </Badge>
+                    )}
+                    {request.conflict_flags && request.conflict_flags.length > 0 && (
+                      <Badge variant="outline" className="text-red-600 border-red-600 bg-red-50">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        {request.conflict_flags.length} Conflict{request.conflict_flags.length > 1 ? 's' : ''}
                       </Badge>
                     )}
                   </div>

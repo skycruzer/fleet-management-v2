@@ -20,6 +20,7 @@ import {
   parseRosterPeriodCode,
   ensureRosterPeriodsExist,
 } from '@/lib/services/roster-period-service'
+import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { logger } from '@/lib/services/logging-service'
 
@@ -208,6 +209,16 @@ export interface ServiceResponse<T = void> {
   success: boolean
   data?: T
   error?: string
+  conflicts?: import('@/lib/services/conflict-detection-service').Conflict[]
+  warnings?: string[]
+  canApprove?: boolean
+  crewImpact?: {
+    captainsBefore?: number
+    captainsAfter?: number
+    firstOfficersBefore?: number
+    firstOfficersAfter?: number
+    belowMinimum?: boolean
+  }
 }
 
 // ============================================================================
@@ -318,25 +329,50 @@ export async function createPilotRequest(
 
     const priorityScore = pilot?.seniority_number || 999
 
-    // Check for overlapping requests (same pilot, overlapping dates, active status)
-    const endDateForCheck = input.end_date || input.start_date
-    const { data: overlapping, error: overlapError } = await supabase
-      .from('pilot_requests')
-      .select('id, start_date, end_date')
-      .eq('pilot_id', input.pilot_id)
-      .in('workflow_status', ['SUBMITTED', 'IN_REVIEW', 'APPROVED'])
-      .or(
-        `and(start_date.lte.${endDateForCheck},end_date.gte.${input.start_date}),and(start_date.eq.${input.start_date},end_date.is.null)`
-      )
+    // Run conflict detection BEFORE creating the request
+    const conflictInput: RequestInput = {
+      pilotId: input.pilot_id,
+      rank: input.rank,
+      startDate: input.start_date,
+      endDate: input.end_date || null,
+      requestCategory: input.request_category,
+    }
 
-    if (!overlapError && overlapping && overlapping.length > 0) {
+    const conflictResult = await detectConflicts(conflictInput)
+
+    // If critical conflicts exist, prevent creation
+    const criticalConflicts = conflictResult.conflicts.filter(
+      (c) => c.severity === 'CRITICAL'
+    )
+
+    if (criticalConflicts.length > 0) {
+      await logger.warn('Request blocked due to critical conflicts', {
+        source: 'unified-request-service:createPilotRequest',
+        pilot_id: input.pilot_id,
+        conflicts: criticalConflicts,
+      })
+
       return {
         success: false,
-        error: `Overlapping request already exists for dates ${input.start_date} to ${endDateForCheck}`,
+        error: criticalConflicts[0].message,
+        conflicts: conflictResult.conflicts,
+        warnings: conflictResult.warnings,
+        canApprove: false,
       }
     }
 
-    // Insert the request
+    // Prepare conflict flags for database
+    const conflictFlags = conflictResult.conflicts.map((c) => c.type)
+    const availabilityImpact = conflictResult.crewImpact
+      ? {
+          captains_before: conflictResult.crewImpact.captainsBefore,
+          captains_after: conflictResult.crewImpact.captainsAfter,
+          fos_before: conflictResult.crewImpact.firstOfficersBefore,
+          fos_after: conflictResult.crewImpact.firstOfficersAfter,
+        }
+      : null
+
+    // Insert the request with conflict data
     const { data, error } = await supabase
       .from('pilot_requests')
       .insert({
@@ -364,6 +400,8 @@ export async function createPilotRequest(
         submitted_by_admin_id: input.submitted_by_admin_id || null,
         source_reference: input.source_reference || null,
         source_attachment_url: input.source_attachment_url || null,
+        conflict_flags: conflictFlags,
+        availability_impact: availabilityImpact,
       })
       .select()
       .single()
@@ -380,9 +418,23 @@ export async function createPilotRequest(
       }
     }
 
+    // Log conflict detection results
+    if (conflictResult.conflicts.length > 0) {
+      await logger.info('Request created with conflicts', {
+        source: 'unified-request-service:createPilotRequest',
+        request_id: data.id,
+        conflicts: conflictResult.conflicts.length,
+        canApprove: conflictResult.canApprove,
+      })
+    }
+
     return {
       success: true,
       data: data as unknown as PilotRequest,
+      conflicts: conflictResult.conflicts,
+      warnings: conflictResult.warnings,
+      canApprove: conflictResult.canApprove,
+      crewImpact: conflictResult.crewImpact,
     }
   } catch (error) {
     await logger.error('Failed to create pilot request', {

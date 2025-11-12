@@ -241,7 +241,12 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { success: false, error: result.error },
+        {
+          success: false,
+          error: result.error,
+          conflicts: result.conflicts,
+          warnings: result.warnings,
+        },
         { status: 400 }
       )
     }
@@ -256,6 +261,10 @@ export async function POST(request: NextRequest) {
         success: true,
         data: result.data,
         message: 'Request created successfully',
+        conflicts: result.conflicts,
+        warnings: result.warnings,
+        canApprove: result.canApprove,
+        crewImpact: result.crewImpact,
       },
       { status: 201 }
     )

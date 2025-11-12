@@ -115,20 +115,52 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
         {/* Leave Requests Tab */}
         <TabsContent value="leave" className="space-y-6 mt-6">
           <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-            <RequestFiltersWrapper searchParams={{ ...searchParams, category: 'LEAVE' as const }} />
+            <RequestFiltersWrapper searchParams={{
+              roster_period: searchParams.roster_period,
+              pilot_id: searchParams.pilot_id,
+              status: searchParams.status,
+              category: 'LEAVE',
+              channel: searchParams.channel,
+              is_late: searchParams.is_late,
+              is_past_deadline: searchParams.is_past_deadline
+            }} />
           </Suspense>
           <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-            <RequestsTableWrapper searchParams={{ ...searchParams, category: 'LEAVE' as const }} />
+            <RequestsTableWrapper searchParams={Promise.resolve({
+              roster_period: searchParams.roster_period,
+              pilot_id: searchParams.pilot_id,
+              status: searchParams.status,
+              category: 'LEAVE',
+              channel: searchParams.channel,
+              is_late: searchParams.is_late,
+              is_past_deadline: searchParams.is_past_deadline
+            })} />
           </Suspense>
         </TabsContent>
 
         {/* Flight Requests Tab */}
         <TabsContent value="flight" className="space-y-6 mt-6">
           <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-            <RequestFiltersWrapper searchParams={{ ...searchParams, category: 'FLIGHT' as const }} />
+            <RequestFiltersWrapper searchParams={{
+              roster_period: searchParams.roster_period,
+              pilot_id: searchParams.pilot_id,
+              status: searchParams.status,
+              category: 'FLIGHT',
+              channel: searchParams.channel,
+              is_late: searchParams.is_late,
+              is_past_deadline: searchParams.is_past_deadline
+            }} />
           </Suspense>
           <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-            <RequestsTableWrapper searchParams={{ ...searchParams, category: 'FLIGHT' as const }} />
+            <RequestsTableWrapper searchParams={Promise.resolve({
+              roster_period: searchParams.roster_period,
+              pilot_id: searchParams.pilot_id,
+              status: searchParams.status,
+              category: 'FLIGHT',
+              channel: searchParams.channel,
+              is_late: searchParams.is_late,
+              is_past_deadline: searchParams.is_past_deadline
+            })} />
           </Suspense>
         </TabsContent>
 

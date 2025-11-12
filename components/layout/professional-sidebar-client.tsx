@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   Users,
   FileCheck,
-  Calendar,
   LogOut,
   ChevronRight,
   ChevronDown,
@@ -30,6 +29,7 @@ import {
   FileType,
   ClockAlert,
   FileText,
+  ClipboardList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
@@ -81,9 +81,11 @@ const navigationSections: NavSection[] = [
     title: 'Requests',
     items: [
       {
-        title: 'Leave Requests',
-        href: '/dashboard/leave',
-        icon: Calendar,
+        title: 'Pilot Requests',
+        href: '/dashboard/requests',
+        icon: ClipboardList,
+        badge: 'NEW',
+        badgeVariant: 'default',
       },
       {
         title: 'Leave Approve',
@@ -100,15 +102,10 @@ const navigationSections: NavSection[] = [
         href: '/dashboard/admin/leave-bids',
         icon: CalendarCheck,
       },
-      {
-        title: 'Flight Requests',
-        href: '/dashboard/flight-requests',
-        icon: Plane,
-      },
     ],
   },
   {
-    title: 'Planning',
+    title: 'Planning & Reports',
     items: [
       {
         title: 'Renewal Planning',
@@ -194,19 +191,21 @@ interface ProfessionalSidebarClientProps {
 export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClientProps) {
   const { csrfToken } = useCsrfToken()
   const pathname = usePathname()
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
 
-  // Load collapsed state from localStorage on mount
-  useEffect(() => {
+  // Initialize state from localStorage
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
+    if (typeof window === 'undefined') return {}
     const saved = localStorage.getItem('sidebar-collapsed-sections')
     if (saved) {
       try {
-        setCollapsedSections(JSON.parse(saved))
+        return JSON.parse(saved)
       } catch (e) {
         console.error('Failed to parse sidebar state:', e)
+        return {}
       }
     }
-  }, [])
+    return {}
+  })
 
   // Save collapsed state to localStorage whenever it changes
   useEffect(() => {

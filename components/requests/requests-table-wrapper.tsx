@@ -19,7 +19,7 @@ import {
 } from '@/lib/services/unified-request-service'
 
 interface RequestsTableWrapperProps {
-  searchParams: {
+  searchParams: Promise<{
     roster_period?: string
     pilot_id?: string
     status?: string
@@ -27,12 +27,12 @@ interface RequestsTableWrapperProps {
     channel?: string
     is_late?: string
     is_past_deadline?: string
-  }
+  }>
 }
 
 export async function RequestsTableWrapper({ searchParams }: RequestsTableWrapperProps) {
-  // Use searchParams directly
-  const params = searchParams
+  // Await searchParams in Next.js 16
+  const params = await searchParams
 
   // Convert searchParams to filters
   const filters: PilotRequestFilters = {
