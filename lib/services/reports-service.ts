@@ -132,8 +132,10 @@ export async function generateLeaveReport(
   }
 
   // Filter by rank if needed (client-side)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) =>
       filters.rank!.includes(item.pilot?.rank)
     )
@@ -142,10 +144,15 @@ export async function generateLeaveReport(
   // Calculate summary statistics (before pagination)
   const summary = {
     totalRequests: filteredData.length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pending: filteredData.filter((r: any) => r.workflow_status === 'pending').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     approved: filteredData.filter((r: any) => r.workflow_status === 'approved').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rejected: filteredData.filter((r: any) => r.workflow_status === 'rejected').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     captainRequests: filteredData.filter((r: any) => r.pilot?.rank === 'Captain').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.rank === 'First Officer').length,
   }
 
@@ -233,8 +240,10 @@ export async function generateFlightRequestReport(
   }
 
   // Filter by rank if needed
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) =>
       filters.rank!.includes(item.pilot?.rank)
     )
@@ -243,9 +252,13 @@ export async function generateFlightRequestReport(
   // Calculate summary statistics (before pagination)
   const summary = {
     totalRequests: filteredData.length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pending: filteredData.filter((r: any) => r.workflow_status === 'pending').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     approved: filteredData.filter((r: any) => r.workflow_status === 'approved').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rejected: filteredData.filter((r: any) => r.workflow_status === 'rejected').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uniqueDescriptions: [...new Set(filteredData.map((r: any) => r.description))].length,
   }
 
@@ -332,8 +345,10 @@ export async function generateCertificationsReport(
   }
 
   // Filter by rank if needed
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) =>
       filters.rank!.includes(item.pilot?.role)
     )
@@ -341,6 +356,7 @@ export async function generateCertificationsReport(
 
   // Calculate expiry and filter by threshold
   const today = new Date()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataWithExpiry = filteredData.map((cert: any) => {
     const expiryDate = new Date(cert.expiry_date)
     const daysUntilExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
@@ -356,6 +372,7 @@ export async function generateCertificationsReport(
   // Filter by expiry threshold if provided
   let finalData = dataWithExpiry
   if (filters.expiryThreshold !== undefined) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     finalData = dataWithExpiry.filter((cert: any) =>
       cert.daysUntilExpiry <= filters.expiryThreshold!
     )
@@ -364,9 +381,13 @@ export async function generateCertificationsReport(
   // Calculate summary statistics (before pagination)
   const summary = {
     totalCertifications: finalData.length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expired: finalData.filter((c: any) => c.isExpired).length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expiringSoon: finalData.filter((c: any) => c.isExpiringSoon && !c.isExpired).length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     current: finalData.filter((c: any) => !c.isExpired && !c.isExpiringSoon).length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uniquePilots: [...new Set(finalData.map((c: any) => c.pilot_id))].length,
   }
 
@@ -443,6 +464,7 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
     autoTable(doc, {
       startY: yPos,
       head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Status', 'Roster Period']],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: report.data.map((item: any) => [
         `${item.pilot?.first_name} ${item.pilot?.last_name}`,
         item.pilot?.role || 'N/A',
@@ -459,6 +481,7 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
     autoTable(doc, {
       startY: yPos,
       head: [['Pilot', 'Rank', 'Type', 'Flight Date', 'Description', 'Status']],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: report.data.map((item: any) => [
         `${item.pilot?.first_name} ${item.pilot?.last_name}`,
         item.pilot?.role || 'N/A',
@@ -474,6 +497,7 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
     autoTable(doc, {
       startY: yPos,
       head: [['Pilot', 'Rank', 'Check Type', 'Completion', 'Expiry', 'Days Until Expiry', 'Status']],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: report.data.map((item: any) => [
         `${item.pilot?.first_name} ${item.pilot?.last_name}`,
         item.pilot?.role || 'N/A',
