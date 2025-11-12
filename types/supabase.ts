@@ -2030,6 +2030,209 @@ export type Database = {
           },
         ]
       }
+      pilot_requests: {
+        Row: {
+          availability_impact: Json | null
+          conflict_flags: Json | null
+          created_at: string | null
+          days_count: number | null
+          employee_number: string
+          end_date: string | null
+          flight_date: string | null
+          id: string
+          is_late_request: boolean | null
+          is_past_deadline: boolean | null
+          name: string
+          notes: string | null
+          pilot_id: string | null
+          pilot_user_id: string | null
+          priority_score: number | null
+          rank: string
+          reason: string | null
+          request_category: string
+          request_type: string
+          review_comments: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          roster_deadline_date: string
+          roster_period: string
+          roster_period_start_date: string
+          roster_publish_date: string
+          source_attachment_url: string | null
+          source_reference: string | null
+          start_date: string
+          submission_channel: string
+          submission_date: string
+          submitted_by_admin_id: string | null
+          updated_at: string | null
+          workflow_status: string
+        }
+        Insert: {
+          availability_impact?: Json | null
+          conflict_flags?: Json | null
+          created_at?: string | null
+          days_count?: number | null
+          employee_number: string
+          end_date?: string | null
+          flight_date?: string | null
+          id?: string
+          is_late_request?: boolean | null
+          is_past_deadline?: boolean | null
+          name: string
+          notes?: string | null
+          pilot_id?: string | null
+          pilot_user_id?: string | null
+          priority_score?: number | null
+          rank: string
+          reason?: string | null
+          request_category: string
+          request_type: string
+          review_comments?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          roster_deadline_date: string
+          roster_period: string
+          roster_period_start_date: string
+          roster_publish_date: string
+          source_attachment_url?: string | null
+          source_reference?: string | null
+          start_date: string
+          submission_channel: string
+          submission_date?: string
+          submitted_by_admin_id?: string | null
+          updated_at?: string | null
+          workflow_status?: string
+        }
+        Update: {
+          availability_impact?: Json | null
+          conflict_flags?: Json | null
+          created_at?: string | null
+          days_count?: number | null
+          employee_number?: string
+          end_date?: string | null
+          flight_date?: string | null
+          id?: string
+          is_late_request?: boolean | null
+          is_past_deadline?: boolean | null
+          name?: string
+          notes?: string | null
+          pilot_id?: string | null
+          pilot_user_id?: string | null
+          priority_score?: number | null
+          rank?: string
+          reason?: string | null
+          request_category?: string
+          request_type?: string
+          review_comments?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          roster_deadline_date?: string
+          roster_period?: string
+          roster_period_start_date?: string
+          roster_publish_date?: string
+          source_attachment_url?: string | null
+          source_reference?: string | null
+          start_date?: string
+          submission_channel?: string
+          submission_date?: string
+          submitted_by_admin_id?: string | null
+          updated_at?: string | null
+          workflow_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "captain_qualifications_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_checks_overview"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_qualification_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_report_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_requirements_compliance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_summary_optimized"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_warning_history"
+            referencedColumns: ["pilot_id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_id_fkey"
+            columns: ["pilot_id"]
+            isOneToOne: false
+            referencedRelation: "pilots_with_contract_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "pilot_requests_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pilot_users: {
         Row: {
           address: string | null
@@ -2382,6 +2585,110 @@ export type Database = {
           simulator_capacity?: number | null
         }
         Relationships: []
+      }
+      roster_periods: {
+        Row: {
+          code: string
+          created_at: string | null
+          end_date: string
+          id: string
+          period_number: number
+          publish_date: string
+          request_deadline_date: string
+          start_date: string
+          status: string | null
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          period_number: number
+          publish_date: string
+          request_deadline_date: string
+          start_date: string
+          status?: string | null
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          period_number?: number
+          publish_date?: string
+          request_deadline_date?: string
+          start_date?: string
+          status?: string | null
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      roster_reports: {
+        Row: {
+          approved_count: number | null
+          denied_count: number | null
+          email_recipients: string[] | null
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          min_crew_captains: number | null
+          min_crew_date: string | null
+          min_crew_fos: number | null
+          pdf_url: string | null
+          pending_count: number | null
+          report_type: string
+          roster_period_code: string
+          sent_at: string | null
+          withdrawn_count: number | null
+        }
+        Insert: {
+          approved_count?: number | null
+          denied_count?: number | null
+          email_recipients?: string[] | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          min_crew_captains?: number | null
+          min_crew_date?: string | null
+          min_crew_fos?: number | null
+          pdf_url?: string | null
+          pending_count?: number | null
+          report_type: string
+          roster_period_code: string
+          sent_at?: string | null
+          withdrawn_count?: number | null
+        }
+        Update: {
+          approved_count?: number | null
+          denied_count?: number | null
+          email_recipients?: string[] | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          min_crew_captains?: number | null
+          min_crew_date?: string | null
+          min_crew_fos?: number | null
+          pdf_url?: string | null
+          pending_count?: number | null
+          report_type?: string
+          roster_period_code?: string
+          sent_at?: string | null
+          withdrawn_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roster_reports_roster_period_code_fkey"
+            columns: ["roster_period_code"]
+            isOneToOne: false
+            referencedRelation: "roster_periods"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       settings: {
         Row: {
