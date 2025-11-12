@@ -262,11 +262,14 @@ export function FlightRequestReportForm() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    form.setValue('statusPending', true)
-                    form.setValue('statusSubmitted', true)
-                    form.setValue('statusInReview', true)
-                    form.setValue('statusApproved', true)
-                    form.setValue('statusRejected', true)
+                    form.reset({
+                      ...form.getValues(),
+                      statusPending: true,
+                      statusSubmitted: true,
+                      statusInReview: true,
+                      statusApproved: true,
+                      statusRejected: true,
+                    })
                   }}
                   className="h-7 text-xs"
                 >
@@ -277,11 +280,14 @@ export function FlightRequestReportForm() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    form.setValue('statusPending', false)
-                    form.setValue('statusSubmitted', false)
-                    form.setValue('statusInReview', false)
-                    form.setValue('statusApproved', false)
-                    form.setValue('statusRejected', false)
+                    form.reset({
+                      ...form.getValues(),
+                      statusPending: false,
+                      statusSubmitted: false,
+                      statusInReview: false,
+                      statusApproved: false,
+                      statusRejected: false,
+                    })
                   }}
                   className="h-7 text-xs"
                 >
@@ -378,8 +384,11 @@ export function FlightRequestReportForm() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    form.setValue('rankCaptain', true)
-                    form.setValue('rankFirstOfficer', true)
+                    form.reset({
+                      ...form.getValues(),
+                      rankCaptain: true,
+                      rankFirstOfficer: true,
+                    })
                   }}
                   className="h-7 text-xs"
                 >
@@ -390,8 +399,11 @@ export function FlightRequestReportForm() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    form.setValue('rankCaptain', false)
-                    form.setValue('rankFirstOfficer', false)
+                    form.reset({
+                      ...form.getValues(),
+                      rankCaptain: false,
+                      rankFirstOfficer: false,
+                    })
                   }}
                   className="h-7 text-xs"
                 >
