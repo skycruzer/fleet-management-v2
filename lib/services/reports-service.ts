@@ -88,17 +88,10 @@ export async function generateLeaveReport(
 ): Promise<ReportData> {
   const supabase = await createClient()
 
+  // pilot_requests table has denormalized pilot data (rank, name, employee_number)
   let query = supabase
     .from('pilot_requests')
-    .select(`
-      *,
-      pilot:pilots!pilot_requests_pilot_id_fkey (
-        first_name,
-        last_name,
-        employee_id,
-        rank
-      )
-    `)
+    .select('*')
     .eq('request_category', 'LEAVE')
     .order('start_date', { ascending: false })
 
@@ -131,13 +124,13 @@ export async function generateLeaveReport(
     throw new Error(`Failed to fetch leave requests: ${error.message}`)
   }
 
-  // Filter by rank if needed (client-side)
+  // Filter by rank if needed (client-side, using denormalized rank field)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.pilot?.rank)
+      filters.rank!.includes(item.rank)
     )
   }
 
@@ -151,9 +144,9 @@ export async function generateLeaveReport(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rejected: filteredData.filter((r: any) => r.workflow_status === 'rejected').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    captainRequests: filteredData.filter((r: any) => r.pilot?.rank === 'Captain').length,
+    captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.rank === 'First Officer').length,
+    firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
   }
 
   // For full exports (PDF/Email), return all data without pagination
@@ -200,17 +193,10 @@ export async function generateFlightRequestReport(
 ): Promise<ReportData> {
   const supabase = await createClient()
 
+  // pilot_requests table has denormalized pilot data (rank, name, employee_number)
   let query = supabase
     .from('pilot_requests')
-    .select(`
-      *,
-      pilot:pilots!pilot_requests_pilot_id_fkey (
-        first_name,
-        last_name,
-        employee_id,
-        rank
-      )
-    `)
+    .select('*')
     .eq('request_category', 'FLIGHT')
     .order('start_date', { ascending: false })
 
@@ -239,13 +225,13 @@ export async function generateFlightRequestReport(
     throw new Error(`Failed to fetch flight requests: ${error.message}`)
   }
 
-  // Filter by rank if needed
+  // Filter by rank if needed (using denormalized rank field)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.pilot?.rank)
+      filters.rank!.includes(item.rank)
     )
   }
 
