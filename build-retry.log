@@ -1,0 +1,30 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/skycruzer/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/skycruzer/Desktop/fleet-management-v2/package-lock.json
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Environments: .env.local, .env.production
+   - Experiments (use with caution):
+     · optimizePackageImports
+     · serverActions
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 6.1min
+   Running TypeScript ...
+   Collecting page data ...
+
+> Build error occurred
+Error: ENOENT: no such file or directory, open '/Users/skycruzer/Desktop/fleet-management-v2/.next/server/pages-manifest.json'
+    at ignore-listed frames {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/skycruzer/Desktop/fleet-management-v2/.next/server/pages-manifest.json'
+}

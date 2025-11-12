@@ -1,0 +1,6 @@
+lib/services/certification-renewal-planning-service.ts(421,39): error TS2304: Cannot find name 'maxPilots'.
+lib/services/certification-renewal-planning-service.ts(421,71): error TS18046: 'sum' is of type 'unknown'.
+lib/services/certification-renewal-planning-service.ts(421,77): error TS18046: 'cap' is of type 'unknown'.
+lib/services/certification-renewal-planning-service.ts(429,5): error TS2322: Type 'unknown' is not assignable to type 'number'.
+lib/services/certification-renewal-planning-service.ts(430,44): error TS18046: 'totalCapacity' is of type 'unknown'.
+lib/services/certification-renewal-planning-service.ts(611,30): error TS2339: Property 'max_pilots_per_category' does not exist on type '{ flight_capacity: number | null; ground_capacity: number | null; medical_capacity: number | null; notes: string | null; period_end_date: string; period_start_date: string; roster_period: string; simulator_capacity: number | null; }'.

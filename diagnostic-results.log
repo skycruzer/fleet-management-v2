@@ -1,0 +1,16 @@
+file:///Users/skycruzer/Desktop/fleet-management-v2/diagnose-renewal-planning.mjs:51
+  console.log(\`   ✅ roster_period_capacity table exists with \${capacityData.length} periods (showing first 5)\`)
+              ^
+
+SyntaxError: Invalid or unexpected token
+    at compileSourceTextModule (node:internal/modules/esm/utils:357:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:109:18)
+    at #translate (node:internal/modules/esm/loader:564:20)
+    at afterLoad (node:internal/modules/esm/loader:614:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:619:12)
+    at #createModuleJob (node:internal/modules/esm/loader:643:36)
+    at #getJobFromResolveResult (node:internal/modules/esm/loader:353:34)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:318:41)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:685:25)
+
+Node.js v24.11.0

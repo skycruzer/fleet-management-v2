@@ -1,0 +1,15 @@
+
+> fleet-management-v2@0.1.0 db:deploy
+> supabase db push
+
+Initialising login role...
+Connecting to remote database...
+Skipping migration 20251028000003_add_check_constraints.sql.backup... (file name must match pattern "<timestamp>_name.sql")
+Remote migration versions not found in local migrations directory.
+
+Make sure your local git repo is up-to-date. If the error persists, try repairing the migration history table:
+supabase migration repair --status reverted 20251027
+
+And update local migrations to match remote database:
+supabase db pull
+

@@ -1,0 +1,189 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/skycruzer/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/skycruzer/Desktop/fleet-management-v2/package-lock.json
+
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Environments: .env.local, .env.production
+   - Experiments (use with caution):
+     · optimizePackageImports
+     · serverActions
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 10.6s
+   Running TypeScript ...
+   Collecting page data ...
+Redis configuration missing. Caching will be disabled.
+Redis configuration missing. Caching will be disabled.
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages (0/65) ...
+   Generating static pages (16/65) 
+   Generating static pages (32/65) 
+Redis configuration missing. Caching will be disabled.
+   Generating static pages (48/65) 
+ ✓ Generating static pages (65/65) in 750.3ms
+   Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/admin/leave-bids/[id]
+├ ƒ /api/admin/leave-bids/review
+├ ƒ /api/analytics
+├ ƒ /api/analytics/crew-shortage-predictions
+├ ƒ /api/analytics/export
+├ ƒ /api/analytics/multi-year-forecast
+├ ƒ /api/analytics/succession-pipeline
+├ ƒ /api/audit
+├ ƒ /api/audit/[id]
+├ ƒ /api/audit/export
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/signout
+├ ƒ /api/cache/health
+├ ƒ /api/cache/invalidate
+├ ƒ /api/certifications
+├ ƒ /api/certifications/[id]
+├ ƒ /api/check-types
+├ ƒ /api/contract-types
+├ ƒ /api/cron/certification-expiry-alerts
+├ ƒ /api/cron/certification-expiry-alerts-test
+├ ƒ /api/csrf
+├ ƒ /api/dashboard/flight-requests
+├ ƒ /api/dashboard/flight-requests/[id]
+├ ƒ /api/dashboard/refresh
+├ ƒ /api/disciplinary
+├ ƒ /api/disciplinary/[id]
+├ ƒ /api/feedback
+├ ƒ /api/feedback/[id]
+├ ƒ /api/leave-bids/export-pdf
+├ ƒ /api/leave-requests
+├ ƒ /api/leave-requests/[id]/review
+├ ƒ /api/leave-stats/[pilotId]/[year]
+├ ƒ /api/notifications
+├ ƒ /api/pilot/flight-requests
+├ ƒ /api/pilot/flight-requests/[id]
+├ ƒ /api/pilot/leave
+├ ƒ /api/pilot/leave/[id]
+├ ƒ /api/pilot/login
+├ ƒ /api/pilot/logout
+├ ƒ /api/pilot/register
+├ ƒ /api/pilots
+├ ƒ /api/pilots/[id]
+├ ƒ /api/portal/certifications
+├ ƒ /api/portal/feedback
+├ ƒ /api/portal/flight-requests
+├ ƒ /api/portal/forgot-password
+├ ƒ /api/portal/leave-bids
+├ ƒ /api/portal/leave-bids/export
+├ ƒ /api/portal/leave-requests
+├ ƒ /api/portal/login
+├ ƒ /api/portal/logout
+├ ƒ /api/portal/notifications
+├ ƒ /api/portal/profile
+├ ƒ /api/portal/register
+├ ƒ /api/portal/registration-approval
+├ ƒ /api/portal/reset-password
+├ ƒ /api/portal/stats
+├ ƒ /api/renewal-planning/[planId]/confirm
+├ ƒ /api/renewal-planning/[planId]/reschedule
+├ ƒ /api/renewal-planning/clear
+├ ƒ /api/renewal-planning/email
+├ ƒ /api/renewal-planning/export
+├ ƒ /api/renewal-planning/export-pdf
+├ ƒ /api/renewal-planning/generate
+├ ƒ /api/renewal-planning/pilot/[pilotId]
+├ ƒ /api/renewal-planning/roster-period/[period]
+├ ƒ /api/reports/email
+├ ƒ /api/reports/export
+├ ƒ /api/reports/preview
+├ ƒ /api/retirement/export/csv
+├ ƒ /api/retirement/export/pdf
+├ ƒ /api/retirement/forecast
+├ ƒ /api/retirement/impact
+├ ƒ /api/retirement/timeline
+├ ƒ /api/settings
+├ ƒ /api/settings/[id]
+├ ƒ /api/tasks
+├ ƒ /api/tasks/[id]
+├ ƒ /api/user/delete-account
+├ ƒ /api/users
+├ ○ /auth/login
+├ ƒ /dashboard
+├ ƒ /dashboard/admin
+├ ƒ /dashboard/admin/check-types
+├ ƒ /dashboard/admin/leave-bids
+├ ƒ /dashboard/admin/leave-bids/[id]
+├ ƒ /dashboard/admin/leave-bids/[id]/edit
+├ ƒ /dashboard/admin/pilot-registrations
+├ ƒ /dashboard/admin/settings
+├ ƒ /dashboard/admin/users/new
+├ ƒ /dashboard/analytics
+├ ƒ /dashboard/audit
+├ ƒ /dashboard/audit-logs
+├ ƒ /dashboard/audit/[id]
+├ ƒ /dashboard/certifications
+├ ƒ /dashboard/certifications/[id]/edit
+├ ƒ /dashboard/certifications/expiring
+├ ƒ /dashboard/certifications/new
+├ ƒ /dashboard/disciplinary
+├ ƒ /dashboard/disciplinary/[id]
+├ ƒ /dashboard/disciplinary/new
+├ ƒ /dashboard/faqs
+├ ƒ /dashboard/feedback
+├ ƒ /dashboard/flight-requests
+├ ƒ /dashboard/leave
+├ ƒ /dashboard/leave-requests
+├ ƒ /dashboard/leave/[id]
+├ ƒ /dashboard/leave/approve
+├ ƒ /dashboard/leave/calendar
+├ ƒ /dashboard/leave/new
+├ ƒ /dashboard/notifications
+├ ƒ /dashboard/pilots
+├ ƒ /dashboard/pilots/[id]
+├ ƒ /dashboard/pilots/[id]/edit
+├ ƒ /dashboard/pilots/new
+├ ƒ /dashboard/renewal-planning
+├ ƒ /dashboard/renewal-planning/calendar
+├ ƒ /dashboard/renewal-planning/generate
+├ ƒ /dashboard/renewal-planning/roster-period/[...period]
+├ ƒ /dashboard/reports
+├ ƒ /dashboard/settings
+├ ƒ /dashboard/support
+├ ƒ /dashboard/tasks
+├ ƒ /dashboard/tasks/[id]
+├ ƒ /dashboard/tasks/[id]/edit
+├ ƒ /dashboard/tasks/new
+├ ○ /docs
+├ ƒ /icon
+├ ○ /login
+├ ○ /offline
+├ ƒ /pilot/dashboard
+├ ƒ /pilot/flight-requests
+├ ƒ /pilot/leave
+├ ƒ /pilot/login
+├ ƒ /pilot/register
+├ ƒ /portal/certifications
+├ ƒ /portal/dashboard
+├ ƒ /portal/feedback
+├ ƒ /portal/flight-requests
+├ ƒ /portal/flight-requests/new
+├ ○ /portal/forgot-password
+├ ƒ /portal/leave-bids
+├ ƒ /portal/leave-requests
+├ ƒ /portal/leave-requests/new
+├ ○ /portal/login
+├ ƒ /portal/notifications
+├ ƒ /portal/profile
+├ ○ /portal/register
+└ ○ /portal/reset-password
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
