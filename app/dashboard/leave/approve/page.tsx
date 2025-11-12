@@ -214,12 +214,25 @@ export default async function LeaveApprovalPage() {
               <LeaveApprovalCard
                 key={request.id}
                 request={{
-                  ...request,
+                  id: request.id,
+                  pilot_id: request.pilot_id || '',
+                  employee_number: request.employee_number || '',
+                  rank: request.rank || 'First Officer',
+                  name: request.name || 'Unknown',
+                  request_type: request.request_type || 'LEAVE',
+                  start_date: request.start_date || '',
+                  end_date: request.end_date,
+                  reason: request.reason,
+                  notes: request.notes,
+                  is_late_request: request.is_late_request || false,
+                  is_past_deadline: request.is_past_deadline || false,
+                  created_at: request.created_at || new Date().toISOString(),
                   roster_period_code: request.roster_period || null,
                   conflict_flags: Array.isArray(request.conflict_flags) ? request.conflict_flags as string[] : undefined,
                   availability_impact: typeof request.availability_impact === 'object' && request.availability_impact !== null
                     ? (request.availability_impact as { captains_before?: number; captains_after?: number; fos_before?: number; fos_after?: number })
                     : undefined,
+                  pilots: request.pilots ? { seniority_number: request.pilots.seniority_number || 0 } : undefined,
                 }}
 
                 onApprove={async (id) => {
