@@ -89,16 +89,17 @@ export async function generateLeaveReport(
   const supabase = await createClient()
 
   let query = supabase
-    .from('leave_requests')
+    .from('pilot_requests')
     .select(`
       *,
-      pilot:pilots!leave_requests_pilot_id_fkey (
+      pilot:pilots!pilot_requests_pilot_id_fkey (
         first_name,
         last_name,
         employee_id,
-        role
+        rank
       )
     `)
+    .eq('request_category', 'LEAVE')
     .order('start_date', { ascending: false })
 
   // Apply filters
@@ -109,7 +110,7 @@ export async function generateLeaveReport(
   }
 
   if (filters.status && filters.status.length > 0) {
-    query = query.in('status', filters.status)
+    query = query.in('workflow_status', filters.status)
   }
 
   if (filters.rank && filters.rank.length > 0) {
@@ -134,18 +135,18 @@ export async function generateLeaveReport(
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.pilot?.role)
+      filters.rank!.includes(item.pilot?.rank)
     )
   }
 
   // Calculate summary statistics (before pagination)
   const summary = {
     totalRequests: filteredData.length,
-    pending: filteredData.filter((r: any) => r.status === 'pending').length,
-    approved: filteredData.filter((r: any) => r.status === 'approved').length,
-    rejected: filteredData.filter((r: any) => r.status === 'rejected').length,
-    captainRequests: filteredData.filter((r: any) => r.pilot?.role === 'Captain').length,
-    firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.role === 'First Officer').length,
+    pending: filteredData.filter((r: any) => r.workflow_status === 'pending').length,
+    approved: filteredData.filter((r: any) => r.workflow_status === 'approved').length,
+    rejected: filteredData.filter((r: any) => r.workflow_status === 'rejected').length,
+    captainRequests: filteredData.filter((r: any) => r.pilot?.rank === 'Captain').length,
+    firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.rank === 'First Officer').length,
   }
 
   // For full exports (PDF/Email), return all data without pagination
@@ -193,31 +194,37 @@ export async function generateFlightRequestReport(
   const supabase = await createClient()
 
   let query = supabase
-    .from('flight_requests')
+    .from('pilot_requests')
     .select(`
       *,
-      pilot:pilots!flight_requests_pilot_id_fkey (
+      pilot:pilots!pilot_requests_pilot_id_fkey (
         first_name,
         last_name,
         employee_id,
-        role
+        rank
       )
     `)
-    .order('flight_date', { ascending: false })
+    .eq('request_category', 'FLIGHT')
+    .order('start_date', { ascending: false })
 
   // Apply filters
   if (filters.dateRange) {
     query = query
-      .gte('flight_date', filters.dateRange.startDate)
-      .lte('flight_date', filters.dateRange.endDate)
+      .gte('start_date', filters.dateRange.startDate)
+      .lte('end_date', filters.dateRange.endDate)
   }
 
   if (filters.status && filters.status.length > 0) {
-    query = query.in('status', filters.status)
+    query = query.in('workflow_status', filters.status)
   }
 
-  // Note: flight_requests table does not have roster_period column
-  // Roster period filtering is not applicable for flight requests
+  if (filters.rosterPeriod) {
+    query = query.eq('roster_period', filters.rosterPeriod)
+  }
+
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    query = query.in('roster_period', filters.rosterPeriods)
+  }
 
   const { data, error } = await query
 
@@ -229,16 +236,16 @@ export async function generateFlightRequestReport(
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.pilot?.role)
+      filters.rank!.includes(item.pilot?.rank)
     )
   }
 
   // Calculate summary statistics (before pagination)
   const summary = {
     totalRequests: filteredData.length,
-    pending: filteredData.filter((r: any) => r.status === 'pending').length,
-    approved: filteredData.filter((r: any) => r.status === 'approved').length,
-    rejected: filteredData.filter((r: any) => r.status === 'rejected').length,
+    pending: filteredData.filter((r: any) => r.workflow_status === 'pending').length,
+    approved: filteredData.filter((r: any) => r.workflow_status === 'approved').length,
+    rejected: filteredData.filter((r: any) => r.workflow_status === 'rejected').length,
     uniqueDescriptions: [...new Set(filteredData.map((r: any) => r.description))].length,
   }
 

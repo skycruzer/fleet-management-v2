@@ -9,7 +9,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { getDeadlineAlerts } from '@/lib/services/roster-deadline-alert-service'
+import { getAllDeadlineAlerts } from '@/lib/services/roster-deadline-alert-service'
 import { logger } from '@/lib/services/logging-service'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +22,7 @@ export const revalidate = 0
  */
 export async function GET() {
   try {
-    const alerts = await getDeadlineAlerts()
+    const alerts = await getAllDeadlineAlerts()
 
     return NextResponse.json({
       success: true,
