@@ -196,6 +196,8 @@ export function LeaveReportForm() {
 
   // Handle date preset selection
   const handleDatePresetSelect = (dateRange: DateRange) => {
+    // Clear roster periods when date preset is selected
+    form.setValue('rosterPeriods', [])
     form.setValue('startDate', dateRange.startDate)
     form.setValue('endDate', dateRange.endDate)
     handleFormChange()
@@ -245,7 +247,17 @@ export function LeaveReportForm() {
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input
+                      type="date"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        // Clear roster periods when date is selected
+                        if (e.target.value) {
+                          form.setValue('rosterPeriods', [])
+                        }
+                      }}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -257,7 +269,17 @@ export function LeaveReportForm() {
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input
+                      type="date"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        // Clear roster periods when date is selected
+                        if (e.target.value) {
+                          form.setValue('rosterPeriods', [])
+                        }
+                      }}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -280,7 +302,12 @@ export function LeaveReportForm() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => form.setValue('rosterPeriods', rosterPeriods)}
+                      onClick={() => {
+                        // Clear date range when selecting all roster periods
+                        form.setValue('startDate', '')
+                        form.setValue('endDate', '')
+                        form.setValue('rosterPeriods', rosterPeriods)
+                      }}
                       className="h-7 text-xs"
                     >
                       Select All
@@ -315,6 +342,11 @@ export function LeaveReportForm() {
                               <Checkbox
                                 checked={field.value?.includes(period)}
                                 onCheckedChange={(checked) => {
+                                  // Clear date range when roster period is selected
+                                  if (checked) {
+                                    form.setValue('startDate', '')
+                                    form.setValue('endDate', '')
+                                  }
                                   return checked
                                     ? field.onChange([...field.value, period])
                                     : field.onChange(
