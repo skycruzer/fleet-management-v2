@@ -195,35 +195,6 @@ function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: LeaveRequest 
             </div>
           </div>
         </div>
-
-        {/* Approval Information (if approved/denied) */}
-        {(leaveRequest.workflow_status === 'APPROVED' ||
-          leaveRequest.workflow_status === 'DENIED') && (
-          <>
-            <Separator />
-            <div className="space-y-2">
-              <div className="text-muted-foreground flex items-center gap-2 text-sm font-semibold tracking-wide uppercase">
-                Decision Information
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {leaveRequest.approved_by && (
-                  <div>
-                    <div className="text-muted-foreground text-xs">Reviewed By</div>
-                    <div className="font-medium">{leaveRequest.approved_by}</div>
-                  </div>
-                )}
-                {leaveRequest.approval_date && (
-                  <div>
-                    <div className="text-muted-foreground text-xs">Decision Date</div>
-                    <div className="text-sm font-medium">
-                      {format(new Date(leaveRequest.approval_date), "MMM d, yyyy 'at' h:mm a")}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        )}
       </CardContent>
     </Card>
   )
