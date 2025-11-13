@@ -180,7 +180,9 @@ function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: LeaveRequest 
             <div>
               <div className="text-muted-foreground text-xs">Submitted</div>
               <div className="text-sm font-medium">
-                {format(new Date(leaveRequest.created_at), "MMM d, yyyy 'at' h:mm a")}
+                {leaveRequest.created_at
+                  ? format(new Date(leaveRequest.created_at), "MMM d, yyyy 'at' h:mm a")
+                  : 'N/A'}
               </div>
             </div>
             <div>
