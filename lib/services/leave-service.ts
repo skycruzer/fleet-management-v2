@@ -10,7 +10,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
-import { getRosterPeriodDetails } from '@/lib/utils/roster-utils'
+import { getRosterPeriodFromDate } from '@/lib/utils/roster-utils'
 
 export interface LeaveRequest {
   id: string
@@ -251,12 +251,13 @@ export async function createLeaveRequestServer(
       throw new Error('Pilot not found')
     }
 
-    const pilotName = `${pilot.first_name} ${pilot.middle_name ? `${pilot.middle_name} ` : ''}${pilot.last_name}`.trim()
+    const pilotName =
+      `${pilot.first_name} ${pilot.middle_name ? `${pilot.middle_name} ` : ''}${pilot.last_name}`.trim()
 
-    // Calculate roster period details
-    const rosterDetails = getRosterPeriodDetails(rosterPeriod)
+    // Calculate roster period details using start_date
+    const rosterDetails = getRosterPeriodFromDate(new Date(requestData.start_date))
 
-    const { data, error} = await supabase
+    const { data, error } = await supabase
       .from('pilot_requests')
       .insert({
         request_category: 'LEAVE',
@@ -266,9 +267,9 @@ export async function createLeaveRequestServer(
         employee_number: pilot.employee_id,
         request_type: requestData.request_type,
         roster_period: rosterPeriod,
-        roster_period_start_date: rosterDetails.startDate,
-        roster_deadline_date: rosterDetails.deadlineDate,
-        roster_publish_date: rosterDetails.publishDate,
+        roster_period_start_date: rosterDetails.startDate.toISOString().split('T')[0],
+        roster_deadline_date: rosterDetails.deadlineDate.toISOString().split('T')[0],
+        roster_publish_date: rosterDetails.publishDate.toISOString().split('T')[0],
         start_date: requestData.start_date,
         end_date: requestData.end_date,
         days_count: daysCount,
@@ -326,7 +327,7 @@ export async function updateLeaveRequestServer(
   const supabase = await createClient()
 
   try {
-    const updateData: any = { ...requestData }
+    const updateData: Record<string, unknown> = { ...requestData }
 
     // Recalculate days if dates changed
     if (requestData.start_date && requestData.end_date) {
@@ -386,7 +387,7 @@ export async function updateLeaveRequestStatus(
     }
 
     // Extract result
-    const result = data as any
+    const result = data as LeaveRequest | null
     if (!result) {
       throw new Error('Unexpected response from database function')
     }
