@@ -12,7 +12,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FlightRequestReviewSchema, type FlightRequestReviewInput } from '@/lib/validations/flight-request-schema'
+import {
+  FlightRequestReviewSchema,
+  type FlightRequestReviewInput,
+} from '@/lib/validations/flight-request-schema'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 
 interface FlightRequestReviewModalProps {
@@ -33,7 +36,7 @@ export default function FlightRequestReviewModal({
   const form = useForm<FlightRequestReviewInput>({
     resolver: zodResolver(FlightRequestReviewSchema),
     defaultValues: {
-      status: request.status === 'PENDING' ? 'UNDER_REVIEW' : request.status,
+      status: request.workflow_status === 'PENDING' ? 'UNDER_REVIEW' : request.workflow_status,
       reviewer_comments: request.reviewer_comments || '',
     },
   })
@@ -61,7 +64,7 @@ export default function FlightRequestReviewModal({
       // Success - close modal and refresh
       onClose()
       router.refresh()
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred')
     } finally {
       setIsSubmitting(false)
@@ -70,7 +73,7 @@ export default function FlightRequestReviewModal({
 
   if (!isOpen) return null
 
-  const isReadOnly = request.status === 'APPROVED' || request.status === 'DENIED'
+  const isReadOnly = request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED'
 
   return (
     <div
@@ -92,7 +95,7 @@ export default function FlightRequestReviewModal({
             </h2>
             <button
               onClick={onClose}
-              className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded-md text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               aria-label="Close modal"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,9 +151,7 @@ export default function FlightRequestReviewModal({
                 <p className="text-gray-600 dark:text-gray-400">
                   <strong>Reason:</strong>
                 </p>
-                <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                  {request.reason}
-                </p>
+                <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{request.reason}</p>
               </div>
             )}
           </div>
@@ -160,20 +161,25 @@ export default function FlightRequestReviewModal({
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Status Selection */}
               <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label
+                  htmlFor="status"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Review Status <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="status"
                   {...form.register('status')}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="UNDER_REVIEW">Under Review</option>
                   <option value="APPROVED">Approved</option>
                   <option value="DENIED">Denied</option>
                 </select>
                 {form.formState.errors.status && (
-                  <p className="mt-1 text-sm text-red-600">{form.formState.errors.status.message}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {form.formState.errors.status.message}
+                  </p>
                 )}
               </div>
 
@@ -183,7 +189,8 @@ export default function FlightRequestReviewModal({
                   htmlFor="reviewer_comments"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Reviewer Comments {selectedStatus === 'DENIED' && <span className="text-red-500">*</span>}
+                  Reviewer Comments{' '}
+                  {selectedStatus === 'DENIED' && <span className="text-red-500">*</span>}
                 </label>
                 <textarea
                   id="reviewer_comments"
@@ -194,7 +201,7 @@ export default function FlightRequestReviewModal({
                       ? 'Please provide a reason for denial...'
                       : 'Optional comments for the pilot...'
                   }
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {form.formState.errors.reviewer_comments && (
                   <p className="mt-1 text-sm text-red-600">
@@ -220,14 +227,14 @@ export default function FlightRequestReviewModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
+                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Review'}
                 </button>
@@ -243,12 +250,12 @@ export default function FlightRequestReviewModal({
                   <strong>Status:</strong>{' '}
                   <span
                     className={`rounded-full px-2 py-1 text-xs ${
-                      request.status === 'APPROVED'
+                      request.workflow_status === 'APPROVED'
                         ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                         : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                     }`}
                   >
-                    {request.status}
+                    {request.workflow_status}
                   </span>
                 </p>
                 {request.reviewer_comments && (
@@ -272,7 +279,7 @@ export default function FlightRequestReviewModal({
               <div className="flex justify-end">
                 <button
                   onClick={onClose}
-                  className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 >
                   Close
                 </button>
