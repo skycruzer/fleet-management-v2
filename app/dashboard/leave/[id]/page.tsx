@@ -10,8 +10,7 @@ export const dynamic = 'force-dynamic'
 
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
-import { getLeaveRequestById } from '@/lib/services/leave-service'
-import { getLeaveRequestApprovalHistory } from '@/lib/services/audit-service'
+import { getLeaveRequestById, type LeaveRequest } from '@/lib/services/leave-service'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -41,29 +40,36 @@ export default async function LeaveRequestPage({ params }: LeaveRequestPageProps
 
   // Status badge configuration
   const statusConfig = {
-    PENDING: { variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
-    APPROVED: { variant: 'default' as const, className: 'bg-green-100 text-green-800 border-green-300' },
-    DENIED: { variant: 'destructive' as const, className: 'bg-red-100 text-red-800 border-red-300' },
-    CANCELLED: { variant: 'secondary' as const, className: 'bg-gray-100 text-gray-800 border-gray-300' },
+    PENDING: {
+      variant: 'secondary' as const,
+      className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    },
+    APPROVED: {
+      variant: 'default' as const,
+      className: 'bg-green-100 text-green-800 border-green-300',
+    },
+    DENIED: {
+      variant: 'destructive' as const,
+      className: 'bg-red-100 text-red-800 border-red-300',
+    },
+    CANCELLED: {
+      variant: 'secondary' as const,
+      className: 'bg-gray-100 text-gray-800 border-gray-300',
+    },
   }
 
-  const config = statusConfig[leaveRequest.status as keyof typeof statusConfig] || statusConfig.PENDING
+  const config =
+    statusConfig[leaveRequest.workflow_status as keyof typeof statusConfig] || statusConfig.PENDING
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-foreground text-xl sm:text-2xl font-bold">
-            Leave Request Details
-          </h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Request ID: {id.slice(0, 8)}...
-          </p>
+          <h2 className="text-foreground text-xl font-bold sm:text-2xl">Leave Request Details</h2>
+          <p className="text-muted-foreground mt-1 text-sm">Request ID: {id.slice(0, 8)}...</p>
         </div>
-        <Badge className={`border ${config.className}`}>
-          {leaveRequest.status}
-        </Badge>
+        <Badge className={`border ${config.className}`}>{leaveRequest.workflow_status}</Badge>
       </div>
 
       {/* Tabs */}
@@ -98,7 +104,7 @@ export default async function LeaveRequestPage({ params }: LeaveRequestPageProps
 /**
  * Leave Request Details Card Component
  */
-function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: any }) {
+function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: LeaveRequest }) {
   return (
     <Card>
       <CardHeader>
@@ -108,19 +114,19 @@ function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: any }) {
       <CardContent className="space-y-6">
         {/* Pilot Information */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm font-semibold tracking-wide uppercase">
             <User className="h-4 w-4" />
             Pilot Information
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <div className="text-xs text-muted-foreground">Pilot Name</div>
+              <div className="text-muted-foreground text-xs">Pilot Name</div>
               <div className="font-medium">
                 {leaveRequest.pilots?.first_name} {leaveRequest.pilots?.last_name}
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Rank</div>
+              <div className="text-muted-foreground text-xs">Rank</div>
               <div className="font-medium">{leaveRequest.pilots?.role || 'N/A'}</div>
             </div>
           </div>
@@ -130,29 +136,33 @@ function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: any }) {
 
         {/* Leave Details */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm font-semibold tracking-wide uppercase">
             <Calendar className="h-4 w-4" />
             Leave Details
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <div className="text-xs text-muted-foreground">Start Date</div>
+              <div className="text-muted-foreground text-xs">Start Date</div>
               <div className="font-medium">
-                {leaveRequest.start_date ? format(new Date(leaveRequest.start_date), 'MMM d, yyyy') : 'N/A'}
+                {leaveRequest.start_date
+                  ? format(new Date(leaveRequest.start_date), 'MMM d, yyyy')
+                  : 'N/A'}
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">End Date</div>
+              <div className="text-muted-foreground text-xs">End Date</div>
               <div className="font-medium">
-                {leaveRequest.end_date ? format(new Date(leaveRequest.end_date), 'MMM d, yyyy') : 'N/A'}
+                {leaveRequest.end_date
+                  ? format(new Date(leaveRequest.end_date), 'MMM d, yyyy')
+                  : 'N/A'}
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Days Count</div>
+              <div className="text-muted-foreground text-xs">Days Count</div>
               <div className="font-medium">{leaveRequest.days_count} days</div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Roster Period</div>
+              <div className="text-muted-foreground text-xs">Roster Period</div>
               <div className="font-medium">{leaveRequest.roster_period || 'N/A'}</div>
             </div>
           </div>
@@ -162,46 +172,50 @@ function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: any }) {
 
         {/* Timestamps */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm font-semibold tracking-wide uppercase">
             <Clock className="h-4 w-4" />
             Timestamps
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <div className="text-xs text-muted-foreground">Submitted</div>
-              <div className="font-medium text-sm">
-                {format(new Date(leaveRequest.created_at), 'MMM d, yyyy \'at\' h:mm a')}
+              <div className="text-muted-foreground text-xs">Submitted</div>
+              <div className="text-sm font-medium">
+                {format(new Date(leaveRequest.created_at), "MMM d, yyyy 'at' h:mm a")}
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">Last Updated</div>
-              <div className="font-medium text-sm">
-                {format(new Date(leaveRequest.updated_at || leaveRequest.created_at), 'MMM d, yyyy \'at\' h:mm a')}
+              <div className="text-muted-foreground text-xs">Last Updated</div>
+              <div className="text-sm font-medium">
+                {format(
+                  new Date(leaveRequest.updated_at || leaveRequest.created_at),
+                  "MMM d, yyyy 'at' h:mm a"
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Approval Information (if approved/denied) */}
-        {(leaveRequest.status === 'APPROVED' || leaveRequest.status === 'DENIED') && (
+        {(leaveRequest.workflow_status === 'APPROVED' ||
+          leaveRequest.workflow_status === 'DENIED') && (
           <>
             <Separator />
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              <div className="text-muted-foreground flex items-center gap-2 text-sm font-semibold tracking-wide uppercase">
                 Decision Information
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {leaveRequest.approved_by && (
                   <div>
-                    <div className="text-xs text-muted-foreground">Reviewed By</div>
+                    <div className="text-muted-foreground text-xs">Reviewed By</div>
                     <div className="font-medium">{leaveRequest.approved_by}</div>
                   </div>
                 )}
                 {leaveRequest.approval_date && (
                   <div>
-                    <div className="text-xs text-muted-foreground">Decision Date</div>
-                    <div className="font-medium text-sm">
-                      {format(new Date(leaveRequest.approval_date), 'MMM d, yyyy \'at\' h:mm a')}
+                    <div className="text-muted-foreground text-xs">Decision Date</div>
+                    <div className="text-sm font-medium">
+                      {format(new Date(leaveRequest.approval_date), "MMM d, yyyy 'at' h:mm a")}
                     </div>
                   </div>
                 )}
@@ -241,7 +255,7 @@ async function AuditTrailTab({ leaveRequestId }: { leaveRequestId: string }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             The audit trail above shows all status changes, approvals, denials, and modifications
             made to this leave request, including who made each change and when.
           </p>

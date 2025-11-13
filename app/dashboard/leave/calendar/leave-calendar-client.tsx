@@ -51,7 +51,7 @@ export function LeaveCalendarClient({
 
   // Apply filters
   const filteredRequests = leaveRequests.filter((request) => {
-    if (statusFilter !== 'all' && request.status !== statusFilter) {
+    if (statusFilter !== 'all' && request.workflow_status !== statusFilter) {
       return false
     }
 
@@ -77,7 +77,7 @@ export function LeaveCalendarClient({
     <div className="space-y-4">
       {/* Filters */}
       <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Status Filter */}
           <div className="space-y-2">
             <Label htmlFor="status-filter">Status</Label>
@@ -126,9 +126,7 @@ export function LeaveCalendarClient({
               {showRecommendedDates && (
                 <Select
                   value={highlightRank}
-                  onValueChange={(value) =>
-                    setHighlightRank(value as 'Captain' | 'First Officer')
-                  }
+                  onValueChange={(value) => setHighlightRank(value as 'Captain' | 'First Officer')}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select rank" />
@@ -143,7 +141,7 @@ export function LeaveCalendarClient({
           </div>
 
           {/* Clear Filters */}
-          <div className="space-y-2 flex flex-col justify-end">
+          <div className="flex flex-col justify-end space-y-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -159,11 +157,10 @@ export function LeaveCalendarClient({
         </div>
 
         {/* Filter Summary */}
-        <div className="mt-4 pt-4 border-t">
+        <div className="mt-4 border-t pt-4">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Showing {filteredRequests.length} of {leaveRequests.length} leave
-              requests
+              Showing {filteredRequests.length} of {leaveRequests.length} leave requests
             </div>
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-gray-500" />
@@ -188,25 +185,19 @@ export function LeaveCalendarClient({
 
       {/* Day Details Modal */}
       {selectedDay && (
-        <Card className="p-6 fixed bottom-4 right-4 w-96 shadow-2xl z-50 max-h-[80vh] overflow-y-auto">
-          <div className="flex items-center justify-between mb-4">
+        <Card className="fixed right-4 bottom-4 z-50 max-h-[80vh] w-96 overflow-y-auto p-6 shadow-2xl">
+          <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CalendarIcon className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold text-lg">
-                {format(selectedDay.date, 'MMMM d, yyyy')}
-              </h3>
+              <CalendarIcon className="text-primary h-5 w-5" />
+              <h3 className="text-lg font-semibold">{format(selectedDay.date, 'MMMM d, yyyy')}</h3>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSelectedDay(null)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => setSelectedDay(null)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
 
           <div className="space-y-2">
-            <div className="text-sm text-gray-600 mb-4">
+            <div className="mb-4 text-sm text-gray-600">
               {selectedDay.events.length} leave request
               {selectedDay.events.length !== 1 ? 's' : ''}
             </div>
@@ -214,15 +205,15 @@ export function LeaveCalendarClient({
             {selectedDay.events.map((event) => (
               <div
                 key={event.id}
-                className="p-3 border rounded-lg hover:border-primary cursor-pointer transition-colors"
+                className="hover:border-primary cursor-pointer rounded-lg border p-3 transition-colors"
                 onClick={() => handleEventClick(event)}
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="font-medium">{event.pilotName}</span>
                   <Badge variant="outline">{event.rank}</Badge>
                 </div>
 
-                <div className="text-sm text-gray-600 space-y-1">
+                <div className="space-y-1 text-sm text-gray-600">
                   <div className="flex items-center justify-between">
                     <span>Type:</span>
                     <Badge className="text-xs">{event.leaveType}</Badge>
@@ -235,8 +226,8 @@ export function LeaveCalendarClient({
                         event.status === 'APPROVED'
                           ? 'bg-green-100 text-green-800'
                           : event.status === 'PENDING'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-red-100 text-red-800'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-red-100 text-red-800'
                       }
                     >
                       {event.status}
@@ -250,19 +241,14 @@ export function LeaveCalendarClient({
                     </span>
                   </div>
 
-                  <div className="text-xs text-gray-500 pt-2 border-t mt-2">
-                    {format(event.startDate, 'MMM d')} -{' '}
-                    {format(event.endDate, 'MMM d, yyyy')}
+                  <div className="mt-2 border-t pt-2 text-xs text-gray-500">
+                    {format(event.startDate, 'MMM d')} - {format(event.endDate, 'MMM d, yyyy')}
                   </div>
                 </div>
               </div>
             ))}
 
-            <Button
-              className="w-full mt-4"
-              variant="outline"
-              onClick={() => setSelectedDay(null)}
-            >
+            <Button className="mt-4 w-full" variant="outline" onClick={() => setSelectedDay(null)}>
               Close
             </Button>
           </div>

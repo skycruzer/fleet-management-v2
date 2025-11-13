@@ -20,18 +20,22 @@ export default async function LeaveRequestsPage() {
   const allRequests = await getAllLeaveRequests()
 
   // Filter out RDO and SDO requests (they belong in Flight Requests page)
-  const requests = allRequests.filter(req => req.request_type !== 'RDO' && req.request_type !== 'SDO')
+  const requests = allRequests.filter(
+    (req) => req.request_type !== 'RDO' && req.request_type !== 'SDO'
+  )
 
   // Get unique roster periods from requests
-  const uniquePeriods = Array.from(new Set(requests.map((req) => req.roster_period).filter(Boolean))) as string[]
+  const uniquePeriods = Array.from(
+    new Set(requests.map((req) => req.roster_period).filter(Boolean))
+  ) as string[]
 
   // Calculate stats from the data (excluding RDO/SDO)
   const stats = requests.reduce(
     (acc, req) => {
       acc.total++
-      if (req.status === 'PENDING') acc.pending++
-      else if (req.status === 'APPROVED') acc.approved++
-      else if (req.status === 'DENIED') acc.denied++
+      if (req.workflow_status === 'PENDING') acc.pending++
+      else if (req.workflow_status === 'APPROVED') acc.approved++
+      else if (req.workflow_status === 'DENIED') acc.denied++
       acc.totalDays += req.days_count
       return acc
     },
@@ -43,12 +47,14 @@ export default async function LeaveRequestsPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-xl sm:text-2xl font-bold">Leave Requests</h2>
-          <p className="text-muted-foreground mt-1 text-sm">Submit and manage pilot leave requests</p>
+          <h2 className="text-foreground text-xl font-bold sm:text-2xl">Leave Requests</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Submit and manage pilot leave requests
+          </p>
         </div>
         <Link href="/dashboard/leave/new" className="w-full sm:w-auto">
-          <Button className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto">
-            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Button className="bg-primary hover:bg-primary/90 w-full text-white sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
             Submit Leave Request
           </Button>
         </Link>
@@ -58,23 +64,26 @@ export default async function LeaveRequestsPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-primary/5 border-primary/20 p-6">
           <div className="flex items-center space-x-3">
-            <FileText className="h-8 w-8 text-primary" aria-hidden="true" />
+            <FileText className="text-primary h-8 w-8" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.pending}</p>
               <p className="text-muted-foreground text-sm font-medium">Pending Requests</p>
             </div>
           </div>
         </Card>
-        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50 p-6">
+        <Card className="border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950/50">
           <div className="flex items-center space-x-3">
-            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-500" aria-hidden="true" />
+            <CheckCircle
+              className="h-8 w-8 text-green-600 dark:text-green-500"
+              aria-hidden="true"
+            />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.approved}</p>
               <p className="text-muted-foreground text-sm font-medium">Approved</p>
             </div>
           </div>
         </Card>
-        <Card className="border-destructive/20 bg-red-50 dark:border-red-800 dark:bg-red-950/50 p-6">
+        <Card className="border-destructive/20 bg-red-50 p-6 dark:border-red-800 dark:bg-red-950/50">
           <div className="flex items-center space-x-3">
             <XCircle className="h-8 w-8 text-red-600 dark:text-red-500" aria-hidden="true" />
             <div>
@@ -85,7 +94,7 @@ export default async function LeaveRequestsPage() {
         </Card>
         <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
-            <BarChart3 className="h-8 w-8 text-primary" aria-hidden="true" />
+            <BarChart3 className="text-primary h-8 w-8" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{stats.totalDays}</p>
               <p className="text-muted-foreground text-sm font-medium">Total Days</p>
