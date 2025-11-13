@@ -36,7 +36,10 @@ export default function FlightRequestReviewModal({
   const form = useForm<FlightRequestReviewInput>({
     resolver: zodResolver(FlightRequestReviewSchema),
     defaultValues: {
-      status: request.workflow_status === 'PENDING' ? 'UNDER_REVIEW' : request.workflow_status,
+      status:
+        request.workflow_status === 'SUBMITTED'
+          ? 'UNDER_REVIEW'
+          : (request.workflow_status as 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'),
       reviewer_comments: request.reviewer_comments || '',
     },
   })
