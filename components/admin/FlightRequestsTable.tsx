@@ -26,7 +26,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
   // Filter requests based on status
   const filteredRequests = useMemo(() => {
     if (statusFilter === 'all') return requests
-    return requests.filter((req) => req.status === statusFilter)
+    return requests.filter((req) => req.workflow_status === statusFilter)
   }, [requests, statusFilter])
 
   const handleReview = (request: FlightRequest) => {
@@ -112,7 +112,8 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                       {request.pilot_rank && ` (${request.pilot_rank})`}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
-                      <strong>Flight Date:</strong> {new Date(request.flight_date).toLocaleDateString()}
+                      <strong>Flight Date:</strong>{' '}
+                      {new Date(request.flight_date).toLocaleDateString()}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
                       <strong>Description:</strong> {request.description.substring(0, 50)}...
@@ -141,7 +142,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
               {/* Review Button */}
               <button
                 onClick={() => handleReview(request)}
-                className="ml-4 rounded-md bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                className="ml-4 rounded-md bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
               >
                 {request.status === 'PENDING' || request.status === 'UNDER_REVIEW'
                   ? 'Review'
@@ -199,11 +200,7 @@ function formatRequestType(type: string): string {
 }
 
 // Status Badge Component
-function StatusBadge({
-  status,
-}: {
-  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
-}) {
+function StatusBadge({ status }: { status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' }) {
   const badgeStyles = {
     PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
     UNDER_REVIEW: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
