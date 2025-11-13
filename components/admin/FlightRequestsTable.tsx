@@ -102,7 +102,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                   <h3 className="font-medium text-gray-900 dark:text-white">
                     {formatRequestType(request.request_type)}
                   </h3>
-                  <StatusBadge status={request.status} />
+                  <StatusBadge status={request.workflow_status} />
                 </div>
 
                 <div className="mt-2 grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
@@ -144,7 +144,8 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                 onClick={() => handleReview(request)}
                 className="ml-4 rounded-md bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
               >
-                {request.status === 'SUBMITTED' || request.status === 'UNDER_REVIEW'
+                {request.workflow_status === 'SUBMITTED' ||
+                request.workflow_status === 'UNDER_REVIEW'
                   ? 'Review'
                   : 'View Details'}
               </button>
