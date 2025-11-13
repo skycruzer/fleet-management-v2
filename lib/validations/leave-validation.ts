@@ -24,8 +24,8 @@ export const LeaveRequestStatusEnum = z.enum(['PENDING', 'APPROVED', 'DENIED'], 
   message: 'Status must be one of: PENDING, APPROVED, DENIED',
 })
 
-export const RequestMethodEnum = z.enum(['EMAIL', 'ORACLE', 'LEAVE_BIDS', 'SYSTEM'], {
-  message: 'Request method must be one of: EMAIL, ORACLE, LEAVE_BIDS, SYSTEM',
+export const RequestMethodEnum = z.enum(['EMAIL', 'ORACLE', 'SYSTEM'], {
+  message: 'Request method must be one of: EMAIL, ORACLE, SYSTEM',
 })
 
 // ===================================
@@ -41,7 +41,9 @@ const uuidSchema = z.string().uuid('Must be a valid UUID')
  * Date validation: Must be ISO date string (YYYY-MM-DD format from HTML date inputs)
  * Will be converted to ISO datetime in the API layer
  */
-const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a valid date in YYYY-MM-DD format')
+const dateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a valid date in YYYY-MM-DD format')
 
 /**
  * Roster period validation: Format "RP1/2025" through "RP13/2025"
