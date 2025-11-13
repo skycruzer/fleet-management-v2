@@ -16,7 +16,7 @@ interface FlightRequestsTableProps {
   requests: FlightRequest[]
 }
 
-type StatusFilter = 'all' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+type StatusFilter = 'all' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
 
 export default function FlightRequestsTable({ requests }: FlightRequestsTableProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
@@ -59,9 +59,9 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
         />
         <FilterButton
           label="Pending"
-          count={requests.filter((r) => r.workflow_status === 'PENDING').length}
-          isActive={statusFilter === 'PENDING'}
-          onClick={() => setStatusFilter('PENDING')}
+          count={requests.filter((r) => r.workflow_status === 'SUBMITTED').length}
+          isActive={statusFilter === 'SUBMITTED'}
+          onClick={() => setStatusFilter('SUBMITTED')}
         />
         <FilterButton
           label="Under Review"
@@ -144,7 +144,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                 onClick={() => handleReview(request)}
                 className="ml-4 rounded-md bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
               >
-                {request.status === 'PENDING' || request.status === 'UNDER_REVIEW'
+                {request.status === 'SUBMITTED' || request.status === 'UNDER_REVIEW'
                   ? 'Review'
                   : 'View Details'}
               </button>
@@ -200,7 +200,7 @@ function formatRequestType(type: string): string {
 }
 
 // Status Badge Component
-function StatusBadge({ status }: { status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' }) {
+function StatusBadge({ status }: { status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' }) {
   const badgeStyles = {
     PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
     UNDER_REVIEW: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
