@@ -56,7 +56,7 @@ export async function GET(_request: NextRequest) {
     }
 
     if (status) {
-      filteredRequests = filteredRequests.filter((req) => req.status === status)
+      filteredRequests = filteredRequests.filter((req) => req.workflow_status === status)
     }
 
     if (rosterPeriod) {
@@ -72,7 +72,7 @@ export async function GET(_request: NextRequest) {
     console.error('GET /api/leave-requests error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getAllLeaveRequests',
-      endpoint: '/api/leave-requests'
+      endpoint: '/api/leave-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -157,7 +157,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     const sanitized = sanitizeError(error, {
       operation: 'createLeaveRequest',
-      endpoint: '/api/leave-requests'
+      endpoint: '/api/leave-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
