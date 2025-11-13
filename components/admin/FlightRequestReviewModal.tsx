@@ -40,7 +40,7 @@ export default function FlightRequestReviewModal({
         request.workflow_status === 'SUBMITTED'
           ? 'UNDER_REVIEW'
           : (request.workflow_status as 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'),
-      reviewer_comments: request.reviewer_comments || '',
+      review_comments: request.review_comments || '',
     },
   })
 
@@ -189,15 +189,15 @@ export default function FlightRequestReviewModal({
               {/* Reviewer Comments */}
               <div>
                 <label
-                  htmlFor="reviewer_comments"
+                  htmlFor="review_comments"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
                   Reviewer Comments{' '}
                   {selectedStatus === 'DENIED' && <span className="text-red-500">*</span>}
                 </label>
                 <textarea
-                  id="reviewer_comments"
-                  {...form.register('reviewer_comments')}
+                  id="review_comments"
+                  {...form.register('review_comments')}
                   rows={4}
                   placeholder={
                     selectedStatus === 'DENIED'
@@ -206,9 +206,9 @@ export default function FlightRequestReviewModal({
                   }
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
-                {form.formState.errors.reviewer_comments && (
+                {form.formState.errors.review_comments && (
                   <p className="mt-1 text-sm text-red-600">
-                    {form.formState.errors.reviewer_comments.message}
+                    {form.formState.errors.review_comments.message}
                   </p>
                 )}
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -261,13 +261,13 @@ export default function FlightRequestReviewModal({
                     {request.workflow_status}
                   </span>
                 </p>
-                {request.reviewer_comments && (
+                {request.review_comments && (
                   <div className="mt-3">
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       <strong>Reviewer Comments:</strong>
                     </p>
                     <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {request.reviewer_comments}
+                      {request.review_comments}
                     </p>
                   </div>
                 )}
