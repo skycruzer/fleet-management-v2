@@ -59,25 +59,25 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
         />
         <FilterButton
           label="Pending"
-          count={requests.filter((r) => r.status === 'PENDING').length}
+          count={requests.filter((r) => r.workflow_status === 'PENDING').length}
           isActive={statusFilter === 'PENDING'}
           onClick={() => setStatusFilter('PENDING')}
         />
         <FilterButton
           label="Under Review"
-          count={requests.filter((r) => r.status === 'UNDER_REVIEW').length}
+          count={requests.filter((r) => r.workflow_status === 'UNDER_REVIEW').length}
           isActive={statusFilter === 'UNDER_REVIEW'}
           onClick={() => setStatusFilter('UNDER_REVIEW')}
         />
         <FilterButton
           label="Approved"
-          count={requests.filter((r) => r.status === 'APPROVED').length}
+          count={requests.filter((r) => r.workflow_status === 'APPROVED').length}
           isActive={statusFilter === 'APPROVED'}
           onClick={() => setStatusFilter('APPROVED')}
         />
         <FilterButton
           label="Denied"
-          count={requests.filter((r) => r.status === 'DENIED').length}
+          count={requests.filter((r) => r.workflow_status === 'DENIED').length}
           isActive={statusFilter === 'DENIED'}
           onClick={() => setStatusFilter('DENIED')}
         />
