@@ -186,12 +186,11 @@ function LeaveRequestDetailsCard({ leaveRequest }: { leaveRequest: LeaveRequest 
               </div>
             </div>
             <div>
-              <div className="text-muted-foreground text-xs">Last Updated</div>
+              <div className="text-muted-foreground text-xs">Request Date</div>
               <div className="text-sm font-medium">
-                {format(
-                  new Date(leaveRequest.updated_at || leaveRequest.created_at),
-                  "MMM d, yyyy 'at' h:mm a"
-                )}
+                {leaveRequest.request_date
+                  ? format(new Date(leaveRequest.request_date), 'MMM d, yyyy')
+                  : 'N/A'}
               </div>
             </div>
           </div>
