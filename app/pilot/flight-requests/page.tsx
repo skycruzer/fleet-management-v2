@@ -1,11 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentPilotFlightRequests, getPilotFlightStats } from '@/lib/services/pilot-flight-service'
+import {
+  getCurrentPilotFlightRequests,
+  getPilotFlightStats,
+} from '@/lib/services/pilot-flight-service'
 import FlightRequestForm from '@/components/pilot/FlightRequestForm'
 import FlightRequestsList from '@/components/pilot/FlightRequestsList'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
-
 
 /**
  * Pilot Flight Requests Page
@@ -46,8 +48,8 @@ export default async function PilotFlightRequestsPage() {
             Registration Pending Approval
           </h1>
           <p className="mt-2 text-yellow-700 dark:text-yellow-300">
-            Your pilot registration is pending approval by the fleet management team.
-            You will be able to submit flight requests once your registration is approved.
+            Your pilot registration is pending approval by the fleet management team. You will be
+            able to submit flight requests once your registration is approved.
           </p>
         </div>
       </div>
@@ -59,9 +61,10 @@ export default async function PilotFlightRequestsPage() {
   const flightStatsResult = await getPilotFlightStats()
 
   const flightRequests = flightRequestsResult.success ? flightRequestsResult.data || [] : []
-  const stats = flightStatsResult.success && flightStatsResult.data
-    ? flightStatsResult.data
-    : { total: 0, pending: 0, under_review: 0, approved: 0, denied: 0 }
+  const stats =
+    flightStatsResult.success && flightStatsResult.data
+      ? flightStatsResult.data
+      : { total: 0, submitted: 0, under_review: 0, approved: 0, denied: 0 }
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
@@ -69,14 +72,15 @@ export default async function PilotFlightRequestsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Flight Requests</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Submit and manage your flight requests for additional flights, route changes, and schedule swaps
+          Submit and manage your flight requests for additional flights, route changes, and schedule
+          swaps
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard title="Total Requests" value={stats.total} color="blue" />
-        <StatCard title="Pending" value={stats.pending} color="gray" />
+        <StatCard title="Submitted" value={stats.submitted} color="gray" />
         <StatCard title="Under Review" value={stats.under_review} color="yellow" />
         <StatCard title="Approved" value={stats.approved} color="green" />
         <StatCard title="Denied" value={stats.denied} color="red" />
