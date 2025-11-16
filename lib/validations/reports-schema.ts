@@ -49,7 +49,7 @@ export const DateRangeSchema = z.object({
  */
 export const ReportFiltersSchema = z.object({
   dateRange: DateRangeSchema.optional(),
-  status: z.array(z.enum(['pending', 'approved', 'rejected'])).optional(),
+  status: z.array(z.enum(['PENDING', 'SUBMITTED', 'IN_REVIEW', 'APPROVED', 'REJECTED'])).optional(),
   rank: z.array(z.enum(['Captain', 'First Officer'])).optional(),
   rosterPeriod: z.string().optional(),
   rosterPeriods: z.array(z.string()).optional(),

@@ -36,8 +36,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
+import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
 import { DatePresetButtons } from '@/components/reports/date-preset-buttons'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
+import { DateFilterToggle, type DateFilterMode } from '@/components/reports/date-filter-toggle'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
@@ -45,10 +47,13 @@ import type { ReportFilters } from '@/types/reports'
 import type { DateRange } from '@/lib/utils/date-presets'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
+import { generateRosterPeriods } from '@/lib/utils/roster-periods'
 
 const formSchema = z.object({
+  filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  rosterPeriods: z.array(z.string()).default([]),
   expiryThreshold: z.string().optional(),
   checkTypes: z.array(z.string()).default([]),
   rankCaptain: z.boolean().default(false),
@@ -87,14 +92,19 @@ export function CertificationReportForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      filterMode: 'dateRange',
       startDate: '',
       endDate: '',
+      rosterPeriods: [],
       expiryThreshold: '',
       checkTypes: [],
       rankCaptain: false,
       rankFirstOfficer: false,
     },
   })
+
+  const filterMode = form.watch('filterMode')
+  const rosterPeriods = generateRosterPeriods()
 
   // Fetch check types on mount
   useEffect(() => {
@@ -118,10 +128,17 @@ export function CertificationReportForm() {
   const buildFilters = (values: z.infer<typeof formSchema>): ReportFilters => {
     const filters: ReportFilters = {}
 
-    if (values.startDate && values.endDate) {
-      filters.dateRange = {
-        startDate: values.startDate,
-        endDate: values.endDate,
+    // Only include date filters based on selected mode
+    if (values.filterMode === 'dateRange') {
+      if (values.startDate && values.endDate) {
+        filters.dateRange = {
+          startDate: values.startDate,
+          endDate: values.endDate,
+        }
+      }
+    } else if (values.filterMode === 'roster') {
+      if (values.rosterPeriods && values.rosterPeriods.length > 0) {
+        filters.rosterPeriods = values.rosterPeriods
       }
     }
 
@@ -221,17 +238,27 @@ export function CertificationReportForm() {
     handleFormChange()
   }
 
-  const isLoading = isPreviewLoading || exportMutation.isPending
+  // Separate loading states for each button
+  const isPreviewButtonLoading = isPreviewLoading && !showPreview // Only show loading before modal opens
+  const isExportButtonLoading = exportMutation.isPending
+  const isAnyButtonLoading = isPreviewButtonLoading || isExportButtonLoading
 
   // Calculate active filter count
   const activeFilterCount = countActiveFilters(buildFilters(form.watch()))
 
   // Handle loading a saved preset
   const handleLoadPreset = (filters: ReportFilters) => {
-    // Apply date range
-    if (filters.dateRange) {
+    // Determine filter mode based on what's in the preset
+    if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+      form.setValue('filterMode', 'roster')
+      form.setValue('rosterPeriods', filters.rosterPeriods)
+      form.setValue('startDate', '')
+      form.setValue('endDate', '')
+    } else if (filters.dateRange) {
+      form.setValue('filterMode', 'dateRange')
       form.setValue('startDate', filters.dateRange.startDate || '')
       form.setValue('endDate', filters.dateRange.endDate || '')
+      form.setValue('rosterPeriods', [])
     }
 
     // Apply expiry threshold
@@ -256,9 +283,26 @@ export function CertificationReportForm() {
     <>
       <Form {...form}>
         <div className="space-y-6">
-          {/* Date Range */}
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
+          {/* Filter Mode Toggle */}
+          <DateFilterToggle
+            value={filterMode}
+            onValueChange={(mode) => {
+              form.setValue('filterMode', mode)
+              // Clear opposite filter when switching modes
+              if (mode === 'roster') {
+                form.setValue('startDate', '')
+                form.setValue('endDate', '')
+              } else {
+                form.setValue('rosterPeriods', [])
+              }
+              handleFormChange()
+            }}
+          />
+
+          {/* Date Range - Only show if dateRange mode */}
+          {filterMode === 'dateRange' && (
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
               control={form.control}
               name="startDate"
               render={({ field }) => (
@@ -277,29 +321,56 @@ export function CertificationReportForm() {
                 </FormItem>
               )}
             />
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Completion Date To</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          handleFormChange()
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
+
+          {/* Date Presets removed per user request */}
+
+          {/* Roster Period Selection - Only show if roster mode */}
+          {filterMode === 'roster' && (
             <FormField
               control={form.control}
-              name="endDate"
+              name="rosterPeriods"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Completion Date To</FormLabel>
+                  <FormLabel>Roster Periods (Optional)</FormLabel>
+                  <FormDescription className="text-xs text-muted-foreground">
+                    Select one or more roster periods to filter by
+                  </FormDescription>
                   <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e)
+                    <RosterPeriodMultiSelect
+                      periods={rosterPeriods}
+                      selectedPeriods={field.value || []}
+                      onChange={(selected) => {
+                        field.onChange(selected)
                         handleFormChange()
                       }}
+                      placeholder="Select roster periods..."
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
-          </div>
-
-          {/* Date Presets - Phase 2.4 */}
-          <DatePresetButtons onPresetSelect={handleDatePresetSelect} />
+          )}
 
           {/* Expiry Threshold */}
           <FormField
@@ -511,24 +582,24 @@ export function CertificationReportForm() {
               type="button"
               variant="outline"
               onClick={form.handleSubmit(handlePreview)}
-              disabled={isLoading}
+              disabled={isAnyButtonLoading}
             >
-              {isLoading ? (
+              {isPreviewButtonLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <Eye className="mr-2 h-4 w-4" />
               )}
               Preview
             </Button>
-            <Button type="button" onClick={form.handleSubmit(handleExport)} disabled={isLoading}>
-              {isLoading ? (
+            <Button type="button" onClick={form.handleSubmit(handleExport)} disabled={isAnyButtonLoading}>
+              {isExportButtonLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <Download className="mr-2 h-4 w-4" />
               )}
               Export PDF
             </Button>
-            <Button type="button" variant="secondary" onClick={handleEmail} disabled={isLoading}>
+            <Button type="button" variant="secondary" onClick={handleEmail} disabled={isAnyButtonLoading}>
               <Mail className="mr-2 h-4 w-4" />
               Email Report
             </Button>

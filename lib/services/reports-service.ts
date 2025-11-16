@@ -13,6 +13,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getOrSetCache, invalidateCacheByTag } from '@/lib/services/cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
+import { rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -88,34 +89,42 @@ export async function generateLeaveReport(
 ): Promise<ReportData> {
   const supabase = await createClient()
 
-  // pilot_requests table has denormalized pilot data (rank, name, employee_number)
+  // Join with pilots table to get pilot information
   let query = supabase
-    .from('pilot_requests')
-    .select('*')
-    .eq('request_category', 'LEAVE')
+    .from('leave_requests')
+    .select(`
+      *,
+      pilot:pilots!leave_requests_pilot_id_fkey(
+        first_name,
+        last_name,
+        role,
+        employee_id
+      )
+    `)
     .order('start_date', { ascending: false })
 
   // Apply filters
-  if (filters.dateRange) {
+  // Convert roster periods to date range if provided
+  let effectiveDateRange = filters.dateRange
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    const convertedRange = rosterPeriodsToDateRange(filters.rosterPeriods)
+    if (convertedRange) {
+      effectiveDateRange = convertedRange
+    }
+  }
+
+  if (effectiveDateRange) {
     query = query
-      .gte('start_date', filters.dateRange.startDate)
-      .lte('end_date', filters.dateRange.endDate)
+      .gte('start_date', effectiveDateRange.startDate)
+      .lte('end_date', effectiveDateRange.endDate)
   }
 
   if (filters.status && filters.status.length > 0) {
-    query = query.in('workflow_status', filters.status)
-  }
-
-  if (filters.rank && filters.rank.length > 0) {
-    // This requires a subquery or join - we'll filter client-side
+    query = query.in('status', filters.status)
   }
 
   if (filters.rosterPeriod) {
     query = query.eq('roster_period', filters.rosterPeriod)
-  }
-
-  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
-    query = query.in('roster_period', filters.rosterPeriods)
   }
 
   const { data, error } = await query
@@ -124,30 +133,30 @@ export async function generateLeaveReport(
     throw new Error(`Failed to fetch leave requests: ${error.message}`)
   }
 
-  // Filter by rank if needed (client-side, using denormalized rank field)
+  // Filter by rank if needed (client-side, using pilot.role field)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.rank)
+      filters.rank!.includes(item.pilot?.role)
     )
   }
 
   // Calculate summary statistics (before pagination)
-  // Note: workflow_status values are UPPERCASE in database
+  // Note: status values are UPPERCASE in database
   const summary = {
     totalRequests: filteredData.length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pending: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'PENDING').length,
+    pending: filteredData.filter((r: any) => r.status?.toUpperCase() === 'PENDING').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
+    approved: filteredData.filter((r: any) => r.status?.toUpperCase() === 'APPROVED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rejected: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'REJECTED').length,
+    rejected: filteredData.filter((r: any) => r.status?.toUpperCase() === 'REJECTED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
+    captainRequests: filteredData.filter((r: any) => r.pilot?.role === 'Captain').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
+    firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.role === 'First Officer').length,
   }
 
   // For full exports (PDF/Email), return all data without pagination
@@ -202,10 +211,19 @@ export async function generateFlightRequestReport(
     .order('start_date', { ascending: false })
 
   // Apply filters
-  if (filters.dateRange) {
+  // Convert roster periods to date range if provided
+  let effectiveDateRange = filters.dateRange
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    const convertedRange = rosterPeriodsToDateRange(filters.rosterPeriods)
+    if (convertedRange) {
+      effectiveDateRange = convertedRange
+    }
+  }
+
+  if (effectiveDateRange) {
     query = query
-      .gte('start_date', filters.dateRange.startDate)
-      .lte('end_date', filters.dateRange.endDate)
+      .gte('start_date', effectiveDateRange.startDate)
+      .lte('end_date', effectiveDateRange.endDate)
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -214,10 +232,6 @@ export async function generateFlightRequestReport(
 
   if (filters.rosterPeriod) {
     query = query.eq('roster_period', filters.rosterPeriod)
-  }
-
-  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
-    query = query.in('roster_period', filters.rosterPeriods)
   }
 
   const { data, error } = await query
@@ -312,10 +326,19 @@ export async function generateCertificationsReport(
     .order('expiry_date', { ascending: true })
 
   // Apply filters (pilot_checks has expiry_date, not completion_date)
-  if (filters.dateRange) {
+  // Convert roster periods to date range if provided
+  let effectiveDateRange = filters.dateRange
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    const convertedRange = rosterPeriodsToDateRange(filters.rosterPeriods)
+    if (convertedRange) {
+      effectiveDateRange = convertedRange
+    }
+  }
+
+  if (effectiveDateRange) {
     query = query
-      .gte('expiry_date', filters.dateRange.startDate)
-      .lte('expiry_date', filters.dateRange.endDate)
+      .gte('expiry_date', effectiveDateRange.startDate)
+      .lte('expiry_date', effectiveDateRange.endDate)
   }
 
   if (filters.checkType) {

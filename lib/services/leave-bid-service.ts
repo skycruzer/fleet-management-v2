@@ -191,7 +191,7 @@ export async function getCurrentPilotLeaveBids(): Promise<ServiceResponse<LeaveB
 
     const { data, error } = await supabase
       .from('leave_bids')
-      .select('*')
+      .select('*, leave_bid_options(*)')
       .eq('pilot_id', pilot.pilot_id!)
       .order('created_at', { ascending: false })
 

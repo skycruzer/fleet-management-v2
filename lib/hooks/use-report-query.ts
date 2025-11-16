@@ -77,10 +77,16 @@ async function exportReportPDF(
   })
 
   if (!response.ok) {
-    const result: ReportExportResponse = await response.json()
-    throw new Error(result.error || 'Failed to export PDF')
+    // Only try to parse JSON if response is not OK
+    try {
+      const result: ReportExportResponse = await response.json()
+      throw new Error(result.error || 'Failed to export PDF')
+    } catch {
+      throw new Error('Failed to export PDF')
+    }
   }
 
+  // Return blob for successful response
   return response.blob()
 }
 

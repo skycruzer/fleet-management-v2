@@ -528,19 +528,21 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
       .eq('pilot_id', pilotId)
       .gte('expiry_date', new Date().toISOString())
 
-    // Get pending leave requests count for this pilot
+    // Get pending leave requests count for this pilot (v2.0.0 - uses pilot_requests)
     const { count: leaveCount } = await supabase
-      .from('leave_requests')
+      .from('pilot_requests')
       .select('*', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
-      .eq('status', 'pending')
+      .eq('request_category', 'LEAVE')
+      .eq('workflow_status', 'PENDING')
 
-    // Get pending flight requests count for this pilot
+    // Get pending flight requests count for this pilot (v2.0.0 - uses pilot_requests)
     const { count: flightCount } = await supabase
-      .from('flight_requests')
+      .from('pilot_requests')
       .select('*', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
-      .in('status', ['PENDING', 'UNDER_REVIEW'])
+      .eq('request_category', 'FLIGHT')
+      .in('workflow_status', ['PENDING', 'SUBMITTED', 'IN_REVIEW'])
 
     // Get upcoming checks (expiring within 60 days) with details
     const sixtyDaysFromNow = new Date()

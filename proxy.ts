@@ -109,49 +109,60 @@ export async function proxy(request: NextRequest) {
   console.log('🔍 Checking if portal route:', pathname, 'startsWithPortal:', pathname.startsWith('/portal'))
   if (pathname.startsWith('/portal')) {
     // Check for custom pilot session first (bcrypt authentication)
-    const pilotSessionCookie = request.cookies.get('pilot_session_token')?.value
+    const pilotSessionToken = request.cookies.get('pilot-session')?.value
 
     console.log('🔍 Proxy Portal Check:', {
       path: pathname,
-      hasCookie: !!pilotSessionCookie,
-      cookieLength: pilotSessionCookie?.length,
-      cookiePreview: pilotSessionCookie?.substring(0, 50),
+      hasCookie: !!pilotSessionToken,
+      cookieLength: pilotSessionToken?.length,
+      tokenPreview: pilotSessionToken?.substring(0, 20) + '...',
     })
 
-    if (pilotSessionCookie) {
+    if (pilotSessionToken) {
       try {
-        const sessionData = JSON.parse(pilotSessionCookie)
-        const expiresAt = new Date(sessionData.expires_at)
+        // Validate token against pilot_sessions table
+        const { data: session, error } = await supabase
+          .from('pilot_sessions')
+          .select('id, pilot_user_id, expires_at, is_active')
+          .eq('session_token', pilotSessionToken)
+          .eq('is_active', true)
+          .single()
 
-        console.log('✅ Pilot session parsed:', {
-          pilot_id: sessionData.pilot_id,
-          expires_at: sessionData.expires_at,
-          isExpired: expiresAt <= new Date(),
-        })
+        if (error || !session) {
+          console.log('❌ Session not found or invalid:', error?.message)
+        } else {
+          const expiresAt = new Date(session.expires_at)
 
-        // Check if session is still valid
-        if (expiresAt > new Date()) {
-          // Verify pilot is still approved
-          const { data: pilotUser } = await supabase
-            .from('pilot_users')
-            .select('id, registration_approved')
-            .eq('id', sessionData.pilot_id)
-            .single()
-
-          console.log('👤 Pilot user check:', {
-            found: !!pilotUser,
-            approved: pilotUser?.registration_approved,
+          console.log('✅ Pilot session found:', {
+            pilot_user_id: session.pilot_user_id,
+            expires_at: session.expires_at,
+            isExpired: expiresAt <= new Date(),
           })
 
-          if (pilotUser && pilotUser.registration_approved === true) {
-            // Valid custom session - allow access
-            console.log('✅ Valid pilot session - allowing access')
-            return response
+          // Check if session is still valid
+          if (expiresAt > new Date()) {
+            // Verify pilot is still approved
+            const { data: pilotUser } = await supabase
+              .from('pilot_users')
+              .select('id, registration_approved')
+              .eq('id', session.pilot_user_id)
+              .single()
+
+            console.log('👤 Pilot user check:', {
+              found: !!pilotUser,
+              approved: pilotUser?.registration_approved,
+            })
+
+            if (pilotUser && pilotUser.registration_approved === true) {
+              // Valid custom session - allow access
+              console.log('✅ Valid pilot session - allowing access')
+              return response
+            } else {
+              console.log('❌ Pilot not found or not approved')
+            }
           } else {
-            console.log('❌ Pilot not found or not approved')
+            console.log('❌ Session expired')
           }
-        } else {
-          console.log('❌ Session expired')
         }
       } catch (error) {
         // Invalid session cookie - continue to check Supabase Auth

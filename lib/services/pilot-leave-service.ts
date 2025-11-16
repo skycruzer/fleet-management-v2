@@ -70,6 +70,7 @@ export async function submitPilotLeaveRequest(
       start_date: request.start_date, // Send as YYYY-MM-DD (DATE type in database)
       end_date: request.end_date, // Send as YYYY-MM-DD (DATE type in database)
       request_date: getTodayISO(),
+      request_method: 'SYSTEM' as const, // Pilot portal submission
       submission_channel: 'SYSTEM' as const,
       reason: request.reason || undefined,
       is_late_request: isLateRequest(request.start_date),

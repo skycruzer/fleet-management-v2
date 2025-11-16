@@ -15,6 +15,7 @@ import {
   Cloud,
   Menu,
   X,
+  Clock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationBell } from '@/components/portal/notification-bell'
@@ -58,6 +59,12 @@ const navigationItems: NavItem[] = [
     icon: MessageSquare,
     description: 'Share your feedback',
   },
+  {
+    title: 'Feedback History',
+    href: '/portal/feedback/history',
+    icon: Clock,
+    description: 'View past feedback',
+  },
 ]
 
 interface PilotPortalSidebarProps {
@@ -72,6 +79,12 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Track mount status to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Track screen size for responsive sidebar positioning
   useEffect(() => {
@@ -121,7 +134,7 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
             <Plane className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Pilot Portal</h1>
+            <h1 className="text-lg font-bold text-foreground" tabIndex={-1}>Pilot Portal</h1>
             <p className="text-xs text-muted-foreground">Crew Access</p>
           </div>
         </div>
@@ -186,7 +199,7 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
               {employeeId && (
                 <p className="text-xs text-muted-foreground mt-1">ID: {employeeId}</p>
               )}
-              {email && (
+              {mounted && email && (
                 <p className="text-xs text-muted-foreground truncate">{email}</p>
               )}
             </div>

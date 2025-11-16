@@ -357,21 +357,6 @@ export async function addAdminResponse(
       }
     }
 
-    // First, get the feedback to find the pilot_id and subject
-    const { data: feedbackData, error: fetchError } = await supabase
-      .from('pilot_feedback')
-      .select('pilot_id, subject, is_anonymous')
-      .eq('id', feedbackId)
-      .single()
-
-    if (fetchError || !feedbackData) {
-      console.error('Error fetching feedback:', fetchError)
-      return {
-        success: false,
-        error: ERROR_MESSAGES.FEEDBACK.NOT_FOUND.message,
-      }
-    }
-
     // Update the feedback with admin response
     const { error } = await supabase
       .from('pilot_feedback')
@@ -392,18 +377,8 @@ export async function addAdminResponse(
       }
     }
 
-    // Send notification to pilot about the response
-    // Note: Only send if not anonymous
-    // TODO: Add 'feedback_response_received' to database notification_type enum
-    // if (!feedbackData.is_anonymous && feedbackData.pilot_id) {
-    //   await createNotification({
-    //     userId: feedbackData.pilot_id,
-    //     title: 'Feedback Response Received',
-    //     message: `An administrator has responded to your feedback: "${feedbackData.subject}"`,
-    //     type: 'feedback_response_received',
-    //     link: '/portal/feedback',
-    //   })
-    // }
+    // TODO: Send notification to pilot about the response
+    // Requires pilot_user_id column in pilot_feedback table
 
     return {
       success: true,

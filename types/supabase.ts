@@ -2233,6 +2233,64 @@ export type Database = {
           },
         ]
       }
+      pilot_sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: string | null
+          is_active: boolean | null
+          pilot_user_id: string
+          session_token: string
+          updated_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          pilot_user_id: string
+          session_token: string
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean | null
+          pilot_user_id?: string
+          session_token?: string
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_sessions_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_pilot_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_sessions_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_user_mappings"
+            referencedColumns: ["pilot_user_id"]
+          },
+          {
+            foreignKeyName: "pilot_sessions_pilot_user_id_fkey"
+            columns: ["pilot_user_id"]
+            isOneToOne: false
+            referencedRelation: "pilot_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pilot_users: {
         Row: {
           address: string | null
@@ -3615,6 +3673,15 @@ export type Database = {
         | { Args: { birth_date: string }; Returns: number }
         | { Args: { pilot_id: string }; Returns: number }
       can_access_pilot_data: { Args: { pilot_uuid: string }; Returns: boolean }
+      check_deprecated_table_usage: {
+        Args: never
+        Returns: {
+          recommendation: string
+          record_count: number
+          status: string
+          table_name: string
+        }[]
+      }
       check_training_currency: {
         Args: never
         Returns: {

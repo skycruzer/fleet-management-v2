@@ -73,7 +73,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
                 <h3 className="font-medium text-gray-900 dark:text-white">
                   {formatRequestType(request.request_type)}
                 </h3>
-                <StatusBadge status={request.status} />
+                <StatusBadge status={request.workflow_status} />
               </div>
 
               <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
@@ -95,13 +95,13 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
               </div>
 
               {/* Admin Comments */}
-              {request.status !== 'PENDING' && request.reviewer_comments && (
+              {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') && request.review_comments && (
                 <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Reviewer Comments:
                   </p>
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {request.reviewer_comments}
+                    {request.review_comments}
                   </p>
                   {request.reviewed_at && (
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
@@ -113,7 +113,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
             </div>
 
             {/* Cancel Button */}
-            {request.status === 'PENDING' && (
+            {(request.workflow_status === 'SUBMITTED' || request.workflow_status === 'UNDER_REVIEW') && (
               <button
                 onClick={() => handleCancel(request.id)}
                 disabled={cancelingId === request.id}
@@ -135,8 +135,9 @@ function formatRequestType(type: string): string {
 }
 
 // Status Badge Component
-function StatusBadge({ status }: { status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' }) {
+function StatusBadge({ status }: { status: 'SUBMITTED' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' }) {
   const badgeStyles = {
+    SUBMITTED: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
     PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
     UNDER_REVIEW: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
     APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
@@ -144,6 +145,7 @@ function StatusBadge({ status }: { status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVE
   }
 
   const labels = {
+    SUBMITTED: 'Submitted',
     PENDING: 'Pending',
     UNDER_REVIEW: 'Under Review',
     APPROVED: 'Approved',

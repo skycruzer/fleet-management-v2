@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
+import { RosterPeriodCard } from '@/components/portal/roster-period-card'
 
 export default async function PilotDashboardPage() {
   // Get pilot user data (layout already handles authentication, this is just for data)
@@ -97,6 +98,11 @@ export default async function PilotDashboardPage() {
       </div>
 
       <main className="px-8 py-8">
+        {/* Roster Period Display */}
+        <div className="mb-8">
+          <RosterPeriodCard />
+        </div>
+
         {/* Retirement Information Card - Moved from Profile */}
         {pilotData && (
           <div className="mb-8">

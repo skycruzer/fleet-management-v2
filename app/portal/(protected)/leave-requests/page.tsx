@@ -462,8 +462,8 @@ export default function LeaveRequestsPage() {
                           Annual Leave Bid for {bid.bid_year}
                         </CardTitle>
                         <CardDescription>
-                          {bid.leave_bid_options.length} preference
-                          {bid.leave_bid_options.length !== 1 ? 's' : ''} • Submitted{' '}
+                          {bid.leave_bid_options?.length || 0} preference
+                          {(bid.leave_bid_options?.length || 0) !== 1 ? 's' : ''} • Submitted{' '}
                           {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true })}
                         </CardDescription>
                       </div>
@@ -473,7 +473,7 @@ export default function LeaveRequestsPage() {
                   <CardContent>
                     <div className="space-y-3">
                       <p className="text-sm font-medium text-gray-700">Leave Preferences:</p>
-                      {bid.leave_bid_options
+                      {(bid.leave_bid_options || [])
                         .sort((a, b) => a.priority - b.priority)
                         .map((option) => (
                           <div

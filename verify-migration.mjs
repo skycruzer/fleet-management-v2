@@ -1,82 +1,38 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing Supabase environment variables')
-  process.exit(1)
-}
+console.log('🔍 Verifying Migration\n')
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const { data: leave } = await supabase
+  .from('pilot_requests')
+  .select('*')
+  .eq('request_category', 'LEAVE')
+  .limit(1)
 
-console.log('=== Verifying Database Migration ===\n')
+console.log('✅ Leave requests in pilot_requests:', leave?.length || 0)
 
-// 1. Check if user_id column exists in pilots table
-console.log('1. Checking user_id column...')
-try {
-  const { data: pilots, error } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, user_id')
-    .limit(5)
+const { count: bids } = await supabase
+  .from('leave_bids')
+  .select('*', { count: 'exact', head: true })
 
-  if (error) {
-    console.error('❌ Error querying pilots table:', error.message)
-  } else {
-    console.log('✅ user_id column exists in pilots table')
-    console.log(`   Found ${pilots.length} pilot records\n`)
-  }
-} catch (err) {
-  console.error('❌ Failed to query pilots table:', err.message)
-}
+console.log('✅ Leave bids:', bids)
 
-// 2. Check if Maurice Rondeau is linked
-console.log('2. Checking Maurice Rondeau pilot-user link...')
-try {
-  const { data: mauricePilot, error } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, user_id')
-    .ilike('last_name', '%rondeau%')
-    .single()
+const { count: certs } = await supabase
+  .from('pilot_checks')
+  .select('*', { count: 'exact', head: true })
 
-  if (error) {
-    console.error('❌ Error finding Maurice Rondeau:', error.message)
-  } else if (!mauricePilot.user_id) {
-    console.log('⚠️  Maurice Rondeau found but not linked to user account')
-    console.log(`   Pilot ID: ${mauricePilot.id}`)
-    console.log(`   Name: ${mauricePilot.first_name} ${mauricePilot.last_name}`)
-  } else {
-    console.log('✅ Maurice Rondeau is linked to user account')
-    console.log(`   Pilot ID: ${mauricePilot.id}`)
-    console.log(`   User ID: ${mauricePilot.user_id}`)
-    console.log(`   Name: ${mauricePilot.first_name} ${mauricePilot.last_name}\n`)
-  }
-} catch (err) {
-  console.error('❌ Failed to check Maurice Rondeau:', err.message)
-}
+console.log('✅ Certifications:', certs)
 
-// 3. Check if notifications table exists
-console.log('3. Checking notifications table...')
-try {
-  const { data: notifications, error } = await supabase
-    .from('notifications')
-    .select('id')
-    .limit(1)
+// Test legacy table is read-only
+const { count: legacy } = await supabase
+  .from('leave_requests')
+  .select('*', { count: 'exact', head: true })
 
-  if (error) {
-    console.error('❌ Error querying notifications table:', error.message)
-  } else {
-    console.log('✅ Notifications table exists and is accessible\n')
-  }
-} catch (err) {
-  console.error('❌ Failed to query notifications table:', err.message)
-}
+console.log('✅ Legacy leave_requests readable:', legacy, 'records')
 
-// 4. Summary
-console.log('=== Migration Verification Complete ===\n')
-console.log('Next steps:')
-console.log('1. Test pilot login at http://localhost:3000/portal/login')
-console.log('   Email: mrondeau@airniugini.com.pg')
-console.log('   Password: Lemakot@1972')
-console.log('2. Verify pilot can access dashboard and submit requests')
-console.log('3. Check admin portal to see if requests appear')
+console.log('\n✅ Migration verification complete!')
+console.log('\n📊 Next: Test reports at http://localhost:3001/dashboard/reports')

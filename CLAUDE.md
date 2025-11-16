@@ -511,17 +511,35 @@ fleet-management-v2/
 
 **Connected to**: Supabase Project `wgdmgvonqysflwdiiols`
 
-### Main Tables
+### Main Tables (v2.0.0 Architecture - Updated Nov 16, 2025)
+
+**Primary Tables** (Active Use):
 - `pilots` (27 records) - Pilot profiles, qualifications, seniority
 - `pilot_checks` (607 records) - Certification records
 - `check_types` (34 records) - Check type definitions
-- `leave_requests` - Leave request system
+- `pilot_requests` ⭐ **UNIFIED REQUEST TABLE** - ALL leave and flight requests
+  - `request_category = 'LEAVE'` - Leave requests (~20 records)
+  - `request_category = 'FLIGHT'` - Flight requests
+  - Sources: Pilot portal + Admin portal
+  - Field: `workflow_status` (not `status`)
+- `leave_bids` - **Separate** annual leave preference bidding system (2 records)
+  - Different purpose from leave_requests
+  - Has sub-table: `leave_bid_options`
 - `an_users` - **Pilot portal authentication** (separate from Supabase Auth)
 - `contract_types` (3 records) - Contract type definitions
-- `flight_requests` - Flight request submissions
 - `disciplinary_actions` - Disciplinary record tracking
 - `tasks` - Task management system
 - `notifications` - In-app notification system
+
+**Deprecated Tables** (Do Not Use):
+- `leave_requests` 📚 **DEPRECATED** - Read-only archive (use `pilot_requests` instead)
+  - Migration: `mark_legacy_tables_deprecated.sql`
+  - RLS: SELECT allowed, INSERT/UPDATE/DELETE blocked
+- `flight_requests` 🗑️ **DEPRECATED** - Empty, safe to drop (use `pilot_requests` instead)
+  - Migration: `mark_legacy_tables_deprecated.sql`
+  - RLS: SELECT allowed, INSERT/UPDATE/DELETE blocked
+
+**See**: `FINAL-ARCHITECTURE.md` for complete table structure and migration details
 
 ### Database Views (Read-Only)
 - `expiring_checks` - Simplified expiring certifications
@@ -606,33 +624,50 @@ Based on `commencement_date` field:
 - Seniority numbers 1-27 (unique)
 - Used for leave request prioritization
 
-### 6. Leave Requests vs Leave Bids
+### 6. Leave Requests vs Leave Bids (v2.0.0 Architecture)
 
-**IMPORTANT**: These are two DIFFERENT features with different purposes:
+**IMPORTANT**: These are two SEPARATE systems with different purposes:
 
-#### Leave Requests
+#### Leave Requests ⭐ (Unified Table)
 - **Purpose**: Individual time-off requests (sick leave, RDO, SDO, annual leave, etc.)
 - **Workflow**: Submit → Manager Review → Approve/Deny
 - **Timing**: Submitted as needed, ideally 21+ days in advance
 - **Service**: `lib/services/pilot-leave-service.ts` and `lib/services/leave-service.ts`
-- **API**: `/api/portal/leave-requests`
-- **Table**: `leave_requests`
+- **API**: `/api/portal/leave-requests` (pilot) and `/api/leave-requests` (admin)
+- **Table**: `pilot_requests` ✅ **UNIFIED TABLE**
+  - Filter: `request_category = 'LEAVE'`
+  - Status field: `workflow_status` (not `status`)
+  - Sources: Pilot portal AND Admin portal
 - **Types**: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
 
-#### Leave Bids
+#### Flight Requests ⭐ (Same Unified Table)
+- **Purpose**: Flight request submissions
+- **Workflow**: Submit → Manager Review → Approve/Deny
+- **Service**: `lib/services/pilot-flight-service.ts`
+- **API**: `/api/portal/flight-requests` (pilot) and `/api/flight-requests` (admin)
+- **Table**: `pilot_requests` ✅ **SAME UNIFIED TABLE**
+  - Filter: `request_category = 'FLIGHT'`
+  - Status field: `workflow_status`
+
+#### Leave Bids ✅ (Separate System)
 - **Purpose**: Annual leave preference submissions (bidding on preferred leave dates for the year)
-- **Workflow**: Submit annual preferences → Admin processes → Approve/Reject based on seniority/availability
+- **Workflow**: Submit annual preferences → Admin batch processes → Approve/Reject based on seniority/availability
 - **Timing**: Submitted once per year, typically for planning next year's roster
 - **Service**: `lib/services/leave-bid-service.ts`
 - **API**: `/api/portal/leave-bids`
-- **Tables**: `leave_bids` and `leave_bid_options`
+- **Tables**: `leave_bids` and `leave_bid_options` ✅ **SEPARATE TABLES**
 - **Features**:
   - Pilots submit up to 10 preferred leave periods (priority ranked 1-10)
   - Admin reviews all bids together
   - Allocates leave based on seniority and operational requirements
   - Status: PENDING → PROCESSING → APPROVED/REJECTED
 
-**Key Distinction**: Leave requests are for specific needed time off; leave bids are for annual planning and preference allocation.
+**Key Distinctions**:
+1. **Leave Requests** = Immediate time-off needs → `pilot_requests` table
+2. **Flight Requests** = Flight request submissions → `pilot_requests` table (same table!)
+3. **Leave Bids** = Annual planning/preferences → `leave_bids` table (different purpose)
+
+**Architecture Decision (Nov 16, 2025)**: Leave and flight requests use unified `pilot_requests` table because they share the same workflow and approval process. Leave bids remain separate because they have a different business purpose (annual planning vs. immediate requests) and different schema requirements (multiple options vs. single request).
 
 ## Component Development
 

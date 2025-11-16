@@ -257,6 +257,14 @@ export async function createLeaveRequestServer(
     // Calculate roster period details using start_date
     const rosterDetails = getRosterPeriodFromDate(new Date(requestData.start_date))
 
+    // Calculate roster publish date (10 days before period starts)
+    const rosterPublishDate = new Date(rosterDetails.startDate)
+    rosterPublishDate.setDate(rosterPublishDate.getDate() - 10)
+
+    // Calculate roster deadline date (21 days before publish date = 31 days before period starts)
+    const rosterDeadlineDate = new Date(rosterPublishDate)
+    rosterDeadlineDate.setDate(rosterDeadlineDate.getDate() - 21)
+
     const { data, error } = await supabase
       .from('pilot_requests')
       .insert({
@@ -266,15 +274,15 @@ export async function createLeaveRequestServer(
         rank: pilot.role,
         employee_number: pilot.employee_id,
         request_type: requestData.request_type,
-        roster_period: rosterPeriod,
+        roster_period: rosterPeriod.code,
         roster_period_start_date: rosterDetails.startDate.toISOString().split('T')[0],
-        roster_deadline_date: rosterDetails.deadlineDate.toISOString().split('T')[0],
-        roster_publish_date: rosterDetails.publishDate.toISOString().split('T')[0],
+        roster_deadline_date: rosterDeadlineDate.toISOString().split('T')[0],
+        roster_publish_date: rosterPublishDate.toISOString().split('T')[0],
         start_date: requestData.start_date,
         end_date: requestData.end_date,
         days_count: daysCount,
         submission_date: requestData.request_date || new Date().toISOString(),
-        submission_channel: requestData.submission_channel,
+        submission_channel: 'ADMIN', // Admin-created leave request
         notes: requestData.reason,
         is_late_request: requestData.is_late_request || false,
         workflow_status: 'PENDING',
@@ -386,21 +394,20 @@ export async function updateLeaveRequestStatus(
       throw new Error(`Failed to update leave request status: ${error.message}`)
     }
 
-    // Extract result
-    const result = data as LeaveRequest | null
-    if (!result) {
-      throw new Error('Unexpected response from database function')
+    // RPC function returns boolean indicating success
+    if (!data) {
+      throw new Error('Failed to approve leave request')
     }
 
     logInfo('Leave request status updated successfully', {
       source: 'leave-service:updateLeaveRequestStatus',
-      metadata: { requestId, status, message: result.message },
+      metadata: { requestId, status },
     })
 
     return {
-      success: result.success,
-      message: result.message,
-      requestId: result.request_id,
+      success: true,
+      message: `Leave request ${status.toLowerCase()} successfully`,
+      requestId,
     }
   } catch (error) {
     logError(error as Error, {

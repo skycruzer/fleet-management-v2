@@ -73,7 +73,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
                 <h3 className="font-medium text-gray-900 dark:text-white">
                   {request.request_type}
                 </h3>
-                <StatusBadge status={request.status} />
+                <StatusBadge status={request.workflow_status} />
                 {request.is_late_request && (
                   <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/20 dark:text-orange-400">
                     Late Request
@@ -109,7 +109,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
               </div>
 
               {/* Review Comments */}
-              {request.status !== 'PENDING' && request.review_comments && (
+              {request.workflow_status !== 'PENDING' && request.review_comments && (
                 <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Review Comments:
@@ -127,7 +127,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
             </div>
 
             {/* Cancel Button */}
-            {request.status === 'PENDING' && (
+            {request.workflow_status === 'PENDING' && (
               <button
                 onClick={() => handleCancel(request.id)}
                 disabled={cancelingId === request.id}

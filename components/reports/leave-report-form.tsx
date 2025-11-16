@@ -22,8 +22,10 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
+import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
 import { DatePresetButtons } from '@/components/reports/date-preset-buttons'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
+import { DateFilterToggle, type DateFilterMode } from '@/components/reports/date-filter-toggle'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
@@ -31,8 +33,10 @@ import type { ReportFilters } from '@/types/reports'
 import type { DateRange } from '@/lib/utils/date-presets'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
+import { generateRosterPeriods, rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
 
 const formSchema = z.object({
+  filterMode: z.enum(['roster', 'dateRange']).default('dateRange'),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   rosterPeriods: z.array(z.string()).default([]),
@@ -44,17 +48,6 @@ const formSchema = z.object({
   rankCaptain: z.boolean().default(false),
   rankFirstOfficer: z.boolean().default(false),
 })
-
-// Generate roster periods for 2025 and 2026
-const generateRosterPeriods = () => {
-  const periods: string[] = []
-  for (let year of [2025, 2026]) {
-    for (let rp = 1; rp <= 13; rp++) {
-      periods.push(`RP${rp}/${year}`)
-    }
-  }
-  return periods
-}
 
 export function LeaveReportForm() {
   const [currentFilters, setCurrentFilters] = useState<ReportFilters>({})
@@ -80,6 +73,7 @@ export function LeaveReportForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      filterMode: 'dateRange',
       startDate: '',
       endDate: '',
       rosterPeriods: [],
@@ -93,19 +87,25 @@ export function LeaveReportForm() {
     },
   })
 
+  // Watch filter mode to conditionally show fields
+  const filterMode = form.watch('filterMode')
+
   // Build filters from form values
   const buildFilters = (values: z.infer<typeof formSchema>): ReportFilters => {
     const filters: ReportFilters = {}
 
-    if (values.startDate && values.endDate) {
-      filters.dateRange = {
-        startDate: values.startDate,
-        endDate: values.endDate,
+    // Only include date filters based on selected mode
+    if (values.filterMode === 'dateRange') {
+      if (values.startDate && values.endDate) {
+        filters.dateRange = {
+          startDate: values.startDate,
+          endDate: values.endDate,
+        }
       }
-    }
-
-    if (values.rosterPeriods && values.rosterPeriods.length > 0) {
-      filters.rosterPeriods = values.rosterPeriods
+    } else if (values.filterMode === 'roster') {
+      if (values.rosterPeriods && values.rosterPeriods.length > 0) {
+        filters.rosterPeriods = values.rosterPeriods
+      }
     }
 
     const statuses = []
@@ -203,7 +203,10 @@ export function LeaveReportForm() {
     handleFormChange()
   }
 
-  const isLoading = isPreviewLoading || exportMutation.isPending
+  // Separate loading states for each button
+  const isPreviewButtonLoading = isPreviewLoading && !showPreview // Only show loading before modal opens
+  const isExportButtonLoading = exportMutation.isPending
+  const isAnyButtonLoading = isPreviewButtonLoading || isExportButtonLoading
 
   // Calculate active filter count
   const activeFilterCount = countActiveFilters(buildFilters(form.watch()))
@@ -238,8 +241,24 @@ export function LeaveReportForm() {
     <>
       <Form {...form}>
         <div className="space-y-6">
-          {/* Date Range */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Filter Mode Toggle */}
+          <DateFilterToggle
+            value={filterMode}
+            onValueChange={(mode) => {
+              form.setValue('filterMode', mode)
+              // Clear opposite filter when switching modes
+              if (mode === 'roster') {
+                form.setValue('startDate', '')
+                form.setValue('endDate', '')
+              } else {
+                form.setValue('rosterPeriods', [])
+              }
+            }}
+          />
+
+          {/* Date Range - Only show when filterMode is 'dateRange' */}
+          {filterMode === 'dateRange' && (
+            <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="startDate"
@@ -284,89 +303,53 @@ export function LeaveReportForm() {
                 </FormItem>
               )}
             />
-          </div>
+            </div>
+          )}
 
-          {/* Date Presets - Phase 2.4 */}
-          <DatePresetButtons onPresetSelect={handleDatePresetSelect} />
+          {/* Date Presets removed per user request */}
 
-          {/* Roster Periods Multi-Select */}
-          <FormField
-            control={form.control}
-            name="rosterPeriods"
-            render={() => (
-              <FormItem>
-                <div className="flex items-center justify-between">
+          {/* Roster Period Selection - Only show if roster mode */}
+          {filterMode === 'roster' && (
+            <FormField
+              control={form.control}
+              name="rosterPeriods"
+              render={({ field }) => (
+                <FormItem>
                   <FormLabel>Roster Periods (Optional)</FormLabel>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        // Clear date range when selecting all roster periods
-                        form.setValue('startDate', '')
-                        form.setValue('endDate', '')
-                        form.setValue('rosterPeriods', rosterPeriods)
+                  <FormDescription className="text-xs text-muted-foreground">
+                    Select one or more roster periods to filter by
+                  </FormDescription>
+                  <FormControl>
+                    <RosterPeriodMultiSelect
+                      periods={rosterPeriods}
+                      selectedPeriods={field.value || []}
+                      onChange={(selected) => {
+                        field.onChange(selected)
+                        handleFormChange()
                       }}
-                      className="h-7 text-xs"
-                    >
-                      Select All
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => form.setValue('rosterPeriods', [])}
-                      className="h-7 text-xs"
-                    >
-                      Clear All
-                    </Button>
-                  </div>
-                </div>
-                <FormDescription className="text-xs">
-                  Select one or more roster periods to filter by
-                </FormDescription>
-                <div className="grid grid-cols-6 gap-2 mt-2 max-h-48 overflow-y-auto border rounded-md p-3">
-                  {rosterPeriods.map((period) => (
-                    <FormField
-                      key={period}
-                      control={form.control}
-                      name="rosterPeriods"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={period}
-                            className="flex flex-row items-center space-x-2 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(period)}
-                                onCheckedChange={(checked) => {
-                                  // Clear date range when roster period is selected
-                                  if (checked) {
-                                    form.setValue('startDate', '')
-                                    form.setValue('endDate', '')
-                                  }
-                                  return checked
-                                    ? field.onChange([...field.value, period])
-                                    : field.onChange(
-                                        field.value?.filter((value) => value !== period)
-                                      )
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal cursor-pointer">
-                              {period}
-                            </FormLabel>
-                          </FormItem>
-                        )
-                      }}
+                      placeholder="Select roster periods..."
                     />
-                  ))}
-                </div>
-              </FormItem>
-            )}
-          />
+                  </FormControl>
+                  {field.value?.length > 0 && (() => {
+                    const dateRange = rosterPeriodsToDateRange(field.value)
+                    if (dateRange) {
+                      return (
+                        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                          <p className="text-sm font-medium text-blue-900">
+                            Selected: {field.value.join(', ')}
+                          </p>
+                          <p className="text-xs text-blue-700 mt-1">
+                            Date Range: {new Date(dateRange.startDate).toLocaleDateString()} - {new Date(dateRange.endDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      )
+                    }
+                    return null
+                  })()}
+                </FormItem>
+              )}
+            />
+          )}
 
           {/* Status Filters */}
           <div className="space-y-3">
@@ -564,16 +547,16 @@ export function LeaveReportForm() {
               type="button"
               variant="outline"
               onClick={form.handleSubmit(handlePreview)}
-              disabled={isLoading}
+              disabled={isAnyButtonLoading}
             >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+              {isPreviewButtonLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
               Preview
             </Button>
-            <Button type="button" onClick={form.handleSubmit(handleExport)} disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
+            <Button type="button" onClick={form.handleSubmit(handleExport)} disabled={isAnyButtonLoading}>
+              {isExportButtonLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
               Export PDF
             </Button>
-            <Button type="button" variant="secondary" onClick={handleEmail} disabled={isLoading}>
+            <Button type="button" variant="secondary" onClick={handleEmail} disabled={isAnyButtonLoading}>
               <Mail className="h-4 w-4 mr-2" />
               Email Report
             </Button>

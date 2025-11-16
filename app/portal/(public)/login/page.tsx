@@ -59,7 +59,10 @@ export default function PilotLoginPage() {
     setError('')
 
     try {
+      console.log('[LOGIN] Starting login request...')
+
       // Call the login API endpoint which handles password authentication
+      // API returns 307 redirect on success, which browser follows automatically
       const response = await fetch('/api/portal/login', {
         method: 'POST',
         headers: {
@@ -71,21 +74,76 @@ export default function PilotLoginPage() {
         }),
       })
 
-      const result = await response.json()
+      console.log('[LOGIN] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+        redirected: response.redirected,
+        url: response.url,
+        type: response.type,
+        headers: Array.from(response.headers.entries())
+      })
 
-      if (!response.ok || !result.success) {
-        setError(result.error?.message || result.message || 'Invalid email or password')
+      // Success - browser followed redirect to dashboard
+      if (response.redirected && response.url.includes('/portal/dashboard')) {
+        console.log('[LOGIN] ✅ Login successful - redirected to dashboard')
+        window.location.href = '/portal/dashboard'
+        return
+      }
+
+      // Handle different response statuses
+      if (response.status === 200) {
+        console.log('[LOGIN] Got 200 response, parsing body...')
+        const result = await response.json()
+        console.log('[LOGIN] Parsed result:', result)
+
+        if (result.success) {
+          console.log('[LOGIN] ✅ Success in JSON, navigating...')
+          window.location.href = '/portal/dashboard'
+          return
+        } else {
+          console.log('[LOGIN] ❌ Error in JSON:', result)
+          setError(result.error?.message || result.message || 'Login failed')
+          setIsLoading(false)
+          return
+        }
+      }
+
+      // Handle error responses (4xx, 5xx)
+      if (response.status === 401) {
+        console.log('[LOGIN] ❌ 401 Unauthorized')
+        setError('Invalid email or password')
         setIsLoading(false)
         return
       }
 
-      // Success - reset loading state and redirect to dashboard
-      // Use window.location.replace() for immediate navigation (bypasses React state batching)
+      if (response.status === 423) {
+        console.log('[LOGIN] ❌ 423 Account Locked')
+        const result = await response.json()
+        setError(result.error?.message || 'Account is temporarily locked')
+        setIsLoading(false)
+        return
+      }
+
+      // Try to parse error response
+      console.log('[LOGIN] Attempting to parse error response...')
+      try {
+        const result = await response.json()
+        console.log('[LOGIN] ❌ Error response:', result)
+        setError(result.error?.message || result.message || 'Login failed')
+      } catch (parseError) {
+        console.error('[LOGIN] ❌ Failed to parse error response:', parseError)
+        setError(`Login failed (Status: ${response.status})`)
+      }
       setIsLoading(false)
-      window.location.replace('/portal/dashboard')
     } catch (err) {
-      console.error('Login error:', err)
-      setError('An unexpected error occurred. Please try again.')
+      console.error('[LOGIN] ❌ Caught exception:', {
+        error: err,
+        name: (err as Error)?.name,
+        message: (err as Error)?.message,
+        stack: (err as Error)?.stack
+      })
+      setError('Network error. Please check your connection and try again.')
       setIsLoading(false)
     }
   }

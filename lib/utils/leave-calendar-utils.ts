@@ -34,7 +34,7 @@ export function leaveRequestToEvent(request: LeaveRequest): CalendarEvent {
     leaveType: request.request_type || 'UNKNOWN',
     startDate: new Date(request.start_date),
     endDate: new Date(request.end_date),
-    status: request.status,
+    status: request.workflow_status,
   }
 }
 
