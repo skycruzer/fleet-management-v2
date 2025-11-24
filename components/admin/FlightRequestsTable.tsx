@@ -113,7 +113,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
                       <strong>Flight Date:</strong>{' '}
-                      {new Date(request.flight_date).toLocaleDateString()}
+                      {new Date(request.start_date).toLocaleDateString()}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
                       <strong>Description:</strong> {request.description.substring(0, 50)}...

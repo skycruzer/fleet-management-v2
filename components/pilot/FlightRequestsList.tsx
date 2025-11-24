@@ -78,7 +78,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
 
               <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <p>
-                  <strong>Flight Date:</strong> {new Date(request.flight_date).toLocaleDateString()}
+                  <strong>Flight Date:</strong> {new Date(request.start_date).toLocaleDateString()}
                 </p>
                 <p>
                   <strong>Description:</strong> {request.description}
