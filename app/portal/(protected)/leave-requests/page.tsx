@@ -32,7 +32,7 @@ import { LeaveRequestEditForm } from '@/components/portal/leave-request-edit-for
 
 interface LeaveRequest {
   id: string
-  request_type: string
+  request_type: 'SICK' | 'LSL' | 'ANNUAL' | 'LWOP' | 'MATERNITY' | 'COMPASSIONATE'
   start_date: string
   end_date: string
   workflow_status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
