@@ -134,7 +134,7 @@ export default function FlightRequestReviewModal({
               </div>
               <div>
                 <p className="text-gray-600 dark:text-gray-400">
-                  <strong>Flight Date:</strong> {new Date(request.flight_date).toLocaleDateString()}
+                  <strong>Flight Date:</strong> {new Date(request.start_date).toLocaleDateString()}
                 </p>
                 <p className="text-gray-600 dark:text-gray-400">
                   <strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}
