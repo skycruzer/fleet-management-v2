@@ -46,7 +46,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
         id,
         first_name,
         last_name,
-        employee_number,
+        employee_id,
         rank,
         seniority_number
       )
@@ -272,7 +272,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Employee Number</p>
-                    <p className="text-sm font-mono">{request.pilot.employee_number}</p>
+                    <p className="text-sm font-mono">{request.pilot.employee_id}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Seniority</p>
