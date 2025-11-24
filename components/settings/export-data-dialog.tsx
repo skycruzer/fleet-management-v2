@@ -95,9 +95,10 @@ export function ExportDataDialog({ open, onOpenChange }: ExportDataDialogProps) 
           // Fetch leave requests
           if (includeLeaveRequests) {
             const { data: leaveRequests } = await supabase
-              .from('leave_requests')
+              .from('pilot_requests')
               .select('*')
               .eq('pilot_id', pilotData.id)
+              .eq('request_category', 'LEAVE')
 
             exportData.leave_requests = leaveRequests
           }

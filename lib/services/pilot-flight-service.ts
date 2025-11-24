@@ -38,12 +38,13 @@ export interface FlightRequest {
   end_date?: string | null
   description?: string | null
   reason?: string | null
-  workflow_status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+  workflow_status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
   review_comments?: string | null
   reviewed_by?: string | null
   reviewed_at?: string | null
   created_at: string
   updated_at?: string | null
+  is_late_request?: boolean | null
   // Denormalized fields from unified pilot_requests table
   name?: string
   rank?: string

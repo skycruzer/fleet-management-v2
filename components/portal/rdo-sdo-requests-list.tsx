@@ -42,19 +42,19 @@ import {
   Ban,
   FileText,
 } from 'lucide-react'
-import type { RdoSdoRequest } from '@/lib/services/rdo-sdo-service'
+import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { formatRosterPeriodFromObject, parseRosterPeriodCode } from '@/lib/utils/roster-utils'
 
-interface RdoSdoRequestsListProps {
-  initialRequests: RdoSdoRequest[]
+interface FlightRequestsListProps {
+  initialRequests: FlightRequest[]
 }
 
-export function RdoSdoRequestsList({ initialRequests }: RdoSdoRequestsListProps) {
+export function FlightRequestsList({ initialRequests }: FlightRequestsListProps) {
   const { csrfToken } = useCsrfToken()
   const router = useRouter()
-  const [requests, setRequests] = useState<RdoSdoRequest[]>(initialRequests)
-  const [selectedRequest, setSelectedRequest] = useState<RdoSdoRequest | null>(null)
+  const [requests, setRequests] = useState<FlightRequest[]>(initialRequests)
+  const [selectedRequest, setSelectedRequest] = useState<FlightRequest | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [error, setError] = useState<string>('')
@@ -90,9 +90,9 @@ export function RdoSdoRequestsList({ initialRequests }: RdoSdoRequestsListProps)
     return <Badge variant={typeMap[type] || 'secondary'}>{type}</Badge>
   }
 
-  const canCancelRequest = (request: RdoSdoRequest): boolean => {
+  const canCancelRequest = (request: FlightRequest): boolean => {
     // Can cancel SUBMITTED, IN_REVIEW, or APPROVED requests
-    return ['SUBMITTED', 'IN_REVIEW', 'APPROVED'].includes(request.workflow_status)
+    return ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED'].includes(request.workflow_status)
   }
 
   const handleCancelRequest = async () => {
@@ -143,7 +143,7 @@ export function RdoSdoRequestsList({ initialRequests }: RdoSdoRequestsListProps)
     })
   }
 
-  const calculateDaysCount = (request: RdoSdoRequest): number => {
+  const calculateDaysCount = (request: FlightRequest): number => {
     const start = new Date(request.start_date)
     const end = request.end_date ? new Date(request.end_date) : start
     return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
@@ -153,7 +153,7 @@ export function RdoSdoRequestsList({ initialRequests }: RdoSdoRequestsListProps)
   const stats = {
     total: requests.length,
     submitted: requests.filter((r) => r.workflow_status === 'SUBMITTED').length,
-    in_review: requests.filter((r) => r.workflow_status === 'IN_REVIEW').length,
+    in_review: requests.filter((r) => r.workflow_status === 'UNDER_REVIEW').length,
     approved: requests.filter((r) => r.workflow_status === 'APPROVED').length,
     denied: requests.filter((r) => r.workflow_status === 'DENIED').length,
     withdrawn: requests.filter((r) => r.workflow_status === 'WITHDRAWN').length,

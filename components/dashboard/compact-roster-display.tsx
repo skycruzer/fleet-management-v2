@@ -32,9 +32,10 @@ async function getLeaveRequestCounts(rosterPeriod: string) {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('leave_requests')
-    .select('status, request_type')
+    .from('pilot_requests')
+    .select('workflow_status, request_type')
     .eq('roster_period', rosterPeriod)
+    .eq('request_category', 'LEAVE')
 
   if (error) {
     console.error(`Error fetching leave requests for ${rosterPeriod}:`, error)
@@ -46,8 +47,8 @@ async function getLeaveRequestCounts(rosterPeriod: string) {
     return { pending: 0, approved: 0, total: 0, byType: {} }
   }
 
-  const pending = data.filter((r) => r.status === 'PENDING').length
-  const approved = data.filter((r) => r.status === 'APPROVED').length
+  const pending = data.filter((r) => r.workflow_status === 'SUBMITTED').length
+  const approved = data.filter((r) => r.workflow_status === 'APPROVED').length
 
   // Count by request type
   const byType: Record<string, number> = {}

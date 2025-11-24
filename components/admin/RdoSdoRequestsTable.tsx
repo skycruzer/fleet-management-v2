@@ -11,7 +11,7 @@
  */
 
 import { useState, useMemo } from 'react'
-import type { RdoSdoRequest } from '@/lib/services/rdo-sdo-service'
+import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,17 +36,17 @@ import {
   AlertCircle,
 } from 'lucide-react'
 
-interface RdoSdoRequestsTableProps {
-  requests: RdoSdoRequest[]
+interface FlightRequestsTableProps {
+  requests: FlightRequest[]
 }
 
-type StatusFilter = 'all' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+type StatusFilter = 'all' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
 type TypeFilter = 'all' | 'RDO' | 'SDO'
 
-export default function RdoSdoRequestsTable({ requests }: RdoSdoRequestsTableProps) {
+export default function FlightRequestsTable({ requests }: FlightRequestsTableProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
-  const [selectedRequest, setSelectedRequest] = useState<RdoSdoRequest | null>(null)
+  const [selectedRequest, setSelectedRequest] = useState<FlightRequest | null>(null)
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
   const [reviewAction, setReviewAction] = useState<'APPROVED' | 'DENIED'>('APPROVED')
   const [reviewComments, setReviewComments] = useState('')
@@ -68,7 +68,7 @@ export default function RdoSdoRequestsTable({ requests }: RdoSdoRequestsTablePro
     return filtered
   }, [requests, statusFilter, typeFilter])
 
-  const handleReview = (request: RdoSdoRequest) => {
+  const handleReview = (request: FlightRequest) => {
     setSelectedRequest(request)
     setIsReviewModalOpen(true)
     setReviewAction('APPROVED')
@@ -129,7 +129,7 @@ export default function RdoSdoRequestsTable({ requests }: RdoSdoRequestsTablePro
     })
   }
 
-  const calculateDaysCount = (request: RdoSdoRequest): number => {
+  const calculateDaysCount = (request: FlightRequest): number => {
     const start = new Date(request.start_date)
     const end = request.end_date ? new Date(request.end_date) : start
     return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
@@ -166,9 +166,9 @@ export default function RdoSdoRequestsTable({ requests }: RdoSdoRequestsTablePro
             />
             <FilterButton
               label="In Review"
-              count={requests.filter((r) => r.workflow_status === 'IN_REVIEW').length}
-              isActive={statusFilter === 'IN_REVIEW'}
-              onClick={() => setStatusFilter('IN_REVIEW')}
+              count={requests.filter((r) => r.workflow_status === 'UNDER_REVIEW').length}
+              isActive={statusFilter === 'UNDER_REVIEW'}
+              onClick={() => setStatusFilter('UNDER_REVIEW')}
             />
             <FilterButton
               label="Approved"
@@ -309,14 +309,14 @@ export default function RdoSdoRequestsTable({ requests }: RdoSdoRequestsTablePro
                     onClick={() => handleReview(request)}
                     variant={
                       request.workflow_status === 'SUBMITTED' ||
-                      request.workflow_status === 'IN_REVIEW'
+                      request.workflow_status === 'UNDER_REVIEW'
                         ? 'default'
                         : 'outline'
                     }
                     size="sm"
                   >
                     {request.workflow_status === 'SUBMITTED' ||
-                    request.workflow_status === 'IN_REVIEW'
+                    request.workflow_status === 'UNDER_REVIEW'
                       ? 'Review'
                       : 'View Details'}
                   </Button>
