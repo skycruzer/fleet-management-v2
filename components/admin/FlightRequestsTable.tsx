@@ -116,7 +116,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                       {new Date(request.start_date).toLocaleDateString()}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
-                      <strong>Description:</strong> {request.description.substring(0, 50)}...
+                      <strong>Description:</strong> {request.description ? request.description.substring(0, 50) + '...' : 'N/A'}
                     </p>
                   </div>
                   <div>
