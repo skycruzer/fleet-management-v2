@@ -15,7 +15,7 @@ export async function GET() {
   const checks = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    checks: {} as Record<string, { status: 'ok' | 'error', message: string, details?: any }>
+    checks: {} as Record<string, { status: 'ok' | 'error'; message: string; details?: unknown }>
   }
 
   // 1. Environment Variables Check
@@ -66,9 +66,9 @@ export async function GET() {
       status: 'ok',
       message: 'Dashboard metrics loaded successfully',
       details: {
-        totalPilots: metrics.totalPilots,
-        captains: metrics.captains,
-        firstOfficers: metrics.firstOfficers
+        totalPilots: metrics.pilots.total,
+        captains: metrics.pilots.captains,
+        firstOfficers: metrics.pilots.firstOfficers
       }
     }
   } catch (error) {
