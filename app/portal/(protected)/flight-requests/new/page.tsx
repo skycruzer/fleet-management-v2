@@ -236,7 +236,7 @@ export default function NewFlightRequestPage() {
               />
               <p className="text-xs text-gray-500">
                 {form.watch('description')?.length || 0}/2000 characters
-                {form.watch('description') && form.watch('description').length < 10 && form.watch('description').length > 0
+                {form.watch('description') && (form.watch('description')?.length ?? 0) < 10 && (form.watch('description')?.length ?? 0) > 0
                   ? ' (minimum 10 characters if provided)'
                   : ''}
               </p>
