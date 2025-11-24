@@ -30,15 +30,15 @@ export default function FlightRequestForm() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'FLIGHT_REQUEST',
-      flight_date: '',
+      request_type: 'RDO',
+      start_date: '',
       description: '',
       reason: '',
     } satisfies Partial<FlightRequestInput>,
   })
 
-  // Watch flight_date changes to calculate roster period
-  const flightDate = form.watch('flight_date')
+  // Watch start_date changes to calculate roster period
+  const flightDate = form.watch('start_date')
 
   useEffect(() => {
     if (flightDate) {
@@ -119,19 +119,19 @@ export default function FlightRequestForm() {
       {/* Flight Date */}
       <div>
         <label
-          htmlFor="flight_date"
+          htmlFor="start_date"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >
           Flight Date <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
-          id="flight_date"
-          {...form.register('flight_date')}
+          id="start_date"
+          {...form.register('start_date')}
           className="focus:border-primary focus:ring-primary mt-1 block w-full h-11 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
-        {form.formState.errors.flight_date && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.flight_date.message}</p>
+        {form.formState.errors.start_date && (
+          <p className="mt-1 text-sm text-red-600">{form.formState.errors.start_date.message}</p>
         )}
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
           Select the date for your flight request
