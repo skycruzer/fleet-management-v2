@@ -52,11 +52,14 @@ const optionalNameSchema = z
   .nullable()
 
 /**
- * Date validation: Must be ISO date string
+ * Date validation: Accepts date-only (YYYY-MM-DD) or ISO datetime strings
+ * HTML date inputs send YYYY-MM-DD format, which this schema now accepts
  */
 const dateSchema = z
   .string()
-  .datetime({ message: 'Must be a valid ISO datetime string' })
+  .regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/, {
+    message: 'Must be a valid date (YYYY-MM-DD) or ISO datetime string',
+  })
   .optional()
   .nullable()
 

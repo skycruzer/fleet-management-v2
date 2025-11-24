@@ -76,6 +76,15 @@ export interface PilotFormData {
   commencement_date?: string | null
   seniority_number?: number | null
   is_active: boolean
+  captain_qualifications?: string[] | null
+}
+
+// Type for captain qualifications JSONB structure in database
+export interface CaptainQualificationsJson {
+  line_captain: boolean
+  training_captain: boolean
+  examiner: boolean
+  rhs_captain_expiry?: string | null
 }
 
 export interface PilotWithRetirement extends Pilot {
@@ -522,6 +531,16 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
       seniorityNumber = await calculateSeniorityNumber(pilotData.commencement_date)
     }
 
+    // Transform captain_qualifications array to JSONB object format
+    let captainQualifications = null
+    if (pilotData.captain_qualifications && pilotData.captain_qualifications.length > 0) {
+      captainQualifications = {
+        line_captain: pilotData.captain_qualifications.includes('line_captain'),
+        training_captain: pilotData.captain_qualifications.includes('training_captain'),
+        examiner: pilotData.captain_qualifications.includes('examiner'),
+      }
+    }
+
     const { data, error } = await supabase
       .from('pilots')
       .insert([
@@ -539,6 +558,7 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
           commencement_date: pilotData.commencement_date,
           seniority_number: seniorityNumber,
           is_active: pilotData.is_active,
+          captain_qualifications: captainQualifications,
         },
       ])
       .select()
@@ -593,6 +613,16 @@ export async function createPilotWithCertifications(
   const supabase = await createClient()
 
   try {
+    // Transform captain_qualifications array to JSONB object format
+    let captainQualifications = null
+    if (pilotData.captain_qualifications && pilotData.captain_qualifications.length > 0) {
+      captainQualifications = {
+        line_captain: pilotData.captain_qualifications.includes('line_captain'),
+        training_captain: pilotData.captain_qualifications.includes('training_captain'),
+        examiner: pilotData.captain_qualifications.includes('examiner'),
+      }
+    }
+
     // Prepare pilot data for PostgreSQL function
     const pilotJson = {
       employee_id: pilotData.employee_id,
@@ -607,6 +637,7 @@ export async function createPilotWithCertifications(
       date_of_birth: pilotData.date_of_birth || null,
       commencement_date: pilotData.commencement_date || null,
       is_active: pilotData.is_active,
+      captain_qualifications: captainQualifications,
     }
 
     // Prepare certifications for PostgreSQL function

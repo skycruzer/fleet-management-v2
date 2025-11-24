@@ -49,6 +49,13 @@ export default function NewPilotPage() {
 
   const selectedRole = watch('role')
 
+  // Debug: Log validation errors to console
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.error('Form validation errors:', errors)
+    }
+  }, [errors])
+
   // Fetch contract types on component mount
   useEffect(() => {
     async function fetchContractTypes() {
@@ -117,10 +124,27 @@ export default function NewPilotPage() {
       {/* Form Card */}
       <Card className="p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Error Message */}
+          {/* API Error Message */}
           {error && (
             <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
               <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          {/* Validation Errors Summary */}
+          {Object.keys(errors).length > 0 && (
+            <div className="rounded-lg border border-yellow-500 bg-yellow-50 p-4">
+              <p className="text-sm font-semibold text-yellow-800">
+                Please fix the following errors:
+              </p>
+              <ul className="mt-2 list-inside list-disc text-sm text-yellow-700">
+                {Object.entries(errors).map(([field, error]) => (
+                  <li key={field}>
+                    <strong className="capitalize">{field.replace(/_/g, ' ')}:</strong>{' '}
+                    {error?.message}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

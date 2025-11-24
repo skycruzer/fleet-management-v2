@@ -192,6 +192,43 @@ import { createClient } from '@/lib/supabase/server'
 
 ---
 
+### ❌ DON'T: Use Wrong Request Category in Unified Table
+```typescript
+// ❌ WRONG - hardcoded or missing request_category
+await supabase.from('pilot_requests').insert({
+  pilot_id: '...',
+  request_type: 'RDO',
+  // Missing request_category!
+})
+```
+
+```typescript
+// ✅ CORRECT - specify request_category based on request type
+// For RDO/SDO requests
+await createRdoSdoRequest({
+  pilot_id: '...',
+  request_type: 'RDO', // or 'SDO'
+  // Service automatically sets request_category: 'RDO_SDO'
+})
+
+// For leave requests
+await createLeaveRequest({
+  pilot_id: '...',
+  leave_type: 'ANNUAL',
+  // Service automatically sets request_category: 'LEAVE'
+})
+
+// For flight requests
+await createFlightRequest({
+  pilot_id: '...',
+  // Service automatically sets request_category: 'FLIGHT'
+})
+```
+
+**Why**: The unified `pilot_requests` table uses `request_category` to differentiate between LEAVE, FLIGHT, and RDO_SDO requests. Always use the appropriate service layer function which sets this automatically.
+
+---
+
 ### ❌ DON'T: Forget to Regenerate Types
 After any database schema change, you **MUST** run:
 ```bash
@@ -406,7 +443,7 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Implemented Services
 
-All services located in `lib/services/` (31 services):
+All services located in `lib/services/` (34 services):
 
 1. **`pilot-service.ts`** - Pilot CRUD operations, captain qualifications
 2. **`certification-service.ts`** - Certification tracking and management
@@ -440,6 +477,8 @@ All services located in `lib/services/` (31 services):
 30. **`notification-service.ts`** - In-app notification management
 31. **`feedback-service.ts`** - Admin feedback management (view, respond, export)
 32. **`reports-service.ts`** - Unified reports generation (19 reports across 5 categories)
+33. **`rdo-sdo-service.ts`** - RDO/SDO request operations (schedule-related requests)
+34. **`pilot-rdo-sdo-service.ts`** - Pilot-facing RDO/SDO operations with auto-filled pilot context
 
 ### Dual Authentication Architecture
 
@@ -509,7 +548,7 @@ fleet-management-v2/
 │   └── layout/                   # Layout components
 │
 ├── lib/                          # Core utilities
-│   ├── services/                 # ⭐ Service layer (CRITICAL - 32 services)
+│   ├── services/                 # ⭐ Service layer (CRITICAL - 34 services)
 │   ├── supabase/                 # Supabase clients
 │   ├── utils/                    # Utility functions
 │   │   ├── roster-utils.ts       # 28-day roster period logic
@@ -528,15 +567,16 @@ fleet-management-v2/
 
 **Connected to**: Supabase Project `wgdmgvonqysflwdiiols`
 
-### Main Tables (v2.0.0 Architecture - Updated Nov 16, 2025)
+### Main Tables (v3.0.0 Architecture - Updated Jan 19, 2025)
 
 **Primary Tables** (Active Use):
 - `pilots` (27 records) - Pilot profiles, qualifications, seniority
 - `pilot_checks` (607 records) - Certification records
 - `check_types` (34 records) - Check type definitions
-- `pilot_requests` ⭐ **UNIFIED REQUEST TABLE** - ALL leave and flight requests
+- `pilot_requests` ⭐ **UNIFIED REQUEST TABLE** - ALL requests (leave, flight, RDO/SDO)
   - `request_category = 'LEAVE'` - Leave requests (~20 records)
   - `request_category = 'FLIGHT'` - Flight requests
+  - `request_category = 'RDO_SDO'` - Rostered Day Off / Scheduled Day Off requests
   - Sources: Pilot portal + Admin portal
   - Field: `workflow_status` (not `status`)
 - `leave_bids` - **Separate** annual leave preference bidding system (2 records)
@@ -641,12 +681,12 @@ Based on `commencement_date` field:
 - Seniority numbers 1-27 (unique)
 - Used for leave request prioritization
 
-### 6. Leave Requests vs Leave Bids (v2.0.0 Architecture)
+### 6. Request Types in Unified Architecture (v3.0.0 - Updated Jan 19, 2025)
 
-**IMPORTANT**: These are two SEPARATE systems with different purposes:
+**IMPORTANT**: The application uses a unified `pilot_requests` table for three types of requests, with a separate system for annual leave bidding.
 
 #### Leave Requests ⭐ (Unified Table)
-- **Purpose**: Individual time-off requests (sick leave, RDO, SDO, annual leave, etc.)
+- **Purpose**: Individual time-off requests (sick leave, annual leave, etc.)
 - **Workflow**: Submit → Manager Review → Approve/Deny
 - **Timing**: Submitted as needed, ideally 21+ days in advance
 - **Service**: `lib/services/pilot-leave-service.ts` and `lib/services/leave-service.ts`
@@ -655,7 +695,7 @@ Based on `commencement_date` field:
   - Filter: `request_category = 'LEAVE'`
   - Status field: `workflow_status` (not `status`)
   - Sources: Pilot portal AND Admin portal
-- **Types**: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
+- **Types**: ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
 
 #### Flight Requests ⭐ (Same Unified Table)
 - **Purpose**: Flight request submissions
@@ -665,6 +705,21 @@ Based on `commencement_date` field:
 - **Table**: `pilot_requests` ✅ **SAME UNIFIED TABLE**
   - Filter: `request_category = 'FLIGHT'`
   - Status field: `workflow_status`
+
+#### RDO/SDO Requests ⭐ (Same Unified Table) - NEW v3.0.0
+- **Purpose**: Rostered Day Off / Scheduled Day Off requests (schedule-related)
+- **Workflow**: Submit → Manager Review → Approve/Deny
+- **Timing**: Must align with roster periods (28-day cycles)
+- **Service**: `lib/services/rdo-sdo-service.ts` and `lib/services/pilot-rdo-sdo-service.ts`
+- **API**: `/api/portal/rdo-sdo-requests` (pilot) and `/api/rdo-sdo-requests` (admin)
+- **Table**: `pilot_requests` ✅ **SAME UNIFIED TABLE**
+  - Filter: `request_category = 'RDO_SDO'`
+  - Status field: `workflow_status`
+  - Types: `request_type` = 'RDO' or 'SDO'
+- **Special Features**:
+  - Auto-calculates roster period from dates
+  - Tracks late requests and past-deadline submissions
+  - Pilots can cancel APPROVED requests (sets status to WITHDRAWN)
 
 #### Leave Bids ✅ (Separate System)
 - **Purpose**: Annual leave preference submissions (bidding on preferred leave dates for the year)
@@ -680,11 +735,12 @@ Based on `commencement_date` field:
   - Status: PENDING → PROCESSING → APPROVED/REJECTED
 
 **Key Distinctions**:
-1. **Leave Requests** = Immediate time-off needs → `pilot_requests` table
+1. **Leave Requests** = Time-off (sick, annual, etc.) → `pilot_requests` table
 2. **Flight Requests** = Flight request submissions → `pilot_requests` table (same table!)
-3. **Leave Bids** = Annual planning/preferences → `leave_bids` table (different purpose)
+3. **RDO/SDO Requests** = Schedule-related days off → `pilot_requests` table (same table!)
+4. **Leave Bids** = Annual planning/preferences → `leave_bids` table (different purpose)
 
-**Architecture Decision (Nov 16, 2025)**: Leave and flight requests use unified `pilot_requests` table because they share the same workflow and approval process. Leave bids remain separate because they have a different business purpose (annual planning vs. immediate requests) and different schema requirements (multiple options vs. single request).
+**Architecture Decision (v3.0.0 - Jan 19, 2025)**: Leave, flight, and RDO/SDO requests use unified `pilot_requests` table because they share the same workflow and approval process. They're differentiated by `request_category` field ('LEAVE', 'FLIGHT', 'RDO_SDO') and within RDO/SDO by `request_type` field ('RDO', 'SDO'). Leave bids remain separate because they have a different business purpose (annual planning vs. immediate requests) and different schema requirements (multiple options vs. single request).
 
 ## Testing Strategy
 
@@ -817,6 +873,6 @@ Verify `/api/portal/*` endpoints are using `pilot-portal-service.ts` and NOT Sup
 
 ---
 
-**Version**: 2.5.1
-**Last Updated**: November 20, 2025
+**Version**: 3.0.0
+**Last Updated**: January 19, 2025
 **Maintainer**: Maurice (Skycruzer)
