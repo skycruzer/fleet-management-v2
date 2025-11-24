@@ -20,7 +20,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Calendar, Trash2, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { getRosterPeriodFromDate, getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
-import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface LeaveBidOption {
   priority: number
@@ -31,18 +30,34 @@ interface LeaveBidOption {
 
 interface LeaveBidFormProps {
   onSuccess?: () => void
+  initialData?: {
+    id: string
+    bid_year: number
+    options: Array<{
+      priority: number
+      start_date: string
+      end_date: string
+    }>
+  }
+  isEdit?: boolean
 }
 
-export function LeaveBidForm({ onSuccess }: LeaveBidFormProps = {}) {
-  const { csrfToken } = useCsrfToken()
+export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormProps = {}) {
   const currentYear = new Date().getFullYear()
-  const [bidYear, setBidYear] = useState<number>(currentYear + 1)
-  const [options, setOptions] = useState<LeaveBidOption[]>([
-    { priority: 1, start_date: '', end_date: '', roster_periods: [] },
-    { priority: 2, start_date: '', end_date: '', roster_periods: [] },
-    { priority: 3, start_date: '', end_date: '', roster_periods: [] },
-    { priority: 4, start_date: '', end_date: '', roster_periods: [] },
-  ])
+  const [bidYear, setBidYear] = useState<number>(initialData?.bid_year || currentYear + 1)
+  const [options, setOptions] = useState<LeaveBidOption[]>(
+    initialData?.options.map(opt => ({
+      priority: opt.priority,
+      start_date: opt.start_date,
+      end_date: opt.end_date,
+      roster_periods: []
+    })) || [
+      { priority: 1, start_date: '', end_date: '', roster_periods: [] },
+      { priority: 2, start_date: '', end_date: '', roster_periods: [] },
+      { priority: 3, start_date: '', end_date: '', roster_periods: [] },
+      { priority: 4, start_date: '', end_date: '', roster_periods: [] },
+    ]
+  )
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState<string>('')
@@ -144,11 +159,15 @@ export function LeaveBidForm({ onSuccess }: LeaveBidFormProps = {}) {
       // Filter out empty options
       const filledOptions = options.filter((opt) => opt.start_date && opt.end_date)
 
-      const response = await fetch('/api/portal/leave-bids', {
-        method: 'POST',
+      const url = isEdit && initialData?.id
+        ? `/api/portal/leave-bids?id=${initialData.id}`
+        : '/api/portal/leave-bids'
+      const method = isEdit ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify({
           bid_year: bidYear,

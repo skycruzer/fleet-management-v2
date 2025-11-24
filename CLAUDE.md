@@ -73,6 +73,7 @@ npm run test:ui           # Open Playwright UI mode
 npm run test:headed       # Run tests with visible browser
 npm run test:debug        # Debug mode
 npx playwright test e2e/auth.spec.ts  # Run single test file
+npx playwright show-report             # View HTML test report
 ```
 
 ### Database
@@ -235,6 +236,21 @@ export async function POST(request: Request) {
 
 ---
 
+### ❌ DON'T: Hardcode URLs in E2E Tests
+```typescript
+// ❌ WRONG - hardcoded port
+await page.goto('http://localhost:3000/dashboard/leave/new')
+```
+
+```typescript
+// ✅ CORRECT - use baseURL from playwright.config.ts
+await page.goto('/dashboard/leave/new')
+```
+
+**Why**: Tests may run against different ports (dev: 3000, production: 3003). The baseURL in `playwright.config.ts` handles this automatically.
+
+---
+
 ### ❌ DON'T: Hardcode Environment Variables
 ```typescript
 // ❌ WRONG - hardcoded URL
@@ -390,7 +406,7 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Implemented Services
 
-All services located in `lib/services/` (29 services):
+All services located in `lib/services/` (31 services):
 
 1. **`pilot-service.ts`** - Pilot CRUD operations, captain qualifications
 2. **`certification-service.ts`** - Certification tracking and management
@@ -423,6 +439,7 @@ All services located in `lib/services/` (29 services):
 29. **`task-service.ts`** - Task management operations
 30. **`notification-service.ts`** - In-app notification management
 31. **`feedback-service.ts`** - Admin feedback management (view, respond, export)
+32. **`reports-service.ts`** - Unified reports generation (19 reports across 5 categories)
 
 ### Dual Authentication Architecture
 
@@ -492,7 +509,7 @@ fleet-management-v2/
 │   └── layout/                   # Layout components
 │
 ├── lib/                          # Core utilities
-│   ├── services/                 # ⭐ Service layer (CRITICAL - 27 services)
+│   ├── services/                 # ⭐ Service layer (CRITICAL - 32 services)
 │   ├── supabase/                 # Supabase clients
 │   ├── utils/                    # Utility functions
 │   │   ├── roster-utils.ts       # 28-day roster period logic
@@ -669,160 +686,11 @@ Based on `commencement_date` field:
 
 **Architecture Decision (Nov 16, 2025)**: Leave and flight requests use unified `pilot_requests` table because they share the same workflow and approval process. Leave bids remain separate because they have a different business purpose (annual planning vs. immediate requests) and different schema requirements (multiple options vs. single request).
 
-## Component Development
-
-### Adding shadcn/ui Components
-
-```bash
-npx shadcn@latest add dialog
-npx shadcn@latest add dropdown-menu
-npx shadcn@latest add table
-```
-
-Components install to `components/ui/` and are fully customizable.
-
-### Storybook Stories
-
-Every new UI component should have a Storybook story:
-
-```tsx
-// components/pilots/pilot-card.stories.tsx
-import type { Meta, StoryObj } from '@storybook/react'
-import { PilotCard } from './pilot-card'
-
-const meta = {
-  title: 'Pilots/PilotCard',
-  component: PilotCard,
-  tags: ['autodocs'],
-} satisfies Meta<typeof PilotCard>
-
-export default meta
-type Story = StoryObj<typeof meta>
-
-export const Captain: Story = {
-  args: {
-    pilot: {
-      id: '1',
-      name: 'John Doe',
-      rank: 'Captain',
-      status: 'active',
-    },
-  },
-}
-```
-
-### Server vs Client Components
-
-**Server Components** (default in Next.js 16):
-```tsx
-// app/dashboard/pilots/page.tsx
-import { createClient } from '@/lib/supabase/server'
-
-export default async function PilotsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  // Server-side data fetching
-}
-```
-
-**Client Components** (for interactivity):
-```tsx
-'use client'
-import { createClient } from '@/lib/supabase/client'
-
-export function PilotForm() {
-  const supabase = createClient()
-  // Client-side mutations, real-time updates
-}
-```
-
-## Form Handling Pattern
-
-All forms use **React Hook Form + Zod validation**:
-
-```typescript
-// 1. Define Zod schema in lib/validations/
-import { z } from 'zod'
-
-export const PilotCreateSchema = z.object({
-  first_name: z.string().min(1, 'First name required'),
-  last_name: z.string().min(1, 'Last name required'),
-  role: z.enum(['Captain', 'First Officer']),
-})
-
-// 2. Use in component
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-
-const form = useForm({
-  resolver: zodResolver(PilotCreateSchema),
-  defaultValues: { first_name: '', last_name: '', role: 'Captain' }
-})
-```
-
-## Email Notifications
-
-### Resend Integration
-
-Email notifications for certification renewals and alerts:
-
-```typescript
-import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
-
-await resend.emails.send({
-  from: 'Fleet Management <no-reply@yourdomain.com>',
-  to: pilot.email,
-  subject: 'Certification Expiring Soon',
-  html: emailTemplate
-})
-```
-
-**Environment Variables**:
-```env
-RESEND_API_KEY=your-api-key
-RESEND_FROM_EMAIL=no-reply@yourdomain.com
-```
-
-Used in `/app/api/renewal-planning/email/route.ts` for renewal plan notifications.
-
-## Error Handling
-
-### Standardized Error Messages
-
-Use `lib/utils/error-messages.ts`:
-
-```typescript
-import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-
-// In API routes
-return NextResponse.json(
-  formatApiError(ERROR_MESSAGES.PILOT.FETCH_FAILED, 500),
-  { status: 500 }
-)
-```
-
-### Database Constraint Errors
-
-Use `lib/utils/constraint-error-handler.ts`:
-
-```typescript
-import { handleConstraintError } from '@/lib/utils/constraint-error-handler'
-
-try {
-  // Database operation
-} catch (error) {
-  const errorResponse = handleConstraintError(error)
-  return NextResponse.json(errorResponse, { status: 400 })
-}
-```
-
 ## Testing Strategy
 
 ### E2E Testing with Playwright
 
-Test files in `e2e/` directory:
+Test files in `e2e/` directory (40 test files):
 
 ```typescript
 import { test, expect } from '@playwright/test'
@@ -845,6 +713,24 @@ test.describe('Pilot Management', () => {
 npx playwright test e2e/pilots.spec.ts
 npx playwright test --grep "should display pilot list"
 ```
+
+**Test Configuration** (`playwright.config.ts`):
+- Default port: 3000 (dev server)
+- Production testing: Update `baseURL` to `http://localhost:3003`
+- Sequential execution: `workers: 1` (prevents database conflicts)
+- Max failures: `--max-failures=10` (stops early if threshold reached)
+- Reporters: HTML + line + JSON
+
+### Known Test Issues
+
+**Port Configuration**:
+- Some tests hardcode `http://localhost:3000` instead of using `baseURL`
+- Production server runs on port 3003
+- **Fix**: Replace hardcoded URLs with relative paths (`/dashboard/...`)
+
+**Accessibility Tests**:
+- Some tests use invalid CSS selectors (e.g., `button:has(svg):not(:has-text(/./))`)
+- **Fix**: Replace with Playwright locators (e.g., `page.getByRole('button')`)
 
 ## Environment Variables
 
@@ -877,188 +763,21 @@ RESEND_FROM_EMAIL=no-reply@yourdomain.com
 Get Supabase credentials from:
 https://app.supabase.com/project/wgdmgvonqysflwdiiols/settings/api
 
-## Performance Optimizations
+## Technology Stack
 
-### Build System
-- **Turbopack**: Used for both dev and production builds
-- Significantly faster than Webpack
-- Near-instant Hot Module Replacement (HMR)
-
-### Lazy Loading
-```tsx
-import dynamic from 'next/dynamic'
-
-const HeavyChart = dynamic(() => import('@/components/charts/analytics-chart'), {
-  loading: () => <p>Loading chart...</p>,
-  ssr: false, // Disable SSR for client-only components
-})
-```
-
-### Image Optimization
-```tsx
-import Image from 'next/image'
-
-<Image
-  src="/pilot-photo.jpg"
-  alt="Pilot"
-  width={200}
-  height={200}
-  loading="lazy"
-/>
-```
-
-Supported formats: WebP, AVIF (configured in `next.config.js`)
-
-### Caching
-
-Use `lib/services/cache-service.ts` for expensive operations:
-
-```typescript
-import { getCachedData, setCachedData } from '@/lib/services/cache-service'
-
-const cacheKey = 'dashboard:metrics'
-const cached = await getCachedData(cacheKey)
-if (cached) return cached
-
-const data = await expensiveCalculation()
-await setCachedData(cacheKey, data, 300) // 5 minute TTL
-return data
-```
-
-## Security
-
-### Row Level Security (RLS)
-
-All tables have RLS enabled. Policies enforce:
-- Authenticated users can read data
-- Admins can insert/update/delete
-- Managers have elevated permissions
-- Pilots have read-only access to their own data
-
-### Protected Routes
-
-Middleware (`middleware.ts`) handles authentication:
-- Public routes: `/`, `/auth/*`, `/portal/login`, `/portal/register`
-- Protected routes: `/dashboard/*` (requires admin Supabase authentication)
-- Admin routes: `/dashboard/admin/*` (requires admin role)
-- Portal routes: `/portal/*` (requires pilot authentication via `an_users`)
-
-**IMPORTANT**: Portal routes use custom authentication. Do not rely on Supabase Auth for `/portal/*` routes.
-
-### Rate Limiting
-
-API routes use Upstash Redis for rate limiting:
-
-```typescript
-import { rateLimit } from '@/lib/rate-limit'
-
-export async function POST(request: Request) {
-  const identifier = request.headers.get('x-forwarded-for') || 'anonymous'
-  const { success } = await rateLimit.limit(identifier)
-
-  if (!success) {
-    return new Response('Too many requests', { status: 429 })
-  }
-
-  // Process request
-}
-```
-
-**Environment Variables**:
-```env
-UPSTASH_REDIS_REST_URL=your-redis-url
-UPSTASH_REDIS_REST_TOKEN=your-redis-token
-```
-
-## Logging and Error Tracking
-
-### Better Stack Integration
-
-The application uses Better Stack (Logtail) for comprehensive error tracking:
-
-**Server-side logging** (`lib/services/logging-service.ts`):
-```typescript
-import { log } from '@logtail/node'
-
-log.info('Operation completed', { userId, action })
-log.error('Operation failed', { error, context })
-```
-
-**Client-side logging**:
-```typescript
-import { log } from '@logtail/browser'
-
-log.error('UI error occurred', { component, error })
-```
-
-**Environment Variables**:
-```env
-LOGTAIL_SOURCE_TOKEN=your-token-here  # Server-side token
-NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN=your-token-here  # Client-side token
-```
-
-All CRUD operations, authentication events, and errors are automatically logged for production debugging.
-
-## Development Workflow
-
-### Feature Development Process
-
-1. **Create Feature Branch**:
-   ```bash
-   git checkout -b feature/new-feature
-   ```
-
-2. **Implement Service Layer First** (if database operations needed):
-   ```bash
-   # Create or update service file
-   touch lib/services/new-feature-service.ts
-   ```
-
-3. **Add Types** (if new tables/columns):
-   ```bash
-   npm run db:types
-   ```
-
-4. **Build API Routes** (use services):
-   ```bash
-   # Create API route
-   touch app/api/new-feature/route.ts
-   ```
-
-5. **Build UI Components**:
-   ```bash
-   # Add shadcn component if needed
-   npx shadcn@latest add dialog
-   # Create custom component + Storybook story
-   ```
-
-6. **Write E2E Tests**:
-   ```bash
-   touch e2e/new-feature.spec.ts
-   npm test
-   ```
-
-7. **Run Quality Checks**:
-   ```bash
-   npm run validate
-   npm run validate:naming
-   ```
-
-8. **Commit and Push**:
-   ```bash
-   git add .
-   git commit -m "feat: add new feature"
-   git push origin feature/new-feature
-   ```
-
-### Pre-Commit Hooks
-
-Husky + lint-staged automatically runs:
-- ESLint with auto-fix
-- Prettier with auto-format
-- TypeScript type checking
-
-If checks fail, commit is blocked.
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Next.js | 16.0.1 | App framework with App Router |
+| React | 19.2.0 | UI library |
+| TypeScript | 5.7.3 | Type safety (strict mode) |
+| Turbopack | Built-in | Build system |
+| Tailwind CSS | 4.1.0 | Styling |
+| Supabase | 2.75.1 | Backend (PostgreSQL + Auth + Storage) |
+| TanStack Query | 5.90.2 | Server state management |
+| React Hook Form | 7.65.0 | Form handling |
+| Zod | 4.1.12 | Schema validation |
+| Playwright | 1.56.1 | E2E testing |
+| Storybook | 8.5.11 | Component development |
 
 ## Troubleshooting
 
@@ -1077,6 +796,9 @@ Ensure using `await cookies()` in Next.js 16 (async cookies API).
 npx playwright install  # Install browsers
 ```
 
+**Playwright tests connecting to wrong port**
+Update `playwright.config.ts` baseURL or use relative URLs in tests (preferred).
+
 **Husky hooks not running**
 ```bash
 npm run prepare
@@ -1093,166 +815,8 @@ Check that `types/supabase.ts` is up to date with the database schema.
 **Portal authentication not working**
 Verify `/api/portal/*` endpoints are using `pilot-portal-service.ts` and NOT Supabase Auth.
 
-## Technology Stack
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| Next.js | 16.0.0 | App framework with App Router |
-| React | 19.1.0 | UI library |
-| TypeScript | 5.7.3 | Type safety (strict mode) |
-| Turbopack | Built-in | Build system |
-| Tailwind CSS | 4.1.0 | Styling |
-| Supabase | 2.75.1 | Backend (PostgreSQL + Auth + Storage) |
-| TanStack Query | 5.90.2 | Server state management |
-| React Hook Form | 7.65.0 | Form handling |
-| Zod | 4.1.12 | Schema validation |
-| Playwright | 1.55.0 | E2E testing |
-| Storybook | 8.5.11 | Component development |
-
-## Progressive Web App (PWA) Support
-
-Fleet Management V2 is a Progressive Web App that works offline and can be installed on mobile devices.
-
-### PWA Features
-
-- **Offline Support**: View previously loaded data when offline
-- **Mobile Installation**: Install app on iOS and Android devices
-- **Intelligent Caching**: Smart caching strategies for performance
-- **Offline Indicator**: Visual feedback when connectivity is lost
-- **Service Worker**: Auto-generated with Serwist
-
-### Caching Strategies
-
-The app uses different caching strategies for different resource types:
-
-| Resource Type | Strategy | Cache Duration | Purpose |
-|--------------|----------|----------------|---------|
-| **Fonts** | CacheFirst | 1 year | Fonts rarely change |
-| **Images** | StaleWhileRevalidate | 24 hours | Balance freshness and speed |
-| **API Calls** | NetworkFirst | 1 minute | Always try fresh data first |
-| **Supabase API** | NetworkFirst | 1 minute | Fallback to cache if offline |
-
-### Offline Functionality
-
-**What works offline:**
-- ✅ View previously loaded pages
-- ✅ Access cached pilot information
-- ✅ Review certification data
-- ✅ Navigate between cached pages
-
-**What requires online connection:**
-- ❌ Create/update/delete operations
-- ❌ Upload documents
-- ❌ Sync new data
-- ❌ Real-time updates
-
-### Installation
-
-**Android (Chrome):**
-1. Visit the app in Chrome
-2. Tap "Install" prompt or menu → "Install app"
-3. App appears on home screen
-
-**iOS (Safari):**
-1. Visit the app in Safari
-2. Tap Share button → "Add to Home Screen"
-3. App appears on home screen with custom icon
-
-### PWA Configuration
-
-**Service Worker**: `/public/sw.js` (auto-generated, do not edit)
-
-**Manifest**: `/public/manifest.json`
-```json
-{
-  "name": "Fleet Management V2 - B767 Pilot Management System",
-  "short_name": "Fleet Mgmt",
-  "start_url": "/",
-  "display": "standalone"
-}
-```
-
-**Build Configuration**: `next.config.js`
-```javascript
-const withSerwist = require('@serwist/next').default({
-  swSrc: 'app/sw.ts',
-  swDest: 'public/sw.js',
-  disable: process.env.NODE_ENV === 'development'
-})
-```
-
-### Development vs Production
-
-**Development** (PWA disabled):
-- No service worker registration
-- No caching (hot reload works normally)
-- Offline indicator still functional
-
-**Production** (PWA enabled):
-- Service worker auto-generated during build
-- Intelligent caching active
-- Offline fallback page available
-
-### Updating the Service Worker
-
-When deploying new versions:
-
-1. Build generates new service worker with updated hash
-2. Users get update notification on next visit
-3. Refresh page to activate new service worker
-4. Old caches automatically invalidated
-
-### Clear Service Worker Cache
-
-If needed (troubleshooting):
-
-```javascript
-// Open DevTools Console
-navigator.serviceWorker.getRegistrations().then(registrations => {
-  registrations.forEach(r => r.unregister())
-})
-caches.keys().then(keys => keys.forEach(key => caches.delete(key)))
-```
-
-Then refresh the page.
-
-### PWA Icons
-
-Icons located in `/public/icons/`:
-- `icon-192x192.png` - Android home screen
-- `icon-512x512.png` - Android splash screen
-- `apple-touch-icon.png` - iOS home screen
-- `favicon-32x32.png` - Browser tab
-- `favicon-16x16.png` - Browser bookmark
-
-**Generate icons**: `node scripts/generate-pwa-icons.mjs`
-
-For production, replace with professionally designed icons.
-
-### Troubleshooting PWA
-
-**Service worker not registering:**
-- Check browser console for errors
-- Verify HTTPS (required for PWA)
-- Ensure `public/sw.js` exists after build
-
-**Offline indicator not showing:**
-- Check DevTools → Network → Set to "Offline"
-- Verify OfflineIndicator component in layout
-
-**Stale data showing:**
-- Service worker may be caching aggressively
-- Clear service worker cache (see above)
-- Check cache expiration times in `app/sw.ts`
-
-**Install prompt not showing:**
-- PWA criteria may not be met
-- Check manifest.json is valid
-- Verify service worker is active
-- Android: Check Chrome flags
-
 ---
 
-**Version**: 2.5.0
-**Last Updated**: October 27, 2025
+**Version**: 2.5.1
+**Last Updated**: November 20, 2025
 **Maintainer**: Maurice (Skycruzer)

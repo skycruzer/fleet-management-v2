@@ -10,8 +10,9 @@ import { z } from 'zod'
 
 /**
  * Report Type Enum
+ * Updated: November 19, 2025 - Added leave-bids, rdo-sdo, and all-requests
  */
-export const ReportTypeSchema = z.enum(['leave', 'flight-requests', 'certifications'])
+export const ReportTypeSchema = z.enum(['rdo-sdo', 'leave', 'all-requests', 'flight-requests', 'certifications', 'leave-bids'])
 
 /**
  * Date Range Schema

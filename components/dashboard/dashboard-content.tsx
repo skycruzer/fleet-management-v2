@@ -10,17 +10,17 @@ import { ExpiringCertificationsBannerServer } from '@/components/dashboard/expir
 import { PilotRequirementsCard } from '@/components/dashboard/pilot-requirements-card'
 import { RetirementForecastCard } from '@/components/dashboard/retirement-forecast-card'
 import { Star, User, Calendar, Plus, FileText, BarChart3 } from 'lucide-react'
-import { getCachedData, setCachedData } from '@/lib/services/cache-service'
+import { unifiedCacheService } from '@/lib/services/unified-cache-service'
 
 // Cached data fetching function
 async function getCachedDashboardData(): Promise<DashboardMetrics> {
   const cacheKey = 'dashboard:metrics'
-  const cached = await getCachedData<DashboardMetrics>(cacheKey)
-  if (cached) return cached
 
-  const data = await getDashboardMetrics()
-  await setCachedData(cacheKey, data, 60) // 60 second cache
-  return data
+  return unifiedCacheService.getOrSet(
+    cacheKey,
+    async () => await getDashboardMetrics(),
+    60 * 1000 // 60 seconds in milliseconds
+  )
 }
 
 export async function DashboardContent() {

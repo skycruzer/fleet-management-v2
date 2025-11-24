@@ -33,14 +33,12 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Calendar, FileText, AlertCircle, CheckCircle2, Clock, XCircle, Download } from 'lucide-react'
 import type { LeaveBid } from '@/lib/services/leave-bid-service'
-import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
 interface LeaveBidsClientProps {
   initialBids: LeaveBid[]
 }
 
 export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
-  const { csrfToken } = useCsrfToken()
   const router = useRouter()
   const [bids, setBids] = useState<LeaveBid[]>(initialBids)
   const [selectedBid, setSelectedBid] = useState<LeaveBid | null>(null)
@@ -87,7 +85,6 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify({ bidId: selectedBid.id }),
       })
@@ -104,7 +101,10 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
       setBids(bids.filter((bid) => bid.id !== selectedBid.id))
       setShowCancelDialog(false)
       setSelectedBid(null)
+
+      // Refresh router cache
       router.refresh()
+      await new Promise(resolve => setTimeout(resolve, 100))
     } catch {
       setError('An unexpected error occurred')
     } finally {

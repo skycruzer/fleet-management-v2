@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getPilots, createPilot } from '@/lib/services/pilot-service'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
 import { createClient } from '@/lib/supabase/server'
@@ -94,6 +95,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     // Create pilot
     const newPilot = await createPilot(validatedData)
+
+    // Revalidate cache for pilot-related pages
+    revalidatePath('/dashboard/pilots')
+    revalidatePath('/dashboard')
 
     return NextResponse.json(
       {

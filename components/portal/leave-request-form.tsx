@@ -8,8 +8,8 @@
  *
  * CSRF PROTECTION: This form uses CSRF token via props for security
  *
- * @version 1.1.0
- * @updated 2025-10-27 - Added developer attribution
+ * @version 3.0.0 - 3-table architecture (leave_requests table only)
+ * @updated 2025-01-19 - Removed RDO/SDO options (moved to separate form)
  */
 
 import { useRouter } from 'next/navigation'
@@ -27,10 +27,10 @@ import { submitLeaveRequestAction } from '@/app/portal/leave/actions'
 import { getRosterPeriodFromDate, formatRosterPeriodFromObject, getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import { useEffect, useState } from 'react'
 
-// Form validation schema
+// Form validation schema (aligned with leave_requests table schema)
 const leaveRequestSchema = z
   .object({
-    request_type: z.enum(['ANNUAL', 'SICK', 'UNPAID', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'], {
+    request_type: z.enum(['ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'], {
       message: 'Please select a leave type',
     }),
     start_date: z.string().min(1, 'Start date is required'),
@@ -75,9 +75,14 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
       // Close dialog and call callback after 2 seconds
       setTimeout(() => {
         setShowSuccess(false)
-        if (onSuccess) {
-          onSuccess()
-        }
+        // Refresh router cache to update leave requests list
+        router.refresh()
+        // Small delay for cache propagation
+        setTimeout(() => {
+          if (onSuccess) {
+            onSuccess()
+          }
+        }, 100)
       }, 2000)
     },
   })
@@ -100,6 +105,13 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
 
   const startDate = watch('start_date')
   const endDate = watch('end_date')
+
+  // Auto-sync end date to start date when start date changes
+  useEffect(() => {
+    if (startDate && !endDate) {
+      setValue('end_date', startDate)
+    }
+  }, [startDate, endDate, setValue])
 
   // Auto-calculate roster periods from start and end dates
   useEffect(() => {
@@ -174,9 +186,8 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
         >
           <option value="ANNUAL">Annual Leave</option>
           <option value="SICK">Sick Leave</option>
-          <option value="UNPAID">Unpaid Leave</option>
-          <option value="LSL">Long Service Leave</option>
-          <option value="LWOP">Leave Without Pay</option>
+          <option value="LSL">Long Service Leave (LSL)</option>
+          <option value="LWOP">Leave Without Pay (LWOP)</option>
           <option value="MATERNITY">Maternity Leave</option>
           <option value="COMPASSIONATE">Compassionate Leave</option>
         </select>
@@ -184,7 +195,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
           <p className="mt-1 text-sm text-red-600">{errors.request_type.message}</p>
         )}
         <p className="mt-1 text-xs text-gray-500">
-          For RDO or SDO requests, use the Flight Request / RDO / SDO form instead
+          ℹ️ For RDO or SDO requests, please use the dedicated RDO/SDO Request form
         </p>
       </div>
 
@@ -199,6 +210,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
             id="start_date"
             type="date"
             {...register('start_date')}
+            className="h-11"
             error={!!errors.start_date}
             success={touchedFields.start_date && !errors.start_date}
             aria-required={true}
@@ -220,6 +232,8 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
             id="end_date"
             type="date"
             {...register('end_date')}
+            min={startDate || undefined}
+            className="h-11"
             error={!!errors.end_date}
             success={touchedFields.end_date && !errors.end_date}
             aria-required={true}

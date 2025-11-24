@@ -3,11 +3,20 @@
  * Comprehensive CRUD operations for leave requests
  *
  * @author Maurice Rondeau
- * @version 3.0.0 - Migrated to pilot_requests unified table
- * @since 2025-10-17
+ * @version 5.0.0 - UNIFIED TABLE (Sprint 1.1 - Nov 2025)
+ * @since 2025-01-19
+ *
+ * MIGRATION NOTE (Nov 20, 2025 - Sprint 1.1):
+ * ============================================
+ * ✅ Migrated from leave_requests → pilot_requests (request_category='LEAVE')
+ * ✅ All database queries updated to use unified pilot_requests table
+ * ✅ Legacy leave_requests table marked as read-only via RLS policies
+ * ✅ Helper views created: active_leave_requests, active_flight_requests
+ *
+ * See: supabase/migrations/20251120000001_mark_legacy_request_tables_readonly.sql
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { getRosterPeriodFromDate } from '@/lib/utils/roster-utils'
@@ -16,8 +25,6 @@ export interface LeaveRequest {
   id: string
   pilot_id: string | null
   request_type:
-    | 'RDO'
-    | 'SDO'
     | 'ANNUAL'
     | 'SICK'
     | 'LSL'
@@ -29,10 +36,10 @@ export interface LeaveRequest {
   start_date: string
   end_date: string
   days_count: number
-  workflow_status: 'PENDING' | 'APPROVED' | 'DENIED'
+  workflow_status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
   reason?: string | null
   request_date?: string | null // Date when the request was made (separate from created_at)
-  submission_channel?: 'EMAIL' | 'ORACLE' | 'LEAVE_BIDS' | 'SYSTEM' | null // How the request was submitted
+  submission_channel?: 'PILOT_PORTAL' | 'EMAIL' | 'ORACLE' | 'ADMIN_PORTAL' | 'SYSTEM' | null // How the request was submitted
   is_late_request?: boolean | null // Flag for requests with less than 21 days advance notice
   created_at: string | null
   reviewed_by?: string | null
@@ -54,23 +61,23 @@ export interface LeaveRequest {
 
 export interface LeaveRequestFormData {
   pilot_id: string
-  request_type: 'RDO' | 'SDO' | 'ANNUAL' | 'SICK' | 'LSL' | 'LWOP' | 'MATERNITY' | 'COMPASSIONATE'
+  request_type: 'ANNUAL' | 'SICK' | 'LSL' | 'LWOP' | 'MATERNITY' | 'COMPASSIONATE'
   start_date: string
   end_date: string
   request_date: string
-  request_method: 'EMAIL' | 'ORACLE' | 'SYSTEM'
+  request_method: 'PILOT_PORTAL' | 'EMAIL' | 'ORACLE' | 'ADMIN_PORTAL' | 'SYSTEM'
   reason?: string
   is_late_request?: boolean
 }
 
 export interface LeaveRequestStats {
   total: number
-  pending: number
+  submitted: number
+  in_review: number
   approved: number
   denied: number
+  withdrawn: number
   byType: {
-    RDO: number
-    SDO: number
     ANNUAL: number
     SICK: number
     LSL: number
@@ -91,7 +98,7 @@ function calculateDays(startDate: string, endDate: string): number {
 
 // Get all leave requests with pilot information
 export async function getAllLeaveRequests(): Promise<LeaveRequest[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const { data: requests, error } = await supabase
@@ -134,7 +141,7 @@ export async function getAllLeaveRequests(): Promise<LeaveRequest[]> {
 
 // Get a single leave request by ID
 export async function getLeaveRequestById(requestId: string): Promise<LeaveRequest | null> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const { data: request, error } = await supabase
@@ -151,8 +158,8 @@ export async function getLeaveRequestById(requestId: string): Promise<LeaveReque
         )
       `
       )
-      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
       .single()
 
     if (error) {
@@ -185,7 +192,7 @@ export async function getLeaveRequestById(requestId: string): Promise<LeaveReque
 
 // Get leave requests for a specific pilot
 export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveRequest[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const { data: requests, error } = await supabase
@@ -202,8 +209,8 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
         )
       `
       )
-      .eq('request_category', 'LEAVE')
       .eq('pilot_id', pilotId)
+      .eq('request_category', 'LEAVE')
       .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -231,7 +238,7 @@ export async function getPilotLeaveRequests(pilotId: string): Promise<LeaveReque
 export async function createLeaveRequestServer(
   requestData: LeaveRequestFormData
 ): Promise<LeaveRequest> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     // Calculate days count
@@ -268,7 +275,7 @@ export async function createLeaveRequestServer(
     const { data, error } = await supabase
       .from('pilot_requests')
       .insert({
-        request_category: 'LEAVE',
+        request_category: 'LEAVE', // Unified table category
         pilot_id: requestData.pilot_id,
         name: pilotName,
         rank: pilot.role,
@@ -282,17 +289,17 @@ export async function createLeaveRequestServer(
         end_date: requestData.end_date,
         days_count: daysCount,
         submission_date: requestData.request_date || new Date().toISOString(),
-        submission_channel: 'ADMIN', // Admin-created leave request
-        notes: requestData.reason,
+        submission_channel: 'ADMIN_PORTAL', // Admin-created leave request
+        reason: requestData.reason,
         is_late_request: requestData.is_late_request || false,
-        workflow_status: 'PENDING',
+        workflow_status: 'SUBMITTED',
       })
       .select()
       .single()
 
     if (error) {
       // Check if error is a unique constraint violation
-      if (error.code === '23505' && error.message.includes('pilot_requests_pilot_dates_unique')) {
+      if (error.code === '23505' && error.message.includes('leave_requests_unique')) {
         const duplicateError = new Error(
           'A leave request for these dates already exists. Please check your existing requests or contact your supervisor.'
         )
@@ -332,7 +339,7 @@ export async function updateLeaveRequestServer(
   requestId: string,
   requestData: Partial<LeaveRequestFormData>
 ): Promise<LeaveRequest> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const updateData: Record<string, unknown> = { ...requestData }
@@ -346,8 +353,8 @@ export async function updateLeaveRequestServer(
     const { data, error } = await supabase
       .from('pilot_requests')
       .update(updateData)
-      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
       .select()
       .single()
 
@@ -368,6 +375,7 @@ export async function updateLeaveRequestServer(
  * Update leave request status (approve/deny) - ATOMIC
  * Uses PostgreSQL function for transaction safety
  * Updates leave request and creates audit log atomically
+ * Note: This function needs updating to work with leave_requests table
  */
 export async function updateLeaveRequestStatus(
   requestId: string,
@@ -375,15 +383,23 @@ export async function updateLeaveRequestStatus(
   reviewedBy: string,
   reviewComments?: string
 ): Promise<{ success: boolean; message: string; requestId: string }> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
-    // Use PostgreSQL function for atomic approval with audit log
-    const { data, error } = await supabase.rpc('approve_leave_request', {
-      p_request_id: requestId,
-      p_approved_by: reviewedBy,
-      p_approval_notes: reviewComments,
-    })
+    // TODO: Update RPC function to work with pilot_requests table
+    // For now, use direct update instead of RPC
+    const { data, error } = await supabase
+      .from('pilot_requests')
+      .update({
+        workflow_status: status,
+        reviewed_by: reviewedBy,
+        reviewed_at: new Date().toISOString(),
+        review_comments: reviewComments || null,
+      })
+      .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
+      .select()
+      .single()
 
     if (error) {
       logError(new Error(`Failed to update leave request status: ${error.message}`), {
@@ -394,10 +410,18 @@ export async function updateLeaveRequestStatus(
       throw new Error(`Failed to update leave request status: ${error.message}`)
     }
 
-    // RPC function returns boolean indicating success
     if (!data) {
-      throw new Error('Failed to approve leave request')
+      throw new Error('Failed to update leave request')
     }
+
+    // Create audit log for status change
+    await createAuditLog({
+      action: 'UPDATE',
+      tableName: 'pilot_requests',
+      recordId: requestId,
+      newData: { workflow_status: status, reviewed_by: reviewedBy, reviewed_at: new Date().toISOString() },
+      description: `Leave request ${status.toLowerCase()} by ${reviewedBy}`,
+    })
 
     logInfo('Leave request status updated successfully', {
       source: 'leave-service:updateLeaveRequestStatus',
@@ -421,28 +445,28 @@ export async function updateLeaveRequestStatus(
 
 // Delete a leave request (only if pending)
 export async function deleteLeaveRequest(requestId: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
-    // First check if the request is pending
+    // First check if the request is submitted
     const { data: request, error: fetchError } = await supabase
       .from('pilot_requests')
       .select('workflow_status')
-      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
       .single()
 
     if (fetchError) throw fetchError
 
-    if (request.workflow_status !== 'PENDING') {
+    if (request.workflow_status !== 'SUBMITTED') {
       throw new Error('Cannot delete a leave request that has already been reviewed')
     }
 
     const { error } = await supabase
       .from('pilot_requests')
       .delete()
-      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
 
     if (error) throw error
   } catch (error) {
@@ -457,7 +481,7 @@ export async function deleteLeaveRequest(requestId: string): Promise<void> {
 
 // Get leave request statistics
 export async function getLeaveRequestStats(): Promise<LeaveRequestStats> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const { data: requests, error } = await supabase
@@ -472,9 +496,11 @@ export async function getLeaveRequestStats(): Promise<LeaveRequestStats> {
         acc.total++
 
         // Count by status
-        if (request.workflow_status === 'PENDING') acc.pending++
+        if (request.workflow_status === 'SUBMITTED') acc.submitted++
+        else if (request.workflow_status === 'IN_REVIEW') acc.in_review++
         else if (request.workflow_status === 'APPROVED') acc.approved++
         else if (request.workflow_status === 'DENIED') acc.denied++
+        else if (request.workflow_status === 'WITHDRAWN') acc.withdrawn++
 
         // Count by type
         acc.byType[request.request_type as keyof typeof acc.byType]++
@@ -483,12 +509,12 @@ export async function getLeaveRequestStats(): Promise<LeaveRequestStats> {
       },
       {
         total: 0,
-        pending: 0,
+        submitted: 0,
+        in_review: 0,
         approved: 0,
         denied: 0,
+        withdrawn: 0,
         byType: {
-          RDO: 0,
-          SDO: 0,
           ANNUAL: 0,
           SICK: 0,
           LSL: 0,
@@ -512,7 +538,7 @@ export async function getLeaveRequestStats(): Promise<LeaveRequestStats> {
 
 // Get pending leave requests (for manager/admin approval)
 export async function getPendingLeaveRequests(): Promise<LeaveRequest[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const { data: requests, error } = await supabase
@@ -530,7 +556,7 @@ export async function getPendingLeaveRequests(): Promise<LeaveRequest[]> {
       `
       )
       .eq('request_category', 'LEAVE')
-      .eq('workflow_status', 'PENDING')
+      .eq('workflow_status', 'SUBMITTED')
       .order('created_at', { ascending: true }) // Oldest first for review
 
     if (error) throw error
@@ -560,7 +586,7 @@ export async function checkLeaveConflicts(
   endDate: string,
   excludeRequestId?: string
 ): Promise<LeaveRequest[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     let query = supabase
@@ -579,7 +605,7 @@ export async function checkLeaveConflicts(
       )
       .eq('request_category', 'LEAVE')
       .eq('pilot_id', pilotId)
-      .in('workflow_status', ['PENDING', 'APPROVED'])
+      .in('workflow_status', ['SUBMITTED', 'IN_REVIEW', 'APPROVED'])
       .or(`and(start_date.lte.${endDate},end_date.gte.${startDate})`)
 
     if (excludeRequestId) {
@@ -612,7 +638,7 @@ export async function checkLeaveConflicts(
 export async function getLeaveRequestsByRosterPeriod(
   rosterPeriod: string
 ): Promise<LeaveRequest[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const { data: requests, error } = await supabase

@@ -289,26 +289,35 @@ export async function proxy(request: NextRequest) {
     }
 
     // Check for custom pilot session cookie (bcrypt authentication)
-    const pilotSessionCookie = request.cookies.get('pilot_session_token')?.value
+    const pilotSessionCookie = request.cookies.get('pilot-session')?.value
 
     if (pilotSessionCookie) {
       try {
-        const sessionData = JSON.parse(pilotSessionCookie)
-        const expiresAt = new Date(sessionData.expires_at)
+        // Validate token against pilot_sessions table
+        const { data: session, error } = await supabase
+          .from('pilot_sessions')
+          .select('id, pilot_user_id, expires_at, is_active')
+          .eq('session_token', pilotSessionCookie)
+          .eq('is_active', true)
+          .single()
 
-        // Check if session is still valid
-        if (expiresAt > new Date()) {
-          // Verify pilot is still approved
-          const { data: pilotUser } = await supabase
-            .from('pilot_users')
-            .select('id, registration_approved')
-            .eq('id', sessionData.pilot_id)
-            .single()
+        if (!error && session) {
+          const expiresAt = new Date(session.expires_at)
 
-          if (pilotUser && pilotUser.registration_approved === true) {
-            // Valid custom session - allow access
-            console.log('✅ Valid pilot session for API:', pathname)
-            return response
+          // Check if session is still valid
+          if (expiresAt > new Date()) {
+            // Verify pilot is still approved
+            const { data: pilotUser } = await supabase
+              .from('pilot_users')
+              .select('id, registration_approved')
+              .eq('id', session.pilot_user_id)
+              .single()
+
+            if (pilotUser && pilotUser.registration_approved === true) {
+              // Valid custom session - allow access
+              console.log('✅ Valid pilot session for API:', pathname)
+              return response
+            }
           }
         }
       } catch (error) {

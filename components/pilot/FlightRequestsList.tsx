@@ -28,7 +28,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
     setCancelingId(requestId)
 
     try {
-      const response = await fetch(`/api/pilot/flight-requests/${requestId}`, {
+      const response = await fetch(`/api/portal/flight-requests?id=${requestId}`, {
         method: 'DELETE',
       })
 

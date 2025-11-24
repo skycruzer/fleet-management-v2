@@ -13,10 +13,10 @@ import { z } from 'zod'
 // ===================================
 
 export const LeaveRequestTypeEnum = z.enum(
-  ['RDO', 'SDO', 'ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'],
+  ['ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'],
   {
     message:
-      'Leave type must be one of: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE',
+      'Leave type must be one of: ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE. Note: RDO/SDO requests use separate endpoints.',
   }
 )
 
@@ -46,13 +46,14 @@ const dateSchema = z
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a valid date in YYYY-MM-DD format')
 
 /**
- * Roster period validation: Format "RP1/2025" through "RP13/2025"
+ * Roster period validation: Format "RP01/2025" through "RP13/2025" (zero-padded)
+ * Also accepts non-padded "RP1/2025" through "RP9/2025" for backward compatibility
  */
 const rosterPeriodSchema = z
   .string()
   .regex(
-    /^RP(1[0-3]|[1-9])\/\d{4}$/,
-    'Roster period must be in format "RP1/2025" through "RP13/2025"'
+    /^RP(0[1-9]|1[0-3]|[1-9])\/\d{4}$/,
+    'Roster period must be in format "RP01/2025" through "RP13/2025"'
   )
 
 /**

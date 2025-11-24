@@ -133,6 +133,7 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
           id="flight_date"
           type="date"
           {...register('flight_date')}
+          className="h-11"
           error={!!errors.flight_date}
           success={touchedFields.flight_date && !errors.flight_date}
           aria-required={true}

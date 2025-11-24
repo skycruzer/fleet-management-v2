@@ -32,13 +32,14 @@ const dateSchema = z
 // const requiredDateSchema = z.string().datetime({ message: 'Must be a valid ISO datetime string' })
 
 /**
- * Roster period validation: Format "RP1/2025" through "RP13/2025"
+ * Roster period validation: Format "RP01/2025" through "RP13/2025" (zero-padded)
+ * Also accepts non-padded "RP1/2025" through "RP9/2025" for backward compatibility
  */
 const rosterPeriodSchema = z
   .string()
   .regex(
-    /^RP(1[0-3]|[1-9])\/\d{4}$/,
-    'Roster period must be in format "RP1/2025" through "RP13/2025"'
+    /^RP(0[1-9]|1[0-3]|[1-9])\/\d{4}$/,
+    'Roster period must be in format "RP01/2025" through "RP13/2025"'
   )
   .optional()
   .nullable()

@@ -1,18 +1,19 @@
 /**
- * Pilot Portal Flight Request Service
+ * Pilot Portal RDO/SDO Request Service
  *
- * Pilot-facing service layer for flight request operations.
- * Allows pilots to request additional flights, route changes, and schedule swaps.
+ * Pilot-facing service layer for RDO/SDO request operations.
+ * Allows pilots to request Rostered Days Off (RDO) and Scheduled Days Off (SDO).
  *
  * @author Maurice Rondeau
- * @date November 13, 2025
+ * @date November 20, 2025
  * @spec 001-missing-core-features (US3)
  *
  * MIGRATION NOTE: Migrated from deprecated flight_requests table to unified pilot_requests table.
- * All flight requests now use request_category='FLIGHT' and workflow_status instead of status.
+ * All RDO/SDO requests now use request_category='FLIGHT' and workflow_status instead of status.
+ * Supports single-day (start_date only) and multi-day requests (start_date + end_date).
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import {
@@ -32,9 +33,10 @@ export interface FlightRequest {
   id: string
   pilot_id: string
   pilot_user_id?: string
-  request_type: 'FLIGHT_REQUEST' | 'RDO' | 'SDO' | 'OFFICE_DAY'
-  flight_date: string
-  description: string
+  request_type: 'RDO' | 'SDO'
+  start_date: string
+  end_date?: string | null
+  description?: string | null
   reason?: string | null
   workflow_status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
   review_comments?: string | null
@@ -55,14 +57,15 @@ export interface FlightRequest {
 }
 
 /**
- * Submit Flight Request (Pilot Self-Service)
+ * Submit RDO/SDO Request (Pilot Self-Service)
  *
- * Allows authenticated pilot to submit a flight request.
+ * Allows authenticated pilot to submit an RDO/SDO request.
+ * Supports both single-day (start_date only) and multi-day requests (start_date + end_date).
  * Automatically:
  * - Sets pilot_id to current authenticated pilot
  * - Sets workflow_status to SUBMITTED
  * - Populates denormalized fields (name, rank, employee_number)
- * - Calculates roster period from flight_date
+ * - Calculates roster period from start_date
  * - Sets submission_channel to PORTAL
  * - Creates notification
  */
@@ -70,7 +73,7 @@ export async function submitPilotFlightRequest(
   request: FlightRequestInput
 ): Promise<ServiceResponse<FlightRequest>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()
@@ -96,27 +99,27 @@ export async function submitPilotFlightRequest(
       }
     }
 
-    // Calculate roster period from flight_date
-    const flightDate = new Date(request.flight_date)
-    if (isNaN(flightDate.getTime())) {
+    // Calculate roster period from start_date
+    const startDate = new Date(request.start_date)
+    if (isNaN(startDate.getTime())) {
       return {
         success: false,
-        error: 'Invalid flight date format',
+        error: 'Invalid start date format',
       }
     }
 
-    const rosterPeriodCode = getRosterPeriodCodeFromDate(flightDate)
+    const rosterPeriodCode = getRosterPeriodCodeFromDate(startDate)
     const parsed = parseRosterPeriodCode(rosterPeriodCode)
     if (!parsed) {
       return {
         success: false,
-        error: 'Unable to calculate roster period for the selected flight date',
+        error: 'Unable to calculate roster period for the selected start date',
       }
     }
 
     const rosterPeriod = calculateRosterPeriodDates(parsed.periodNumber, parsed.year)
 
-    // Prepare flight request data for unified pilot_requests table
+    // Prepare RDO/SDO request data for unified pilot_requests table
     const flightRequestData = {
       // Core pilot identification
       pilot_id: pilotDetails.id,
@@ -132,10 +135,9 @@ export async function submitPilotFlightRequest(
       rank: pilotDetails.role,
       employee_number: pilotDetails.employee_id,
 
-      // Request details (flight requests use flight_date for single-day operations)
-      start_date: request.flight_date, // Use flight_date as start_date
-      end_date: null, // Flight requests are single-day
-      flight_date: request.flight_date,
+      // Request details (RDO/SDO requests support date ranges)
+      start_date: request.start_date,
+      end_date: request.end_date || null, // Optional for multi-day requests
       notes: request.description || null, // Map description to notes
       reason: request.reason || null,
 
@@ -149,7 +151,7 @@ export async function submitPilotFlightRequest(
       workflow_status: 'SUBMITTED' as const,
     }
 
-    // Insert flight request into pilot_requests table
+    // Insert RDO/SDO request into pilot_requests table
     const { data: createdRequest, error: insertError } = await supabase
       .from('pilot_requests')
       .insert(flightRequestData)
@@ -157,21 +159,22 @@ export async function submitPilotFlightRequest(
       .single()
 
     if (insertError || !createdRequest) {
-      console.error('Insert flight request error:', insertError)
+      console.error('Insert RDO/SDO request error:', insertError)
       return {
         success: false,
         error: ERROR_MESSAGES.FLIGHT.CREATE_FAILED.message,
       }
     }
 
-    // Map back to FlightRequest interface for backward compatibility
+    // Map back to FlightRequest interface
     const mappedRequest: FlightRequest = {
       id: createdRequest.id,
       pilot_id: createdRequest.pilot_id!,
       pilot_user_id: createdRequest.pilot_user_id!,
       request_type: createdRequest.request_type as FlightRequest['request_type'],
-      flight_date: createdRequest.flight_date!,
-      description: createdRequest.notes || '',
+      start_date: createdRequest.start_date!,
+      end_date: createdRequest.end_date,
+      description: createdRequest.notes,
       reason: createdRequest.reason,
       workflow_status: createdRequest.workflow_status as FlightRequest['workflow_status'],
       review_comments: createdRequest.review_comments,
@@ -200,14 +203,14 @@ export async function submitPilotFlightRequest(
 }
 
 /**
- * Get Current Pilot's Flight Requests
+ * Get Current Pilot's RDO/SDO Requests
  *
- * Retrieves all flight requests for the authenticated pilot.
+ * Retrieves all RDO/SDO requests for the authenticated pilot.
  * Sorted by created_at descending (newest first).
  */
 export async function getCurrentPilotFlightRequests(): Promise<ServiceResponse<FlightRequest[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()
@@ -218,7 +221,7 @@ export async function getCurrentPilotFlightRequests(): Promise<ServiceResponse<F
       }
     }
 
-    // Query flight requests from pilot_requests table with request_category filter
+    // Query RDO/SDO requests from pilot_requests table with request_category filter
     // Use BOTH pilot_user_id AND pilot_id to catch all requests
     const { data: requests, error } = await supabase
       .from('pilot_requests')
@@ -228,21 +231,22 @@ export async function getCurrentPilotFlightRequests(): Promise<ServiceResponse<F
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Get flight requests error:', error)
+      console.error('Get RDO/SDO requests error:', error)
       return {
         success: false,
         error: ERROR_MESSAGES.FLIGHT.FETCH_FAILED.message,
       }
     }
 
-    // Map to FlightRequest interface for backward compatibility
+    // Map to FlightRequest interface
     const mappedRequests: FlightRequest[] = (requests || []).map((req) => ({
       id: req.id,
       pilot_id: req.pilot_id!,
       pilot_user_id: req.pilot_user_id!,
       request_type: req.request_type as FlightRequest['request_type'],
-      flight_date: req.flight_date!,
-      description: req.notes || '',
+      start_date: req.start_date!,
+      end_date: req.end_date,
+      description: req.notes,
       reason: req.reason,
       workflow_status: req.workflow_status as FlightRequest['workflow_status'],
       review_comments: req.review_comments,
@@ -271,14 +275,17 @@ export async function getCurrentPilotFlightRequests(): Promise<ServiceResponse<F
 }
 
 /**
- * Cancel Pilot Flight Request
+ * Update Pilot RDO/SDO Request
  *
- * Allows pilot to cancel their own SUBMITTED flight requests.
- * Cannot cancel requests that are UNDER_REVIEW, APPROVED, or DENIED.
+ * Allows pilot to update their own SUBMITTED RDO/SDO requests.
+ * Cannot update requests that are UNDER_REVIEW, APPROVED, or DENIED.
  */
-export async function cancelPilotFlightRequest(requestId: string): Promise<ServiceResponse> {
+export async function updatePilotFlightRequest(
+  requestId: string,
+  updates: FlightRequestInput
+): Promise<ServiceResponse<FlightRequest>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()
@@ -292,7 +299,144 @@ export async function cancelPilotFlightRequest(requestId: string): Promise<Servi
     // Verify request belongs to pilot and is SUBMITTED
     const { data: request, error: fetchError } = await supabase
       .from('pilot_requests')
-      .select('id, pilot_id, workflow_status, request_type, flight_date, notes, request_category')
+      .select('id, pilot_id, workflow_status, request_category')
+      .eq('id', requestId)
+      .eq('request_category', 'FLIGHT')
+      .single()
+
+    if (fetchError || !request) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.FLIGHT.NOT_FOUND.message,
+      }
+    }
+
+    // Check ownership
+    if (request.pilot_id !== pilot.pilot_id) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.AUTH.FORBIDDEN.message,
+      }
+    }
+
+    // Check if submitted (pilots can only edit submitted requests)
+    if (request.workflow_status !== 'SUBMITTED') {
+      return {
+        success: false,
+        error: 'Can only edit submitted requests. This request has already been reviewed or is under review.',
+      }
+    }
+
+    // Calculate roster period from updated start_date
+    const startDate = new Date(updates.start_date)
+    if (isNaN(startDate.getTime())) {
+      return {
+        success: false,
+        error: 'Invalid start date format',
+      }
+    }
+
+    const rosterPeriodCode = getRosterPeriodCodeFromDate(startDate)
+    const parsed = parseRosterPeriodCode(rosterPeriodCode)
+    if (!parsed) {
+      return {
+        success: false,
+        error: 'Unable to calculate roster period for the selected start date',
+      }
+    }
+
+    const rosterPeriod = calculateRosterPeriodDates(parsed.periodNumber, parsed.year)
+
+    // Prepare update data
+    const updateData = {
+      request_type: updates.request_type,
+      start_date: updates.start_date,
+      end_date: updates.end_date || null,
+      notes: updates.description || null,
+      reason: updates.reason || null,
+      roster_period: rosterPeriodCode,
+      roster_period_start_date: rosterPeriod.startDate.toISOString().split('T')[0],
+      roster_publish_date: rosterPeriod.publishDate.toISOString().split('T')[0],
+      roster_deadline_date: rosterPeriod.deadlineDate.toISOString().split('T')[0],
+      updated_at: new Date().toISOString(),
+    }
+
+    // Update the request
+    const { data: updatedRequest, error: updateError } = await supabase
+      .from('pilot_requests')
+      .update(updateData)
+      .eq('id', requestId)
+      .eq('request_category', 'FLIGHT')
+      .select()
+      .single()
+
+    if (updateError || !updatedRequest) {
+      console.error('Update RDO/SDO request error:', updateError)
+      return {
+        success: false,
+        error: 'Failed to update RDO/SDO request',
+      }
+    }
+
+    // Map back to FlightRequest interface
+    const mappedRequest: FlightRequest = {
+      id: updatedRequest.id,
+      pilot_id: updatedRequest.pilot_id!,
+      pilot_user_id: updatedRequest.pilot_user_id!,
+      request_type: updatedRequest.request_type as FlightRequest['request_type'],
+      start_date: updatedRequest.start_date!,
+      end_date: updatedRequest.end_date,
+      description: updatedRequest.notes,
+      reason: updatedRequest.reason,
+      workflow_status: updatedRequest.workflow_status as FlightRequest['workflow_status'],
+      review_comments: updatedRequest.review_comments,
+      reviewed_by: updatedRequest.reviewed_by,
+      reviewed_at: updatedRequest.reviewed_at,
+      created_at: updatedRequest.created_at!,
+      updated_at: updatedRequest.updated_at,
+      name: updatedRequest.name,
+      rank: updatedRequest.rank,
+      employee_number: updatedRequest.employee_number,
+      roster_period: updatedRequest.roster_period,
+      submission_channel: updatedRequest.submission_channel,
+    }
+
+    return {
+      success: true,
+      data: mappedRequest,
+    }
+  } catch (error) {
+    console.error('Update pilot flight request error:', error)
+    return {
+      success: false,
+      error: 'Failed to update RDO/SDO request',
+    }
+  }
+}
+
+/**
+ * Cancel Pilot RDO/SDO Request
+ *
+ * Allows pilot to cancel their own SUBMITTED RDO/SDO requests.
+ * Cannot cancel requests that are UNDER_REVIEW, APPROVED, or DENIED.
+ */
+export async function cancelPilotFlightRequest(requestId: string): Promise<ServiceResponse> {
+  try {
+    const supabase = createServiceRoleClient()
+
+    // Get current pilot
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      }
+    }
+
+    // Verify request belongs to pilot and is SUBMITTED
+    const { data: request, error: fetchError } = await supabase
+      .from('pilot_requests')
+      .select('id, pilot_id, workflow_status, request_type, start_date, end_date, notes, request_category')
       .eq('id', requestId)
       .eq('request_category', 'FLIGHT')
       .single()
@@ -363,7 +507,7 @@ export async function getPilotFlightStats(): Promise<
   }>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()

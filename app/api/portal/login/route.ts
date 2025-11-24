@@ -185,18 +185,19 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     // SECURITY: Clear failed attempts after successful login
     await clearFailedAttempts(email)
 
-    // SECURITY: Session created successfully - perform server-side redirect
-    // Server-side redirect ensures cookie is properly set before navigation
-    // Note: pilotLogin service already creates the session in pilot_sessions table
-    const redirectUrl = new URL('/portal/dashboard', request.url)
-    const response = NextResponse.redirect(redirectUrl)
-
-    logger.info('Pilot authenticated successfully - redirecting to dashboard', {
+    // SECURITY: Session created successfully - return success response
+    // Client will handle redirect to dashboard
+    // Note: pilotLogin service already creates the session and sets the cookie
+    logger.info('Pilot authenticated successfully', {
       userId: result.data?.user?.id,
       hasSecureSession: true,
     })
 
-    return response
+    return NextResponse.json({
+      success: true,
+      data: result.data,
+      redirect: '/portal/dashboard'
+    })
   } catch (error) {
     logger.error('Login API error', error)
     const sanitized = sanitizeError(error, {

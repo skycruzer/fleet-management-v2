@@ -74,7 +74,7 @@ function getRosterPeriodFromDate(date: Date) {
   return {
     number,
     year,
-    code: `RP${number}/${year}`,
+    code: `RP${String(number).padStart(2, '0')}/${year}`,
     startDate,
     endDate,
   }
@@ -241,7 +241,7 @@ export async function getExpiringCertifications(daysAhead: number = 60): Promise
           if (estimatedRoster > 13) estimatedRoster = 13
           if (estimatedRoster < 1) estimatedRoster = 1
 
-          rosterPeriod = `RP${estimatedRoster}/${year}`
+          rosterPeriod = `RP${String(estimatedRoster).padStart(2, '0')}/${year}`
           rosterDisplay = `${rosterPeriod} (Estimated)`
         }
 

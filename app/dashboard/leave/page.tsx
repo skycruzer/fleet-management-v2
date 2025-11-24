@@ -16,13 +16,8 @@ import { FileText, CheckCircle, BarChart3, XCircle, Plus } from 'lucide-react'
 export const metadata = dashboardMetadata.leave
 
 export default async function LeaveRequestsPage() {
-  // Fetch leave requests data
-  const allRequests = await getAllLeaveRequests()
-
-  // Filter out RDO and SDO requests (they belong in Flight Requests page)
-  const requests = allRequests.filter(
-    (req) => req.request_type !== 'RDO' && req.request_type !== 'SDO'
-  )
+  // Fetch leave requests data (already filtered to leave category only)
+  const requests = await getAllLeaveRequests()
 
   // Get unique roster periods from requests
   const uniquePeriods = Array.from(
@@ -33,7 +28,7 @@ export default async function LeaveRequestsPage() {
   const stats = requests.reduce(
     (acc, req) => {
       acc.total++
-      if (req.workflow_status === 'PENDING') acc.pending++
+      if (req.workflow_status === 'SUBMITTED') acc.pending++
       else if (req.workflow_status === 'APPROVED') acc.approved++
       else if (req.workflow_status === 'DENIED') acc.denied++
       acc.totalDays += req.days_count

@@ -37,7 +37,7 @@ export function LeaveRequestsClient({ requests, availablePeriods }: LeaveRequest
   const stats = filteredRequests.reduce(
     (acc, req) => {
       acc.total++
-      if (req.workflow_status === 'PENDING') acc.pending++
+      if (req.workflow_status === 'SUBMITTED') acc.pending++
       else if (req.workflow_status === 'APPROVED') acc.approved++
       else if (req.workflow_status === 'DENIED') acc.denied++
       acc.totalDays += req.days_count

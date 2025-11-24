@@ -19,6 +19,7 @@ import { PilotFeedbackSchema } from '@/lib/validations/pilot-feedback-schema'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { revalidatePath } from 'next/cache'
 
 /**
  * POST /api/portal/feedback
@@ -46,6 +47,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 })
     }
+
+    // Revalidate cache for all affected paths
+    revalidatePath('/portal/feedback')
+    revalidatePath('/dashboard/feedback')
 
     return NextResponse.json({ success: true, data: result.data })
   } catch (error: any) {

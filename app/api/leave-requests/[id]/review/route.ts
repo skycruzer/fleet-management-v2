@@ -21,6 +21,7 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { revalidatePath } from 'next/cache'
 
 // Request schema validation
 const ReviewSchema = z.object({
@@ -122,6 +123,12 @@ export async function PUT(
         console.error('Failed to create notification:', err)
       })
     }
+
+    // Revalidate cache for all affected paths
+    revalidatePath('/dashboard/leave')
+    revalidatePath('/dashboard/requests')
+    revalidatePath('/dashboard')
+    revalidatePath('/portal/leave-requests')
 
     return NextResponse.json(
       {

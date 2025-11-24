@@ -58,6 +58,13 @@ export default function NewLeaveRequestPage() {
     fetchFormData()
   }, [])
 
+  // Auto-sync end date to start date when start date changes
+  useEffect(() => {
+    if (startDate && !endDate) {
+      setValue('end_date', startDate)
+    }
+  }, [startDate, endDate, setValue])
+
   // Auto-calculate late request flag
   useEffect(() => {
     if (requestDate && startDate) {
@@ -283,7 +290,7 @@ export default function NewLeaveRequestPage() {
                   id="start_date"
                   type="date"
                   {...register('start_date')}
-                  className={errors.start_date ? 'border-red-500' : ''}
+                  className={`h-11 ${errors.start_date ? 'border-red-500' : ''}`}
                 />
                 {errors.start_date && (
                   <p className="text-sm text-red-600">{errors.start_date.message}</p>
@@ -299,7 +306,8 @@ export default function NewLeaveRequestPage() {
                   id="end_date"
                   type="date"
                   {...register('end_date')}
-                  className={errors.end_date ? 'border-red-500' : ''}
+                  min={startDate || undefined}
+                  className={`h-11 ${errors.end_date ? 'border-red-500' : ''}`}
                 />
                 {errors.end_date && (
                   <p className="text-sm text-red-600">{errors.end_date.message}</p>
@@ -327,7 +335,7 @@ export default function NewLeaveRequestPage() {
                   id="request_date"
                   type="date"
                   {...register('request_date')}
-                  className={errors.request_date ? 'border-red-500' : ''}
+                  className={`h-11 ${errors.request_date ? 'border-red-500' : ''}`}
                 />
                 {errors.request_date && (
                   <p className="text-sm text-red-600">{errors.request_date.message}</p>

@@ -138,14 +138,14 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
                 </div>
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    request.status === 'APPROVED'
+                    (request.workflow_status || request.status) === 'APPROVED'
                       ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                      : request.status === 'DENIED'
+                      : (request.workflow_status || request.status) === 'DENIED'
                         ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
                         : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
                   }`}
                 >
-                  {request.status}
+                  {request.workflow_status || request.status}
                 </span>
               </div>
             ))}

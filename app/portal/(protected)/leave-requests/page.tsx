@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,17 +24,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Plus, Calendar, CheckCircle, XCircle, Clock, Trash2, CalendarCheck } from 'lucide-react'
+import { Plus, Calendar, CheckCircle, XCircle, Clock, Trash2, CalendarCheck, Pencil } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { LeaveBidForm } from '@/components/portal/leave-bid-form'
 import { LeaveRequestForm } from '@/components/portal/leave-request-form'
+import { LeaveRequestEditForm } from '@/components/portal/leave-request-edit-form'
 
 interface LeaveRequest {
   id: string
   request_type: string
   start_date: string
   end_date: string
-  status: 'PENDING' | 'APPROVED' | 'DENIED'
+  workflow_status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
   reason?: string | null
   request_date?: string | null
   is_late_request?: boolean | null
@@ -59,13 +61,18 @@ interface LeaveBid {
 }
 
 export default function LeaveRequestsPage() {
+  const router = useRouter()
   const [requests, setRequests] = useState<LeaveRequest[]>([])
   const [leaveBids, setLeaveBids] = useState<LeaveBid[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>('')
-  const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'DENIED'>('ALL')
+  const [filter, setFilter] = useState<'ALL' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'>('ALL')
   const [isLeaveBidDialogOpen, setIsLeaveBidDialogOpen] = useState(false)
   const [isLeaveRequestDialogOpen, setIsLeaveRequestDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null)
+  const [isEditBidDialogOpen, setIsEditBidDialogOpen] = useState(false)
+  const [selectedBid, setSelectedBid] = useState<LeaveBid | null>(null)
 
   useEffect(() => {
     fetchLeaveRequests()
@@ -126,7 +133,11 @@ export default function LeaveRequestsPage() {
       }
 
       // Refresh list
-      fetchLeaveRequests()
+      await fetchLeaveRequests()
+
+      // Refresh router cache
+      router.refresh()
+      await new Promise(resolve => setTimeout(resolve, 100))
     } catch (err) {
       alert('An unexpected error occurred')
     }
@@ -134,11 +145,18 @@ export default function LeaveRequestsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'PENDING':
+      case 'SUBMITTED':
         return (
           <Badge variant="outline" className="border-yellow-300 bg-yellow-100 text-yellow-800">
             <Clock className="mr-1 h-3 w-3" />
-            Pending
+            Submitted
+          </Badge>
+        )
+      case 'IN_REVIEW':
+        return (
+          <Badge variant="outline" className="border-blue-300 bg-blue-100 text-blue-800">
+            <Clock className="mr-1 h-3 w-3" />
+            In Review
           </Badge>
         )
       case 'APPROVED':
@@ -153,6 +171,13 @@ export default function LeaveRequestsPage() {
           <Badge variant="outline" className="border-red-300 bg-red-100 text-red-800">
             <XCircle className="mr-1 h-3 w-3" />
             Denied
+          </Badge>
+        )
+      case 'WITHDRAWN':
+        return (
+          <Badge variant="outline" className="border-gray-300 bg-gray-100 text-gray-800">
+            <XCircle className="mr-1 h-3 w-3" />
+            Withdrawn
           </Badge>
         )
       default:
@@ -174,13 +199,15 @@ export default function LeaveRequestsPage() {
     return colors[type] || 'bg-gray-400'
   }
 
-  const filteredRequests = filter === 'ALL' ? requests : requests.filter((r) => r.status === filter)
+  const filteredRequests = filter === 'ALL' ? requests : requests.filter((r) => r.workflow_status === filter)
 
   const stats = {
     total: requests.length,
-    pending: requests.filter((r) => r.status === 'PENDING').length,
-    approved: requests.filter((r) => r.status === 'APPROVED').length,
-    denied: requests.filter((r) => r.status === 'DENIED').length,
+    submitted: requests.filter((r) => r.workflow_status === 'SUBMITTED').length,
+    in_review: requests.filter((r) => r.workflow_status === 'IN_REVIEW').length,
+    approved: requests.filter((r) => r.workflow_status === 'APPROVED').length,
+    denied: requests.filter((r) => r.workflow_status === 'DENIED').length,
+    withdrawn: requests.filter((r) => r.workflow_status === 'WITHDRAWN').length,
   }
 
   if (isLoading) {
@@ -202,7 +229,7 @@ export default function LeaveRequestsPage() {
         <div>
           <h1 className="text-3xl font-bold">Leave Requests</h1>
           <p className="mt-1 text-gray-600">
-            {stats.total} total request{stats.total !== 1 ? 's' : ''} | {stats.pending} pending
+            {stats.total} total request{stats.total !== 1 ? 's' : ''} | {stats.submitted + stats.in_review} pending review
           </p>
         </div>
 
@@ -224,6 +251,7 @@ export default function LeaveRequestsPage() {
                 csrfToken=""
                 onSuccess={() => {
                   setIsLeaveRequestDialogOpen(false)
+                  router.refresh()  // Refresh cache
                   fetchLeaveRequests() // Refresh the list
                 }}
               />
@@ -251,6 +279,7 @@ export default function LeaveRequestsPage() {
               <LeaveBidForm
                 onSuccess={() => {
                   setIsLeaveBidDialogOpen(false)
+                  router.refresh()  // Refresh cache
                   fetchLeaveBids() // Refresh the leave bids list
                 }}
               />
@@ -266,7 +295,7 @@ export default function LeaveRequestsPage() {
       )}
 
       {/* Filter Tabs */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           variant={filter === 'ALL' ? 'default' : 'outline'}
           onClick={() => setFilter('ALL')}
@@ -275,11 +304,18 @@ export default function LeaveRequestsPage() {
           All ({stats.total})
         </Button>
         <Button
-          variant={filter === 'PENDING' ? 'default' : 'outline'}
-          onClick={() => setFilter('PENDING')}
+          variant={filter === 'SUBMITTED' ? 'default' : 'outline'}
+          onClick={() => setFilter('SUBMITTED')}
           size="sm"
         >
-          Pending ({stats.pending})
+          Submitted ({stats.submitted})
+        </Button>
+        <Button
+          variant={filter === 'IN_REVIEW' ? 'default' : 'outline'}
+          onClick={() => setFilter('IN_REVIEW')}
+          size="sm"
+        >
+          In Review ({stats.in_review})
         </Button>
         <Button
           variant={filter === 'APPROVED' ? 'default' : 'outline'}
@@ -294,6 +330,13 @@ export default function LeaveRequestsPage() {
           size="sm"
         >
           Denied ({stats.denied})
+        </Button>
+        <Button
+          variant={filter === 'WITHDRAWN' ? 'default' : 'outline'}
+          onClick={() => setFilter('WITHDRAWN')}
+          size="sm"
+        >
+          Withdrawn ({stats.withdrawn})
         </Button>
       </div>
 
@@ -326,7 +369,7 @@ export default function LeaveRequestsPage() {
                       <Badge className={getLeaveTypeColor(request.request_type)}>
                         {request.request_type}
                       </Badge>
-                      {getStatusBadge(request.status)}
+                      {getStatusBadge(request.workflow_status)}
                       {request.is_late_request && (
                         <Badge
                           variant="outline"
@@ -348,15 +391,28 @@ export default function LeaveRequestsPage() {
                     </CardDescription>
                   </div>
 
-                  {request.status === 'PENDING' && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => cancelRequest(request.id)}
-                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  {(request.workflow_status === 'SUBMITTED' || request.workflow_status === 'IN_REVIEW') && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedRequest(request)
+                          setIsEditDialogOpen(true)
+                        }}
+                        className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => cancelRequest(request.id)}
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               </CardHeader>
@@ -376,7 +432,7 @@ export default function LeaveRequestsPage() {
                   </div>
                 )}
 
-                {request.status !== 'PENDING' && request.reviewed_at && (
+                {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') && request.reviewed_at && (
                   <p className="mt-2 text-xs text-gray-500">
                     Reviewed{' '}
                     {formatDistanceToNow(new Date(request.reviewed_at), { addSuffix: true })}
@@ -467,6 +523,20 @@ export default function LeaveRequestsPage() {
                           {formatDistanceToNow(new Date(bid.created_at), { addSuffix: true })}
                         </CardDescription>
                       </div>
+
+                      {bid.status === 'PENDING' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedBid(bid)
+                            setIsEditBidDialogOpen(true)
+                          }}
+                          className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </CardHeader>
 
@@ -505,6 +575,66 @@ export default function LeaveRequestsPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Leave Request Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Leave Request</DialogTitle>
+            <DialogDescription>
+              Update your leave request details
+            </DialogDescription>
+          </DialogHeader>
+          {selectedRequest && (
+            <LeaveRequestEditForm
+              request={selectedRequest}
+              onSuccess={async () => {
+                setIsEditDialogOpen(false)
+                setSelectedRequest(null)
+                await fetchLeaveRequests()
+                router.refresh()
+                await new Promise(resolve => setTimeout(resolve, 100))
+              }}
+              onCancel={() => {
+                setIsEditDialogOpen(false)
+                setSelectedRequest(null)
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Leave Bid Dialog */}
+      <Dialog open={isEditBidDialogOpen} onOpenChange={setIsEditBidDialogOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[900px]">
+          <DialogHeader>
+            <DialogTitle>Edit Leave Bid</DialogTitle>
+            <DialogDescription>
+              Update your annual leave bid preferences
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBid && (
+            <LeaveBidForm
+              initialData={{
+                id: selectedBid.id,
+                bid_year: selectedBid.bid_year,
+                options: selectedBid.leave_bid_options.map((opt) => ({
+                  priority: opt.priority,
+                  start_date: opt.start_date,
+                  end_date: opt.end_date,
+                })),
+              }}
+              isEdit={true}
+              onSuccess={() => {
+                setIsEditBidDialogOpen(false)
+                setSelectedBid(null)
+                router.refresh()
+                fetchLeaveBids()
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

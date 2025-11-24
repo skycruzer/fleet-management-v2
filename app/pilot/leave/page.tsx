@@ -61,7 +61,7 @@ export default async function PilotLeavePage() {
   const leaveRequests = leaveRequestsResult.success ? leaveRequestsResult.data || [] : []
   const stats = leaveStatsResult.success && leaveStatsResult.data
     ? leaveStatsResult.data
-    : { total: 0, pending: 0, approved: 0, denied: 0 }
+    : { total: 0, submitted: 0, in_review: 0, approved: 0, denied: 0, withdrawn: 0 }
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">
@@ -76,7 +76,7 @@ export default async function PilotLeavePage() {
       {/* Stats Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Total Requests" value={stats.total} color="blue" />
-        <StatCard title="Pending" value={stats.pending} color="yellow" />
+        <StatCard title="Submitted" value={stats.submitted} color="yellow" />
         <StatCard title="Approved" value={stats.approved} color="green" />
         <StatCard title="Denied" value={stats.denied} color="red" />
       </div>

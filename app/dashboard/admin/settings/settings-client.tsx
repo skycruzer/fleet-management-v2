@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -19,6 +20,7 @@ interface SettingsClientProps {
 }
 
 export function SettingsClient({ settings }: SettingsClientProps) {
+  const router = useRouter()
   const [editingSettingId, setEditingSettingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [editDescription, setEditDescription] = useState('')
@@ -71,9 +73,9 @@ export function SettingsClient({ settings }: SettingsClientProps) {
         setLocalSettings((prev) => prev.map((s) => (s.id === editingSettingId ? result.data : s)))
         handleClose()
 
-        // Reload page for critical settings that affect multiple pages
+        // Refresh page for critical settings that affect multiple pages
         if (result.data.key === 'app_title' || result.data.key === 'pilot_requirements') {
-          window.location.reload()
+          router.refresh()
         }
       } else {
         alert(result.error || 'Failed to update setting')

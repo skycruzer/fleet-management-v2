@@ -436,7 +436,11 @@ export async function getAlertThresholds(): Promise<{
       .single()
 
     if (error) {
-      console.error('Error fetching alert thresholds:', error)
+      // Silently return defaults if settings not found (expected on first run)
+      // Only log if it's an unexpected error
+      if (error.code !== 'PGRST116') {
+        console.warn('Alert thresholds not configured, using defaults:', error.code)
+      }
       return getDefaultAlertThresholds()
     }
 

@@ -37,7 +37,7 @@ export function LeaveRequestGroup({
   const allRequests = Object.values(roleGroups).flat()
   const stats = {
     total: allRequests.length,
-    pending: allRequests.filter((r) => r.workflow_status === 'PENDING').length,
+    pending: allRequests.filter((r) => r.workflow_status === 'SUBMITTED').length,
     approved: allRequests.filter((r) => r.workflow_status === 'APPROVED').length,
     denied: allRequests.filter((r) => r.workflow_status === 'DENIED').length,
     totalDays: allRequests.reduce((sum, r) => sum + r.days_count, 0),
@@ -209,7 +209,7 @@ export function LeaveRequestGroup({
                           <td className="px-4 py-4 whitespace-nowrap">
                             <span
                               className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                req.workflow_status === 'PENDING'
+                                req.workflow_status === 'SUBMITTED'
                                   ? 'bg-blue-100 text-blue-800'
                                   : req.workflow_status === 'APPROVED'
                                     ? 'bg-green-100 text-green-800'
@@ -235,7 +235,7 @@ export function LeaveRequestGroup({
                                 </Link>
 
                                 {/* Review Button - Only for pending requests */}
-                                {req.workflow_status === 'PENDING' && (
+                                {req.workflow_status === 'SUBMITTED' && (
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -247,7 +247,7 @@ export function LeaveRequestGroup({
                                 )}
 
                                 {/* Reviewed Status - For non-pending requests */}
-                                {req.workflow_status !== 'PENDING' && req.reviewed_by && (
+                                {req.workflow_status !== 'SUBMITTED' && req.reviewed_by && (
                                   <div className="text-xs text-muted-foreground">
                                     Reviewed
                                     {req.reviewed_at && (

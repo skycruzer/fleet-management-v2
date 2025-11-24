@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
 
 type PilotFormData = z.infer<typeof PilotCreateSchema>
@@ -27,6 +28,7 @@ interface ContractType {
 
 export default function NewPilotPage() {
   const router = useRouter()
+  const { csrfToken } = useCsrfToken()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [contractTypes, setContractTypes] = useState<ContractType[]>([])
@@ -74,19 +76,25 @@ export default function NewPilotPage() {
     try {
       const response = await fetch('/api/pilots', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify(data),
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create pilot')
+        throw new Error(result.error || result.message || 'Failed to create pilot')
       }
 
-      // Success - redirect to pilots list
-      router.push('/dashboard/pilots')
+      // Success - refresh cache BEFORE redirecting (Next.js 16 requirement)
       router.refresh()
+      // Wait for cache propagation (increased from 100ms to 500ms)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      // THEN redirect
+      router.push('/dashboard/pilots')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create pilot')
       setIsSubmitting(false)

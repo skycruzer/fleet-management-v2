@@ -14,7 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LeaveReportForm } from '@/components/reports/leave-report-form'
 import { FlightRequestReportForm } from '@/components/reports/flight-request-report-form'
 import { CertificationReportForm } from '@/components/reports/certification-report-form'
-import { Calendar, Plane, Award, FileText } from 'lucide-react'
+import { LeaveBidsReportForm } from '@/components/reports/leave-bids-report-form'
+import { Calendar, Plane, Award, FileText, ClipboardList } from 'lucide-react'
 
 export function ReportsClient() {
   const [activeTab, setActiveTab] = useState<string>('leave')
@@ -24,12 +25,12 @@ export function ReportsClient() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
         <p className="text-muted-foreground mt-2">
-          Generate, preview, and export reports for leave requests, flight requests, and certifications
+          Generate, preview, and export reports for leave requests, flight requests, leave bids, and certifications
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="leave" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             Leave Requests
@@ -37,6 +38,10 @@ export function ReportsClient() {
           <TabsTrigger value="flight-requests" className="flex items-center gap-2">
             <Plane className="h-4 w-4" />
             Flight Requests
+          </TabsTrigger>
+          <TabsTrigger value="leave-bids" className="flex items-center gap-2">
+            <ClipboardList className="h-4 w-4" />
+            Leave Bids
           </TabsTrigger>
           <TabsTrigger value="certifications" className="flex items-center gap-2">
             <Award className="h-4 w-4" />
@@ -74,6 +79,23 @@ export function ReportsClient() {
             </CardHeader>
             <CardContent>
               <FlightRequestReportForm />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="leave-bids" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ClipboardList className="h-5 w-5" />
+                Leave Bids Report
+              </CardTitle>
+              <CardDescription>
+                Generate reports on annual leave preference bids with filtering by roster period, status, and rank
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LeaveBidsReportForm />
             </CardContent>
           </Card>
         </TabsContent>

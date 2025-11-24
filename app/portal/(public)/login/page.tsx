@@ -16,7 +16,6 @@ import { PilotLoginSchema, type PilotLoginInput } from '@/lib/validations/pilot-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import {
   Plane,
@@ -40,11 +39,6 @@ export default function PilotLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   const form = useForm<PilotLoginInput>({
     resolver: zodResolver(PilotLoginSchema),
@@ -98,8 +92,14 @@ export default function PilotLoginPage() {
         console.log('[LOGIN] Parsed result:', result)
 
         if (result.success) {
-          console.log('[LOGIN] ✅ Success in JSON, navigating...')
-          window.location.href = '/portal/dashboard'
+          console.log('[LOGIN] ✅ Success in JSON, navigating to dashboard...')
+          console.log('[LOGIN] About to set window.location.href = /portal/dashboard')
+
+          // Force a small delay to ensure state updates
+          setTimeout(() => {
+            console.log('[LOGIN] Executing redirect NOW')
+            window.location.href = '/portal/dashboard'
+          }, 100)
           return
         } else {
           console.log('[LOGIN] ❌ Error in JSON:', result)
@@ -148,125 +148,26 @@ export default function PilotLoginPage() {
     }
   }
 
-  if (!mounted) {
-    return null
-  }
-
   const { email, password } = form.watch()
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 px-4">
       {/* Aviation Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Animated Clouds - Multiple Layers */}
-        <motion.div
-          animate={{
-            x: ['-100%', '100%'],
-          }}
-          transition={{
-            duration: 40,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-          className="absolute top-10 left-0"
-        >
-          <Cloud className="h-24 w-32 text-white/20" />
-        </motion.div>
-
-        <motion.div
-          animate={{
-            x: ['-100%', '100%'],
-          }}
-          transition={{
-            duration: 50,
-            repeat: Infinity,
-            ease: 'linear',
-            delay: 5,
-          }}
-          className="absolute top-32 left-0"
-        >
-          <Cloud className="h-32 w-40 text-white/15" />
-        </motion.div>
-
-        <motion.div
-          animate={{
-            x: ['-100%', '100%'],
-          }}
-          transition={{
-            duration: 45,
-            repeat: Infinity,
-            ease: 'linear',
-            delay: 10,
-          }}
-          className="absolute bottom-32 left-0"
-        >
-          <Cloud className="h-28 w-36 text-white/25" />
-        </motion.div>
-
-        {/* Sky Gradient Orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.2, 0.1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute -right-1/4 top-1/4 h-96 w-96 rounded-full bg-cyan-300/30 blur-3xl"
-        />
-
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.1, 0.2, 0.1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute -left-1/4 bottom-1/4 h-96 w-96 rounded-full bg-blue-300/30 blur-3xl"
-        />
+        {/* Static gradient orbs */}
+        <div className="absolute -right-1/4 top-1/4 h-96 w-96 rounded-full bg-cyan-300/20 blur-3xl" />
+        <div className="absolute -left-1/4 bottom-1/4 h-96 w-96 rounded-full bg-blue-300/20 blur-3xl" />
       </div>
 
       {/* Main Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative w-full max-w-md"
-      >
+      <div className="relative w-full max-w-md">
         <Card className="border-white/30 bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
           {/* Logo and Title */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mb-8 text-center"
-          >
+          <div className="mb-8 text-center">
             <div className="mb-4 inline-flex">
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 shadow-xl"
-              >
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 shadow-xl">
                 <Plane className="h-10 w-10 text-white" />
-
-                {/* Pulsing ring effect */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.4, 1],
-                    opacity: [0.5, 0, 0.5],
-                  }}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute inset-0 rounded-full bg-cyan-400/40"
-                />
-              </motion.div>
+              </div>
             </div>
 
             <h1 className="mb-2 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-4xl font-bold text-transparent">
@@ -276,38 +177,24 @@ export default function PilotLoginPage() {
               <UserCircle className="h-5 w-5" />
               <p className="text-sm font-medium">Crew Member Access</p>
             </div>
-          </motion.div>
+          </div>
 
           {/* Login Form */}
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             {/* Error Alert */}
-            <AnimatePresence mode="wait">
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, height: 0 }}
-                  animate={{ opacity: 1, y: 0, height: 'auto' }}
-                  exit={{ opacity: 0, y: -10, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {error && (
+              <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
 
             {/* Email Field */}
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email Address
               </label>
-              <motion.div
-                animate={{
-                  scale: emailFocused ? 1.02 : 1,
-                }}
-                className="relative"
-              >
+              <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="email"
@@ -319,27 +206,16 @@ export default function PilotLoginPage() {
                   disabled={isLoading}
                   className="border-gray-300 bg-white pl-10 text-gray-900 placeholder:text-gray-400 focus:border-cyan-500 focus:ring-cyan-500/30"
                 />
-                <AnimatePresence>
-                  {email && email.includes('@') && !form.formState.errors.email && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2"
-                    >
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                {email && email.includes('@') && !form.formState.errors.email && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  </div>
+                )}
+              </div>
               {form.formState.errors.email && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-xs text-red-600"
-                >
+                <p className="text-xs text-red-600">
                   {form.formState.errors.email.message}
-                </motion.p>
+                </p>
               )}
             </div>
 
@@ -348,12 +224,7 @@ export default function PilotLoginPage() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
-              <motion.div
-                animate={{
-                  scale: passwordFocused ? 1.02 : 1,
-                }}
-                className="relative"
-              >
+              <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="password"
@@ -365,9 +236,7 @@ export default function PilotLoginPage() {
                   disabled={isLoading}
                   className="border-gray-300 bg-white px-10 text-gray-900 placeholder:text-gray-400 focus:border-cyan-500 focus:ring-cyan-500/30"
                 />
-                <motion.button
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.9 }}
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -377,16 +246,12 @@ export default function PilotLoginPage() {
                   ) : (
                     <Eye className="h-5 w-5" />
                   )}
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
               {form.formState.errors.password && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-xs text-red-600"
-                >
+                <p className="text-xs text-red-600">
                   {form.formState.errors.password.message}
-                </motion.p>
+                </p>
               )}
               {/* Forgot Password Link */}
               <div className="text-right">
@@ -400,10 +265,7 @@ export default function PilotLoginPage() {
             </div>
 
             {/* Submit Button */}
-            <motion.div
-              whileHover={{ scale: isLoading ? 1 : 1.02 }}
-              whileTap={{ scale: isLoading ? 1 : 0.98 }}
-            >
+            <div>
               <Button
                 type="submit"
                 className="relative w-full overflow-hidden bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg hover:from-cyan-600 hover:to-blue-700 disabled:opacity-50"
@@ -422,22 +284,8 @@ export default function PilotLoginPage() {
                     </>
                   )}
                 </span>
-
-                {!isLoading && (
-                  <motion.div
-                    animate={{
-                      x: ['-100%', '100%'],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }}
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                  />
-                )}
               </Button>
-            </motion.div>
+            </div>
           </form>
 
           {/* Additional Options */}
@@ -466,27 +314,19 @@ export default function PilotLoginPage() {
           </div>
 
           {/* Back to Home */}
-          <motion.div
-            whileHover={{ x: -4 }}
-            className="mt-6 text-center"
-          >
+          <div className="mt-6 text-center">
             <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700">
               <ChevronLeft className="h-4 w-4" />
               <span>Back to home</span>
             </Link>
-          </motion.div>
+          </div>
         </Card>
 
         {/* Footer Note */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-4 text-center text-xs text-white/80"
-        >
+        <div className="mt-4 text-center text-xs text-white/80">
           <p>Air Niugini Crew Portal</p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   )
 }

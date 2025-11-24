@@ -679,11 +679,13 @@ export function getStatusDescription(
 /**
  * Validate roster period code format
  *
+ * Accepts both zero-padded (RP01, RP02) and non-padded (RP1, RP2) formats
+ *
  * @param code - Roster period code to validate
  * @returns True if valid format
  */
 export function isValidRosterPeriodCode(code: string): boolean {
-  const pattern = /^RP(1[0-3]|[1-9])\/\d{4}$/
+  const pattern = /^RP(1[0-3]|0[1-9]|[1-9])\/\d{4}$/
   return pattern.test(code)
 }
 

@@ -293,15 +293,15 @@ export const LEAVE_ERRORS = {
 // ===================================
 
 export const FLIGHT_ERRORS = {
-  FETCH_FAILED: DATABASE_ERRORS.FETCH_FAILED('flight request data'),
-  CREATE_FAILED: DATABASE_ERRORS.CREATE_FAILED('flight request'),
-  UPDATE_FAILED: DATABASE_ERRORS.UPDATE_FAILED('flight request'),
-  DELETE_FAILED: DATABASE_ERRORS.DELETE_FAILED('flight request'),
-  NOT_FOUND: DATABASE_ERRORS.NOT_FOUND('Flight request'),
+  FETCH_FAILED: DATABASE_ERRORS.FETCH_FAILED('RDO/SDO request data'),
+  CREATE_FAILED: DATABASE_ERRORS.CREATE_FAILED('RDO/SDO request'),
+  UPDATE_FAILED: DATABASE_ERRORS.UPDATE_FAILED('RDO/SDO request'),
+  DELETE_FAILED: DATABASE_ERRORS.DELETE_FAILED('RDO/SDO request'),
+  NOT_FOUND: DATABASE_ERRORS.NOT_FOUND('RDO/SDO request'),
   DUPLICATE_REQUEST: {
     message:
-      'A flight request for this date and type already exists. Please check your existing requests.',
-    action: 'View your existing flight requests or select a different date',
+      'An RDO/SDO request for this date and type already exists. Please check your existing requests.',
+    action: 'View your existing RDO/SDO requests or select a different date',
     category: ErrorCategory.CONFLICT,
     severity: ErrorSeverity.WARNING,
   },
@@ -318,7 +318,7 @@ export const FLIGHT_ERRORS = {
     severity: ErrorSeverity.WARNING,
   },
   REVIEW_MISSING_COMMENTS: {
-    message: 'Comments are required when denying a flight request.',
+    message: 'Comments are required when denying an RDO/SDO request.',
     action: 'Provide a reason for denial',
     category: ErrorCategory.VALIDATION,
     severity: ErrorSeverity.WARNING,

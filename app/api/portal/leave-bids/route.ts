@@ -28,6 +28,7 @@ import { z } from 'zod'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { revalidatePath } from 'next/cache'
 
 /**
  * Validation Schema for Leave Bid Submission
@@ -112,6 +113,11 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         { status: result.error?.includes('Unauthorized') ? 401 : 500 }
       )
     }
+
+    // Revalidate cache for all affected paths
+    revalidatePath('/portal/leave-bids')
+    revalidatePath('/portal/leave-requests')
+    revalidatePath('/dashboard/leave')
 
     return NextResponse.json({
       success: true,

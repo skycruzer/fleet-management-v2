@@ -9,7 +9,7 @@
  * @spec 001-missing-core-features (US2, T051)
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -30,6 +30,16 @@ export default function LeaveRequestForm() {
       reason: '',
     },
   })
+
+  const startDate = form.watch('start_date')
+  const endDate = form.watch('end_date')
+
+  // Auto-sync end date to start date when start date changes
+  useEffect(() => {
+    if (startDate && !endDate) {
+      form.setValue('end_date', startDate)
+    }
+  }, [startDate, endDate, form])
 
   const onSubmit = async (data: PilotLeaveRequestInput) => {
     setIsSubmitting(true)
@@ -101,7 +111,7 @@ export default function LeaveRequestForm() {
           type="date"
           id="start_date"
           {...form.register('start_date')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="mt-1 block w-full h-11 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.start_date && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.start_date.message}</p>
@@ -117,7 +127,8 @@ export default function LeaveRequestForm() {
           type="date"
           id="end_date"
           {...form.register('end_date')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          min={startDate || undefined}
+          className="mt-1 block w-full h-11 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.end_date && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.end_date.message}</p>

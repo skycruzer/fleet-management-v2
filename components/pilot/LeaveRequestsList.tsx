@@ -28,7 +28,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
     setCancelingId(requestId)
 
     try {
-      const response = await fetch(`/api/pilot/leave/${requestId}`, {
+      const response = await fetch(`/api/portal/leave-requests?id=${requestId}`, {
         method: 'DELETE',
       })
 
@@ -109,7 +109,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
               </div>
 
               {/* Review Comments */}
-              {request.workflow_status !== 'PENDING' && request.review_comments && (
+              {request.workflow_status !== 'SUBMITTED' && request.review_comments && (
                 <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
                     Review Comments:
@@ -127,7 +127,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
             </div>
 
             {/* Cancel Button */}
-            {request.workflow_status === 'PENDING' && (
+            {request.workflow_status === 'SUBMITTED' && (
               <button
                 onClick={() => handleCancel(request.id)}
                 disabled={cancelingId === request.id}
@@ -144,11 +144,13 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
 }
 
 // Status Badge Component
-function StatusBadge({ status }: { status: 'PENDING' | 'APPROVED' | 'DENIED' }) {
+function StatusBadge({ status }: { status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN' }) {
   const badgeStyles = {
-    PENDING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+    SUBMITTED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+    IN_REVIEW: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
     APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
     DENIED: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+    WITHDRAWN: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
   }
 
   return (

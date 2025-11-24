@@ -17,7 +17,7 @@ import type { Database } from '@/types/supabase'
 import { differenceInDays } from 'date-fns'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
-import { getOrSetCache } from './cache-service'
+import { unifiedCacheService, invalidateCacheByTag } from './unified-cache-service'
 
 // Type aliases for convenience
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
@@ -117,7 +117,7 @@ export async function getCertifications(
   const cacheKey = `certifications:${page}:${pageSize}:${JSON.stringify(filters || {})}`
 
   // Try to get from cache (5 minute TTL)
-  return getOrSetCache(
+  return unifiedCacheService.getOrSet(
     cacheKey,
     async () => {
       const supabase = await createClient()
@@ -417,7 +417,6 @@ export async function createCertification(
     })
 
     // Invalidate certification cache to ensure fresh data is fetched
-    const { invalidateCacheByTag } = await import('./cache-service')
     invalidateCacheByTag('certifications')
 
     return data
@@ -494,7 +493,6 @@ export async function updateCertification(
     console.log('✅ [updateCertification] Audit log created')
 
     // Invalidate certification cache to ensure fresh data is fetched
-    const { invalidateCacheByTag } = await import('./cache-service')
     invalidateCacheByTag('certifications')
 
     console.log('✅ [updateCertification] Cache invalidated')
@@ -542,7 +540,6 @@ export async function deleteCertification(certificationId: string): Promise<void
     }
 
     // Invalidate certification cache to ensure fresh data is fetched
-    const { invalidateCacheByTag } = await import('./cache-service')
     invalidateCacheByTag('certifications')
   } catch (error) {
     logError(error as Error, {

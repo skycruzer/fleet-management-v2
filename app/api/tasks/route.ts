@@ -16,6 +16,7 @@ import { TaskInputSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { revalidatePath } from 'next/cache'
 
 /**
  * GET /api/tasks
@@ -188,6 +189,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
+
+    // Revalidate cache for all affected paths
+    revalidatePath('/dashboard/tasks')
+    revalidatePath('/dashboard')
 
     return NextResponse.json({ success: true, data: result.data }, { status: 201 })
   } catch (error) {

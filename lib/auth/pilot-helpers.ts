@@ -55,29 +55,38 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
 
     // First, check for custom pilot session cookie (bcrypt authentication)
     const cookieStore = await cookies()
-    const pilotSessionCookie = cookieStore.get('pilot_session_token')
+    const pilotSessionCookie = cookieStore.get('pilot-session')
 
     if (pilotSessionCookie?.value) {
       try {
-        const sessionData = JSON.parse(pilotSessionCookie.value)
-        const expiresAt = new Date(sessionData.expires_at)
+        // Validate token against pilot_sessions table
+        const { data: session, error: sessionError } = await supabase
+          .from('pilot_sessions')
+          .select('id, pilot_user_id, expires_at, is_active')
+          .eq('session_token', pilotSessionCookie.value)
+          .eq('is_active', true)
+          .single()
 
-        // Check if session is still valid
-        if (expiresAt > new Date()) {
-          // Get pilot from database using pilot_id from cookie
-          const { data: pilotUser, error } = await supabase
-            .from('pilot_users')
-            .select('*')
-            .eq('id', sessionData.pilot_id)
-            .single()
+        if (!sessionError && session) {
+          const expiresAt = new Date(session.expires_at)
 
-          if (!error && pilotUser && pilotUser.registration_approved === true) {
-            console.log('✅ getCurrentPilot: Using bcrypt session for pilot:', pilotUser.email)
-            return pilotUser as PilotUser
+          // Check if session is still valid
+          if (expiresAt > new Date()) {
+            // Get pilot user from database
+            const { data: pilotUser, error } = await supabase
+              .from('pilot_users')
+              .select('*')
+              .eq('id', session.pilot_user_id)
+              .single()
+
+            if (!error && pilotUser && pilotUser.registration_approved === true) {
+              console.log('✅ getCurrentPilot: Using bcrypt session for pilot:', pilotUser.email)
+              return pilotUser as PilotUser
+            }
           }
         }
       } catch (cookieError) {
-        console.error('Error parsing pilot session cookie:', cookieError)
+        console.error('Error validating pilot session:', cookieError)
         // Fall through to Supabase Auth check
       }
     }

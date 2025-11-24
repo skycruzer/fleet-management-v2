@@ -313,12 +313,12 @@ export default async function PilotDashboardPage() {
             </div>
           </Card>
 
-          {/* Flight Requests */}
+          {/* RDO/SDO Requests */}
           <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-2 flex items-center justify-between">
               <Plane className="h-8 w-8 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
             </div>
-            <h3 className="text-muted-foreground text-sm font-medium">Flight Requests</h3>
+            <h3 className="text-muted-foreground text-sm font-medium">RDO/SDO Requests</h3>
             <div className="mt-3 space-y-1">
               <p className="text-foreground text-2xl font-bold">
                 {stats?.pending_flight_requests || 0}

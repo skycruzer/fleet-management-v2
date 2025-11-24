@@ -52,7 +52,7 @@ export const FlightTypeEnum = z.enum(['FLIGHT_REQUEST', 'RDO', 'SDO', 'OFFICE_DA
 export const QuickEntrySchema = z
   .object({
     // Step 1: Basic Info
-    pilot_id: z.string().uuid('Please select a valid pilot'),
+    pilot_id: z.string().min(1, 'Please select a pilot').uuid('Invalid pilot selection'),
     request_category: RequestCategoryEnum,
     submission_channel: SubmissionChannelEnum,
 

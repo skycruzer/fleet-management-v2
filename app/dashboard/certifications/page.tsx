@@ -16,7 +16,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -125,29 +125,54 @@ export default function CertificationsPage() {
   const [certificationToDelete, setCertificationToDelete] = useState<Certification | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // Fetch certifications
+  // Fetch certifications function (extracted for reuse)
+  const fetchCertifications = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/certifications', {
+        cache: 'no-store', // Force fresh data
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch certifications')
+      }
+
+      const data = await response.json()
+      setCertifications(data.data || [])
+      setFilteredCertifications(data.data || [])
+    } catch (err) {
+      console.error('Error fetching certifications:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load certifications')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  // Fetch certifications on mount
   useEffect(() => {
-    async function fetchCertifications() {
-      try {
-        setLoading(true)
-        const response = await fetch('/api/certifications')
+    fetchCertifications()
+  }, [fetchCertifications])
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch certifications')
+  // Re-fetch data when page becomes visible (after navigating back)
+  // This ensures updates made in dialogs are reflected when returning to this page
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (!document.hidden) {
+        console.log('🔄 [VISIBILITY] Certifications page visible - refreshing data')
+        try {
+          const response = await fetch('/api/certifications')
+          if (response.ok) {
+            const data = await response.json()
+            setCertifications(data.data || [])
+          }
+        } catch (err) {
+          console.error('Failed to refresh certifications on visibility change:', err)
         }
-
-        const data = await response.json()
-        setCertifications(data.data || [])
-        setFilteredCertifications(data.data || [])
-      } catch (err) {
-        console.error('Error fetching certifications:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load certifications')
-      } finally {
-        setLoading(false)
       }
     }
 
-    fetchCertifications()
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
 
   // Fetch pilots and check types for form
@@ -325,9 +350,10 @@ export default function CertificationsPage() {
       setDeleteDialogOpen(false)
       setCertificationToDelete(null)
 
-      // Refresh data
+      // Refresh router cache (proper Next.js 16 cache invalidation)
       router.refresh()
-      window.location.reload() // Force reload to refresh certifications list
+      await new Promise(resolve => setTimeout(resolve, 100))
+      // Data will refresh automatically via revalidatePath in API
     } catch (error) {
       console.error('Error deleting certification:', error)
       toast({
@@ -365,7 +391,7 @@ export default function CertificationsPage() {
           <h3 className="text-foreground mt-4 text-lg font-semibold">Failed to Load Certifications</h3>
           <p className="text-muted-foreground mt-2">{error}</p>
           <div className="mt-4">
-            <Button onClick={() => window.location.reload()}>Retry</Button>
+            <Button onClick={() => router.refresh()}>Retry</Button>
           </div>
         </Card>
       </div>
@@ -558,7 +584,13 @@ export default function CertificationsPage() {
       {/* Certification Form Dialog */}
       <CertificationFormDialog
         open={formDialogOpen}
-        onOpenChange={setFormDialogOpen}
+        onOpenChange={(open) => {
+          setFormDialogOpen(open)
+          // Refetch certifications when dialog closes after successful save
+          if (!open) {
+            fetchCertifications()
+          }
+        }}
         certification={selectedCertification}
         pilots={pilots}
         checkTypes={checkTypes}

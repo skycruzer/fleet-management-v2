@@ -21,6 +21,7 @@ import {
   ensureRosterPeriodsExist,
 } from '@/lib/services/roster-period-service'
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
+import { invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { logger } from '@/lib/services/logging-service'
 
@@ -257,7 +258,9 @@ export async function createPilotRequest(
     }
 
     // Parse start date
+    console.log('🔍 Parsing start_date:', input.start_date)
     const startDate = new Date(input.start_date)
+    console.log('📅 Parsed Date object:', startDate)
     if (isNaN(startDate.getTime())) {
       return {
         success: false,
@@ -267,11 +270,13 @@ export async function createPilotRequest(
 
     // Calculate roster period from start date
     const rosterPeriodCode = getRosterPeriodCodeFromDate(startDate)
+    console.log('📍 Roster period code from date:', rosterPeriodCode)
     const parsed = parseRosterPeriodCode(rosterPeriodCode)
+    console.log('🔍 Parsed roster period:', parsed)
     if (!parsed) {
       return {
         success: false,
-        error: 'Unable to calculate roster period',
+        error: `Unable to calculate roster period from code: ${rosterPeriodCode}`,
       }
     }
 
@@ -418,6 +423,14 @@ export async function createPilotRequest(
       }
     }
 
+    // Invalidate report caches to ensure fresh data
+    if (input.request_category === 'LEAVE') {
+      await invalidateCacheByTag('reports:leave')
+    } else if (input.request_category === 'FLIGHT') {
+      await invalidateCacheByTag('reports:rdo-sdo')
+    }
+    await invalidateCacheByTag('reports:all-requests')
+
     // Log conflict detection results
     if (conflictResult.conflicts.length > 0) {
       await logger.info('Request created with conflicts', {
@@ -529,7 +542,10 @@ export async function getAllPilotRequests(
     const { getRosterPeriodsForDateRange } = await import('@/lib/services/roster-period-service')
     const requestsWithPeriods = (data || []).map((req: any) => ({
       ...req,
-      roster_periods_spanned: getRosterPeriodsForDateRange(req.start_date, req.end_date),
+      roster_periods_spanned: getRosterPeriodsForDateRange(
+        req.start_date,
+        req.end_date || req.start_date // Use start_date as end_date for single-day requests
+      ),
     }))
 
     return {

@@ -34,7 +34,7 @@ import type { ReportFilters } from '@/types/reports'
 import { useToast } from '@/hooks/use-toast'
 
 interface FilterPresetManagerProps {
-  reportType: 'leave' | 'flight-requests' | 'certifications'
+  reportType: 'leave' | 'flight-requests' | 'certifications' | 'leave-bids'
   currentFilters: ReportFilters
   onLoadPreset: (filters: ReportFilters) => void
 }

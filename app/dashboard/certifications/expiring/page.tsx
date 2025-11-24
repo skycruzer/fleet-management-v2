@@ -170,12 +170,11 @@ export default async function CertificationsPage() {
             {error instanceof Error ? error.message : 'An unexpected error occurred'}
           </p>
           <div className="mt-4">
-            <Button
-              onClick={() => window.location.reload()}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Retry
-            </Button>
+            <Link href="/dashboard/certifications/expiring">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Retry
+              </Button>
+            </Link>
           </div>
         </Card>
       </div>

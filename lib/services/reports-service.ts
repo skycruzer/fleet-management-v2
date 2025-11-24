@@ -1,21 +1,23 @@
 /**
  * Reports Service - Centralized Report Generation
  * Author: Maurice Rondeau
- * Date: November 4, 2025
+ * Date: January 19, 2025
  *
- * Generates reports for Leave Requests, Flight Requests, and Certifications
+ * Generates reports for RDO/SDO Requests, Leave Requests, Leave Bids, and Certifications
  * Supports preview, PDF export, and email delivery via Resend
  *
  * Phase 2.1: Redis-style caching for improved performance
  * Phase 2.3: Server-side pagination (50 records/page)
+ * Phase 4.0: Updated for unified architecture (pilot_requests with request_category filter)
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getOrSetCache, invalidateCacheByTag } from '@/lib/services/cache-service'
+import { unifiedCacheService, invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
 import { rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { generateLeaveBidsPDF } from '@/lib/services/leave-bids-pdf-service'
 
 /**
  * Pagination configuration
@@ -29,8 +31,10 @@ const MAX_PAGE_SIZE = 200
 const REPORT_CACHE_CONFIG = {
   TTL_SECONDS: 300, // 5 minutes
   TAGS: {
+    RDO_SDO: 'reports:rdo-sdo',
     LEAVE: 'reports:leave',
-    FLIGHT: 'reports:flight',
+    LEAVE_BIDS: 'reports:leave-bids',
+    ALL_REQUESTS: 'reports:all-requests',
     CERTIFICATIONS: 'reports:certifications',
   },
 }
@@ -81,6 +85,7 @@ function paginateData<T>(data: T[], page: number = 1, pageSize: number = DEFAULT
  * Generate Leave Requests Report
  * Phase 2.3: Now supports pagination
  * Phase 2.6: Added fullExport flag and user context
+ * Phase 3.0: Updated to query pilot_requests table (unified architecture)
  */
 export async function generateLeaveReport(
   filters: ReportFilters,
@@ -89,18 +94,12 @@ export async function generateLeaveReport(
 ): Promise<ReportData> {
   const supabase = await createClient()
 
-  // Join with pilots table to get pilot information
+  // Query pilot_requests table (unified architecture)
+  // Filter by request_category = 'LEAVE' to get only leave requests
   let query = supabase
-    .from('leave_requests')
-    .select(`
-      *,
-      pilot:pilots!leave_requests_pilot_id_fkey(
-        first_name,
-        last_name,
-        role,
-        employee_id
-      )
-    `)
+    .from('pilot_requests')
+    .select('*')
+    .eq('request_category', 'LEAVE')
     .order('start_date', { ascending: false })
 
   // Apply filters
@@ -120,7 +119,7 @@ export async function generateLeaveReport(
   }
 
   if (filters.status && filters.status.length > 0) {
-    query = query.in('status', filters.status)
+    query = query.in('workflow_status', filters.status)
   }
 
   if (filters.rosterPeriod) {
@@ -133,30 +132,34 @@ export async function generateLeaveReport(
     throw new Error(`Failed to fetch leave requests: ${error.message}`)
   }
 
-  // Filter by rank if needed (client-side, using pilot.role field)
+  // Filter by rank if needed (using denormalized rank field)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.pilot?.role)
+      filters.rank!.includes(item.rank)
     )
   }
 
   // Calculate summary statistics (before pagination)
-  // Note: status values are UPPERCASE in database
+  // Note: workflow_status values are UPPERCASE in database (3-table architecture)
   const summary = {
     totalRequests: filteredData.length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pending: filteredData.filter((r: any) => r.status?.toUpperCase() === 'PENDING').length,
+    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approved: filteredData.filter((r: any) => r.status?.toUpperCase() === 'APPROVED').length,
+    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rejected: filteredData.filter((r: any) => r.status?.toUpperCase() === 'REJECTED').length,
+    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    captainRequests: filteredData.filter((r: any) => r.pilot?.role === 'Captain').length,
+    denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    firstOfficerRequests: filteredData.filter((r: any) => r.pilot?.role === 'First Officer').length,
+    withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
   }
 
   // For full exports (PDF/Email), return all data without pagination
@@ -192,18 +195,18 @@ export async function generateLeaveReport(
 }
 
 /**
- * Generate Flight Requests Report
- * Phase 2.3: Now supports pagination
- * Phase 2.6: Added fullExport flag and user context
+ * Generate RDO/SDO Requests Report
+ * Phase 3.0: New function for 3-table architecture
  */
-export async function generateFlightRequestReport(
+export async function generateRdoSdoReport(
   filters: ReportFilters,
   fullExport: boolean = false,
   generatedBy?: string
 ): Promise<ReportData> {
   const supabase = await createClient()
 
-  // pilot_requests table has denormalized pilot data (rank, name, employee_number)
+  // Query pilot_requests table (unified architecture)
+  // Filter by request_category = 'FLIGHT' to get RDO/SDO requests
   let query = supabase
     .from('pilot_requests')
     .select('*')
@@ -234,10 +237,15 @@ export async function generateFlightRequestReport(
     query = query.eq('roster_period', filters.rosterPeriod)
   }
 
+  // Filter by request type (RDO or SDO)
+  if (filters.requestType && filters.requestType.length > 0) {
+    query = query.in('request_type', filters.requestType)
+  }
+
   const { data, error } = await query
 
   if (error) {
-    throw new Error(`Failed to fetch flight requests: ${error.message}`)
+    throw new Error(`Failed to fetch RDO/SDO requests: ${error.message}`)
   }
 
   // Filter by rank if needed (using denormalized rank field)
@@ -251,24 +259,33 @@ export async function generateFlightRequestReport(
   }
 
   // Calculate summary statistics (before pagination)
-  // Note: workflow_status values are UPPERCASE in database
   const summary = {
     totalRequests: filteredData.length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pending: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'PENDING').length,
+    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rejected: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'REJECTED').length,
+    denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    uniqueDescriptions: [...new Set(filteredData.map((r: any) => r.notes || r.reason))].filter(Boolean).length,
+    withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rdoRequests: filteredData.filter((r: any) => r.request_type === 'RDO').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sdoRequests: filteredData.filter((r: any) => r.request_type === 'SDO').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
   }
 
   // For full exports (PDF/Email), return all data without pagination
   if (fullExport) {
     return {
-      title: 'Flight Requests Report',
-      description: 'Comprehensive report of all flight requests',
+      title: 'RDO/SDO Requests Report',
+      description: 'Comprehensive report of all RDO and SDO requests',
       generatedAt: new Date().toISOString(),
       generatedBy: generatedBy || 'System',
       filters,
@@ -285,8 +302,8 @@ export async function generateFlightRequestReport(
   const pagination = calculatePagination(filteredData.length, page, pageSize)
 
   return {
-    title: 'Flight Requests Report',
-    description: 'Comprehensive report of all flight requests',
+    title: 'RDO/SDO Requests Report',
+    description: 'Comprehensive report of all RDO and SDO requests',
     generatedAt: new Date().toISOString(),
     generatedBy: generatedBy || 'System',
     filters,
@@ -294,6 +311,21 @@ export async function generateFlightRequestReport(
     summary,
     pagination,
   }
+}
+
+/**
+ * Generate Flight Requests Report
+ * Phase 3.0: DEPRECATED - Flight requests are now RDO/SDO requests
+ * @deprecated Use generateRdoSdoReport instead
+ * This function now redirects to generateRdoSdoReport for backward compatibility
+ */
+export async function generateFlightRequestReport(
+  filters: ReportFilters,
+  fullExport: boolean = false,
+  generatedBy?: string
+): Promise<ReportData> {
+  // Redirect to RDO/SDO report (flight requests are now RDO/SDO in 3-table architecture)
+  return generateRdoSdoReport(filters, fullExport, generatedBy)
 }
 
 /**
@@ -435,9 +467,181 @@ export async function generateCertificationsReport(
 }
 
 /**
+ * Generate All Requests Report (UNION of all 3 tables)
+ * Phase 4.0: Combined reporting from unified pilot_requests table (filtered by request_category)
+ */
+export async function generateAllRequestsReport(
+  filters: ReportFilters,
+  fullExport: boolean = false,
+  generatedBy?: string
+): Promise<ReportData> {
+  const supabase = await createClient()
+
+  // Convert roster periods to date range if provided
+  let effectiveDateRange = filters.dateRange
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    const convertedRange = rosterPeriodsToDateRange(filters.rosterPeriods)
+    if (convertedRange) {
+      effectiveDateRange = convertedRange
+    }
+  }
+
+  // Fetch RDO/SDO requests from pilot_requests table (unified architecture)
+  let rdoSdoQuery = supabase
+    .from('pilot_requests')
+    .select('*')
+    .eq('request_category', 'FLIGHT')
+    .order('start_date', { ascending: false })
+
+  if (effectiveDateRange) {
+    rdoSdoQuery = rdoSdoQuery
+      .gte('start_date', effectiveDateRange.startDate)
+      .lte('end_date', effectiveDateRange.endDate)
+  }
+
+  if (filters.status && filters.status.length > 0) {
+    rdoSdoQuery = rdoSdoQuery.in('workflow_status', filters.status)
+  }
+
+  if (filters.rosterPeriod) {
+    rdoSdoQuery = rdoSdoQuery.eq('roster_period', filters.rosterPeriod)
+  }
+
+  // Fetch Leave requests from pilot_requests table (unified architecture)
+  let leaveQuery = supabase
+    .from('pilot_requests')
+    .select('*')
+    .eq('request_category', 'LEAVE')
+    .order('start_date', { ascending: false })
+
+  if (effectiveDateRange) {
+    leaveQuery = leaveQuery
+      .gte('start_date', effectiveDateRange.startDate)
+      .lte('end_date', effectiveDateRange.endDate)
+  }
+
+  if (filters.status && filters.status.length > 0) {
+    leaveQuery = leaveQuery.in('workflow_status', filters.status)
+  }
+
+  if (filters.rosterPeriod) {
+    leaveQuery = leaveQuery.eq('roster_period', filters.rosterPeriod)
+  }
+
+  // Fetch Leave bids
+  let leaveBidsQuery = supabase
+    .from('leave_bids')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (filters.status && filters.status.length > 0) {
+    leaveBidsQuery = leaveBidsQuery.in('status', filters.status)
+  }
+
+  // Execute all queries in parallel
+  const [rdoSdoResult, leaveResult, leaveBidsResult] = await Promise.all([
+    rdoSdoQuery,
+    leaveQuery,
+    leaveBidsQuery,
+  ])
+
+  if (rdoSdoResult.error) {
+    throw new Error(`Failed to fetch RDO/SDO requests: ${rdoSdoResult.error.message}`)
+  }
+  if (leaveResult.error) {
+    throw new Error(`Failed to fetch leave requests: ${leaveResult.error.message}`)
+  }
+  if (leaveBidsResult.error) {
+    throw new Error(`Failed to fetch leave bids: ${leaveBidsResult.error.message}`)
+  }
+
+  // Combine all data with source tags
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allRequests: any[] = [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...(rdoSdoResult.data || []).map((r: any) => ({ ...r, request_source: 'RDO/SDO' })),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...(leaveResult.data || []).map((r: any) => ({ ...r, request_source: 'LEAVE' })),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...(leaveBidsResult.data || []).map((r: any) => ({ ...r, request_source: 'LEAVE_BID' })),
+  ]
+
+  // Sort by start_date (or created_at for leave bids)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  allRequests.sort((a: any, b: any) => {
+    const dateA = new Date(a.start_date || a.created_at)
+    const dateB = new Date(b.start_date || b.created_at)
+    return dateB.getTime() - dateA.getTime()
+  })
+
+  // Filter by rank if needed
+  let filteredData = allRequests
+  if (filters.rank && filters.rank.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    filteredData = allRequests.filter((item: any) =>
+      filters.rank!.includes(item.rank)
+    )
+  }
+
+  // Calculate summary statistics (before pagination)
+  const summary = {
+    totalRequests: filteredData.length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rdoSdoRequests: filteredData.filter((r: any) => r.request_source === 'RDO/SDO').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    leaveRequests: filteredData.filter((r: any) => r.request_source === 'LEAVE').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    leaveBids: filteredData.filter((r: any) => r.request_source === 'LEAVE_BID').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED' || r.status?.toUpperCase() === 'SUBMITTED').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW' || r.status?.toUpperCase() === 'IN_REVIEW').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED' || r.status?.toUpperCase() === 'APPROVED').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED' || r.status?.toUpperCase() === 'DENIED').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
+  }
+
+  // For full exports (PDF/Email), return all data without pagination
+  if (fullExport) {
+    return {
+      title: 'All Requests Report',
+      description: 'Comprehensive report combining RDO/SDO requests, Leave requests, and Leave bids',
+      generatedAt: new Date().toISOString(),
+      generatedBy: generatedBy || 'System',
+      filters,
+      data: filteredData,
+      summary,
+      pagination: undefined,
+    }
+  }
+
+  // For preview, apply pagination
+  const page = filters.page || 1
+  const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
+  const paginatedData = paginateData(filteredData, page, pageSize)
+  const pagination = calculatePagination(filteredData.length, page, pageSize)
+
+  return {
+    title: 'All Requests Report',
+    description: 'Comprehensive report combining RDO/SDO requests, Leave requests, and Leave bids',
+    generatedAt: new Date().toISOString(),
+    generatedBy: generatedBy || 'System',
+    filters,
+    data: paginatedData,
+    summary,
+    pagination,
+  }
+}
+
+/**
  * Generate PDF from Report Data
  */
-export function generatePDF(report: ReportData, reportType: ReportType): Buffer {
+export async function generatePDF(report: ReportData, reportType: ReportType): Promise<Buffer> {
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
 
@@ -477,16 +681,51 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
       head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Status', 'Roster Period']],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: report.data.map((item: any) => [
-        `${item.pilot?.first_name} ${item.pilot?.last_name}`,
-        item.pilot?.role || 'N/A',
-        item.request_type || item.leave_type,
+        item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
+        item.rank || item.pilot?.role || 'N/A',
+        item.request_type || item.leave_type || 'N/A',
         new Date(item.start_date).toLocaleDateString(),
         new Date(item.end_date).toLocaleDateString(),
-        item.status,
+        item.workflow_status || item.status || 'N/A',
         item.roster_period || 'N/A',
       ]),
       styles: { fontSize: 8 },
       headStyles: { fillColor: [41, 128, 185] },
+    })
+  } else if (reportType === 'rdo-sdo') {
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Days', 'Status', 'Roster Period']],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: report.data.map((item: any) => [
+        item.name || 'N/A',
+        item.rank || 'N/A',
+        item.request_type || 'N/A',
+        new Date(item.start_date).toLocaleDateString(),
+        item.end_date ? new Date(item.end_date).toLocaleDateString() : new Date(item.start_date).toLocaleDateString(),
+        item.days_count || '1',
+        item.workflow_status || 'N/A',
+        item.roster_period || 'N/A',
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [46, 204, 113] },
+    })
+  } else if (reportType === 'all-requests') {
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Source', 'Pilot', 'Rank', 'Type', 'Start Date', 'Status', 'Roster Period']],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: report.data.map((item: any) => [
+        item.request_source || 'N/A',
+        item.name || 'N/A',
+        item.rank || 'N/A',
+        item.request_type || item.leave_type || 'N/A',
+        new Date(item.start_date || item.created_at).toLocaleDateString(),
+        item.workflow_status || item.status || 'N/A',
+        item.roster_period || 'N/A',
+      ]),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [155, 89, 182] },
     })
   } else if (reportType === 'flight-requests') {
     autoTable(doc, {
@@ -536,6 +775,18 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
         }
       },
     })
+  } else if (reportType === 'leave-bids') {
+    // Use specialized leave bids PDF service
+    // Extract year from report data (default to current year if not available)
+    const currentYear = new Date().getFullYear()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const bidYear = report.data[0]?.bid_year || currentYear
+
+    // Extract status filter if any (from report summary or default to 'all')
+    const statusFilter = report.summary?.statusFilter as string || 'all'
+
+    // Generate PDF using specialized service and return directly
+    return await generateLeaveBidsPDF(report.data, bidYear, statusFilter)
   }
 
   // Footer with page numbers
@@ -555,8 +806,107 @@ export function generatePDF(report: ReportData, reportType: ReportType): Buffer 
 }
 
 /**
+ * Generate Leave Bids Report
+ * Queries leave_bids table with pilot information
+ * Supports filtering by status, rank, and roster periods
+ */
+export async function generateLeaveBidsReport(
+  filters: ReportFilters,
+  fullExport: boolean = false,
+  generatedBy?: string
+): Promise<ReportData> {
+  const supabase = await createClient()
+
+  // Query leave_bids table with pilot information
+  let query = supabase
+    .from('leave_bids')
+    .select(`
+      *,
+      pilot:pilots!pilot_id (
+        id,
+        first_name,
+        last_name,
+        role,
+        seniority_number
+      )
+    `)
+    .order('submitted_at', { ascending: false })
+
+  // Apply filters
+  if (filters.status && filters.status.length > 0) {
+    query = query.in('status', filters.status)
+  }
+
+  if (filters.rank && filters.rank.length > 0) {
+    // Filter by pilot rank via the join
+    query = query.in('pilot.role', filters.rank)
+  }
+
+  if (filters.rosterPeriods && filters.rosterPeriods.length > 0) {
+    query = query.in('roster_period_code', filters.rosterPeriods)
+  }
+
+  if (filters.pilotId) {
+    query = query.eq('pilot_id', filters.pilotId)
+  }
+
+  const { data, error, count } = await query
+
+  if (error) {
+    console.error('Error generating leave bids report:', error)
+    throw new Error(`Failed to generate leave bids report: ${error.message}`)
+  }
+
+  // Add computed fields
+  const enrichedData = (data || []).map((bid: any) => ({
+    ...bid,
+    name: bid.pilot ? `${bid.pilot.first_name} ${bid.pilot.last_name}` : 'N/A',
+    rank: bid.pilot?.role || 'N/A',
+    seniority: bid.pilot?.seniority_number || 0,
+  }))
+
+  // Calculate pagination
+  const page = filters.page || 1
+  const pageSize = filters.pageSize || DEFAULT_PAGE_SIZE
+  const totalRecords = count !== null ? count : enrichedData.length
+  const pagination = calculatePagination(totalRecords, page, pageSize)
+
+  // Apply pagination if not full export
+  const paginatedData = fullExport ? enrichedData : paginateData(enrichedData, page, pageSize)
+
+  // Generate summary statistics
+  const summary = {
+    totalBids: enrichedData.length,
+    byStatus: {
+      pending: enrichedData.filter((b: any) => b.status === 'PENDING').length,
+      processing: enrichedData.filter((b: any) => b.status === 'PROCESSING').length,
+      approved: enrichedData.filter((b: any) => b.status === 'APPROVED').length,
+      rejected: enrichedData.filter((b: any) => b.status === 'REJECTED').length,
+    },
+    byRank: {
+      captain: enrichedData.filter((b: any) => b.rank === 'Captain').length,
+      firstOfficer: enrichedData.filter((b: any) => b.rank === 'First Officer').length,
+    },
+  }
+
+  return {
+    title: 'Leave Bids Report',
+    description: `Annual leave preference bids ${
+      filters.rosterPeriods ? `for ${filters.rosterPeriods.join(', ')}` : ''
+    }`,
+    generatedAt: new Date().toISOString(),
+    generatedBy: generatedBy || 'System',
+    filters,
+    data: paginatedData,
+    summary,
+    pagination: fullExport ? undefined : pagination,
+  }
+}
+
+/**
  * Main report generation function with caching
  * Phase 2.6: Added fullExport and generatedBy parameters
+ * Phase 3.0: Updated for 3-table architecture
  */
 export async function generateReport(
   reportType: ReportType,
@@ -567,9 +917,16 @@ export async function generateReport(
   // For full exports, skip caching to ensure we get fresh, complete data
   if (fullExport) {
     switch (reportType) {
+      case 'rdo-sdo':
+        return generateRdoSdoReport(filters, true, generatedBy)
       case 'leave':
         return generateLeaveReport(filters, true, generatedBy)
+      case 'leave-bids':
+        return generateLeaveBidsReport(filters, true, generatedBy)
+      case 'all-requests':
+        return generateAllRequestsReport(filters, true, generatedBy)
       case 'flight-requests':
+        // Redirect to RDO/SDO for backward compatibility
         return generateFlightRequestReport(filters, true, generatedBy)
       case 'certifications':
         return generateCertificationsReport(filters, true, generatedBy)
@@ -581,14 +938,21 @@ export async function generateReport(
   // For preview (paginated), use caching
   const cacheKey = generateCacheKey(reportType, filters)
 
-  return getOrSetCache(
+  return unifiedCacheService.getOrSet(
     cacheKey,
     async () => {
       // Generate report based on type
       switch (reportType) {
+        case 'rdo-sdo':
+          return generateRdoSdoReport(filters, false, generatedBy)
         case 'leave':
           return generateLeaveReport(filters, false, generatedBy)
+        case 'leave-bids':
+          return generateLeaveBidsReport(filters, false, generatedBy)
+        case 'all-requests':
+          return generateAllRequestsReport(filters, false, generatedBy)
         case 'flight-requests':
+          // Redirect to RDO/SDO for backward compatibility
           return generateFlightRequestReport(filters, false, generatedBy)
         case 'certifications':
           return generateCertificationsReport(filters, false, generatedBy)

@@ -37,6 +37,10 @@ export function ReportPreviewDialog({ open, onOpenChange, reportData, reportType
         return <Plane className="h-5 w-5" />
       case 'certifications':
         return <Award className="h-5 w-5" />
+      case 'leave-bids':
+        return <Calendar className="h-5 w-5" />
+      default:
+        return <BarChart3 className="h-5 w-5" />
     }
   }
 

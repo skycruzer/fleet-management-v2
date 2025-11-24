@@ -25,6 +25,7 @@ import {
   ResourceType,
 } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { revalidatePath } from 'next/cache'
 
 interface RouteContext {
   params: Promise<{
@@ -148,6 +149,11 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         )
       }
 
+      // Revalidate cache for all affected paths
+      revalidatePath('/dashboard/feedback')
+      revalidatePath(`/dashboard/feedback/${id}`)
+      revalidatePath('/dashboard')
+
       return NextResponse.json({
         success: true,
         message: 'Admin response added successfully',
@@ -172,6 +178,11 @@ export async function PUT(request: NextRequest, context: RouteContext) {
           { status: 500 }
         )
       }
+
+      // Revalidate cache for all affected paths
+      revalidatePath('/dashboard/feedback')
+      revalidatePath(`/dashboard/feedback/${id}`)
+      revalidatePath('/dashboard')
 
       return NextResponse.json({
         success: true,

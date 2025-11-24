@@ -24,7 +24,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { getOrSetCache } from './cache-service'
+import { unifiedCacheService } from './unified-cache-service'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { getPilotRequirements } from './admin-service'
 import type { PilotDashboardMetrics } from '@/types/database-views'
@@ -90,7 +90,7 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
   // Try to get from cache first
   if (useCache) {
     try {
-      const cached = await getOrSetCache(cacheKey, () => fetchDashboardMetricsFromView(), cacheTTL)
+      const cached = await unifiedCacheService.getOrSet(cacheKey, () => fetchDashboardMetricsFromView(), cacheTTL)
       return cached
     } catch (error) {
       logWarning('Dashboard cache failed, fetching fresh metrics', {

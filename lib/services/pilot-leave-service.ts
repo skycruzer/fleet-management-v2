@@ -5,11 +5,17 @@
  * Pilot-facing service layer for leave request operations.
  * Provides simplified, permission-safe wrappers around core leave service.
  *
- * @version 2.0.0 - Migrated to pilot_requests unified table
+ * @version 4.0.0 - UNIFIED TABLE (Sprint 1.1 - Nov 2025)
  * @spec 001-missing-core-features (US2)
+ *
+ * MIGRATION NOTE (Nov 20, 2025 - Sprint 1.1):
+ * ============================================
+ * ✅ Migrated from leave_requests → pilot_requests (request_category='LEAVE')
+ * ✅ All database queries updated to use unified pilot_requests table
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import {
   createLeaveRequestServer,
   deleteLeaveRequest,
@@ -59,8 +65,6 @@ export async function submitPilotLeaveRequest(
     const leaveRequestData = {
       pilot_id: pilot.pilot_id!,
       request_type: request.request_type as
-        | 'RDO'
-        | 'SDO'
         | 'ANNUAL'
         | 'SICK'
         | 'LSL'
@@ -70,8 +74,8 @@ export async function submitPilotLeaveRequest(
       start_date: request.start_date, // Send as YYYY-MM-DD (DATE type in database)
       end_date: request.end_date, // Send as YYYY-MM-DD (DATE type in database)
       request_date: getTodayISO(),
-      request_method: 'SYSTEM' as const, // Pilot portal submission
-      submission_channel: 'SYSTEM' as const,
+      request_method: 'PILOT_PORTAL' as const, // Pilot portal submission
+      submission_channel: 'PILOT_PORTAL' as const,
       reason: request.reason || undefined,
       is_late_request: isLateRequest(request.start_date),
     }
@@ -107,7 +111,7 @@ export async function submitPilotLeaveRequest(
  */
 export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<LeaveRequest[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()
@@ -118,7 +122,7 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
       }
     }
 
-    // Query leave requests from unified pilot_requests table
+    // Query leave requests from pilot_requests table (unified table)
     const { data: requests, error } = await supabase
       .from('pilot_requests')
       .select('*')
@@ -148,10 +152,103 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
 }
 
 /**
+ * Update Pilot Leave Request
+ *
+ * Allows pilot to update their own SUBMITTED or IN_REVIEW leave requests.
+ * Cannot update APPROVED, DENIED, or WITHDRAWN requests.
+ */
+export async function updatePilotLeaveRequest(
+  requestId: string,
+  updates: PilotLeaveRequestInput
+): Promise<ServiceResponse<LeaveRequest>> {
+  try {
+    const supabase = createServiceRoleClient()
+
+    // Get current pilot
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      }
+    }
+
+    // Verify request belongs to pilot and is editable
+    const { data: request, error: fetchError } = await supabase
+      .from('pilot_requests')
+      .select('id, pilot_id, workflow_status, request_category')
+      .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
+      .single()
+
+    if (fetchError || !request) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.LEAVE.NOT_FOUND.message,
+      }
+    }
+
+    // Check ownership
+    if (request.pilot_id !== pilot.pilot_id) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.AUTH.FORBIDDEN.message,
+      }
+    }
+
+    // Check if editable (can only edit SUBMITTED or IN_REVIEW)
+    if (!['SUBMITTED', 'IN_REVIEW'].includes(request.workflow_status)) {
+      return {
+        success: false,
+        error: 'Can only edit submitted or in-review requests. This request has been finalized.',
+      }
+    }
+
+    // Prepare update data
+    const updateData = {
+      request_type: updates.request_type,
+      start_date: updates.start_date,
+      end_date: updates.end_date,
+      reason: updates.reason || null,
+      is_late_request: isLateRequest(updates.start_date),
+      updated_at: new Date().toISOString(),
+    }
+
+    // Update the request
+    const { data: updatedRequest, error: updateError } = await supabase
+      .from('pilot_requests')
+      .update(updateData)
+      .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
+      .select()
+      .single()
+
+    if (updateError || !updatedRequest) {
+      console.error('Update leave request error:', updateError)
+      return {
+        success: false,
+        error: ERROR_MESSAGES.LEAVE.UPDATE_FAILED.message,
+      }
+    }
+
+    return {
+      success: true,
+      data: updatedRequest as LeaveRequest,
+    }
+  } catch (error) {
+    console.error('Update pilot leave request error:', error)
+    return {
+      success: false,
+      error: ERROR_MESSAGES.LEAVE.UPDATE_FAILED.message,
+    }
+  }
+}
+
+/**
  * Cancel Pilot Leave Request
  *
- * Allows pilot to cancel their own PENDING leave requests.
- * Cannot cancel approved or denied requests.
+ * Allows pilot to cancel their own SUBMITTED, IN_REVIEW, or APPROVED leave requests.
+ * Sets status to WITHDRAWN (preserves audit trail).
  */
 export async function cancelPilotLeaveRequest(requestId: string): Promise<ServiceResponse> {
   try {
@@ -166,12 +263,12 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
       }
     }
 
-    // Verify request belongs to pilot and is PENDING
+    // Verify request belongs to pilot
     const { data: request, error: fetchError } = await supabase
       .from('pilot_requests')
       .select('id, pilot_id, workflow_status, request_type, start_date, end_date')
-      .eq('request_category', 'LEAVE')
       .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
       .single()
 
     if (fetchError || !request) {
@@ -190,16 +287,27 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
       }
     }
 
-    // Check if pending
-    if (request.workflow_status !== 'PENDING') {
+    // Check if cancellable (can cancel SUBMITTED, IN_REVIEW, or APPROVED)
+    if (!['SUBMITTED', 'IN_REVIEW', 'APPROVED'].includes(request.workflow_status)) {
       return {
         success: false,
-        error: 'Only pending leave requests can be cancelled',
+        error: 'This leave request cannot be cancelled',
       }
     }
 
-    // Delete request
-    await deleteLeaveRequest(requestId)
+    // Update status to WITHDRAWN instead of deleting
+    const { error: updateError } = await supabase
+      .from('pilot_requests')
+      .update({ workflow_status: 'WITHDRAWN' })
+      .eq('id', requestId)
+      .eq('request_category', 'LEAVE')
+
+    if (updateError) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.LEAVE.UPDATE_FAILED.message,
+      }
+    }
 
     return {
       success: true,
@@ -221,9 +329,11 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
 export async function getPilotLeaveStats(): Promise<
   ServiceResponse<{
     total: number
-    pending: number
+    submitted: number
+    in_review: number
     approved: number
     denied: number
+    withdrawn: number
   }>
 > {
   try {
@@ -238,7 +348,7 @@ export async function getPilotLeaveStats(): Promise<
       }
     }
 
-    // Get counts by status from unified pilot_requests table
+    // Get counts by status from pilot_requests table (unified table)
     // IMPORTANT: Use pilot.pilot_id (foreign key to pilots table)
     const { data: requests, error } = await supabase
       .from('pilot_requests')
@@ -255,9 +365,11 @@ export async function getPilotLeaveStats(): Promise<
 
     const stats = {
       total: requests?.length || 0,
-      pending: requests?.filter((r) => r.workflow_status === 'PENDING').length || 0,
+      submitted: requests?.filter((r) => r.workflow_status === 'SUBMITTED').length || 0,
+      in_review: requests?.filter((r) => r.workflow_status === 'IN_REVIEW').length || 0,
       approved: requests?.filter((r) => r.workflow_status === 'APPROVED').length || 0,
       denied: requests?.filter((r) => r.workflow_status === 'DENIED').length || 0,
+      withdrawn: requests?.filter((r) => r.workflow_status === 'WITHDRAWN').length || 0,
     }
 
     return {

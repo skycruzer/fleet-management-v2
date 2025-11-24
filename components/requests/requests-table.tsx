@@ -554,15 +554,16 @@ export function RequestsTable({
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
                         <MoreVertical className="h-4 w-4" />
+                        <span className="sr-only">Open menu</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       {onViewRequest && (
-                        <DropdownMenuItem onClick={() => onViewRequest(request)}>
+                        <DropdownMenuItem onClick={() => onViewRequest(request)} className="cursor-pointer">
                           <Eye className="h-4 w-4 mr-2" />
                           View Details
                         </DropdownMenuItem>
@@ -573,12 +574,14 @@ export function RequestsTable({
                           <>
                             <DropdownMenuItem
                               onClick={() => onUpdateStatus(request.id, 'APPROVED')}
+                              className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50"
                             >
                               <CheckCircle className="h-4 w-4 mr-2" />
                               Approve
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => onUpdateStatus(request.id, 'DENIED')}
+                              className="cursor-pointer text-orange-600 focus:text-orange-600 focus:bg-orange-50"
                             >
                               <XCircle className="h-4 w-4 mr-2" />
                               Deny
@@ -590,7 +593,7 @@ export function RequestsTable({
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleDeleteClick(request.id)}
-                            className="text-red-600"
+                            className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete

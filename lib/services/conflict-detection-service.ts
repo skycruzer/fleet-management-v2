@@ -188,6 +188,14 @@ export async function checkOverlappingRequests(
         return false
       }
 
+      // Only check conflicts within the same request category
+      // LEAVE requests conflict with other LEAVE requests
+      // FLIGHT (RDO/SDO) requests conflict with other FLIGHT requests
+      // LEAVE_BID requests conflict with other LEAVE_BID requests
+      if (req.request_category !== requestInput.requestCategory) {
+        return false
+      }
+
       // Check for date overlap
       const existingStart = new Date(req.start_date)
       const existingEnd = req.end_date ? new Date(req.end_date) : existingStart

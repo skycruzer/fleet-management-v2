@@ -12,6 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import {
   getAllLeaveRequests,
   createLeaveRequestServer,
@@ -117,6 +118,11 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     // Create leave request
     const newRequest = await createLeaveRequestServer(validatedData)
+
+    // Revalidate cache for leave request pages
+    revalidatePath('/dashboard/leave-requests')
+    revalidatePath('/dashboard/requests')
+    revalidatePath('/dashboard')
 
     return NextResponse.json(
       {

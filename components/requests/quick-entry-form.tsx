@@ -174,11 +174,14 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
   }
 
   const handleSubmit = async (data: QuickEntryFormInput) => {
+    console.log('🚀 handleSubmit called with data:', data)
     setIsSubmitting(true)
 
     try {
       // Get selected pilot details
       const selectedPilot = pilots.find((p) => p.id === data.pilot_id)
+      console.log('👤 Selected pilot:', selectedPilot)
+
       if (!selectedPilot) {
         throw new Error('Selected pilot not found')
       }
@@ -200,6 +203,9 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         source_reference: data.source_reference,
       }
 
+      console.log('📦 Request payload:', payload)
+      console.log('🌐 Sending POST to /api/requests...')
+
       const response = await fetch('/api/requests', {
         method: 'POST',
         headers: {
@@ -208,9 +214,17 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         body: JSON.stringify(payload),
       })
 
+      console.log('📥 Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      })
+
       const result = await response.json()
+      console.log('📄 Response body:', result)
 
       if (!response.ok) {
+        console.error('❌ Request failed:', result)
         // Show conflict information if available
         if (result.conflicts && result.conflicts.length > 0) {
           const conflictMessages = result.conflicts.map((c: any) => c.message).join('; ')
@@ -218,6 +232,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         }
         throw new Error(result.error || 'Failed to submit request')
       }
+
+      console.log('✅ Request succeeded!')
 
       // Show success with any warnings
       let description = `${data.request_category} request successfully created for roster period ${rosterPeriod}`
@@ -243,26 +259,128 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         router.refresh()
       }
     } catch (error) {
+      console.error('💥 Submission error:', error)
       toast({
         title: 'Submission Failed',
         description: error instanceof Error ? error.message : 'An unexpected error occurred',
         variant: 'destructive',
       })
     } finally {
+      console.log('🏁 Submission complete, setting isSubmitting to false')
       setIsSubmitting(false)
     }
   }
 
   const nextStep = async () => {
-    const fields =
-      currentStep === 1
-        ? (['pilot_id', 'request_category', 'submission_channel'] as const)
-        : currentStep === 2
-          ? (['start_date', 'end_date'] as const)
-          : []
+    // Get current form values for debugging
+    const formValues = form.getValues()
+    console.log('🔍 Form values when clicking Next:', formValues)
+    console.log('🔍 Current step:', currentStep)
 
-    const isValid = await form.trigger(fields)
+    // Validate specific fields based on step
+    let isValid = false
+
+    if (currentStep === 1) {
+      // Step 1: Check required fields manually first
+      const { pilot_id, request_category, submission_channel, leave_type, flight_type } = formValues
+
+      console.log('🔍 Step 1 values:', {
+        pilot_id,
+        request_category,
+        submission_channel,
+        leave_type,
+        flight_type,
+      })
+
+      // Check pilot_id
+      if (!pilot_id || pilot_id.trim() === '') {
+        console.error('❌ Pilot ID is missing')
+        toast({
+          title: 'Validation Error',
+          description: 'Please select a pilot.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      // Check request_category
+      if (!request_category) {
+        console.error('❌ Request category is missing')
+        toast({
+          title: 'Validation Error',
+          description: 'Please select a request category.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      // Check conditional type fields
+      if (request_category === 'LEAVE' && !leave_type) {
+        console.error('❌ Leave type is missing')
+        toast({
+          title: 'Validation Error',
+          description: 'Please select a leave type.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      if (request_category === 'FLIGHT' && !flight_type) {
+        console.error('❌ Flight type is missing')
+        toast({
+          title: 'Validation Error',
+          description: 'Please select a flight request type.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      // Check submission_channel
+      if (!submission_channel) {
+        console.error('❌ Submission channel is missing')
+        toast({
+          title: 'Validation Error',
+          description: 'Please select a submission channel.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      isValid = true
+    } else if (currentStep === 2) {
+      // Step 2: Validate dates
+      const { start_date, end_date, request_category } = formValues
+
+      if (!start_date || start_date.trim() === '') {
+        toast({
+          title: 'Validation Error',
+          description: 'Please select a start date.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      // End date is required for LEAVE, LEAVE_BID, and FLIGHT (RDO/SDO)
+      if (
+        (request_category === 'LEAVE' || request_category === 'LEAVE_BID' || request_category === 'FLIGHT') &&
+        (!end_date || end_date.trim() === '')
+      ) {
+        toast({
+          title: 'Validation Error',
+          description: 'Please select an end date for this request.',
+          variant: 'destructive',
+        })
+        return
+      }
+
+      isValid = true
+    } else {
+      // Steps 3 and 4 don't have validation
+      isValid = true
+    }
+
     if (isValid) {
+      console.log('✅ Validation passed, moving to next step')
       setCurrentStep((prev) => Math.min(prev + 1, 4))
     }
   }
@@ -334,7 +452,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                           <SelectValue placeholder="Select a pilot..." />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="max-h-[300px] overflow-y-auto">
                         {pilots.map((pilot) => (
                           <SelectItem key={pilot.id} value={pilot.id}>
                             {pilot.employee_id} - {pilot.first_name}{' '}
@@ -364,7 +482,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="LEAVE">Leave Request</SelectItem>
-                        <SelectItem value="FLIGHT">Flight Request</SelectItem>
+                        <SelectItem value="FLIGHT">RDO/SDO Request</SelectItem>
                         <SelectItem value="LEAVE_BID">Leave Bid</SelectItem>
                       </SelectContent>
                     </Select>
@@ -419,7 +537,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                   name="flight_type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Flight Request Type *</FormLabel>
+                      <FormLabel>RDO/SDO Request Type *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value || undefined}
@@ -430,9 +548,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="FLIGHT_REQUEST">Flight Request</SelectItem>
-                          <SelectItem value="RDO">RDO</SelectItem>
-                          <SelectItem value="SDO">SDO</SelectItem>
+                          <SelectItem value="RDO">RDO (Rostered Day Off)</SelectItem>
+                          <SelectItem value="SDO">SDO (Scheduled Day Off)</SelectItem>
                           <SelectItem value="OFFICE_DAY">Office Day</SelectItem>
                         </SelectContent>
                       </Select>
@@ -531,7 +648,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
               />
 
               {/* End Date */}
-              {(selectedCategory === 'LEAVE' || selectedCategory === 'LEAVE_BID') && (
+              {(selectedCategory === 'LEAVE' || selectedCategory === 'LEAVE_BID' || selectedCategory === 'FLIGHT') && (
                 <FormField
                   control={form.control}
                   name="end_date"
@@ -575,7 +692,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         </PopoverContent>
                       </Popover>
                       <FormDescription>
-                        Required for leave requests and leave bids
+                        Select date range for multi-day requests
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -758,10 +875,10 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
               <div>
                 <h4 className="font-semibold mb-2">Request Details</h4>
                 <div className="space-y-1 text-sm">
-                  <p>
-                    <span className="text-muted-foreground">Category:</span>{' '}
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Category:</span>
                     <Badge>{selectedCategory}</Badge>
-                  </p>
+                  </div>
                   <p>
                     <span className="text-muted-foreground">Type:</span>{' '}
                     {selectedCategory === 'LEAVE'
@@ -789,8 +906,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                     {form.getValues('submission_channel')}
                   </p>
                   {deadlineStatus && (
-                    <p>
-                      <span className="text-muted-foreground">Status:</span>{' '}
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">Status:</span>
                       <Badge
                         variant={
                           deadlineStatus.status === 'on-time'
@@ -800,7 +917,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                       >
                         {deadlineStatus.status === 'on-time' ? 'On-Time' : 'Late'}
                       </Badge>
-                    </p>
+                    </div>
                   )}
                 </div>
               </div>

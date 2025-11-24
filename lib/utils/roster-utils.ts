@@ -705,6 +705,36 @@ export function getRosterPeriodsInRange(startDate: Date, endDate: Date): RosterP
   return periods
 }
 
+/**
+ * Parse roster period code into components
+ * Re-exported from roster-period-service for convenience
+ *
+ * @param code - Roster period code (e.g., "RP01/2025")
+ * @returns Object with period number and year, or null if invalid
+ */
+export function parseRosterPeriodCode(
+  code: string
+): { periodNumber: number; year: number } | null {
+  // Validate format
+  const match = code.match(/^RP(\d{1,2})\/(\d{4})$/)
+  if (!match) {
+    return null
+  }
+
+  const periodNumber = parseInt(match[1], 10)
+  const year = parseInt(match[2], 10)
+
+  // Validate period number is within valid range (1-13)
+  if (periodNumber < 1 || periodNumber > PERIODS_PER_YEAR) {
+    return null
+  }
+
+  return {
+    periodNumber,
+    year,
+  }
+}
+
 export function getFinalReviewAlert(): FinalReviewAlert {
   const REVIEW_WINDOW_DAYS = 22
   const now = new Date()

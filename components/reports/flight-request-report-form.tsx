@@ -134,7 +134,8 @@ export function FlightRequestReportForm() {
       })
       setShouldFetchPreview(false)
     }
-  }, [previewError, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewError])
 
   // Handle preview success
   useEffect(() => {
@@ -154,7 +155,8 @@ export function FlightRequestReportForm() {
         variant: 'destructive',
       })
     }
-  }, [exportMutation.isError, exportMutation.error, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exportMutation.isError, exportMutation.error])
 
   // Handle export mutation success
   useEffect(() => {
@@ -164,7 +166,8 @@ export function FlightRequestReportForm() {
         description: 'PDF has been downloaded successfully',
       })
     }
-  }, [exportMutation.isSuccess, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.infer<typeof formSchema>) => {
     const filters = buildFilters(values)

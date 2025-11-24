@@ -36,13 +36,20 @@ export class DuplicateSubmissionError extends Error {
 /**
  * Constraint-specific error messages
  * Maps constraint names to user-friendly error messages
+ *
+ * NOTE (Sprint 1.1 - Nov 2025): Migrated to unified pilot_requests table
+ * - leave_requests → pilot_requests (request_category='LEAVE')
+ * - flight_requests → pilot_requests (request_category='FLIGHT')
+ * Legacy constraint names kept for backward compatibility
  */
 const CONSTRAINT_MESSAGES: Record<string, string> = {
-  // Leave requests
+  // Leave requests (legacy table + unified table)
   leave_requests_pilot_dates_unique: ERROR_MESSAGES.LEAVE.DUPLICATE_REQUEST.message,
+  pilot_requests_pilot_dates_unique: ERROR_MESSAGES.LEAVE.DUPLICATE_REQUEST.message,
 
-  // Flight requests
+  // Flight requests (legacy table + unified table)
   flight_requests_pilot_date_type_unique: ERROR_MESSAGES.FLIGHT.DUPLICATE_REQUEST.message,
+  pilot_requests_pilot_date_type_unique: ERROR_MESSAGES.FLIGHT.DUPLICATE_REQUEST.message,
 
   // Feedback
   feedback_likes_post_user_unique: ERROR_MESSAGES.FEEDBACK.ALREADY_VOTED.message,

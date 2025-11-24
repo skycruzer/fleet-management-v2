@@ -1,0 +1,493 @@
+'use client'
+
+/**
+ * RDO/SDO Requests Table Component (Admin)
+ *
+ * Displays admin table of RDO/SDO requests with filtering and review functionality.
+ *
+ * @developer Maurice Rondeau
+ * @date January 19, 2025
+ * @version 3.0.0 - 3-table architecture
+ */
+
+import { useState, useMemo } from 'react'
+import type { RdoSdoRequest } from '@/lib/services/rdo-sdo-service'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  FileText,
+  Ban,
+  Calendar,
+  User,
+  AlertCircle,
+} from 'lucide-react'
+
+interface RdoSdoRequestsTableProps {
+  requests: RdoSdoRequest[]
+}
+
+type StatusFilter = 'all' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+type TypeFilter = 'all' | 'RDO' | 'SDO'
+
+export default function RdoSdoRequestsTable({ requests }: RdoSdoRequestsTableProps) {
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
+  const [selectedRequest, setSelectedRequest] = useState<RdoSdoRequest | null>(null)
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
+  const [reviewAction, setReviewAction] = useState<'APPROVED' | 'DENIED'>('APPROVED')
+  const [reviewComments, setReviewComments] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  // Filter requests based on status and type
+  const filteredRequests = useMemo(() => {
+    let filtered = requests
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((req) => req.workflow_status === statusFilter)
+    }
+
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter((req) => req.request_type === typeFilter)
+    }
+
+    return filtered
+  }, [requests, statusFilter, typeFilter])
+
+  const handleReview = (request: RdoSdoRequest) => {
+    setSelectedRequest(request)
+    setIsReviewModalOpen(true)
+    setReviewAction('APPROVED')
+    setReviewComments('')
+    setError('')
+  }
+
+  const handleCloseModal = () => {
+    setIsReviewModalOpen(false)
+    setSelectedRequest(null)
+    setReviewAction('APPROVED')
+    setReviewComments('')
+    setError('')
+  }
+
+  const handleSubmitReview = async () => {
+    if (!selectedRequest) return
+
+    setIsSubmitting(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/admin/rdo-sdo-requests', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          request_id: selectedRequest.id,
+          status: reviewAction,
+          reviewed_by: 'Current Admin', // TODO: Get from session
+          review_comments: reviewComments || undefined,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        setError(result.error || 'Failed to update request status')
+        setIsSubmitting(false)
+        return
+      }
+
+      // Refresh page to show updated data
+      window.location.reload()
+    } catch (err) {
+      setError('An unexpected error occurred')
+      setIsSubmitting(false)
+    }
+  }
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-AU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
+  const calculateDaysCount = (request: RdoSdoRequest): number => {
+    const start = new Date(request.start_date)
+    const end = request.end_date ? new Date(request.end_date) : start
+    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  }
+
+  if (requests.length === 0) {
+    return (
+      <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
+        <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+        <p className="text-gray-600 dark:text-gray-400">No RDO/SDO requests yet</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Filter Controls */}
+      <div className="space-y-3">
+        {/* Status Filters */}
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">Status Filter:</p>
+          <div className="flex flex-wrap gap-2">
+            <FilterButton
+              label="All"
+              count={requests.length}
+              isActive={statusFilter === 'all'}
+              onClick={() => setStatusFilter('all')}
+            />
+            <FilterButton
+              label="Submitted"
+              count={requests.filter((r) => r.workflow_status === 'SUBMITTED').length}
+              isActive={statusFilter === 'SUBMITTED'}
+              onClick={() => setStatusFilter('SUBMITTED')}
+            />
+            <FilterButton
+              label="In Review"
+              count={requests.filter((r) => r.workflow_status === 'IN_REVIEW').length}
+              isActive={statusFilter === 'IN_REVIEW'}
+              onClick={() => setStatusFilter('IN_REVIEW')}
+            />
+            <FilterButton
+              label="Approved"
+              count={requests.filter((r) => r.workflow_status === 'APPROVED').length}
+              isActive={statusFilter === 'APPROVED'}
+              onClick={() => setStatusFilter('APPROVED')}
+            />
+            <FilterButton
+              label="Denied"
+              count={requests.filter((r) => r.workflow_status === 'DENIED').length}
+              isActive={statusFilter === 'DENIED'}
+              onClick={() => setStatusFilter('DENIED')}
+            />
+            <FilterButton
+              label="Withdrawn"
+              count={requests.filter((r) => r.workflow_status === 'WITHDRAWN').length}
+              isActive={statusFilter === 'WITHDRAWN'}
+              onClick={() => setStatusFilter('WITHDRAWN')}
+            />
+          </div>
+        </div>
+
+        {/* Type Filters */}
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">Request Type:</p>
+          <div className="flex flex-wrap gap-2">
+            <FilterButton
+              label="All Types"
+              count={requests.length}
+              isActive={typeFilter === 'all'}
+              onClick={() => setTypeFilter('all')}
+            />
+            <FilterButton
+              label="RDO"
+              count={requests.filter((r) => r.request_type === 'RDO').length}
+              isActive={typeFilter === 'RDO'}
+              onClick={() => setTypeFilter('RDO')}
+            />
+            <FilterButton
+              label="SDO"
+              count={requests.filter((r) => r.request_type === 'SDO').length}
+              isActive={typeFilter === 'SDO'}
+              onClick={() => setTypeFilter('SDO')}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Results Count */}
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        Showing {filteredRequests.length} of {requests.length} requests
+      </p>
+
+      {/* Requests List */}
+      <div className="space-y-3">
+        {filteredRequests.map((request) => (
+          <Card key={request.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                {/* Request Info */}
+                <div className="flex-1 space-y-3">
+                  {/* Header */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <RequestTypeBadge type={request.request_type} />
+                    <StatusBadge status={request.workflow_status} />
+                    {request.is_late_request && (
+                      <Badge variant="outline" className="text-orange-600 border-orange-600">
+                        <Clock className="mr-1 h-3 w-3" />
+                        Late Request
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+                    <div className="space-y-1">
+                      <p className="flex items-center gap-2 text-gray-700">
+                        <User className="h-4 w-4" />
+                        <strong>Pilot:</strong> {request.name}
+                      </p>
+                      <p className="text-gray-600">
+                        <strong>Rank:</strong> {request.rank}
+                      </p>
+                      <p className="text-gray-600">
+                        <strong>Employee #:</strong> {request.employee_number}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="flex items-center gap-2 text-gray-700">
+                        <Calendar className="h-4 w-4" />
+                        <strong>Dates:</strong> {formatDate(request.start_date)}
+                        {request.end_date && request.end_date !== request.start_date && (
+                          <> - {formatDate(request.end_date)}</>
+                        )}
+                      </p>
+                      <p className="text-gray-600">
+                        <strong>Days:</strong> {calculateDaysCount(request)}
+                      </p>
+                      <p className="text-gray-600">
+                        <strong>Roster Period:</strong> {request.roster_period}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Reason */}
+                  {request.reason && (
+                    <div className="pt-2 border-t">
+                      <p className="text-sm text-gray-600">
+                        <strong>Reason:</strong> {request.reason}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Review Info */}
+                  {request.reviewed_by && (
+                    <div className="pt-2 border-t text-sm text-gray-600">
+                      <p>
+                        <strong>Reviewed by:</strong> {request.reviewed_by}
+                      </p>
+                      {request.reviewed_at && (
+                        <p>
+                          <strong>Reviewed on:</strong> {formatDate(request.reviewed_at)}
+                        </p>
+                      )}
+                      {request.review_comments && (
+                        <p>
+                          <strong>Comments:</strong> {request.review_comments}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Review Button */}
+                <div className="ml-4">
+                  <Button
+                    onClick={() => handleReview(request)}
+                    variant={
+                      request.workflow_status === 'SUBMITTED' ||
+                      request.workflow_status === 'IN_REVIEW'
+                        ? 'default'
+                        : 'outline'
+                    }
+                    size="sm"
+                  >
+                    {request.workflow_status === 'SUBMITTED' ||
+                    request.workflow_status === 'IN_REVIEW'
+                      ? 'Review'
+                      : 'View Details'}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Review Modal */}
+      <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Review {selectedRequest?.request_type} Request</DialogTitle>
+            <DialogDescription>
+              Review and approve or deny this {selectedRequest?.request_type} request.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedRequest && (
+            <div className="space-y-4 py-4">
+              {/* Request Details */}
+              <div className="grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Pilot</p>
+                  <p className="text-sm text-gray-900">{selectedRequest.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Type</p>
+                  <p className="text-sm text-gray-900">{selectedRequest.request_type}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Dates</p>
+                  <p className="text-sm text-gray-900">
+                    {formatDate(selectedRequest.start_date)}
+                    {selectedRequest.end_date &&
+                      selectedRequest.end_date !== selectedRequest.start_date &&
+                      ` - ${formatDate(selectedRequest.end_date)}`}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Days</p>
+                  <p className="text-sm text-gray-900">{calculateDaysCount(selectedRequest)}</p>
+                </div>
+              </div>
+
+              {/* Reason */}
+              {selectedRequest.reason && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-1">Reason</p>
+                  <p className="text-sm text-gray-900">{selectedRequest.reason}</p>
+                </div>
+              )}
+
+              {/* Action Selection */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Decision</p>
+                <div className="flex gap-3">
+                  <Button
+                    variant={reviewAction === 'APPROVED' ? 'default' : 'outline'}
+                    onClick={() => setReviewAction('APPROVED')}
+                    className="flex-1"
+                  >
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Approve
+                  </Button>
+                  <Button
+                    variant={reviewAction === 'DENIED' ? 'destructive' : 'outline'}
+                    onClick={() => setReviewAction('DENIED')}
+                    className="flex-1"
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Deny
+                  </Button>
+                </div>
+              </div>
+
+              {/* Review Comments */}
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  Comments (Optional)
+                </label>
+                <Textarea
+                  value={reviewComments}
+                  onChange={(e) => setReviewComments(e.target.value)}
+                  placeholder="Add any comments about this decision..."
+                  rows={3}
+                />
+              </div>
+
+              {/* Error Alert */}
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCloseModal} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitReview} disabled={isSubmitting}>
+              {isSubmitting
+                ? 'Submitting...'
+                : reviewAction === 'APPROVED'
+                  ? 'Approve Request'
+                  : 'Deny Request'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+// Helper Components
+function FilterButton({
+  label,
+  count,
+  isActive,
+  onClick,
+}: {
+  label: string
+  count: number
+  isActive: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+        isActive
+          ? 'bg-blue-600 text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+      }`}
+    >
+      {label} ({count})
+    </button>
+  )
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const statusConfig: Record<
+    string,
+    { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }
+  > = {
+    SUBMITTED: { variant: 'secondary', icon: <Clock className="mr-1 h-3 w-3" /> },
+    IN_REVIEW: { variant: 'default', icon: <FileText className="mr-1 h-3 w-3" /> },
+    APPROVED: { variant: 'default', icon: <CheckCircle2 className="mr-1 h-3 w-3 text-green-600" /> },
+    DENIED: { variant: 'destructive', icon: <XCircle className="mr-1 h-3 w-3" /> },
+    WITHDRAWN: { variant: 'outline', icon: <Ban className="mr-1 h-3 w-3" /> },
+  }
+
+  const config = statusConfig[status] || statusConfig.SUBMITTED
+
+  return (
+    <Badge variant={config.variant} className="flex items-center w-fit">
+      {config.icon}
+      {status}
+    </Badge>
+  )
+}
+
+function RequestTypeBadge({ type }: { type: string }) {
+  return (
+    <Badge variant={type === 'RDO' ? 'default' : 'secondary'} className="text-sm">
+      {type}
+    </Badge>
+  )
+}

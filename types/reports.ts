@@ -1,12 +1,13 @@
 /**
  * Report Type Definitions
  * Author: Maurice Rondeau
- * Date: November 4, 2025
+ * Date: January 19, 2025
  *
- * Simplified report types for Leave, Flight Requests, and Certifications
+ * Report types for 3-table architecture: RDO/SDO, Leave, All Requests, and Certifications
+ * Phase 3.0: Updated for 3-table architecture
  */
 
-export type ReportType = 'leave' | 'flight-requests' | 'certifications'
+export type ReportType = 'rdo-sdo' | 'leave' | 'all-requests' | 'flight-requests' | 'certifications' | 'leave-bids'
 
 export interface ReportFilters {
   dateRange?: {
@@ -18,6 +19,7 @@ export interface ReportFilters {
   status?: string[]
   rank?: string[]
   pilotId?: string
+  requestType?: string[] // Phase 3.0: Filter by request type (RDO, SDO, ANNUAL, SICK, etc.)
   checkType?: string
   checkTypes?: string[] // Multiple check types/categories
   expiryThreshold?: number // days

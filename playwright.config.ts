@@ -1,11 +1,13 @@
 import { defineConfig, devices } from '@playwright/test'
+import * as dotenv from 'dotenv'
+import * as path from 'path'
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// Note: Use environment variables or set them before running tests
-// Example: TEST_ADMIN_EMAIL=test@test.com npx playwright test
+// Load test environment variables from .env.test.local
+dotenv.config({ path: path.resolve(__dirname, '.env.test.local') })
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -29,7 +31,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3003',
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3005',
 
     /* Increase timeout for slower operations (database queries, page loads) */
     actionTimeout: 60000, // 60 seconds per action (was 30s default)
@@ -92,12 +94,14 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3003',
-    reuseExistingServer: !process.env.CI,
-    stdout: 'ignore',
-    stderr: 'pipe',
-    timeout: 120000, // 2 minutes for server to start
-  },
+  // webServer temporarily disabled - server crashes with Turbopack errors
+  // Run server manually: PORT=3005 npm run dev
+  // webServer: {
+  //   command: 'npm run dev',
+  //   url: 'http://localhost:3005',
+  //   reuseExistingServer: !process.env.CI,
+  //   stdout: 'ignore',
+  //   stderr: 'pipe',
+  //   timeout: 120000, // 2 minutes for server to start
+  // },
 })

@@ -136,26 +136,23 @@ export function QuickEntryButton({
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl">Quick Entry - Manual Request Creation</DialogTitle>
-            <DialogDescription className="space-y-2">
-              <p>
-                Create pilot requests received through alternative channels (email, phone, Oracle
-                system).
-              </p>
-              <div className="flex gap-4 pt-2">
-                <div className="flex items-center gap-2 text-xs">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                  <span>Email</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <Phone className="h-4 w-4 text-green-600" />
-                  <span>Phone</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <Globe className="h-4 w-4 text-purple-600" />
-                  <span>Oracle System</span>
-                </div>
-              </div>
+            <DialogDescription>
+              Create pilot requests received through alternative channels (email, phone, Oracle system).
             </DialogDescription>
+            <div className="flex gap-4 pt-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-blue-600" />
+                <span>Email</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-green-600" />
+                <span>Phone</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-purple-600" />
+                <span>Oracle System</span>
+              </div>
+            </div>
           </DialogHeader>
 
           {/* Quick Entry Form */}

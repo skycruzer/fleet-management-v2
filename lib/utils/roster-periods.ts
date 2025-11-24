@@ -8,13 +8,13 @@
 
 /**
  * Generate roster periods for given years
- * Format: RP1/2025, RP2/2025, ..., RP13/2025
+ * Format: RP01/2025, RP02/2025, ..., RP13/2025 (zero-padded)
  */
 export function generateRosterPeriods(years: number[] = [2025, 2026]): string[] {
   const periods: string[] = []
   for (const year of years) {
     for (let rp = 1; rp <= 13; rp++) {
-      periods.push(`RP${rp}/${year}`)
+      periods.push(`RP${String(rp).padStart(2, '0')}/${year}`)
     }
   }
   return periods

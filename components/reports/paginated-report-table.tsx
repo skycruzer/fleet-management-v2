@@ -14,19 +14,24 @@
 
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
+  getGroupedRowModel,
+  getExpandedRowModel,
   flexRender,
   type ColumnDef,
   type SortingState,
+  type GroupingState,
+  type ExpandedState,
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, ChevronDown } from 'lucide-react'
 import type { ReportType, PaginationMeta } from '@/types/reports'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 
 interface PaginatedReportTableProps {
   data: any[]
@@ -43,12 +48,16 @@ export function PaginatedReportTable({
   onPageChange,
   isLoading = false,
 }: PaginatedReportTableProps) {
+  // Grouping state for hierarchical display
+  const [grouping, setGrouping] = useState<GroupingState>([])
+  const [expanded, setExpanded] = useState<ExpandedState>({})
+
   // Define columns based on report type
   const columns = useMemo<ColumnDef<any>[]>(() => {
     if (reportType === 'leave') {
       return [
         {
-          accessorFn: (row) => `${row.pilot?.first_name} ${row.pilot?.last_name}`,
+          accessorFn: (row) => row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
           id: 'pilot',
           header: ({ column }) => (
             <Button
@@ -63,12 +72,15 @@ export function PaginatedReportTable({
           cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
         },
         {
-          accessorKey: 'pilot.role',
+          accessorFn: (row) => row.rank || row.pilot?.role || 'N/A',
+          id: 'rank',
           header: 'Rank',
-          cell: ({ getValue }) => <div className="text-sm">{(getValue() as string) || 'N/A'}</div>,
+          enableGrouping: true,
+          cell: ({ getValue }) => <div className="text-sm">{getValue() as string}</div>,
         },
         {
-          accessorKey: 'leave_type',
+          accessorFn: (row) => row.request_type || row.leave_type || 'N/A',
+          id: 'leave_type',
           header: 'Type',
           cell: ({ getValue }) => (
             <Badge variant="outline" className="font-mono text-xs">
@@ -100,14 +112,15 @@ export function PaginatedReportTable({
           ),
         },
         {
-          accessorKey: 'status',
+          accessorFn: (row) => row.workflow_status || row.status || 'N/A',
+          id: 'status',
           header: 'Status',
           cell: ({ getValue }) => {
-            const status = getValue() as string
+            const status = (getValue() as string).toLowerCase()
             return (
               <Badge
                 variant={
-                  status === 'approved' ? 'default' : status === 'rejected' ? 'destructive' : 'secondary'
+                  status === 'approved' ? 'default' : status === 'rejected' || status === 'denied' ? 'destructive' : 'secondary'
                 }
               >
                 {status}
@@ -116,10 +129,26 @@ export function PaginatedReportTable({
           },
         },
         {
-          accessorKey: 'roster_period',
+          accessorFn: (row) => {
+            // Calculate roster periods dynamically from date range
+            if (!row.start_date) return 'N/A'
+
+            const startDate = new Date(row.start_date)
+            const endDate = row.end_date ? new Date(row.end_date) : startDate
+
+            try {
+              const periods = getAffectedRosterPeriods(startDate, endDate)
+              return periods.map(p => p.code).join(', ')
+            } catch (error) {
+              console.error('Error calculating roster periods:', error)
+              return row.roster_period || 'N/A'
+            }
+          },
+          id: 'roster_period',
           header: 'Roster Period',
+          enableGrouping: true,
           cell: ({ getValue }) => (
-            <div className="text-sm font-mono">{(getValue() as string) || 'N/A'}</div>
+            <div className="text-sm font-mono">{getValue() as string}</div>
           ),
         },
       ]
@@ -128,7 +157,7 @@ export function PaginatedReportTable({
     if (reportType === 'flight-requests') {
       return [
         {
-          accessorFn: (row) => `${row.pilot?.first_name} ${row.pilot?.last_name}`,
+          accessorFn: (row) => row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
           id: 'pilot',
           header: ({ column }) => (
             <Button
@@ -143,9 +172,11 @@ export function PaginatedReportTable({
           cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
         },
         {
-          accessorKey: 'pilot.role',
+          accessorFn: (row) => row.rank || row.pilot?.role || 'N/A',
+          id: 'rank',
           header: 'Rank',
-          cell: ({ getValue }) => <div className="text-sm">{(getValue() as string) || 'N/A'}</div>,
+          enableGrouping: true,
+          cell: ({ getValue }) => <div className="text-sm">{getValue() as string}</div>,
         },
         {
           accessorKey: 'request_type',
@@ -157,42 +188,156 @@ export function PaginatedReportTable({
           ),
         },
         {
-          accessorKey: 'flight_date',
+          accessorKey: 'start_date',
           header: ({ column }) => (
             <Button
               variant="ghost"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
               className="h-8 px-2"
             >
-              Flight Date
+              RDO/SDO Date
               <ArrowUpDown className="ml-2 h-3 w-3" />
             </Button>
           ),
-          cell: ({ getValue }) => {
-            const date = getValue()
+          cell: ({ row }) => {
+            const startDate = row.original.start_date
+            const endDate = row.original.end_date
             return (
               <div className="text-sm">
-                {date ? new Date(date as string).toLocaleDateString() : 'N/A'}
+                {startDate && endDate && startDate !== endDate
+                  ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`
+                  : startDate
+                  ? new Date(startDate).toLocaleDateString()
+                  : 'N/A'}
               </div>
             )
           },
         },
         {
-          accessorKey: 'description',
-          header: 'Description',
+          accessorFn: (row) => {
+            // Calculate roster periods dynamically from date range
+            if (!row.start_date) return 'N/A'
+
+            const startDate = new Date(row.start_date)
+            const endDate = row.end_date ? new Date(row.end_date) : startDate
+
+            try {
+              const periods = getAffectedRosterPeriods(startDate, endDate)
+              return periods.map(p => p.code).join(', ')
+            } catch (error) {
+              console.error('Error calculating roster periods:', error)
+              return row.roster_period || 'N/A'
+            }
+          },
+          id: 'roster_periods',
+          header: 'Roster Period',
+          enableGrouping: true,
           cell: ({ getValue }) => (
-            <div className="text-sm max-w-xs truncate">{(getValue() as string) || 'N/A'}</div>
+            <div className="text-sm font-medium">{getValue() as string}</div>
+          ),
+        },
+        {
+          accessorFn: (row) => row.workflow_status || row.status || 'N/A',
+          id: 'status',
+          header: 'Status',
+          cell: ({ getValue }) => {
+            const status = (getValue() as string).toLowerCase()
+            return (
+              <Badge
+                variant={
+                  status === 'approved' ? 'default' : status === 'rejected' || status === 'denied' ? 'destructive' : 'secondary'
+                }
+              >
+                {status}
+              </Badge>
+            )
+          },
+        },
+      ]
+    }
+
+    if (reportType === 'leave-bids') {
+      return [
+        {
+          accessorFn: (row) => row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
+          id: 'pilot',
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              className="h-8 px-2"
+            >
+              Pilot
+              <ArrowUpDown className="ml-2 h-3 w-3" />
+            </Button>
+          ),
+          cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
+        },
+        {
+          accessorFn: (row) => row.rank || row.pilot?.role || 'N/A',
+          id: 'rank',
+          header: 'Rank',
+          enableGrouping: true,
+          cell: ({ getValue }) => <div className="text-sm">{getValue() as string}</div>,
+        },
+        {
+          accessorKey: 'roster_period_code',
+          id: 'roster_period',
+          header: 'Roster Period',
+          enableGrouping: true,
+          cell: ({ getValue }) => (
+            <div className="text-sm font-mono">{(getValue() as string) || 'N/A'}</div>
+          ),
+        },
+        {
+          accessorKey: 'priority',
+          header: 'Priority',
+          cell: ({ getValue }) => (
+            <Badge
+              variant="outline"
+              className={`font-mono text-xs ${
+                getValue() === 'HIGH'
+                  ? 'border-red-500 text-red-600'
+                  : getValue() === 'MEDIUM'
+                  ? 'border-yellow-500 text-yellow-600'
+                  : 'border-gray-500 text-gray-600'
+              }`}
+            >
+              {getValue() as string}
+            </Badge>
+          ),
+        },
+        {
+          accessorKey: 'submitted_at',
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              className="h-8 px-2"
+            >
+              Submitted
+              <ArrowUpDown className="ml-2 h-3 w-3" />
+            </Button>
+          ),
+          cell: ({ getValue }) => (
+            <div className="text-sm">{new Date(getValue() as string).toLocaleDateString()}</div>
           ),
         },
         {
           accessorKey: 'status',
           header: 'Status',
           cell: ({ getValue }) => {
-            const status = getValue() as string
+            const status = (getValue() as string).toLowerCase()
             return (
               <Badge
                 variant={
-                  status === 'approved' ? 'default' : status === 'rejected' ? 'destructive' : 'secondary'
+                  status === 'approved'
+                    ? 'default'
+                    : status === 'rejected'
+                    ? 'destructive'
+                    : status === 'processing'
+                    ? 'default'
+                    : 'secondary'
                 }
               >
                 {status}
@@ -223,6 +368,7 @@ export function PaginatedReportTable({
       {
         accessorKey: 'pilot.role',
         header: 'Rank',
+        enableGrouping: true,
         cell: ({ getValue }) => <div className="text-sm">{(getValue() as string) || 'N/A'}</div>,
       },
       {
@@ -300,6 +446,14 @@ export function PaginatedReportTable({
   const table = useReactTable({
     data,
     columns,
+    state: {
+      grouping,
+      expanded,
+    },
+    onGroupingChange: setGrouping,
+    onExpandedChange: setExpanded,
+    getGroupedRowModel: getGroupedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
@@ -308,6 +462,53 @@ export function PaginatedReportTable({
 
   return (
     <div className="space-y-4">
+      {/* Grouping Controls */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-sm font-medium text-muted-foreground">Group by:</span>
+        <Button
+          variant={grouping.includes('roster_period') || grouping.includes('roster_periods') ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => {
+            const rosterPeriodColumn = reportType === 'flight-requests' ? 'roster_periods' : 'roster_period'
+            if (grouping.includes(rosterPeriodColumn)) {
+              setGrouping(grouping.filter((id) => id !== rosterPeriodColumn))
+            } else {
+              setGrouping([rosterPeriodColumn, ...grouping.filter((id) => id !== 'rank')])
+            }
+          }}
+        >
+          Roster Period
+        </Button>
+        <Button
+          variant={grouping.includes('rank') ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => {
+            const rosterPeriodColumn = reportType === 'flight-requests' ? 'roster_periods' : 'roster_period'
+            if (grouping.includes('rank')) {
+              setGrouping(grouping.filter((id) => id !== 'rank'))
+            } else {
+              // Add rank after roster_period for hierarchical grouping
+              const newGrouping = grouping.includes(rosterPeriodColumn)
+                ? [rosterPeriodColumn, 'rank']
+                : ['rank']
+              setGrouping(newGrouping)
+            }
+          }}
+        >
+          Rank
+        </Button>
+        {grouping.length > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setGrouping([])}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            Clear Grouping
+          </Button>
+        )}
+      </div>
+
       {/* Table */}
       <div className="rounded-md border">
         <div className="relative overflow-x-auto">
@@ -335,18 +536,63 @@ export function PaginatedReportTable({
                   </td>
                 </tr>
               ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="p-3 align-middle">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                table.getRowModel().rows.map((row) => {
+                  if (row.getIsGrouped()) {
+                    // Render group header row
+                    return (
+                      <tr
+                        key={row.id}
+                        className="bg-muted/30 font-medium border-b-2 border-muted"
+                      >
+                        <td colSpan={columns.length} className="p-3">
+                          <button
+                            onClick={row.getToggleExpandedHandler()}
+                            className="flex items-center gap-2 hover:text-primary transition-colors"
+                          >
+                            <ChevronDown
+                              className={`h-4 w-4 transition-transform ${
+                                row.getIsExpanded() ? '' : '-rotate-90'
+                              }`}
+                            />
+                            <span className="font-semibold">
+                              {flexRender(
+                                row.getVisibleCells()[0].column.columnDef.cell,
+                                row.getVisibleCells()[0].getContext()
+                              )}
+                            </span>
+                            <Badge variant="secondary" className="ml-2">
+                              {row.subRows.length} {row.subRows.length === 1 ? 'record' : 'records'}
+                            </Badge>
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  }
+
+                  // Render regular data row
+                  return (
+                    <tr
+                      key={row.id}
+                      className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className="p-3 align-middle">
+                          {cell.getIsGrouped() ? (
+                            // Don't render grouped cells inline
+                            null
+                          ) : cell.getIsAggregated() ? (
+                            flexRender(
+                              cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
+                              cell.getContext()
+                            )
+                          ) : cell.getIsPlaceholder() ? null : (
+                            flexRender(cell.column.columnDef.cell, cell.getContext())
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  )
+                })
               ) : (
                 <tr>
                   <td colSpan={columns.length} className="h-24 text-center text-muted-foreground">

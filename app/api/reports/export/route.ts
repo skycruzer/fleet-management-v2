@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     const report = await generateReport(reportType, filters ?? {}, true, user.email || user.id)
 
     // Generate PDF
-    const pdfBuffer = generatePDF(report, reportType)
+    const pdfBuffer = await generatePDF(report, reportType)
 
     const executionTime = Date.now() - startTime
 

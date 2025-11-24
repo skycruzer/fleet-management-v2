@@ -120,8 +120,8 @@ export const DashboardLeaveFilterSchema = z.object({
   rosterPeriod: z
     .string()
     .regex(
-      /^RP(1[0-3]|[1-9])\/\d{4}$/,
-      'Roster period must be in format "RP1/2025" through "RP13/2025"'
+      /^RP(0[1-9]|1[0-3]|[1-9])\/\d{4}$/,
+      'Roster period must be in format "RP01/2025" through "RP13/2025"'
     )
     .optional(),
   includeCurrentMonth: z.boolean().optional().default(true),

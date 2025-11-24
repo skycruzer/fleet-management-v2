@@ -1,10 +1,9 @@
 'use client'
 
 /**
- * Flight Request Submission Page
+ * RDO/SDO Request Submission Page
  *
- * Allows pilots to submit flight requests for additional flights,
- * route changes, and schedule swaps.
+ * Allows pilots to submit RDO (Rostered Day Off) and SDO (Scheduled Day Off) requests.
  *
  * @spec 001-missing-core-features (US3)
  */
@@ -42,24 +41,14 @@ import Link from 'next/link'
 
 const REQUEST_TYPES = [
   {
-    value: 'FLIGHT_REQUEST',
-    label: 'Flight',
-    description: 'Request for additional flight assignment',
-  },
-  {
     value: 'RDO',
-    label: 'RDO',
-    description: 'Rostered Day Off request',
+    label: 'RDO (Rostered Day Off)',
+    description: 'Request a rostered day off',
   },
   {
     value: 'SDO',
-    label: 'SDO',
-    description: 'Scheduled Day Off request',
-  },
-  {
-    value: 'OFFICE_DAY',
-    label: 'Office',
-    description: 'Office duty day request',
+    label: 'SDO (Scheduled Day Off)',
+    description: 'Request a scheduled day off',
   },
 ] as const
 
@@ -72,8 +61,9 @@ export default function NewFlightRequestPage() {
   const form = useForm<FlightRequestInput>({
     resolver: zodResolver(FlightRequestSchema),
     defaultValues: {
-      request_type: 'FLIGHT_REQUEST',
-      flight_date: '',
+      request_type: 'RDO',
+      start_date: '',
+      end_date: '',
       description: '',
       reason: '',
     },
@@ -93,7 +83,7 @@ export default function NewFlightRequestPage() {
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to submit flight request. Please try again.')
+        setError(result.error || 'Failed to submit RDO/SDO request. Please try again.')
         setIsLoading(false)
         return
       }
@@ -102,9 +92,11 @@ export default function NewFlightRequestPage() {
       setSuccess(true)
       setIsLoading(false)
 
-      // Redirect to flight requests list after 2 seconds
-      setTimeout(() => {
-        router.push('/portal/flight-requests')
+      // Refresh cache and redirect to flight requests list after 2 seconds
+      setTimeout(async () => {
+        router.refresh()  // Refresh cache first
+        await new Promise(resolve => setTimeout(resolve, 100))
+        router.push('/portal/flight-requests')  // Then navigate
       }, 2000)
     } catch {
       setError('An unexpected error occurred. Please try again.')
@@ -119,7 +111,7 @@ export default function NewFlightRequestPage() {
           <CardHeader className="text-center">
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-600" />
             <CardTitle className="text-2xl font-bold text-green-600">Request Submitted!</CardTitle>
-            <CardDescription>Your flight request has been submitted for review.</CardDescription>
+            <CardDescription>Your RDO/SDO request has been submitted for review.</CardDescription>
           </CardHeader>
           <CardContent>
             <Alert>
@@ -130,7 +122,7 @@ export default function NewFlightRequestPage() {
             </Alert>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-gray-600">Redirecting to your flight requests...</p>
+            <p className="text-sm text-gray-600">Redirecting to your RDO/SDO requests...</p>
           </CardFooter>
         </Card>
       </div>
@@ -146,9 +138,9 @@ export default function NewFlightRequestPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Submit Flight Request</h1>
+          <h1 className="text-3xl font-bold">Submit RDO/SDO Request</h1>
           <p className="mt-1 text-gray-600">
-            Request additional flights, route changes, or schedule swaps
+            Request a Rostered Day Off (RDO) or Scheduled Day Off (SDO)
           </p>
         </div>
       </div>
@@ -156,9 +148,9 @@ export default function NewFlightRequestPage() {
       <Card className="mx-auto max-w-2xl">
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle>Flight Request Details</CardTitle>
+            <CardTitle>RDO/SDO Request Details</CardTitle>
             <CardDescription>
-              Provide detailed information about your flight request for management review
+              Provide detailed information about your RDO/SDO request for management review
             </CardDescription>
           </CardHeader>
 
@@ -199,34 +191,54 @@ export default function NewFlightRequestPage() {
               )}
             </div>
 
-            {/* Flight Date */}
+            {/* Start Date */}
             <div className="space-y-2">
-              <Label htmlFor="flight_date">Flight Date *</Label>
+              <Label htmlFor="start_date">Start Date *</Label>
               <Input
-                id="flight_date"
+                id="start_date"
                 type="date"
-                {...form.register('flight_date')}
+                {...form.register('start_date')}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">Select the date for your requested flight</p>
-              {form.formState.errors.flight_date && (
-                <p className="text-sm text-red-500">{form.formState.errors.flight_date.message}</p>
+              <p className="text-xs text-gray-500">Select the start date of your RDO/SDO request</p>
+              {form.formState.errors.start_date && (
+                <p className="text-sm text-red-500">{form.formState.errors.start_date.message}</p>
+              )}
+            </div>
+
+            {/* End Date */}
+            <div className="space-y-2">
+              <Label htmlFor="end_date">End Date (Optional)</Label>
+              <Input
+                id="end_date"
+                type="date"
+                {...form.register('end_date')}
+                disabled={isLoading}
+              />
+              <p className="text-xs text-gray-500">
+                Leave blank for single-day request. For multi-day requests, select the end date (max 90 days)
+              </p>
+              {form.formState.errors.end_date && (
+                <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
               )}
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">Description (Optional)</Label>
               <Textarea
                 id="description"
-                placeholder="Describe your flight request in detail (route, requirements, etc.)..."
+                placeholder="Provide additional details about your RDO/SDO request (optional)..."
                 rows={4}
                 maxLength={2000}
                 {...form.register('description')}
                 disabled={isLoading}
               />
               <p className="text-xs text-gray-500">
-                {form.watch('description')?.length || 0}/2000 characters (minimum 10 characters)
+                {form.watch('description')?.length || 0}/2000 characters
+                {form.watch('description') && form.watch('description').length < 10 && form.watch('description').length > 0
+                  ? ' (minimum 10 characters if provided)'
+                  : ''}
               </p>
               {form.formState.errors.description && (
                 <p className="text-sm text-red-500">{form.formState.errors.description.message}</p>
@@ -255,8 +267,8 @@ export default function NewFlightRequestPage() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Note:</strong> Flight requests are subject to operational requirements, crew
-                availability, and regulatory compliance. Approval is not guaranteed.
+                <strong>Note:</strong> RDO/SDO requests are subject to operational requirements and
+                crew availability. Submit requests at least 21 days in advance for best approval chances.
               </AlertDescription>
             </Alert>
           </CardContent>

@@ -16,7 +16,7 @@ export interface FilterPreset {
   name: string
   filters: ReportFilters
   createdAt: string
-  reportType: 'leave' | 'flight-requests' | 'certifications'
+  reportType: 'leave' | 'flight-requests' | 'certifications' | 'leave-bids'
 }
 
 const STORAGE_KEY_PREFIX = 'report-filter-presets'
@@ -31,7 +31,7 @@ function getStorageKey(reportType: string): string {
 /**
  * Custom hook for managing filter presets
  */
-export function useFilterPresets(reportType: 'leave' | 'flight-requests' | 'certifications') {
+export function useFilterPresets(reportType: 'leave' | 'flight-requests' | 'certifications' | 'leave-bids') {
   const [presets, setPresets] = useState<FilterPreset[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
