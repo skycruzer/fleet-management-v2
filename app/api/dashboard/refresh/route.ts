@@ -34,13 +34,13 @@ export async function POST(request: Request) {
     const supabase = await createClient()
 
     // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Call the refresh function
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
 
     const sanitized = sanitizeError(error, {
       operation: 'refreshDashboardMetrics',
-      method: 'POST'
+      method: 'POST',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -93,13 +93,13 @@ export async function GET(request: Request) {
     const supabase = await createClient()
 
     // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get view metadata
@@ -144,9 +144,7 @@ export async function GET(request: Request) {
       healthy: isRecent,
       lastRefreshed: typedData.last_refreshed,
       ageSeconds,
-      recommendation: isRecent
-        ? 'View is fresh'
-        : 'Consider refreshing the view',
+      recommendation: isRecent ? 'View is fresh' : 'Consider refreshing the view',
     })
   } catch (error) {
     logError(error as Error, {
@@ -159,7 +157,7 @@ export async function GET(request: Request) {
 
     const sanitized = sanitizeError(error, {
       operation: 'getDashboardHealth',
-      method: 'GET'
+      method: 'GET',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

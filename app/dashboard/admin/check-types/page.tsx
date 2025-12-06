@@ -63,7 +63,7 @@ export default async function CheckTypesPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30 p-6">
+        <Card className="border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950/30">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
@@ -72,7 +72,7 @@ export default async function CheckTypesPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 p-6">
+        <Card className="border-orange-200 bg-orange-50 p-6 dark:border-orange-800 dark:bg-orange-950/30">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📅</span>
             <div>

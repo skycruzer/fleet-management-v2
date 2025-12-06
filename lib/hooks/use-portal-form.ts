@@ -75,8 +75,10 @@ export function usePortalForm(options: UsePortalFormOptions = {}) {
                 ? `${options.successRedirect}?success=${encodeURIComponent(options.successMessage)}`
                 : options.successRedirect
 
-              router.push(redirectUrl)
+              // CRITICAL: Refresh cache BEFORE navigation (Next.js 16 requirement)
               router.refresh()
+              await new Promise((resolve) => setTimeout(resolve, 300))
+              router.push(redirectUrl)
             }
           } else {
             // Rollback optimistic state on error
@@ -106,8 +108,10 @@ export function usePortalForm(options: UsePortalFormOptions = {}) {
               ? `${options.successRedirect}?success=${encodeURIComponent(options.successMessage)}`
               : options.successRedirect
 
-            router.push(redirectUrl)
+            // CRITICAL: Refresh cache BEFORE navigation (Next.js 16 requirement)
             router.refresh()
+            await new Promise((resolve) => setTimeout(resolve, 100))
+            router.push(redirectUrl)
           }
         } else {
           setState({

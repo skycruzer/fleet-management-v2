@@ -10,10 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import {
-  generateRosterPeriodReport,
-  saveRosterReport,
-} from '@/lib/services/roster-report-service'
+import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
 import { logger } from '@/lib/services/logging-service'
 
 /**
@@ -25,10 +22,7 @@ import { logger } from '@/lib/services/logging-service'
  * - reportType: 'PREVIEW' | 'FINAL' (default: PREVIEW)
  * - save: 'true' | 'false' (default: false) - whether to save to database
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { period: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { period: string } }) {
   try {
     const supabase = await createClient()
 

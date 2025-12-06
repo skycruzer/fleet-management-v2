@@ -25,10 +25,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     // SECURITY: Verify pilot session (pilot portal uses custom auth)
     const pilotId = await verifyPilotSession(_request)
     if (!pilotId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
@@ -73,7 +70,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
     console.error('Pilot leave DELETE error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'cancelPilotLeaveRequest',
-      requestId: params.id
+      requestId: params.id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

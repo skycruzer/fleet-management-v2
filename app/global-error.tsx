@@ -27,19 +27,17 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body>
-        <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
-          <div className="text-center space-y-6 max-w-lg">
+        <div className="bg-background flex min-h-screen flex-col items-center justify-center px-4">
+          <div className="max-w-lg space-y-6 text-center">
             {/* Error Icon */}
             <div className="flex justify-center">
-              <div className="rounded-full bg-destructive/20 p-6">
-                <AlertTriangle className="h-16 w-16 text-destructive" />
+              <div className="bg-destructive/20 rounded-full p-6">
+                <AlertTriangle className="text-destructive h-16 w-16" />
               </div>
             </div>
 
             {/* Error Title */}
-            <h1 className="text-4xl font-bold text-foreground">
-              Application Error
-            </h1>
+            <h1 className="text-foreground text-4xl font-bold">Application Error</h1>
 
             {/* Error Message */}
             <p className="text-muted-foreground text-lg">
@@ -50,13 +48,11 @@ export default function GlobalError({
 
             {/* Error ID (Production) */}
             {error.digest && (
-              <p className="text-sm text-muted-foreground font-mono">
-                Error ID: {error.digest}
-              </p>
+              <p className="text-muted-foreground font-mono text-sm">Error ID: {error.digest}</p>
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Button onClick={() => reset()} className="w-full sm:w-auto">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Try Again
@@ -72,7 +68,7 @@ export default function GlobalError({
             </div>
 
             {/* Support Information */}
-            <p className="text-sm text-muted-foreground mt-6">
+            <p className="text-muted-foreground mt-6 text-sm">
               If this problem persists, please contact support
             </p>
           </div>

@@ -16,14 +16,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  MessageSquare,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Calendar,
-} from 'lucide-react'
+import { MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, Calendar } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -72,12 +65,27 @@ export default function FeedbackHistoryPage() {
   const getStatusBadge = (status?: string | null) => {
     switch (status) {
       case 'UNDER_REVIEW':
-        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="mr-1 h-3 w-3" />Under Review</Badge>
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800">
+            <Clock className="mr-1 h-3 w-3" />
+            Under Review
+          </Badge>
+        )
       case 'RESOLVED':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="mr-1 h-3 w-3" />Resolved</Badge>
+        return (
+          <Badge className="bg-green-100 text-green-800">
+            <CheckCircle className="mr-1 h-3 w-3" />
+            Resolved
+          </Badge>
+        )
       case 'SUBMITTED':
       default:
-        return <Badge className="bg-gray-100 text-gray-800"><AlertCircle className="mr-1 h-3 w-3" />Submitted</Badge>
+        return (
+          <Badge className="bg-gray-100 text-gray-800">
+            <AlertCircle className="mr-1 h-3 w-3" />
+            Submitted
+          </Badge>
+        )
     }
   }
 
@@ -101,7 +109,7 @@ export default function FeedbackHistoryPage() {
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
           <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-          <p className="text-sm text-muted-foreground">Loading feedback history...</p>
+          <p className="text-muted-foreground text-sm">Loading feedback history...</p>
         </div>
       </div>
     )
@@ -119,13 +127,13 @@ export default function FeedbackHistoryPage() {
   return (
     <div className="min-h-screen">
       {/* Page Header */}
-      <div className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-8 py-6">
+      <div className="border-b border-slate-200 bg-white px-8 py-6 dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <MessageSquare className="h-8 w-8 text-primary" />
+            <MessageSquare className="text-primary h-8 w-8" />
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Feedback History</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-foreground text-2xl font-bold">Feedback History</h1>
+              <p className="text-muted-foreground text-sm">
                 View your past feedback submissions and admin responses
               </p>
             </div>
@@ -146,8 +154,8 @@ export default function FeedbackHistoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Feedback</p>
-                  <p className="text-3xl font-bold text-foreground">{feedback.length}</p>
+                  <p className="text-muted-foreground text-sm font-medium">Total Feedback</p>
+                  <p className="text-foreground text-3xl font-bold">{feedback.length}</p>
                 </div>
                 <MessageSquare className="h-8 w-8 text-blue-500" />
               </div>
@@ -158,8 +166,8 @@ export default function FeedbackHistoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Under Review</p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-muted-foreground text-sm font-medium">Under Review</p>
+                  <p className="text-foreground text-3xl font-bold">
                     {feedback.filter((f) => f.status === 'UNDER_REVIEW').length}
                   </p>
                 </div>
@@ -172,8 +180,8 @@ export default function FeedbackHistoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Resolved</p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className="text-muted-foreground text-sm font-medium">Resolved</p>
+                  <p className="text-foreground text-3xl font-bold">
                     {feedback.filter((f) => f.status === 'RESOLVED').length}
                   </p>
                 </div>
@@ -187,11 +195,11 @@ export default function FeedbackHistoryPage() {
         {feedback.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <MessageSquare className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-              <h3 className="mb-2 text-lg font-semibold text-foreground">
+              <MessageSquare className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+              <h3 className="text-foreground mb-2 text-lg font-semibold">
                 No Feedback Submitted Yet
               </h3>
-              <p className="mb-4 text-sm text-muted-foreground">
+              <p className="text-muted-foreground mb-4 text-sm">
                 You haven't submitted any feedback. Share your thoughts and suggestions!
               </p>
               <Link href="/portal/feedback">
@@ -221,34 +229,36 @@ export default function FeedbackHistoryPage() {
                       <CardTitle className="text-xl">{item.subject}</CardTitle>
                       <CardDescription className="mt-2 flex items-center gap-2 text-xs">
                         <Calendar className="h-3 w-3" />
-                        Submitted {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                        Submitted{' '}
+                        {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-4">
                   <div className="mb-4">
-                    <h4 className="mb-2 text-sm font-semibold text-foreground">Your Feedback:</h4>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    <h4 className="text-foreground mb-2 text-sm font-semibold">Your Feedback:</h4>
+                    <p className="text-muted-foreground text-sm whitespace-pre-wrap">
                       {item.message}
                     </p>
                   </div>
 
                   {/* Admin Response */}
                   {item.admin_response && (
-                    <div className="rounded-lg border-2 border-primary-200 bg-primary-50 p-4 dark:border-primary-800 dark:bg-primary-950/30">
+                    <div className="border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-950/30 rounded-lg border-2 p-4">
                       <div className="mb-2 flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-primary-600" />
-                        <h4 className="text-sm font-semibold text-primary-900 dark:text-primary-100">
+                        <CheckCircle className="text-primary-600 h-4 w-4" />
+                        <h4 className="text-primary-900 dark:text-primary-100 text-sm font-semibold">
                           Admin Response:
                         </h4>
                       </div>
-                      <p className="text-sm text-primary-800 dark:text-primary-200 whitespace-pre-wrap">
+                      <p className="text-primary-800 dark:text-primary-200 text-sm whitespace-pre-wrap">
                         {item.admin_response}
                       </p>
                       {item.updated_at && (
-                        <p className="mt-2 text-xs text-primary-600 dark:text-primary-400">
-                          Responded {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
+                        <p className="text-primary-600 dark:text-primary-400 mt-2 text-xs">
+                          Responded{' '}
+                          {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
                         </p>
                       )}
                     </div>

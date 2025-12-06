@@ -1,31 +1,38 @@
 # Lean PRD Template
 
 ## Overview
+
 One-paragraph summary: who this is for, what problem it solves, why now.
 
 ## Target User
+
 **Who:** Specific persona, not "everyone"
 **Current workflow:** How they solve this today
 **Pain point:** What's broken or missing
 **Quote:** Actual words from a real or hypothetical user describing the problem
 
 ## The One Problem
+
 One sentence. This is your north star.
 
 Example: "Freelancers lose 3+ hours/week manually tracking time across projects."
 
 ## Success Metrics
+
 How you'll know if this works:
+
 - **Primary metric:** The one number that matters most
 - **Target:** What number indicates validation?
 - **Timeframe:** When will you check this?
 
 Example:
+
 - Primary: Users track >5 projects/week
 - Target: 50 active users in 30 days
 - Timeframe: Check weekly for 4 weeks
 
 ## Core User Loop
+
 The minimum path a user takes to get value:
 
 1. [User action 1]
@@ -38,6 +45,7 @@ Keep this to 3-5 steps max. If it's longer, you're building too much.
 ## MVP Feature Set
 
 ### Must Have (Week 1)
+
 Features that enable the core user loop. Without these, the app has no value.
 
 - Feature 1: [Description]
@@ -51,12 +59,14 @@ Features that enable the core user loop. Without these, the app has no value.
 **Total estimate:** Must be ≤5 days
 
 ### Deferred (Post-Validation)
+
 Good ideas that don't block validation. Revisit after MVP ships.
 
 - Feature name: [Why deferred]
 - Feature name: [Why deferred]
 
 ### Explicitly Cut
+
 Ideas that don't serve the core loop or violate MVP principles.
 
 - Feature name: [Why cut]
@@ -72,6 +82,7 @@ Focus on outcomes, not features.
 ## Data Model (High Level)
 
 Minimum viable schema:
+
 ```
 Table: users
 - id
@@ -90,11 +101,13 @@ Don't design for scale. Design for validation.
 **Stack:** Next.js, Supabase, Vercel (default unless strong reason to deviate)
 
 **Key decisions:**
+
 - How will data sync?
 - What's the simplest auth approach?
 - Any external APIs needed?
 
 **What we're NOT building:**
+
 - No [feature that's deferred]
 - No [feature that's cut]
 - No [premature optimization]
@@ -113,6 +126,7 @@ Note: "Perfect" is not a launch criterion.
 ## Open Questions
 
 What needs answering before/during build?
+
 - Question 1?
 - Question 2?
 

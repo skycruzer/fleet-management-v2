@@ -16,7 +16,7 @@ test.describe('Pilot Registration', () => {
     await context.clearCookies()
 
     // Navigate to registration page
-    await page.goto('http://localhost:3000/portal/register')
+    await page.goto('/portal/register')
 
     // Wait for page to load
     await expect(page.getByRole('heading', { name: 'Pilot Registration' })).toBeVisible()

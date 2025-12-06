@@ -5,7 +5,6 @@ import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatter
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 
-
 /**
  * New Disciplinary Matter Page (Admin)
  *
@@ -44,7 +43,9 @@ export default async function NewDisciplinaryMatterPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create Disciplinary Matter</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Create Disciplinary Matter
+        </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           Create a new disciplinary matter and assign it for investigation
         </p>
@@ -52,7 +53,11 @@ export default async function NewDisciplinaryMatterPage() {
 
       {/* Form */}
       <div className="mx-auto max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <DisciplinaryMatterForm pilots={pilots || []} users={users || []} incidentTypes={incidentTypes} />
+        <DisciplinaryMatterForm
+          pilots={pilots || []}
+          users={users || []}
+          incidentTypes={incidentTypes}
+        />
       </div>
     </div>
   )

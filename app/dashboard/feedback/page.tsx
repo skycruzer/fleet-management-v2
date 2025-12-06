@@ -56,10 +56,7 @@ export default async function FeedbackAdminPage() {
         </p>
       </div>
 
-      <FeedbackDashboardClient
-        initialFeedback={initialFeedback}
-        initialStats={initialStats}
-      />
+      <FeedbackDashboardClient initialFeedback={initialFeedback} initialStats={initialStats} />
     </div>
   )
 }

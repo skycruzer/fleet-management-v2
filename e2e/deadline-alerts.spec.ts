@@ -15,7 +15,7 @@ import { test, expect } from '@playwright/test'
 
 const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@test.com'
 const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'admin123'
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+const BASE_URL = process.env.BASE_URL || ''
 
 test.describe('Deadline Alert System', () => {
   test.beforeEach(async ({ page }) => {

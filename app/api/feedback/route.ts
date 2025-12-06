@@ -44,10 +44,7 @@ export async function GET(request: NextRequest) {
 
     if (!user) {
       console.error('❌ [API] Unauthorized access attempt')
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Parse query parameters
@@ -68,10 +65,7 @@ export async function GET(request: NextRequest) {
       const result = await exportFeedbackToCSV(filters)
 
       if (!result.success || !result.data) {
-        return NextResponse.json(
-          { success: false, error: result.error },
-          { status: 500 }
-        )
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
 
       // Return CSV file
@@ -89,10 +83,7 @@ export async function GET(request: NextRequest) {
       const result = await getFeedbackStats()
 
       if (!result.success) {
-        return NextResponse.json(
-          { success: false, error: result.error },
-          { status: 500 }
-        )
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
 
       return NextResponse.json({
@@ -113,10 +104,7 @@ export async function GET(request: NextRequest) {
     const result = await getAllFeedback(filters)
 
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -126,9 +114,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('❌ [API] Error in GET /api/feedback:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }

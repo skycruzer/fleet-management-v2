@@ -94,6 +94,7 @@ echo "  /repo-research"
 ```
 
 Make it executable and run:
+
 ```bash
 chmod +x install-global-agents.sh
 ./install-global-agents.sh
@@ -106,12 +107,14 @@ chmod +x install-global-agents.sh
 ### Global Installation Benefits
 
 ✅ **Pros:**
+
 - Available in ALL projects
 - Consistent tooling across projects
 - Update once, apply everywhere
 - Easier to maintain
 
 ❌ **Cons:**
+
 - Not version controlled per project
 - Harder to customize per project
 - Changes affect all projects
@@ -119,12 +122,14 @@ chmod +x install-global-agents.sh
 ### Project-Specific Benefits
 
 ✅ **Pros:**
+
 - Version controlled with project
 - Project-specific customization
 - Team can share configurations
 - Project-specific agent behavior
 
 ❌ **Cons:**
+
 - Must install in each project
 - Updates needed per project
 - Inconsistent across projects
@@ -196,6 +201,7 @@ Navigate to any project and run:
 ```
 
 If not working, check:
+
 1. Files exist in `~/.claude/commands/`
 2. Files have `.md` extension
 3. File names match command names (without `/`)
@@ -235,6 +241,7 @@ Team members get agents automatically when cloning.
 ### Option 2: Shared Installation Script
 
 Share the installation script via:
+
 - Project README
 - Team documentation
 - Onboarding docs
@@ -337,21 +344,25 @@ Your project has **OpenSpec** in `/openspec/` directory.
 ## Complete Global Agent List
 
 ### Code Quality (4 agents)
+
 1. `/review-typescript` - TypeScript code review
 2. `/simplify-code` - Code simplification
 3. `/review-database` - Database operations review
 4. `/dhh-rails-review` - Rails-style pragmatic review
 
 ### Security & Performance (2 agents)
+
 5. `/security-audit` - Security vulnerabilities
 6. `/optimize-performance` - Performance optimization
 
 ### Architecture & Design (3 agents)
+
 7. `/review-architecture` - Architecture validation
 8. `/analyze-patterns` - Pattern recognition
 9. `/repo-research` - Repository analysis
 
 ### Research (2 agents)
+
 10. `/research-framework` - Framework documentation
 11. `/research-best-practices` - Best practices research
 
@@ -371,6 +382,7 @@ Your project has **OpenSpec** in `/openspec/` directory.
 - ✅ Pattern Recognition
 
 **Works With:**
+
 - Specify (`.specify/` integration)
 - OpenSpec (`/openspec/` integration)
 - Next.js 15 / React 19

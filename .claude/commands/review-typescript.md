@@ -5,6 +5,7 @@ Review TypeScript code changes with Kieran's extremely high quality bar.
 ## When to Use
 
 Use this command after:
+
 - Implementing new features
 - Modifying existing TypeScript code
 - Creating new components or utilities
@@ -13,6 +14,7 @@ Use this command after:
 ## What It Does
 
 Invokes the **kieran-typescript-reviewer** agent which:
+
 - Applies strict TypeScript conventions
 - Checks type safety and proper type usage
 - Reviews naming conventions
@@ -27,6 +29,7 @@ Invokes the **kieran-typescript-reviewer** agent which:
 ```
 
 The agent will automatically:
+
 1. Analyze recent TypeScript changes
 2. Apply Kieran's strict quality standards
 3. Provide detailed feedback on improvements
@@ -35,6 +38,7 @@ The agent will automatically:
 ## Example
 
 After implementing a new React component:
+
 ```
 You: "I've just created a new UserProfile component"
 Assistant: "Let me review this with /review-typescript"

@@ -71,9 +71,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
       setRegistrations((prev) => prev.filter((reg) => reg.id !== registrationId))
 
       setSuccess(
-        approved
-          ? 'Registration approved successfully'
-          : 'Registration denied successfully'
+        approved ? 'Registration approved successfully' : 'Registration denied successfully'
       )
 
       // Refresh the page data after a short delay
@@ -108,9 +106,9 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="text-6xl mb-4">✅</div>
-            <p className="text-lg font-medium text-foreground">All caught up!</p>
-            <p className="text-sm text-muted-foreground mt-2">
+            <div className="mb-4 text-6xl">✅</div>
+            <p className="text-foreground text-lg font-medium">All caught up!</p>
+            <p className="text-muted-foreground mt-2 text-sm">
               There are no pending pilot registrations to review.
             </p>
           </div>
@@ -169,9 +167,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
                       </a>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={registration.rank === 'Captain' ? 'default' : 'secondary'}
-                      >
+                      <Badge variant={registration.rank === 'Captain' ? 'default' : 'secondary'}>
                         {registration.rank || 'Not Specified'}
                       </Badge>
                     </TableCell>
@@ -180,7 +176,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
                         <span className="text-muted-foreground text-sm">Not provided</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-sm">
                       {formatDate(registration.created_at)}
                     </TableCell>
                     <TableCell className="text-right">
@@ -188,7 +184,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
                         <Button
                           size="sm"
                           variant="default"
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-green-600 text-white hover:bg-green-700"
                           onClick={() => handleApproval(registration.id, true)}
                           disabled={isProcessing === registration.id}
                         >

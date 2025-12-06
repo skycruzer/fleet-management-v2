@@ -29,10 +29,7 @@ export async function PUT(_request: NextRequest, { params }: { params: Promise<{
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
@@ -78,7 +75,7 @@ export async function PUT(_request: NextRequest, { params }: { params: Promise<{
     console.error('❌ PUT /api/settings/[id] - Error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'updateSystemSetting',
-      settingId: (await params).id
+      settingId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

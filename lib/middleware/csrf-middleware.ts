@@ -28,7 +28,6 @@
  * ```
  */
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import crypto from 'crypto'
 
 /**
@@ -54,62 +53,12 @@ export function generateCsrfToken(): string {
  * - Token must be present in both cookie and header
  * - Both tokens must match exactly
  */
-async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
-  try {
-    // TEMPORARILY DISABLED: CSRF validation has cookie issues with Vercel deployment
-    // The Double Submit Cookie pattern doesn't work reliably across Vercel's domain structure
-    // TODO: Implement proper CSRF protection that works with Vercel (e.g., session-based tokens)
-    // Supabase Auth + RLS provides primary security layer
-    console.log('🔓 CSRF validation temporarily disabled (Vercel compatibility)')
-    return true
-
-    // CHECK FEATURE FLAG: Skip CSRF if explicitly disabled
-    if (process.env.ENABLE_CSRF_PROTECTION === 'false') {
-      console.log('🔓 CSRF validation disabled (ENABLE_CSRF_PROTECTION=false)')
-      return true
-    }
-
-    // DEVELOPMENT MODE: Skip CSRF validation (for easier development)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔓 CSRF validation skipped (development mode)')
-      return true
-    }
-
-    // Get token from header (sent by client with request)
-    // Try both variations of header name for compatibility
-    const headerToken =
-      req.headers.get(CSRF_HEADER_NAME) || req.headers.get(CSRF_HEADER_NAME.toLowerCase())
-
-    if (!headerToken) {
-      console.warn('CSRF validation failed: Missing CSRF token in header')
-      console.warn('Expected header:', CSRF_HEADER_NAME)
-      console.warn('Available headers:', JSON.stringify(Object.fromEntries(req.headers.entries())))
-      return false
-    }
-
-    // Get token from cookie (set by server)
-    const cookieStore = await cookies()
-    const cookieToken = cookieStore.get(CSRF_COOKIE_NAME)?.value
-
-    if (!cookieToken) {
-      console.warn('CSRF validation failed: Missing CSRF token in cookie')
-      console.warn('Available cookies:', JSON.stringify(cookieStore.getAll().map((c) => c.name)))
-      return false
-    }
-
-    // Tokens must match exactly (constant-time comparison)
-    const isValid = crypto.timingSafeEqual(Buffer.from(headerToken), Buffer.from(cookieToken))
-
-    if (!isValid) {
-      console.warn('CSRF validation failed: Token mismatch')
-      return false
-    }
-
-    return true
-  } catch (error) {
-    console.error('CSRF validation error:', error)
-    return false
-  }
+async function verifyCsrfTokenFromRequest(_req: NextRequest): Promise<boolean> {
+  // TEMPORARILY DISABLED: CSRF validation has cookie issues with Vercel deployment
+  // The Double Submit Cookie pattern doesn't work reliably across Vercel's domain structure
+  // TODO: Implement proper CSRF protection that works with Vercel (e.g., session-based tokens)
+  // Supabase Auth + RLS provides primary security layer
+  return true
 }
 
 /**

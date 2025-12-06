@@ -6,7 +6,6 @@ import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 
-
 /**
  * Audit Log Detail Page (Admin)
  *
@@ -53,12 +52,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
           href="/dashboard/audit"
           className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -126,9 +120,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
           </div>
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Audit ID</p>
-            <p className="mt-1 font-mono text-xs text-gray-600 dark:text-gray-400">
-              {auditLog.id}
-            </p>
+            <p className="mt-1 font-mono text-xs text-gray-600 dark:text-gray-400">{auditLog.id}</p>
           </div>
         </div>
 
@@ -185,14 +177,9 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       <div className="mt-8 flex justify-between">
         <Link
           href="/dashboard/audit"
-          className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -206,15 +193,10 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
         {auditLog.record_id && (
           <Link
             href={`/dashboard/audit?recordId=${auditLog.record_id}`}
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
           >
             View All Changes to This Record
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

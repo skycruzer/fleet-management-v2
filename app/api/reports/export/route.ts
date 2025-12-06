@@ -14,9 +14,7 @@ import { Logtail } from '@logtail/node'
 import { ReportExportRequestSchema } from '@/lib/validations/reports-schema'
 import { z } from 'zod'
 
-const log = process.env.LOGTAIL_SOURCE_TOKEN
-  ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN)
-  : null
+const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 
 // Rate limiter for PDF generation (stricter limits)
 const rateLimit = authRateLimit
@@ -25,7 +23,10 @@ export async function POST(request: Request) {
   try {
     // Authentication check
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
       log?.warn('Unauthorized PDF export attempt', {
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
     const validationResult = ReportExportRequestSchema.safeParse(body)
 
     if (!validationResult.success) {
-      const errors = validationResult.error.issues.map(err => ({
+      const errors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }))

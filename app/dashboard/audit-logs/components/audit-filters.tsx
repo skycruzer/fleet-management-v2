@@ -15,7 +15,7 @@ export function AuditFilters({
   currentTableName,
   currentAction,
   tables,
-  users
+  users,
 }: AuditFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -43,7 +43,7 @@ export function AuditFilters({
           id="user-filter"
           value={currentUserEmail || ''}
           onChange={(e) => handleFilterChange('userEmail', e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="">All Users</option>
           {users.map((user) => (
@@ -63,7 +63,7 @@ export function AuditFilters({
           id="table-filter"
           value={currentTableName || ''}
           onChange={(e) => handleFilterChange('tableName', e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="">All Tables</option>
           {tables.map((table) => (
@@ -83,7 +83,7 @@ export function AuditFilters({
           id="action-filter"
           value={currentAction || ''}
           onChange={(e) => handleFilterChange('action', e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="">All Actions</option>
           <option value="INSERT">Insert</option>

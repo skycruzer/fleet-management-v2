@@ -77,7 +77,7 @@ export default async function AdminLeaveBidsPage() {
     }
     return {
       ...bid,
-      bid_year: bidYear
+      bid_year: bidYear,
     }
   })
 
@@ -95,18 +95,15 @@ export default async function AdminLeaveBidsPage() {
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Leave Bid Management</h1>
-          <p className="mt-1 text-muted-foreground">
+          <h1 className="text-foreground text-3xl font-bold">Leave Bid Management</h1>
+          <p className="text-muted-foreground mt-1">
             Review and approve annual leave bids from pilots
           </p>
         </div>
 
         {/* PDF Export Button */}
         {bids.length > 0 && (
-          <Link
-            href={`/api/leave-bids/export-pdf?year=${bidYear}`}
-            target="_blank"
-          >
+          <Link href={`/api/leave-bids/export-pdf?year=${bidYear}`} target="_blank">
             <Button variant="outline" size="sm">
               <FileText className="mr-2 h-4 w-4" />
               Export PDF
@@ -124,12 +121,7 @@ export default async function AdminLeaveBidsPage() {
               <p className="text-3xl font-bold text-yellow-700">{pendingBids.length}</p>
             </div>
             <div className="text-yellow-500">
-              <svg
-                className="h-12 w-12"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -148,12 +140,7 @@ export default async function AdminLeaveBidsPage() {
               <p className="text-3xl font-bold text-green-700">{approvedBids.length}</p>
             </div>
             <div className="text-green-500">
-              <svg
-                className="h-12 w-12"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -172,12 +159,7 @@ export default async function AdminLeaveBidsPage() {
               <p className="text-3xl font-bold text-red-700">{rejectedBids.length}</p>
             </div>
             <div className="text-red-500">
-              <svg
-                className="h-12 w-12"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -210,7 +192,8 @@ export default async function AdminLeaveBidsPage() {
             <div>
               <h3 className="text-xl font-semibold text-gray-900">No Leave Bids Yet</h3>
               <p className="mt-2 text-gray-600">
-                Pilots haven't submitted any leave bids for review. Leave bids will appear here once pilots submit their annual leave preferences.
+                Pilots haven't submitted any leave bids for review. Leave bids will appear here once
+                pilots submit their annual leave preferences.
               </p>
             </div>
           </div>

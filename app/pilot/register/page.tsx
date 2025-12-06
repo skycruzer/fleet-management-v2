@@ -18,9 +18,9 @@ import PilotRegisterForm from '@/components/pilot/PilotRegisterForm'
 
 export const metadata: Metadata = {
   title: 'Pilot Registration | Fleet Management',
-  description: 'Register for access to the pilot portal. Your registration will be reviewed by an administrator.',
+  description:
+    'Register for access to the pilot portal. Your registration will be reviewed by an administrator.',
 }
-
 
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'

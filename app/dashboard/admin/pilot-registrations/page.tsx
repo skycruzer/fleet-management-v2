@@ -34,7 +34,7 @@ async function getPendingRegistrations(): Promise<PendingRegistration[]> {
     console.log('📋 Pending registrations result:', {
       success: result.success,
       count: result.data?.length || 0,
-      data: result.data
+      data: result.data,
     })
     // Type cast to PendingRegistration[] to match client component interface
     return (result.success ? result.data || [] : []) as PendingRegistration[]
@@ -52,8 +52,8 @@ export default async function PilotRegistrationsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Pilot Registration Approval</h2>
-          <p className="mt-1 text-muted-foreground">
+          <h2 className="text-foreground text-2xl font-bold">Pilot Registration Approval</h2>
+          <p className="text-muted-foreground mt-1">
             Review and approve pilot portal registration requests
           </p>
         </div>
@@ -66,26 +66,24 @@ export default async function PilotRegistrationsPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Pending Review
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-foreground">
-              {pendingRegistrations.length}
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">Awaiting approval</p>
+            <div className="text-foreground text-3xl font-bold">{pendingRegistrations.length}</div>
+            <p className="text-muted-foreground mt-1 text-xs">Awaiting approval</p>
           </CardContent>
         </Card>
 
         <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Quick Action
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-foreground">
+            <p className="text-foreground text-sm">
               {pendingRegistrations.length > 0
                 ? 'Review registrations below'
                 : 'No pending requests'}
@@ -95,7 +93,7 @@ export default async function PilotRegistrationsPage() {
 
         <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Registration Link
             </CardTitle>
           </CardHeader>
@@ -119,8 +117,8 @@ export default async function PilotRegistrationsPage() {
           <div className="flex items-start space-x-3">
             <span className="text-2xl">ℹ️</span>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">About Registration Approval</p>
-              <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+              <p className="text-foreground text-sm font-medium">About Registration Approval</p>
+              <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
                 <li>Pilots submit registration requests through /portal/register</li>
                 <li>Verify employee ID and details before approving</li>
                 <li>Approved pilots receive email notification (when implemented)</li>

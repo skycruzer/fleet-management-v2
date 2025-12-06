@@ -6,7 +6,6 @@ import { DisciplinaryFilters } from './components/disciplinary-filters'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 
-
 /**
  * Disciplinary Matters Dashboard (Admin)
  *
@@ -127,7 +126,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
         </div>
         <Link
           href="/dashboard/disciplinary/new"
-          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -140,31 +139,43 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Matters</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stats.totalMatters}</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+            {stats.totalMatters}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Open Cases</p>
-          <p className="mt-2 text-3xl font-bold text-yellow-600 dark:text-yellow-400">{stats.openMatters}</p>
+          <p className="mt-2 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+            {stats.openMatters}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Under Investigation</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            Under Investigation
+          </p>
           <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">
             {stats.underInvestigation}
           </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Overdue</p>
-          <p className="mt-2 text-3xl font-bold text-red-600 dark:text-red-400">{stats.overdueMatters}</p>
+          <p className="mt-2 text-3xl font-bold text-red-600 dark:text-red-400">
+            {stats.overdueMatters}
+          </p>
         </div>
       </div>
 
       {/* Secondary Stats */}
       <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Matter Breakdown</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+          Matter Breakdown
+        </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* By Severity */}
           <div>
-            <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">By Severity</h3>
+            <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+              By Severity
+            </h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Critical</span>
@@ -219,19 +230,19 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Pilot
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Severity
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Incident Date
                 </th>
               </tr>
@@ -239,7 +250,10 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
             <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
               {matters.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
+                  >
                     No disciplinary matters found
                   </td>
                 </tr>
@@ -288,7 +302,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800 sm:px-6">
+          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 dark:border-gray-700 dark:bg-gray-800">
             <div className="flex flex-1 justify-between sm:hidden">
               <Link
                 href={`?page=${page - 1}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
@@ -312,7 +326,10 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                 </p>
               </div>
               <div>
-                <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <nav
+                  className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                  aria-label="Pagination"
+                >
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                     <Link
                       key={pageNum}
@@ -320,7 +337,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                       className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                         pageNum === page
                           ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-                          : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0 dark:text-white dark:ring-gray-700 dark:hover:bg-gray-900'
+                          : 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:outline-offset-0 dark:text-white dark:ring-gray-700 dark:hover:bg-gray-900'
                       }`}
                     >
                       {pageNum}

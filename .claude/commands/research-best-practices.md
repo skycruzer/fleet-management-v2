@@ -5,6 +5,7 @@ Research and gather external best practices, documentation, and examples.
 ## When to Use
 
 Use this command for:
+
 - ✅ Best practices for any technology
 - ✅ Industry standards research
 - ✅ Framework conventions
@@ -15,6 +16,7 @@ Use this command for:
 ## What It Does
 
 Invokes the **best-practices-researcher** agent which:
+
 - Researches official documentation
 - Gathers community standards
 - Finds well-regarded examples
@@ -29,6 +31,7 @@ Invokes the **best-practices-researcher** agent which:
 ```
 
 Examples:
+
 ```
 /research-best-practices OpenAPI specification design
 /research-best-practices Next.js API routes best practices
@@ -40,6 +43,7 @@ Examples:
 ## Example Use Cases
 
 **API Design:**
+
 ```
 "Research best practices for RESTful API design"
 "OpenAPI specification best practices"
@@ -47,6 +51,7 @@ Examples:
 ```
 
 **Database:**
+
 ```
 "Research Supabase migration best practices"
 "PostgreSQL indexing strategies"
@@ -54,6 +59,7 @@ Examples:
 ```
 
 **Architecture:**
+
 ```
 "Research Next.js service layer patterns"
 "Microservices best practices"
@@ -72,6 +78,7 @@ Examples:
 ## Perfect For
 
 **OpenSpec/API Development:**
+
 - OpenAPI 3.0/3.1 best practices
 - API design guidelines
 - REST API conventions
@@ -79,6 +86,7 @@ Examples:
 - API documentation standards
 
 **Specify Workflows:**
+
 - Specification writing best practices
 - Requirements documentation
 - Technical specification formats

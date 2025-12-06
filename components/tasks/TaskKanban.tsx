@@ -113,6 +113,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
+        credentials: 'include',
       })
 
       const result = await response.json()

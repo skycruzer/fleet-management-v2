@@ -45,10 +45,10 @@ export default async function PilotDashboardPage() {
 
   if (!pilotUser.registration_approved) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-900 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 dark:bg-slate-900">
         <Card className="max-w-md p-8 text-center">
           <div className="mb-4 flex justify-center">
-            <Clock className="h-16 w-16 text-primary" aria-hidden="true" />
+            <Clock className="text-primary h-16 w-16" aria-hidden="true" />
           </div>
           <h2 className="text-foreground mb-2 text-2xl font-bold">Registration Pending</h2>
           <p className="text-muted-foreground mb-4">
@@ -89,9 +89,9 @@ export default async function PilotDashboardPage() {
   return (
     <div className="min-h-screen">
       {/* Page Header */}
-      <div className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-8 py-6">
+      <div className="border-b border-slate-200 bg-white px-8 py-6 dark:border-slate-700 dark:bg-slate-900">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-foreground text-2xl font-bold">
             Welcome, {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
           </h1>
         </div>
@@ -125,10 +125,10 @@ export default async function PilotDashboardPage() {
           (stats?.critical_certifications || 0) > 0 ||
           (stats?.upcoming_checks || 0) > 0) && (
           <div className="mb-8 space-y-4">
-            <h2 className="text-xl font-bold text-foreground">Certification Status</h2>
+            <h2 className="text-foreground text-xl font-bold">Certification Status</h2>
             {/* Expired Certifications Alert */}
             {(stats?.expired_certifications || 0) > 0 && (
-              <Card className="border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30 p-6">
+              <Card className="border-red-300 bg-red-50 p-6 dark:border-red-800 dark:bg-red-950/30">
                 <div className="flex items-start space-x-4">
                   <XCircle className="h-8 w-8 text-red-600 dark:text-red-400" aria-hidden="true" />
                   <div className="flex-1">
@@ -137,7 +137,8 @@ export default async function PilotDashboardPage() {
                     </h2>
                     <p className="mb-4 text-red-800 dark:text-red-200">
                       You have {stats?.expired_certifications || 0} expired certification
-                      {(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew immediately.
+                      {(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew
+                      immediately.
                     </p>
                     {stats?.expired_certifications_details &&
                       stats.expired_certifications_details.length > 0 && (
@@ -184,17 +185,20 @@ export default async function PilotDashboardPage() {
 
             {/* Critical Certifications Alert (< 2 weeks) */}
             {(stats?.critical_certifications || 0) > 0 && (
-              <Card className="border-orange-300 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/30 p-6">
+              <Card className="border-orange-300 bg-orange-50 p-6 dark:border-orange-800 dark:bg-orange-950/30">
                 <div className="flex items-start space-x-4">
-                  <AlertTriangle className="h-8 w-8 text-orange-600 dark:text-orange-400" aria-hidden="true" />
+                  <AlertTriangle
+                    className="h-8 w-8 text-orange-600 dark:text-orange-400"
+                    aria-hidden="true"
+                  />
                   <div className="flex-1">
                     <h2 className="text-foreground mb-2 text-xl font-semibold text-orange-900 dark:text-orange-100">
                       🚨 Critical: Certifications Expiring Soon
                     </h2>
                     <p className="mb-4 text-orange-800 dark:text-orange-200">
                       You have {stats?.critical_certifications || 0} certification
-                      {(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring within the next 2
-                      weeks. Action required.
+                      {(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring within the
+                      next 2 weeks. Action required.
                     </p>
                     {stats?.critical_certifications_details &&
                       stats.critical_certifications_details.length > 0 && (
@@ -243,17 +247,20 @@ export default async function PilotDashboardPage() {
 
             {/* Warning Certifications Alert (upcoming checks within 60 days) */}
             {(stats?.upcoming_checks || 0) > 0 && (
-              <Card className="border-yellow-300 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950/30 p-6">
+              <Card className="border-yellow-300 bg-yellow-50 p-6 dark:border-yellow-800 dark:bg-yellow-950/30">
                 <div className="flex items-start space-x-3">
-                  <AlertTriangle className="h-8 w-8 text-yellow-600 dark:text-yellow-400" aria-hidden="true" />
+                  <AlertTriangle
+                    className="h-8 w-8 text-yellow-600 dark:text-yellow-400"
+                    aria-hidden="true"
+                  />
                   <div className="flex-1">
                     <h2 className="text-foreground mb-2 text-xl font-semibold text-yellow-900 dark:text-yellow-100">
                       ⚠️ Warning: Upcoming Certifications
                     </h2>
                     <p className="mb-4 text-yellow-800 dark:text-yellow-200">
                       You have {stats?.upcoming_checks || 0} certification
-                      {(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring within the next 60 days.
-                      Plan renewals accordingly.
+                      {(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring within the next 60
+                      days. Plan renewals accordingly.
                     </p>
                     {stats?.upcoming_checks_details && stats.upcoming_checks_details.length > 0 && (
                       <div className="space-y-2">
@@ -302,7 +309,7 @@ export default async function PilotDashboardPage() {
           {/* Pending Leave Requests */}
           <Card className="p-6 transition-shadow hover:shadow-lg">
             <div className="mb-2 flex items-center justify-between">
-              <Calendar className="h-8 w-8 text-primary" aria-hidden="true" />
+              <Calendar className="text-primary h-8 w-8" aria-hidden="true" />
             </div>
             <h3 className="text-muted-foreground text-sm font-medium">Leave Requests</h3>
             <div className="mt-3 space-y-1">
@@ -327,7 +334,6 @@ export default async function PilotDashboardPage() {
             </div>
           </Card>
         </div>
-
       </main>
     </div>
   )

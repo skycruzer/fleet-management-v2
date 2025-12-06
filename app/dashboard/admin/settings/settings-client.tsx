@@ -64,6 +64,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
           value: parsedValue,
           description: editDescription || null,
         }),
+        credentials: 'include',
       })
 
       const result = await response.json()

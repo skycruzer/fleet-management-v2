@@ -65,7 +65,7 @@ export async function GET(
     const sanitized = sanitizeError(error, {
       operation: 'getPilotRenewalPlan',
       resourceId: pilotId,
-      endpoint: '/api/renewal-planning/pilot/[pilotId]'
+      endpoint: '/api/renewal-planning/pilot/[pilotId]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

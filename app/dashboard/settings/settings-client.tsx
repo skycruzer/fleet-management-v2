@@ -140,8 +140,8 @@ export function SettingsClient() {
               <p className="text-muted-foreground text-sm font-medium">Security Level</p>
               <p className="text-foreground text-2xl font-bold">High</p>
             </div>
-            <div className="rounded-full bg-primary/10 p-3">
-              <Shield className="h-6 w-6 text-primary" />
+            <div className="bg-primary/10 rounded-full p-3">
+              <Shield className="text-primary h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -204,14 +204,12 @@ export function SettingsClient() {
       {/* System & Developer Information */}
       <Card className="p-6">
         <div className="mb-6 flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Building2 className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2">
+            <Building2 className="text-primary h-5 w-5" />
           </div>
           <div>
             <h2 className="text-foreground text-xl font-semibold">System Information</h2>
-            <p className="text-muted-foreground text-sm">
-              Developer and company details
-            </p>
+            <p className="text-muted-foreground text-sm">Developer and company details</p>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -231,9 +229,7 @@ export function SettingsClient() {
                   <Building2 className="h-4 w-4" />
                   Company
                 </td>
-                <td className="text-foreground py-4 text-sm font-medium">
-                  PIN PNG LTD
-                </td>
+                <td className="text-foreground py-4 text-sm font-medium">PIN PNG LTD</td>
               </tr>
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">System Version</td>
@@ -246,9 +242,7 @@ export function SettingsClient() {
                   <Calendar className="h-4 w-4" />
                   Build Date
                 </td>
-                <td className="text-foreground py-4 text-sm">
-                  October 29, 2025
-                </td>
+                <td className="text-foreground py-4 text-sm">October 29, 2025</td>
               </tr>
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">Technology Stack</td>

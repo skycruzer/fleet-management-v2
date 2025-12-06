@@ -27,7 +27,7 @@ export const TEST_CONFIG = {
   // Legacy config for backward compatibility
   email: process.env.TEST_USER_EMAIL || throwMissingEnvError('TEST_USER_EMAIL'),
   password: process.env.TEST_USER_PASSWORD || throwMissingEnvError('TEST_USER_PASSWORD'),
-  baseUrl: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
+  baseUrl: process.env.PLAYWRIGHT_TEST_BASE_URL || '',
   timeout: 10000,
 }
 

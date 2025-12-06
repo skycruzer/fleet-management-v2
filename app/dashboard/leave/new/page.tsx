@@ -118,8 +118,11 @@ export default function NewLeaveRequestPage() {
     try {
       const response = await fetch('/api/leave-requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(formattedData),
+        credentials: 'include',
       })
 
       const result = await response.json()

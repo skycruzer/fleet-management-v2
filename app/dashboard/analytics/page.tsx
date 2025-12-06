@@ -149,6 +149,7 @@ export default function AnalyticsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ format, data: analytics }),
+        credentials: 'include',
       })
 
       if (!response.ok) throw new Error('Export failed')
@@ -176,7 +177,7 @@ export default function AnalyticsPage() {
       <div className="space-y-6">
         <Card className="p-12 text-center">
           <div className="flex items-center justify-center space-x-2">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
+            <Loader2 className="text-primary h-8 w-8 animate-spin" aria-hidden="true" />
             <p className="text-muted-foreground">Loading analytics...</p>
           </div>
         </Card>
@@ -206,12 +207,19 @@ export default function AnalyticsPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-xl sm:text-2xl font-bold">Fleet Analytics Dashboard</h2>
+          <h2 className="text-foreground text-xl font-bold sm:text-2xl">
+            Fleet Analytics Dashboard
+          </h2>
           <p className="text-muted-foreground mt-1 text-sm">
             Comprehensive analytics and key performance indicators
           </p>
         </div>
-        <Button onClick={handleRefresh} disabled={refreshing} variant="outline" className="w-full sm:w-auto">
+        <Button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          variant="outline"
+          className="w-full sm:w-auto"
+        >
           {refreshing ? (
             <span className="flex items-center space-x-2">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -284,10 +292,12 @@ export default function AnalyticsPage() {
           </p>
         </Card>
 
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-100 p-6">
+        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-purple-100 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <Target className="h-10 w-10 text-primary" aria-hidden="true" />
-            <span className="text-3xl font-bold text-primary-foreground">{analytics.fleet.readiness}%</span>
+            <Target className="text-primary h-10 w-10" aria-hidden="true" />
+            <span className="text-primary-foreground text-3xl font-bold">
+              {analytics.fleet.readiness}%
+            </span>
           </div>
           <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Readiness</h3>
           <p className="text-muted-foreground mt-1 text-xs">Overall operational readiness</p>
@@ -573,7 +583,8 @@ export default function AnalyticsPage() {
             <div className="flex-1">
               <p className="text-foreground text-sm font-medium">Analytics Dashboard</p>
               <p className="text-muted-foreground mt-1 text-sm">
-                Data refreshes automatically. Export your analytics data for offline analysis and reporting.
+                Data refreshes automatically. Export your analytics data for offline analysis and
+                reporting.
               </p>
             </div>
           </div>

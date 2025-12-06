@@ -41,7 +41,7 @@ export function DisciplinaryFilters({ currentStatus, currentSeverity }: Discipli
           id="status-filter"
           value={currentStatus || ''}
           onChange={(e) => handleStatusChange(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="">All Statuses</option>
           <option value="REPORTED">Reported</option>
@@ -62,7 +62,7 @@ export function DisciplinaryFilters({ currentStatus, currentSeverity }: Discipli
           id="severity-filter"
           value={currentSeverity || ''}
           onChange={(e) => handleSeverityChange(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="">All Severities</option>
           <option value="MINOR">Minor</option>

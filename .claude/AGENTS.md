@@ -20,17 +20,21 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 ### Agent Categories
 
 **Code Quality Agents:**
+
 - TypeScript Review
 - Code Simplification
 
 **Security & Performance:**
+
 - Security Audit
 - Performance Optimization
 
 **Database & Data:**
+
 - Database Review
 
 **Research & Documentation:**
+
 - Framework Documentation Research
 
 ---
@@ -43,12 +47,14 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 **Quality Bar**: Exceptional (Kieran's strict standards)
 
 **Use After:**
+
 - ✅ Implementing new features
 - ✅ Creating React components
 - ✅ Modifying TypeScript code
 - ✅ Refactoring
 
 **What It Reviews:**
+
 - Type safety and proper type usage
 - Naming conventions
 - React/Next.js best practices
@@ -56,6 +62,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - Code quality issues
 
 **Example:**
+
 ```bash
 /review-typescript
 ```
@@ -68,6 +75,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 **Scope**: Comprehensive security review
 
 **Use For:**
+
 - ✅ Pre-deployment security checks
 - ✅ Authentication/authorization review
 - ✅ API endpoint security
@@ -75,6 +83,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - ✅ Before production releases
 
 **What It Checks:**
+
 - Common security vulnerabilities (OWASP)
 - Input validation and sanitization
 - Authentication/authorization flows
@@ -84,11 +93,13 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - Session management
 
 **Example:**
+
 ```bash
 /security-audit
 ```
 
 **Project-Specific:**
+
 - Supabase RLS policy validation
 - Service layer security
 - API route authentication
@@ -102,6 +113,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 **Focus**: Performance & Scalability
 
 **Use For:**
+
 - ✅ Performance bottleneck identification
 - ✅ Database query optimization
 - ✅ API response time improvements
@@ -109,6 +121,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - ✅ Scalability validation
 
 **What It Analyzes:**
+
 - Database queries (Supabase)
 - Caching strategies
 - Memory usage patterns
@@ -117,11 +130,13 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - Bundle size optimization
 
 **Example:**
+
 ```bash
 /optimize-performance
 ```
 
 **Project-Specific:**
+
 - Optimizing queries for 607+ certifications
 - Service layer caching (lib/services/cache-service.ts)
 - React component memoization
@@ -135,6 +150,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 **Focus**: Database Safety & Integrity
 
 **Use For:**
+
 - ✅ Database migration reviews
 - ✅ Schema change validation
 - ✅ Service layer database operations
@@ -142,6 +158,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - ✅ RLS policy reviews
 
 **What It Validates:**
+
 - Migration safety
 - Data constraints
 - Transaction boundaries
@@ -150,6 +167,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - Service layer compliance
 
 **Example:**
+
 ```bash
 /review-database
 ```
@@ -157,6 +175,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 **CRITICAL**: Ensures all database operations use service layer (`lib/services/`)!
 
 **Project-Specific:**
+
 - Supabase migration safety
 - RLS policy correctness
 - Service pattern enforcement
@@ -170,12 +189,14 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 **Philosophy**: Simple is better than complex
 
 **Use For:**
+
 - ✅ Final review before commit
 - ✅ Reducing code complexity
 - ✅ Applying YAGNI principles
 - ✅ Improving maintainability
 
 **What It Does:**
+
 - Identifies simplification opportunities
 - Removes unnecessary complexity
 - Eliminates over-engineering
@@ -183,6 +204,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - Ensures YAGNI compliance
 
 **Example:**
+
 ```bash
 /simplify-code
 ```
@@ -195,6 +217,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 **Focus**: Official Documentation & Best Practices
 
 **Use For:**
+
 - ✅ Next.js 15 documentation
 - ✅ React 19 best practices
 - ✅ Supabase features
@@ -202,6 +225,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - ✅ Library implementation guidance
 
 **What It Provides:**
+
 - Official framework documentation
 - Version-specific information
 - Best practices from maintainers
@@ -209,6 +233,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 - Source code exploration
 
 **Examples:**
+
 ```bash
 /research-framework Next.js 15 server actions
 /research-framework Supabase RLS policies
@@ -217,6 +242,7 @@ This project has **6 Claude Code marketplace agents** installed as slash command
 ```
 
 **Supported Frameworks:**
+
 - Next.js 15.5.4
 - React 19.1.0
 - TypeScript 5.7.3
@@ -375,14 +401,14 @@ npm run build
 
 ### When to Use Each Agent
 
-| Agent | When | Why |
-|-------|------|-----|
-| `/review-typescript` | After code changes | Ensure TypeScript quality |
-| `/security-audit` | Pre-deployment | Prevent vulnerabilities |
-| `/optimize-performance` | After features | Maintain performance |
-| `/review-database` | Before migrations | Prevent data issues |
-| `/simplify-code` | Final review | Keep code maintainable |
-| `/research-framework` | Learning/implementing | Get official guidance |
+| Agent                   | When                  | Why                       |
+| ----------------------- | --------------------- | ------------------------- |
+| `/review-typescript`    | After code changes    | Ensure TypeScript quality |
+| `/security-audit`       | Pre-deployment        | Prevent vulnerabilities   |
+| `/optimize-performance` | After features        | Maintain performance      |
+| `/review-database`      | Before migrations     | Prevent data issues       |
+| `/simplify-code`        | Final review          | Keep code maintainable    |
+| `/research-framework`   | Learning/implementing | Get official guidance     |
 
 ### Agent Sequencing
 
@@ -398,6 +424,7 @@ npm run build
 ### Proactive vs Reactive
 
 **Proactive (Best Practice):**
+
 ```bash
 # After every feature
 /review-typescript
@@ -406,6 +433,7 @@ npm run build
 ```
 
 **Reactive (When Issues Found):**
+
 ```bash
 # When performance problems discovered
 /optimize-performance
@@ -524,6 +552,7 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 **Focus**: System Architecture & Design
 
 **Use For:**
+
 - ✅ Architectural compliance reviews
 - ✅ API specification reviews (OpenSpec)
 - ✅ System design validation
@@ -531,6 +560,7 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 - ✅ Design pattern verification
 
 **What It Reviews:**
+
 - Service layer architecture
 - API endpoint structure
 - OpenAPI specification compliance
@@ -538,11 +568,13 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 - Design patterns
 
 **Example:**
+
 ```bash
 /review-architecture
 ```
 
 **OpenSpec Integration:**
+
 - Reviews API specifications in `/openspec/`
 - Validates OpenAPI 3.0/3.1 compliance
 - Ensures RESTful patterns
@@ -556,6 +588,7 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 **Scope**: Any technology or practice
 
 **Use For:**
+
 - ✅ OpenAPI specification best practices
 - ✅ API design patterns
 - ✅ Framework conventions
@@ -563,12 +596,14 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 - ✅ Specification writing
 
 **What It Provides:**
+
 - Official documentation
 - Community standards
 - Real-world examples
 - Best practices synthesis
 
 **Examples:**
+
 ```bash
 /research-best-practices OpenAPI specification design
 /research-best-practices REST API versioning strategies
@@ -583,6 +618,7 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 **Focus**: Patterns & Consistency
 
 **Use For:**
+
 - ✅ Design pattern identification
 - ✅ Anti-pattern detection
 - ✅ Code duplication detection
@@ -590,12 +626,14 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 - ✅ API pattern consistency
 
 **What It Identifies:**
+
 - Design patterns (Factory, Repository, etc.)
 - Anti-patterns (God Objects, etc.)
 - Code smells
 - Inconsistencies
 
 **Example:**
+
 ```bash
 /analyze-patterns
 ```
@@ -608,17 +646,20 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 **Style**: Brutally honest
 
 **Use For:**
+
 - ✅ RESTful API design critique
 - ✅ Over-engineering detection
 - ✅ Convention validation
 - ✅ Simplicity enforcement
 
 **Philosophy:**
+
 - Convention over Configuration
 - Simplicity over Complexity
 - Pragmatic solutions
 
 **Example:**
+
 ```bash
 /dhh-rails-review
 ```
@@ -631,18 +672,21 @@ These agents are **optimized for Specify and OpenSpec workflows**:
 **Focus**: Repository analysis
 
 **Use For:**
+
 - ✅ Understanding project structure
 - ✅ Finding implementation patterns
 - ✅ Reviewing conventions
 - ✅ Template discovery
 
 **What It Analyzes:**
+
 - Repository structure
 - Documentation patterns
 - Implementation patterns
 - GitHub conventions
 
 **Example:**
+
 ```bash
 /repo-research
 ```
@@ -671,11 +715,13 @@ Located in: `.claude/commands/BMad/agents/`
 ## Additional Resources
 
 ### Project Documentation
+
 - [CLAUDE.md](../CLAUDE.md) - Project guidance
 - [WORK-PLAN.md](../WORK-PLAN.md) - 9-week implementation plan
 - [PROJECT-SUMMARY.md](../PROJECT-SUMMARY.md) - Tech stack overview
 
 ### Claude Code Documentation
+
 - [Commands README](.claude/commands/README.md) - Slash commands guide
 - Run `/help` in any BMAD agent for agent-specific help
 
@@ -686,30 +732,34 @@ Located in: `.claude/commands/BMad/agents/`
 **11 Claude Code Marketplace Agents Installed:**
 
 ### Code Quality Agents (4)
-| Command | Agent | Purpose |
-|---------|-------|---------|
-| `/review-typescript` | kieran-typescript-reviewer | TypeScript code quality |
-| `/simplify-code` | code-simplicity-reviewer | Code simplification |
-| `/dhh-rails-review` | dhh-rails-reviewer | Rails-style pragmatic review |
-| `/review-database` | data-integrity-guardian | Database safety |
+
+| Command              | Agent                      | Purpose                      |
+| -------------------- | -------------------------- | ---------------------------- |
+| `/review-typescript` | kieran-typescript-reviewer | TypeScript code quality      |
+| `/simplify-code`     | code-simplicity-reviewer   | Code simplification          |
+| `/dhh-rails-review`  | dhh-rails-reviewer         | Rails-style pragmatic review |
+| `/review-database`   | data-integrity-guardian    | Database safety              |
 
 ### Security & Performance (2)
-| Command | Agent | Purpose |
-|---------|-------|---------|
-| `/security-audit` | security-sentinel | Security vulnerabilities |
+
+| Command                 | Agent              | Purpose                   |
+| ----------------------- | ------------------ | ------------------------- |
+| `/security-audit`       | security-sentinel  | Security vulnerabilities  |
 | `/optimize-performance` | performance-oracle | Performance & scalability |
 
 ### Architecture & Patterns (3)
-| Command | Agent | Purpose |
-|---------|-------|---------|
-| `/review-architecture` | architecture-strategist | Architecture validation |
-| `/analyze-patterns` | pattern-recognition-specialist | Pattern recognition |
-| `/repo-research` | repo-research-analyst | Repository analysis |
+
+| Command                | Agent                          | Purpose                 |
+| ---------------------- | ------------------------------ | ----------------------- |
+| `/review-architecture` | architecture-strategist        | Architecture validation |
+| `/analyze-patterns`    | pattern-recognition-specialist | Pattern recognition     |
+| `/repo-research`       | repo-research-analyst          | Repository analysis     |
 
 ### Research & Documentation (2)
-| Command | Agent | Purpose |
-|---------|-------|---------|
-| `/research-framework` | framework-docs-researcher | Framework documentation |
+
+| Command                    | Agent                     | Purpose                 |
+| -------------------------- | ------------------------- | ----------------------- |
+| `/research-framework`      | framework-docs-researcher | Framework documentation |
 | `/research-best-practices` | best-practices-researcher | Best practices research |
 
 **Plus 10 BMAD Framework Agents** for complete development lifecycle coverage.

@@ -5,6 +5,7 @@ Execute comprehensive project review using the BMad project-review task.
 ## What This Does
 
 Runs a complete project assessment across:
+
 - ✅ Feature completeness
 - 🏗️ Code quality
 - 🧪 Testing coverage
@@ -22,6 +23,7 @@ Runs a complete project assessment across:
 ## Workflow
 
 The review will:
+
 1. Load project context (CLAUDE.md, README, package.json)
 2. Analyze feature completeness
 3. Assess code quality
@@ -36,6 +38,7 @@ The review will:
 ## Output
 
 **Review Report includes:**
+
 - Executive summary
 - Scores for each dimension (X/10)
 - Overall score (X/70)
@@ -49,6 +52,7 @@ The review will:
 **YOLO Mode:** Rapid analysis, minimal interaction
 
 To use YOLO mode:
+
 ```bash
 /BMad:agents:analyst
 *yolo

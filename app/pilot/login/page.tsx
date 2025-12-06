@@ -18,7 +18,8 @@ import PilotLoginForm from '@/components/pilot/PilotLoginForm'
 
 export const metadata: Metadata = {
   title: 'Pilot Login | Fleet Management',
-  description: 'Log in to the pilot portal to access your dashboard, certifications, and leave requests.',
+  description:
+    'Log in to the pilot portal to access your dashboard, certifications, and leave requests.',
 }
 
 // Force dynamic rendering to prevent static generation at build time

@@ -22,7 +22,6 @@ export const metadata: Metadata = {
   description: 'View your certifications, leave requests, and pilot information.',
 }
 
-
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 /**

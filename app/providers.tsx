@@ -83,11 +83,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         {children}
         {/* React Query DevTools - only visible in development */}
-        <ReactQueryDevtools
-          initialIsOpen={false}
-          buttonPosition="bottom-left"
-          position="bottom"
-        />
+        <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" position="bottom" />
       </QueryClientProvider>
     </ThemeProvider>
   )

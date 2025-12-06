@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,10 +52,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     // Validate required fields
     if (!status) {
-      return NextResponse.json(
-        { success: false, error: 'Status is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: 'Status is required' }, { status: 400 })
     }
 
     // Update leave bid
@@ -81,24 +79,26 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     }
 
     if (!data) {
-      return NextResponse.json(
-        { success: false, error: 'Leave bid not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, error: 'Leave bid not found' }, { status: 404 })
     }
+
+    // Revalidate leave bid paths
+    revalidatePath('/dashboard/leave-bids')
+    revalidatePath(`/dashboard/leave-bids/${id}`)
+    revalidatePath('/portal/leave-bids')
 
     return NextResponse.json({
       success: true,
       message: 'Leave bid updated successfully',
       data,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error in PATCH /api/admin/leave-bids/[id]:', error)
     const { id } = await context.params
     const sanitized = sanitizeError(error, {
       operation: 'updateLeaveBid',
       resourceId: id,
-      endpoint: '/api/admin/leave-bids/[id]'
+      endpoint: '/api/admin/leave-bids/[id]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

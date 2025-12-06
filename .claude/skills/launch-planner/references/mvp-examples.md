@@ -3,9 +3,11 @@
 ## Example 1: Time Tracking App
 
 ### Initial Idea (Too Big)
+
 "A comprehensive time tracking solution for freelancers"
 
 **Proposed features:**
+
 - Manual time entry
 - Timer for live tracking
 - Project management
@@ -20,14 +22,17 @@
 **Estimate:** 6-8 weeks
 
 ### MVP Scoped (One Week)
+
 "Help freelancers quickly log time to projects"
 
 **Core user loop:**
+
 1. Start a timer for a project
 2. Stop the timer
 3. View total hours per project
 
 **Week 1 features:**
+
 - Start/stop timer
 - List of active timers
 - Simple project list (just names)
@@ -36,20 +41,24 @@
 **Estimate:** 4-5 days
 
 **Deferred (Post-validation):**
+
 - Manual time entry (add if users request it)
 - Client management (wait to see if needed)
 - Invoice generation (different tool, different problem)
 - Reports (add based on what metrics users actually need)
 
 **Explicitly cut:**
+
 - Team features (solo freelancers first)
 - Mobile/extension (web first)
 - Calendar integration (premature)
 
 ### Success Metric
+
 50 freelancers track >5 projects/week for 2 consecutive weeks
 
 ### What Happened
+
 - Built in 5 days
 - Got 30 users in week 1
 - Users immediately asked for manual entry
@@ -63,9 +72,11 @@
 ## Example 2: Recipe Sharing App
 
 ### Initial Idea (Too Big)
+
 "Social network for home cooks to share and discover recipes"
 
 **Proposed features:**
+
 - User profiles
 - Recipe posting with photos
 - Following/followers
@@ -80,14 +91,17 @@
 **Estimate:** 8-10 weeks
 
 ### MVP Scoped (One Week)
+
 "Share your recipes with a link"
 
 **Core user loop:**
+
 1. Paste recipe ingredients and steps
 2. Get a shareable link
 3. Anyone with link can view the formatted recipe
 
 **Week 1 features:**
+
 - Form: title, ingredients, steps
 - Generate unique URL
 - Public recipe view page
@@ -96,20 +110,24 @@
 **Estimate:** 3-4 days
 
 **Deferred (Post-validation):**
+
 - Photos (add if users upload them)
 - User accounts (if users want to manage their recipes)
 - Search (if collection grows)
 - Social features (if people actually share links)
 
 **Explicitly cut:**
+
 - Everything social (no users yet)
 - Meal planning (different problem)
 - Nutrition (complex, different problem)
 
 ### Success Metric
+
 100 recipes created, 50% get shared at least once
 
 ### What Happened
+
 - Built in 3 days
 - Users immediately started sharing
 - Photos were most requested feature
@@ -124,9 +142,11 @@
 ## Example 3: Event Check-in App
 
 ### Initial Idea (Too Big)
+
 "Complete event management platform"
 
 **Proposed features:**
+
 - Event creation
 - Ticket sales
 - QR code generation
@@ -141,15 +161,18 @@
 **Estimate:** 10-12 weeks
 
 ### MVP Scoped (One Week)
+
 "Let event hosts check people in with their phone"
 
 **Core user loop:**
+
 1. Upload attendee list (CSV)
 2. See list on phone
 3. Tap name to check in
 4. See who's checked in vs. not
 
 **Week 1 features:**
+
 - CSV upload
 - Name list view
 - Check-in toggle
@@ -158,20 +181,24 @@
 **Estimate:** 4 days
 
 **Deferred (Post-validation):**
+
 - QR codes (if manual is too slow)
 - Email notifications (if hosts request it)
 - Analytics (after we see what metrics matter)
 - Badge printing (wait for user request)
 
 **Explicitly cut:**
+
 - Ticket sales (different business, use Eventbrite)
 - Seating (different problem)
 - Wait list (premature)
 
 ### Success Metric
+
 Used for 5 different events, hosts report it's faster than paper
 
 ### What Happened
+
 - Built in 3 days
 - Used at first event successfully
 - Hosts immediately wanted QR codes
@@ -186,9 +213,11 @@ Used for 5 different events, hosts report it's faster than paper
 ## Example 4: Book Recommendation App
 
 ### Initial Idea (Too Big)
+
 "AI-powered book discovery platform"
 
 **Proposed features:**
+
 - AI recommendation engine
 - User taste profiles
 - Reading lists
@@ -203,14 +232,17 @@ Used for 5 different events, hosts report it's faster than paper
 **Estimate:** 12+ weeks
 
 ### MVP Scoped (One Week)
+
 "Describe what you like, get 5 book recommendations"
 
 **Core user loop:**
+
 1. Enter 3 books you loved
 2. Describe what you liked about them
 3. Get 5 recommendations with reasons
 
 **Week 1 features:**
+
 - Simple form (3 book inputs + text area)
 - Claude API call with good prompt
 - Display 5 books with reasoning
@@ -219,21 +251,25 @@ Used for 5 different events, hosts report it's faster than paper
 **Estimate:** 2 days
 
 **Deferred (Post-validation):**
+
 - User accounts (if people want to save results)
 - Reading lists (if validated)
 - Social features (way premature)
 - Tracking (different problem)
 
 **Explicitly cut:**
+
 - All social features
 - Forums
 - Progress tracking
 - Complex profile building
 
 ### Success Metric
+
 100 recommendations generated, 30% of users click "get more"
 
 ### What Happened
+
 - Built in 2 days
 - Users loved the simplicity
 - "Get more" button was heavily used
@@ -247,9 +283,11 @@ Used for 5 different events, hosts report it's faster than paper
 ## Example 5: Expense Splitter App
 
 ### Initial Idea (Too Big)
+
 "Group expense management for travelers and roommates"
 
 **Proposed features:**
+
 - Group creation
 - Expense entry
 - Photo receipt scanning
@@ -264,15 +302,18 @@ Used for 5 different events, hosts report it's faster than paper
 **Estimate:** 8 weeks
 
 ### MVP Scoped (One Week)
+
 "Quickly split a dinner bill among friends"
 
 **Core user loop:**
+
 1. Enter total amount
 2. Enter names of people
 3. See who owes what
 4. Share the breakdown
 
 **Week 1 features:**
+
 - Amount input
 - Add/remove people
 - Option: split evenly or enter custom amounts
@@ -282,20 +323,24 @@ Used for 5 different events, hosts report it's faster than paper
 **Estimate:** 3 days
 
 **Deferred (Post-validation):**
+
 - Receipt scanning (if users need it)
 - Multi-currency (if international users)
 - Payment integration (complex, wait for user request)
 - Groups/accounts (if users split with same people repeatedly)
 
 **Explicitly cut:**
+
 - Recurring expenses (different use case)
 - Budget tracking (different problem)
 - Reports (premature)
 
 ### Success Metric
+
 Used 100 times, 40% share the results with their group
 
 ### What Happened
+
 - Built in 2 days
 - Widely used at restaurants
 - Users wanted to save past splits
@@ -314,6 +359,7 @@ Used 100 times, 40% share the results with their group
 **Common pattern:** Initial ideas were 6-12 weeks of work. MVPs were 2-5 days.
 
 **Why the cuts worked:**
+
 - Focused on one specific use case
 - Removed all "nice to have" features
 - Deferred user accounts until proven necessary
@@ -322,6 +368,7 @@ Used 100 times, 40% share the results with their group
 - Skipped reporting/analytics initially
 
 **What to copy:**
+
 - Start with one specific scenario
 - Build the absolute minimum to test that scenario
 - Defer everything that doesn't block testing
@@ -358,6 +405,7 @@ For any idea, ask:
 ### The One-Week Test
 
 If your MVP estimate is >1 week, ask:
+
 - What's the absolute core action?
 - Can I test that action with less features?
 - What am I building "just in case"?

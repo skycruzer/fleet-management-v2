@@ -20,10 +20,7 @@ import {
   updateFeedbackStatus,
   addAdminResponse,
 } from '@/lib/services/feedback-service'
-import {
-  verifyRequestAuthorization,
-  ResourceType,
-} from '@/lib/middleware/authorization-middleware'
+import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
 
@@ -51,10 +48,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     if (!user) {
       console.error('❌ [API] Unauthorized access attempt')
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     const result = await getFeedbackById(id)
@@ -74,7 +68,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     console.error('❌ [API] Error in GET /api/feedback/[id]:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getFeedbackById',
-      feedbackId: (await context.params).id
+      feedbackId: (await context.params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -106,10 +100,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     if (!user) {
       console.error('❌ [API] Unauthorized access attempt')
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
@@ -122,11 +113,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     // AUTHORIZATION: Verify user can update this feedback (Admin/Manager only)
-    const authResult = await verifyRequestAuthorization(
-      request,
-      ResourceType.FEEDBACK,
-      id
-    )
+    const authResult = await verifyRequestAuthorization(request, ResourceType.FEEDBACK, id)
 
     if (!authResult.authorized) {
       return NextResponse.json(
@@ -143,10 +130,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       const result = await addAdminResponse(id, body.adminResponse)
 
       if (!result.success) {
-        return NextResponse.json(
-          { success: false, error: result.error },
-          { status: 500 }
-        )
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
 
       // Revalidate cache for all affected paths
@@ -164,19 +148,13 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (body.status) {
       const validStatuses = ['PENDING', 'REVIEWED', 'RESOLVED', 'DISMISSED']
       if (!validStatuses.includes(body.status)) {
-        return NextResponse.json(
-          { success: false, error: 'Invalid status value' },
-          { status: 400 }
-        )
+        return NextResponse.json({ success: false, error: 'Invalid status value' }, { status: 400 })
       }
 
       const result = await updateFeedbackStatus(id, body.status)
 
       if (!result.success) {
-        return NextResponse.json(
-          { success: false, error: result.error },
-          { status: 500 }
-        )
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
 
       // Revalidate cache for all affected paths
@@ -199,7 +177,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     console.error('❌ [API] Error in PUT /api/feedback/[id]:', error)
     const sanitized = sanitizeError(error, {
       operation: 'updateFeedback',
-      feedbackId: (await context.params).id
+      feedbackId: (await context.params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

@@ -76,15 +76,6 @@ export interface PilotFormData {
   commencement_date?: string | null
   seniority_number?: number | null
   is_active: boolean
-  captain_qualifications?: string[] | null
-}
-
-// Type for captain qualifications JSONB structure in database
-export interface CaptainQualificationsJson {
-  line_captain: boolean
-  training_captain: boolean
-  examiner: boolean
-  rhs_captain_expiry?: string | null
 }
 
 export interface PilotWithRetirement extends Pilot {
@@ -525,20 +516,17 @@ export const getPilotStats = unstable_cache(
 export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
   const supabase = await createClient()
 
+  // Helper to convert empty strings to null (PostgreSQL requires null, not '')
+  const toNullIfEmpty = (value: string | null | undefined): string | null => {
+    if (value === '' || value === undefined) return null
+    return value
+  }
+
   try {
     let seniorityNumber = null
-    if (pilotData.commencement_date) {
-      seniorityNumber = await calculateSeniorityNumber(pilotData.commencement_date)
-    }
-
-    // Transform captain_qualifications array to JSONB object format
-    let captainQualifications = null
-    if (pilotData.captain_qualifications && pilotData.captain_qualifications.length > 0) {
-      captainQualifications = {
-        line_captain: pilotData.captain_qualifications.includes('line_captain'),
-        training_captain: pilotData.captain_qualifications.includes('training_captain'),
-        examiner: pilotData.captain_qualifications.includes('examiner'),
-      }
+    const commencementDate = toNullIfEmpty(pilotData.commencement_date)
+    if (commencementDate) {
+      seniorityNumber = await calculateSeniorityNumber(commencementDate)
     }
 
     const { data, error } = await supabase
@@ -547,18 +535,17 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
         {
           employee_id: pilotData.employee_id,
           first_name: pilotData.first_name,
-          middle_name: pilotData.middle_name,
+          middle_name: toNullIfEmpty(pilotData.middle_name),
           last_name: pilotData.last_name,
           role: pilotData.role,
-          contract_type: pilotData.contract_type,
-          nationality: pilotData.nationality,
-          passport_number: pilotData.passport_number,
-          passport_expiry: pilotData.passport_expiry,
-          date_of_birth: pilotData.date_of_birth,
-          commencement_date: pilotData.commencement_date,
+          contract_type: toNullIfEmpty(pilotData.contract_type),
+          nationality: toNullIfEmpty(pilotData.nationality),
+          passport_number: toNullIfEmpty(pilotData.passport_number),
+          passport_expiry: toNullIfEmpty(pilotData.passport_expiry),
+          date_of_birth: toNullIfEmpty(pilotData.date_of_birth),
+          commencement_date: commencementDate,
           seniority_number: seniorityNumber,
           is_active: pilotData.is_active,
-          captain_qualifications: captainQualifications,
         },
       ])
       .select()
@@ -613,16 +600,6 @@ export async function createPilotWithCertifications(
   const supabase = await createClient()
 
   try {
-    // Transform captain_qualifications array to JSONB object format
-    let captainQualifications = null
-    if (pilotData.captain_qualifications && pilotData.captain_qualifications.length > 0) {
-      captainQualifications = {
-        line_captain: pilotData.captain_qualifications.includes('line_captain'),
-        training_captain: pilotData.captain_qualifications.includes('training_captain'),
-        examiner: pilotData.captain_qualifications.includes('examiner'),
-      }
-    }
-
     // Prepare pilot data for PostgreSQL function
     const pilotJson = {
       employee_id: pilotData.employee_id,
@@ -637,7 +614,6 @@ export async function createPilotWithCertifications(
       date_of_birth: pilotData.date_of_birth || null,
       commencement_date: pilotData.commencement_date || null,
       is_active: pilotData.is_active,
-      captain_qualifications: captainQualifications,
     }
 
     // Prepare certifications for PostgreSQL function
@@ -790,45 +766,64 @@ export async function deletePilot(pilotId: string): Promise<void> {
     // Fetch pilot data before deletion for audit trail
     const { data: oldData } = await supabase.from('pilots').select('*').eq('id', pilotId).single()
 
-    // Use PostgreSQL function for atomic deletion
-    const { data, error } = await supabase.rpc('delete_pilot_with_cascade', {
-      p_pilot_id: pilotId,
-    })
+    if (!oldData) {
+      throw new Error('Pilot not found')
+    }
 
-    if (error) {
-      logError(new Error(error.message), {
+    // Delete related records manually (avoiding deprecated leave_requests table in DB function)
+    // Step 1: Delete from pilot_requests (unified request table)
+    const { error: requestsError } = await supabase
+      .from('pilot_requests')
+      .delete()
+      .eq('pilot_id', pilotId)
+
+    if (requestsError) {
+      logWarning('Failed to delete pilot requests', {
         source: 'PilotService',
-        severity: ErrorSeverity.HIGH,
-        metadata: {
-          operation: 'deletePilot',
-          pilotId,
-        },
+        metadata: { pilotId, error: requestsError.message },
       })
-      throw new Error(`Failed to delete pilot: ${error.message}`)
+    }
+
+    // Step 2: Delete certifications
+    const { error: certsError } = await supabase
+      .from('pilot_checks')
+      .delete()
+      .eq('pilot_id', pilotId)
+
+    if (certsError) {
+      logWarning('Failed to delete pilot certifications', {
+        source: 'PilotService',
+        metadata: { pilotId, error: certsError.message },
+      })
+    }
+
+    // Step 3: Delete the pilot record
+    const { error: pilotError } = await supabase
+      .from('pilots')
+      .delete()
+      .eq('id', pilotId)
+
+    if (pilotError) {
+      throw new Error(`Failed to delete pilot: ${pilotError.message}`)
     }
 
     // Audit log the deletion
-    if (oldData) {
-      await createAuditLog({
-        action: 'DELETE',
-        tableName: 'pilots',
-        recordId: pilotId,
-        oldData,
-        description: `Deleted pilot: ${oldData.first_name} ${oldData.last_name} (${oldData.employee_id})`,
-      })
-    }
+    await createAuditLog({
+      action: 'DELETE',
+      tableName: 'pilots',
+      recordId: pilotId,
+      oldData,
+      description: `Deleted pilot: ${oldData.first_name} ${oldData.last_name} (${oldData.employee_id})`,
+    })
 
-    // Log the successful deletion for audit purposes
-    if (data && typeof data === 'object' && 'message' in data) {
-      logInfo('Successfully deleted pilot with cascading records', {
-        source: 'PilotService',
-        metadata: {
-          operation: 'deletePilot',
-          pilotId,
-          employeeId: oldData?.employee_id,
-        },
-      })
-    }
+    logInfo('Successfully deleted pilot with cascading records', {
+      source: 'PilotService',
+      metadata: {
+        operation: 'deletePilot',
+        pilotId,
+        employeeId: oldData?.employee_id,
+      },
+    })
 
     // Invalidate pilot-related caches
     await safeRevalidate('pilots')

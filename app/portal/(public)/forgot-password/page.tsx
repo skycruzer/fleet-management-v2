@@ -16,7 +16,16 @@ import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Mail, ArrowRight, AlertCircle, CheckCircle2, Loader2, ChevronLeft, Cloud, Key } from 'lucide-react'
+import {
+  Mail,
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  ChevronLeft,
+  Cloud,
+  Key,
+} from 'lucide-react'
 
 const ForgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -149,14 +158,14 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg bg-green-50 p-4 border border-green-200"
+              className="mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4"
             >
               <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-green-900">Email Sent!</p>
                 <p className="mt-1 text-sm text-green-700">
-                  If an account exists with this email, you'll receive password reset instructions shortly.
-                  Please check your inbox and spam folder.
+                  If an account exists with this email, you'll receive password reset instructions
+                  shortly. Please check your inbox and spam folder.
                 </p>
               </div>
             </motion.div>
@@ -167,7 +176,7 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg bg-red-50 p-4 border border-red-200"
+              className="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4"
             >
               <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
               <p className="flex-1 text-sm text-red-700">{error}</p>
@@ -182,8 +191,10 @@ export default function ForgotPasswordPage() {
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                  <Mail className={`h-5 w-5 transition-colors ${emailFocused ? 'text-blue-600' : 'text-gray-400'}`} />
+                <div className="absolute top-1/2 left-3 -translate-y-1/2">
+                  <Mail
+                    className={`h-5 w-5 transition-colors ${emailFocused ? 'text-blue-600' : 'text-gray-400'}`}
+                  />
                 </div>
                 <Input
                   id="email"
@@ -193,7 +204,7 @@ export default function ForgotPasswordPage() {
                   onFocus={() => setEmailFocused(true)}
                   onBlur={() => setEmailFocused(false)}
                   disabled={isLoading || success}
-                  className="pl-10 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  className="h-12 border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
               {form.formState.errors.email && (

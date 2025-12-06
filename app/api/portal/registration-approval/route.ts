@@ -90,7 +90,7 @@ export async function GET(_request: NextRequest) {
     console.error('Get pending registrations API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getPendingRegistrations',
-      endpoint: '/api/portal/registration-approval'
+      endpoint: '/api/portal/registration-approval',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -170,7 +170,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     console.error('Review registration API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'reviewRegistration',
-      endpoint: '/api/portal/registration-approval'
+      endpoint: '/api/portal/registration-approval',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

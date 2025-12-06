@@ -39,7 +39,7 @@ export interface LeaveRequest {
   workflow_status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
   reason?: string | null
   request_date?: string | null // Date when the request was made (separate from created_at)
-  submission_channel?: 'PILOT_PORTAL' | 'EMAIL' | 'ORACLE' | 'ADMIN_PORTAL' | 'SYSTEM' | null // How the request was submitted
+  submission_channel?: 'PILOT_PORTAL' | 'EMAIL' | 'PHONE' | 'ORACLE' | 'ADMIN_PORTAL' | null // How the request was submitted
   is_late_request?: boolean | null // Flag for requests with less than 21 days advance notice
   created_at: string | null
   reviewed_by?: string | null
@@ -65,7 +65,7 @@ export interface LeaveRequestFormData {
   start_date: string
   end_date: string
   request_date: string
-  request_method: 'PILOT_PORTAL' | 'EMAIL' | 'ORACLE' | 'ADMIN_PORTAL' | 'SYSTEM'
+  request_method: 'PILOT_PORTAL' | 'EMAIL' | 'PHONE' | 'ORACLE' | 'ADMIN_PORTAL'
   reason?: string
   is_late_request?: boolean
 }

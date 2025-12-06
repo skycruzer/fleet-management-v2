@@ -121,7 +121,10 @@ export async function GET(request: NextRequest) {
         const validStatuses = ['OPEN', 'LOCKED', 'PUBLISHED', 'ARCHIVED']
         if (!validStatuses.includes(statusParam)) {
           return NextResponse.json(
-            { success: false, error: 'Invalid status. Must be OPEN, LOCKED, PUBLISHED, or ARCHIVED' },
+            {
+              success: false,
+              error: 'Invalid status. Must be OPEN, LOCKED, PUBLISHED, or ARCHIVED',
+            },
             { status: 400 }
           )
         }

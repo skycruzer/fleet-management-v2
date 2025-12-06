@@ -118,6 +118,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify({ bidId, action: 'approve' }),
+        credentials: 'include',
       })
 
       const result = await response.json()
@@ -153,6 +154,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify({ bidId, action: 'reject' }),
+        credentials: 'include',
       })
 
       const result = await response.json()

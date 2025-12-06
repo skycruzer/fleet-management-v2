@@ -128,7 +128,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     console.error('Submit leave bid API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'submitLeaveBid',
-      endpoint: '/api/portal/leave-bids'
+      endpoint: '/api/portal/leave-bids',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
     console.error('Get leave bids API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getLeaveBids',
-      endpoint: '/api/portal/leave-bids'
+      endpoint: '/api/portal/leave-bids',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -221,7 +221,7 @@ export async function DELETE(request: NextRequest) {
     console.error('Cancel leave bid API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'cancelLeaveBid',
-      endpoint: '/api/portal/leave-bids'
+      endpoint: '/api/portal/leave-bids',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

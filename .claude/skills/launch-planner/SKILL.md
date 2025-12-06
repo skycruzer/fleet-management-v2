@@ -12,6 +12,7 @@ A skill for transforming ideas into shippable MVPs through rapid validation and 
 **Ship fast. Validate with real users. No feature creep.**
 
 Every decision filters through these three principles:
+
 - Speed to user feedback trumps perfection
 - Real usage data beats assumptions
 - Core functionality beats comprehensive features
@@ -28,16 +29,21 @@ Default stack optimized for rapid iteration:
 ## MVP Scoping Rules
 
 ### Core Principle
+
 Only build features that serve the core user loop. Everything else is noise.
 
 ### The One-Week Rule
+
 If a feature takes more than 1 week to build, it's not MVP. Either:
+
 - Break it into smaller pieces
 - Find a simpler solution
 - Cut it entirely
 
 ### Feature Triage
+
 For every feature idea, ask:
+
 1. Does it serve the core user loop? If no → cut it
 2. Can users accomplish their goal without it? If yes → cut it
 3. Can we validate the idea without it? If yes → defer it
@@ -47,18 +53,24 @@ For every feature idea, ask:
 Never start coding without clear answers to:
 
 ### 1. Who is this for?
+
 Be specific. "Everyone" is not an answer.
+
 - What's their current workflow?
 - What's their pain point?
 - How are they solving it today?
 
 ### 2. What's the ONE problem it solves?
+
 Not two problems. Not three. ONE.
+
 - If you can't describe it in one sentence, scope is too broad
 - This sentence becomes your north star
 
 ### 3. How will I know if it works?
+
 Define success before building:
+
 - What's the key metric?
 - What number indicates validation?
 - When do we pivot vs. iterate?
@@ -66,22 +78,27 @@ Define success before building:
 ## Common Mistakes to Avoid
 
 ### Building Features Nobody Asked For
+
 **Red flag:** "Users will probably want..."
 **Fix:** Talk to users first. Build second.
 
 ### Over-Engineering
+
 **Red flag:** "We should make it scalable/flexible/configurable..."
 **Fix:** Build for 10 users, not 10,000. Premature optimization kills momentum.
 
 ### Adding Auth Before Validating the Idea
+
 **Red flag:** Starting with user accounts, profiles, settings
 **Fix:** Validate the core value prop first. Auth can wait. Use magic links or simple passwords when you need it.
 
 ### Scope Creep Mid-Build
+
 **Red flag:** "While we're at it, we should also add..."
 **Fix:** Write it down. Build it after validation. Stay focused.
 
 ### Perfectionism
+
 **Red flag:** "This isn't ready to show users yet..."
 **Fix:** If it works, it's ready. Users forgive bugs if the value is there.
 
@@ -165,6 +182,7 @@ When detecting scope expansion:
 ## Quick Reference
 
 ### MVP Checklist
+
 - [ ] Answers "who is this for?" specifically
 - [ ] Solves exactly one problem
 - [ ] Has measurable success criteria
@@ -175,6 +193,7 @@ When detecting scope expansion:
 - [ ] Ready to show to users
 
 ### Red Flags
+
 🚩 "Users will probably want..."
 🚩 "We should make it scalable..."
 🚩 "While we're at it..."
@@ -183,6 +202,7 @@ When detecting scope expansion:
 🚩 Can't explain the one problem in one sentence
 
 ### Green Lights
+
 ✅ Built from real user feedback
 ✅ Simplest possible solution
 ✅ Core loop works

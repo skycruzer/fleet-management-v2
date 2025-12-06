@@ -75,7 +75,7 @@ export async function DELETE(request: NextRequest) {
     console.error('Error clearing renewal plans:', error)
     const sanitized = sanitizeError(error, {
       operation: 'clearAllRenewalPlans',
-      endpoint: '/api/renewal-planning/clear'
+      endpoint: '/api/renewal-planning/clear',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

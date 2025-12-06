@@ -66,9 +66,9 @@ export default function SupportPage() {
       </div>
 
       {/* Support Status */}
-      <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30 p-6">
+      <Card className="border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950/30">
         <div className="flex items-center gap-4">
-          <div className="rounded-full bg-green-100 dark:bg-green-900/50 p-3">
+          <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/50">
             <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
           <div>

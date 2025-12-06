@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     const sanitized = sanitizeError(error, {
       operation: 'invalidateCache',
-      method: 'POST'
+      method: 'POST',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -201,7 +201,7 @@ export async function DELETE(request: NextRequest) {
 
     const sanitized = sanitizeError(error, {
       operation: 'flushAllCache',
-      method: 'DELETE'
+      method: 'DELETE',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

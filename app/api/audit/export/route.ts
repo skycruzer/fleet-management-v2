@@ -36,10 +36,7 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized - Please sign in' }, { status: 401 })
     }
 
     // Get user role to verify permissions
@@ -50,10 +47,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (userError || !userData) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     // Only Admin and Manager roles can export audit trails
@@ -76,10 +70,7 @@ export async function GET(request: NextRequest) {
 
     // Validate required parameters
     if (!entityType) {
-      return NextResponse.json(
-        { error: 'entityType parameter is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'entityType parameter is required' }, { status: 400 })
     }
 
     // Parse dates if provided

@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest) {
     console.error('Pilot flight-requests GET error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getCurrentPilotFlightRequests',
-      endpoint: '/api/pilot/flight-requests'
+      endpoint: '/api/pilot/flight-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -83,7 +83,7 @@ export async function POST(_request: NextRequest) {
     console.error('Pilot flight-requests POST error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'submitPilotFlightRequest',
-      endpoint: '/api/pilot/flight-requests'
+      endpoint: '/api/pilot/flight-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

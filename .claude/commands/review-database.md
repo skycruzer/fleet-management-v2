@@ -5,6 +5,7 @@ Review database migrations, models, and data operations for integrity.
 ## When to Use
 
 Use this command for:
+
 - Database migration reviews
 - Schema change validation
 - Data model updates
@@ -15,6 +16,7 @@ Use this command for:
 ## What It Does
 
 Invokes the **data-integrity-guardian** agent which:
+
 - Reviews database migrations for safety
 - Validates data constraints
 - Ensures transaction boundaries are correct
@@ -30,6 +32,7 @@ Invokes the **data-integrity-guardian** agent which:
 ```
 
 Optional: Target specific changes
+
 ```
 "Review the new pilot certification migration"
 "Check data integrity for leave request updates"
@@ -39,6 +42,7 @@ Optional: Target specific changes
 ## Example
 
 After creating a migration:
+
 ```
 You: "Created migration to add qualifications column"
 Assistant: "Reviewing migration safety with /review-database"

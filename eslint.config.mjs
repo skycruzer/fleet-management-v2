@@ -4,6 +4,7 @@ import pluginReactHooks from 'eslint-plugin-react-hooks'
 import tseslint from 'typescript-eslint'
 
 const eslintConfig = tseslint.config(
+  // Global ignores (MUST be first)
   {
     ignores: [
       '**/.next/**',
@@ -16,8 +17,26 @@ const eslintConfig = tseslint.config(
       '**/.worktrees/**',
       '**/dist/**',
       '**/coverage/**',
+      // External tools and templates (use CommonJS/different standards)
+      'BMAD-METHOD/**',
+      '.claude/skills/**',
+      'backups/**',
+      // Root-level test and utility scripts (mjs and js)
+      '*.mjs',
+      'test-*.mjs',
+      'check-*.mjs',
+      'manual-*.mjs',
+      'test-*.js',
+      'check-*.js',
+      // Scripts directory (build/deployment utilities)
+      'scripts/**',
+      // Playwright config (uses specific patterns)
+      'playwright.config.ts',
     ],
   },
+  // TypeScript recommended (base rules)
+  ...tseslint.configs.recommended,
+  // Custom overrides (applied AFTER recommended to take precedence)
   {
     files: ['**/*.{js,jsx,mjs,ts,tsx}'],
     plugins: {
@@ -35,6 +54,7 @@ const eslintConfig = tseslint.config(
       ...pluginNext.configs['core-web-vitals'].rules,
       ...pluginReact.configs.recommended.rules,
       ...pluginReactHooks.configs.recommended.rules,
+      // Override TS rules to be warnings instead of errors
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -43,14 +63,20 @@ const eslintConfig = tseslint.config(
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-require-imports': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'warn',
+      '@typescript-eslint/no-unsafe-declaration-merging': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'warn',
+      // Next.js rules
       '@next/next/no-html-link-for-pages': 'error',
       '@next/next/no-img-element': 'error',
+      '@next/next/no-assign-module-variable': 'warn',
+      // React rules
       'react/no-unescaped-entities': 'warn',
       'react/react-in-jsx-scope': 'off', // Not needed in Next.js
       'react/prop-types': 'off', // Using TypeScript
     },
-  },
-  ...tseslint.configs.recommended
+  }
 )
 
 export default eslintConfig

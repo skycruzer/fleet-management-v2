@@ -51,6 +51,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'APPROVED' }),
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -83,6 +84,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'DENIED' }),
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -113,6 +115,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
     try {
       const response = await fetch(`/api/requests/${request.id}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       if (!response.ok) {

@@ -6,10 +6,7 @@ import { authRateLimit } from '@/lib/rate-limit'
 import { getTaskById, updateTask, deleteTask } from '@/lib/services/task-service'
 import { TaskUpdateSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
-import {
-  verifyRequestAuthorization,
-  ResourceType,
-} from '@/lib/middleware/authorization-middleware'
+import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
@@ -44,7 +41,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     console.error('Task GET [id] error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getTaskById',
-      taskId: (await params).id
+      taskId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -76,7 +73,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
  * @updated 2025-11-04 - Critical security hardening
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function PATCH(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     // SECURITY: Validate CSRF token
     const csrfError = await validateCsrf(_request)
@@ -90,10 +90,7 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
@@ -114,11 +111,7 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
     }
 
     // AUTHORIZATION: Verify user owns this task or is Admin/Manager
-    const authResult = await verifyRequestAuthorization(
-      _request,
-      ResourceType.TASK,
-      taskId
-    )
+    const authResult = await verifyRequestAuthorization(_request, ResourceType.TASK, taskId)
 
     if (!authResult.authorized) {
       return NextResponse.json(
@@ -163,7 +156,7 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
     console.error('Task PATCH error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'updateTask',
-      taskId: (await params).id
+      taskId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -181,7 +174,10 @@ export async function PATCH(_request: NextRequest, { params }: { params: Promise
  * @updated 2025-11-04 - Critical security hardening
  * @spec 001-missing-core-features (US5, T081)
  */
-export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     // SECURITY: Validate CSRF token
     const csrfError = await validateCsrf(_request)
@@ -195,10 +191,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
@@ -219,11 +212,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     }
 
     // AUTHORIZATION: Verify user owns this task or is Admin/Manager
-    const authResult = await verifyRequestAuthorization(
-      _request,
-      ResourceType.TASK,
-      taskId
-    )
+    const authResult = await verifyRequestAuthorization(_request, ResourceType.TASK, taskId)
 
     if (!authResult.authorized) {
       return NextResponse.json(
@@ -256,7 +245,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     console.error('Task DELETE error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'deleteTask',
-      taskId: (await params).id
+      taskId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

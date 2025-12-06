@@ -7,10 +7,12 @@
  * allows filtering and cancellation of pending requests.
  *
  * @spec 001-missing-core-features (US3)
+ * @updated 2025-11-27 - Refactored to TanStack Query for proper cache management
  */
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -46,67 +48,68 @@ interface FlightRequest {
 
 export default function FlightRequestsPage() {
   const router = useRouter()
-  const [requests, setRequests] = useState<FlightRequest[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string>('')
+  const queryClient = useQueryClient()
   const [deletingRequestId, setDeletingRequestId] = useState<string | null>(null)
-  const [filter, setFilter] = useState<'ALL' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'>(
-    'ALL'
-  )
+  const [deleteError, setDeleteError] = useState<string>('')
+  const [filter, setFilter] = useState<
+    'ALL' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+  >('ALL')
 
-  useEffect(() => {
-    fetchFlightRequests()
-  }, [])
-
-  const fetchFlightRequests = async () => {
-    try {
+  // TanStack Query for flight requests - refetches on mount and window focus
+  const {
+    data: requests = [],
+    isLoading,
+    error: queryError,
+  } = useQuery<FlightRequest[]>({
+    queryKey: ['flight-requests'],
+    queryFn: async () => {
       const response = await fetch('/api/portal/flight-requests')
       const result = await response.json()
-
       if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to fetch RDO/SDO requests')
-        setIsLoading(false)
-        return
+        throw new Error(result.error || 'Failed to fetch RDO/SDO requests')
       }
+      return result.data || []
+    },
+    staleTime: 0, // Always refetch on mount
+    refetchOnMount: 'always', // Refetch every time component mounts
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+  })
 
-      setRequests(result.data || [])
-      setIsLoading(false)
-    } catch (err) {
-      setError('An unexpected error occurred')
-      setIsLoading(false)
-    }
-  }
+  const error = deleteError || (queryError instanceof Error ? queryError.message : '')
 
   const cancelRequest = async (requestId: string) => {
+    // Guard against double-submit
+    if (deletingRequestId) return
+
     if (!confirm('Are you sure you want to cancel this RDO/SDO request?')) {
       return
     }
 
     setDeletingRequestId(requestId)
-    setError('')
+    setDeleteError('')
 
     try {
       const response = await fetch(`/api/portal/flight-requests?id=${requestId}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to cancel request')
+        setDeleteError(result.error || 'Failed to cancel request')
         setDeletingRequestId(null)
         return
       }
 
-      // Refresh list
-      await fetchFlightRequests()
+      // Invalidate query cache to trigger refetch
+      await queryClient.invalidateQueries({ queryKey: ['flight-requests'] })
       setDeletingRequestId(null)
 
-      // Refresh router cache
+      // Refresh router cache for server components
       router.refresh()
-      await new Promise(resolve => setTimeout(resolve, 100))
     } catch (err) {
-      setError('An unexpected error occurred while canceling the request')
+      setDeleteError('An unexpected error occurred while canceling the request')
       setDeletingRequestId(null)
     }
   }
@@ -185,7 +188,8 @@ export default function FlightRequestsPage() {
     }
   }
 
-  const filteredRequests = filter === 'ALL' ? requests : requests.filter((r) => r.workflow_status === filter)
+  const filteredRequests =
+    filter === 'ALL' ? requests : requests.filter((r) => r.workflow_status === filter)
 
   const stats = {
     total: requests.length,

@@ -1,11 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentPilotLeaveRequests, getPilotLeaveStats } from '@/lib/services/pilot-leave-service'
+import {
+  getCurrentPilotLeaveRequests,
+  getPilotLeaveStats,
+} from '@/lib/services/pilot-leave-service'
 import LeaveRequestForm from '@/components/pilot/LeaveRequestForm'
 import LeaveRequestsList from '@/components/pilot/LeaveRequestsList'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
-
 
 /**
  * Pilot Leave Request Page
@@ -46,8 +48,8 @@ export default async function PilotLeavePage() {
             Registration Pending Approval
           </h1>
           <p className="mt-2 text-yellow-700 dark:text-yellow-300">
-            Your pilot registration is pending approval by the fleet management team.
-            You will be able to submit leave requests once your registration is approved.
+            Your pilot registration is pending approval by the fleet management team. You will be
+            able to submit leave requests once your registration is approved.
           </p>
         </div>
       </div>
@@ -59,9 +61,10 @@ export default async function PilotLeavePage() {
   const leaveStatsResult = await getPilotLeaveStats()
 
   const leaveRequests = leaveRequestsResult.success ? leaveRequestsResult.data || [] : []
-  const stats = leaveStatsResult.success && leaveStatsResult.data
-    ? leaveStatsResult.data
-    : { total: 0, submitted: 0, in_review: 0, approved: 0, denied: 0, withdrawn: 0 }
+  const stats =
+    leaveStatsResult.success && leaveStatsResult.data
+      ? leaveStatsResult.data
+      : { total: 0, submitted: 0, in_review: 0, approved: 0, denied: 0, withdrawn: 0 }
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">

@@ -133,7 +133,7 @@ export async function generateLeaveReport(
   }
 
   // Filter by rank if needed (using denormalized rank field)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -249,7 +249,7 @@ export async function generateRdoSdoReport(
   }
 
   // Filter by rank if needed (using denormalized rank field)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -388,7 +388,7 @@ export async function generateCertificationsReport(
   }
 
   // Filter by rank if needed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -779,7 +779,7 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
     // Use specialized leave bids PDF service
     // Extract year from report data (default to current year if not available)
     const currentYear = new Date().getFullYear()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const bidYear = report.data[0]?.bid_year || currentYear
 
     // Extract status filter if any (from report summary or default to 'all')

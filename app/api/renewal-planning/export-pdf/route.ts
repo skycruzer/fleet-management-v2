@@ -26,7 +26,10 @@ export async function GET(request: Request) {
     // Validate year parameter
     if (!yearParam) {
       return NextResponse.json(
-        { error: 'Year parameter is required', details: 'Please specify a year (e.g., ?year=2025)' },
+        {
+          error: 'Year parameter is required',
+          details: 'Please specify a year (e.g., ?year=2025)',
+        },
         { status: 400 }
       )
     }

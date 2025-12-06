@@ -60,7 +60,7 @@ async function exportToCSV(data: any) {
   ]
 
   // Convert to CSV string
-  const csvContent = pilotCSV.map(row => row.join(',')).join('\n')
+  const csvContent = pilotCSV.map((row) => row.join(',')).join('\n')
 
   return new NextResponse(csvContent, {
     status: 200,
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     console.error('Export error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'exportAnalytics',
-      endpoint: '/api/analytics/export'
+      endpoint: '/api/analytics/export',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

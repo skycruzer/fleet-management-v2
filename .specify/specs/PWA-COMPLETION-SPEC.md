@@ -13,6 +13,7 @@
 Fleet Management V2 has **partial PWA implementation** using Serwist (@serwist/next v9.2.1). This specification completes the remaining components to achieve full offline functionality and mobile installation support.
 
 ### Current State
+
 ✅ Serwist installed and configured
 ✅ Service worker source (app/sw.ts) with custom caching
 ✅ Manifest file (public/manifest.json) with shortcuts
@@ -21,6 +22,7 @@ Fleet Management V2 has **partial PWA implementation** using Serwist (@serwist/n
 ❌ **Missing**: OfflineIndicator component
 
 ### Target State
+
 ✅ Complete offline experience
 ✅ Visual feedback for connectivity status
 ✅ Mobile installation support
@@ -41,6 +43,7 @@ When users lose internet connectivity, the service worker redirects to `/offline
 ### Functional Requirements
 
 **FR1: Offline Fallback Page**
+
 - MUST display when user is offline and navigates
 - MUST show clear "You're Offline" message
 - MUST provide troubleshooting steps
@@ -49,6 +52,7 @@ When users lose internet connectivity, the service worker redirects to `/offline
 - MUST match Air Niugini brand colors
 
 **FR2: Offline Indicator Component**
+
 - MUST show banner when connection is lost
 - MUST auto-hide when connection restored
 - MUST show "Back Online" confirmation (5 seconds)
@@ -56,6 +60,7 @@ When users lose internet connectivity, the service worker redirects to `/offline
 - MUST use framer-motion for smooth animations
 
 **FR3: Layout Integration**
+
 - MUST add OfflineIndicator to root layout
 - MUST NOT interfere with navigation
 - MUST work on all pages (dashboard, portal)
@@ -63,15 +68,18 @@ When users lose internet connectivity, the service worker redirects to `/offline
 ### Non-Functional Requirements
 
 **NFR1: Performance**
+
 - Offline page MUST load instantly from cache
 - OfflineIndicator MUST detect status change within 1 second
 
 **NFR2: Accessibility**
+
 - MUST use proper ARIA labels (role="alert", aria-live)
 - MUST support keyboard navigation
 - MUST have clear visual contrast
 
 **NFR3: Brand Consistency**
+
 - MUST use Air Niugini Red (#E4002B) or current theme
 - MUST match existing UI patterns
 - MUST use fleet management styling
@@ -106,6 +114,7 @@ fleet-management-v2/
 **File**: `app/offline/page.tsx`
 
 **Features**:
+
 - Client component (`'use client'`)
 - Auto-reload on connection restoration
 - Visual hierarchy: Header → Status → Troubleshooting → Actions
@@ -113,26 +122,24 @@ fleet-management-v2/
 - Accessibility compliant
 
 **Key Components**:
+
 ```tsx
 export default function Offline() {
   useEffect(() => {
     // Auto-reload when connection restored
     const handleOnline = () => {
-      setTimeout(() => window.location.reload(), 1000);
-    };
-    window.addEventListener('online', handleOnline);
-    return () => window.removeEventListener('online', handleOnline);
-  }, []);
+      setTimeout(() => window.location.reload(), 1000)
+    }
+    window.addEventListener('online', handleOnline)
+    return () => window.removeEventListener('online', handleOnline)
+  }, [])
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      {/* Offline UI */}
-    </div>
-  );
+  return <div className="flex min-h-screen items-center justify-center">{/* Offline UI */}</div>
 }
 ```
 
 **Design Elements**:
+
 - Header with WifiOff icon
 - Connection status alert box
 - Numbered troubleshooting steps (1-4)
@@ -145,6 +152,7 @@ export default function Offline() {
 **File**: `components/offline/OfflineIndicator.tsx`
 
 **Features**:
+
 - Client component with real-time status
 - Two states: Offline (red), Back Online (green)
 - Framer Motion animations (slide from top)
@@ -152,40 +160,38 @@ export default function Offline() {
 - Compact design (non-intrusive)
 
 **Key Components**:
+
 ```tsx
 export function OfflineIndicator() {
-  const [isOnline, setIsOnline] = useState(true);
-  const [wasOffline, setWasOffline] = useState(false);
+  const [isOnline, setIsOnline] = useState(true)
+  const [wasOffline, setWasOffline] = useState(false)
 
   useEffect(() => {
-    setIsOnline(navigator.onLine);
+    setIsOnline(navigator.onLine)
 
     const handleOnline = () => {
-      setIsOnline(true);
-      setWasOffline(true);
-      setTimeout(() => setWasOffline(false), 5000);
-    };
+      setIsOnline(true)
+      setWasOffline(true)
+      setTimeout(() => setWasOffline(false), 5000)
+    }
 
-    const handleOffline = () => setIsOnline(false);
+    const handleOffline = () => setIsOnline(false)
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
-  return (
-    <AnimatePresence mode="wait">
-      {/* Offline/Online banners */}
-    </AnimatePresence>
-  );
+  return <AnimatePresence mode="wait">{/* Offline/Online banners */}</AnimatePresence>
 }
 ```
 
 **States**:
+
 1. **Offline**: Red banner with WifiOff icon, "You're Offline" message, Retry button
 2. **Back Online**: Green banner with Wifi icon, "Back Online" message, auto-hide after 5s
 3. **Online**: No banner (hidden)
@@ -195,6 +201,7 @@ export function OfflineIndicator() {
 ## 4. Implementation Plan
 
 ### Phase 1: Create Offline Page (30 min)
+
 1. Create `app/offline/page.tsx`
 2. Port design from air-niugini-pms (adapt colors for fleet-management-v2)
 3. Update Air Niugini branding to generic Fleet Management
@@ -202,6 +209,7 @@ export function OfflineIndicator() {
 5. Test offline navigation
 
 ### Phase 2: Create OfflineIndicator (30 min)
+
 1. Create `components/offline/OfflineIndicator.tsx`
 2. Implement offline/online detection
 3. Add framer-motion animations
@@ -209,12 +217,14 @@ export function OfflineIndicator() {
 5. Test with DevTools Network throttling
 
 ### Phase 3: Integration (15 min)
+
 1. Import OfflineIndicator in `app/layout.tsx`
 2. Position above main content (fixed top-0)
 3. Verify z-index stacking
 4. Test on dashboard and portal routes
 
 ### Phase 4: Testing & Validation (45 min)
+
 1. **Offline Mode Testing**
    - DevTools → Network → Offline
    - Navigate to /offline manually
@@ -244,6 +254,7 @@ export function OfflineIndicator() {
 ## 5. Success Criteria
 
 ### Must Have (P0)
+
 - [ ] Offline page displays when user goes offline
 - [ ] Auto-reload works when connection restored
 - [ ] OfflineIndicator shows/hides correctly
@@ -251,12 +262,14 @@ export function OfflineIndicator() {
 - [ ] Mobile installation works (iOS + Android)
 
 ### Should Have (P1)
+
 - [ ] Framer Motion animations smooth
 - [ ] Brand colors match theme
 - [ ] Troubleshooting steps helpful
 - [ ] Support contact linked
 
 ### Nice to Have (P2)
+
 - [ ] OfflineBadge variant for compact spaces
 - [ ] Offline data queue (sync when reconnected)
 - [ ] Background sync for pending actions
@@ -266,27 +279,30 @@ export function OfflineIndicator() {
 ## 6. Testing Strategy
 
 ### Unit Tests (N/A)
+
 - No unit tests for these components (E2E sufficient)
 
 ### E2E Tests (Playwright)
+
 ```typescript
 // e2e/pwa.spec.ts
 test.describe('PWA Offline Functionality', () => {
   test('should display offline page when offline', async ({ page, context }) => {
-    await context.setOffline(true);
-    await page.goto('/dashboard/pilots');
-    await expect(page.getByRole('heading', { name: 'No Internet Connection' })).toBeVisible();
-  });
+    await context.setOffline(true)
+    await page.goto('/dashboard/pilots')
+    await expect(page.getByRole('heading', { name: 'No Internet Connection' })).toBeVisible()
+  })
 
   test('should show offline indicator when connection lost', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.evaluate(() => window.dispatchEvent(new Event('offline')));
-    await expect(page.getByText("You're Offline")).toBeVisible();
-  });
-});
+    await page.goto('/dashboard')
+    await page.evaluate(() => window.dispatchEvent(new Event('offline')))
+    await expect(page.getByText("You're Offline")).toBeVisible()
+  })
+})
 ```
 
 ### Manual Testing Checklist
+
 - [ ] Install app on iOS device
 - [ ] Install app on Android device
 - [ ] Test offline mode in installed app
@@ -299,16 +315,19 @@ test.describe('PWA Offline Functionality', () => {
 ## 7. Dependencies
 
 ### External Dependencies
+
 - ✅ @serwist/next (v9.2.1) - Already installed
 - ✅ framer-motion (12.23.22) - Already installed (check package.json)
 - ✅ lucide-react (0.546.0) - Already installed
 
 ### Internal Dependencies
+
 - ✅ Service worker (app/sw.ts)
 - ✅ Manifest (public/manifest.json)
 - ✅ Next.js config (withSerwist)
 
 ### Icon Assets
+
 - ⚠️ Need to verify icon files exist:
   - public/icon-192.png
   - public/icon-512.png
@@ -320,16 +339,19 @@ test.describe('PWA Offline Functionality', () => {
 ## 8. Risks & Mitigations
 
 ### Risk 1: Service Worker Caching Issues
+
 **Impact**: Medium
 **Probability**: Low
 **Mitigation**: Serwist handles cache invalidation automatically. `skipWaiting: true` ensures immediate updates.
 
 ### Risk 2: iOS Safari Quirks
+
 **Impact**: Medium
 **Probability**: Medium
 **Mitigation**: Test on actual iOS device. Safari has limited PWA support compared to Android.
 
 ### Risk 3: Framer Motion Bundle Size
+
 **Impact**: Low
 **Probability**: Low
 **Mitigation**: Framer Motion already installed. Animations are lightweight.
@@ -339,18 +361,21 @@ test.describe('PWA Offline Functionality', () => {
 ## 9. Rollout Plan
 
 ### Development
+
 1. Create feature branch: `feature/pwa-completion`
 2. Implement offline page
 3. Implement OfflineIndicator
 4. Test locally with DevTools offline mode
 
 ### Staging
+
 1. Deploy to Vercel preview
 2. Test on mobile devices
 3. Verify service worker registration
 4. Check Lighthouse PWA score
 
 ### Production
+
 1. Merge to main
 2. Deploy to production
 3. Monitor error logs
@@ -361,11 +386,13 @@ test.describe('PWA Offline Functionality', () => {
 ## 10. Documentation Updates
 
 ### Files to Update
+
 - [x] CLAUDE.md - Already has PWA section
 - [ ] README.md - Add PWA installation instructions
 - [ ] .specify/PRODUCTION-READINESS-FINAL.md - Update PWA status
 
 ### User Documentation
+
 - Create "Install the App" guide
 - Create "Offline Mode" FAQ
 - Update admin guide with PWA troubleshooting
@@ -375,6 +402,7 @@ test.describe('PWA Offline Functionality', () => {
 ## 11. Acceptance Criteria
 
 **Definition of Done:**
+
 1. ✅ Offline page created and functional
 2. ✅ OfflineIndicator component created
 3. ✅ Integrated into root layout
@@ -393,11 +421,13 @@ test.describe('PWA Offline Functionality', () => {
 **Source**: `/Users/skycruzer/Desktop/Fleet Office Management/air-niugini-pms/`
 
 **Files to Reference**:
+
 - `src/app/offline.tsx` - Offline page design
 - `src/components/offline/OfflineIndicator.tsx` - Indicator component
 - `public/manifest.json` - Manifest structure
 
 **Adaptations Required**:
+
 - Change Air Niugini Red (#E4002B) to current theme color
 - Update "Air Niugini Pilot Management System" to "Fleet Management V2"
 - Use Next.js 15 patterns (Server Components where possible)

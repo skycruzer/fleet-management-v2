@@ -36,7 +36,10 @@ export async function GET(request: NextRequest) {
     const rosterPeriod = searchParams.get('rosterPeriod')
 
     // Build query
-    let query = supabase.from('roster_reports').select('*').order('generated_at', { ascending: false })
+    let query = supabase
+      .from('roster_reports')
+      .select('*')
+      .order('generated_at', { ascending: false })
 
     // Filter by roster period if provided
     if (rosterPeriod) {

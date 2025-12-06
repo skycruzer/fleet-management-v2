@@ -15,16 +15,17 @@ import { Logtail } from '@logtail/node'
 import { ReportEmailRequestSchema } from '@/lib/validations/reports-schema'
 import { z } from 'zod'
 
-const log = process.env.LOGTAIL_SOURCE_TOKEN
-  ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN)
-  : null
+const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
   try {
     // Authentication check
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
       log?.warn('Unauthorized email send attempt', {
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
     const validationResult = ReportEmailRequestSchema.safeParse(body)
 
     if (!validationResult.success) {
-      const errors = validationResult.error.issues.map(err => ({
+      const errors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }))
@@ -104,20 +105,28 @@ export async function POST(request: Request) {
 
     // Prepare email content
     const emailSubject = subject || `${report.title} - ${timestamp}`
-    const emailBody = message || `
+    const emailBody =
+      message ||
+      `
       <h2>${report.title}</h2>
       <p>${report.description}</p>
       <p><strong>Generated:</strong> ${new Date(report.generatedAt).toLocaleString()}</p>
 
-      ${report.summary ? `
+      ${
+        report.summary
+          ? `
         <h3>Summary</h3>
         <ul>
-          ${Object.entries(report.summary).map(([key, value]) => {
-            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
-            return `<li><strong>${label}:</strong> ${value}</li>`
-          }).join('')}
+          ${Object.entries(report.summary)
+            .map(([key, value]) => {
+              const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
+              return `<li><strong>${label}:</strong> ${value}</li>`
+            })
+            .join('')}
         </ul>
-      ` : ''}
+      `
+          : ''
+      }
 
       <p>Please find the detailed report attached as a PDF.</p>
 

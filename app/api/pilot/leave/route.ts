@@ -29,7 +29,7 @@ export async function GET(_request: NextRequest) {
     console.error('Pilot leave GET error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getCurrentPilotLeaveRequests',
-      endpoint: '/api/pilot/leave'
+      endpoint: '/api/pilot/leave',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -81,7 +81,7 @@ export async function POST(_request: NextRequest) {
     console.error('Pilot leave POST error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'submitPilotLeaveRequest',
-      endpoint: '/api/pilot/leave'
+      endpoint: '/api/pilot/leave',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

@@ -83,7 +83,7 @@ export async function GET(request: Request) {
     logger.error('Token validation API error', error)
     const sanitized = sanitizeError(error, {
       operation: 'validateResetToken',
-      endpoint: '/api/portal/reset-password'
+      endpoint: '/api/portal/reset-password',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -138,7 +138,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     logger.error('Reset password API error', error)
     const sanitized = sanitizeError(error, {
       operation: 'resetPassword',
-      endpoint: '/api/portal/reset-password'
+      endpoint: '/api/portal/reset-password',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

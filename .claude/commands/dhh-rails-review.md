@@ -5,6 +5,7 @@ Get brutally honest Rails code review from DHH's perspective.
 ## When to Use
 
 Use this command for:
+
 - ✅ Rails-style API design critique
 - ✅ Convention over configuration validation
 - ✅ Identifying over-engineering
@@ -15,6 +16,7 @@ Use this command for:
 ## What It Does
 
 Invokes the **dhh-rails-reviewer** agent which:
+
 - Provides uncompromising Rails-style feedback
 - Identifies JavaScript framework contamination
 - Validates RESTful conventions
@@ -29,6 +31,7 @@ Invokes the **dhh-rails-reviewer** agent which:
 ```
 
 Optional: Target specific code
+
 ```
 "Review API endpoint design"
 "Critique service layer architecture"
@@ -38,6 +41,7 @@ Optional: Target specific code
 ## Example
 
 For API design review:
+
 ```
 User: "Built new API with JWT tokens and separate API layer"
 Assistant: "Getting DHH's perspective with /dhh-rails-review"
@@ -46,6 +50,7 @@ Assistant: "Getting DHH's perspective with /dhh-rails-review"
 ## What You'll Get
 
 **Brutally Honest Feedback:**
+
 - 🔥 Direct critique of over-engineering
 - 🔥 Rails convention violations
 - 🔥 Unnecessary complexity identification
@@ -53,6 +58,7 @@ Assistant: "Getting DHH's perspective with /dhh-rails-review"
 - 🔥 Pragmatic simplification suggestions
 
 **Philosophy:**
+
 - Convention over Configuration
 - Simplicity over Complexity
 - Progress over Perfection
@@ -64,12 +70,14 @@ Assistant: "Getting DHH's perspective with /dhh-rails-review"
 Even though this is a Next.js project, DHH's Rails philosophy applies:
 
 **Service Layer Pattern** (Rails-inspired):
+
 - ✅ Fat models, skinny controllers → Fat services, thin routes
 - ✅ Convention over configuration
 - ✅ RESTful API design
 - ✅ Simple, pragmatic solutions
 
 **Anti-Over-Engineering:**
+
 - ❌ Unnecessary abstractions
 - ❌ Premature optimization
 - ❌ Framework contamination (bringing SPA patterns to backend)
@@ -79,12 +87,14 @@ Even though this is a Next.js project, DHH's Rails philosophy applies:
 ## Perfect For
 
 **API Design:**
+
 - RESTful endpoint design
 - Response format conventions
 - CRUD operation patterns
 - Resource naming
 
 **Backend Architecture:**
+
 - Service layer simplicity
 - Database interaction patterns
 - Business logic organization

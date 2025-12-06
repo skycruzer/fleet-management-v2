@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Pilot Portal Quick Test', () => {
   test('should load portal homepage', async ({ page }) => {
     // Navigate to portal
-    await page.goto('http://localhost:3000/portal')
+    await page.goto('/portal')
 
     // Wait for page to load
     await page.waitForLoadState('networkidle')
@@ -19,7 +19,7 @@ test.describe('Pilot Portal Quick Test', () => {
 
   test('should check portal dashboard accessibility', async ({ page }) => {
     // Navigate to dashboard
-    await page.goto('http://localhost:3000/portal/dashboard')
+    await page.goto('/portal/dashboard')
 
     // Wait for page to load
     await page.waitForLoadState('networkidle')
@@ -43,7 +43,7 @@ test.describe('Pilot Portal Quick Test', () => {
     })
 
     // Navigate to portal
-    await page.goto('http://localhost:3000/portal')
+    await page.goto('/portal')
     await page.waitForLoadState('networkidle')
 
     // Check for errors
@@ -57,7 +57,7 @@ test.describe('Pilot Portal Quick Test', () => {
 
   test('should check portal certifications page', async ({ page }) => {
     // Navigate to certifications
-    await page.goto('http://localhost:3000/portal/certifications')
+    await page.goto('/portal/certifications')
 
     // Wait for page to load
     await page.waitForLoadState('networkidle')
@@ -73,7 +73,7 @@ test.describe('Pilot Portal Quick Test', () => {
 
   test('should check portal leave requests page', async ({ page }) => {
     // Navigate to leave requests
-    await page.goto('http://localhost:3000/portal/leave')
+    await page.goto('/portal/leave')
 
     // Wait for page to load
     await page.waitForLoadState('networkidle')

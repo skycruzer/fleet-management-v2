@@ -1,7 +1,16 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plane, Users, FileText, BarChart3, Shield, CheckCircle, Clock, Calendar } from 'lucide-react'
+import {
+  Plane,
+  Users,
+  FileText,
+  BarChart3,
+  Shield,
+  CheckCircle,
+  Clock,
+  Calendar,
+} from 'lucide-react'
 import { publicMetadata } from '@/lib/utils/metadata'
 
 export const metadata = publicMetadata.home
@@ -20,7 +29,10 @@ export default function HomePage() {
               <div className="bg-primary/10 rounded-2xl p-3 backdrop-blur-sm">
                 <Plane className="text-primary h-14 w-14" />
               </div>
-              <h1 className="text-foreground text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl" suppressHydrationWarning>
+              <h1
+                className="text-foreground text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
+                suppressHydrationWarning
+              >
                 Fleet Management
               </h1>
             </div>
@@ -31,20 +43,17 @@ export default function HomePage() {
             </p>
 
             <p className="text-muted-foreground max-w-2xl text-lg">
-              Streamline pilot certification tracking, leave management, and compliance monitoring with our comprehensive aviation operations platform.
+              Streamline pilot certification tracking, leave management, and compliance monitoring
+              with our comprehensive aviation operations platform.
             </p>
 
             {/* CTA Buttons */}
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Button size="lg" className="px-8 py-6 text-base" asChild>
-                <Link href="/auth/login">
-                  Admin Dashboard
-                </Link>
+                <Link href="/auth/login">Admin Dashboard</Link>
               </Button>
               <Button size="lg" variant="outline" className="px-8 py-6 text-base" asChild>
-                <Link href="/portal/login">
-                  Pilot Portal
-                </Link>
+                <Link href="/portal/login">Pilot Portal</Link>
               </Button>
               <Button size="lg" variant="outline" className="px-8 py-6 text-base" asChild>
                 <Link href="/docs">
@@ -99,9 +108,7 @@ export default function HomePage() {
 
         {/* Benefits Section */}
         <div className="rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 p-12 text-center dark:from-gray-900 dark:to-blue-950">
-          <h2 className="mb-8 text-3xl font-bold sm:text-4xl">
-            Why Choose Our Platform?
-          </h2>
+          <h2 className="mb-8 text-3xl font-bold sm:text-4xl">Why Choose Our Platform?</h2>
           <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
             <BenefitItem
               icon={<Clock className="h-6 w-6" />}

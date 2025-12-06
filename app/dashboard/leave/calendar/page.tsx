@@ -27,12 +27,8 @@ export default async function LeaveCalendarPage() {
     return (
       <div className="p-8">
         <Card className="p-8 text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Authentication Required
-          </h2>
-          <p className="text-gray-600">
-            Please log in to view the leave calendar.
-          </p>
+          <h2 className="mb-2 text-xl font-semibold text-gray-900">Authentication Required</h2>
+          <p className="text-gray-600">Please log in to view the leave calendar.</p>
         </Card>
       </div>
     )

@@ -45,6 +45,7 @@ Then follow the workflows manually.
 **Perfect for**: Regular releases, feature deployments, production updates
 
 **Workflow** (7 Steps):
+
 1. ✅ **Project Health Check** - Code quality + security scan
 2. 🔧 **Quality Resolution** - Fix P0/P1 issues
 3. 🔒 **Security Audit** - Secrets scan, RLS check, auth validation
@@ -63,6 +64,7 @@ Then follow the workflows manually.
 **Perfect for**: First-time deployment of new projects
 
 **Workflow** (7 Steps):
+
 1. 🎬 **Project Initialization** - Dependencies + environment + types
 2. ⚙️ **Quality Setup** - ESLint, Prettier, Husky, tests
 3. 🔒 **Security Configuration** - Headers, rate limiting, logging, RLS
@@ -81,6 +83,7 @@ Then follow the workflows manually.
 **Perfect for**: Critical bugs, urgent patches, production fires
 
 **Workflow** (3 Steps):
+
 1. ⚡ **Quick Validation** - `npm run validate && npm test`
 2. 🚀 **Build & Deploy** - `npm run build && vercel --prod`
 3. ✅ **Verify & Commit** - Manual check + git push
@@ -162,6 +165,7 @@ Before using this skill, ensure you have:
 If something goes wrong:
 
 ### Immediate Action
+
 ```bash
 # Rollback in Vercel dashboard
 # OR
@@ -169,12 +173,14 @@ vercel rollback <deployment-url>
 ```
 
 ### Investigation
+
 1. Check **Vercel logs** in dashboard
 2. Check **Better Stack** error logs
 3. Check **browser console** for client errors
 4. Review **failed E2E tests**
 
 ### Fix and Redeploy
+
 1. Fix issues locally
 2. Test thoroughly
 3. Restart from Step 4 (Build)
@@ -190,6 +196,7 @@ This skill works with BMAD agents:
 - **`/bmad-master`** - Use for end-to-end orchestration
 
 **Example**:
+
 ```bash
 # Step 1: Review with QA agent
 /qa
@@ -209,37 +216,41 @@ This skill works with BMAD agents:
 
 Monitor these metrics for deployment health:
 
-| Metric | Target | How to Measure |
-|--------|--------|---------------|
-| **Deployment Time** | <5 min | Time from build to live |
-| **Test Pass Rate** | 100% | `npm test` results |
-| **Error Rate** | <0.1% | Better Stack logs (30 min) |
-| **Lighthouse Score** | >90 | Chrome DevTools |
-| **Rollback Rate** | <5% | Track manual rollbacks |
+| Metric               | Target | How to Measure             |
+| -------------------- | ------ | -------------------------- |
+| **Deployment Time**  | <5 min | Time from build to live    |
+| **Test Pass Rate**   | 100%   | `npm test` results         |
+| **Error Rate**       | <0.1%  | Better Stack logs (30 min) |
+| **Lighthouse Score** | >90    | Chrome DevTools            |
+| **Rollback Rate**    | <5%    | Track manual rollbacks     |
 
 ---
 
 ## 🐛 Troubleshooting
 
 ### "Vercel command not found"
+
 ```bash
 npm i -g vercel
 vercel login
 ```
 
 ### "Build fails with type errors"
+
 ```bash
 npm run db:types
 npm run type-check
 ```
 
 ### "Tests fail in production"
+
 ```bash
 # Check PLAYWRIGHT_BASE_URL
 PLAYWRIGHT_BASE_URL=https://your-app.vercel.app npm test
 ```
 
 ### "Environment variables missing"
+
 ```bash
 # Set in Vercel dashboard:
 # Settings → Environment Variables
@@ -251,6 +262,7 @@ PLAYWRIGHT_BASE_URL=https://your-app.vercel.app npm test
 ## 📚 Full Documentation
 
 For complete workflows, commands, and checklists:
+
 ```bash
 cat .claude/skills/bmad-deploy.md
 ```
@@ -259,19 +271,20 @@ cat .claude/skills/bmad-deploy.md
 
 ## 🎯 Quick Reference
 
-| Task | Command |
-|------|---------|
-| **Review & Deploy** | `/bmad-deploy review` |
-| **New Project Deploy** | `/bmad-deploy new` |
-| **Emergency Hotfix** | `/bmad-deploy quick` |
-| **Read Full Docs** | `cat .claude/skills/bmad-deploy.md` |
-| **Rollback** | `vercel rollback <url>` |
+| Task                   | Command                             |
+| ---------------------- | ----------------------------------- |
+| **Review & Deploy**    | `/bmad-deploy review`               |
+| **New Project Deploy** | `/bmad-deploy new`                  |
+| **Emergency Hotfix**   | `/bmad-deploy quick`                |
+| **Read Full Docs**     | `cat .claude/skills/bmad-deploy.md` |
+| **Rollback**           | `vercel rollback <url>`             |
 
 ---
 
 ## ✨ What Makes This Special
 
 This skill combines:
+
 - ✅ **BMAD Methodology** - Structured agent workflows
 - ✅ **Quality Gates** - Enforced standards before deploy
 - ✅ **Security First** - Comprehensive audit built-in
@@ -285,6 +298,7 @@ This skill combines:
 ## 🎉 Next Steps
 
 1. **Try it out**:
+
    ```bash
    /bmad-deploy review
    ```

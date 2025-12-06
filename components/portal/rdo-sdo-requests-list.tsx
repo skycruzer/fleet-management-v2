@@ -108,6 +108,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
           'Content-Type': 'application/json',
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
+        credentials: 'include',
       })
 
       const result = await response.json()

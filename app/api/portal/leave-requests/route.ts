@@ -78,18 +78,20 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     // Revalidate cache for all affected paths
     revalidatePath('/portal/leave-requests')
     revalidatePath('/portal/dashboard')
-    revalidatePath('/dashboard/leave')
+    revalidatePath('/dashboard/leave-requests')
+    revalidatePath('/dashboard/requests')
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       success: true,
       data: result.data,
       message: 'Leave request submitted successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Submit leave request API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'submitLeaveRequest',
-      endpoint: '/api/portal/leave-requests'
+      endpoint: '/api/portal/leave-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -123,11 +125,11 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get leave requests API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getLeaveRequests',
-      endpoint: '/api/portal/leave-requests'
+      endpoint: '/api/portal/leave-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -198,18 +200,20 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
     // Revalidate cache for all affected paths
     revalidatePath('/portal/leave-requests')
     revalidatePath('/portal/dashboard')
-    revalidatePath('/dashboard/leave')
+    revalidatePath('/dashboard/leave-requests')
+    revalidatePath('/dashboard/requests')
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       success: true,
       data: result.data,
       message: 'Leave request updated successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update leave request API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'updateLeaveRequest',
-      endpoint: '/api/portal/leave-requests'
+      endpoint: '/api/portal/leave-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -261,6 +265,7 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
     const result = await cancelPilotLeaveRequest(requestId)
 
     if (!result.success) {
+      const statusCode = result.error === ERROR_MESSAGES.AUTH.FORBIDDEN.message ? 403 : 500
       return NextResponse.json(
         formatApiError(
           {
@@ -268,26 +273,28 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
             category: ERROR_MESSAGES.LEAVE.DELETE_FAILED.category,
             severity: ERROR_MESSAGES.LEAVE.DELETE_FAILED.severity,
           },
-          result.error === ERROR_MESSAGES.AUTH.FORBIDDEN.message ? 403 : 500
+          statusCode
         ),
-        { status: result.error === ERROR_MESSAGES.AUTH.FORBIDDEN.message ? 403 : 500 }
+        { status: statusCode }
       )
     }
 
     // Revalidate cache for all affected paths
     revalidatePath('/portal/leave-requests')
     revalidatePath('/portal/dashboard')
-    revalidatePath('/dashboard/leave')
+    revalidatePath('/dashboard/leave-requests')
+    revalidatePath('/dashboard/requests')
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       success: true,
       message: 'Leave request cancelled successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Cancel leave request API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'cancelLeaveRequest',
-      endpoint: '/api/portal/leave-requests'
+      endpoint: '/api/portal/leave-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

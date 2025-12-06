@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Card } from '@/components/ui/card'
@@ -16,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import Link from 'next/link'
 
 type PilotFormData = z.infer<typeof PilotCreateSchema>
@@ -28,33 +30,34 @@ interface ContractType {
 
 export default function NewPilotPage() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { csrfToken } = useCsrfToken()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [submitAttempted, setSubmitAttempted] = useState(false)
   const [contractTypes, setContractTypes] = useState<ContractType[]>([])
   const [loadingContractTypes, setLoadingContractTypes] = useState(true)
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<PilotFormData>({
+  const { register, handleSubmit, watch, formState, trigger } = useForm<PilotFormData>({
     resolver: zodResolver(PilotCreateSchema),
     defaultValues: {
       is_active: true,
       role: 'First Officer',
     },
+    mode: 'onSubmit', // Validate on submit
   })
+
+  // Debug: Log form state changes
+  useEffect(() => {
+    if (Object.keys(formState.errors).length > 0) {
+      console.log('Form errors detected:', formState.errors)
+    }
+  }, [formState.errors])
 
   const selectedRole = watch('role')
 
-  // Debug: Log validation errors to console
-  useEffect(() => {
-    if (Object.keys(errors).length > 0) {
-      console.error('Form validation errors:', errors)
-    }
-  }, [errors])
+  // Warn about unsaved changes when navigating away
+  useFormUnsavedChanges({ formState }, { skipWarning: isSubmitting })
 
   // Fetch contract types on component mount
   useEffect(() => {
@@ -66,8 +69,8 @@ export default function NewPilotPage() {
         if (result.success && result.data) {
           setContractTypes(result.data)
         }
-      } catch (error) {
-        console.error('Failed to fetch contract types:', error)
+      } catch (err) {
+        console.error('Failed to fetch contract types:', err)
       } finally {
         setLoadingContractTypes(false)
       }
@@ -75,6 +78,46 @@ export default function NewPilotPage() {
 
     fetchContractTypes()
   }, [])
+
+  // Handle validation errors from react-hook-form
+  interface FieldErrorLike {
+    message?: string
+    root?: { message?: string }
+  }
+
+  const onValidationError = (errors: Record<string, FieldErrorLike>) => {
+    console.error('Validation errors:', errors)
+    setSubmitAttempted(true)
+
+    // Collect all error messages
+    const errorMessages: string[] = []
+
+    // Helper to extract error message from any error object
+    const extractMessage = (err: FieldErrorLike | string): string | null => {
+      if (typeof err === 'string') return err
+      if (err?.message) return err.message
+      if (err?.root?.message) return err.root.message
+      return null
+    }
+
+    // Process all errors
+    for (const [_field, err] of Object.entries(errors)) {
+      const message = extractMessage(err)
+      if (message) {
+        errorMessages.push(message)
+      }
+    }
+
+    // Always set an error message
+    if (errorMessages.length > 0) {
+      setError(errorMessages[0])
+    } else {
+      setError('Please check the form for errors and try again.')
+    }
+
+    // Scroll to top to show error
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const onSubmit = async (data: PilotFormData) => {
     setIsSubmitting(true)
@@ -88,6 +131,7 @@ export default function NewPilotPage() {
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify(data),
+        credentials: 'include',
       })
 
       const result = await response.json()
@@ -96,10 +140,12 @@ export default function NewPilotPage() {
         throw new Error(result.error || result.message || 'Failed to create pilot')
       }
 
+      // Invalidate TanStack Query cache for pilots
+      await queryClient.invalidateQueries({ queryKey: ['pilots'] })
       // Success - refresh cache BEFORE redirecting (Next.js 16 requirement)
       router.refresh()
       // Wait for cache propagation (increased from 100ms to 500ms)
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise((resolve) => setTimeout(resolve, 500))
       // THEN redirect
       router.push('/dashboard/pilots')
     } catch (err) {
@@ -123,25 +169,25 @@ export default function NewPilotPage() {
 
       {/* Form Card */}
       <Card className="p-6">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* API Error Message */}
-          {error && (
+        <form onSubmit={handleSubmit(onSubmit, onValidationError)} className="space-y-6">
+          {/* Error Messages */}
+          {(error || formState.errors.root) && (
             <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm text-red-600">{error || formState.errors.root?.message}</p>
             </div>
           )}
 
-          {/* Validation Errors Summary */}
-          {Object.keys(errors).length > 0 && (
-            <div className="rounded-lg border border-yellow-500 bg-yellow-50 p-4">
-              <p className="text-sm font-semibold text-yellow-800">
+          {/* Show all validation errors summary */}
+          {submitAttempted && Object.keys(formState.errors).length > 0 && (
+            <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4">
+              <p className="text-sm font-medium text-yellow-800">
                 Please fix the following errors:
               </p>
               <ul className="mt-2 list-inside list-disc text-sm text-yellow-700">
-                {Object.entries(errors).map(([field, error]) => (
+                {Object.entries(formState.errors).map(([field, err]) => (
                   <li key={field}>
-                    <strong className="capitalize">{field.replace(/_/g, ' ')}:</strong>{' '}
-                    {error?.message}
+                    <strong>{field.replace(/_/g, ' ')}:</strong>{' '}
+                    {err?.message || `Invalid ${field}`}
                   </li>
                 ))}
               </ul>
@@ -165,12 +211,12 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="e.g., 100001"
                   {...register('employee_id')}
-                  className={errors.employee_id ? 'border-red-500' : ''}
+                  className={formState.errors.employee_id ? 'border-red-500' : ''}
                 />
-                {errors.employee_id && (
-                  <p className="text-sm text-red-600">{errors.employee_id.message}</p>
+                {formState.errors.employee_id && (
+                  <p className="text-sm text-red-600">{formState.errors.employee_id.message}</p>
                 )}
-                <p className="text-muted-foreground text-xs">Must be exactly 6 digits</p>
+                <p className="text-muted-foreground text-xs">Must be 4-6 digits</p>
               </div>
 
               {/* Role */}
@@ -182,13 +228,15 @@ export default function NewPilotPage() {
                   id="role"
                   {...register('role')}
                   className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.role ? 'border-red-500' : 'border-border'
+                    formState.errors.role ? 'border-red-500' : 'border-border'
                   }`}
                 >
                   <option value="Captain">Captain</option>
                   <option value="First Officer">First Officer</option>
                 </select>
-                {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
+                {formState.errors.role && (
+                  <p className="text-sm text-red-600">{formState.errors.role.message}</p>
+                )}
               </div>
             </div>
 
@@ -203,10 +251,10 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="John"
                   {...register('first_name')}
-                  className={errors.first_name ? 'border-red-500' : ''}
+                  className={formState.errors.first_name ? 'border-red-500' : ''}
                 />
-                {errors.first_name && (
-                  <p className="text-sm text-red-600">{errors.first_name.message}</p>
+                {formState.errors.first_name && (
+                  <p className="text-sm text-red-600">{formState.errors.first_name.message}</p>
                 )}
               </div>
 
@@ -218,10 +266,10 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="Michael (optional)"
                   {...register('middle_name')}
-                  className={errors.middle_name ? 'border-red-500' : ''}
+                  className={formState.errors.middle_name ? 'border-red-500' : ''}
                 />
-                {errors.middle_name && (
-                  <p className="text-sm text-red-600">{errors.middle_name.message}</p>
+                {formState.errors.middle_name && (
+                  <p className="text-sm text-red-600">{formState.errors.middle_name.message}</p>
                 )}
               </div>
 
@@ -235,10 +283,10 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="Doe"
                   {...register('last_name')}
-                  className={errors.last_name ? 'border-red-500' : ''}
+                  className={formState.errors.last_name ? 'border-red-500' : ''}
                 />
-                {errors.last_name && (
-                  <p className="text-sm text-red-600">{errors.last_name.message}</p>
+                {formState.errors.last_name && (
+                  <p className="text-sm text-red-600">{formState.errors.last_name.message}</p>
                 )}
               </div>
             </div>
@@ -269,8 +317,8 @@ export default function NewPilotPage() {
                     </option>
                   ))}
                 </select>
-                {errors.contract_type && (
-                  <p className="text-sm text-red-600">{errors.contract_type.message}</p>
+                {formState.errors.contract_type && (
+                  <p className="text-sm text-red-600">{formState.errors.contract_type.message}</p>
                 )}
               </div>
 
@@ -281,10 +329,12 @@ export default function NewPilotPage() {
                   id="commencement_date"
                   type="date"
                   {...register('commencement_date')}
-                  className={errors.commencement_date ? 'border-red-500' : ''}
+                  className={formState.errors.commencement_date ? 'border-red-500' : ''}
                 />
-                {errors.commencement_date && (
-                  <p className="text-sm text-red-600">{errors.commencement_date.message}</p>
+                {formState.errors.commencement_date && (
+                  <p className="text-sm text-red-600">
+                    {formState.errors.commencement_date.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Used to calculate seniority</p>
               </div>
@@ -335,10 +385,10 @@ export default function NewPilotPage() {
                   id="date_of_birth"
                   type="date"
                   {...register('date_of_birth')}
-                  className={errors.date_of_birth ? 'border-red-500' : ''}
+                  className={formState.errors.date_of_birth ? 'border-red-500' : ''}
                 />
-                {errors.date_of_birth && (
-                  <p className="text-sm text-red-600">{errors.date_of_birth.message}</p>
+                {formState.errors.date_of_birth && (
+                  <p className="text-sm text-red-600">{formState.errors.date_of_birth.message}</p>
                 )}
                 <p className="text-muted-foreground text-xs">Must be at least 18 years old</p>
               </div>
@@ -351,10 +401,10 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="e.g., Papua New Guinean"
                   {...register('nationality')}
-                  className={errors.nationality ? 'border-red-500' : ''}
+                  className={formState.errors.nationality ? 'border-red-500' : ''}
                 />
-                {errors.nationality && (
-                  <p className="text-sm text-red-600">{errors.nationality.message}</p>
+                {formState.errors.nationality && (
+                  <p className="text-sm text-red-600">{formState.errors.nationality.message}</p>
                 )}
               </div>
             </div>
@@ -375,10 +425,10 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="e.g., P1234567"
                   {...register('passport_number')}
-                  className={errors.passport_number ? 'border-red-500' : ''}
+                  className={formState.errors.passport_number ? 'border-red-500' : ''}
                 />
-                {errors.passport_number && (
-                  <p className="text-sm text-red-600">{errors.passport_number.message}</p>
+                {formState.errors.passport_number && (
+                  <p className="text-sm text-red-600">{formState.errors.passport_number.message}</p>
                 )}
                 <p className="text-muted-foreground text-xs">Uppercase letters and numbers only</p>
               </div>
@@ -390,10 +440,10 @@ export default function NewPilotPage() {
                   id="passport_expiry"
                   type="date"
                   {...register('passport_expiry')}
-                  className={errors.passport_expiry ? 'border-red-500' : ''}
+                  className={formState.errors.passport_expiry ? 'border-red-500' : ''}
                 />
-                {errors.passport_expiry && (
-                  <p className="text-sm text-red-600">{errors.passport_expiry.message}</p>
+                {formState.errors.passport_expiry && (
+                  <p className="text-sm text-red-600">{formState.errors.passport_expiry.message}</p>
                 )}
                 <p className="text-muted-foreground text-xs">
                   Required if passport number is provided
@@ -450,19 +500,28 @@ export default function NewPilotPage() {
                 </div>
               </div>
 
-              {errors.captain_qualifications && (
-                <p className="text-sm text-red-600">{errors.captain_qualifications.message}</p>
+              {formState.errors.captain_qualifications && (
+                <p className="text-sm text-red-600">
+                  {formState.errors.captain_qualifications.message}
+                </p>
               )}
             </div>
           )}
 
           {/* Form Actions */}
           <div className="flex items-center justify-end space-x-4 border-t pt-6">
-            <Link href="/dashboard/pilots">
-              <Button type="button" variant="outline" disabled={isSubmitting}>
-                Cancel
-              </Button>
-            </Link>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={() => {
+                if (!isSubmitting) {
+                  router.push('/dashboard/pilots')
+                }
+              }}
+            >
+              Cancel
+            </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -491,7 +550,7 @@ export default function NewPilotPage() {
               <li>
                 Fields marked with <span className="text-red-500">*</span> are required
               </li>
-              <li>Employee ID must be exactly 6 digits</li>
+              <li>Employee ID must be 4-6 digits</li>
               <li>Seniority number will be calculated automatically from commencement date</li>
               <li>Captain qualifications are only available for Captains</li>
               <li>Passport expiry must be in the future if passport number is provided</li>

@@ -31,10 +31,7 @@ const ReviewSchema = z.object({
   comments: z.string().max(500).optional(),
 })
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Rate Limiting
     const identifier = getClientIp(request)
@@ -42,7 +39,11 @@ export async function PUT(
     if (!success) {
       const retryAfter = Math.ceil((reset - Date.now()) / 1000)
       return NextResponse.json(
-        { success: false, error: 'Too many requests', message: `Rate limit exceeded. Try again in ${retryAfter} seconds.` },
+        {
+          success: false,
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+        },
         { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
       )
     }
@@ -84,12 +85,7 @@ export async function PUT(
     const { status, comments } = validationResult.data
 
     // Update leave request status using service function
-    const result = await updateLeaveRequestStatus(
-      requestId,
-      status,
-      user.id,
-      comments
-    )
+    const result = await updateLeaveRequestStatus(requestId, status, user.id, comments)
 
     // Fetch the leave request details to get pilot information
     const { data: leaveRequest } = await supabase
@@ -101,16 +97,16 @@ export async function PUT(
 
     // Create notification for pilot if they have start/end dates
     if (leaveRequest?.pilot_user_id && leaveRequest.start_date && leaveRequest.end_date) {
-      const notificationTitle = status === 'APPROVED'
-        ? '✅ Leave Request Approved'
-        : '❌ Leave Request Denied'
+      const notificationTitle =
+        status === 'APPROVED' ? '✅ Leave Request Approved' : '❌ Leave Request Denied'
 
       const startDate = new Date(leaveRequest.start_date).toLocaleDateString()
       const endDate = new Date(leaveRequest.end_date).toLocaleDateString()
 
-      const notificationMessage = status === 'APPROVED'
-        ? `Your ${leaveRequest.request_type || 'leave'} from ${startDate} to ${endDate} has been approved.${comments ? ` Comment: ${comments}` : ''}`
-        : `Your ${leaveRequest.request_type || 'leave'} from ${startDate} to ${endDate} has been denied.${comments ? ` Reason: ${comments}` : ''}`
+      const notificationMessage =
+        status === 'APPROVED'
+          ? `Your ${leaveRequest.request_type || 'leave'} from ${startDate} to ${endDate} has been approved.${comments ? ` Comment: ${comments}` : ''}`
+          : `Your ${leaveRequest.request_type || 'leave'} from ${startDate} to ${endDate} has been denied.${comments ? ` Reason: ${comments}` : ''}`
 
       await createNotification({
         userId: leaveRequest.pilot_user_id,
@@ -144,7 +140,7 @@ export async function PUT(
     const sanitized = sanitizeError(error, {
       operation: 'updateLeaveRequestStatus',
       resourceId: requestId,
-      endpoint: '/api/leave-requests/[id]/review'
+      endpoint: '/api/leave-requests/[id]/review',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

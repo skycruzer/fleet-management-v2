@@ -5,6 +5,7 @@ Review code for simplification and minimalism opportunities.
 ## When to Use
 
 Use this command:
+
 - After completing feature implementation
 - Before finalizing code changes
 - When code feels overly complex
@@ -14,6 +15,7 @@ Use this command:
 ## What It Does
 
 Invokes the **code-simplicity-reviewer** agent which:
+
 - Identifies opportunities for simplification
 - Removes unnecessary complexity
 - Applies YAGNI (You Aren't Gonna Need It) principles
@@ -28,6 +30,7 @@ Invokes the **code-simplicity-reviewer** agent which:
 ```
 
 Optional: Target specific code
+
 ```
 "Simplify the leave eligibility logic"
 "Review certification service for complexity"
@@ -37,6 +40,7 @@ Optional: Target specific code
 ## Example
 
 After implementing complex logic:
+
 ```
 You: "Implemented multi-step validation - feels complex"
 Assistant: "Analyzing for simplification with /simplify-code"
@@ -47,6 +51,7 @@ Assistant: "Analyzing for simplification with /simplify-code"
 **Simple is better than complex. Complex is better than complicated.**
 
 This agent helps ensure:
+
 - ✅ Code is as simple as possible (but no simpler)
 - ✅ No premature optimization
 - ✅ No unnecessary abstractions

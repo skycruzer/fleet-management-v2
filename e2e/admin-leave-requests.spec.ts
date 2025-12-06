@@ -16,7 +16,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Admin Leave Requests - Create on Behalf of Pilot', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to admin leave request creation page
-    await page.goto('http://localhost:3000/dashboard/leave/new')
+    await page.goto('/dashboard/leave/new')
   })
 
   test('should display new leave request form', async ({ page }) => {
@@ -247,7 +247,7 @@ test.describe('Admin Leave Requests - Create on Behalf of Pilot', () => {
 
 test.describe('Admin Leave Requests - Review and Approval', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
   })
 
   test('should display all leave requests', async ({ page }) => {
@@ -386,7 +386,7 @@ test.describe('Admin Leave Requests - Review and Approval', () => {
 
 test.describe('Admin Leave Requests - Conflict Detection', () => {
   test('should detect overlapping leave requests', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
 
     // Look for overlap/conflict indicators
     const overlapIndicator = page.getByText(/overlap|conflict|competing/i)
@@ -397,7 +397,7 @@ test.describe('Admin Leave Requests - Conflict Detection', () => {
   })
 
   test('should show which pilots are competing for same dates', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
 
     const request = page.getByTestId('leave-request').first()
     if (await request.isVisible()) {
@@ -412,7 +412,7 @@ test.describe('Admin Leave Requests - Conflict Detection', () => {
   })
 
   test('should prioritize by seniority', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
 
     // Requests should be sorted by seniority for same dates
     const seniorityNumbers = page.getByText(/#\d+/)
@@ -430,7 +430,7 @@ test.describe('Admin Leave Requests - Conflict Detection', () => {
 
 test.describe('Admin Leave Requests - Exports and Reports', () => {
   test('should export leave requests to CSV', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
 
     const exportButton = page.getByRole('button', { name: /export|download/i })
     if (await exportButton.isVisible()) {
@@ -444,7 +444,7 @@ test.describe('Admin Leave Requests - Exports and Reports', () => {
   })
 
   test('should generate PDF report', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
 
     const pdfButton = page.getByRole('button', { name: /pdf|print/i })
     if (await pdfButton.isVisible()) {
@@ -460,7 +460,7 @@ test.describe('Admin Leave Requests - Exports and Reports', () => {
 
 test.describe('Admin Leave Requests - Roster Period Integration', () => {
   test('should display roster periods correctly', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
 
     // Should show roster period labels (RP1, RP2, etc.)
     const rosterPeriod = page.getByText(/RP\d+\/\d{4}/i)
@@ -471,7 +471,7 @@ test.describe('Admin Leave Requests - Roster Period Integration', () => {
   })
 
   test('should filter by roster period', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard/leave-requests')
+    await page.goto('/dashboard/leave-requests')
 
     const rosterFilter = page.getByLabel(/roster.*period/i)
     if (await rosterFilter.isVisible()) {

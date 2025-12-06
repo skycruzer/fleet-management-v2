@@ -29,11 +29,7 @@ import { toast } from 'sonner'
 // - Simulator Checks: 90-day grace period
 // - Ground Courses Refresher: 60-day grace period
 // This enables even distribution of renewals across roster periods throughout the year
-const CATEGORIES = [
-  'Flight Checks',
-  'Simulator Checks',
-  'Ground Courses Refresher',
-]
+const CATEGORIES = ['Flight Checks', 'Simulator Checks', 'Ground Courses Refresher']
 
 export default function GeneratePlanPage() {
   const router = useRouter()
@@ -60,6 +56,7 @@ export default function GeneratePlanPage() {
         toast.info('Clearing existing renewal plans...')
         const deleteResponse = await fetch('/api/renewal-planning/clear', {
           method: 'DELETE',
+          credentials: 'include',
         })
 
         if (!deleteResponse.ok) {
@@ -78,6 +75,7 @@ export default function GeneratePlanPage() {
           monthsAhead,
           categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         }),
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -116,7 +114,8 @@ export default function GeneratePlanPage() {
         <div>
           <h1 className="text-foreground text-3xl font-bold">Generate Renewal Plan</h1>
           <p className="text-muted-foreground mt-1">
-            Generate renewal schedule for Flight, Simulator, and Ground Courses (60-90 day grace periods)
+            Generate renewal schedule for Flight, Simulator, and Ground Courses (60-90 day grace
+            periods)
           </p>
         </div>
       </div>

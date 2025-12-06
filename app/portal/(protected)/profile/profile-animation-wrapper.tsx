@@ -45,15 +45,8 @@ const staggerContainer: Variants = {
 
 export function ProfileAnimationWrapper({ children }: ProfileAnimationWrapperProps) {
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-      className="w-full"
-    >
-      <motion.div variants={fadeIn}>
-        {children}
-      </motion.div>
+    <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="w-full">
+      <motion.div variants={fadeIn}>{children}</motion.div>
     </motion.div>
   )
 }

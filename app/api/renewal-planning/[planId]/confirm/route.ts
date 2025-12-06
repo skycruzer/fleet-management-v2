@@ -32,10 +32,7 @@ export async function PUT(
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
@@ -73,7 +70,7 @@ export async function PUT(
     const sanitized = sanitizeError(error, {
       operation: 'confirmRenewalPlan',
       resourceId: planId,
-      endpoint: '/api/renewal-planning/[planId]/confirm'
+      endpoint: '/api/renewal-planning/[planId]/confirm',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

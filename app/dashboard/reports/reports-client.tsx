@@ -25,7 +25,8 @@ export function ReportsClient() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
         <p className="text-muted-foreground mt-2">
-          Generate, preview, and export reports for leave requests, flight requests, leave bids, and certifications
+          Generate, preview, and export reports for leave requests, flight requests, leave bids, and
+          certifications
         </p>
       </div>
 
@@ -57,7 +58,8 @@ export function ReportsClient() {
                 Leave Requests Report
               </CardTitle>
               <CardDescription>
-                Generate comprehensive reports on leave requests with filtering by date range, roster period, status, and rank
+                Generate comprehensive reports on leave requests with filtering by date range,
+                roster period, status, and rank
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -74,7 +76,8 @@ export function ReportsClient() {
                 Flight Requests Report
               </CardTitle>
               <CardDescription>
-                Generate comprehensive reports on flight requests with filtering by date range, status, and destination
+                Generate comprehensive reports on flight requests with filtering by date range,
+                status, and destination
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -91,7 +94,8 @@ export function ReportsClient() {
                 Leave Bids Report
               </CardTitle>
               <CardDescription>
-                Generate reports on annual leave preference bids with filtering by roster period, status, and rank
+                Generate reports on annual leave preference bids with filtering by roster period,
+                status, and rank
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -108,7 +112,8 @@ export function ReportsClient() {
                 Certifications Report
               </CardTitle>
               <CardDescription>
-                Generate compliance reports showing certification status, expiring checks, and pilot-specific data
+                Generate compliance reports showing certification status, expiring checks, and
+                pilot-specific data
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -118,16 +123,25 @@ export function ReportsClient() {
         </TabsContent>
       </Tabs>
 
-      <div className="mt-8 p-4 bg-muted rounded-lg">
+      <div className="bg-muted mt-8 rounded-lg p-4">
         <div className="flex items-start gap-3">
-          <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+          <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
           <div className="space-y-1">
             <h3 className="font-medium">Report Features</h3>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• <strong>Preview:</strong> View report data in the browser before exporting</li>
-              <li>• <strong>PDF Export:</strong> Download professionally formatted PDF reports</li>
-              <li>• <strong>Email Delivery:</strong> Send reports directly to recipients via email</li>
-              <li>• <strong>Advanced Filtering:</strong> Customize reports with date ranges, status filters, and more</li>
+            <ul className="text-muted-foreground space-y-1 text-sm">
+              <li>
+                • <strong>Preview:</strong> View report data in the browser before exporting
+              </li>
+              <li>
+                • <strong>PDF Export:</strong> Download professionally formatted PDF reports
+              </li>
+              <li>
+                • <strong>Email Delivery:</strong> Send reports directly to recipients via email
+              </li>
+              <li>
+                • <strong>Advanced Filtering:</strong> Customize reports with date ranges, status
+                filters, and more
+              </li>
             </ul>
           </div>
         </div>

@@ -189,11 +189,11 @@ function getResourceConfig(resourceType: ResourceType): {
       userColumn: 'created_by',
     },
     [ResourceType.LEAVE_REQUEST]: {
-      table: 'leave_requests',
+      table: 'pilot_requests',
       userColumn: 'pilot_id',
     },
     [ResourceType.FLIGHT_REQUEST]: {
-      table: 'flight_requests',
+      table: 'pilot_requests',
       userColumn: 'pilot_id',
     },
     [ResourceType.FEEDBACK]: {

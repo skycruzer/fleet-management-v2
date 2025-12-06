@@ -41,7 +41,7 @@ const ResetPasswordSchema = z
       .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
-  .refine(data => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
@@ -244,7 +244,7 @@ export default function ResetPasswordPage() {
           {/* Invalid Token */}
           {!isValidating && !tokenValid && (
             <div className="space-y-6">
-              <div className="flex items-start gap-3 rounded-lg bg-red-50 p-4 border border-red-200">
+              <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
                 <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-red-900">Invalid Reset Link</p>
@@ -294,7 +294,7 @@ export default function ResetPasswordPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 rounded-lg bg-red-50 p-4 border border-red-200"
+                  className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4"
                 >
                   <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
                   <p className="flex-1 text-sm text-red-700">{error}</p>
@@ -307,8 +307,10 @@ export default function ResetPasswordPage() {
                   New Password
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                    <Lock className={`h-5 w-5 transition-colors ${passwordFocused ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <div className="absolute top-1/2 left-3 -translate-y-1/2">
+                    <Lock
+                      className={`h-5 w-5 transition-colors ${passwordFocused ? 'text-blue-600' : 'text-gray-400'}`}
+                    />
                   </div>
                   <Input
                     id="password"
@@ -318,12 +320,12 @@ export default function ResetPasswordPage() {
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
                     disabled={isLoading}
-                    className="pl-10 pr-10 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -334,7 +336,9 @@ export default function ResetPasswordPage() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-gray-600">Password strength:</span>
-                      <span className={`font-medium ${passwordStrength.strength === 100 ? 'text-green-600' : passwordStrength.strength === 66 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      <span
+                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-green-600' : passwordStrength.strength === 66 ? 'text-yellow-600' : 'text-red-600'}`}
+                      >
                         {passwordStrength.label}
                       </span>
                     </div>
@@ -352,14 +356,22 @@ export default function ResetPasswordPage() {
                 )}
 
                 {/* Password Requirements */}
-                <div className="text-xs text-gray-500 space-y-1">
+                <div className="space-y-1 text-xs text-gray-500">
                   <p className="font-medium">Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
-                    <li className={password.length >= 8 ? 'text-green-600' : ''}>• At least 8 characters</li>
-                    <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>• One uppercase letter</li>
-                    <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>• One lowercase letter</li>
+                    <li className={password.length >= 8 ? 'text-green-600' : ''}>
+                      • At least 8 characters
+                    </li>
+                    <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>
+                      • One uppercase letter
+                    </li>
+                    <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>
+                      • One lowercase letter
+                    </li>
                     <li className={/[0-9]/.test(password) ? 'text-green-600' : ''}>• One number</li>
-                    <li className={/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : ''}>• One special character</li>
+                    <li className={/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : ''}>
+                      • One special character
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -370,8 +382,10 @@ export default function ResetPasswordPage() {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                    <Lock className={`h-5 w-5 transition-colors ${confirmPasswordFocused ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <div className="absolute top-1/2 left-3 -translate-y-1/2">
+                    <Lock
+                      className={`h-5 w-5 transition-colors ${confirmPasswordFocused ? 'text-blue-600' : 'text-gray-400'}`}
+                    />
                   </div>
                   <Input
                     id="confirmPassword"
@@ -381,18 +395,24 @@ export default function ResetPasswordPage() {
                     onFocus={() => setConfirmPasswordFocused(true)}
                     onBlur={() => setConfirmPasswordFocused(false)}
                     disabled={isLoading}
-                    className="pl-10 pr-10 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
                 {form.formState.errors.confirmPassword && (
-                  <p className="text-sm text-red-600">{form.formState.errors.confirmPassword.message}</p>
+                  <p className="text-sm text-red-600">
+                    {form.formState.errors.confirmPassword.message}
+                  </p>
                 )}
               </div>
 

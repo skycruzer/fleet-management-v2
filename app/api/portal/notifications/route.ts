@@ -18,7 +18,12 @@ import {
   markNotificationAsRead,
   deleteNotification,
 } from '@/lib/services/notification-service'
-import { ERROR_MESSAGES, formatApiError, ErrorCategory, ErrorSeverity } from '@/lib/utils/error-messages'
+import {
+  ERROR_MESSAGES,
+  formatApiError,
+  ErrorCategory,
+  ErrorSeverity,
+} from '@/lib/utils/error-messages'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
@@ -33,10 +38,9 @@ export async function GET(request: NextRequest) {
     const pilot = await getCurrentPilot()
 
     if (!pilot) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     // Get query parameters
@@ -86,10 +90,9 @@ export async function PATCH(request: NextRequest) {
     const pilot = await getCurrentPilot()
 
     if (!pilot) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     // Parse request body
@@ -153,10 +156,9 @@ export async function DELETE(request: NextRequest) {
     const pilot = await getCurrentPilot()
 
     if (!pilot) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     // Parse request body

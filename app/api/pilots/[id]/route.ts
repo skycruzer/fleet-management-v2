@@ -47,10 +47,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     // Fetch pilot and system settings in parallel
-    const [pilot, requirements] = await Promise.all([
-      getPilotById(pilotId),
-      getPilotRequirements(),
-    ])
+    const [pilot, requirements] = await Promise.all([getPilotById(pilotId), getPilotRequirements()])
 
     if (!pilot) {
       return NextResponse.json({ success: false, error: 'Pilot not found' }, { status: 404 })
@@ -69,7 +66,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     const sanitized = sanitizeError(error, {
       operation: 'getPilotById',
       resourceId: pilotId,
-      endpoint: '/api/pilots/[id]'
+      endpoint: '/api/pilots/[id]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -89,8 +86,20 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!success) {
       const retryAfter = Math.ceil((reset - Date.now()) / 1000)
       return NextResponse.json(
-        { success: false, error: 'Too many requests', message: `Rate limit exceeded. Try again in ${retryAfter} seconds.` },
-        { status: 429, headers: { 'Retry-After': retryAfter.toString(), 'X-RateLimit-Limit': limit.toString(), 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': reset.toString() } }
+        {
+          success: false,
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': reset.toString(),
+          },
+        }
       )
     }
 
@@ -152,7 +161,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const sanitized = sanitizeError(error, {
       operation: 'updatePilot',
       resourceId: pilotId,
-      endpoint: '/api/pilots/[id]'
+      endpoint: '/api/pilots/[id]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -173,8 +182,20 @@ export async function DELETE(
     if (!success) {
       const retryAfter = Math.ceil((reset - Date.now()) / 1000)
       return NextResponse.json(
-        { success: false, error: 'Too many requests', message: `Rate limit exceeded. Try again in ${retryAfter} seconds.` },
-        { status: 429, headers: { 'Retry-After': retryAfter.toString(), 'X-RateLimit-Limit': limit.toString(), 'X-RateLimit-Remaining': '0', 'X-RateLimit-Reset': reset.toString() } }
+        {
+          success: false,
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': reset.toString(),
+          },
+        }
       )
     }
 
@@ -220,7 +241,7 @@ export async function DELETE(
     const sanitized = sanitizeError(error, {
       operation: 'deletePilot',
       resourceId: pilotId,
-      endpoint: '/api/pilots/[id]'
+      endpoint: '/api/pilots/[id]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

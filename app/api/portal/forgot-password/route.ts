@@ -73,7 +73,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     logger.error('Forgot password API error', error)
     const sanitized = sanitizeError(error, {
       operation: 'forgotPassword',
-      endpoint: '/api/portal/forgot-password'
+      endpoint: '/api/portal/forgot-password',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

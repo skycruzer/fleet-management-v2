@@ -58,7 +58,7 @@ export async function GET(_request: NextRequest) {
     console.error('GET /api/pilots error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getPilots',
-      endpoint: '/api/pilots'
+      endpoint: '/api/pilots',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -125,7 +125,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     const sanitized = sanitizeError(error, {
       operation: 'createPilot',
-      endpoint: '/api/pilots'
+      endpoint: '/api/pilots',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

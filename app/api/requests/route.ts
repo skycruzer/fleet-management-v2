@@ -122,10 +122,7 @@ export async function GET(request: NextRequest) {
     const result = await getAllPilotRequests(filters)
 
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 500 }
-      )
+      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -205,7 +202,10 @@ export async function POST(request: NextRequest) {
 
     if (!body.request_category || !body.request_type || !body.submission_channel) {
       return NextResponse.json(
-        { success: false, error: 'Missing required fields: request_category, request_type, submission_channel' },
+        {
+          success: false,
+          error: 'Missing required fields: request_category, request_type, submission_channel',
+        },
         { status: 400 }
       )
     }

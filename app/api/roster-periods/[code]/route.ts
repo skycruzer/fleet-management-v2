@@ -27,10 +27,7 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  * GET /api/roster-periods/[code]
  * Get single roster period by code
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { code: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { code: string } }) {
   try {
     // Rate limiting
     const identifier = getClientIp(request)
@@ -64,7 +61,10 @@ export async function GET(
     // Validate roster period code format
     if (!isValidRosterPeriodCode(code)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid roster period code format. Expected format: RP1/2025 to RP13/2025' },
+        {
+          success: false,
+          error: 'Invalid roster period code format. Expected format: RP1/2025 to RP13/2025',
+        },
         { status: 400 }
       )
     }

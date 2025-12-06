@@ -47,7 +47,7 @@ announce('Error: Failed to save', 'assertive')
 ```tsx
 import { FocusTrap } from '@/components/accessibility/focus-trap'
 
-<FocusTrap enabled={isOpen}>
+;<FocusTrap enabled={isOpen}>
   <Dialog>...</Dialog>
 </FocusTrap>
 ```
@@ -55,6 +55,7 @@ import { FocusTrap } from '@/components/accessibility/focus-trap'
 ### 4. Keyboard Navigation
 
 **All interactive elements must be keyboard accessible:**
+
 - Tab: Navigate forward
 - Shift + Tab: Navigate backward
 - Enter/Space: Activate buttons/links
@@ -80,6 +81,7 @@ import { FocusTrap } from '@/components/accessibility/focus-trap'
 ### 6. Semantic HTML
 
 **Use proper HTML elements:**
+
 - `<button>` for actions
 - `<a>` for navigation
 - `<nav>` for navigation sections
@@ -174,15 +176,9 @@ import { FocusTrap } from '@/components/accessibility/focus-trap'
 
 ```tsx
 <Dialog open={isOpen} onOpenChange={setIsOpen}>
-  <DialogContent
-    role="dialog"
-    aria-labelledby="dialog-title"
-    aria-describedby="dialog-description"
-  >
+  <DialogContent role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
     <DialogTitle id="dialog-title">Confirm Delete</DialogTitle>
-    <DialogDescription id="dialog-description">
-      This action cannot be undone.
-    </DialogDescription>
+    <DialogDescription id="dialog-description">This action cannot be undone.</DialogDescription>
   </DialogContent>
 </Dialog>
 ```
@@ -205,11 +201,13 @@ import { FocusTrap } from '@/components/accessibility/focus-trap'
 ## Color and Contrast
 
 ### Requirements
+
 - Normal text: 4.5:1 contrast ratio minimum
 - Large text (18pt+): 3:1 contrast ratio minimum
 - UI components: 3:1 contrast ratio minimum
 
 ### Color Usage
+
 - Never rely on color alone to convey information
 - Always provide text labels or patterns
 - Use icons alongside color-coded status
@@ -241,6 +239,7 @@ a:focus-visible {
 ## Testing Checklist
 
 ### Keyboard Navigation
+
 - [ ] All interactive elements reachable via Tab
 - [ ] Tab order is logical
 - [ ] Focus visible on all elements
@@ -248,6 +247,7 @@ a:focus-visible {
 - [ ] Enter/Space activates buttons
 
 ### Screen Reader
+
 - [ ] Page title announced on navigation
 - [ ] Headings properly structured (h1 → h2 → h3)
 - [ ] Form labels associated with inputs
@@ -256,12 +256,14 @@ a:focus-visible {
 - [ ] Images have alt text
 
 ### Visual
+
 - [ ] Text readable at 200% zoom
 - [ ] Color contrast meets WCAG AA
 - [ ] Focus indicators visible
 - [ ] No information conveyed by color alone
 
 ### Tools
+
 - **Chrome DevTools**: Lighthouse accessibility audit
 - **axe DevTools**: Browser extension for automated testing
 - **NVDA/JAWS**: Screen reader testing (Windows)
@@ -271,6 +273,7 @@ a:focus-visible {
 ## Common Patterns
 
 ### Loading Button
+
 ```tsx
 <Button disabled={isLoading} aria-busy={isLoading}>
   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
@@ -279,6 +282,7 @@ a:focus-visible {
 ```
 
 ### Icon-only Button
+
 ```tsx
 <Button variant="ghost" size="icon" aria-label="Edit pilot">
   <Pencil className="h-4 w-4" aria-hidden="true" />
@@ -286,6 +290,7 @@ a:focus-visible {
 ```
 
 ### Status Indicator
+
 ```tsx
 <div className="flex items-center gap-2">
   <AlertCircle className="h-4 w-4 text-red-600" aria-hidden="true" />
@@ -295,15 +300,13 @@ a:focus-visible {
 ```
 
 ### Search Input
+
 ```tsx
 <div role="search">
-  <Label htmlFor="search" className="sr-only">Search pilots</Label>
-  <Input
-    id="search"
-    type="search"
-    placeholder="Search..."
-    aria-label="Search pilots"
-  />
+  <Label htmlFor="search" className="sr-only">
+    Search pilots
+  </Label>
+  <Input id="search" type="search" placeholder="Search..." aria-label="Search pilots" />
 </div>
 ```
 
@@ -317,6 +320,7 @@ a:focus-visible {
 ## Reporting Issues
 
 Found an accessibility issue? Create a GitHub issue with:
+
 - Description of the issue
 - Affected component/page
 - Expected behavior

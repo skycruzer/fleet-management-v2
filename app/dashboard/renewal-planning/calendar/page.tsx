@@ -90,11 +90,7 @@ export default async function RenewalPlanningCalendarPage({
         <div className="flex items-center gap-2">
           {/* PDF Export Button */}
           <Link
-            href={
-              hasRenewals
-                ? `/api/renewal-planning/export-pdf?year=${selectedYear}`
-                : '#'
-            }
+            href={hasRenewals ? `/api/renewal-planning/export-pdf?year=${selectedYear}` : '#'}
             target={hasRenewals ? '_blank' : undefined}
             className={!hasRenewals ? 'pointer-events-none' : ''}
           >
@@ -138,7 +134,7 @@ export default async function RenewalPlanningCalendarPage({
 
       {/* Info Box */}
       {hasRenewals && (
-        <Alert className="bg-blue-50 border-blue-200">
+        <Alert className="border-blue-200 bg-blue-50">
           <AlertCircle className="h-4 w-4 text-blue-600" />
           <AlertTitle className="text-blue-900">Export & Email Options</AlertTitle>
           <AlertDescription className="text-blue-700">
@@ -151,7 +147,9 @@ export default async function RenewalPlanningCalendarPage({
                 <strong>Email to Rostering Team</strong>: Send a professional summary email with
                 renewal statistics
               </li>
-              <li>Both options include all {totalPlannedRenewals} planned renewals for {selectedYear}</li>
+              <li>
+                Both options include all {totalPlannedRenewals} planned renewals for {selectedYear}
+              </li>
             </ul>
           </AlertDescription>
         </Alert>

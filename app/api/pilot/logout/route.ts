@@ -50,7 +50,7 @@ export async function POST(_request: NextRequest) {
     console.error('Pilot logout error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'pilotLogout',
-      endpoint: '/api/pilot/logout'
+      endpoint: '/api/pilot/logout',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

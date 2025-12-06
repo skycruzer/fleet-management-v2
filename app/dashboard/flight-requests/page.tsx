@@ -6,7 +6,6 @@ import FlightRequestsTable from '@/components/admin/FlightRequestsTable'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 
-
 /**
  * Admin Flight Requests Page
  *
@@ -42,19 +41,22 @@ export default async function AdminFlightRequestsPage() {
   const flightStatsResult = await getFlightRequestStats()
 
   const flightRequests = flightRequestsResult.success ? flightRequestsResult.data || [] : []
-  const stats = flightStatsResult.success && flightStatsResult.data ? flightStatsResult.data : {
-    total: 0,
-    pending: 0,
-    under_review: 0,
-    approved: 0,
-    denied: 0,
-    by_type: {
-      additional_flight: 0,
-      route_change: 0,
-      schedule_swap: 0,
-      other: 0,
-    },
-  }
+  const stats =
+    flightStatsResult.success && flightStatsResult.data
+      ? flightStatsResult.data
+      : {
+          total: 0,
+          pending: 0,
+          under_review: 0,
+          approved: 0,
+          denied: 0,
+          by_type: {
+            additional_flight: 0,
+            route_change: 0,
+            schedule_swap: 0,
+            other: 0,
+          },
+        }
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8">

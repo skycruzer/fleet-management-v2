@@ -23,7 +23,7 @@ export default function LeaveLoading() {
 
       {/* Filter Card Skeleton */}
       <Card className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="space-y-2">
             <Skeleton className="h-4 w-16" />
             <Skeleton className="h-10 w-full rounded-lg" />

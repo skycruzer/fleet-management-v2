@@ -79,7 +79,9 @@ export async function approvePilotRegistration(registrationId: string) {
 
     return {
       success: true,
-      message: 'Registration approved successfully' + (emailResult.success ? ' and email notification sent' : ''),
+      message:
+        'Registration approved successfully' +
+        (emailResult.success ? ' and email notification sent' : ''),
     }
   } catch (error) {
     console.error('Server action approval error:', error)
@@ -90,10 +92,7 @@ export async function approvePilotRegistration(registrationId: string) {
   }
 }
 
-export async function denyPilotRegistration(
-  registrationId: string,
-  denialReason?: string
-) {
+export async function denyPilotRegistration(registrationId: string, denialReason?: string) {
   try {
     const { createClient } = await import('@/lib/supabase/server')
     const supabase = await createClient()
@@ -159,7 +158,9 @@ export async function denyPilotRegistration(
 
     return {
       success: true,
-      message: 'Registration denied successfully' + (emailResult.success ? ' and email notification sent' : ''),
+      message:
+        'Registration denied successfully' +
+        (emailResult.success ? ' and email notification sent' : ''),
     }
   } catch (error) {
     console.error('Server action denial error:', error)

@@ -20,9 +20,11 @@ Execute systematic project workflow with knowledge capture.
 ## Workflow Phases
 
 ### Phase 1: PLAN 📋
+
 **Duration**: ~2 hours for complex projects
 
 **Activities:**
+
 - Requirements analysis
 - Task breakdown
 - Specialist mapping (which agent for each task)
@@ -32,9 +34,11 @@ Execute systematic project workflow with knowledge capture.
 **Output**: `docs/execution-plan-[DATE].md`
 
 ### Phase 2: DELEGATE 🚀
+
 **Duration**: Variable (depends on project size)
 
 **Activities:**
+
 - Agent invocation (sequential or parallel)
 - Progress tracking
 - Handoff coordination
@@ -43,9 +47,11 @@ Execute systematic project workflow with knowledge capture.
 **Output**: `docs/delegation-log-[DATE].md`
 
 ### Phase 3: ASSESS 🔍
+
 **Duration**: ~1.5 hours
 
 **Activities:**
+
 - Individual task assessment (quality, completeness)
 - Integration assessment (do components work together?)
 - Gap analysis (what's missing?)
@@ -56,9 +62,11 @@ Execute systematic project workflow with knowledge capture.
 **Output**: `docs/assessment-report-[DATE].md`
 
 ### Phase 4: CODIFY 📚
+
 **Duration**: ~1 hour
 
 **Activities:**
+
 - Pattern extraction (what's reusable?)
 - Best practices documentation
 - Anti-pattern documentation (what to avoid)
@@ -71,12 +79,16 @@ Execute systematic project workflow with knowledge capture.
 ## Execution Modes
 
 ### Standard Mode (Recommended)
+
 Present plan and assessment to user for approval at key checkpoints:
+
 - After PLAN (review execution plan)
 - After ASSESS (review quality report)
 
 ### YOLO Mode ⚡
+
 Execute all phases rapidly with minimal interaction:
+
 ```bash
 /BMad:agents:analyst
 *yolo
@@ -84,11 +96,13 @@ Execute all phases rapidly with minimal interaction:
 ```
 
 ### Hybrid Mode
+
 PLAN → get approval → DELEGATE (auto) → ASSESS → review → CODIFY (auto)
 
 ## When to Use PDAC
 
 **✅ Ideal For:**
+
 - New feature development (medium to large)
 - Complex refactoring projects
 - Multi-component implementations
@@ -97,6 +111,7 @@ PLAN → get approval → DELEGATE (auto) → ASSESS → review → CODIFY (auto
 - High-stakes projects requiring quality assurance
 
 **❌ Not For:**
+
 - Quick bug fixes (too much overhead)
 - Single-file changes (use direct agent)
 - Urgent hotfixes (no time for full workflow)
@@ -105,21 +120,25 @@ PLAN → get approval → DELEGATE (auto) → ASSESS → review → CODIFY (auto
 ## Benefits
 
 **🎯 Systematic Execution**
+
 - No missed requirements
 - Clear task ownership
 - Coordinated agent work
 
 **📊 Quality Assurance**
+
 - Comprehensive assessment
 - Issue categorization
 - Early problem detection
 
 **📚 Knowledge Capture**
+
 - Patterns documented
 - Learnings preserved
 - Continuous improvement
 
 **⚡ Efficiency**
+
 - Parallel delegation when possible
 - Specialist agents for each task
 - Reduced rework
@@ -127,6 +146,7 @@ PLAN → get approval → DELEGATE (auto) → ASSESS → review → CODIFY (auto
 ## Output Artifacts
 
 After PDAC completion:
+
 1. ✅ Execution plan with task breakdown
 2. ✅ Delegation log with agent assignments
 3. ✅ Assessment report with quality scores
@@ -137,30 +157,39 @@ After PDAC completion:
 ## Example Use Cases
 
 ### Use Case 1: New Feature Development
+
 **Scenario**: Build pilot leave management system
+
 ```bash
 /BMad:pdac
 ```
+
 **PLAN**: Break down into DB schema, API routes, UI components, tests
 **DELEGATE**: @agent-backend-developer → schema, @agent-react-nextjs-expert → UI
 **ASSESS**: Verify integration, test coverage, quality
 **CODIFY**: Document leave calculation patterns for future use
 
 ### Use Case 2: Performance Optimization
+
 **Scenario**: Optimize dashboard performance
+
 ```bash
 /BMad:pdac
 ```
+
 **PLAN**: Identify bottlenecks, prioritize optimizations
 **DELEGATE**: @agent-performance-optimizer → analyze and fix
 **ASSESS**: Measure improvements, verify no regressions
 **CODIFY**: Document optimization techniques
 
 ### Use Case 3: Security Audit & Fix
+
 **Scenario**: Security review before production
+
 ```bash
 /BMad:pdac
 ```
+
 **PLAN**: Define security checklist, areas to review
 **DELEGATE**: @agent-code-reviewer → security audit
 **ASSESS**: Verify all vulnerabilities fixed
@@ -177,6 +206,7 @@ After PDAC completion:
 ## Integration with Other Workflows
 
 **Combine with:**
+
 - `/BMad:project-review` - Run PDAC, then project-review for final check
 - `/BMad:start-to-finish` - Use PDAC as core execution engine
 - `/BMad:agents:analyst` - Start with market research, then PDAC implementation
@@ -184,6 +214,7 @@ After PDAC completion:
 ## Success Criteria
 
 PDAC is successful when:
+
 - ✅ All requirements met (100%)
 - ✅ Quality score 80%+ in ASSESS phase
 - ✅ Critical issues identified and fixed
@@ -194,11 +225,13 @@ PDAC is successful when:
 ## Time Investment
 
 **Typical Timeline:**
+
 - Small project (1-2 features): 6-8 hours total
 - Medium project (5-10 features): 12-20 hours total
 - Large project (complex system): 40+ hours total
 
 **ROI:**
+
 - Prevents rework: Save 20-30% time vs. ad-hoc development
 - Improves quality: 50% fewer post-deployment issues
 - Builds knowledge: Reusable patterns save time on future projects
@@ -206,6 +239,7 @@ PDAC is successful when:
 ## Getting Started
 
 **First Time Using PDAC?**
+
 1. Start with a medium-complexity feature (not too small, not huge)
 2. Use Standard Mode (checkpoints for learning)
 3. Review all outputs carefully
@@ -213,6 +247,7 @@ PDAC is successful when:
 5. Use YOLO mode once comfortable
 
 **Ready to begin?**
+
 ```bash
 /BMad:pdac
 ```

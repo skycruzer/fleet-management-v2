@@ -13,16 +13,19 @@ This skill automates the complete deployment workflow for both existing and new 
 ## Usage
 
 ### For Existing Projects (Review & Deploy)
+
 ```
 /bmad-deploy review
 ```
 
 ### For New Projects (Initial Deploy)
+
 ```
 /bmad-deploy new
 ```
 
 ### Quick Deploy (Skip Review)
+
 ```
 /bmad-deploy quick
 ```
@@ -32,9 +35,11 @@ This skill automates the complete deployment workflow for both existing and new 
 ## Workflow 1: Review & Deploy (Existing Projects)
 
 ### Step 1: Project Health Check
+
 **Agent**: QA (Quinn)
 
 **Tasks**:
+
 1. Review codebase architecture and structure
 2. Check for code quality issues
 3. Identify security vulnerabilities
@@ -43,6 +48,7 @@ This skill automates the complete deployment workflow for both existing and new 
 6. Review error handling patterns
 
 **Commands**:
+
 ```bash
 # Code quality validation
 npm run validate
@@ -59,9 +65,11 @@ npm outdated
 ---
 
 ### Step 2: Quality Resolution
+
 **Agent**: Developer
 
 **Tasks**:
+
 1. Fix P0 (Critical) issues identified in health check
 2. Fix P1 (High) issues that block deployment
 3. Update dependencies if security vulnerabilities found
@@ -70,6 +78,7 @@ npm outdated
 6. Ensure all tests pass
 
 **Commands**:
+
 ```bash
 # Fix quality issues
 npm run lint:fix
@@ -85,6 +94,7 @@ npm audit fix
 ```
 
 **Quality Gates**:
+
 - ✅ Zero TypeScript errors
 - ✅ Zero ESLint errors
 - ✅ All tests passing
@@ -94,9 +104,11 @@ npm audit fix
 ---
 
 ### Step 3: Security Audit
+
 **Agent**: QA (Quinn)
 
 **Tasks**:
+
 1. Run security audit on dependencies
 2. Check for exposed secrets in code
 3. Validate environment variable usage
@@ -106,6 +118,7 @@ npm audit fix
 7. Review CORS configuration
 
 **Commands**:
+
 ```bash
 # Security audit
 npm audit --audit-level=moderate
@@ -119,6 +132,7 @@ grep -r "NEXT_PUBLIC" . --include="*.ts" --include="*.tsx" | grep -v ".env"
 ```
 
 **Security Checklist**:
+
 - [ ] No hardcoded secrets or API keys
 - [ ] Environment variables properly configured
 - [ ] Authentication flows tested
@@ -130,9 +144,11 @@ grep -r "NEXT_PUBLIC" . --include="*.ts" --include="*.tsx" | grep -v ".env"
 ---
 
 ### Step 4: Pre-Deployment Build
+
 **Agent**: Developer
 
 **Tasks**:
+
 1. Clean previous builds
 2. Run production build
 3. Verify build succeeds
@@ -140,6 +156,7 @@ grep -r "NEXT_PUBLIC" . --include="*.ts" --include="*.tsx" | grep -v ".env"
 5. Test production build locally
 
 **Commands**:
+
 ```bash
 # Clean build
 rm -rf .next
@@ -156,6 +173,7 @@ npm run start
 ```
 
 **Build Quality Gates**:
+
 - ✅ Build completes without errors
 - ✅ No console warnings in production
 - ✅ Bundle size acceptable (<500KB initial load)
@@ -164,9 +182,11 @@ npm run start
 ---
 
 ### Step 5: Vercel Deployment
+
 **Agent**: Developer
 
 **Tasks**:
+
 1. Ensure Vercel CLI installed
 2. Configure environment variables in Vercel
 3. Deploy to preview environment
@@ -174,6 +194,7 @@ npm run start
 5. Deploy to production
 
 **Commands**:
+
 ```bash
 # Install Vercel CLI (if needed)
 npm i -g vercel
@@ -189,6 +210,7 @@ vercel --prod
 ```
 
 **Environment Variables to Set in Vercel**:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=<your-url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-key>
@@ -205,9 +227,11 @@ RESEND_FROM_EMAIL=<from-email>
 ---
 
 ### Step 6: Deployment Verification
+
 **Agent**: QA (Quinn)
 
 **Tasks**:
+
 1. Test production deployment URL
 2. Verify all critical user flows work
 3. Check authentication flows
@@ -218,6 +242,7 @@ RESEND_FROM_EMAIL=<from-email>
 8. Verify PWA installation works
 
 **Manual Testing Checklist**:
+
 - [ ] Homepage loads correctly
 - [ ] Authentication (login/logout) works
 - [ ] Admin dashboard accessible
@@ -230,6 +255,7 @@ RESEND_FROM_EMAIL=<from-email>
 - [ ] PWA install prompt appears
 
 **Automated Tests**:
+
 ```bash
 # Run E2E tests against production
 PLAYWRIGHT_BASE_URL=https://your-app.vercel.app npm test
@@ -238,9 +264,11 @@ PLAYWRIGHT_BASE_URL=https://your-app.vercel.app npm test
 ---
 
 ### Step 7: Git Version Control
+
 **Agent**: Developer
 
 **Tasks**:
+
 1. Stage all changes
 2. Create conventional commit
 3. Push to repository
@@ -248,6 +276,7 @@ PLAYWRIGHT_BASE_URL=https://your-app.vercel.app npm test
 5. Update CHANGELOG.md
 
 **Commands**:
+
 ```bash
 # Stage changes
 git add .
@@ -279,9 +308,11 @@ git push --tags
 ## Workflow 2: New Project Deploy
 
 ### Step 1: Project Initialization
+
 **Agent**: Developer
 
 **Tasks**:
+
 1. Verify project structure
 2. Install dependencies
 3. Configure environment variables
@@ -289,6 +320,7 @@ git push --tags
 5. Run initial build
 
 **Commands**:
+
 ```bash
 # Install dependencies
 npm install
@@ -307,9 +339,11 @@ npm run build
 ---
 
 ### Step 2: Quality Setup
+
 **Agent**: Developer
 
 **Tasks**:
+
 1. Configure ESLint
 2. Configure Prettier
 3. Setup Husky pre-commit hooks
@@ -318,6 +352,7 @@ npm run build
 6. Add validation scripts
 
 **Commands**:
+
 ```bash
 # Setup git hooks
 npm run prepare
@@ -330,9 +365,11 @@ npm run validate:naming
 ---
 
 ### Step 3: Security Configuration
+
 **Agent**: QA (Quinn)
 
 **Tasks**:
+
 1. Configure security headers
 2. Setup rate limiting
 3. Configure CORS
@@ -341,6 +378,7 @@ npm run validate:naming
 6. Setup environment variable validation
 
 **Security Checklist**:
+
 - [ ] Security headers in next.config.js
 - [ ] Rate limiting configured
 - [ ] Error logging setup (Better Stack)
@@ -351,7 +389,9 @@ npm run validate:naming
 ---
 
 ### Step 4-7: Same as Workflow 1
+
 Follow Steps 4-7 from "Review & Deploy" workflow:
+
 - Pre-Deployment Build
 - Vercel Deployment
 - Deployment Verification
@@ -384,6 +424,7 @@ git add . && git commit -m "hotfix: critical bug fix" && git push
 If deployment fails verification:
 
 ### Step 1: Immediate Rollback
+
 ```bash
 # Revert to previous deployment in Vercel dashboard
 # OR
@@ -391,12 +432,14 @@ vercel rollback <deployment-url>
 ```
 
 ### Step 2: Investigate Issues
+
 1. Check Vercel deployment logs
 2. Check Better Stack error logs
 3. Check browser console for client errors
 4. Review failed E2E tests
 
 ### Step 3: Fix and Redeploy
+
 1. Fix identified issues locally
 2. Test thoroughly
 3. Restart deployment workflow from Step 4
@@ -406,6 +449,7 @@ vercel rollback <deployment-url>
 ## Best Practices
 
 ### Before Every Deployment
+
 ✅ All tests passing locally
 ✅ Build succeeds without warnings
 ✅ Code reviewed and approved
@@ -414,6 +458,7 @@ vercel rollback <deployment-url>
 ✅ Rollback plan in place
 
 ### During Deployment
+
 ✅ Deploy to preview first
 ✅ Test preview thoroughly
 ✅ Monitor deployment logs
@@ -421,6 +466,7 @@ vercel rollback <deployment-url>
 ✅ Check build analytics
 
 ### After Deployment
+
 ✅ Test all critical flows
 ✅ Monitor error logs for 15-30 minutes
 ✅ Check performance metrics
@@ -433,18 +479,21 @@ vercel rollback <deployment-url>
 ## Integration with BMAD Agents
 
 ### Use `/qa` for:
+
 - Code review before deployment
 - Security audit
 - Deployment verification testing
 - Post-deployment monitoring plan
 
 ### Use `/dev` for:
+
 - Quality issue resolution
 - Build process
 - Vercel deployment
 - Git operations
 
 ### Use `/bmad-master` for:
+
 - Complete end-to-end deployment
 - Complex rollback scenarios
 - Multi-environment deployments
@@ -454,6 +503,7 @@ vercel rollback <deployment-url>
 ## Troubleshooting
 
 ### Build Fails
+
 ```bash
 # Clear caches
 rm -rf .next node_modules package-lock.json
@@ -462,18 +512,21 @@ npm run build
 ```
 
 ### Deployment Fails
+
 1. Check Vercel logs in dashboard
 2. Verify environment variables are set
 3. Check for missing dependencies
 4. Verify build succeeds locally
 
 ### Tests Fail in Production
+
 1. Check PLAYWRIGHT_BASE_URL is correct
 2. Verify authentication works
 3. Check CORS configuration
 4. Review network requests in browser DevTools
 
 ### Database Connection Fails
+
 1. Verify Supabase environment variables
 2. Check RLS policies allow access
 3. Test connection with `node test-connection.mjs`
@@ -484,6 +537,7 @@ npm run build
 ## Metrics and Monitoring
 
 ### Track These Metrics:
+
 - **Deployment Time**: Target <5 minutes
 - **Test Pass Rate**: Target 100%
 - **Error Rate**: Monitor for first 30 minutes post-deploy
@@ -491,6 +545,7 @@ npm run build
 - **Rollback Rate**: Track how often you need to rollback
 
 ### Success Criteria:
+
 ✅ All quality gates passed
 ✅ Zero critical security issues
 ✅ Production deployment successful
@@ -502,9 +557,9 @@ npm run build
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | Nov 1, 2025 | Initial release with review & new project workflows |
+| Version | Date        | Changes                                             |
+| ------- | ----------- | --------------------------------------------------- |
+| 1.0.0   | Nov 1, 2025 | Initial release with review & new project workflows |
 
 ---
 

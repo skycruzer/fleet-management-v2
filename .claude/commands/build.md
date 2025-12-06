@@ -15,12 +15,14 @@ Execute the complete "Analyze → Plan → Implement" workflow for a feature or 
 ## What This Command Does
 
 ### Step 1: Analyze (REQUIRED)
+
 - Use Task tool with Explore agent to understand relevant codebase areas
 - Identify all files, components, and dependencies involved
 - Understand existing patterns and architecture
 - Note any constraints or special considerations
 
 ### Step 2: Plan (REQUIRED)
+
 - Create TodoWrite task list breaking down the work
 - Design the solution architecture
 - Identify all files to create/modify
@@ -29,6 +31,7 @@ Execute the complete "Analyze → Plan → Implement" workflow for a feature or 
 - Outline testing approach
 
 ### Step 3: Implement (REQUIRED)
+
 - Execute the plan step by step, updating todos as you go
 - Follow existing code patterns and conventions
 - Use service layer for all database operations (MANDATORY)
@@ -64,6 +67,7 @@ Execute the complete "Analyze → Plan → Implement" workflow for a feature or 
 ## Quality Gates
 
 Before marking implementation complete:
+
 - ✅ All todos marked as completed
 - ✅ Code follows project conventions
 - ✅ All database operations use service layer

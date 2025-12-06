@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching succession pipeline:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getSuccessionPipeline',
-      endpoint: '/api/analytics/succession-pipeline'
+      endpoint: '/api/analytics/succession-pipeline',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

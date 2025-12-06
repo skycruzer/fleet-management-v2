@@ -18,9 +18,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(timeline)
   } catch (error) {
     console.error('Error fetching retirement timeline:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch retirement timeline' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch retirement timeline' }, { status: 500 })
   }
 }

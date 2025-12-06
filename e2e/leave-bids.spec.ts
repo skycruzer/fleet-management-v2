@@ -18,7 +18,7 @@ test.describe('Leave Bids - Pilot Portal', () => {
     await context.clearCookies()
 
     // Navigate to pilot portal login
-    await page.goto('http://localhost:3000/portal/login')
+    await page.goto('/portal/login')
   })
 
   test('should allow pilot to submit leave bid', async ({ page }) => {
@@ -31,7 +31,7 @@ test.describe('Leave Bids - Pilot Portal', () => {
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
 
     // Navigate to leave bids page
-    await page.goto('http://localhost:3000/portal/leave-bids')
+    await page.goto('/portal/leave-bids')
 
     // Check if leave bids page loads
     await expect(page.getByRole('heading', { name: /leave bid/i })).toBeVisible({
@@ -133,7 +133,7 @@ test.describe('Leave Bids - Pilot Portal', () => {
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
 
     // Navigate to leave bids page
-    await page.goto('http://localhost:3000/portal/leave-bids')
+    await page.goto('/portal/leave-bids')
 
     // Should show heading
     await expect(page.getByRole('heading', { name: /leave bid/i })).toBeVisible()
@@ -159,7 +159,7 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
 
-    await page.goto('http://localhost:3000/portal/leave-bids')
+    await page.goto('/portal/leave-bids')
 
     // Click on a bid to view details
     const bid = page.getByTestId('leave-bid').first()
@@ -188,7 +188,7 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
 
-    await page.goto('http://localhost:3000/portal/leave-bids')
+    await page.goto('/portal/leave-bids')
 
     // Try to submit leave bid without options
     const submitButton = page.getByRole('button', { name: /submit.*bid|new.*bid/i })
@@ -217,7 +217,7 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
 
-    await page.goto('http://localhost:3000/portal/leave-bids')
+    await page.goto('/portal/leave-bids')
 
     // If there's already a bid for a year, submitting another should update it
     // This tests the update logic in leave-bid-service.ts
@@ -232,7 +232,7 @@ test.describe('Leave Bids - Pilot Portal', () => {
 test.describe('Leave Bids - Admin Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to admin dashboard leave bids page
-    await page.goto('http://localhost:3000/dashboard/admin/leave-bids')
+    await page.goto('/dashboard/admin/leave-bids')
   })
 
   test('should display all leave bids', async ({ page }) => {
@@ -373,7 +373,7 @@ test.describe('Leave Bid API Integration', () => {
     await context.clearCookies()
 
     // Login as pilot
-    await page.goto('http://localhost:3000/portal/login')
+    await page.goto('/portal/login')
     await page.fill('#email', 'mrondeau@airniugini.com.pg')
     await page.fill('#password', 'Lemakot@1972')
     await page.click('button[type="submit"]')
@@ -390,7 +390,7 @@ test.describe('Leave Bid API Integration', () => {
     })
 
     // Navigate to leave bids page (triggers GET request)
-    await page.goto('http://localhost:3000/portal/leave-bids')
+    await page.goto('/portal/leave-bids')
 
     // Wait for API call
     await page.waitForTimeout(2000)
@@ -402,7 +402,7 @@ test.describe('Leave Bid API Integration', () => {
 
   test('should validate bid data with Zod schema', async ({ page }) => {
     // Test that API validates bid data correctly
-    const response = await page.request.post('http://localhost:3000/api/portal/leave-bids', {
+    const response = await page.request.post('/api/portal/leave-bids', {
       data: {
         bid_year: 2024,
         options: [], // Empty options should fail validation

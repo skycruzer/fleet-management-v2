@@ -174,7 +174,7 @@ export async function fetchWithCsrf(url: string, options: RequestInit = {}): Pro
   // Get CSRF token from cookie (client-side)
   const csrfToken = document.cookie
     .split('; ')
-    .find((row) => row.startsWith('csrf_token='))
+    .find((row) => row.startsWith('csrf-token='))
     ?.split('=')[1];
 
   if (!csrfToken) {

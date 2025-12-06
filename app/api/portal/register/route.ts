@@ -27,7 +27,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { submitPilotRegistration, getRegistrationStatus } from '@/lib/services/pilot-portal-service'
 import { PilotRegistrationSchema } from '@/lib/validations/pilot-portal-schema'
-import { ERROR_MESSAGES, formatApiError, ErrorCategory, ErrorSeverity } from '@/lib/utils/error-messages'
+import {
+  ERROR_MESSAGES,
+  formatApiError,
+  ErrorCategory,
+  ErrorSeverity,
+} from '@/lib/utils/error-messages'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
@@ -140,7 +145,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     logger.error('Registration API error', error)
     const sanitized = sanitizeError(error, {
       operation: 'submitPilotRegistration',
-      endpoint: '/api/portal/register'
+      endpoint: '/api/portal/register',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -194,7 +199,7 @@ export async function GET(_request: NextRequest) {
     logger.error('Get registration status API error', error)
     const sanitized = sanitizeError(error, {
       operation: 'getRegistrationStatus',
-      endpoint: '/api/portal/register'
+      endpoint: '/api/portal/register',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

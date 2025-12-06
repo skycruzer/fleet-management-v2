@@ -5,6 +5,7 @@ Conduct thorough repository structure and pattern research.
 ## When to Use
 
 Use this command for:
+
 - ✅ Understanding new repositories
 - ✅ Analyzing project structure
 - ✅ Finding implementation patterns
@@ -15,6 +16,7 @@ Use this command for:
 ## What It Does
 
 Invokes the **repo-research-analyst** agent which:
+
 - Analyzes repository structure
 - Examines documentation
 - Reviews GitHub issues
@@ -29,6 +31,7 @@ Invokes the **repo-research-analyst** agent which:
 ```
 
 Optional: Target specific analysis
+
 ```
 "Research API endpoint patterns in this repo"
 "Find service layer implementation patterns"
@@ -38,6 +41,7 @@ Optional: Target specific analysis
 ## Example
 
 When starting on a new feature:
+
 ```
 User: "Need to add new feature - what patterns should I follow?"
 Assistant: "Researching repository patterns with /repo-research"
@@ -46,18 +50,21 @@ Assistant: "Researching repository patterns with /repo-research"
 ## What It Analyzes
 
 **Repository Structure:**
+
 - 📁 Directory organization
 - 📁 File naming conventions
 - 📁 Module organization
 - 📁 Configuration patterns
 
 **Documentation:**
+
 - 📄 README files
 - 📄 CONTRIBUTING guidelines
 - 📄 Architecture docs (CLAUDE.md)
 - 📄 API documentation
 
 **Implementation Patterns:**
+
 - 🔍 Service layer patterns
 - 🔍 Component patterns
 - 🔍 API route patterns
@@ -65,6 +72,7 @@ Assistant: "Researching repository patterns with /repo-research"
 - 🔍 Error handling patterns
 
 **GitHub Integration:**
+
 - 🐙 Issue templates
 - 🐙 PR templates
 - 🐙 Label conventions
@@ -73,17 +81,20 @@ Assistant: "Researching repository patterns with /repo-research"
 ## Perfect For
 
 **New Feature Development:**
+
 - Understanding existing patterns
 - Following project conventions
 - Maintaining consistency
 - Avoiding anti-patterns
 
 **Code Reviews:**
+
 - Ensuring pattern compliance
 - Validating consistency
 - Checking conventions
 
 **Documentation:**
+
 - Creating consistent docs
 - Following format standards
 - Understanding project structure
@@ -91,18 +102,21 @@ Assistant: "Researching repository patterns with /repo-research"
 ## Critical for This Project
 
 **Service Layer Analysis:**
+
 - Pattern identification in `lib/services/`
 - Service naming conventions
 - Error handling patterns
 - Data access patterns
 
 **API Route Patterns:**
+
 - Endpoint structure in `app/api/`
 - Response format conventions
 - Authentication patterns
 - Validation patterns
 
 **Component Organization:**
+
 - Component structure in `components/`
 - Naming conventions
 - Props patterns

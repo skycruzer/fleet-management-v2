@@ -106,6 +106,7 @@ export function PilotPortalSidebar({ pilotName, pilotRank, employeeId, email }: 
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
       })
 
       if (response.ok || response.redirected) {

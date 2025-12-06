@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   getPilotRequestById,
   updateRequestStatus,
+  deletePilotRequest,
   WorkflowStatus,
 } from '@/lib/services/unified-request-service'
 import { createClient } from '@/lib/supabase/server'
@@ -28,10 +29,7 @@ import { revalidatePath } from 'next/cache'
  * GET /api/requests/[id]
  * Get single pilot request by ID
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Rate limiting
     const identifier = getClientIp(request)
@@ -60,10 +58,7 @@ export async function GET(
     const result = await getPilotRequestById(params.id)
 
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, error: result.error }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -90,10 +85,7 @@ export async function GET(
  *   comments?: string (required for DENIED)
  * }
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Rate limiting
     const identifier = getClientIp(request)
@@ -146,18 +138,10 @@ export async function PATCH(
     }
 
     // Update request status
-    const result = await updateRequestStatus(
-      params.id,
-      body.status,
-      user.id,
-      body.comments
-    )
+    const result = await updateRequestStatus(params.id, body.status, user.id, body.comments)
 
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
     }
 
     // Revalidate relevant paths
@@ -165,6 +149,13 @@ export async function PATCH(
     revalidatePath(`/dashboard/requests/${params.id}`)
     revalidatePath('/dashboard/leave-requests')
     revalidatePath('/dashboard/flight-requests')
+    // Revalidate analytics and dashboard (status changes affect metrics)
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/analytics')
+    revalidatePath('/dashboard/compliance')
+    // Revalidate portal paths
+    revalidatePath('/portal/leave-requests')
+    revalidatePath('/portal/dashboard')
 
     return NextResponse.json({
       success: true,
@@ -185,10 +176,7 @@ export async function PATCH(
  * DELETE /api/requests/[id]
  * Delete a pilot request
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     // Rate limiting
     const identifier = getClientIp(request)
@@ -213,15 +201,12 @@ export async function DELETE(
       })
     }
 
-    // Delete request
-    const { error } = await supabase
-      .from('pilot_requests')
-      .delete()
-      .eq('id', params.id)
+    // Delete request using service layer
+    const result = await deletePilotRequest(params.id)
 
-    if (error) {
+    if (!result.success) {
       return NextResponse.json(
-        { success: false, error: 'Failed to delete request' },
+        { success: false, error: result.error || 'Failed to delete request' },
         { status: 500 }
       )
     }

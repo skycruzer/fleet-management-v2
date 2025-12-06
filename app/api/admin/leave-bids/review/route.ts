@@ -94,10 +94,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     }
 
     if (!updatedBid) {
-      return NextResponse.json(
-        { success: false, error: 'Leave bid not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, error: 'Leave bid not found' }, { status: 404 })
     }
 
     // TODO: Send notification to pilot
@@ -121,7 +118,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     console.error('Error in leave bid review API:', error)
     const sanitized = sanitizeError(error, {
       operation: 'reviewLeaveBid',
-      endpoint: '/api/admin/leave-bids/review'
+      endpoint: '/api/admin/leave-bids/review',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

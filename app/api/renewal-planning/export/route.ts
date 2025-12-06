@@ -124,7 +124,7 @@ export async function GET(request: Request) {
     console.error('Error exporting renewal plans:', error)
     const sanitized = sanitizeError(error, {
       operation: 'exportRenewalPlansToCSV',
-      endpoint: '/api/renewal-planning/export'
+      endpoint: '/api/renewal-planning/export',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

@@ -19,10 +19,7 @@ import {
   updateMatter,
   deleteMatter,
 } from '@/lib/services/disciplinary-service'
-import {
-  verifyRequestAuthorization,
-  ResourceType,
-} from '@/lib/middleware/authorization-middleware'
+import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 interface RouteParams {
@@ -72,7 +69,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     console.error('Error in GET /api/disciplinary/[id]:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getMatterWithTimeline',
-      matterId: (await params).id
+      matterId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -122,7 +119,7 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const { id} = await params
+    const { id } = await params
 
     // Validate UUID format
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -134,11 +131,7 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
     }
 
     // AUTHORIZATION: Verify user can update this disciplinary matter
-    const authResult = await verifyRequestAuthorization(
-      _request,
-      ResourceType.DISCIPLINARY,
-      id
-    )
+    const authResult = await verifyRequestAuthorization(_request, ResourceType.DISCIPLINARY, id)
 
     if (!authResult.authorized) {
       return NextResponse.json(
@@ -188,7 +181,7 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
     console.error('Error in PATCH /api/disciplinary/[id]:', error)
     const sanitized = sanitizeError(error, {
       operation: 'updateMatter',
-      matterId: (await params).id
+      matterId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -235,11 +228,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     }
 
     // AUTHORIZATION: Verify user can delete this disciplinary matter
-    const authResult = await verifyRequestAuthorization(
-      _request,
-      ResourceType.DISCIPLINARY,
-      id
-    )
+    const authResult = await verifyRequestAuthorization(_request, ResourceType.DISCIPLINARY, id)
 
     if (!authResult.authorized) {
       return NextResponse.json(
@@ -265,7 +254,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     console.error('Error in DELETE /api/disciplinary/[id]:', error)
     const sanitized = sanitizeError(error, {
       operation: 'deleteMatter',
-      matterId: (await params).id
+      matterId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

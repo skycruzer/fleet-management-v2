@@ -128,6 +128,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
           end_date: data.end_date || data.start_date, // Default to start_date if not provided
           reason: data.reason,
         }),
+        credentials: 'include',
       })
 
       const result = await response.json()

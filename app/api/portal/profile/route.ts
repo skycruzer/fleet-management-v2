@@ -99,7 +99,7 @@ export async function GET() {
     console.error('Profile API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getPilotProfile',
-      endpoint: '/api/portal/profile'
+      endpoint: '/api/portal/profile',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

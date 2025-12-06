@@ -34,7 +34,7 @@ export default function AnalyticsLoading() {
 
       {/* Additional Info Card Skeleton */}
       <Card className="p-6">
-        <Skeleton className="h-6 w-48 mb-4" />
+        <Skeleton className="mb-4 h-6 w-48" />
         <div className="space-y-3">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />

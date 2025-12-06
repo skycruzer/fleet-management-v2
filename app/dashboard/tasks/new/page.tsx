@@ -5,7 +5,6 @@ import TaskForm from '@/components/tasks/TaskForm'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 
-
 /**
  * New Task Page (Admin)
  *

@@ -1,6 +1,6 @@
 ---
-description: "Automated BMAD-METHOD deployment workflow: Quality → Security → Deploy → Verify → Git"
-globs: ["**/*"]
+description: 'Automated BMAD-METHOD deployment workflow: Quality → Security → Deploy → Verify → Git'
+globs: ['**/*']
 priority: high
 tags: [deployment, quality, security, vercel, git, automation, bmad]
 ---
@@ -12,16 +12,19 @@ Execute the complete BMAD-METHOD deployment workflow with quality checks, securi
 ## Usage
 
 **For existing projects (with review)**:
+
 ```
 /bmad-deploy review
 ```
 
 **For new projects (initial setup)**:
+
 ```
 /bmad-deploy new
 ```
 
 **Quick deploy (skip review)**:
+
 ```
 /bmad-deploy quick
 ```
@@ -31,6 +34,7 @@ Execute the complete BMAD-METHOD deployment workflow with quality checks, securi
 ## What This Command Does
 
 ### Review Mode (Existing Projects)
+
 1. **Project Health Check**: Code quality, security vulnerabilities, naming conventions
 2. **Quality Resolution**: Fix critical issues, update dependencies, resolve errors
 3. **Security Audit**: Scan for secrets, validate auth, check RLS policies, rate limiting
@@ -40,12 +44,14 @@ Execute the complete BMAD-METHOD deployment workflow with quality checks, securi
 7. **Git Version Control**: Commit with conventional format, tag release, push
 
 ### New Project Mode
+
 1. **Project Initialization**: Setup dependencies, environment, database types
 2. **Quality Setup**: Configure linting, formatting, pre-commit hooks, testing
 3. **Security Configuration**: Setup headers, rate limiting, error logging, RLS
 4. **Deploy Steps**: Same as Review Mode steps 4-7
 
 ### Quick Deploy Mode
+
 1. Quick validation (`npm run validate && npm test`)
 2. Build and deploy (`npm run build && vercel --prod`)
 3. Manual verification and commit
@@ -55,6 +61,7 @@ Execute the complete BMAD-METHOD deployment workflow with quality checks, securi
 ## Workflow Execution
 
 The skill will guide you through each step with:
+
 - ✅ **Quality Gates**: Must pass before proceeding
 - 🔍 **Validation Commands**: Automated checks to run
 - 📋 **Checklists**: Manual verification items
@@ -66,6 +73,7 @@ The skill will guide you through each step with:
 ## Prerequisites
 
 Before running this command, ensure:
+
 - [ ] Vercel account configured
 - [ ] Environment variables documented
 - [ ] Database migrations tested (if applicable)
@@ -77,6 +85,7 @@ Before running this command, ensure:
 ## When to Use This Command
 
 **✅ Use for**:
+
 - Production deployments
 - Staging environment updates
 - Release candidates
@@ -84,6 +93,7 @@ Before running this command, ensure:
 - Hotfix deployments (quick mode)
 
 **❌ Don't use for**:
+
 - Development environment testing
 - Local builds only
 - Draft work in progress
@@ -94,6 +104,7 @@ Before running this command, ensure:
 ## Expected Outcomes
 
 ### Success Criteria
+
 ✅ All quality gates passed
 ✅ Zero critical security issues
 ✅ Production deployment successful
@@ -102,6 +113,7 @@ Before running this command, ensure:
 ✅ Git history updated with release tag
 
 ### Time Estimates
+
 - **Review Mode**: 15-30 minutes (depending on issues found)
 - **New Project Mode**: 30-45 minutes (initial setup)
 - **Quick Deploy**: 5-10 minutes (use sparingly)
@@ -111,6 +123,7 @@ Before running this command, ensure:
 ## Integration with BMAD Agents
 
 This command works seamlessly with:
+
 - `/qa` - For code review and security audit phases
 - `/dev` - For quality resolution and deployment phases
 - `/bmad-master` - For end-to-end orchestration
@@ -120,6 +133,7 @@ This command works seamlessly with:
 ## Rollback Plan
 
 If deployment fails verification:
+
 1. **Immediate**: Rollback in Vercel dashboard or `vercel rollback <url>`
 2. **Investigate**: Check logs (Vercel + Better Stack + Browser Console)
 3. **Fix**: Address issues locally, test thoroughly
@@ -130,6 +144,7 @@ If deployment fails verification:
 ## Read the Full Documentation
 
 For complete details, workflows, and troubleshooting:
+
 ```
 cat .claude/skills/bmad-deploy.md
 ```

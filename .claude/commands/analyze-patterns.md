@@ -5,6 +5,7 @@ Analyze code for design patterns, anti-patterns, and consistency.
 ## When to Use
 
 Use this command for:
+
 - ✅ Design pattern identification
 - ✅ Anti-pattern detection
 - ✅ Code smell identification
@@ -15,6 +16,7 @@ Use this command for:
 ## What It Does
 
 Invokes the **pattern-recognition-specialist** agent which:
+
 - Identifies design patterns
 - Detects anti-patterns
 - Analyzes naming conventions
@@ -29,6 +31,7 @@ Invokes the **pattern-recognition-specialist** agent which:
 ```
 
 Optional: Target specific analysis
+
 ```
 "Analyze patterns in service layer"
 "Check for anti-patterns in API routes"
@@ -39,6 +42,7 @@ Optional: Target specific analysis
 ## Example
 
 After codebase changes:
+
 ```
 User: "Added multiple API endpoints - check for consistency"
 Assistant: "Analyzing patterns with /analyze-patterns"
@@ -47,6 +51,7 @@ Assistant: "Analyzing patterns with /analyze-patterns"
 ## What It Identifies
 
 **Design Patterns:**
+
 - ✅ Factory Pattern
 - ✅ Repository Pattern
 - ✅ Service Layer Pattern
@@ -55,6 +60,7 @@ Assistant: "Analyzing patterns with /analyze-patterns"
 - ✅ Strategy Pattern
 
 **Anti-Patterns:**
+
 - ❌ God Objects
 - ❌ Spaghetti Code
 - ❌ Copy-Paste Programming
@@ -63,6 +69,7 @@ Assistant: "Analyzing patterns with /analyze-patterns"
 - ❌ Tight Coupling
 
 **Code Smells:**
+
 - 🔍 Long Methods
 - 🔍 Large Classes
 - 🔍 Duplicated Code
@@ -73,23 +80,27 @@ Assistant: "Analyzing patterns with /analyze-patterns"
 ## Critical for This Project
 
 **Service Layer Pattern:**
+
 - ✅ Validates service layer implementation
 - ✅ Ensures consistent service patterns
 - ✅ Identifies service anti-patterns
 
 **API Patterns:**
+
 - ✅ RESTful endpoint consistency
 - ✅ Response format patterns
 - ✅ Error handling patterns
 - ✅ Validation patterns
 
 **Component Patterns:**
+
 - ✅ React component patterns
 - ✅ Server vs Client component usage
 - ✅ Props patterns
 - ✅ State management patterns
 
 **OpenSpec Compliance:**
+
 - ✅ API specification patterns
 - ✅ Endpoint naming conventions
 - ✅ Request/response patterns

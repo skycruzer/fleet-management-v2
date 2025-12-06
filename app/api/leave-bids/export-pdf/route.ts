@@ -101,14 +101,12 @@ export async function GET(request: Request) {
       }
       return {
         ...bid,
-        bid_year: bidYear
+        bid_year: bidYear,
       }
     })
 
     // Filter by year if specified
-    const filteredBids = yearParam
-      ? bids.filter(b => b.bid_year === year)
-      : bids
+    const filteredBids = yearParam ? bids.filter((b) => b.bid_year === year) : bids
 
     if (filteredBids.length === 0) {
       return NextResponse.json(
@@ -134,7 +132,10 @@ export async function GET(request: Request) {
     // Return PDF response
     const headers = new Headers()
     headers.set('Content-Type', 'application/pdf')
-    headers.set('Content-Disposition', `attachment; filename="leave-bids-${year}${statusFilter !== 'all' ? '-' + statusFilter : ''}-${new Date().toISOString().split('T')[0]}.pdf"`)
+    headers.set(
+      'Content-Disposition',
+      `attachment; filename="leave-bids-${year}${statusFilter !== 'all' ? '-' + statusFilter : ''}-${new Date().toISOString().split('T')[0]}.pdf"`
+    )
     headers.set('Content-Length', arrayBuffer.byteLength.toString())
 
     return new Response(arrayBuffer, {

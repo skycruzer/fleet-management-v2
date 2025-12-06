@@ -3,42 +3,51 @@
 ## Structure: Personal Opening → Specific Value Prop → Easy CTA
 
 ### 1. Personal Opening
+
 Start with why you built this. Make it human.
 
 **Framework:**
+
 - No "Dear valued customer" or "We're excited to announce"
 - Start with a story or observation
 - 2-3 sentences max
 - Make it conversational
 
 **Examples:**
+
 - "Last month, I watched my team spend 6 hours manually checking pilot certifications before a critical flight. That shouldn't be a thing in 2024."
 - "Quick question: how much time did you spend last week tracking crew certifications? If the answer is 'too much,' keep reading."
 - "I built this because I was tired of spreadsheets. Figured you might be too."
 
 ### 2. Specific Value Proposition
+
 What this does for them specifically. Not what it is, but what it solves.
 
 **Framework:**
+
 - Lead with the problem being solved
 - Explain the solution in one clear sentence
 - Show the tangible benefit
 - Use concrete numbers when possible
 
 **Examples:**
+
 - "The problem: Crew certification tracking eats hours every week and one missed expiry grounds flights. The solution: Automated tracking with smart alerts. The result: You get your evenings back and never worry about surprise groundings."
 - "Built a system that monitors all your crew certifications and pings you 30/60/90 days before anything expires. Saves most teams 5+ hours per week on compliance tracking."
 
 ### 3. Easy Call to Action
+
 Make the next step stupid simple.
 
 **Framework:**
+
 - One action only
 - Remove all friction
 - Be specific about what happens next
 - No pressure
 
 **Examples:**
+
 - "Want to check it out? Reply to this email and I'll send you a login."
 - "Try it free for 30 days. No card required, no sales calls. Just hit reply and I'll get you set up today."
 - "Interested? Book 15 minutes on my calendar [link] to see if it fits your workflow."
@@ -89,7 +98,7 @@ Hey [Name],
 
 You asked if there was a faster way to add new crew members. There is now.
 
-Upload a CSV with crew info and certifications. System imports everything, sets up tracking, and schedules renewal alerts automatically. 
+Upload a CSV with crew info and certifications. System imports everything, sets up tracking, and schedules renewal alerts automatically.
 
 Takes about 60 seconds to onboard an entire crew.
 

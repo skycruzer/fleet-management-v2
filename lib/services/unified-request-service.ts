@@ -697,6 +697,56 @@ export async function updateRequestStatus(
   }
 }
 
+/**
+ * Delete a pilot request by ID
+ *
+ * @param id - Request ID to delete
+ * @returns Success/failure result
+ */
+export async function deletePilotRequest(
+  id: string
+): Promise<ServiceResponse<void>> {
+  const supabase = await createClient()
+
+  try {
+    const { error } = await supabase
+      .from('pilot_requests')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      await logger.error('Failed to delete pilot request', {
+        source: 'unified-request-service:deletePilotRequest',
+        error: error.message,
+        id,
+      })
+      return {
+        success: false,
+        error: ERROR_MESSAGES.DATABASE.DELETE_FAILED('pilot request').message,
+      }
+    }
+
+    // Invalidate related caches
+    await invalidateCacheByTag('reports:leave')
+    await invalidateCacheByTag('reports:rdo-sdo')
+    await invalidateCacheByTag('reports:all-requests')
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    await logger.error('Failed to delete pilot request', {
+      source: 'unified-request-service:deletePilotRequest',
+      error: error instanceof Error ? error.message : String(error),
+      id,
+    })
+    return {
+      success: false,
+      error: ERROR_MESSAGES.DATABASE.DELETE_FAILED('pilot request').message,
+    }
+  }
+}
+
 // ============================================================================
 // Filtering Functions
 // ============================================================================

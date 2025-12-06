@@ -78,7 +78,7 @@ export async function GET(_request: NextRequest) {
     console.error('GET /api/analytics error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getAnalytics',
-      endpoint: '/api/analytics'
+      endpoint: '/api/analytics',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

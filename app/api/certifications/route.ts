@@ -68,7 +68,7 @@ export async function GET(_request: NextRequest) {
     console.error('GET /api/certifications error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getCertifications',
-      endpoint: '/api/certifications'
+      endpoint: '/api/certifications',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -130,7 +130,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     const sanitized = sanitizeError(error, {
       operation: 'createCertification',
-      endpoint: '/api/certifications'
+      endpoint: '/api/certifications',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

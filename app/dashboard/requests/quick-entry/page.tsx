@@ -15,13 +15,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { QuickEntryForm } from '@/components/requests/quick-entry-form'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export const metadata = {
@@ -63,9 +57,7 @@ export default async function QuickEntryPage() {
       <div className="container mx-auto p-6">
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            Failed to load pilots. Please try again later.
-          </AlertDescription>
+          <AlertDescription>Failed to load pilots. Please try again later.</AlertDescription>
         </Alert>
       </div>
     )
@@ -85,7 +77,7 @@ export default async function QuickEntryPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto max-w-4xl p-6">
       {/* Header */}
       <div className="mb-6">
         <Link href="/dashboard/requests">
@@ -111,8 +103,8 @@ export default async function QuickEntryPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="font-semibold mb-2">When to Use This Form</h4>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+            <h4 className="mb-2 font-semibold">When to Use This Form</h4>
+            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>Pilot submits request via email</li>
               <li>Phone call request from pilot</li>
               <li>Request imported from Oracle system</li>
@@ -121,8 +113,8 @@ export default async function QuickEntryPage() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-2">Required Information</h4>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+            <h4 className="mb-2 font-semibold">Required Information</h4>
+            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>Pilot name (select from dropdown)</li>
               <li>Request category and type</li>
               <li>Start date (and end date for leave requests)</li>
@@ -132,15 +124,13 @@ export default async function QuickEntryPage() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-2">Important Notes</h4>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+            <h4 className="mb-2 font-semibold">Important Notes</h4>
+            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>
-                Requests are automatically flagged as &quot;late&quot; if submitted with
-                less than 21 days advance notice
+                Requests are automatically flagged as &quot;late&quot; if submitted with less than
+                21 days advance notice
               </li>
-              <li>
-                The form will check for conflicting requests and display warnings
-              </li>
+              <li>The form will check for conflicting requests and display warnings</li>
               <li>Roster periods are calculated automatically from the start date</li>
               <li>All requests default to PENDING status for manager review</li>
             </ul>

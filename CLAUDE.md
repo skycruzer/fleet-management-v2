@@ -2,6 +2,29 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Workflow Rules (MANDATORY)
+
+**These rules govern how Claude Code works on ALL tasks in this repository:**
+
+1. **PLAN FIRST**: Think through the problem, read relevant codebase files, and write a plan to `tasks/todo.md`
+2. **CREATE CHECKLIST**: The plan must have a list of todo items that can be checked off as completed
+3. **GET APPROVAL**: Before beginning work, check in with the user to verify the plan
+4. **TRACK PROGRESS**: Work through todo items, marking each complete as you go
+5. **COMMUNICATE CLEARLY**: At every step, provide a high-level explanation of changes made
+6. **SIMPLICITY IS KING**: Make every task and code change as simple as possible
+   - Avoid massive or complex changes
+   - Every change should impact as little code as possible
+   - Everything is about simplicity
+7. **DOCUMENT COMPLETION**: Add a review section to `tasks/todo.md` with a summary of changes and relevant information
+8. **NO LAZINESS**: Never be lazy. Find the root cause of bugs and fix them properly. No temporary fixes. You are a senior developer.
+9. **MINIMAL IMPACT**: All fixes and code changes must be as simple as humanly possible
+   - Only impact code relevant to the task
+   - Impact as little code as possible
+   - Goal: Introduce zero bugs
+   - It's all about simplicity
+
+---
+
 ## Quick Start for New Developers
 
 ### First Time Setup (5 minutes)
@@ -189,43 +212,6 @@ import { verifyPilotSession } from '@/lib/services/pilot-portal-service'
 import { createClient } from '@/lib/supabase/server'
 // in /app/api/pilots/route.ts
 ```
-
----
-
-### ❌ DON'T: Use Wrong Request Category in Unified Table
-```typescript
-// ❌ WRONG - hardcoded or missing request_category
-await supabase.from('pilot_requests').insert({
-  pilot_id: '...',
-  request_type: 'RDO',
-  // Missing request_category!
-})
-```
-
-```typescript
-// ✅ CORRECT - specify request_category based on request type
-// For RDO/SDO requests
-await createRdoSdoRequest({
-  pilot_id: '...',
-  request_type: 'RDO', // or 'SDO'
-  // Service automatically sets request_category: 'RDO_SDO'
-})
-
-// For leave requests
-await createLeaveRequest({
-  pilot_id: '...',
-  leave_type: 'ANNUAL',
-  // Service automatically sets request_category: 'LEAVE'
-})
-
-// For flight requests
-await createFlightRequest({
-  pilot_id: '...',
-  // Service automatically sets request_category: 'FLIGHT'
-})
-```
-
-**Why**: The unified `pilot_requests` table uses `request_category` to differentiate between LEAVE, FLIGHT, and RDO_SDO requests. Always use the appropriate service layer function which sets this automatically.
 
 ---
 
@@ -443,42 +429,49 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Implemented Services
 
-All services located in `lib/services/` (34 services):
+All services located in `lib/services/` (50 services). Key services:
 
-1. **`pilot-service.ts`** - Pilot CRUD operations, captain qualifications
-2. **`certification-service.ts`** - Certification tracking and management
-3. **`leave-service.ts`** - Leave request CRUD operations
-4. **`leave-bid-service.ts`** - Annual leave bid submissions and management
-5. **`leave-eligibility-service.ts`** - Complex leave eligibility logic (rank-separated)
-6. **`leave-stats-service.ts`** - Leave statistics and reporting
-7. **`expiring-certifications-service.ts`** - Certification expiry calculations
-8. **`dashboard-service.ts`** - Dashboard metrics aggregation
-9. **`dashboard-service-v3.ts`** - Enhanced dashboard with materialized views
-10. **`dashboard-service-v4.ts`** - Redis-cached dashboard (production)
-11. **`analytics-service.ts`** - Analytics data processing
-12. **`pdf-service.ts`** - PDF report generation
-13. **`cache-service.ts`** - Performance caching with TTL
-14. **`audit-service.ts`** - Audit logging for all CRUD operations
-15. **`admin-service.ts`** - System settings and admin operations
-16. **`user-service.ts`** - User management and role assignment
-17. **`pilot-portal-service.ts`** - Pilot-facing portal operations
-18. **`certification-renewal-planning-service.ts`** - Certification renewal planning
-19. **`check-types-service.ts`** - Check type definitions management
-20. **`disciplinary-service.ts`** - Disciplinary action tracking
-21. **`flight-request-service.ts`** - Flight request submissions
-22. **`logging-service.ts`** - Better Stack (Logtail) logging integration
-23. **`pilot-leave-service.ts`** - Pilot-specific leave request operations
-24. **`pilot-flight-service.ts`** - Pilot flight request operations
-25. **`pilot-feedback-service.ts`** - Pilot feedback submission operations
-26. **`renewal-planning-pdf-service.ts`** - Renewal plan PDF generation
-27. **`retirement-forecast-service.ts`** - Retirement planning and forecasting
-28. **`succession-planning-service.ts`** - Succession planning for key positions
-29. **`task-service.ts`** - Task management operations
-30. **`notification-service.ts`** - In-app notification management
-31. **`feedback-service.ts`** - Admin feedback management (view, respond, export)
-32. **`reports-service.ts`** - Unified reports generation (19 reports across 5 categories)
-33. **`rdo-sdo-service.ts`** - RDO/SDO request operations (schedule-related requests)
-34. **`pilot-rdo-sdo-service.ts`** - Pilot-facing RDO/SDO operations with auto-filled pilot context
+**Core Domain Services**:
+- `pilot-service.ts` - Pilot CRUD, captain qualifications
+- `certification-service.ts` - Certification tracking and management
+- `leave-service.ts` - Leave request CRUD operations
+- `leave-bid-service.ts` - Annual leave bid submissions
+- `leave-eligibility-service.ts` - Complex leave eligibility logic (rank-separated)
+- `flight-request-service.ts` - Flight request submissions
+- `unified-request-service.ts` - Unified request handling (leave + flight)
+
+**Dashboard & Analytics**:
+- `dashboard-service.ts` - Dashboard metrics aggregation
+- `dashboard-service-v4.ts` - Redis-cached dashboard (production)
+- `analytics-service.ts` - Analytics data processing
+- `retirement-forecast-service.ts` - Retirement planning and forecasting
+- `succession-planning-service.ts` - Succession planning
+
+**Caching**:
+- `cache-service.ts` - Performance caching with TTL
+- `redis-cache-service.ts` - Redis-based caching
+- `unified-cache-service.ts` - Unified cache management
+
+**PDF & Reports**:
+- `pdf-service.ts` - PDF report generation
+- `reports-service.ts` - Unified reports (19 reports across 5 categories)
+- `renewal-planning-pdf-service.ts` - Renewal plan PDF generation
+- `leave-bids-pdf-service.ts` - Leave bids PDF export
+- `roster-pdf-service.ts` - Roster PDF generation
+- `export-service.ts` - General export functionality
+
+**Authentication & Security**:
+- `pilot-portal-service.ts` - Pilot-facing portal operations
+- `session-service.ts` - Session management
+- `account-lockout-service.ts` - Account lockout protection
+- `password-validation-service.ts` - Password security
+- `account-deletion-service.ts` - Account deletion workflow
+
+**Supporting Services**:
+- `audit-service.ts` - Audit logging for all CRUD operations
+- `logging-service.ts` - Better Stack (Logtail) logging
+- `notification-service.ts` - In-app notification management
+- `feedback-service.ts` - Admin feedback management
 
 ### Dual Authentication Architecture
 
@@ -548,7 +541,7 @@ fleet-management-v2/
 │   └── layout/                   # Layout components
 │
 ├── lib/                          # Core utilities
-│   ├── services/                 # ⭐ Service layer (CRITICAL - 34 services)
+│   ├── services/                 # ⭐ Service layer (CRITICAL - 32 services)
 │   ├── supabase/                 # Supabase clients
 │   ├── utils/                    # Utility functions
 │   │   ├── roster-utils.ts       # 28-day roster period logic
@@ -567,16 +560,15 @@ fleet-management-v2/
 
 **Connected to**: Supabase Project `wgdmgvonqysflwdiiols`
 
-### Main Tables (v3.0.0 Architecture - Updated Jan 19, 2025)
+### Main Tables (v2.0.0 Architecture - Updated Nov 16, 2025)
 
 **Primary Tables** (Active Use):
 - `pilots` (27 records) - Pilot profiles, qualifications, seniority
 - `pilot_checks` (607 records) - Certification records
 - `check_types` (34 records) - Check type definitions
-- `pilot_requests` ⭐ **UNIFIED REQUEST TABLE** - ALL requests (leave, flight, RDO/SDO)
+- `pilot_requests` ⭐ **UNIFIED REQUEST TABLE** - ALL leave and flight requests
   - `request_category = 'LEAVE'` - Leave requests (~20 records)
   - `request_category = 'FLIGHT'` - Flight requests
-  - `request_category = 'RDO_SDO'` - Rostered Day Off / Scheduled Day Off requests
   - Sources: Pilot portal + Admin portal
   - Field: `workflow_status` (not `status`)
 - `leave_bids` - **Separate** annual leave preference bidding system (2 records)
@@ -681,12 +673,12 @@ Based on `commencement_date` field:
 - Seniority numbers 1-27 (unique)
 - Used for leave request prioritization
 
-### 6. Request Types in Unified Architecture (v3.0.0 - Updated Jan 19, 2025)
+### 6. Leave Requests vs Leave Bids (v2.0.0 Architecture)
 
-**IMPORTANT**: The application uses a unified `pilot_requests` table for three types of requests, with a separate system for annual leave bidding.
+**IMPORTANT**: These are two SEPARATE systems with different purposes:
 
 #### Leave Requests ⭐ (Unified Table)
-- **Purpose**: Individual time-off requests (sick leave, annual leave, etc.)
+- **Purpose**: Individual time-off requests (sick leave, RDO, SDO, annual leave, etc.)
 - **Workflow**: Submit → Manager Review → Approve/Deny
 - **Timing**: Submitted as needed, ideally 21+ days in advance
 - **Service**: `lib/services/pilot-leave-service.ts` and `lib/services/leave-service.ts`
@@ -695,7 +687,7 @@ Based on `commencement_date` field:
   - Filter: `request_category = 'LEAVE'`
   - Status field: `workflow_status` (not `status`)
   - Sources: Pilot portal AND Admin portal
-- **Types**: ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
+- **Types**: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
 
 #### Flight Requests ⭐ (Same Unified Table)
 - **Purpose**: Flight request submissions
@@ -705,21 +697,6 @@ Based on `commencement_date` field:
 - **Table**: `pilot_requests` ✅ **SAME UNIFIED TABLE**
   - Filter: `request_category = 'FLIGHT'`
   - Status field: `workflow_status`
-
-#### RDO/SDO Requests ⭐ (Same Unified Table) - NEW v3.0.0
-- **Purpose**: Rostered Day Off / Scheduled Day Off requests (schedule-related)
-- **Workflow**: Submit → Manager Review → Approve/Deny
-- **Timing**: Must align with roster periods (28-day cycles)
-- **Service**: `lib/services/rdo-sdo-service.ts` and `lib/services/pilot-rdo-sdo-service.ts`
-- **API**: `/api/portal/rdo-sdo-requests` (pilot) and `/api/rdo-sdo-requests` (admin)
-- **Table**: `pilot_requests` ✅ **SAME UNIFIED TABLE**
-  - Filter: `request_category = 'RDO_SDO'`
-  - Status field: `workflow_status`
-  - Types: `request_type` = 'RDO' or 'SDO'
-- **Special Features**:
-  - Auto-calculates roster period from dates
-  - Tracks late requests and past-deadline submissions
-  - Pilots can cancel APPROVED requests (sets status to WITHDRAWN)
 
 #### Leave Bids ✅ (Separate System)
 - **Purpose**: Annual leave preference submissions (bidding on preferred leave dates for the year)
@@ -735,12 +712,11 @@ Based on `commencement_date` field:
   - Status: PENDING → PROCESSING → APPROVED/REJECTED
 
 **Key Distinctions**:
-1. **Leave Requests** = Time-off (sick, annual, etc.) → `pilot_requests` table
+1. **Leave Requests** = Immediate time-off needs → `pilot_requests` table
 2. **Flight Requests** = Flight request submissions → `pilot_requests` table (same table!)
-3. **RDO/SDO Requests** = Schedule-related days off → `pilot_requests` table (same table!)
-4. **Leave Bids** = Annual planning/preferences → `leave_bids` table (different purpose)
+3. **Leave Bids** = Annual planning/preferences → `leave_bids` table (different purpose)
 
-**Architecture Decision (v3.0.0 - Jan 19, 2025)**: Leave, flight, and RDO/SDO requests use unified `pilot_requests` table because they share the same workflow and approval process. They're differentiated by `request_category` field ('LEAVE', 'FLIGHT', 'RDO_SDO') and within RDO/SDO by `request_type` field ('RDO', 'SDO'). Leave bids remain separate because they have a different business purpose (annual planning vs. immediate requests) and different schema requirements (multiple options vs. single request).
+**Architecture Decision (Nov 16, 2025)**: Leave and flight requests use unified `pilot_requests` table because they share the same workflow and approval process. Leave bids remain separate because they have a different business purpose (annual planning vs. immediate requests) and different schema requirements (multiple options vs. single request).
 
 ## Testing Strategy
 
@@ -873,6 +849,6 @@ Verify `/api/portal/*` endpoints are using `pilot-portal-service.ts` and NOT Sup
 
 ---
 
-**Version**: 3.0.0
-**Last Updated**: January 19, 2025
+**Version**: 2.6.0
+**Last Updated**: December 5, 2025
 **Maintainer**: Maurice (Skycruzer)

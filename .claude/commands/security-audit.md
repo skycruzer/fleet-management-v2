@@ -5,6 +5,7 @@ Perform comprehensive security audit and vulnerability assessment.
 ## When to Use
 
 Use this command for:
+
 - Pre-deployment security checks
 - After implementing authentication/authorization
 - When handling sensitive data
@@ -15,6 +16,7 @@ Use this command for:
 ## What It Does
 
 Invokes the **security-sentinel** agent which:
+
 - Scans for common security vulnerabilities
 - Validates input handling and sanitization
 - Reviews authentication/authorization implementations
@@ -30,6 +32,7 @@ Invokes the **security-sentinel** agent which:
 ```
 
 Optional: Target specific areas
+
 ```
 "Run security audit on authentication endpoints"
 "Security review of API routes"
@@ -39,6 +42,7 @@ Optional: Target specific areas
 ## Example
 
 Before deploying:
+
 ```
 You: "Ready to deploy - please run security audit"
 Assistant: "Running comprehensive security audit with /security-audit"

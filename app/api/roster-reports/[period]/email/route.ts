@@ -129,8 +129,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
 
     // Build email content
     const emailSubject =
-      validated.subject ||
-      `Roster Period Report - ${period} (${validated.reportType})`
+      validated.subject || `Roster Period Report - ${period} (${validated.reportType})`
 
     const emailBody = `
 <!DOCTYPE html>

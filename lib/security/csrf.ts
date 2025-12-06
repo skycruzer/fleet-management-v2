@@ -15,7 +15,7 @@ const tokens = new Tokens();
 
 // Cookie configuration
 const CSRF_SECRET_COOKIE = 'csrf_secret';
-const CSRF_TOKEN_COOKIE = 'csrf_token';
+const CSRF_TOKEN_COOKIE = 'csrf-token';
 const COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours
 
 /**
@@ -111,7 +111,7 @@ export async function verifyCsrfTokenFromRequest(request: Request): Promise<bool
     const secret = await getCsrfSecret();
 
     // Try to get token from header first (preferred)
-    let token = request.headers.get('X-CSRF-Token') || request.headers.get('x-csrf-token');
+    const token = request.headers.get('X-CSRF-Token') || request.headers.get('x-csrf-token');
 
     if (!token) {
       return false; // Require token in header to avoid consuming request body

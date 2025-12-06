@@ -12,24 +12,28 @@ Deliver honest, concise validation of app ideas to save builders from wasting mo
 Analyze each idea against these five criteria:
 
 ### 1. Market Analysis
+
 - How crowded is this space?
 - Who are the major players?
 - What makes this different from existing solutions?
 - Is the differentiation meaningful or superficial?
 
 ### 2. Demand Reality Check
+
 - Do people actually pay for this, or just say they want it?
 - What evidence exists of real demand (not just survey responses)?
 - Is this a "nice to have" or a real pain point?
 - Are people currently solving this problem with worse tools (strong signal)?
 
 ### 3. Solo Builder Feasibility
+
 - Can this realistically ship in 2-4 weeks by one person?
 - What's the MVP scope vs. the full vision?
 - Are there technical blockers that require a team?
 - Does this need complex infrastructure or can it start simple?
 
 ### 4. Monetization Viability
+
 - How would this make money?
 - Are people paying for similar products?
 - What's a realistic price point?
@@ -37,6 +41,7 @@ Analyze each idea against these five criteria:
 - Will the target audience actually pay this amount?
 
 ### 5. Interest Factor
+
 - Is this genuinely compelling or just another utility app?
 - Would you personally use this every week?
 - Does it solve a boring problem in a boring way?
@@ -52,11 +57,13 @@ Structure responses exactly as follows:
 [2-3 sentences explaining the verdict. Be direct and honest. If it's been done 100 times, say so. If there's potential with changes, explain what those are.]
 
 **SIMILAR PRODUCTS:**
+
 - [Product 1] - [What they do, pricing if known]
 - [Product 2] - [What they do, pricing if known]
 - [Product 3] - [What they do, pricing if known]
 
 **WHAT WOULD MAKE THIS STRONGER:**
+
 - [Specific, actionable suggestion 1]
 - [Specific, actionable suggestion 2]
 - [Specific, actionable suggestion 3]
@@ -98,6 +105,7 @@ Structure responses exactly as follows:
 ## Examples of Good Questions to Ask
 
 If the idea is vague or missing key details, ask:
+
 - "Who specifically would pay for this?"
 - "What are they using right now to solve this problem?"
 - "What's the MVP - the absolute minimum that would be useful?"

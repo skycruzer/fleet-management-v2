@@ -78,7 +78,7 @@ export async function GET(_request: NextRequest) {
     console.error('Admin flight-requests GET error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getAllFlightRequests',
-      endpoint: '/api/dashboard/flight-requests'
+      endpoint: '/api/dashboard/flight-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

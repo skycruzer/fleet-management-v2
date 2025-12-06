@@ -33,10 +33,7 @@ import { logger } from '@/lib/services/logging-service'
  * GET /api/reports/roster-period/RP01%2F2026?format=json&reportType=PREVIEW
  * GET /api/reports/roster-period/RP01%2F2026?history=true
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   try {
     const supabase = await createClient()
     const resolvedParams = await params
@@ -69,10 +66,7 @@ export async function GET(
       const result = await getRosterReportHistory(rosterPeriodCode)
 
       if (!result.success) {
-        return NextResponse.json(
-          { success: false, error: result.error },
-          { status: 500 }
-        )
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
       }
 
       return NextResponse.json({
@@ -176,11 +170,7 @@ export async function POST(
     })
 
     // Generate report
-    const reportResult = await generateRosterPeriodReport(
-      rosterPeriodCode,
-      reportType,
-      user.id
-    )
+    const reportResult = await generateRosterPeriodReport(rosterPeriodCode, reportType, user.id)
 
     if (!reportResult.success || !reportResult.data) {
       return NextResponse.json(

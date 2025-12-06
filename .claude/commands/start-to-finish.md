@@ -7,6 +7,7 @@ This command executes a complete project workflow from planning through review.
 Execute the following agents/tasks in sequence:
 
 ### Stage 1: Analysis & Planning (Mary - Business Analyst)
+
 ```
 /BMad:agents:analyst
 *perform-market-research OR *create-project-brief
@@ -15,6 +16,7 @@ Execute the following agents/tasks in sequence:
 **Output:** Market research or project brief document
 
 ### Stage 2: UX/UI Design (Sally - UX Expert)
+
 ```
 /BMad:agents:ux-expert
 *create-front-end-spec
@@ -23,6 +25,7 @@ Execute the following agents/tasks in sequence:
 **Output:** Front-end specification with UI/UX requirements
 
 ### Stage 3: Technical Planning (Dev - PM)
+
 ```
 /BMad:agents:pm
 *create-technical-spec
@@ -32,6 +35,7 @@ Execute the following agents/tasks in sequence:
 **Output:** Technical specification and implementation plan
 
 ### Stage 4: Implementation (Dev Agent)
+
 ```
 Use appropriate dev agent based on stack:
 - @agent-react-nextjs-expert (for Next.js features)
@@ -42,6 +46,7 @@ Use appropriate dev agent based on stack:
 **Output:** Implemented features with tests
 
 ### Stage 5: Code Review
+
 ```
 @agent-code-reviewer
 ```
@@ -49,6 +54,7 @@ Use appropriate dev agent based on stack:
 **Output:** Code review report with findings
 
 ### Stage 6: Testing & QA
+
 ```
 npm test
 npx playwright test
@@ -57,6 +63,7 @@ npx playwright test
 **Output:** Test results and coverage report
 
 ### Stage 7: Performance Optimization
+
 ```
 @agent-performance-optimizer
 ```
@@ -64,6 +71,7 @@ npx playwright test
 **Output:** Performance analysis and optimizations
 
 ### Stage 8: Final Project Review
+
 ```
 /BMad:project-review
 ```
@@ -73,6 +81,7 @@ npx playwright test
 ## Usage
 
 Simply run:
+
 ```
 /BMad:start-to-finish
 ```

@@ -7,21 +7,25 @@ Quick reference for implementing consistent color schemes across platforms.
 Choose ONE for your entire app:
 
 ### Professional & Corporate
+
 - **Indigo**: #6366F1 - Professional, trustworthy
 - **Slate Blue**: #475569 - Corporate, serious
 - **Navy**: #1E3A8A - Traditional, corporate
 
 ### Energetic & Modern
+
 - **Emerald**: #10B981 - Fresh, growth-oriented
 - **Cyan**: #06B6D4 - Tech-forward, modern
 - **Violet**: #8B5CF6 - Creative, bold
 
 ### Warm & Friendly
+
 - **Amber**: #F59E0B - Optimistic, approachable
 - **Orange**: #F97316 - Energetic, enthusiastic
 - **Rose**: #F43F5E - Passionate, attention-grabbing
 
 ### Specialized
+
 - **Teal**: #14B8A6 - Healthcare, wellness
 - **Lime**: #84CC16 - Environmental, sustainable
 
@@ -49,6 +53,7 @@ True black: #000000 (use sparingly)
 ## Color Combinations
 
 ### Example 1: Professional App (Indigo accent)
+
 ```
 Primary action: #6366F1 (Indigo)
 Background: #FFFFFF (White)
@@ -59,6 +64,7 @@ Border: #E5E5E5 (Border gray)
 ```
 
 ### Example 2: Health/Wellness App (Emerald accent)
+
 ```
 Primary action: #10B981 (Emerald)
 Background: #FAFAFA (Off-white)
@@ -69,6 +75,7 @@ Border: #E5E5E5 (Border gray)
 ```
 
 ### Example 3: Financial App (Slate Blue accent)
+
 ```
 Primary action: #475569 (Slate blue)
 Background: #FFFFFF (White)
@@ -96,6 +103,7 @@ Info: #3B82F6 (Blue)
 ## Platform-Specific Color Implementation
 
 ### SwiftUI
+
 ```swift
 extension Color {
     static let accentPrimary = Color(hex: "#6366F1")
@@ -127,6 +135,7 @@ extension Color {
 ```
 
 ### Android (Jetpack Compose)
+
 ```kotlin
 // colors.xml or in Compose
 val AccentPrimary = Color(0xFF6366F1)
@@ -147,30 +156,32 @@ lightColorScheme(
 ```
 
 ### CSS/Web
+
 ```css
 :root {
-    --accent-primary: #6366F1;
-    --text-primary: #212121;
-    --text-secondary: #757575;
-    --border-gray: #E5E5E5;
-    --background-light: #F5F5F5;
-    --background-white: #FFFFFF;
-    
-    --success: #10B981;
-    --warning: #F59E0B;
-    --error: #EF4444;
+  --accent-primary: #6366f1;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --border-gray: #e5e5e5;
+  --background-light: #f5f5f5;
+  --background-white: #ffffff;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
 }
 
 /* Usage */
 .button-primary {
-    background-color: var(--accent-primary);
-    color: var(--background-white);
+  background-color: var(--accent-primary);
+  color: var(--background-white);
 }
 ```
 
 ## Anti-Patterns
 
 **AVOID:**
+
 - Multiple accent colors (pick ONE)
 - Gradients (especially purple/blue)
 - Pure black #000000 for text (too harsh)
@@ -179,6 +190,7 @@ lightColorScheme(
 - Using semantic colors (red, green) as primary colors
 
 **INSTEAD:**
+
 - One accent color + neutrals
 - Solid colors
 - Near-black #212121 or dark gray

@@ -135,6 +135,7 @@ export function FeedbackDashboardClient({
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminResponse: adminResponse }),
+        credentials: 'include',
       })
 
       const data = await response.json()

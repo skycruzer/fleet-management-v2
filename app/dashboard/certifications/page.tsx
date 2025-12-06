@@ -293,21 +293,29 @@ export default function CertificationsPage() {
   // Handle export to CSV
   const handleExport = () => {
     // Prepare CSV data
-    const headers = ['Pilot Name', 'Employee ID', 'Check Type', 'Check Date', 'Expiry Date', 'Status', 'Days Until Expiry']
-    const rows = filteredCertifications.map(cert => [
+    const headers = [
+      'Pilot Name',
+      'Employee ID',
+      'Check Type',
+      'Check Date',
+      'Expiry Date',
+      'Status',
+      'Days Until Expiry',
+    ]
+    const rows = filteredCertifications.map((cert) => [
       `${cert.pilot.first_name} ${cert.pilot.last_name}`,
       cert.pilot.employee_id,
       cert.check_type.check_description,
       cert.completion_date ? new Date(cert.completion_date).toLocaleDateString() : 'N/A',
       cert.expiry_date ? new Date(cert.expiry_date).toLocaleDateString() : 'N/A',
       cert.status.label,
-      cert.status.daysUntilExpiry?.toString() || 'N/A'
+      cert.status.daysUntilExpiry?.toString() || 'N/A',
     ])
 
     // Convert to CSV
     const csv = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
     ].join('\n')
 
     // Create blob and download
@@ -335,6 +343,7 @@ export default function CertificationsPage() {
     try {
       const response = await fetch(`/api/certifications/${certificationToDelete.id}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -352,7 +361,7 @@ export default function CertificationsPage() {
 
       // Refresh router cache (proper Next.js 16 cache invalidation)
       router.refresh()
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
       // Data will refresh automatically via revalidatePath in API
     } catch (error) {
       console.error('Error deleting certification:', error)
@@ -386,9 +395,11 @@ export default function CertificationsPage() {
           </div>
         </div>
 
-        <Card className="border-destructive/20 bg-red-50 dark:bg-red-950/50 p-8 text-center">
+        <Card className="border-destructive/20 bg-red-50 p-8 text-center dark:bg-red-950/50">
           <AlertCircle className="mx-auto h-12 w-12 text-red-600 dark:text-red-500" />
-          <h3 className="text-foreground mt-4 text-lg font-semibold">Failed to Load Certifications</h3>
+          <h3 className="text-foreground mt-4 text-lg font-semibold">
+            Failed to Load Certifications
+          </h3>
           <p className="text-muted-foreground mt-2">{error}</p>
           <div className="mt-4">
             <Button onClick={() => router.refresh()}>Retry</Button>
@@ -424,8 +435,8 @@ export default function CertificationsPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <CheckCircle className="h-5 w-5 text-primary" />
+            <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+              <CheckCircle className="text-primary h-5 w-5" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.all}</p>
@@ -475,7 +486,7 @@ export default function CertificationsPage() {
       <Card className="p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder="Search by pilot name or check type..."
               value={searchQuery}
@@ -528,11 +539,13 @@ export default function CertificationsPage() {
               ) : (
                 filteredCertifications.map((cert) => (
                   <TableRow key={cert.id}>
-                    <TableCell className="font-medium text-foreground">
+                    <TableCell className="text-foreground font-medium">
                       {cert.pilot.first_name} {cert.pilot.last_name}
                     </TableCell>
                     <TableCell className="text-foreground">{cert.pilot.employee_id}</TableCell>
-                    <TableCell className="text-foreground">{cert.check_type.check_description}</TableCell>
+                    <TableCell className="text-foreground">
+                      {cert.check_type.check_description}
+                    </TableCell>
                     <TableCell>
                       {cert.expiry_date
                         ? format(new Date(cert.expiry_date), 'MMM d, yyyy')
@@ -556,11 +569,7 @@ export default function CertificationsPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditClick(cert)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleEditClick(cert)}>
                           Edit
                         </Button>
                         <Button
@@ -607,8 +616,7 @@ export default function CertificationsPage() {
               <strong>
                 {certificationToDelete?.pilot.first_name} {certificationToDelete?.pilot.last_name}
               </strong>{' '}
-              ({certificationToDelete?.check_type.check_description}).
-              This action cannot be undone.
+              ({certificationToDelete?.check_type.check_description}). This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

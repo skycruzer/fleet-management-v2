@@ -410,83 +410,84 @@ export default function CertificationsPage() {
                 </div>
                 {viewMode === 'card' ? (
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {groupedCerts[category].map((cert: Certification) => {
-                    const status = getCertificationStatus(cert.expiry_date)
-                    const StatusIcon = status.icon
+                    {groupedCerts[category].map((cert: Certification) => {
+                      const status = getCertificationStatus(cert.expiry_date)
+                      const StatusIcon = status.icon
 
-                    return (
-                      <Card
-                        key={cert.id}
-                        className={`border-l-4 p-5 transition-all hover:shadow-lg ${status.borderColor}`}
-                      >
-                        <div className="mb-3 flex items-start justify-between">
-                          <div className="flex items-center space-x-2">
-                            <StatusIcon className={`h-5 w-5 ${status.textColor}`} />
-                            <Badge className={`${status.bgColor} ${status.textColor} border-0`}>
-                              {status.status}
-                            </Badge>
-                          </div>
-                        </div>
-
-                        <h4 className="text-foreground mb-1 text-lg font-bold">
-                          {cert.check_types?.check_code || 'Unknown'}
-                        </h4>
-                        <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
-                          {cert.check_types?.check_description || 'No description'}
-                        </p>
-
-                        {cert.expiry_date && (
-                          <>
-                            <div className="mb-3 flex items-center space-x-2 text-sm text-gray-600">
-                              <Calendar className="h-4 w-4" />
-                              <span>
-                                {status.daysRemaining !== null && status.status !== 'No Expiry' ? (
-                                  status.status === 'Expired' ? (
-                                    <span className="font-semibold text-red-600">
-                                      Expired {status.daysRemaining} days ago
-                                    </span>
-                                  ) : (
-                                    <span className="font-semibold">
-                                      {status.daysRemaining} days remaining
-                                    </span>
-                                  )
-                                ) : (
-                                  'No expiry date'
-                                )}
-                              </span>
+                      return (
+                        <Card
+                          key={cert.id}
+                          className={`border-l-4 p-5 transition-all hover:shadow-lg ${status.borderColor}`}
+                        >
+                          <div className="mb-3 flex items-start justify-between">
+                            <div className="flex items-center space-x-2">
+                              <StatusIcon className={`h-5 w-5 ${status.textColor}`} />
+                              <Badge className={`${status.bgColor} ${status.textColor} border-0`}>
+                                {status.status}
+                              </Badge>
                             </div>
+                          </div>
 
-                            {status.status !== 'Expired' && status.progressPercent !== null && (
-                              <div className="mb-2">
-                                <div className="h-2 w-full rounded-full bg-gray-200">
-                                  <div
-                                    className={`h-2 rounded-full transition-all ${
-                                      status.filterKey === 'critical'
-                                        ? 'bg-orange-600'
-                                        : status.filterKey === 'warning'
-                                          ? 'bg-yellow-600'
-                                          : 'bg-green-600'
-                                    }`}
-                                    style={{ width: `${status.progressPercent}%` }}
-                                  />
-                                </div>
+                          <h4 className="text-foreground mb-1 text-lg font-bold">
+                            {cert.check_types?.check_code || 'Unknown'}
+                          </h4>
+                          <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
+                            {cert.check_types?.check_description || 'No description'}
+                          </p>
+
+                          {cert.expiry_date && (
+                            <>
+                              <div className="mb-3 flex items-center space-x-2 text-sm text-gray-600">
+                                <Calendar className="h-4 w-4" />
+                                <span>
+                                  {status.daysRemaining !== null &&
+                                  status.status !== 'No Expiry' ? (
+                                    status.status === 'Expired' ? (
+                                      <span className="font-semibold text-red-600">
+                                        Expired {status.daysRemaining} days ago
+                                      </span>
+                                    ) : (
+                                      <span className="font-semibold">
+                                        {status.daysRemaining} days remaining
+                                      </span>
+                                    )
+                                  ) : (
+                                    'No expiry date'
+                                  )}
+                                </span>
                               </div>
-                            )}
 
-                            <p className="text-xs text-gray-500">
-                              Expires:{' '}
-                              {new Date(cert.expiry_date).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}
-                            </p>
-                          </>
-                        )}
-                      </Card>
-                    )
-                  })}
-                </div>
+                              {status.status !== 'Expired' && status.progressPercent !== null && (
+                                <div className="mb-2">
+                                  <div className="h-2 w-full rounded-full bg-gray-200">
+                                    <div
+                                      className={`h-2 rounded-full transition-all ${
+                                        status.filterKey === 'critical'
+                                          ? 'bg-orange-600'
+                                          : status.filterKey === 'warning'
+                                            ? 'bg-yellow-600'
+                                            : 'bg-green-600'
+                                      }`}
+                                      style={{ width: `${status.progressPercent}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+
+                              <p className="text-xs text-gray-500">
+                                Expires:{' '}
+                                {new Date(cert.expiry_date).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </p>
+                            </>
+                          )}
+                        </Card>
+                      )
+                    })}
+                  </div>
                 ) : (
                   <div className="space-y-2">
                     {groupedCerts[category].map((cert: Certification) => {
@@ -513,7 +514,9 @@ export default function CertificationsPage() {
                             </div>
 
                             {/* Middle: Status Badge */}
-                            <Badge className={`${status.bgColor} ${status.textColor} border-0 flex-shrink-0`}>
+                            <Badge
+                              className={`${status.bgColor} ${status.textColor} flex-shrink-0 border-0`}
+                            >
                               {status.status}
                             </Badge>
 
@@ -523,7 +526,8 @@ export default function CertificationsPage() {
                                 <>
                                   <div className="text-right">
                                     <p className="text-sm font-semibold text-gray-700">
-                                      {status.daysRemaining !== null && status.status !== 'No Expiry' ? (
+                                      {status.daysRemaining !== null &&
+                                      status.status !== 'No Expiry' ? (
                                         status.status === 'Expired' ? (
                                           <span className="text-red-600">
                                             Expired {status.daysRemaining} days ago
@@ -544,46 +548,47 @@ export default function CertificationsPage() {
                                       })}
                                     </p>
                                   </div>
-                                  {status.status !== 'Expired' && status.progressPercent !== null && (
-                                    <div className="h-16 w-16 flex-shrink-0">
-                                      <svg className="h-full w-full" viewBox="0 0 36 36">
-                                        <path
-                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                          fill="none"
-                                          stroke="#e5e7eb"
-                                          strokeWidth="3"
-                                        />
-                                        <path
-                                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                          fill="none"
-                                          stroke={
-                                            status.filterKey === 'critical'
-                                              ? '#ea580c'
-                                              : status.filterKey === 'warning'
-                                                ? '#ca8a04'
-                                                : '#16a34a'
-                                          }
-                                          strokeWidth="3"
-                                          strokeDasharray={`${status.progressPercent}, 100`}
-                                        />
-                                        <text
-                                          x="18"
-                                          y="20.5"
-                                          className="text-xs font-semibold"
-                                          textAnchor="middle"
-                                          fill={
-                                            status.filterKey === 'critical'
-                                              ? '#ea580c'
-                                              : status.filterKey === 'warning'
-                                                ? '#ca8a04'
-                                                : '#16a34a'
-                                          }
-                                        >
-                                          {Math.round(status.progressPercent)}%
-                                        </text>
-                                      </svg>
-                                    </div>
-                                  )}
+                                  {status.status !== 'Expired' &&
+                                    status.progressPercent !== null && (
+                                      <div className="h-16 w-16 flex-shrink-0">
+                                        <svg className="h-full w-full" viewBox="0 0 36 36">
+                                          <path
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                            fill="none"
+                                            stroke="#e5e7eb"
+                                            strokeWidth="3"
+                                          />
+                                          <path
+                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                            fill="none"
+                                            stroke={
+                                              status.filterKey === 'critical'
+                                                ? '#ea580c'
+                                                : status.filterKey === 'warning'
+                                                  ? '#ca8a04'
+                                                  : '#16a34a'
+                                            }
+                                            strokeWidth="3"
+                                            strokeDasharray={`${status.progressPercent}, 100`}
+                                          />
+                                          <text
+                                            x="18"
+                                            y="20.5"
+                                            className="text-xs font-semibold"
+                                            textAnchor="middle"
+                                            fill={
+                                              status.filterKey === 'critical'
+                                                ? '#ea580c'
+                                                : status.filterKey === 'warning'
+                                                  ? '#ca8a04'
+                                                  : '#16a34a'
+                                            }
+                                          >
+                                            {Math.round(status.progressPercent)}%
+                                          </text>
+                                        </svg>
+                                      </div>
+                                    )}
                                 </>
                               ) : (
                                 <div className="flex items-center gap-2 text-sm text-gray-500">

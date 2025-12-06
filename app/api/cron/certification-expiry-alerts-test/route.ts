@@ -33,9 +33,12 @@ export async function GET(request: Request) {
 
     // Get all expiring certifications using database function
     // This bypasses the PostgREST relationship issues
-    const { data: expiringChecks, error } = await supabase.rpc('get_expiring_certifications_with_email', {
-      days_threshold: 90
-    })
+    const { data: expiringChecks, error } = await supabase.rpc(
+      'get_expiring_certifications_with_email',
+      {
+        days_threshold: 90,
+      }
+    )
 
     if (error) {
       console.error('Error fetching expiring certifications:', error)
@@ -143,8 +146,8 @@ export async function GET(request: Request) {
     }
 
     // Summary
-    const successCount = emailResults.filter(r => r.success).length
-    const failureCount = emailResults.filter(r => !r.success).length
+    const successCount = emailResults.filter((r) => r.success).length
+    const failureCount = emailResults.filter((r) => !r.success).length
 
     console.log(`\n📧 Certification Expiry Alerts Summary (TEST MODE):`)
     console.log(`   Test Email: ${TEST_EMAIL}`)

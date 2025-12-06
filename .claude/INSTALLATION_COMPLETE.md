@@ -58,6 +58,7 @@ The agent will immediately analyze your TypeScript code!
 ### Common Workflows
 
 **Pre-Commit Checklist:**
+
 ```bash
 /review-typescript
 /simplify-code
@@ -66,6 +67,7 @@ The agent will immediately analyze your TypeScript code!
 ```
 
 **API Development:**
+
 ```bash
 /review-architecture
 /analyze-patterns
@@ -73,6 +75,7 @@ The agent will immediately analyze your TypeScript code!
 ```
 
 **Research:**
+
 ```bash
 /research-framework Next.js 15 server actions
 /research-best-practices OpenAPI specification design
@@ -85,11 +88,13 @@ The agent will immediately analyze your TypeScript code!
 These agents are **specifically configured** for:
 
 ✅ **OpenSpec** (`/openspec/` directory)
+
 - API specification review
 - OpenAPI 3.0/3.1 validation
 - RESTful pattern enforcement
 
 ✅ **Specify** (`.specify/` directory)
+
 - Specification analysis
 - Best practices research
 - Pattern consistency
@@ -99,25 +104,26 @@ These agents are **specifically configured** for:
 ## 📚 Documentation
 
 ### Project Documentation
+
 - **`.claude/AGENTS.md`** - Complete agent reference (600+ lines)
 - **`.claude/GLOBAL_INSTALL.md`** - Installation guide
 - **`.claude/commands/`** - Individual agent documentation
 
 ### Quick Reference
 
-| Need | Use This Agent |
-|------|---------------|
-| TypeScript review | `/review-typescript` |
-| Security check | `/security-audit` |
-| Performance issue | `/optimize-performance` |
-| Database migration | `/review-database` |
-| Too complex code | `/simplify-code` |
-| API design review | `/review-architecture` |
-| Framework help | `/research-framework` |
-| Best practices | `/research-best-practices` |
-| Pattern analysis | `/analyze-patterns` |
-| RESTful critique | `/dhh-rails-review` |
-| Repo structure | `/repo-research` |
+| Need               | Use This Agent             |
+| ------------------ | -------------------------- |
+| TypeScript review  | `/review-typescript`       |
+| Security check     | `/security-audit`          |
+| Performance issue  | `/optimize-performance`    |
+| Database migration | `/review-database`         |
+| Too complex code   | `/simplify-code`           |
+| API design review  | `/review-architecture`     |
+| Framework help     | `/research-framework`      |
+| Best practices     | `/research-best-practices` |
+| Pattern analysis   | `/analyze-patterns`        |
+| RESTful critique   | `/dhh-rails-review`        |
+| Repo structure     | `/repo-research`           |
 
 ---
 
@@ -140,11 +146,13 @@ cp .claude/commands/review-typescript.md ~/.claude/commands/
 ## 🌐 Global vs Project-Specific
 
 **Global Installation** (✅ Completed):
+
 - Available in ALL projects
 - Installed at: `~/.claude/commands/`
 - Update once, applies everywhere
 
 **Project-Specific** (Also Available):
+
 - This project: `.claude/commands/`
 - Customized for Fleet Management V2
 - Version controlled with project
@@ -170,10 +178,12 @@ You should see 11 `.md` files.
 Your project already has:
 
 ✅ **BMAD Framework Agents** (10 agents)
+
 - Located: `.claude/commands/BMad/agents/`
 - Includes: analyst, architect, dev, pm, po, qa, sm, ux-expert
 
 ✅ **Speckit Commands** (7 commands)
+
 - `/speckit.analyze`
 - `/speckit.checklist`
 - `/speckit.clarify`
@@ -183,6 +193,7 @@ Your project already has:
 - `/speckit.specify`
 
 ✅ **Custom Commands**
+
 - `/apa` - APA documentation
 - `/build` - Build operations
 
@@ -193,7 +204,9 @@ Your project already has:
 ## 💡 Usage Tips
 
 ### 1. Sequential Workflow
+
 Run agents in sequence for comprehensive review:
+
 ```bash
 /review-typescript
 /simplify-code
@@ -202,17 +215,22 @@ Run agents in sequence for comprehensive review:
 ```
 
 ### 2. Parallel Execution
+
 Claude can run multiple agents in parallel for efficiency!
 
 ### 3. Targeted Analysis
+
 Provide context for focused review:
+
 ```
 User: "Review the authentication service for security"
 Assistant: "Running security audit with /security-audit"
 ```
 
 ### 4. Research First
+
 When implementing new features:
+
 ```bash
 # Research first
 /research-framework Next.js 15 middleware
@@ -231,15 +249,19 @@ When implementing new features:
 ## 🎓 Learning Resources
 
 ### Agent Documentation
+
 Each agent has detailed documentation:
+
 - `.claude/commands/review-typescript.md`
 - `.claude/commands/security-audit.md`
 - etc.
 
 ### Master Reference
+
 - `.claude/AGENTS.md` - Complete guide with workflows and examples
 
 ### Global Installation
+
 - `.claude/GLOBAL_INSTALL.md` - Installation and update guide
 
 ---
@@ -247,12 +269,14 @@ Each agent has detailed documentation:
 ## 🔐 Security Notes
 
 **Safe to Use:**
+
 - ✅ All agents are open-source Claude Code marketplace agents
 - ✅ No external dependencies
 - ✅ Run locally within Claude Code
 - ✅ No data sent to third parties
 
 **Agent Execution:**
+
 - Agents analyze code using Claude's AI
 - Provide recommendations and feedback
 - Never modify code without permission
@@ -267,6 +291,7 @@ Each agent has detailed documentation:
 **Problem**: Command not working in new project
 
 **Solution**:
+
 ```bash
 # Check if globally installed
 ls ~/.claude/commands/review-typescript.md
@@ -280,6 +305,7 @@ ls ~/.claude/commands/review-typescript.md
 **Problem**: Claude doesn't recognize `/review-typescript`
 
 **Solution**: Ensure file naming is correct:
+
 - File name: `review-typescript.md` (no leading slash)
 - Command: `/review-typescript` (with leading slash)
 
@@ -288,6 +314,7 @@ ls ~/.claude/commands/review-typescript.md
 **Problem**: Agent not behaving as expected
 
 **Solution**: Check agent documentation:
+
 ```bash
 cat ~/.claude/commands/review-typescript.md
 ```
@@ -297,7 +324,9 @@ cat ~/.claude/commands/review-typescript.md
 ## 📈 Next Steps
 
 ### 1. Test Agents
+
 Try each agent on this project:
+
 ```bash
 /review-typescript
 /security-audit
@@ -305,19 +334,25 @@ Try each agent on this project:
 ```
 
 ### 2. Customize for Your Workflow
+
 Edit agents to match your preferences:
+
 ```bash
 edit ~/.claude/commands/review-typescript.md
 ```
 
 ### 3. Share with Team
+
 Share the installation script:
+
 ```bash
 ./install-global-agents.sh
 ```
 
 ### 4. Create Project-Specific Agents
+
 Add custom agents for this project:
+
 ```bash
 touch .claude/commands/my-custom-agent.md
 ```
@@ -351,6 +386,7 @@ You now have **11 powerful Claude Code agents** available globally across all yo
 ---
 
 **Installation Details**
+
 - **Date**: October 22, 2025
 - **Version**: 1.0.0
 - **Project**: Fleet Management V2 - B767 Pilot Management System

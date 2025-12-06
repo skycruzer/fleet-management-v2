@@ -3,11 +3,14 @@
 ## Active Commands
 
 ### Main Commands
+
 - `/build` - Quick development workflow (Analyze → Plan → Implement)
 - `/apa` - (Custom workflow)
 
 ### BMad Commands (in BMad/ subdirectory)
+
 Business analysis and documentation commands:
+
 - Various task-specific commands for requirements engineering
 - Located in `.claude/commands/BMad/tasks/`
 

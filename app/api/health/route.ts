@@ -15,7 +15,7 @@ export async function GET() {
   const checks = {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    checks: {} as Record<string, { status: 'ok' | 'error'; message: string; details?: unknown }>
+    checks: {} as Record<string, { status: 'ok' | 'error'; message: string; details?: unknown }>,
   }
 
   // 1. Environment Variables Check
@@ -25,18 +25,19 @@ export async function GET() {
 
     checks.checks.environment_variables = {
       status: hasSupabaseUrl && hasSupabaseKey ? 'ok' : 'error',
-      message: hasSupabaseUrl && hasSupabaseKey
-        ? 'All required environment variables present'
-        : 'Missing environment variables',
+      message:
+        hasSupabaseUrl && hasSupabaseKey
+          ? 'All required environment variables present'
+          : 'Missing environment variables',
       details: {
         NEXT_PUBLIC_SUPABASE_URL: hasSupabaseUrl ? 'present' : 'MISSING',
         NEXT_PUBLIC_SUPABASE_ANON_KEY: hasSupabaseKey ? 'present' : 'MISSING',
-      }
+      },
     }
   } catch (error) {
     checks.checks.environment_variables = {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 
@@ -47,13 +48,15 @@ export async function GET() {
 
     checks.checks.supabase_connection = {
       status: error ? 'error' : 'ok',
-      message: error ? `Database connection failed: ${error.message}` : 'Database connection successful',
-      details: error ? { code: error.code, hint: error.hint } : { count: data }
+      message: error
+        ? `Database connection failed: ${error.message}`
+        : 'Database connection successful',
+      details: error ? { code: error.code, hint: error.hint } : { count: data },
     }
   } catch (error) {
     checks.checks.supabase_connection = {
       status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown database error'
+      message: error instanceof Error ? error.message : 'Unknown database error',
     }
   }
 
@@ -68,24 +71,27 @@ export async function GET() {
       details: {
         totalPilots: metrics.pilots.total,
         captains: metrics.pilots.captains,
-        firstOfficers: metrics.pilots.firstOfficers
-      }
+        firstOfficers: metrics.pilots.firstOfficers,
+      },
     }
   } catch (error) {
     checks.checks.dashboard_service = {
       status: 'error',
       message: error instanceof Error ? error.message : 'Dashboard service failed',
-      details: error instanceof Error ? { stack: error.stack?.split('\n').slice(0, 3) } : undefined
+      details: error instanceof Error ? { stack: error.stack?.split('\n').slice(0, 3) } : undefined,
     }
   }
 
   // Overall status
-  const allOk = Object.values(checks.checks).every(check => check.status === 'ok')
+  const allOk = Object.values(checks.checks).every((check) => check.status === 'ok')
 
-  return NextResponse.json({
-    status: allOk ? 'healthy' : 'unhealthy',
-    ...checks
-  }, {
-    status: allOk ? 200 : 503
-  })
+  return NextResponse.json(
+    {
+      status: allOk ? 'healthy' : 'unhealthy',
+      ...checks,
+    },
+    {
+      status: allOk ? 200 : 503,
+    }
+  )
 }

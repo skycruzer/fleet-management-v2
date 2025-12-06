@@ -4,8 +4,8 @@
  * Redirects /dashboard/leave-requests → /dashboard/leave
  */
 
-import { redirect } from 'next/navigation';
+import { redirect } from 'next/navigation'
 
 export default function LeaveRequestsRedirect() {
-  redirect('/dashboard/leave');
+  redirect('/dashboard/leave')
 }

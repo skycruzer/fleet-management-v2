@@ -17,7 +17,7 @@ import { test, expect } from '@playwright/test'
 // Test configuration
 const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@test.com'
 const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'admin123'
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+const BASE_URL = process.env.BASE_URL || ''
 
 test.describe('Unified Request System', () => {
   test.beforeEach(async ({ page }) => {

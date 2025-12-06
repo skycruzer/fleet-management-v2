@@ -73,6 +73,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
           'Content-Type': 'application/json',
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
+        credentials: 'include',
       })
 
       if (!response.ok) {

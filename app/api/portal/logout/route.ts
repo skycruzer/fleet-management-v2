@@ -53,7 +53,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     console.error('Logout API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'pilotLogout',
-      endpoint: '/api/portal/logout'
+      endpoint: '/api/portal/logout',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

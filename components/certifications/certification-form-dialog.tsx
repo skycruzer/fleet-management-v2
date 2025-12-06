@@ -197,6 +197,7 @@ export function CertificationFormDialog({
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify(payload),
+        credentials: 'include',
       })
 
       const result = await response.json()

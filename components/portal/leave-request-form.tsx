@@ -68,22 +68,20 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
   } = usePortalForm({
     successRedirect: onSuccess ? undefined : '/portal/dashboard',
     successMessage: 'leave_request_submitted',
-    onSuccess: (data) => {
+    onSuccess: async () => {
       // Show success message first
       setShowSuccess(true)
 
-      // Close dialog and call callback after 2 seconds
-      setTimeout(() => {
-        setShowSuccess(false)
-        // Refresh router cache to update leave requests list
-        router.refresh()
-        // Small delay for cache propagation
-        setTimeout(() => {
-          if (onSuccess) {
-            onSuccess()
-          }
-        }, 100)
-      }, 2000)
+      // Wait for user to see success message
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      // CRITICAL: Refresh cache BEFORE callback (Next.js 16 requirement)
+      router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 300))
+
+      // Hide success and trigger callback
+      setShowSuccess(false)
+      onSuccess?.()
     },
   })
 

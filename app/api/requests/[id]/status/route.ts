@@ -47,10 +47,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     ]
 
     if (!validStatuses.includes(status)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid status value' },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: 'Invalid status value' }, { status: 400 })
     }
 
     // Update request status

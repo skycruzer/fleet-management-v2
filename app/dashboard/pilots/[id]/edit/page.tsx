@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Card } from '@/components/ui/card'
@@ -16,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { PilotUpdateSchema } from '@/lib/validations/pilot-validation'
 import { formatDateForInput } from '@/lib/utils/form-utils'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 
@@ -47,8 +49,10 @@ interface ContractType {
 
 export default function EditPilotPage() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const params = useParams()
   const pilotId = params.id as string
+  const { csrfToken } = useCsrfToken()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -165,8 +169,12 @@ export default function EditPilotPage() {
 
       const response = await fetch(`/api/pilots/${pilotId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify(processedData),
+        credentials: 'include',
       })
 
       const result = await response.json()
@@ -175,9 +183,15 @@ export default function EditPilotPage() {
         throw new Error(result.error || 'Failed to update pilot')
       }
 
-      // Success - redirect to pilot detail page
-      router.push(`/dashboard/pilots/${pilotId}`)
+      // Invalidate TanStack Query cache for pilots
+      await queryClient.invalidateQueries({ queryKey: ['pilots'] })
+      await queryClient.invalidateQueries({ queryKey: ['pilot', pilotId] })
+      // Success - refresh cache BEFORE redirecting (Next.js 16 requirement)
       router.refresh()
+      // Wait for cache propagation
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      // THEN redirect to pilot detail page
+      router.push(`/dashboard/pilots/${pilotId}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update pilot')
       setIsSubmitting(false)

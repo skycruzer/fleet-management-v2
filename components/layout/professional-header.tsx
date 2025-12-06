@@ -59,6 +59,7 @@ export function ProfessionalHeader() {
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
         body: JSON.stringify({ notificationId: notification.id }),
+        credentials: 'include',
       })
 
       // Close dropdown
@@ -103,6 +104,7 @@ export function ProfessionalHeader() {
           'Content-Type': 'application/json',
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
+        credentials: 'include',
       })
 
       if (response.ok || response.redirected) {

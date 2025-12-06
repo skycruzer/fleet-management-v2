@@ -78,7 +78,9 @@ export default function PilotRegisterPage() {
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        setError(result.error?.message || result.message || 'Registration failed. Please try again.')
+        setError(
+          result.error?.message || result.message || 'Registration failed. Please try again.'
+        )
         setIsLoading(false)
         return
       }
@@ -328,7 +330,7 @@ export default function PilotRegisterPage() {
 
             <div className="text-center text-sm text-gray-600">
               Already have an account?{' '}
-              <Link href="/portal/login" className="font-medium text-primary hover:text-blue-500">
+              <Link href="/portal/login" className="text-primary font-medium hover:text-blue-500">
                 Sign in here
               </Link>
             </div>

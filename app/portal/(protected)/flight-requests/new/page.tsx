@@ -11,6 +11,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   FlightRequestSchema,
@@ -54,6 +55,7 @@ const REQUEST_TYPES = [
 
 export default function NewFlightRequestPage() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -78,12 +80,18 @@ export default function NewFlightRequestPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       })
 
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to submit RDO/SDO request. Please try again.')
+        // Handle error - ensure we display a string, not an object
+        const errorMessage =
+          typeof result.error === 'string'
+            ? result.error
+            : result.error?.message || 'Failed to submit RDO/SDO request. Please try again.'
+        setError(errorMessage)
         setIsLoading(false)
         return
       }
@@ -92,12 +100,14 @@ export default function NewFlightRequestPage() {
       setSuccess(true)
       setIsLoading(false)
 
-      // Refresh cache and redirect to flight requests list after 2 seconds
-      setTimeout(async () => {
-        router.refresh()  // Refresh cache first
-        await new Promise(resolve => setTimeout(resolve, 100))
-        router.push('/portal/flight-requests')  // Then navigate
-      }, 2000)
+      // Wait for user to see success, then refresh cache and redirect
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Invalidate TanStack Query cache
+      await queryClient.invalidateQueries({ queryKey: ['flight-requests'] })
+      // CRITICAL: Refresh cache BEFORE navigation (Next.js 16 requirement)
+      router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      router.push('/portal/flight-requests')
     } catch {
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
@@ -216,7 +226,8 @@ export default function NewFlightRequestPage() {
                 disabled={isLoading}
               />
               <p className="text-xs text-gray-500">
-                Leave blank for single-day request. For multi-day requests, select the end date (max 90 days)
+                Leave blank for single-day request. For multi-day requests, select the end date (max
+                90 days)
               </p>
               {form.formState.errors.end_date && (
                 <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
@@ -236,7 +247,9 @@ export default function NewFlightRequestPage() {
               />
               <p className="text-xs text-gray-500">
                 {form.watch('description')?.length || 0}/2000 characters
-                {form.watch('description') && (form.watch('description')?.length ?? 0) < 10 && (form.watch('description')?.length ?? 0) > 0
+                {form.watch('description') &&
+                (form.watch('description')?.length ?? 0) < 10 &&
+                (form.watch('description')?.length ?? 0) > 0
                   ? ' (minimum 10 characters if provided)'
                   : ''}
               </p>
@@ -268,7 +281,8 @@ export default function NewFlightRequestPage() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 <strong>Note:</strong> RDO/SDO requests are subject to operational requirements and
-                crew availability. Submit requests at least 21 days in advance for best approval chances.
+                crew availability. Submit requests at least 21 days in advance for best approval
+                chances.
               </AlertDescription>
             </Alert>
           </CardContent>

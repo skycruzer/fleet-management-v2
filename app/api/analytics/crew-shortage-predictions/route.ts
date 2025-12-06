@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching crew shortage predictions:', error)
     const sanitized = sanitizeError(error, {
       operation: 'predictCrewShortages',
-      endpoint: '/api/analytics/crew-shortage-predictions'
+      endpoint: '/api/analytics/crew-shortage-predictions',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

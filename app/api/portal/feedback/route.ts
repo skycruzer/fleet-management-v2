@@ -11,10 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import {
-  submitFeedback,
-  getCurrentPilotFeedback,
-} from '@/lib/services/pilot-feedback-service'
+import { submitFeedback, getCurrentPilotFeedback } from '@/lib/services/pilot-feedback-service'
 import { PilotFeedbackSchema } from '@/lib/validations/pilot-feedback-schema'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
@@ -63,7 +60,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         {
           error: 'Invalid feedback data',
           details: error.errors,
-          message: error.errors[0]?.message || 'Validation failed'
+          message: error.errors[0]?.message || 'Validation failed',
         },
         { status: 400 }
       )
@@ -71,7 +68,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     const sanitized = sanitizeError(error, {
       operation: 'submitFeedback',
-      endpoint: '/api/portal/feedback'
+      endpoint: '/api/portal/feedback',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -97,7 +94,7 @@ export async function GET() {
     console.error('GET /api/portal/feedback error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getFeedback',
-      endpoint: '/api/portal/feedback'
+      endpoint: '/api/portal/feedback',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

@@ -113,8 +113,15 @@ function generateEmailHTML(data: {
   summaries: any[]
   appUrl: string
 }): string {
-  const { year, totalRenewals, totalCapacity, overallUtilization, highRiskPeriods, summaries, appUrl } =
-    data
+  const {
+    year,
+    totalRenewals,
+    totalCapacity,
+    overallUtilization,
+    highRiskPeriods,
+    summaries,
+    appUrl,
+  } = data
 
   return `
     <!DOCTYPE html>
@@ -523,7 +530,7 @@ Air Niugini - Fleet Operations
 
     const sanitized = sanitizeError(error, {
       operation: 'sendRenewalPlanEmail',
-      endpoint: '/api/renewal-planning/email'
+      endpoint: '/api/renewal-planning/email',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

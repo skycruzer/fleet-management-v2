@@ -5,6 +5,7 @@
 ## What This Does
 
 This command runs the full development workflow in one go:
+
 1. **Analyze** - Review the codebase comprehensively
 2. **Plan** - Create detailed implementation plan
 3. **Apply** - Implement the changes with quality gates
@@ -14,12 +15,14 @@ This command runs the full development workflow in one go:
 When this command is invoked with a task description, follow this workflow:
 
 ### 1. ANALYZE THE CODEBASE (Required)
+
 - Use the Task tool with subagent_type=Explore to understand the codebase structure
 - Identify all relevant files, components, and dependencies
 - Create a mental model of how the system works
 - Document key findings and existing patterns
 
 ### 2. CREATE DETAILED PLAN (Required)
+
 - Design the complete solution architecture
 - Plan database schema changes if needed
 - Identify all files that need to be created or modified
@@ -28,6 +31,7 @@ When this command is invoked with a task description, follow this workflow:
 - Use TodoWrite to create a task list
 
 ### 3. IMPLEMENT WITH QUALITY GATES (Required)
+
 - Implement the plan step by step
 - Follow existing code patterns and conventions
 - Write clean, maintainable code

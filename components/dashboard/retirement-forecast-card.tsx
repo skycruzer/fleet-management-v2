@@ -11,6 +11,31 @@ import { getRetirementForecastByRank } from '@/lib/services/retirement-forecast-
 import { getPilotRequirements } from '@/lib/services/admin-service'
 
 /**
+ * Pilot data structure for retirement forecast
+ */
+interface RetirementPilot {
+  id: string
+  name: string
+  monthsUntilRetirement: number
+}
+
+/**
+ * Forecast data structure
+ */
+interface ForecastPeriod {
+  captains: number
+  firstOfficers: number
+  total: number
+  captainsList: RetirementPilot[]
+  firstOfficersList: RetirementPilot[]
+}
+
+interface ForecastData {
+  twoYears: ForecastPeriod
+  fiveYears: ForecastPeriod
+}
+
+/**
  * Format time until retirement
  * Shows "Xy Ymo" if >1 year, otherwise "Xmo"
  */
@@ -24,21 +49,46 @@ function formatTimeUntilRetirement(months: number): string {
 }
 
 export async function RetirementForecastCard() {
+  // Data fetching with error handling
+  let retirementAge = 65
+  let forecastData: ForecastData = {
+    twoYears: { captains: 0, firstOfficers: 0, total: 0, captainsList: [], firstOfficersList: [] },
+    fiveYears: { captains: 0, firstOfficers: 0, total: 0, captainsList: [], firstOfficersList: [] },
+  }
+  let fetchError: string | null = null
+
   try {
     // Fetch system settings first
     const requirements = await getPilotRequirements()
-    const retirementAge = requirements.pilot_retirement_age
+    retirementAge = requirements.pilot_retirement_age
 
     // Get forecast data with the correct retirement age
-    const forecastData = await getRetirementForecastByRank(retirementAge).catch((error) => {
-      console.error('Error fetching retirement forecast:', error)
-      return {
-        twoYears: { captains: 0, firstOfficers: 0, total: 0, captainsList: [], firstOfficersList: [] },
-        fiveYears: { captains: 0, firstOfficers: 0, total: 0, captainsList: [], firstOfficersList: [] },
-      }
-    })
+    forecastData = await getRetirementForecastByRank(retirementAge)
+  } catch (error) {
+    console.error('Error in RetirementForecastCard:', error)
+    fetchError = error instanceof Error ? error.message : 'Unknown error'
+  }
 
+  // Error state
+  if (fetchError) {
     return (
+      <Card className="p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Clock className="h-5 w-5 text-orange-600" />
+            <h3 className="text-lg font-semibold text-foreground">Retirement Forecast</h3>
+          </div>
+        </div>
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+          <p className="text-sm text-yellow-800">
+            Unable to load retirement forecast data. Please try refreshing the page.
+          </p>
+        </div>
+      </Card>
+    )
+  }
+
+  return (
       <Card className="p-4">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -73,7 +123,7 @@ export async function RetirementForecastCard() {
                   </p>
                 </div>
                 <div className="space-y-0.5">
-                  {forecastData.twoYears.captainsList.map((pilot: any) => (
+                  {forecastData.twoYears.captainsList.map((pilot: RetirementPilot) => (
                     <div key={pilot.id} className="text-xs text-orange-900">
                       <span className="font-medium">{pilot.name.split(' ').map((n: string) => n[0]).join('')}</span>
                       <span className="ml-1 text-orange-700">
@@ -95,7 +145,7 @@ export async function RetirementForecastCard() {
                   </p>
                 </div>
                 <div className="space-y-0.5">
-                  {forecastData.twoYears.firstOfficersList.map((pilot: any) => (
+                  {forecastData.twoYears.firstOfficersList.map((pilot: RetirementPilot) => (
                     <div key={pilot.id} className="text-xs text-orange-900">
                       <span className="font-medium">{pilot.name.split(' ').map((n: string) => n[0]).join('')}</span>
                       <span className="ml-1 text-orange-700">
@@ -122,7 +172,7 @@ export async function RetirementForecastCard() {
             </div>
 
             {/* Captain List (Years 3-5 only) */}
-            {forecastData.fiveYears.captainsList.filter((p: any) => p.monthsUntilRetirement > 24).length > 0 && (
+            {forecastData.fiveYears.captainsList.filter((p: RetirementPilot) => p.monthsUntilRetirement > 24).length > 0 && (
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-2">
                 <div className="mb-1 flex items-center space-x-1">
                   <Users className="h-3 w-3 text-blue-700" />
@@ -132,8 +182,8 @@ export async function RetirementForecastCard() {
                 </div>
                 <div className="space-y-0.5">
                   {forecastData.fiveYears.captainsList
-                    .filter((p: any) => p.monthsUntilRetirement > 24)
-                    .map((pilot: any) => (
+                    .filter((p: RetirementPilot) => p.monthsUntilRetirement > 24)
+                    .map((pilot: RetirementPilot) => (
                       <div key={pilot.id} className="text-xs text-blue-900">
                         <span className="font-medium">{pilot.name.split(' ').map((n: string) => n[0]).join('')}</span>
                         <span className="ml-1 text-blue-700">
@@ -146,7 +196,7 @@ export async function RetirementForecastCard() {
             )}
 
             {/* First Officer List (Years 3-5 only) */}
-            {forecastData.fiveYears.firstOfficersList.filter((p: any) => p.monthsUntilRetirement > 24).length > 0 && (
+            {forecastData.fiveYears.firstOfficersList.filter((p: RetirementPilot) => p.monthsUntilRetirement > 24).length > 0 && (
               <div className="rounded-lg border border-blue-200 bg-blue-50 p-2">
                 <div className="mb-1 flex items-center space-x-1">
                   <Users className="h-3 w-3 text-blue-700" />
@@ -156,8 +206,8 @@ export async function RetirementForecastCard() {
                 </div>
                 <div className="space-y-0.5">
                   {forecastData.fiveYears.firstOfficersList
-                    .filter((p: any) => p.monthsUntilRetirement > 24)
-                    .map((pilot: any) => (
+                    .filter((p: RetirementPilot) => p.monthsUntilRetirement > 24)
+                    .map((pilot: RetirementPilot) => (
                       <div key={pilot.id} className="text-xs text-blue-900">
                         <span className="font-medium">{pilot.name.split(' ').map((n: string) => n[0]).join('')}</span>
                         <span className="ml-1 text-blue-700">
@@ -173,24 +223,5 @@ export async function RetirementForecastCard() {
           {/* Info Footer - Removed to save space */}
         </div>
       </Card>
-    )
-  } catch (error) {
-    console.error('Error in RetirementForecastCard:', error)
-    // Return error state card
-    return (
-      <Card className="p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-orange-600" />
-            <h3 className="text-lg font-semibold text-foreground">Retirement Forecast</h3>
-          </div>
-        </div>
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-          <p className="text-sm text-yellow-800">
-            Unable to load retirement forecast data. Please try refreshing the page.
-          </p>
-        </div>
-      </Card>
-    )
-  }
+  )
 }

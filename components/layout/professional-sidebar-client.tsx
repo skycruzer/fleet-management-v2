@@ -234,6 +234,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           'Content-Type': 'application/json',
           ...(csrfToken && { 'x-csrf-token': csrfToken }),
         },
+        credentials: 'include',
       })
 
       if (response.ok || response.redirected) {

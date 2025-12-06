@@ -29,7 +29,7 @@ import {
   Loader2,
   UserCircle,
   Cloud,
-  ChevronLeft
+  ChevronLeft,
 } from 'lucide-react'
 
 export default function PilotLoginPage() {
@@ -75,7 +75,7 @@ export default function PilotLoginPage() {
         redirected: response.redirected,
         url: response.url,
         type: response.type,
-        headers: Array.from(response.headers.entries())
+        headers: Array.from(response.headers.entries()),
       })
 
       // Success - browser followed redirect to dashboard
@@ -141,7 +141,7 @@ export default function PilotLoginPage() {
         error: err,
         name: (err as Error)?.name,
         message: (err as Error)?.message,
-        stack: (err as Error)?.stack
+        stack: (err as Error)?.stack,
       })
       setError('Network error. Please check your connection and try again.')
       setIsLoading(false)
@@ -155,8 +155,8 @@ export default function PilotLoginPage() {
       {/* Aviation Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Static gradient orbs */}
-        <div className="absolute -right-1/4 top-1/4 h-96 w-96 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="absolute -left-1/4 bottom-1/4 h-96 w-96 rounded-full bg-blue-300/20 blur-3xl" />
+        <div className="absolute top-1/4 -right-1/4 h-96 w-96 rounded-full bg-cyan-300/20 blur-3xl" />
+        <div className="absolute bottom-1/4 -left-1/4 h-96 w-96 rounded-full bg-blue-300/20 blur-3xl" />
       </div>
 
       {/* Main Card */}
@@ -195,7 +195,7 @@ export default function PilotLoginPage() {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Mail className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="email"
                   type="email"
@@ -207,15 +207,13 @@ export default function PilotLoginPage() {
                   className="border-gray-300 bg-white pl-10 text-gray-900 placeholder:text-gray-400 focus:border-cyan-500 focus:ring-cyan-500/30"
                 />
                 {email && email.includes('@') && !form.formState.errors.email && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className="absolute top-1/2 right-3 -translate-y-1/2">
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                   </div>
                 )}
               </div>
               {form.formState.errors.email && (
-                <p className="text-xs text-red-600">
-                  {form.formState.errors.email.message}
-                </p>
+                <p className="text-xs text-red-600">{form.formState.errors.email.message}</p>
               )}
             </div>
 
@@ -225,7 +223,7 @@ export default function PilotLoginPage() {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -239,25 +237,19 @@ export default function PilotLoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {form.formState.errors.password && (
-                <p className="text-xs text-red-600">
-                  {form.formState.errors.password.message}
-                </p>
+                <p className="text-xs text-red-600">{form.formState.errors.password.message}</p>
               )}
               {/* Forgot Password Link */}
               <div className="text-right">
                 <Link
                   href="/portal/forgot-password"
-                  className="text-sm font-medium text-cyan-600 hover:text-cyan-700 transition-colors"
+                  className="text-sm font-medium text-cyan-600 transition-colors hover:text-cyan-700"
                 >
                   Forgot password?
                 </Link>
@@ -315,7 +307,10 @@ export default function PilotLoginPage() {
 
           {/* Back to Home */}
           <div className="mt-6 text-center">
-            <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+            >
               <ChevronLeft className="h-4 w-4" />
               <span>Back to home</span>
             </Link>

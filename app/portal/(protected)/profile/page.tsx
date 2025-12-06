@@ -65,14 +65,19 @@ interface PilotProfile {
 }
 
 // Server-side data fetching
-async function getProfile(): Promise<{ profile: PilotProfile | null; retirementAge: number; error?: string }> {
+async function getProfile(): Promise<{
+  profile: PilotProfile | null
+  retirementAge: number
+  error?: string
+}> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
     // Get all cookies to forward to API
     const cookieStore = await cookies()
-    const cookieString = cookieStore.getAll()
-      .map(cookie => `${cookie.name}=${cookie.value}`)
+    const cookieString = cookieStore
+      .getAll()
+      .map((cookie) => `${cookie.name}=${cookie.value}`)
       .join('; ')
 
     const response = await fetch(`${baseUrl}/api/portal/profile`, {
@@ -181,12 +186,12 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
-        <Icon className="h-4 w-4 text-muted-foreground" />
+      <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
+        <Icon className="text-muted-foreground h-4 w-4" />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="mt-0.5 truncate text-sm font-semibold text-foreground">{value}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-muted-foreground text-xs font-medium">{label}</p>
+        <p className="text-foreground mt-0.5 truncate text-sm font-semibold">{value}</p>
       </div>
     </div>
   )
@@ -201,21 +206,23 @@ export default async function ProfilePage() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <Card className="max-w-md p-12 text-center">
           <XCircle className="mx-auto mb-4 h-16 w-16 text-red-600" />
-          <h3 className="mb-2 text-xl font-bold text-foreground">Error</h3>
-          <p className="mb-6 text-muted-foreground">{error || 'Profile not found'}</p>
+          <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
+          <p className="text-muted-foreground mb-6">{error || 'Profile not found'}</p>
         </Card>
       </div>
     )
   }
 
-  const fullName = [profile.first_name, profile.middle_name, profile.last_name].filter(Boolean).join(' ')
+  const fullName = [profile.first_name, profile.middle_name, profile.last_name]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <ProfileAnimationWrapper>
       <div className="space-y-6 pb-12">
         {/* Page Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
+          <h1 className="text-foreground text-3xl font-bold">My Profile</h1>
         </div>
 
         {/* Information Grid */}
@@ -223,16 +230,28 @@ export default async function ProfilePage() {
           {/* Personal Information */}
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <User className="h-5 w-5 text-primary" />
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <User className="text-primary h-5 w-5" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Personal Information</h3>
+              <h3 className="text-foreground text-lg font-semibold">Personal Information</h3>
             </div>
             <div className="space-y-4">
               <InfoRow icon={User} label="Full Name" value={fullName} />
-              <InfoRow icon={Calendar} label="Date of Birth" value={formatDate(profile.date_of_birth)} />
-              <InfoRow icon={TrendingUp} label="Age" value={`${calculateAge(profile.date_of_birth)} years`} />
-              <InfoRow icon={MapPin} label="Nationality" value={profile.nationality || 'Not specified'} />
+              <InfoRow
+                icon={Calendar}
+                label="Date of Birth"
+                value={formatDate(profile.date_of_birth)}
+              />
+              <InfoRow
+                icon={TrendingUp}
+                label="Age"
+                value={`${calculateAge(profile.date_of_birth)} years`}
+              />
+              <InfoRow
+                icon={MapPin}
+                label="Nationality"
+                value={profile.nationality || 'Not specified'}
+              />
             </div>
           </Card>
 
@@ -242,15 +261,35 @@ export default async function ProfilePage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
                 <Briefcase className="h-5 w-5 text-green-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Employment Details</h3>
+              <h3 className="text-foreground text-lg font-semibold">Employment Details</h3>
             </div>
             <div className="space-y-4">
-              <InfoRow icon={Shield} label="Employee ID" value={profile.employee_id || 'Not assigned'} />
+              <InfoRow
+                icon={Shield}
+                label="Employee ID"
+                value={profile.employee_id || 'Not assigned'}
+              />
               <InfoRow icon={Award} label="Rank" value={profile.rank || profile.role || 'N/A'} />
-              <InfoRow icon={Star} label="Seniority Number" value={profile.seniority_number ? `#${profile.seniority_number}` : 'Not assigned'} />
-              <InfoRow icon={Briefcase} label="Contract Type" value={profile.contract_type || 'Not specified'} />
-              <InfoRow icon={Calendar} label="Commencement Date" value={formatDate(profile.commencement_date)} />
-              <InfoRow icon={Clock} label="Years in Service" value={calculateYearsOfService(profile.commencement_date)} />
+              <InfoRow
+                icon={Star}
+                label="Seniority Number"
+                value={profile.seniority_number ? `#${profile.seniority_number}` : 'Not assigned'}
+              />
+              <InfoRow
+                icon={Briefcase}
+                label="Contract Type"
+                value={profile.contract_type || 'Not specified'}
+              />
+              <InfoRow
+                icon={Calendar}
+                label="Commencement Date"
+                value={formatDate(profile.commencement_date)}
+              />
+              <InfoRow
+                icon={Clock}
+                label="Years in Service"
+                value={calculateYearsOfService(profile.commencement_date)}
+              />
             </div>
           </Card>
 
@@ -260,7 +299,7 @@ export default async function ProfilePage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
                 <Mail className="h-5 w-5 text-blue-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Contact Information</h3>
+              <h3 className="text-foreground text-lg font-semibold">Contact Information</h3>
             </div>
             <div className="space-y-4">
               <InfoRow icon={Mail} label="Email Address" value={profile.email} />
@@ -271,7 +310,13 @@ export default async function ProfilePage() {
                 <>
                   <InfoRow icon={MapPin} label="Address" value={profile.address} />
                   {(profile.city || profile.state || profile.postal_code) && (
-                    <InfoRow icon={MapPin} label="City/State" value={[profile.city, profile.state, profile.postal_code].filter(Boolean).join(', ')} />
+                    <InfoRow
+                      icon={MapPin}
+                      label="City/State"
+                      value={[profile.city, profile.state, profile.postal_code]
+                        .filter(Boolean)
+                        .join(', ')}
+                    />
                   )}
                   {profile.country && (
                     <InfoRow icon={MapPin} label="Country" value={profile.country} />
@@ -292,7 +337,9 @@ export default async function ProfilePage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
                 <Shield className="h-5 w-5 text-blue-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Passport & License Information</h3>
+              <h3 className="text-foreground text-lg font-semibold">
+                Passport & License Information
+              </h3>
             </div>
             <div className="space-y-4">
               {profile.license_number && (
@@ -302,7 +349,11 @@ export default async function ProfilePage() {
                 <InfoRow icon={Shield} label="Passport Number" value={profile.passport_number} />
               )}
               {profile.passport_expiry && (
-                <InfoRow icon={Calendar} label="Passport Expiry" value={formatDate(profile.passport_expiry)} />
+                <InfoRow
+                  icon={Calendar}
+                  label="Passport Expiry"
+                  value={formatDate(profile.passport_expiry)}
+                />
               )}
               {!profile.license_number && !profile.passport_number && (
                 <p className="text-muted-foreground text-sm italic">
@@ -315,10 +366,10 @@ export default async function ProfilePage() {
           {/* Professional Details */}
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/50/10">
-                <Award className="h-5 w-5 text-primary" />
+              <div className="bg-primary/50/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <Award className="text-primary h-5 w-5" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Professional Details</h3>
+              <h3 className="text-foreground text-lg font-semibold">Professional Details</h3>
             </div>
             <div className="space-y-4">
               {profile.role === 'Captain' && profile.rhs_captain_expiry && (
@@ -330,18 +381,18 @@ export default async function ProfilePage() {
               )}
               {profile.qualification_notes ? (
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
+                  <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
+                    <FileText className="text-muted-foreground h-4 w-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-muted-foreground">Qualification Notes</p>
-                    <p className="mt-0.5 text-sm font-semibold text-foreground whitespace-pre-wrap">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-muted-foreground text-xs font-medium">Qualification Notes</p>
+                    <p className="text-foreground mt-0.5 text-sm font-semibold whitespace-pre-wrap">
                       {profile.qualification_notes}
                     </p>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-3">
                   <FileText className="h-4 w-4" />
                   <p className="text-sm">No qualification notes recorded</p>
                 </div>
@@ -357,7 +408,7 @@ export default async function ProfilePage() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/10">
                 <Award className="h-5 w-5 text-yellow-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Captain Qualifications</h3>
+              <h3 className="text-foreground text-lg font-semibold">Captain Qualifications</h3>
             </div>
             <div className="flex flex-wrap gap-3">
               {parseCaptainQualifications(profile.captain_qualifications).length > 0 ? (
@@ -380,7 +431,7 @@ export default async function ProfilePage() {
         {/* Info Notice */}
         <Card className="border-blue-200 bg-blue-50 p-6">
           <div className="flex items-start space-x-3">
-            <Clock className="mt-0.5 h-5 w-5 text-primary" />
+            <Clock className="text-primary mt-0.5 h-5 w-5" />
             <div>
               <p className="text-foreground font-medium">Update Required?</p>
               <p className="text-muted-foreground mt-1 text-sm">

@@ -6,11 +6,7 @@
 
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
-import {
-  Building2,
-  Shield,
-  ChevronLeft
-} from 'lucide-react'
+import { Building2, Shield, ChevronLeft } from 'lucide-react'
 import { LoginForm } from './login-form'
 
 export default function AdminLoginPage() {
@@ -19,11 +15,11 @@ export default function AdminLoginPage() {
       {/* Professional Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)] opacity-20" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)] bg-[size:4rem_4rem] opacity-20" />
 
         {/* Subtle gradient orbs */}
-        <div className="absolute -left-1/4 -top-1/4 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
-        <div className="absolute -bottom-1/4 -right-1/4 h-96 w-96 rounded-full bg-slate-600/20 blur-3xl" />
+        <div className="absolute -top-1/4 -left-1/4 h-96 w-96 rounded-full bg-blue-600/20 blur-3xl" />
+        <div className="absolute -right-1/4 -bottom-1/4 h-96 w-96 rounded-full bg-slate-600/20 blur-3xl" />
       </div>
 
       {/* Main Card */}
@@ -36,9 +32,7 @@ export default function AdminLoginPage() {
                 <Building2 className="h-8 w-8 text-slate-300" />
               </div>
             </div>
-            <h1 className="mb-2 text-3xl font-bold text-white">
-              Administration
-            </h1>
+            <h1 className="mb-2 text-3xl font-bold text-white">Administration</h1>
             <div className="flex items-center justify-center gap-2 text-slate-400">
               <Shield className="h-4 w-4" />
               <p className="text-sm">Fleet Management System</p>
@@ -50,7 +44,10 @@ export default function AdminLoginPage() {
 
           {/* Back to Home */}
           <div className="mt-6 text-center">
-            <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-200">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-200"
+            >
               <ChevronLeft className="h-4 w-4" />
               <span>Back to home</span>
             </Link>

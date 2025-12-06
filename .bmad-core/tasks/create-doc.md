@@ -22,10 +22,13 @@ This task creates documents using BMAD templates. It prompts for necessary infor
 ## Process
 
 ### Step 1: Load Template
+
 Load the specified template from `.bmad-core/templates/{template}`
 
 ### Step 2: Extract Template Metadata
+
 Read the YAML frontmatter to understand:
+
 - template_name
 - template_version
 - template_type
@@ -33,7 +36,9 @@ Read the YAML frontmatter to understand:
 - output_format
 
 ### Step 3: Gather Required Information
+
 Prompt user for placeholders found in template:
+
 - {project_name}
 - {feature_name}
 - {author}
@@ -45,9 +50,11 @@ Prompt user for placeholders found in template:
 Use project config (`.bmad-core/core-config.yaml`) for defaults where available.
 
 ### Step 4: Generate Document
+
 Replace all placeholders with provided values.
 
 ### Step 5: Interactive Completion
+
 Present the document structure and guide user through completing each section:
 
 1. Show section heading
@@ -57,12 +64,16 @@ Present the document structure and guide user through completing each section:
 5. Move to next section
 
 ### Step 6: Save Document
+
 Save completed document to:
+
 - Default: `{output_folder}/{template_type}-{feature_name}-{date}.md`
 - Custom: User-specified path
 
 ### Step 7: Confirm Completion
+
 Display summary:
+
 - Document path
 - Document type
 - Sections completed
@@ -84,6 +95,7 @@ Display summary:
 ```
 
 User is prompted for:
+
 1. Feature name
 2. Author (defaults from config)
 3. Section content (guided through each section)
@@ -101,4 +113,4 @@ Output: `docs/prd-feature-name-2025-10-24.md`
 
 ---
 
-*BMAD Method - Document Creation Task*
+_BMAD Method - Document Creation Task_

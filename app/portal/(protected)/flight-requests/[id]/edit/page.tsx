@@ -74,13 +74,21 @@ export default function EditFlightRequestPage() {
     },
   })
 
-  // Fetch request data on mount
+  // Fetch request data on mount with proper cleanup
   useEffect(() => {
+    const controller = new AbortController()
+    let isMounted = true
+
     const fetchRequest = async () => {
       try {
         setIsFetching(true)
-        const response = await fetch('/api/portal/flight-requests')
+        const response = await fetch('/api/portal/flight-requests', {
+          signal: controller.signal,
+        })
         const result = await response.json()
+
+        // Check if component is still mounted
+        if (!isMounted) return
 
         if (!response.ok || !result.success) {
           setError('Failed to load request data')
@@ -99,7 +107,9 @@ export default function EditFlightRequestPage() {
 
         // Check if request is editable (SUBMITTED only)
         if (request.workflow_status !== 'SUBMITTED') {
-          setError('Can only edit submitted requests. This request has already been reviewed or is under review.')
+          setError(
+            'Can only edit submitted requests. This request has already been reviewed or is under review.'
+          )
           setIsFetching(false)
           return
         }
@@ -117,6 +127,10 @@ export default function EditFlightRequestPage() {
 
         setIsFetching(false)
       } catch (err) {
+        // Ignore abort errors
+        if (err instanceof Error && err.name === 'AbortError') return
+        if (!isMounted) return
+
         console.error('Fetch request error:', err)
         setError('An unexpected error occurred while loading the request')
         setIsFetching(false)
@@ -124,6 +138,12 @@ export default function EditFlightRequestPage() {
     }
 
     fetchRequest()
+
+    // Cleanup function
+    return () => {
+      isMounted = false
+      controller.abort()
+    }
   }, [requestId, form])
 
   const onSubmit = async (data: FlightRequestInput) => {
@@ -135,6 +155,7 @@ export default function EditFlightRequestPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       })
 
       const result = await response.json()
@@ -169,7 +190,7 @@ export default function EditFlightRequestPage() {
         <Card className="mx-auto max-w-2xl">
           <CardContent className="flex items-center justify-center py-12">
             <div className="text-center">
-              <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+              <Loader2 className="text-primary mx-auto h-12 w-12 animate-spin" />
               <p className="mt-4 text-gray-600">Loading request data...</p>
             </div>
           </CardContent>
@@ -250,9 +271,7 @@ export default function EditFlightRequestPage() {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
             <CardTitle>RDO/SDO Request Details</CardTitle>
-            <CardDescription>
-              Update the information for your RDO/SDO request
-            </CardDescription>
+            <CardDescription>Update the information for your RDO/SDO request</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
@@ -317,7 +336,8 @@ export default function EditFlightRequestPage() {
                 disabled={isLoading}
               />
               <p className="text-xs text-gray-500">
-                Leave blank for single-day request. For multi-day requests, select the end date (max 90 days)
+                Leave blank for single-day request. For multi-day requests, select the end date (max
+                90 days)
               </p>
               {form.formState.errors.end_date && (
                 <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
@@ -337,7 +357,9 @@ export default function EditFlightRequestPage() {
               />
               <p className="text-xs text-gray-500">
                 {form.watch('description')?.length || 0}/2000 characters
-                {form.watch('description') && (form.watch('description')?.length ?? 0) < 10 && (form.watch('description')?.length ?? 0) > 0
+                {form.watch('description') &&
+                (form.watch('description')?.length ?? 0) < 10 &&
+                (form.watch('description')?.length ?? 0) > 0
                   ? ' (minimum 10 characters if provided)'
                   : ''}
               </p>
@@ -368,7 +390,8 @@ export default function EditFlightRequestPage() {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Note:</strong> You can only edit requests with SUBMITTED status. Once reviewed, requests cannot be edited.
+                <strong>Note:</strong> You can only edit requests with SUBMITTED status. Once
+                reviewed, requests cannot be edited.
               </AlertDescription>
             </Alert>
           </CardContent>

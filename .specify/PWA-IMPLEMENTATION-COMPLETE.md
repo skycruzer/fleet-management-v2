@@ -13,6 +13,7 @@
 Progressive Web App (PWA) support has been **successfully completed** for Fleet Management V2. The application now provides full offline functionality, mobile installation support, and real-time connectivity feedback using Serwist (the modern successor to next-pwa).
 
 ### Key Achievements
+
 ✅ Offline fallback page with auto-reload
 ✅ Real-time connectivity indicator with smooth animations
 ✅ Mobile installation support (iOS + Android)
@@ -27,6 +28,7 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 ### Components Created/Enhanced
 
 **1. Offline Fallback Page** (`app/offline/page.tsx`)
+
 - ✅ Auto-reload when connection restored
 - ✅ Comprehensive troubleshooting steps (4-step guide)
 - ✅ Visual status indicators
@@ -36,6 +38,7 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 - ✅ Brand-consistent design (sky blue theme)
 
 **2. Offline Indicator Component** (`components/ui/offline-indicator.tsx`)
+
 - ✅ Real-time online/offline detection
 - ✅ Smooth framer-motion slide animations
 - ✅ Two states:
@@ -46,6 +49,7 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 - ✅ Compact OfflineBadge variant for navigation bars
 
 **3. Service Worker** (`app/sw.ts`)
+
 - ✅ Already configured with Serwist
 - ✅ Custom caching for Supabase API
 - ✅ Custom caching for application API routes
@@ -53,12 +57,14 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 - ✅ Network-first strategy for data freshness
 
 **4. App Manifest** (`public/manifest.json`)
+
 - ✅ Complete manifest with shortcuts
 - ✅ Dashboard and Portal quick actions
 - ✅ Icons for mobile installation
 - ✅ Screenshots for app stores
 
 **5. Next.js Configuration** (`next.config.js`)
+
 - ✅ Serwist integration with withSerwist wrapper
 - ✅ Disabled in development for hot reload
 - ✅ Auto-reload on connection restoration
@@ -69,37 +75,41 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 ## Technical Stack
 
 ### Dependencies Installed
+
 ```json
 {
-  "@serwist/next": "^9.2.1",    // ✅ Already installed
-  "serwist": "^9.2.1",          // ✅ Already installed
-  "framer-motion": "^12.23.22"  // ✅ Newly installed
+  "@serwist/next": "^9.2.1", // ✅ Already installed
+  "serwist": "^9.2.1", // ✅ Already installed
+  "framer-motion": "^12.23.22" // ✅ Newly installed
 }
 ```
 
 ### Caching Strategies
 
-| Resource Type | Strategy | Cache Name | Expiration |
-|--------------|----------|------------|------------|
-| **Supabase API** | NetworkFirst | supabase-api | 1 minute |
-| **App API Routes** | NetworkFirst | api-cache | 1 minute |
-| **Static Assets** | CacheFirst | (default) | Long-term |
-| **Images** | StaleWhileRevalidate | (default) | 24 hours |
+| Resource Type      | Strategy             | Cache Name   | Expiration |
+| ------------------ | -------------------- | ------------ | ---------- |
+| **Supabase API**   | NetworkFirst         | supabase-api | 1 minute   |
+| **App API Routes** | NetworkFirst         | api-cache    | 1 minute   |
+| **Static Assets**  | CacheFirst           | (default)    | Long-term  |
+| **Images**         | StaleWhileRevalidate | (default)    | 24 hours   |
 
 ---
 
 ## File Changes
 
 ### Created Files
+
 - `.specify/specs/PWA-COMPLETION-SPEC.md` (Comprehensive specification)
 - `.specify/PWA-IMPLEMENTATION-COMPLETE.md` (This document)
 
 ### Modified Files
+
 - `app/offline/page.tsx` - Enhanced with auto-reload and detailed troubleshooting
 - `components/ui/offline-indicator.tsx` - Replaced with framer-motion version
 - `package.json` - Added framer-motion dependency
 
 ### Already Existing (Verified)
+
 - `app/sw.ts` - Service worker source (Serwist)
 - `app/layout.tsx` - OfflineIndicator already integrated
 - `public/manifest.json` - Complete manifest
@@ -112,6 +122,7 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 ### Offline Mode Functionality
 
 **What works offline:**
+
 - ✅ View previously loaded pages
 - ✅ Access cached pilot information
 - ✅ Review certification data
@@ -119,6 +130,7 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 - ✅ Offline fallback page displays
 
 **What requires online:**
+
 - ❌ Create/update/delete operations
 - ❌ Upload documents
 - ❌ Sync new data
@@ -127,12 +139,14 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 ### Mobile Installation
 
 **Android (Chrome):**
+
 1. Visit app in Chrome
 2. Tap "Install" prompt or menu → "Install app"
 3. App appears on home screen with custom icon
 4. Works offline with cached data
 
 **iOS (Safari):**
+
 1. Visit app in Safari
 2. Tap Share button → "Add to Home Screen"
 3. App appears on home screen
@@ -141,12 +155,14 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 ### Connectivity Feedback
 
 **Offline Indicator:**
+
 - Appears when connection lost
 - Displays: "You're Offline" with red banner
 - Includes retry button
 - Non-intrusive (top banner, slides in smoothly)
 
 **Back Online Indicator:**
+
 - Appears when connection restored
 - Displays: "Back Online" with green banner
 - Auto-hides after 5 seconds
@@ -189,25 +205,25 @@ Progressive Web App (PWA) support has been **successfully completed** for Fleet 
 // e2e/pwa.spec.ts
 test.describe('PWA Offline Functionality', () => {
   test('should display offline page when offline', async ({ page, context }) => {
-    await context.setOffline(true);
-    await page.goto('/dashboard/pilots');
-    await expect(page.getByRole('heading', { name: 'No Internet Connection' })).toBeVisible();
-  });
+    await context.setOffline(true)
+    await page.goto('/dashboard/pilots')
+    await expect(page.getByRole('heading', { name: 'No Internet Connection' })).toBeVisible()
+  })
 
   test('should show offline indicator when connection lost', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.evaluate(() => window.dispatchEvent(new Event('offline')));
-    await expect(page.getByText("You're Offline")).toBeVisible();
-  });
+    await page.goto('/dashboard')
+    await page.evaluate(() => window.dispatchEvent(new Event('offline')))
+    await expect(page.getByText("You're Offline")).toBeVisible()
+  })
 
   test('should show back online indicator', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.evaluate(() => window.dispatchEvent(new Event('offline')));
-    await page.waitForTimeout(1000);
-    await page.evaluate(() => window.dispatchEvent(new Event('online')));
-    await expect(page.getByText("Back Online")).toBeVisible();
-  });
-});
+    await page.goto('/dashboard')
+    await page.evaluate(() => window.dispatchEvent(new Event('offline')))
+    await page.waitForTimeout(1000)
+    await page.evaluate(() => window.dispatchEvent(new Event('online')))
+    await expect(page.getByText('Back Online')).toBeVisible()
+  })
+})
 ```
 
 ---
@@ -245,6 +261,7 @@ test.describe('PWA Offline Functionality', () => {
 ### Service Layer Architecture
 
 **Compliance**: ✅ 100%
+
 - No direct Supabase calls in PWA components
 - Service worker caching doesn't bypass service layer
 - API routes use service functions (not affected by PWA)
@@ -264,10 +281,12 @@ test.describe('PWA Offline Functionality', () => {
 ### Bundle Size
 
 **Before PWA Enhancement:**
+
 - OfflineIndicator: ~2KB (basic)
 - No animations
 
 **After PWA Enhancement:**
+
 - OfflineIndicator: ~15KB (with framer-motion)
 - framer-motion: ~85KB (shared across app)
 
@@ -312,12 +331,14 @@ All PWA configuration is static or derived from existing `NEXT_PUBLIC_APP_URL`.
 ### Build Process
 
 **Development**:
+
 ```bash
 npm run dev
 # Service worker disabled (hot reload works normally)
 ```
 
 **Production**:
+
 ```bash
 npm run build
 # Service worker auto-generated to public/sw.js
@@ -359,21 +380,25 @@ npm run build
 ### Phase 2 (Nice to Have)
 
 **Background Sync** (When online connection restored):
+
 - Sync pending leave requests
 - Upload queued certifications
 - Submit draft forms
 
 **Offline Queue**:
+
 - Store write operations while offline
 - Auto-sync when connection restored
 - Conflict resolution for concurrent edits
 
 **Enhanced Notifications**:
+
 - Push notifications for expiring certifications
 - Reminder to install PWA (if not installed)
 - Update available notifications
 
 **Performance Optimization**:
+
 - Preload critical routes
 - Predictive prefetching
 - Route-based code splitting
@@ -385,24 +410,29 @@ npm run build
 ### Files to Update
 
 **README.md** (Pending):
+
 ```markdown
 ## PWA Installation
 
 ### Android (Chrome)
+
 1. Visit the app in Chrome
 2. Tap "Install" or menu → "Install app"
 3. App installs to home screen
 
 ### iOS (Safari)
+
 1. Visit the app in Safari
 2. Tap Share → "Add to Home Screen"
 3. App adds to home screen
 
 ### Offline Mode
+
 The app works offline with cached data. Changes sync automatically when online.
 ```
 
 **CLAUDE.md** (Already updated):
+
 - PWA section already present with comprehensive documentation
 - Caching strategies documented
 - Offline functionality explained
@@ -427,6 +457,7 @@ The app works offline with cached data. Changes sync automatically when online.
 **Overall Completion**: 85% (7/9 tasks complete)
 
 **Remaining Tasks**:
+
 1. Manual testing on actual devices
 2. E2E test implementation
 
@@ -473,6 +504,7 @@ Progressive Web App support has been **successfully implemented** for Fleet Mana
 5. **Accessibility** - ARIA labels and keyboard navigation
 
 **Next Steps**:
+
 1. Complete manual testing on iOS and Android devices
 2. Write E2E tests for PWA functionality
 3. Update README.md with installation instructions

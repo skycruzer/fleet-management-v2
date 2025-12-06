@@ -81,7 +81,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
   const activeTab = searchParams.tab || 'leave'
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto space-y-8 py-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -100,7 +100,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
 
       {/* Tabs */}
       <Tabs value={activeTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 max-w-2xl">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="leave" asChild>
             <a href="/dashboard/requests?tab=leave">Leave Requests</a>
           </TabsTrigger>
@@ -113,59 +113,67 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
         </TabsList>
 
         {/* Leave Requests Tab */}
-        <TabsContent value="leave" className="space-y-6 mt-6">
+        <TabsContent value="leave" className="mt-6 space-y-6">
           <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-            <RequestFiltersWrapper searchParams={{
-              roster_period: searchParams.roster_period,
-              pilot_id: searchParams.pilot_id,
-              status: searchParams.status,
-              category: 'LEAVE',
-              channel: searchParams.channel,
-              is_late: searchParams.is_late,
-              is_past_deadline: searchParams.is_past_deadline
-            }} />
+            <RequestFiltersWrapper
+              searchParams={{
+                roster_period: searchParams.roster_period,
+                pilot_id: searchParams.pilot_id,
+                status: searchParams.status,
+                category: 'LEAVE',
+                channel: searchParams.channel,
+                is_late: searchParams.is_late,
+                is_past_deadline: searchParams.is_past_deadline,
+              }}
+            />
           </Suspense>
           <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-            <RequestsTableWrapper searchParams={Promise.resolve({
-              roster_period: searchParams.roster_period,
-              pilot_id: searchParams.pilot_id,
-              status: searchParams.status,
-              category: 'LEAVE',
-              channel: searchParams.channel,
-              is_late: searchParams.is_late,
-              is_past_deadline: searchParams.is_past_deadline
-            })} />
+            <RequestsTableWrapper
+              searchParams={Promise.resolve({
+                roster_period: searchParams.roster_period,
+                pilot_id: searchParams.pilot_id,
+                status: searchParams.status,
+                category: 'LEAVE',
+                channel: searchParams.channel,
+                is_late: searchParams.is_late,
+                is_past_deadline: searchParams.is_past_deadline,
+              })}
+            />
           </Suspense>
         </TabsContent>
 
         {/* Flight Requests Tab */}
-        <TabsContent value="flight" className="space-y-6 mt-6">
+        <TabsContent value="flight" className="mt-6 space-y-6">
           <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-            <RequestFiltersWrapper searchParams={{
-              roster_period: searchParams.roster_period,
-              pilot_id: searchParams.pilot_id,
-              status: searchParams.status,
-              category: 'FLIGHT',
-              channel: searchParams.channel,
-              is_late: searchParams.is_late,
-              is_past_deadline: searchParams.is_past_deadline
-            }} />
+            <RequestFiltersWrapper
+              searchParams={{
+                roster_period: searchParams.roster_period,
+                pilot_id: searchParams.pilot_id,
+                status: searchParams.status,
+                category: 'FLIGHT',
+                channel: searchParams.channel,
+                is_late: searchParams.is_late,
+                is_past_deadline: searchParams.is_past_deadline,
+              }}
+            />
           </Suspense>
           <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-            <RequestsTableWrapper searchParams={Promise.resolve({
-              roster_period: searchParams.roster_period,
-              pilot_id: searchParams.pilot_id,
-              status: searchParams.status,
-              category: 'FLIGHT',
-              channel: searchParams.channel,
-              is_late: searchParams.is_late,
-              is_past_deadline: searchParams.is_past_deadline
-            })} />
+            <RequestsTableWrapper
+              searchParams={Promise.resolve({
+                roster_period: searchParams.roster_period,
+                pilot_id: searchParams.pilot_id,
+                status: searchParams.status,
+                category: 'FLIGHT',
+                channel: searchParams.channel,
+                is_late: searchParams.is_late,
+                is_past_deadline: searchParams.is_past_deadline,
+              })}
+            />
           </Suspense>
         </TabsContent>
 
         {/* Leave Bids Tab */}
-        <TabsContent value="bids" className="space-y-6 mt-6">
+        <TabsContent value="bids" className="mt-6 space-y-6">
           <Suspense fallback={<Skeleton className="h-96 w-full" />}>
             <LeaveBidTableWrapper searchParams={searchParams} />
           </Suspense>

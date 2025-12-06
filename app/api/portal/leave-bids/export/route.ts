@@ -24,10 +24,7 @@ export async function GET(request: NextRequest) {
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return NextResponse.json(
-        { error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message }, { status: 401 })
     }
 
     // Get bid ID from query params
@@ -158,12 +155,13 @@ export async function GET(request: NextRequest) {
       </tr>
     </thead>
     <tbody>
-      ${options.map((option, index) => {
-        const start = new Date(option.start_date)
-        const end = new Date(option.end_date)
-        const duration = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      ${options
+        .map((option, index) => {
+          const start = new Date(option.start_date)
+          const end = new Date(option.end_date)
+          const duration = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
 
-        return `
+          return `
           <tr>
             <td>${option.priority || index + 1}</td>
             <td>${start.toLocaleDateString()}</td>
@@ -171,25 +169,38 @@ export async function GET(request: NextRequest) {
             <td>${duration} days</td>
           </tr>
         `
-      }).join('')}
+        })
+        .join('')}
     </tbody>
   </table>
 
-  ${bid.reason ? `
+  ${
+    bid.reason
+      ? `
     <h2>Reason</h2>
     <p>${bid.reason}</p>
-  ` : ''}
+  `
+      : ''
+  }
 
-  ${bid.notes ? `
+  ${
+    bid.notes
+      ? `
     <h2>Additional Notes</h2>
     <p>${bid.notes}</p>
-  ` : ''}
+  `
+      : ''
+  }
 
-  ${bid.review_comments ? `
+  ${
+    bid.review_comments
+      ? `
     <h2>Review Comments</h2>
     <p>${bid.review_comments}</p>
     ${bid.reviewed_at ? `<p><small>Reviewed: ${new Date(bid.reviewed_at).toLocaleString()}</small></p>` : ''}
-  ` : ''}
+  `
+      : ''
+  }
 
   <div class="footer">
     <p>Generated: ${new Date().toLocaleString()}</p>
@@ -211,7 +222,7 @@ export async function GET(request: NextRequest) {
     console.error('Leave bid export error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'exportLeaveBid',
-      endpoint: '/api/portal/leave-bids/export'
+      endpoint: '/api/portal/leave-bids/export',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

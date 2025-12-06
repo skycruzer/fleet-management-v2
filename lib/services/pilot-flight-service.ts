@@ -129,7 +129,7 @@ export async function submitPilotFlightRequest(
       // Request classification
       request_category: 'FLIGHT' as const,
       request_type: request.request_type,
-      submission_channel: 'PORTAL' as const,
+      submission_channel: 'PILOT_PORTAL' as const,
 
       // Denormalized pilot data (for reporting performance)
       name: `${pilotDetails.first_name} ${pilotDetails.last_name}`.toUpperCase(),

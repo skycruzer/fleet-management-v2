@@ -12,6 +12,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   PilotLeaveRequestSchema,
@@ -53,6 +54,7 @@ const LEAVE_TYPES = [
 
 export default function NewLeaveRequestPage() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -90,12 +92,18 @@ export default function NewLeaveRequestPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
+        credentials: 'include',
       })
 
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to submit leave request. Please try again.')
+        // Handle error - ensure we display a string, not an object
+        const errorMessage =
+          typeof result.error === 'string'
+            ? result.error
+            : result.error?.message || 'Failed to submit leave request. Please try again.'
+        setError(errorMessage)
         setIsLoading(false)
         return
       }
@@ -104,11 +112,15 @@ export default function NewLeaveRequestPage() {
       setSuccess(true)
       setIsLoading(false)
 
-      // Redirect to leave requests list after 2 seconds
-      setTimeout(() => {
-        router.push('/portal/leave-requests')
-      }, 2000)
-    } catch (err) {
+      // Wait for user to see success, then refresh cache and redirect
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      // Invalidate TanStack Query cache
+      await queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
+      // CRITICAL: Refresh cache BEFORE navigation (Next.js 16 requirement)
+      router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      router.push('/portal/leave-requests')
+    } catch {
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
     }

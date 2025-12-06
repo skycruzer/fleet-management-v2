@@ -23,7 +23,9 @@ export default async function SystemSettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-foreground text-2xl font-bold">System Settings</h2>
-          <p className="text-muted-foreground mt-1">Configure system-wide preferences and settings</p>
+          <p className="text-muted-foreground mt-1">
+            Configure system-wide preferences and settings
+          </p>
         </div>
         <div className="flex items-center space-x-3">
           <Link href="/dashboard/admin">

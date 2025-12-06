@@ -6,7 +6,6 @@ import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 
-
 /**
  * Disciplinary Matter Detail/Edit Page (Admin)
  *
@@ -105,7 +104,12 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
           className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
           </svg>
           Back to Disciplinary Matters
         </Link>
@@ -116,10 +120,14 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{matter.title}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(matter.status)}`}>
+            <span
+              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadgeColor(matter.status)}`}
+            >
               {matter.status.replace(/_/g, ' ')}
             </span>
-            <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getSeverityBadgeColor(matter.severity)}`}>
+            <span
+              className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${getSeverityBadgeColor(matter.severity)}`}
+            >
               {matter.severity}
             </span>
             {matter.incident_date && (
@@ -133,7 +141,9 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
 
       {/* Matter Metadata */}
       <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Matter Information</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+          Matter Information
+        </h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div>
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pilot</p>
@@ -201,7 +211,9 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
         {matter.description && (
           <div className="mt-6">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</p>
-            <p className="mt-2 whitespace-pre-wrap text-gray-900 dark:text-white">{matter.description}</p>
+            <p className="mt-2 whitespace-pre-wrap text-gray-900 dark:text-white">
+              {matter.description}
+            </p>
           </div>
         )}
       </div>

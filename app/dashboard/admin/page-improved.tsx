@@ -33,7 +33,7 @@ export default async function AdminPage() {
   ])
 
   return (
-    <div className="space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8 xl:p-10 @container">
+    <div className="@container space-y-6 p-4 sm:space-y-8 sm:p-6 lg:p-8 xl:p-10">
       {/* Page Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 lg:gap-6">
         <div className="space-y-1.5">
@@ -55,75 +55,75 @@ export default async function AdminPage() {
 
       {/* System Status Cards */}
       <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-6 xl:gap-8">
-        <Card className="group p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6 @container">
+        <Card className="group @container p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-1.5 @sm:space-y-2">
-              <p className="text-muted-foreground truncate text-xs font-medium uppercase tracking-wide sm:text-sm">
+              <p className="text-muted-foreground truncate text-xs font-medium tracking-wide uppercase sm:text-sm">
                 System Status
               </p>
-              <p className="text-foreground truncate text-xl font-bold leading-none sm:text-2xl lg:text-3xl">
+              <p className="text-foreground truncate text-xl leading-none font-bold sm:text-2xl lg:text-3xl">
                 Operational
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-green-100 transition-all group-hover:scale-105 group-hover:bg-green-200 dark:bg-green-900/30 dark:group-hover:bg-green-900/50 sm:size-12 lg:size-14">
-              <CheckCircle2 className="size-5 text-green-600 dark:text-green-400 sm:size-6 lg:size-7" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-green-100 transition-all group-hover:scale-105 group-hover:bg-green-200 sm:size-12 lg:size-14 dark:bg-green-900/30 dark:group-hover:bg-green-900/50">
+              <CheckCircle2 className="size-5 text-green-600 sm:size-6 lg:size-7 dark:text-green-400" />
             </div>
           </div>
         </Card>
 
-        <Card className="group p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6 @container">
+        <Card className="group @container p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-1.5 @sm:space-y-2">
-              <p className="text-muted-foreground truncate text-xs font-medium uppercase tracking-wide sm:text-sm">
+              <p className="text-muted-foreground truncate text-xs font-medium tracking-wide uppercase sm:text-sm">
                 Active Users
               </p>
-              <p className="text-foreground truncate text-xl font-bold leading-none sm:text-2xl lg:text-3xl">
+              <p className="text-foreground truncate text-xl leading-none font-bold sm:text-2xl lg:text-3xl">
                 {stats.totalAdmins + stats.totalManagers + stats.totalPilots}
               </p>
               <p className="text-muted-foreground truncate text-xs leading-relaxed">
                 {stats.totalAdmins + stats.totalManagers} staff, {stats.totalPilots} pilots
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-100 transition-all group-hover:scale-105 group-hover:bg-blue-200 dark:bg-blue-900/30 dark:group-hover:bg-blue-900/50 sm:size-12 lg:size-14">
-              <Users className="size-5 text-blue-600 dark:text-blue-400 sm:size-6 lg:size-7" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-100 transition-all group-hover:scale-105 group-hover:bg-blue-200 sm:size-12 lg:size-14 dark:bg-blue-900/30 dark:group-hover:bg-blue-900/50">
+              <Users className="size-5 text-blue-600 sm:size-6 lg:size-7 dark:text-blue-400" />
             </div>
           </div>
         </Card>
 
-        <Card className="group p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6 @container">
+        <Card className="group @container p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-1.5 @sm:space-y-2">
-              <p className="text-muted-foreground truncate text-xs font-medium uppercase tracking-wide sm:text-sm">
+              <p className="text-muted-foreground truncate text-xs font-medium tracking-wide uppercase sm:text-sm">
                 Check Types
               </p>
-              <p className="text-foreground truncate text-xl font-bold leading-none sm:text-2xl lg:text-3xl">
+              <p className="text-foreground truncate text-xl leading-none font-bold sm:text-2xl lg:text-3xl">
                 {stats.totalCheckTypes}
               </p>
               <p className="text-muted-foreground truncate text-xs leading-relaxed">
                 certification types
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 transition-all group-hover:scale-105 group-hover:bg-primary/20 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50 sm:size-12 lg:size-14">
-              <FileText className="size-5 text-primary dark:text-primary sm:size-6 lg:size-7" />
+            <div className="bg-primary/10 group-hover:bg-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full transition-all group-hover:scale-105 sm:size-12 lg:size-14 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50">
+              <FileText className="text-primary dark:text-primary size-5 sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
 
-        <Card className="group p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6 @container">
+        <Card className="group @container p-4 transition-all duration-200 hover:shadow-lg sm:p-5 lg:p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-1.5 @sm:space-y-2">
-              <p className="text-muted-foreground truncate text-xs font-medium uppercase tracking-wide sm:text-sm">
+              <p className="text-muted-foreground truncate text-xs font-medium tracking-wide uppercase sm:text-sm">
                 Certifications
               </p>
-              <p className="text-foreground truncate text-xl font-bold leading-none sm:text-2xl lg:text-3xl">
+              <p className="text-foreground truncate text-xl leading-none font-bold sm:text-2xl lg:text-3xl">
                 {stats.totalCertifications}
               </p>
               <p className="text-muted-foreground truncate text-xs leading-relaxed">
                 total records
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-orange-100 transition-all group-hover:scale-105 group-hover:bg-orange-200 dark:bg-orange-900/30 dark:group-hover:bg-orange-900/50 sm:size-12 lg:size-14">
-              <Database className="size-5 text-orange-600 dark:text-orange-400 sm:size-6 lg:size-7" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-orange-100 transition-all group-hover:scale-105 group-hover:bg-orange-200 sm:size-12 lg:size-14 dark:bg-orange-900/30 dark:group-hover:bg-orange-900/50">
+              <Database className="size-5 text-orange-600 sm:size-6 lg:size-7 dark:text-orange-400" />
             </div>
           </div>
         </Card>
@@ -140,8 +140,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 transition-all group-hover:scale-105 group-hover:bg-blue-200 dark:bg-blue-900/30 dark:group-hover:bg-blue-900/50 sm:size-11 lg:size-12">
-                <UserPlus className="size-4 text-blue-600 dark:text-blue-400 sm:size-5" />
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 transition-all group-hover:scale-105 group-hover:bg-blue-200 sm:size-11 lg:size-12 dark:bg-blue-900/30 dark:group-hover:bg-blue-900/50">
+                <UserPlus className="size-4 text-blue-600 sm:size-5 dark:text-blue-400" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">Add New User</p>
@@ -157,8 +157,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-all group-hover:scale-105 group-hover:bg-primary/20 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50 sm:size-11 lg:size-12">
-                <List className="size-4 text-primary dark:text-primary sm:size-5" />
+              <div className="bg-primary/10 group-hover:bg-primary/20 flex size-10 shrink-0 items-center justify-center rounded-lg transition-all group-hover:scale-105 sm:size-11 lg:size-12 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50">
+                <List className="text-primary dark:text-primary size-4 sm:size-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">Manage Check Types</p>
@@ -174,8 +174,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-green-100 transition-all group-hover:scale-105 group-hover:bg-green-200 dark:bg-green-900/30 dark:group-hover:bg-green-900/50 sm:size-11 lg:size-12">
-                <Settings className="size-4 text-green-600 dark:text-green-400 sm:size-5" />
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-green-100 transition-all group-hover:scale-105 group-hover:bg-green-200 sm:size-11 lg:size-12 dark:bg-green-900/30 dark:group-hover:bg-green-900/50">
+                <Settings className="size-4 text-green-600 sm:size-5 dark:text-green-400" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">System Settings</p>
@@ -208,25 +208,25 @@ export default async function AdminPage() {
           <table className="w-full">
             <thead className="bg-muted/30 sticky top-0 z-10">
               <tr className="border-b text-left">
-                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm">
                   Name
                 </th>
-                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:table-cell sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:table-cell sm:px-6 sm:text-sm">
                   Email
                 </th>
-                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm">
                   Role
                 </th>
-                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider md:table-cell sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm md:table-cell">
                   Created
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y bg-card">
+            <tbody className="bg-card divide-y">
               {users.map((user) => (
                 <tr
                   key={user.id}
-                  className="group transition-colors hover:bg-muted/50 active:bg-muted"
+                  className="group hover:bg-muted/50 active:bg-muted transition-colors"
                 >
                   <td className="px-4 py-3.5 text-sm font-medium sm:px-6 sm:py-4">
                     <div className="flex flex-col gap-1">
@@ -247,7 +247,7 @@ export default async function AdminPage() {
                       {user.role.toUpperCase()}
                     </Badge>
                   </td>
-                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm md:table-cell sm:px-6 sm:py-4">
+                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm sm:px-6 sm:py-4 md:table-cell">
                     {user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'N/A'}
                   </td>
                 </tr>
@@ -280,12 +280,12 @@ export default async function AdminPage() {
             return (
               <Card
                 key={category}
-                className="group bg-muted/40 p-4 transition-all hover:bg-muted/60 hover:shadow-md sm:p-5 lg:p-6 @container"
+                className="group bg-muted/40 hover:bg-muted/60 @container p-4 transition-all hover:shadow-md sm:p-5 lg:p-6"
               >
-                <p className="text-muted-foreground truncate text-xs font-semibold uppercase tracking-wide sm:text-sm">
+                <p className="text-muted-foreground truncate text-xs font-semibold tracking-wide uppercase sm:text-sm">
                   {category}
                 </p>
-                <p className="text-foreground mt-2 truncate text-2xl font-bold leading-none sm:mt-3 sm:text-3xl lg:text-4xl">
+                <p className="text-foreground mt-2 truncate text-2xl leading-none font-bold sm:mt-3 sm:text-3xl lg:text-4xl">
                   {count}
                 </p>
               </Card>
@@ -298,25 +298,25 @@ export default async function AdminPage() {
           <table className="w-full">
             <thead className="bg-muted/30 sticky top-0 z-10">
               <tr className="border-b text-left">
-                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm">
                   Code
                 </th>
-                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm">
                   Description
                 </th>
-                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider md:table-cell sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm md:table-cell">
                   Category
                 </th>
-                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider lg:table-cell sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm lg:table-cell">
                   Updated
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y bg-card">
+            <tbody className="bg-card divide-y">
               {checkTypes.slice(0, 10).map((checkType) => (
                 <tr
                   key={checkType.id}
-                  className="group transition-colors hover:bg-muted/50 active:bg-muted"
+                  className="group hover:bg-muted/50 active:bg-muted transition-colors"
                 >
                   <td className="px-4 py-3.5 text-sm font-medium sm:px-6 sm:py-4">
                     <span className="text-foreground truncate font-mono">
@@ -325,16 +325,18 @@ export default async function AdminPage() {
                   </td>
                   <td className="px-4 py-3.5 text-sm sm:px-6 sm:py-4">
                     <div className="flex flex-col gap-1">
-                      <span className="text-foreground truncate">{checkType.check_description}</span>
+                      <span className="text-foreground truncate">
+                        {checkType.check_description}
+                      </span>
                       <span className="text-muted-foreground truncate text-xs md:hidden">
                         {checkType.category || 'N/A'}
                       </span>
                     </div>
                   </td>
-                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm md:table-cell sm:px-6 sm:py-4">
+                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm sm:px-6 sm:py-4 md:table-cell">
                     <span className="truncate">{checkType.category || 'N/A'}</span>
                   </td>
-                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm lg:table-cell sm:px-6 sm:py-4">
+                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm sm:px-6 sm:py-4 lg:table-cell">
                     {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
                   </td>
                 </tr>
@@ -374,25 +376,25 @@ export default async function AdminPage() {
           <table className="w-full">
             <thead className="bg-muted/30 sticky top-0 z-10">
               <tr className="border-b text-left">
-                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm">
                   Name
                 </th>
-                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:table-cell sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:table-cell sm:px-6 sm:text-sm">
                   Description
                 </th>
-                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold uppercase tracking-wider sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm">
                   Status
                 </th>
-                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider md:table-cell sm:px-6 sm:text-sm">
+                <th className="text-muted-foreground hidden px-4 py-3 text-xs font-semibold tracking-wider uppercase sm:px-6 sm:text-sm md:table-cell">
                   Created
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y bg-card">
+            <tbody className="bg-card divide-y">
               {contractTypes.map((contract) => (
                 <tr
                   key={contract.id}
-                  className="group transition-colors hover:bg-muted/50 active:bg-muted"
+                  className="group hover:bg-muted/50 active:bg-muted transition-colors"
                 >
                   <td className="px-4 py-3.5 text-sm font-medium sm:px-6 sm:py-4">
                     <span className="text-foreground truncate">{contract.name}</span>
@@ -408,7 +410,7 @@ export default async function AdminPage() {
                       {contract.is_active ? 'ACTIVE' : 'INACTIVE'}
                     </Badge>
                   </td>
-                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm md:table-cell sm:px-6 sm:py-4">
+                  <td className="text-muted-foreground hidden px-4 py-3.5 text-sm sm:px-6 sm:py-4 md:table-cell">
                     {format(new Date(contract.created_at), 'MMM dd, yyyy')}
                   </td>
                 </tr>

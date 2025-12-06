@@ -72,7 +72,7 @@ export function LeaveRequestForm({
       start_date: '',
       end_date: '',
       request_date: new Date().toISOString().split('T')[0], // Format as YYYY-MM-DD
-      request_method: 'SYSTEM',
+      request_method: 'ADMIN_PORTAL',
       reason: '',
       is_late_request: false,
     },

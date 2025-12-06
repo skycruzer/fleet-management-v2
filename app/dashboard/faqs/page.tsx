@@ -270,7 +270,7 @@ export default function FAQPage() {
                       <span className="text-foreground font-medium">{faq.question}</span>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div className="text-muted-foreground whitespace-pre-line pt-2 text-sm leading-relaxed">
+                      <div className="text-muted-foreground pt-2 text-sm leading-relaxed whitespace-pre-line">
                         {faq.answer}
                       </div>
                     </AccordionContent>

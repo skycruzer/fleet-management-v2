@@ -29,7 +29,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { pilotLogin } from '@/lib/services/pilot-portal-service'
 import { PilotLoginSchema } from '@/lib/validations/pilot-portal-schema'
-import { ERROR_MESSAGES, formatApiError, ErrorCategory, ErrorSeverity } from '@/lib/utils/error-messages'
+import {
+  ERROR_MESSAGES,
+  formatApiError,
+  ErrorCategory,
+  ErrorSeverity,
+} from '@/lib/utils/error-messages'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
 import {
@@ -116,9 +121,10 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     }
 
     // Extract request metadata for session tracking
-    const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0] ||
-                     request.headers.get('x-real-ip') ||
-                     undefined
+    const ipAddress =
+      request.headers.get('x-forwarded-for')?.split(',')[0] ||
+      request.headers.get('x-real-ip') ||
+      undefined
     const userAgent = request.headers.get('user-agent') || undefined
 
     const { email } = validation.data
@@ -196,13 +202,13 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     return NextResponse.json({
       success: true,
       data: result.data,
-      redirect: '/portal/dashboard'
+      redirect: '/portal/dashboard',
     })
   } catch (error) {
     logger.error('Login API error', error)
     const sanitized = sanitizeError(error, {
       operation: 'pilotLogin',
-      endpoint: '/api/portal/login'
+      endpoint: '/api/portal/login',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

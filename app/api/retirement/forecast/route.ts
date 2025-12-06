@@ -18,9 +18,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(forecast)
   } catch (error) {
     console.error('Error fetching retirement forecast:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch retirement forecast' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch retirement forecast' }, { status: 500 })
   }
 }

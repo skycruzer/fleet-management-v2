@@ -5,31 +5,39 @@ When writing marketing content, first understand what the product actually does 
 ## What to Look For
 
 ### 1. Core Features
+
 Identify the main functionality by examining:
+
 - Main view files (SwiftUI views, Android activities/fragments)
 - Model/data structures that represent core entities
 - API endpoints or database tables that indicate key features
 - Navigation patterns showing user flows
 
 **What you're extracting:**
+
 - What can users actually DO with this app?
 - What problems does each feature solve?
 - What's the primary user journey?
 
 ### 2. Value Proposition
+
 Look for clues about the "why" behind features:
+
 - Comments explaining business logic
 - Data validations showing what users care about
 - Error messages indicating what can go wrong
 - Alerts and notifications showing what's time-sensitive
 
 **What you're extracting:**
+
 - What pain points does this address?
 - What specific outcomes does it deliver?
 - What would happen if users didn't have this?
 
 ### 3. User-Facing Language
+
 Find the actual terminology users see:
+
 - Button labels
 - Screen titles
 - Form field labels
@@ -37,6 +45,7 @@ Find the actual terminology users see:
 - Onboarding copy
 
 **What you're extracting:**
+
 - How does the app describe itself to users?
 - What language resonates with the target audience?
 - What terms should marketing copy mirror?
@@ -44,6 +53,7 @@ Find the actual terminology users see:
 ## Analysis Process
 
 ### Step 1: Map the Core Features
+
 ```
 Start with:
 - Main navigation/menu files
@@ -57,6 +67,7 @@ Output a list:
 ```
 
 ### Step 2: Extract Value Indicators
+
 ```
 Look for:
 - Calculations (what metrics matter?)
@@ -71,6 +82,7 @@ For each feature, identify:
 ```
 
 ### Step 3: Understand User Context
+
 ```
 Check:
 - Onboarding flows
@@ -89,6 +101,7 @@ Determine:
 **Codebase:** Pilot certification tracking app
 
 **Feature Discovery:**
+
 ```
 File: Views/CertificationListView.swift
 - Displays list of pilot certifications
@@ -106,12 +119,14 @@ File: Services/NotificationService.swift
 ```
 
 **Value Extraction:**
+
 - **Problem:** Certifications expire without warning, grounding pilots
 - **Solution:** Automated tracking with advance alerts
 - **Benefit:** No surprise groundings, less manual tracking
 - **Specific outcome:** Save hours on manual checks, zero missed renewals
 
 **User Context:**
+
 - Target: Flight operations managers, chief pilots
 - Use case: Regulatory compliance, crew availability
 - Priority: Avoiding flight groundings, reducing admin time
@@ -143,12 +158,14 @@ If you can't access the codebase or it's not available:
 ## Red Flags to Avoid
 
 Don't write marketing content based on:
+
 - ❌ What you think the app might do
 - ❌ Generic descriptions without specifics
 - ❌ Features that don't exist yet
 - ❌ Assumed benefits without evidence
 
 Always base content on:
+
 - ✅ Actual implemented features
 - ✅ Real user actions the code enables
 - ✅ Measurable outcomes (even if estimated)

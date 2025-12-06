@@ -70,7 +70,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     const sanitized = sanitizeError(error, {
       operation: 'getCertificationById',
       resourceId: id,
-      endpoint: '/api/certifications/[id]'
+      endpoint: '/api/certifications/[id]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -90,7 +90,11 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (!success) {
       const retryAfter = Math.ceil((reset - Date.now()) / 1000)
       return NextResponse.json(
-        { success: false, error: 'Too many requests', message: `Rate limit exceeded. Try again in ${retryAfter} seconds.` },
+        {
+          success: false,
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+        },
         { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
       )
     }
@@ -141,7 +145,10 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     console.log('✅ [API] Certification updated successfully')
-    console.log('📤 [API] Returning updated certification with expiry:', updatedCertification.expiry_date)
+    console.log(
+      '📤 [API] Returning updated certification with expiry:',
+      updatedCertification.expiry_date
+    )
 
     // Revalidate certification pages to clear Next.js cache
     revalidatePath('/dashboard/certifications')
@@ -180,7 +187,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const sanitized = sanitizeError(error, {
       operation: 'updateCertification',
       resourceId: id,
-      endpoint: '/api/certifications/[id]'
+      endpoint: '/api/certifications/[id]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -198,7 +205,11 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     if (!success) {
       const retryAfter = Math.ceil((reset - Date.now()) / 1000)
       return NextResponse.json(
-        { success: false, error: 'Too many requests', message: `Rate limit exceeded. Try again in ${retryAfter} seconds.` },
+        {
+          success: false,
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+        },
         { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
       )
     }
@@ -221,8 +232,26 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
 
     const { id } = await context.params
 
+    // Fetch certification before deleting to get pilot_id for cache invalidation
+    const certification = await getCertificationById(id)
+    if (!certification) {
+      return NextResponse.json(
+        { success: false, error: 'Certification not found' },
+        { status: 404 }
+      )
+    }
+
     // Delete certification
     await deleteCertification(id)
+
+    // CRITICAL: Revalidate cache paths after deletion (was missing!)
+    revalidatePath('/dashboard/certifications')
+    revalidatePath(`/dashboard/certifications/${id}`)
+    if (certification.pilot_id) {
+      revalidatePath(`/dashboard/pilots/${certification.pilot_id}`)
+    }
+    revalidatePath('/dashboard/pilots')
+    revalidatePath('/dashboard')
 
     return NextResponse.json({
       success: true,
@@ -234,7 +263,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     const sanitized = sanitizeError(error, {
       operation: 'deleteCertification',
       resourceId: id,
-      endpoint: '/api/certifications/[id]'
+      endpoint: '/api/certifications/[id]',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

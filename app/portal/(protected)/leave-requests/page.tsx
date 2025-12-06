@@ -7,10 +7,12 @@
  * allows filtering and cancellation of pending requests.
  *
  * @spec 001-missing-core-features (US2)
+ * @updated 2025-11-27 - Refactored to TanStack Query for proper cache management
  */
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,7 +26,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Plus, Calendar, CheckCircle, XCircle, Clock, Trash2, CalendarCheck, Pencil } from 'lucide-react'
+import {
+  Plus,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Trash2,
+  CalendarCheck,
+  Pencil,
+} from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { LeaveBidForm } from '@/components/portal/leave-bid-form'
 import { LeaveRequestForm } from '@/components/portal/leave-request-form'
@@ -62,11 +73,11 @@ interface LeaveBid {
 
 export default function LeaveRequestsPage() {
   const router = useRouter()
-  const [requests, setRequests] = useState<LeaveRequest[]>([])
-  const [leaveBids, setLeaveBids] = useState<LeaveBid[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string>('')
-  const [filter, setFilter] = useState<'ALL' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'>('ALL')
+  const queryClient = useQueryClient()
+  const [deleteError, setDeleteError] = useState<string>('')
+  const [filter, setFilter] = useState<
+    'ALL' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+  >('ALL')
   const [isLeaveBidDialogOpen, setIsLeaveBidDialogOpen] = useState(false)
   const [isLeaveRequestDialogOpen, setIsLeaveRequestDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -74,72 +85,73 @@ export default function LeaveRequestsPage() {
   const [isEditBidDialogOpen, setIsEditBidDialogOpen] = useState(false)
   const [selectedBid, setSelectedBid] = useState<LeaveBid | null>(null)
 
-  useEffect(() => {
-    fetchLeaveRequests()
-    fetchLeaveBids()
-  }, [])
-
-  const fetchLeaveRequests = async () => {
-    try {
+  // TanStack Query for leave requests - refetches on mount and window focus
+  const {
+    data: requests = [],
+    isLoading: isLoadingRequests,
+    error: requestsError,
+  } = useQuery<LeaveRequest[]>({
+    queryKey: ['leave-requests'],
+    queryFn: async () => {
       const response = await fetch('/api/portal/leave-requests')
       const result = await response.json()
-
       if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to fetch leave requests')
-        setIsLoading(false)
-        return
+        throw new Error(result.error || 'Failed to fetch leave requests')
       }
+      return result.data || []
+    },
+    staleTime: 0, // Always refetch on mount
+    refetchOnMount: 'always', // Refetch every time component mounts
+    refetchOnWindowFocus: true, // Refetch when window regains focus
+  })
 
-      setRequests(result.data || [])
-      setIsLoading(false)
-    } catch (err) {
-      setError('An unexpected error occurred')
-      setIsLoading(false)
-    }
-  }
-
-  const fetchLeaveBids = async () => {
-    try {
+  // TanStack Query for leave bids
+  const { data: leaveBids = [] } = useQuery<LeaveBid[]>({
+    queryKey: ['leave-bids'],
+    queryFn: async () => {
       const response = await fetch('/api/portal/leave-bids')
       const result = await response.json()
-
       if (!response.ok || !result.success) {
-        // Don't set error for leave bids, just log it
         console.error('Failed to fetch leave bids:', result.error)
-        return
+        return []
       }
+      return result.data || []
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+  })
 
-      setLeaveBids(result.data || [])
-    } catch (err) {
-      console.error('Failed to fetch leave bids:', err)
-    }
-  }
+  const isLoading = isLoadingRequests
+  const error = deleteError || (requestsError instanceof Error ? requestsError.message : '')
 
   const cancelRequest = async (requestId: string) => {
     if (!confirm('Are you sure you want to cancel this leave request?')) {
       return
     }
 
+    setDeleteError('')
+
     try {
       const response = await fetch(`/api/portal/leave-requests?id=${requestId}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        alert(result.error || 'Failed to cancel request')
+        setDeleteError(result.error || 'Failed to cancel request')
         return
       }
 
-      // Refresh list
-      await fetchLeaveRequests()
+      // Invalidate query cache to trigger refetch
+      await queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
 
-      // Refresh router cache
+      // Refresh router cache for server components
       router.refresh()
-      await new Promise(resolve => setTimeout(resolve, 100))
     } catch (err) {
-      alert('An unexpected error occurred')
+      setDeleteError('An unexpected error occurred')
     }
   }
 
@@ -199,7 +211,8 @@ export default function LeaveRequestsPage() {
     return colors[type] || 'bg-gray-400'
   }
 
-  const filteredRequests = filter === 'ALL' ? requests : requests.filter((r) => r.workflow_status === filter)
+  const filteredRequests =
+    filter === 'ALL' ? requests : requests.filter((r) => r.workflow_status === filter)
 
   const stats = {
     total: requests.length,
@@ -229,7 +242,8 @@ export default function LeaveRequestsPage() {
         <div>
           <h1 className="text-3xl font-bold">Leave Requests</h1>
           <p className="mt-1 text-gray-600">
-            {stats.total} total request{stats.total !== 1 ? 's' : ''} | {stats.submitted + stats.in_review} pending review
+            {stats.total} total request{stats.total !== 1 ? 's' : ''} |{' '}
+            {stats.submitted + stats.in_review} pending review
           </p>
         </div>
 
@@ -249,10 +263,10 @@ export default function LeaveRequestsPage() {
               </DialogHeader>
               <LeaveRequestForm
                 csrfToken=""
-                onSuccess={() => {
+                onSuccess={async () => {
                   setIsLeaveRequestDialogOpen(false)
-                  router.refresh()  // Refresh cache
-                  fetchLeaveRequests() // Refresh the list
+                  await queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
+                  router.refresh()
                 }}
               />
             </DialogContent>
@@ -277,10 +291,10 @@ export default function LeaveRequestsPage() {
                 </DialogDescription>
               </DialogHeader>
               <LeaveBidForm
-                onSuccess={() => {
+                onSuccess={async () => {
                   setIsLeaveBidDialogOpen(false)
-                  router.refresh()  // Refresh cache
-                  fetchLeaveBids() // Refresh the leave bids list
+                  await queryClient.invalidateQueries({ queryKey: ['leave-bids'] })
+                  router.refresh()
                 }}
               />
             </DialogContent>
@@ -391,7 +405,8 @@ export default function LeaveRequestsPage() {
                     </CardDescription>
                   </div>
 
-                  {(request.workflow_status === 'SUBMITTED' || request.workflow_status === 'IN_REVIEW') && (
+                  {(request.workflow_status === 'SUBMITTED' ||
+                    request.workflow_status === 'IN_REVIEW') && (
                     <div className="flex items-center gap-2">
                       <Button
                         variant="ghost"
@@ -432,12 +447,13 @@ export default function LeaveRequestsPage() {
                   </div>
                 )}
 
-                {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') && request.reviewed_at && (
-                  <p className="mt-2 text-xs text-gray-500">
-                    Reviewed{' '}
-                    {formatDistanceToNow(new Date(request.reviewed_at), { addSuffix: true })}
-                  </p>
-                )}
+                {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') &&
+                  request.reviewed_at && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Reviewed{' '}
+                      {formatDistanceToNow(new Date(request.reviewed_at), { addSuffix: true })}
+                    </p>
+                  )}
               </CardContent>
             </Card>
           ))}
@@ -447,9 +463,7 @@ export default function LeaveRequestsPage() {
       {/* Leave Bids History Section */}
       <div className="mt-12">
         <h2 className="mb-4 text-2xl font-bold">Leave Bids History</h2>
-        <p className="mb-6 text-gray-600">
-          All your annual leave bid submissions across all years
-        </p>
+        <p className="mb-6 text-gray-600">All your annual leave bid submissions across all years</p>
 
         {leaveBids.length === 0 ? (
           <Card>
@@ -492,10 +506,7 @@ export default function LeaveRequestsPage() {
                     )
                   case 'REJECTED':
                     return (
-                      <Badge
-                        variant="outline"
-                        className="border-red-300 bg-red-100 text-red-800"
-                      >
+                      <Badge variant="outline" className="border-red-300 bg-red-100 text-red-800">
                         <XCircle className="mr-1 h-3 w-3" />
                         Rejected
                       </Badge>
@@ -565,7 +576,8 @@ export default function LeaveRequestsPage() {
 
                     {bid.updated_at && bid.status !== 'PENDING' && (
                       <p className="mt-4 text-xs text-gray-500">
-                        Reviewed {formatDistanceToNow(new Date(bid.updated_at), { addSuffix: true })}
+                        Reviewed{' '}
+                        {formatDistanceToNow(new Date(bid.updated_at), { addSuffix: true })}
                       </p>
                     )}
                   </CardContent>
@@ -581,9 +593,7 @@ export default function LeaveRequestsPage() {
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Edit Leave Request</DialogTitle>
-            <DialogDescription>
-              Update your leave request details
-            </DialogDescription>
+            <DialogDescription>Update your leave request details</DialogDescription>
           </DialogHeader>
           {selectedRequest && (
             <LeaveRequestEditForm
@@ -591,9 +601,8 @@ export default function LeaveRequestsPage() {
               onSuccess={async () => {
                 setIsEditDialogOpen(false)
                 setSelectedRequest(null)
-                await fetchLeaveRequests()
+                await queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
                 router.refresh()
-                await new Promise(resolve => setTimeout(resolve, 100))
               }}
               onCancel={() => {
                 setIsEditDialogOpen(false)
@@ -609,9 +618,7 @@ export default function LeaveRequestsPage() {
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[900px]">
           <DialogHeader>
             <DialogTitle>Edit Leave Bid</DialogTitle>
-            <DialogDescription>
-              Update your annual leave bid preferences
-            </DialogDescription>
+            <DialogDescription>Update your annual leave bid preferences</DialogDescription>
           </DialogHeader>
           {selectedBid && (
             <LeaveBidForm
@@ -625,11 +632,11 @@ export default function LeaveRequestsPage() {
                 })),
               }}
               isEdit={true}
-              onSuccess={() => {
+              onSuccess={async () => {
                 setIsEditBidDialogOpen(false)
                 setSelectedBid(null)
+                await queryClient.invalidateQueries({ queryKey: ['leave-bids'] })
                 router.refresh()
-                fetchLeaveBids()
               }}
             />
           )}

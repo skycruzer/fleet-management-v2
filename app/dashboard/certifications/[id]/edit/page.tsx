@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
 
 interface Pilot {
@@ -40,6 +41,7 @@ export default function EditCertificationPage() {
   const router = useRouter()
   const params = useParams()
   const certificationId = params.id as string
+  const { csrfToken } = useCsrfToken()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -91,8 +93,12 @@ export default function EditCertificationPage() {
 
       const response = await fetch(`/api/certifications/${certificationId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify(formattedData),
+        credentials: 'include',
       })
 
       const result = await response.json()
@@ -102,9 +108,9 @@ export default function EditCertificationPage() {
         return
       }
 
-      // Success - refresh to revalidate cache, then redirect
+      // Success - refresh cache BEFORE redirecting (Next.js 16 requirement)
       router.refresh()
-      await new Promise(resolve => setTimeout(resolve, 100)) // Brief delay for cache update
+      await new Promise((resolve) => setTimeout(resolve, 500)) // Wait for cache propagation
       router.push('/dashboard/certifications')
     } catch (err) {
       setError('An unexpected error occurred')
@@ -162,9 +168,7 @@ export default function EditCertificationPage() {
           {/* Read-only Pilot Info */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <Label className="text-foreground mb-2 block text-sm font-medium">
-                Pilot Name
-              </Label>
+              <Label className="text-foreground mb-2 block text-sm font-medium">Pilot Name</Label>
               <Input
                 type="text"
                 value={`${certification.pilot?.first_name || ''} ${certification.pilot?.last_name || ''}`}
@@ -174,9 +178,7 @@ export default function EditCertificationPage() {
             </div>
 
             <div>
-              <Label className="text-foreground mb-2 block text-sm font-medium">
-                Employee ID
-              </Label>
+              <Label className="text-foreground mb-2 block text-sm font-medium">Employee ID</Label>
               <Input
                 type="text"
                 value={certification.pilot?.employee_id || 'N/A'}
@@ -189,9 +191,7 @@ export default function EditCertificationPage() {
           {/* Read-only Check Type Info */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <Label className="text-foreground mb-2 block text-sm font-medium">
-                Check Type
-              </Label>
+              <Label className="text-foreground mb-2 block text-sm font-medium">Check Type</Label>
               <Input
                 type="text"
                 value={certification.check_type?.check_description || 'N/A'}
@@ -201,9 +201,7 @@ export default function EditCertificationPage() {
             </div>
 
             <div>
-              <Label className="text-foreground mb-2 block text-sm font-medium">
-                Check Code
-              </Label>
+              <Label className="text-foreground mb-2 block text-sm font-medium">Check Code</Label>
               <Input
                 type="text"
                 value={certification.check_type?.check_code || 'N/A'}

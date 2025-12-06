@@ -5,6 +5,7 @@ Research framework documentation and best practices.
 ## When to Use
 
 Use this command when you need:
+
 - Official documentation for Next.js, React, Supabase
 - Best practices for specific framework features
 - Version-specific constraints and patterns
@@ -14,6 +15,7 @@ Use this command when you need:
 ## What It Does
 
 Invokes the **framework-docs-researcher** agent which:
+
 - Fetches official framework documentation
 - Explores library source code
 - Identifies version-specific constraints
@@ -28,6 +30,7 @@ Invokes the **framework-docs-researcher** agent which:
 ```
 
 Examples:
+
 ```
 /research-framework Next.js 15 server actions
 /research-framework Supabase RLS policies
@@ -38,6 +41,7 @@ Examples:
 ## Example Use Cases
 
 **Next.js Questions:**
+
 ```
 "Research Next.js 15 app router best practices"
 "How to implement Server Actions in Next.js 15"
@@ -45,6 +49,7 @@ Examples:
 ```
 
 **Supabase Questions:**
+
 ```
 "Research Supabase real-time subscriptions"
 "Best practices for Supabase RLS policies"
@@ -52,6 +57,7 @@ Examples:
 ```
 
 **React Questions:**
+
 ```
 "React 19 server components patterns"
 "Research React 19 new hooks"

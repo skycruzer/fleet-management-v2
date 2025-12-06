@@ -17,6 +17,7 @@ This skill includes additional reference materials:
 ## Core Design Principles
 
 ### 1. Clean and Minimal
+
 - Embrace white space generously
 - Avoid cluttered interfaces
 - One primary action per screen/section
@@ -26,6 +27,7 @@ This skill includes additional reference materials:
 ### 2. Color Palette
 
 **Neutral Base:**
+
 - Use grays and off-whites as foundation
 - White: #FFFFFF
 - Light gray: #F5F5F5, #EEEEEE
@@ -34,12 +36,14 @@ This skill includes additional reference materials:
 - True black sparingly: #000000
 
 **Accent Color:**
+
 - Choose ONE accent color for your app
 - Use sparingly for CTAs, important actions, and key information
 - Good accent options: Emerald (#10B981), Indigo (#6366F1), Rose (#F43F5E), Amber (#F59E0B)
 - **NEVER use generic purple/blue gradients**
 
 **Color Usage Rules:**
+
 - 80% neutral, 15% secondary neutral, 5% accent
 - Backgrounds: light grays or white
 - Text: dark grays on light backgrounds
@@ -49,6 +53,7 @@ This skill includes additional reference materials:
 ### 3. Spacing System (8px Grid)
 
 **Always use multiples of 8:**
+
 - 8px: Tight spacing (icon padding, inline elements)
 - 16px: Standard spacing (button padding, form field gaps)
 - 24px: Section spacing (card internal padding)
@@ -57,6 +62,7 @@ This skill includes additional reference materials:
 - 64px: Screen-level spacing (margins)
 
 **Application:**
+
 - Padding: 16px or 24px for most containers
 - Margins: 32px between major sections
 - Gap between elements: 16px standard, 8px for tight groups
@@ -65,6 +71,7 @@ This skill includes additional reference materials:
 ### 4. Typography
 
 **Hierarchy:**
+
 - H1: 32px - 40px, bold, rare (page titles only)
 - H2: 24px - 28px, semibold (section headers)
 - H3: 20px - 24px, semibold (subsections)
@@ -73,6 +80,7 @@ This skill includes additional reference materials:
 - Tiny: 12px, regular (legal text only, use rarely)
 
 **Font Rules:**
+
 - Maximum 2 font families per project
 - One for headings (can be display font)
 - One for body text (must be highly readable)
@@ -83,6 +91,7 @@ This skill includes additional reference materials:
   - System fonts always acceptable
 
 **Line Height:**
+
 - Headings: 1.2 - 1.3
 - Body: 1.5 - 1.6
 - Small text: 1.4
@@ -90,12 +99,14 @@ This skill includes additional reference materials:
 ### 5. Shadows
 
 **Subtle, not heavy:**
+
 - Small shadow: `0 1px 3px rgba(0,0,0,0.12)`
 - Medium shadow: `0 4px 6px rgba(0,0,0,0.1)`
 - Large shadow: `0 10px 15px rgba(0,0,0,0.1)`
 - Floating shadow: `0 20px 25px rgba(0,0,0,0.1)`
 
 **When to use:**
+
 - Cards: subtle shadow or border, not both
 - Buttons: very subtle shadow on hover
 - Modals/dialogs: medium shadow
@@ -105,12 +116,14 @@ This skill includes additional reference materials:
 ### 6. Rounded Corners
 
 **Border Radius Guidelines:**
+
 - Small elements (buttons, inputs): 6px - 8px
 - Cards, containers: 8px - 12px
 - Large panels: 12px - 16px
 - Circular (avatars, icon buttons): 50% or 9999px
 
 **Don't overdo it:**
+
 - Not everything needs rounded corners
 - Sharp corners acceptable for:
   - Screen edges
@@ -123,6 +136,7 @@ This skill includes additional reference materials:
 **Every interactive element MUST have:**
 
 **Buttons:**
+
 - Default: base color, subtle shadow
 - Hover: slightly darker (10%), lift shadow
 - Active: pressed appearance, darker (20%)
@@ -130,6 +144,7 @@ This skill includes additional reference materials:
 - Focus: visible outline (2px accent color, 2px offset)
 
 **Form Fields:**
+
 - Default: light gray border (#E5E5E5)
 - Focus: accent color border (2px), remove shadow
 - Error: red border, error text below
@@ -137,11 +152,13 @@ This skill includes additional reference materials:
 - Valid: subtle green checkmark (optional)
 
 **Links:**
+
 - Default: accent color, underline on hover
 - Visited: slightly muted accent
 - Never: blue #0000FF (unless that's your accent)
 
 **Cards:**
+
 - Default: subtle shadow or border
 - Hover: lift effect, slightly stronger shadow
 - Active: immediate feedback
@@ -149,6 +166,7 @@ This skill includes additional reference materials:
 ### 8. Mobile-First Thinking
 
 **Always design for mobile first, then scale up:**
+
 - Touch targets minimum 44x44px (iOS), 48x48px (Android)
 - Adequate spacing between tappable elements (min 8px)
 - Thumb-friendly navigation (bottom of screen)
@@ -163,6 +181,7 @@ This skill includes additional reference materials:
 ### Buttons
 
 **Primary Button (main action):**
+
 ```
 Background: Accent color
 Text: White
@@ -174,6 +193,7 @@ Hover: Darken 10%, lift shadow
 ```
 
 **Secondary Button (alternative action):**
+
 ```
 Background: White
 Text: Accent color
@@ -184,6 +204,7 @@ Hover: Light accent background (10% opacity)
 ```
 
 **Ghost Button (tertiary action):**
+
 ```
 Background: Transparent
 Text: Dark gray
@@ -193,6 +214,7 @@ Hover: Light gray background
 ```
 
 **Bad Button Examples:**
+
 - ❌ Gradient backgrounds
 - ❌ Multiple colors in one button
 - ❌ Tiny padding (looks cramped)
@@ -202,6 +224,7 @@ Hover: Light gray background
 ### Cards
 
 **Standard Card:**
+
 ```
 Background: White
 Border: 1px solid #E5E5E5 OR subtle shadow (not both)
@@ -219,12 +242,14 @@ Margin bottom: 16px
 ```
 
 **Card Content Spacing:**
+
 - Title to subtitle: 8px
 - Subtitle to content: 16px
 - Content sections: 24px
 - Content to actions: 24px
 
 **Bad Card Examples:**
+
 - ❌ Both border AND shadow
 - ❌ Heavy shadows
 - ❌ Inconsistent padding
@@ -233,9 +258,10 @@ Margin bottom: 16px
 ### Forms
 
 **Form Field:**
+
 ```
 Label: 14px, semibold, dark gray, margin bottom 8px
-Input: 
+Input:
   - Height: 44px minimum
   - Padding: 12px 16px
   - Border: 1px solid #E5E5E5
@@ -243,15 +269,16 @@ Input:
   - Background: White
   - Font: 16px
   - Focus: Accent border, no shadow
-  
+
 Error state:
   - Border: Red
   - Helper text: Red, 14px, margin top 4px
-  
+
 Field spacing: 24px between fields
 ```
 
 **Form Layout:**
+
 - Labels above inputs (not beside)
 - Clear required indicators
 - Group related fields
@@ -259,6 +286,7 @@ Field spacing: 24px between fields
 - Submit button: full width on mobile, auto on desktop
 
 **Bad Form Examples:**
+
 - ❌ Labels inside inputs (placeholder text is not a label)
 - ❌ Tiny text (< 16px)
 - ❌ Cramped spacing
@@ -268,6 +296,7 @@ Field spacing: 24px between fields
 ### Navigation
 
 **Top Navigation:**
+
 ```
 Height: 64px
 Background: White
@@ -279,6 +308,7 @@ Active link: Accent color
 ```
 
 **Bottom Navigation (Mobile):**
+
 ```
 Height: 56px
 Background: White
@@ -293,36 +323,42 @@ Active: Accent color
 Before considering any UI complete, verify:
 
 **Layout:**
+
 - [ ] Adequate white space throughout
 - [ ] Consistent spacing using 8px grid
 - [ ] Not cluttered or cramped
 - [ ] Clear visual hierarchy
 
 **Colors:**
+
 - [ ] Neutral base colors (grays/whites)
 - [ ] Only ONE accent color
 - [ ] NO gradients (unless specifically requested)
 - [ ] Sufficient contrast (WCAG AA minimum)
 
 **Typography:**
+
 - [ ] Clear hierarchy (size + weight)
 - [ ] Body text minimum 16px
 - [ ] Maximum 2 font families
 - [ ] Readable line heights
 
 **Interactive Elements:**
+
 - [ ] Clear hover states
 - [ ] Clear active states
 - [ ] Clear disabled states
 - [ ] Clear focus states (keyboard navigation)
 
 **Components:**
+
 - [ ] Buttons have proper padding
 - [ ] Forms have clear labels and spacing
 - [ ] Cards use border OR shadow, not both
 - [ ] Shadows are subtle
 
 **Mobile:**
+
 - [ ] Touch targets minimum 44x44px
 - [ ] Works on small screens
 - [ ] Adequate spacing for touch
@@ -330,18 +366,21 @@ Before considering any UI complete, verify:
 ## Platform-Specific Notes
 
 ### SwiftUI
+
 - Use `.padding()` with explicit values from 8px grid
 - Use `Color` with hex initializers for consistent colors
 - Leverage `@Environment(\.colorScheme)` for dark mode
 - Use SF Symbols for icons (always consistent)
 
 ### Android Studio
+
 - Use `dp` units (1dp ≈ 1px on mdpi)
 - Material Design 3 components acceptable but customize colors
 - Use `dimens.xml` for spacing constants
 - Leverage Compose for modern UI
 
 ### Web (HTML/CSS/React)
+
 - Use CSS variables for colors and spacing
 - Mobile-first media queries
 - Use semantic HTML
@@ -350,6 +389,7 @@ Before considering any UI complete, verify:
 ## Anti-Patterns to Avoid
 
 **NEVER do these:**
+
 - ❌ Rainbow gradients everywhere
 - ❌ Different colors on every element
 - ❌ Purple/blue gradients by default

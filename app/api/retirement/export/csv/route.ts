@@ -21,13 +21,13 @@ export async function GET() {
   try {
     // Check authentication
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get user role
@@ -38,10 +38,7 @@ export async function GET() {
       .single()
 
     if (userError || !userData) {
-      return NextResponse.json(
-        { success: false, error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 })
     }
 
     // Only Admin and Manager can export CSVs
@@ -68,9 +65,6 @@ export async function GET() {
     })
   } catch (error) {
     console.error('CSV export error:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to generate CSV' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Failed to generate CSV' }, { status: 500 })
   }
 }

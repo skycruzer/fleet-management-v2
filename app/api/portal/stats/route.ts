@@ -52,7 +52,7 @@ export async function GET(_request: NextRequest) {
     console.error('Get portal stats API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getPortalStats',
-      endpoint: '/api/portal/stats'
+      endpoint: '/api/portal/stats',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

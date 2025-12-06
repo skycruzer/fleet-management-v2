@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     console.error('Error generating renewal plan:', error)
     const sanitized = sanitizeError(error, {
       operation: 'generateRenewalPlan',
-      endpoint: '/api/renewal-planning/generate'
+      endpoint: '/api/renewal-planning/generate',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

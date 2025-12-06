@@ -58,7 +58,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     console.error('Admin flight-requests GET [id] error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getFlightRequestById',
-      requestId: (await params).id
+      requestId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -86,7 +86,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!success) {
       const retryAfter = Math.ceil((reset - Date.now()) / 1000)
       return NextResponse.json(
-        { success: false, error: 'Too many requests', message: `Rate limit exceeded. Try again in ${retryAfter} seconds.` },
+        {
+          success: false,
+          error: 'Too many requests',
+          message: `Rate limit exceeded. Try again in ${retryAfter} seconds.`,
+        },
         { status: 429, headers: { 'Retry-After': retryAfter.toString() } }
       )
     }
@@ -141,7 +145,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     console.error('Admin flight-requests PATCH [id] error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'reviewFlightRequest',
-      requestId: (await params).id
+      requestId: (await params).id,
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

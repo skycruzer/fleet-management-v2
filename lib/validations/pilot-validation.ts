@@ -43,44 +43,60 @@ const nameSchema = z
 
 /**
  * Optional name validation
+ * Note: Uses * (zero or more) in regex to allow empty strings from HTML forms
  */
 const optionalNameSchema = z
   .string()
   .max(50, 'Name cannot exceed 50 characters')
-  .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
+  .refine(
+    (val) => !val || /^[a-zA-Z\s'-]+$/.test(val),
+    { message: 'Name can only contain letters, spaces, hyphens, and apostrophes' }
+  )
   .optional()
   .nullable()
 
 /**
- * Date validation: Accepts date-only (YYYY-MM-DD) or ISO datetime strings
- * HTML date inputs send YYYY-MM-DD format, which this schema now accepts
+ * Date validation: Accepts YYYY-MM-DD format (HTML date input) or ISO datetime
+ * HTML date inputs return YYYY-MM-DD, but ISO datetime is also accepted for API flexibility
  */
 const dateSchema = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/, {
-    message: 'Must be a valid date (YYYY-MM-DD) or ISO datetime string',
-  })
+  .refine(
+    (val) => {
+      if (!val) return true // Allow empty for optional fields
+      // Accept YYYY-MM-DD (HTML date input) or full ISO datetime
+      const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/
+      const isoDatetimePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+      return dateOnlyPattern.test(val) || isoDatetimePattern.test(val)
+    },
+    { message: 'Must be a valid date (YYYY-MM-DD)' }
+  )
   .optional()
   .nullable()
 
 /**
  * Passport number validation
+ * Uses refine to allow empty strings from HTML forms
  */
 const passportNumberSchema = z
   .string()
-  .min(5, 'Passport number must be at least 5 characters')
-  .max(20, 'Passport number cannot exceed 20 characters')
-  .regex(/^[A-Z0-9]+$/, 'Passport number must contain only uppercase letters and numbers')
+  .refine(
+    (val) => !val || (val.length >= 5 && val.length <= 20 && /^[A-Z0-9]+$/.test(val)),
+    { message: 'Passport number must be 5-20 uppercase letters and numbers' }
+  )
   .optional()
   .nullable()
 
 /**
  * Nationality validation
+ * Uses refine to allow empty strings from HTML forms
  */
 const nationalitySchema = z
   .string()
-  .min(2, 'Nationality must be at least 2 characters')
-  .max(50, 'Nationality cannot exceed 50 characters')
+  .refine(
+    (val) => !val || (val.length >= 2 && val.length <= 50),
+    { message: 'Nationality must be 2-50 characters' }
+  )
   .optional()
   .nullable()
 

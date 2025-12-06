@@ -82,11 +82,11 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'RDO/SDO request submitted successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Submit flight request API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'submitFlightRequest',
-      endpoint: '/api/portal/flight-requests'
+      endpoint: '/api/portal/flight-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -120,11 +120,11 @@ export async function GET(_request: NextRequest) {
       success: true,
       data: result.data,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Get flight requests API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getFlightRequests',
-      endpoint: '/api/portal/flight-requests'
+      endpoint: '/api/portal/flight-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -202,11 +202,11 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
       data: result.data,
       message: 'RDO/SDO request updated successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Update flight request API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'updateFlightRequest',
-      endpoint: '/api/portal/flight-requests'
+      endpoint: '/api/portal/flight-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
@@ -230,6 +230,22 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
             message: 'Request ID is required',
             category: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('id').category,
             severity: ERROR_MESSAGES.VALIDATION.REQUIRED_FIELD('id').severity,
+          },
+          400
+        ),
+        { status: 400 }
+      )
+    }
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(requestId)) {
+      return NextResponse.json(
+        formatApiError(
+          {
+            message: 'Invalid request ID format',
+            category: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('request ID').category,
+            severity: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('request ID').severity,
           },
           400
         ),
@@ -264,11 +280,11 @@ export const DELETE = withRateLimit(async (request: NextRequest) => {
       success: true,
       message: 'RDO/SDO request cancelled successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Cancel flight request API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'cancelFlightRequest',
-      endpoint: '/api/portal/flight-requests'
+      endpoint: '/api/portal/flight-requests',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

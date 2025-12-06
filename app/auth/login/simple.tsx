@@ -42,7 +42,7 @@ export default function SimpleAdminLogin() {
       if (data.session) {
         console.log('Login successful, redirecting...')
         router.refresh()
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
         router.push('/dashboard')
       }
     } catch (err) {
@@ -54,42 +54,46 @@ export default function SimpleAdminLogin() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#0f172a',
-      padding: '20px'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '400px',
-        background: '#1e293b',
-        padding: '40px',
-        borderRadius: '8px'
-      }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#0f172a',
+        padding: '20px',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '400px',
+          background: '#1e293b',
+          padding: '40px',
+          borderRadius: '8px',
+        }}
+      >
         <h1 style={{ color: 'white', marginBottom: '30px', textAlign: 'center' }}>
           Admin Login (Simple)
         </h1>
 
         {error && (
-          <div style={{
-            background: '#7f1d1d',
-            color: '#fecaca',
-            padding: '12px',
-            borderRadius: '4px',
-            marginBottom: '20px'
-          }}>
+          <div
+            style={{
+              background: '#7f1d1d',
+              color: '#fecaca',
+              padding: '12px',
+              borderRadius: '4px',
+              marginBottom: '20px',
+            }}
+          >
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: '#cbd5e1', display: 'block', marginBottom: '8px' }}>
-              Email
-            </label>
+            <label style={{ color: '#cbd5e1', display: 'block', marginBottom: '8px' }}>Email</label>
             <input
               type="email"
               value={email}
@@ -103,7 +107,7 @@ export default function SimpleAdminLogin() {
                 background: '#334155',
                 border: '1px solid #475569',
                 borderRadius: '4px',
-                color: 'white'
+                color: 'white',
               }}
             />
           </div>
@@ -125,7 +129,7 @@ export default function SimpleAdminLogin() {
                 background: '#334155',
                 border: '1px solid #475569',
                 borderRadius: '4px',
-                color: 'white'
+                color: 'white',
               }}
             />
           </div>
@@ -142,7 +146,7 @@ export default function SimpleAdminLogin() {
               borderRadius: '4px',
               cursor: loading ? 'not-allowed' : 'pointer',
               fontSize: '16px',
-              fontWeight: '500'
+              fontWeight: '500',
             }}
           >
             {loading ? 'Loading...' : 'Sign In'}

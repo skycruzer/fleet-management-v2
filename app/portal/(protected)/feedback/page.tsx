@@ -47,6 +47,7 @@ export default function FeedbackPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(sanitizedData),
+        credentials: 'include',
       })
 
       const result = await response.json()
@@ -75,7 +76,7 @@ export default function FeedbackPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <MessageSquare className="h-8 w-8 text-primary" />
+              <MessageSquare className="text-primary h-8 w-8" />
               <div>
                 <h1 className="text-foreground text-xl font-bold">Submit Feedback</h1>
                 <p className="text-muted-foreground text-xs">

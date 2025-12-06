@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching multi-year retirement forecast:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getMultiYearForecast',
-      endpoint: '/api/analytics/multi-year-forecast'
+      endpoint: '/api/analytics/multi-year-forecast',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

@@ -34,6 +34,7 @@ Simply type the slash command in any Claude Code conversation:
 ### Available Agents
 
 **11 Claude Code Marketplace Agents** (installed globally):
+
 - Code Quality: `/review-typescript`, `/simplify-code`, `/dhh-rails-review`
 - Security: `/security-audit`
 - Performance: `/optimize-performance`
@@ -42,6 +43,7 @@ Simply type the slash command in any Claude Code conversation:
 - Research: `/research-framework`, `/research-best-practices`
 
 **10 BMAD Framework Agents**:
+
 - `/analyst` - Business analysis
 - `/architect` - System architecture
 - `/dev` - Development
@@ -54,6 +56,7 @@ Simply type the slash command in any Claude Code conversation:
 - `/bmad-orchestrator` - Orchestration
 
 **7 Speckit Commands**:
+
 - `/speckit.analyze` - Analyze specifications
 - `/speckit.checklist` - Specification checklist
 - `/speckit.clarify` - Clarify requirements
@@ -65,6 +68,7 @@ Simply type the slash command in any Claude Code conversation:
 ## 📚 Documentation
 
 ### Main Documentation
+
 - **[AGENTS.md](./AGENTS.md)** - Complete agent reference (600+ lines)
   - Detailed agent descriptions
   - Usage examples
@@ -84,6 +88,7 @@ Simply type the slash command in any Claude Code conversation:
 ### Command Documentation
 
 Each command has its own documentation file:
+
 ```bash
 cat .claude/commands/review-typescript.md
 cat .claude/commands/security-audit.md
@@ -96,10 +101,12 @@ cat .claude/commands/security-audit.md
 **Location**: `~/.claude/commands/`
 
 **83 commands installed globally**, including:
+
 - 11 Claude Code marketplace agents
 - 72+ other custom commands
 
 **Benefits**:
+
 - Available in ALL projects
 - Update once, applies everywhere
 - Consistent tooling
@@ -109,12 +116,14 @@ cat .claude/commands/security-audit.md
 **Location**: `.claude/commands/`
 
 **This project has**:
+
 - 11 Claude Code agents (also global)
 - 10 BMAD framework agents
 - 7 Speckit commands
 - 2 custom commands (apa, build)
 
 **Benefits**:
+
 - Version controlled
 - Team collaboration
 - Project customization
@@ -162,11 +171,13 @@ cat .claude/commands/security-audit.md
 ### Edit Agents
 
 Global agents:
+
 ```bash
 edit ~/.claude/commands/review-typescript.md
 ```
 
 Project agents:
+
 ```bash
 edit .claude/commands/review-typescript.md
 ```
@@ -237,6 +248,7 @@ cat .claude/commands/review-typescript.md
 ### Full Documentation
 
 See [AGENTS.md](./AGENTS.md) for:
+
 - Detailed agent descriptions
 - Usage examples
 - Workflow patterns
@@ -248,11 +260,13 @@ See [AGENTS.md](./AGENTS.md) for:
 ### Troubleshooting
 
 **Agent not found?**
+
 ```bash
 ls ~/.claude/commands/review-typescript.md
 ```
 
 **Need to reinstall?**
+
 ```bash
 ./install-global-agents.sh
 ```
@@ -263,6 +277,7 @@ Check the agent documentation file for correct usage.
 ## 🎉 Summary
 
 **Total Commands Available**: 30+
+
 - 11 Claude Code marketplace agents (global)
 - 10 BMAD framework agents
 - 7 Speckit commands

@@ -65,6 +65,7 @@ export default function NotificationsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notificationId }),
+        credentials: 'include',
       })
 
       if (response.ok) {
@@ -91,6 +92,7 @@ export default function NotificationsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ markAll: true }),
+        credentials: 'include',
       })
 
       if (response.ok) {
@@ -113,6 +115,7 @@ export default function NotificationsPage() {
     try {
       const response = await fetch(`/api/portal/notifications?id=${notificationId}`, {
         method: 'DELETE',
+        credentials: 'include',
       })
 
       if (response.ok) {

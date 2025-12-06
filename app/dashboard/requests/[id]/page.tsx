@@ -102,21 +102,19 @@ export default async function RequestDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto space-y-6 py-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard/requests">
             <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Requests
             </Button>
           </Link>
           <div>
             <h1 className="text-3xl font-bold">Request Details</h1>
-            <p className="text-muted-foreground">
-              Request ID: {request.id.substring(0, 8)}...
-            </p>
+            <p className="text-muted-foreground">Request ID: {request.id.substring(0, 8)}...</p>
           </div>
         </div>
 
@@ -133,21 +131,21 @@ export default async function RequestDetailPage({ params }: PageProps) {
         </Badge>
         {request.is_late_request && (
           <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-700">
-            <Clock className="h-3 w-3 mr-1" />
+            <Clock className="mr-1 h-3 w-3" />
             Late Request
           </Badge>
         )}
         {request.is_past_deadline && (
           <Badge variant="outline" className="border-red-300 bg-red-50 text-red-700">
-            <AlertTriangle className="h-3 w-3 mr-1" />
+            <AlertTriangle className="mr-1 h-3 w-3" />
             Past Deadline
           </Badge>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Request Information */}
           <Card>
             <CardHeader>
@@ -156,19 +154,19 @@ export default async function RequestDetailPage({ params }: PageProps) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Request Type</p>
+                  <p className="text-muted-foreground text-sm font-medium">Request Type</p>
                   <p className="text-lg font-semibold">{request.request_type}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Category</p>
+                  <p className="text-muted-foreground text-sm font-medium">Category</p>
                   <p className="text-lg font-semibold">{request.request_category}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Submission Channel</p>
+                  <p className="text-muted-foreground text-sm font-medium">Submission Channel</p>
                   <p className="text-lg">{request.submission_channel}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Submission Date</p>
+                  <p className="text-muted-foreground text-sm font-medium">Submission Date</p>
                   <p className="text-lg">{formatDate(request.submission_date)}</p>
                 </div>
               </div>
@@ -186,22 +184,22 @@ export default async function RequestDetailPage({ params }: PageProps) {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Start Date</p>
+                  <p className="text-muted-foreground text-sm font-medium">Start Date</p>
                   <p className="text-lg font-semibold">{formatDate(request.start_date)}</p>
                 </div>
                 {request.end_date && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">End Date</p>
+                    <p className="text-muted-foreground text-sm font-medium">End Date</p>
                     <p className="text-lg font-semibold">{formatDate(request.end_date)}</p>
                   </div>
                 )}
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Roster Period</p>
-                  <p className="text-lg font-mono">{request.roster_period}</p>
+                  <p className="text-muted-foreground text-sm font-medium">Roster Period</p>
+                  <p className="font-mono text-lg">{request.roster_period}</p>
                 </div>
                 {request.days_count && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Duration</p>
+                    <p className="text-muted-foreground text-sm font-medium">Duration</p>
                     <p className="text-lg">
                       {request.days_count} day{request.days_count !== 1 ? 's' : ''}
                     </p>
@@ -224,8 +222,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
           )}
 
           {/* Review Information */}
-          {(request.workflow_status === 'APPROVED' ||
-            request.workflow_status === 'DENIED') &&
+          {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') &&
             request.review_comments && (
               <Card>
                 <CardHeader>
@@ -233,12 +230,12 @@ export default async function RequestDetailPage({ params }: PageProps) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Comments</p>
+                    <p className="text-muted-foreground text-sm font-medium">Comments</p>
                     <p className="mt-1 text-sm whitespace-pre-wrap">{request.review_comments}</p>
                   </div>
                   {request.reviewed_at && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Reviewed At</p>
+                      <p className="text-muted-foreground text-sm font-medium">Reviewed At</p>
                       <p className="mt-1 text-sm">{formatDateTime(request.reviewed_at)}</p>
                     </div>
                   )}
@@ -261,25 +258,25 @@ export default async function RequestDetailPage({ params }: PageProps) {
               {request.pilot && (
                 <>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Name</p>
+                    <p className="text-muted-foreground text-sm font-medium">Name</p>
                     <p className="text-lg font-semibold">
                       {request.pilot.first_name} {request.pilot.last_name}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Rank</p>
+                    <p className="text-muted-foreground text-sm font-medium">Rank</p>
                     <p className="text-sm">{request.pilot.role}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Employee Number</p>
-                    <p className="text-sm font-mono">{request.pilot.employee_id}</p>
+                    <p className="text-muted-foreground text-sm font-medium">Employee Number</p>
+                    <p className="font-mono text-sm">{request.pilot.employee_id}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Seniority</p>
+                    <p className="text-muted-foreground text-sm font-medium">Seniority</p>
                     <p className="text-sm">#{request.pilot.seniority_number}</p>
                   </div>
                   <Link href={`/dashboard/pilots/${request.pilot.id}`}>
-                    <Button variant="outline" size="sm" className="w-full mt-2">
+                    <Button variant="outline" size="sm" className="mt-2 w-full">
                       View Pilot Profile
                     </Button>
                   </Link>
@@ -295,20 +292,26 @@ export default async function RequestDetailPage({ params }: PageProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Priority Score</p>
+                <p className="text-muted-foreground text-sm font-medium">Priority Score</p>
                 <p className="text-2xl font-bold">{request.priority_score || 0}</p>
               </div>
               {(request.is_late_request || request.is_past_deadline) && (
                 <div className="space-y-2">
                   {request.is_late_request && (
-                    <Badge variant="outline" className="w-full justify-start border-yellow-300 bg-yellow-50 text-yellow-700">
-                      <Clock className="h-3 w-3 mr-1" />
+                    <Badge
+                      variant="outline"
+                      className="w-full justify-start border-yellow-300 bg-yellow-50 text-yellow-700"
+                    >
+                      <Clock className="mr-1 h-3 w-3" />
                       Late Request (&lt;21 days notice)
                     </Badge>
                   )}
                   {request.is_past_deadline && (
-                    <Badge variant="outline" className="w-full justify-start border-red-300 bg-red-50 text-red-700">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
+                    <Badge
+                      variant="outline"
+                      className="w-full justify-start border-red-300 bg-red-50 text-red-700"
+                    >
+                      <AlertTriangle className="mr-1 h-3 w-3" />
                       Past Deadline (After 22-day cutoff)
                     </Badge>
                   )}
@@ -324,12 +327,12 @@ export default async function RequestDetailPage({ params }: PageProps) {
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div>
-                <p className="font-medium text-muted-foreground">Created</p>
+                <p className="text-muted-foreground font-medium">Created</p>
                 <p>{formatDateTime(request.created_at)}</p>
               </div>
               {request.updated_at && (
                 <div>
-                  <p className="font-medium text-muted-foreground">Last Updated</p>
+                  <p className="text-muted-foreground font-medium">Last Updated</p>
                   <p>{formatDateTime(request.updated_at)}</p>
                 </div>
               )}

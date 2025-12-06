@@ -22,10 +22,13 @@ This task takes a large document (typically a PRD or architecture doc) and split
 ## Process
 
 ### Step 1: Load Document
+
 Read the specified document and parse its structure.
 
 ### Step 2: Analyze Document Structure
+
 Identify major sections (typically H1 or H2 headings) that can be separated:
+
 - Executive Summary
 - Requirements sections
 - Architecture sections
@@ -33,13 +36,16 @@ Identify major sections (typically H1 or H2 headings) that can be separated:
 - etc.
 
 ### Step 3: Determine Sharding Strategy
+
 Ask user or auto-determine:
+
 - **By Section**: Each major section becomes a document
 - **By Topic**: Group related sections into topical documents
 - **By Phase**: Split by implementation phases
 - **Custom**: User specifies split points
 
 ### Step 4: Create Shard Documents
+
 For each shard:
 
 1. **Create new document**
@@ -54,14 +60,18 @@ For each shard:
 5. **Save to destination**
 
 ### Step 5: Create Index Document
+
 Create `{document}-index.md` containing:
+
 - Overview of original document
 - Links to all shards
 - Document map/structure
 - How shards relate to each other
 
 ### Step 6: Summary
+
 Display:
+
 - Number of shards created
 - List of shard file names
 - Location of index document
@@ -72,22 +82,27 @@ Display:
 ## Sharding Strategies
 
 ### Strategy 1: By Section (Default)
+
 Each H1 section becomes a separate document.
 
 **Example**: PRD with 15 sections → 15 shard documents
 
 ### Strategy 2: By Topic
+
 Group related sections together.
 
 **Example**:
+
 - `requirements-shard.md` (Requirements + Acceptance Criteria)
 - `architecture-shard.md` (Architecture + Technical Details)
 - `implementation-shard.md` (Implementation Plan + Testing)
 
 ### Strategy 3: By Phase
+
 Split by project phases.
 
 **Example**:
+
 - `phase-1-foundation.md`
 - `phase-2-core-features.md`
 - `phase-3-optimization.md`
@@ -131,7 +146,7 @@ docs/shards/{document-name}/
 
 ---
 
-*Shard {n} of {total} | [Back to Index](index.md)*
+_Shard {n} of {total} | [Back to Index](index.md)_
 ```
 
 ---
@@ -143,6 +158,7 @@ docs/shards/{document-name}/
 ```
 
 Result:
+
 - Creates `docs/shards/large-feature/` directory
 - Splits PRD into logical sections
 - Creates index document
@@ -169,4 +185,4 @@ Result:
 
 ---
 
-*BMAD Method - Document Sharding Task*
+_BMAD Method - Document Sharding Task_

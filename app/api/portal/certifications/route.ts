@@ -42,7 +42,7 @@ export async function GET() {
     console.error('Certifications API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getPilotCertifications',
-      endpoint: '/api/portal/certifications'
+      endpoint: '/api/portal/certifications',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }

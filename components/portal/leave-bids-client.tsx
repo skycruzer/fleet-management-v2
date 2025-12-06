@@ -87,6 +87,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ bidId: selectedBid.id }),
+        credentials: 'include',
       })
 
       const result = await response.json()

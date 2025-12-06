@@ -1,12 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getAuditLogs, getAuditStats, getAuditedTables, getAuditedUsers } from '@/lib/services/audit-service'
+import {
+  getAuditLogs,
+  getAuditStats,
+  getAuditedTables,
+  getAuditedUsers,
+} from '@/lib/services/audit-service'
 import { AuditFilters } from './components/audit-filters'
 import { format } from 'date-fns'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
-
 
 /**
  * Audit Logs Dashboard (Admin)
@@ -52,11 +56,11 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
       page,
       pageSize,
       sortBy: 'created_at',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
     }),
     getAuditStats(),
     getAuditedTables(),
-    getAuditedUsers()
+    getAuditedUsers(),
   ])
 
   const { logs, totalCount, totalPages } = logsResult
@@ -97,11 +101,15 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
-          <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.totalUsers}</p>
+          <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">
+            {stats.totalUsers}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tables Monitored</p>
-          <p className="mt-2 text-3xl font-bold text-primary dark:text-primary">{stats.totalTables}</p>
+          <p className="text-primary dark:text-primary mt-2 text-3xl font-bold">
+            {stats.totalTables}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Recent Activity</p>
@@ -111,7 +119,9 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
 
       {/* Action Breakdown */}
       <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Action Breakdown</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+          Action Breakdown
+        </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Inserts</p>
@@ -139,7 +149,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
           </div>
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Restores</p>
-            <p className="text-2xl font-bold text-primary dark:text-primary">
+            <p className="text-primary dark:text-primary text-2xl font-bold">
               {stats.actionBreakdown.RESTORE}
             </p>
           </div>
@@ -161,22 +171,22 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Timestamp
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Action
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Table
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Record ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                   Description
                 </th>
               </tr>
@@ -184,23 +194,30 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
             <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
               {logs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                  >
                     No audit logs found. Try adjusting your filters.
                   </td>
                 </tr>
               ) : (
                 logs.map((log) => (
                   <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
                       {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <div className="text-gray-900 dark:text-white">{log.user_email || 'System'}</div>
+                      <div className="text-gray-900 dark:text-white">
+                        {log.user_email || 'System'}
+                      </div>
                       {log.user_role && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{log.user_role}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {log.user_role}
+                        </div>
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap">
                       <span
                         className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getActionBadgeColor(
                           log.action
@@ -209,7 +226,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                         {log.action}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
                       {log.table_name}
                     </td>
                     <td className="px-6 py-4 text-sm">
@@ -257,7 +274,10 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                 </p>
               </div>
               <div>
-                <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <nav
+                  className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                  aria-label="Pagination"
+                >
                   <Link
                     href={`?${new URLSearchParams({ ...params, page: String(Math.max(1, page - 1)) }).toString()}`}
                     className={`relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 ${
@@ -265,7 +285,12 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                     }`}
                   >
                     <span className="sr-only">Previous</span>
-                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z"
@@ -283,7 +308,12 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                     }`}
                   >
                     <span className="sr-only">Next</span>
-                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
