@@ -18,7 +18,12 @@ import {
   PilotRegistrationInput,
   RegistrationApprovalInput,
 } from '@/lib/validations/pilot-portal-schema'
-import { createPilotSession, validatePilotSession, revokePilotSession, getCurrentPilotSession } from './session-service'
+import {
+  createPilotSession,
+  validatePilotSession,
+  revokePilotSession,
+  getCurrentPilotSession,
+} from './session-service'
 
 // Type aliases for cleaner code
 type PilotRegistration = Database['public']['Tables']['pilot_users']['Row']
@@ -84,12 +89,14 @@ export async function pilotLogin(
   try {
     // SECURITY: Authentication attempt (email not logged for privacy)
     const supabase = await createClient()
-    const bcrypt = require('bcrypt')
+    const bcrypt = require('bcryptjs')
 
     // Find pilot user by email
     const { data: pilotUser, error: pilotError } = await supabase
       .from('pilot_users')
-      .select('id, email, password_hash, auth_user_id, registration_approved, first_name, last_name, rank')
+      .select(
+        'id, email, password_hash, auth_user_id, registration_approved, first_name, last_name, rank'
+      )
       .eq('email', credentials.email)
       .single()
 
@@ -97,7 +104,7 @@ export async function pilotLogin(
       hasPilotUser: !!pilotUser,
       hasError: !!pilotError,
       errorMessage: pilotError?.message,
-      errorDetails: pilotError
+      errorDetails: pilotError,
     })
 
     if (pilotError || !pilotUser) {
@@ -184,11 +191,14 @@ export async function pilotLogin(
       if (authError || !authData.session) {
         // Check if this is because the Supabase Auth user doesn't exist
         // (can happen if registration had connectivity issues)
-        if (authError?.message?.includes('Invalid login credentials') ||
-            authError?.message?.includes('Email not confirmed')) {
+        if (
+          authError?.message?.includes('Invalid login credentials') ||
+          authError?.message?.includes('Email not confirmed')
+        ) {
           return {
             success: false,
-            error: 'Your account setup is incomplete. Please contact the administrator for assistance.',
+            error:
+              'Your account setup is incomplete. Please contact the administrator for assistance.',
           }
         }
 
@@ -293,7 +303,7 @@ export async function submitPilotRegistration(
     const supabase = await createClient()
 
     // Hash password using bcrypt
-    const bcrypt = require('bcrypt')
+    const bcrypt = require('bcryptjs')
     const saltRounds = 10
     const passwordHash = await bcrypt.hash(registration.password, saltRounds)
 
@@ -336,7 +346,12 @@ export async function submitPilotRegistration(
       success: true,
       data: {
         id: regData.id,
-        status: regData.registration_approved === null ? 'PENDING' : (regData.registration_approved ? 'APPROVED' : 'DENIED'),
+        status:
+          regData.registration_approved === null
+            ? 'PENDING'
+            : regData.registration_approved
+              ? 'APPROVED'
+              : 'DENIED',
       },
     }
   } catch (error) {
@@ -656,16 +671,16 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
  * @param pilotId - Pilot ID from pilots table
  * @returns Service response with pilot details
  */
-export async function getPilotDetailsWithRetirement(
-  pilotId: string
-): Promise<ServiceResponse<{
-  id: string
-  first_name: string
-  last_name: string
-  middle_name: string | null
-  date_of_birth: string | null
-  commencement_date: string | null
-}>> {
+export async function getPilotDetailsWithRetirement(pilotId: string): Promise<
+  ServiceResponse<{
+    id: string
+    first_name: string
+    last_name: string
+    middle_name: string | null
+    date_of_birth: string | null
+    commencement_date: string | null
+  }>
+> {
   try {
     const supabase = await createClient()
 
@@ -711,7 +726,8 @@ export async function getPilotLeaveBids(
 
     const { data: leaveBids, error } = await supabase
       .from('leave_bids')
-      .select(`
+      .select(
+        `
         id,
         roster_period_code,
         status,
@@ -723,7 +739,8 @@ export async function getPilotLeaveBids(
           start_date,
           end_date
         )
-      `)
+      `
+      )
       .eq('pilot_id', pilotId)
       .order('created_at', { ascending: false })
       .limit(limit)
@@ -992,7 +1009,7 @@ export async function resetPassword(
 ): Promise<ServiceResponse<{ message: string }>> {
   try {
     const supabase = await createClient()
-    const bcrypt = require('bcrypt')
+    const bcrypt = require('bcryptjs')
 
     // Validate token first
     const validation = await validatePasswordResetToken(token)
@@ -1063,9 +1080,7 @@ export async function resetPassword(
  * @param request - NextRequest object from API route
  * @returns Pilot user ID if valid session, null otherwise
  */
-export async function verifyPilotSession(
-  request?: Request
-): Promise<string | null> {
+export async function verifyPilotSession(request?: Request): Promise<string | null> {
   try {
     // Validate session token (from cookie or header)
     const validation = await validatePilotSession()

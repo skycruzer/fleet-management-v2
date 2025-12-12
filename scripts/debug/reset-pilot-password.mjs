@@ -8,7 +8,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // Load environment variables
 const envContent = readFileSync('.env.local', 'utf-8');
