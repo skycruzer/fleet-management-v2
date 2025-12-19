@@ -698,6 +698,126 @@ export async function updateRequestStatus(
 }
 
 /**
+ * Update a pilot request's editable fields
+ *
+ * @param id - Request ID
+ * @param updates - Fields to update
+ * @returns Updated request
+ */
+export async function updatePilotRequest(
+  id: string,
+  updates: UpdatePilotRequestInput
+): Promise<ServiceResponse<PilotRequest>> {
+  const supabase = await createClient()
+
+  try {
+    // Build update object with only provided fields
+    const updateData: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (updates.request_type !== undefined) {
+      updateData.request_type = updates.request_type
+    }
+    if (updates.start_date !== undefined) {
+      updateData.start_date = updates.start_date
+
+      // Recalculate roster period when start date changes
+      const startDate = new Date(updates.start_date)
+      if (!isNaN(startDate.getTime())) {
+        const rosterPeriodCode = getRosterPeriodCodeFromDate(startDate)
+        const parsed = parseRosterPeriodCode(rosterPeriodCode)
+        if (parsed) {
+          const rosterPeriod = calculateRosterPeriodDates(parsed.periodNumber, parsed.year)
+          updateData.roster_period = rosterPeriodCode
+          updateData.roster_period_start_date = rosterPeriod.startDate.toISOString().split('T')[0]
+          updateData.roster_publish_date = rosterPeriod.publishDate.toISOString().split('T')[0]
+          updateData.roster_deadline_date = rosterPeriod.deadlineDate.toISOString().split('T')[0]
+
+          // Recalculate is_late_request and is_past_deadline
+          const today = new Date()
+          const daysUntilRosterStart = Math.ceil(
+            (rosterPeriod.startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+          )
+          updateData.is_late_request = daysUntilRosterStart < 21
+          updateData.is_past_deadline = today > rosterPeriod.deadlineDate
+        }
+      }
+    }
+    if (updates.end_date !== undefined) {
+      updateData.end_date = updates.end_date
+
+      // Recalculate days_count when end_date changes
+      const startDateStr = updates.start_date || (await getPilotRequestById(id)).data?.start_date
+      if (startDateStr && updates.end_date) {
+        const startDate = new Date(startDateStr)
+        const endDate = new Date(updates.end_date)
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+          const diffTime = endDate.getTime() - startDate.getTime()
+          updateData.days_count = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
+        }
+      }
+    }
+    if (updates.flight_date !== undefined) {
+      updateData.flight_date = updates.flight_date
+    }
+    if (updates.reason !== undefined) {
+      updateData.reason = updates.reason
+    }
+    if (updates.notes !== undefined) {
+      updateData.notes = updates.notes
+    }
+    if (updates.source_reference !== undefined) {
+      updateData.source_reference = updates.source_reference
+    }
+    if (updates.source_attachment_url !== undefined) {
+      updateData.source_attachment_url = updates.source_attachment_url
+    }
+
+    const { data, error } = await supabase
+      .from('pilot_requests')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      await logger.error('Failed to update pilot request', {
+        source: 'unified-request-service:updatePilotRequest',
+        error: error.message,
+        id,
+        updates,
+      })
+      return {
+        success: false,
+        error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('pilot request').message,
+      }
+    }
+
+    // Invalidate related caches
+    await invalidateCacheByTag('reports:leave')
+    await invalidateCacheByTag('reports:rdo-sdo')
+    await invalidateCacheByTag('reports:all-requests')
+
+    return {
+      success: true,
+      data: data as unknown as PilotRequest,
+    }
+  } catch (error) {
+    await logger.error('Failed to update pilot request', {
+      source: 'unified-request-service:updatePilotRequest',
+      error: error instanceof Error ? error.message : String(error),
+      id,
+      updates,
+    })
+    return {
+      success: false,
+      error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('pilot request').message,
+    }
+  }
+}
+
+/**
  * Delete a pilot request by ID
  *
  * @param id - Request ID to delete
@@ -706,7 +826,9 @@ export async function updateRequestStatus(
 export async function deletePilotRequest(
   id: string
 ): Promise<ServiceResponse<void>> {
-  const supabase = await createClient()
+  // Use service role client to bypass RLS for admin delete operations
+  const { createServiceRoleClient } = await import('@/lib/supabase/service-role')
+  const supabase = createServiceRoleClient()
 
   try {
     const { error } = await supabase
@@ -718,11 +840,13 @@ export async function deletePilotRequest(
       await logger.error('Failed to delete pilot request', {
         source: 'unified-request-service:deletePilotRequest',
         error: error.message,
+        code: error.code,
+        details: error.details,
         id,
       })
       return {
         success: false,
-        error: ERROR_MESSAGES.DATABASE.DELETE_FAILED('pilot request').message,
+        error: error.message || ERROR_MESSAGES.DATABASE.DELETE_FAILED('pilot request').message,
       }
     }
 

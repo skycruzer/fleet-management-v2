@@ -62,7 +62,7 @@ export async function GET() {
 
   // 3. Dashboard Service Check
   try {
-    const { getDashboardMetrics } = await import('@/lib/services/dashboard-service')
+    const { getDashboardMetrics } = await import('@/lib/services/dashboard-service-v4')
     const metrics = await getDashboardMetrics()
 
     checks.checks.dashboard_service = {

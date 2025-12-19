@@ -56,7 +56,7 @@ const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     key: 'l',
     altKey: true,
     action: () => {},
-    description: 'Go to Leave Requests',
+    description: 'Go to Pilot Requests',
     category: 'Navigation',
   },
   // Search shortcut
@@ -113,7 +113,7 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
         return { ...shortcut, action: () => router.push('/dashboard/certifications') }
       }
       if (shortcut.key === 'l' && shortcut.altKey) {
-        return { ...shortcut, action: () => router.push('/dashboard/leave') }
+        return { ...shortcut, action: () => router.push('/dashboard/requests') }
       }
       if (shortcut.key === '/') {
         return {

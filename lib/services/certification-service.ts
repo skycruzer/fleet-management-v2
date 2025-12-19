@@ -18,6 +18,10 @@ import { differenceInDays } from 'date-fns'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { unifiedCacheService, invalidateCacheByTag } from './unified-cache-service'
+import {
+  getCertificationStatus,
+  DEFAULT_THRESHOLDS,
+} from '@/lib/utils/certification-status'
 
 // Type aliases for convenience
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
@@ -53,39 +57,8 @@ export interface CertificationFormData {
   expiry_date?: string | null
 }
 
-// ===================================
-// CERTIFICATION STATUS CALCULATION (FAA Color Coding)
-// ===================================
-
-function getCertificationStatus(expiryDate: Date | null) {
-  if (!expiryDate) return { color: 'gray' as const, label: 'No Date' as const }
-
-  const today = new Date()
-  const daysUntilExpiry = Math.ceil(
-    (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
-
-  if (daysUntilExpiry < 0) {
-    return {
-      color: 'red' as const,
-      label: 'Expired' as const,
-      daysUntilExpiry,
-    }
-  }
-  // Changed from <= 30 to <= 90 to capture all certifications expiring within 90 days
-  if (daysUntilExpiry <= 90) {
-    return {
-      color: 'yellow' as const,
-      label: 'Expiring Soon' as const,
-      daysUntilExpiry,
-    }
-  }
-  return {
-    color: 'green' as const,
-    label: 'Current' as const,
-    daysUntilExpiry,
-  }
-}
+// NOTE: getCertificationStatus imported from @/lib/utils/certification-status
+// Uses DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS (90 days) for this service
 
 // ===================================
 // READ OPERATIONS
@@ -190,7 +163,7 @@ export async function getCertifications(
 
         const certificationsWithStatus = (data || []).map((cert: any) => ({
           ...cert,
-          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null),
+          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
         }))
 
         return {
@@ -261,7 +234,7 @@ export async function getCertificationById(
 
     return {
       ...data,
-      status: getCertificationStatus(data.expiry_date ? new Date(data.expiry_date) : null),
+      status: getCertificationStatus(data.expiry_date ? new Date(data.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
     }
   } catch (error) {
     logError(error as Error, {
@@ -302,7 +275,7 @@ export async function getCertificationsByPilotId(
 
     const certificationsWithStatus = (data || []).map((cert: any) => ({
       ...cert,
-      status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null),
+      status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
     }))
 
     return certificationsWithStatus
@@ -365,7 +338,7 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
         return {
           ...cert,
           daysUntilExpiry,
-          status: getCertificationStatus(expiryDate),
+          status: getCertificationStatus(expiryDate, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
         }
       })
 
@@ -690,7 +663,7 @@ export async function getCertificationStats() {
           return acc
         }
 
-        const status = getCertificationStatus(new Date(cert.expiry_date))
+        const status = getCertificationStatus(new Date(cert.expiry_date), DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS)
 
         if (status.color === 'red') acc.expired++
         else if (status.color === 'yellow') acc.expiring++
@@ -757,7 +730,7 @@ export async function getCertificationsByCategory() {
           return acc
         }
 
-        const status = getCertificationStatus(new Date(cert.expiry_date))
+        const status = getCertificationStatus(new Date(cert.expiry_date), DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS)
 
         if (status.color === 'red') acc[category].expired++
         else if (status.color === 'yellow') acc[category].expiring++
@@ -834,7 +807,7 @@ export async function getCertificationsGroupedByCategory(): Promise<
         // Add status calculation
         const certWithStatus = {
           ...cert,
-          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null),
+          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
         }
 
         acc[category].push(certWithStatus)

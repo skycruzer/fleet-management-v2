@@ -1,4 +1,4 @@
-import { getDashboardMetrics } from '@/lib/services/dashboard-service'
+import { getDashboardMetrics } from '@/lib/services/dashboard-service-v4'
 import { getExpiringCertifications } from '@/lib/services/expiring-certifications-service'
 import { ComplianceOverviewClient } from './compliance-overview-client'
 import { createClient } from '@/lib/supabase/server'

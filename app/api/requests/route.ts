@@ -253,8 +253,6 @@ export async function POST(request: NextRequest) {
 
     // Revalidate relevant paths
     revalidatePath('/dashboard/requests')
-    revalidatePath('/dashboard/leave-requests')
-    revalidatePath('/dashboard/flight-requests')
 
     return NextResponse.json(
       {

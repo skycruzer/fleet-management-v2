@@ -70,14 +70,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: 'Certifications',
     },
     {
-      href: '/dashboard/leave',
+      href: '/dashboard/requests',
       icon: <Calendar className="h-5 w-5" aria-hidden="true" />,
-      label: 'Leave Requests',
-    },
-    {
-      href: '/dashboard/flight-requests',
-      icon: <Plane className="h-5 w-5" aria-hidden="true" />,
-      label: 'Flight Requests',
+      label: 'Pilot Requests',
     },
     {
       href: '/dashboard/renewal-planning',

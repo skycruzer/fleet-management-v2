@@ -1,7 +1,7 @@
 /**
  * Request Detail Actions Component
  *
- * Provides action buttons for managing a single request (Approve, Deny, Delete)
+ * Provides action buttons for managing a single request (Approve, Deny, Edit, Delete)
  * from the request detail page.
  *
  * @author Maurice Rondeau
@@ -23,14 +23,24 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { CheckCircle, XCircle, Trash2 } from 'lucide-react'
+import { CheckCircle, XCircle, Trash2, Pencil } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { RequestEditDialog } from './request-edit-dialog'
 
 interface RequestDetailActionsProps {
   request: {
     id: string
     workflow_status: string
     request_category: string
+    request_type: string
+    start_date: string
+    end_date: string | null
+    flight_date: string | null
+    reason: string | null
+    notes: string | null
+    source_reference: string | null
+    name: string
+    employee_number: string
   }
 }
 
@@ -39,10 +49,13 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   const canApprove =
     request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
   const canDeny = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
+  const canEdit =
+    request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
 
   const handleApprove = async () => {
     setLoading(true)
@@ -161,6 +174,16 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
             Deny
           </Button>
         )}
+        {canEdit && (
+          <Button
+            onClick={() => setEditDialogOpen(true)}
+            disabled={loading}
+            variant="outline"
+          >
+            <Pencil className="h-4 w-4 mr-2" />
+            Edit
+          </Button>
+        )}
         <Button
           onClick={() => setDeleteDialogOpen(true)}
           disabled={loading}
@@ -170,6 +193,13 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
           Delete
         </Button>
       </div>
+
+      {/* Edit Request Dialog */}
+      <RequestEditDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        request={request}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

@@ -10,27 +10,27 @@ import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { getAlertThresholds } from './admin-service'
+import {
+  getCertificationStatus as getStatus,
+  type CertificationStatus,
+} from '@/lib/utils/certification-status'
 
 /**
- * Get certification status based on expiry date and alert thresholds
- * Red: Expired (days_until_expiry < 0)
- * Yellow: Expiring soon (days_until_expiry ≤ warning_30_days)
- * Green: Current (days_until_expiry > warning_30_days)
+ * Get certification status based on expiry date and configurable admin thresholds
+ * Uses shared utility with admin-configured warning threshold
+ * @returns Status with guaranteed daysUntilExpiry since we always pass a valid Date
  */
-async function getCertificationStatus(expiryDate: Date) {
+async function getCertificationStatus(
+  expiryDate: Date
+): Promise<{ color: string; label: string; daysUntilExpiry: number }> {
   const thresholds = await getAlertThresholds()
-  const today = new Date()
-  const daysUntilExpiry = Math.ceil(
-    (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
-
-  if (daysUntilExpiry < 0) {
-    return { color: 'red', label: 'Expired', daysUntilExpiry }
+  const status = getStatus(expiryDate, thresholds.warning_30_days)
+  // daysUntilExpiry is guaranteed when a valid Date is passed (not null/undefined)
+  return {
+    color: status.color,
+    label: status.label,
+    daysUntilExpiry: status.daysUntilExpiry!,
   }
-  if (daysUntilExpiry <= thresholds.warning_30_days) {
-    return { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry }
-  }
-  return { color: 'green', label: 'Current', daysUntilExpiry }
 }
 
 /**

@@ -8,6 +8,7 @@
 
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { LeaveApprovalCard } from '@/components/leave/leave-approval-card'
 import { Card } from '@/components/ui/card'
@@ -237,26 +238,52 @@ export default async function LeaveApprovalPage() {
                 onApprove={async (id) => {
                   'use server'
                   const supabase = await createClient()
-                  await supabase
+                  const {
+                    data: { user: currentUser },
+                  } = await supabase.auth.getUser()
+
+                  const { error } = await supabase
                     .from('pilot_requests')
                     .update({
                       workflow_status: 'APPROVED',
                       approval_status: 'APPROVED',
+                      reviewed_by: currentUser?.id,
+                      reviewed_at: new Date().toISOString(),
                       updated_at: new Date().toISOString(),
                     })
                     .eq('id', id)
+
+                  if (error) {
+                    throw new Error(error.message)
+                  }
+
+                  revalidatePath('/dashboard/leave/approve')
+                  revalidatePath('/dashboard/requests')
                 }}
                 onDeny={async (id) => {
                   'use server'
                   const supabase = await createClient()
-                  await supabase
+                  const {
+                    data: { user: currentUser },
+                  } = await supabase.auth.getUser()
+
+                  const { error } = await supabase
                     .from('pilot_requests')
                     .update({
                       workflow_status: 'DENIED',
                       approval_status: 'DENIED',
+                      reviewed_by: currentUser?.id,
+                      reviewed_at: new Date().toISOString(),
                       updated_at: new Date().toISOString(),
                     })
                     .eq('id', id)
+
+                  if (error) {
+                    throw new Error(error.message)
+                  }
+
+                  revalidatePath('/dashboard/leave/approve')
+                  revalidatePath('/dashboard/requests')
                 }}
               />
             ))}

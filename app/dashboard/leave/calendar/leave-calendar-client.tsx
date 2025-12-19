@@ -69,8 +69,8 @@ export function LeaveCalendarClient({
   }
 
   const handleEventClick = (event: CalendarEvent) => {
-    // Navigate to leave request details
-    router.push(`/dashboard/leave/${event.id}`)
+    // Navigate to unified request details
+    router.push(`/dashboard/requests/${event.id}`)
   }
 
   return (

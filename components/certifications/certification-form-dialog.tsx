@@ -11,6 +11,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
@@ -57,8 +58,8 @@ interface Pilot {
 
 interface CheckType {
   id: string
-  check_type: string
-  description: string | null
+  check_code: string
+  check_description: string
 }
 
 interface Certification {
@@ -121,6 +122,7 @@ export function CertificationFormDialog({
   mode,
 }: CertificationFormDialogProps) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { csrfToken } = useCsrfToken()
@@ -212,8 +214,16 @@ export function CertificationFormDialog({
         duration: 10000,
       })
 
+      // Invalidate TanStack Query cache for instant refresh
+      await queryClient.invalidateQueries({ queryKey: ['certifications'] })
+      await queryClient.invalidateQueries({ queryKey: ['pilot-certifications'] })
+      await queryClient.invalidateQueries({ queryKey: ['pilots'] })
+      await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      await queryClient.invalidateQueries({ queryKey: ['expiring-certifications'] })
+      await queryClient.invalidateQueries({ queryKey: ['compliance'] })
+
       // Small delay to ensure toast is in DOM before dialog closes
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
 
       // Close dialog
       onOpenChange(false)
@@ -268,7 +278,7 @@ export function CertificationFormDialog({
                         <SelectValue placeholder="Select a pilot" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="max-h-[300px] overflow-y-auto">
                       {pilots.map((pilot) => (
                         <SelectItem key={pilot.id} value={pilot.id}>
                           {pilot.first_name} {pilot.last_name} ({pilot.employee_number})
@@ -297,8 +307,7 @@ export function CertificationFormDialog({
                     <SelectContent>
                       {checkTypes.map((checkType) => (
                         <SelectItem key={checkType.id} value={checkType.id}>
-                          {checkType.check_type}
-                          {checkType.description && ` - ${checkType.description}`}
+                          {checkType.check_code} - {checkType.check_description}
                         </SelectItem>
                       ))}
                     </SelectContent>

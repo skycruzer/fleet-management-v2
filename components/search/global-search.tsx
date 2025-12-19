@@ -30,8 +30,9 @@ const searchablePages: SearchResult[] = [
   { title: 'Certifications', href: '/dashboard/certifications', icon: FileText, category: 'Core' },
 
   // Requests
-  { title: 'Leave Requests', href: '/dashboard/leave', icon: Calendar, category: 'Requests' },
-  { title: 'Flight Requests', href: '/dashboard/flight-requests', icon: FileText, category: 'Requests' },
+  { title: 'Pilot Requests', href: '/dashboard/requests', icon: Calendar, category: 'Requests' },
+  { title: 'Leave Approval', href: '/dashboard/leave/approve', icon: FileText, category: 'Requests' },
+  { title: 'Leave Calendar', href: '/dashboard/leave/calendar', icon: Calendar, category: 'Requests' },
 
   // Planning
   { title: 'Renewal Planning', href: '/dashboard/renewal-planning', icon: FileText, category: 'Planning' },

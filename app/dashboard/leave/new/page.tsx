@@ -138,8 +138,8 @@ export default function NewLeaveRequestPage() {
         // Still redirect on success, but show warning
       }
 
-      // Success - redirect to leave requests list
-      router.push('/dashboard/leave')
+      // Success - redirect to unified requests page
+      router.push('/dashboard/requests?tab=leave')
       router.refresh()
     } catch (err) {
       console.error('Submit error:', err)
@@ -175,7 +175,7 @@ export default function NewLeaveRequestPage() {
           <h2 className="text-foreground text-2xl font-bold">Submit Leave Request</h2>
           <p className="text-muted-foreground mt-1">Request time off from your duty roster</p>
         </div>
-        <Link href="/dashboard/leave">
+        <Link href="/dashboard/requests?tab=leave">
           <Button variant="outline">← Back to Leave Requests</Button>
         </Link>
       </div>
@@ -396,7 +396,7 @@ export default function NewLeaveRequestPage() {
 
           {/* Form Actions */}
           <div className="flex items-center justify-end space-x-4 border-t pt-6">
-            <Link href="/dashboard/leave">
+            <Link href="/dashboard/requests?tab=leave">
               <Button type="button" variant="outline" disabled={isSubmitting}>
                 Cancel
               </Button>

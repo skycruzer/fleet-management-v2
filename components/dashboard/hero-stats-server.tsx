@@ -1,4 +1,4 @@
-import { getDashboardMetrics } from '@/lib/services/dashboard-service'
+import { getDashboardMetrics } from '@/lib/services/dashboard-service-v4'
 import { HeroStatsClient } from './hero-stats-client'
 
 /**

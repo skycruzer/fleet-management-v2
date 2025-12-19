@@ -65,8 +65,8 @@ interface Pilot {
 
 interface CheckType {
   id: string
-  check_type: string
-  description: string | null
+  check_code: string
+  check_description: string
 }
 
 interface Certification {

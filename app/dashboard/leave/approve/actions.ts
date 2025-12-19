@@ -34,7 +34,7 @@ export async function approveLeaveRequest(requestId: string, comments?: string) 
 
     // Revalidate all affected paths
     revalidatePath('/dashboard/leave/approve')
-    revalidatePath('/dashboard/leave-requests')
+    revalidatePath('/dashboard/requests')
     revalidatePath('/dashboard')
 
     return {
@@ -80,7 +80,7 @@ export async function denyLeaveRequest(requestId: string, comments?: string) {
 
     // Revalidate all affected paths
     revalidatePath('/dashboard/leave/approve')
-    revalidatePath('/dashboard/leave-requests')
+    revalidatePath('/dashboard/requests')
     revalidatePath('/dashboard')
 
     return {

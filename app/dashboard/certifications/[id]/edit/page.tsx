@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
@@ -42,6 +43,7 @@ export default function EditCertificationPage() {
   const params = useParams()
   const certificationId = params.id as string
   const { csrfToken } = useCsrfToken()
+  const queryClient = useQueryClient()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -108,9 +110,17 @@ export default function EditCertificationPage() {
         return
       }
 
+      // Invalidate TanStack Query cache for instant refresh
+      await queryClient.invalidateQueries({ queryKey: ['certifications'] })
+      await queryClient.invalidateQueries({ queryKey: ['pilot-certifications'] })
+      await queryClient.invalidateQueries({ queryKey: ['pilots'] })
+      await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      await queryClient.invalidateQueries({ queryKey: ['expiring-certifications'] })
+      await queryClient.invalidateQueries({ queryKey: ['compliance'] })
+
       // Success - refresh cache BEFORE redirecting (Next.js 16 requirement)
       router.refresh()
-      await new Promise((resolve) => setTimeout(resolve, 500)) // Wait for cache propagation
+      await new Promise((resolve) => setTimeout(resolve, 100))
       router.push('/dashboard/certifications')
     } catch (err) {
       setError('An unexpected error occurred')

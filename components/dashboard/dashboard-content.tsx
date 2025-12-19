@@ -1,7 +1,7 @@
 import { memo, Suspense } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
-import { getDashboardMetrics, type DashboardMetrics } from '@/lib/services/dashboard-service'
+import { getDashboardMetrics, type DashboardMetrics } from '@/lib/services/dashboard-service-v4'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { UrgentAlertBanner } from '@/components/dashboard/urgent-alert-banner'
 import { UnifiedComplianceCard } from '@/components/dashboard/unified-compliance-card'
@@ -94,10 +94,10 @@ export async function DashboardContent() {
             href="/dashboard/analytics"
           />
           <ActionCard
-            title="Leave Requests"
-            description="Manage pilot leave requests"
+            title="Pilot Requests"
+            description="Manage pilot leave and flight requests"
             icon={<Calendar className="h-6 w-6 text-primary" aria-hidden="true" />}
-            href="/dashboard/leave"
+            href="/dashboard/requests"
           />
         </div>
       </Card>

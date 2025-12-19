@@ -1,11 +1,13 @@
 /**
- * Leave Requests Redirect Page
+ * Leave Requests Redirect
  * Author: Maurice Rondeau
- * Redirects /dashboard/leave-requests → /dashboard/leave
+ *
+ * DEPRECATED: Redirects to unified requests page
+ * This page is scheduled for removal after 30 days
  */
 
 import { redirect } from 'next/navigation'
 
 export default function LeaveRequestsRedirect() {
-  redirect('/dashboard/leave')
+  redirect('/dashboard/requests?tab=leave')
 }

@@ -19,6 +19,7 @@ import { createAuditLog } from './audit-service'
 import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
 import { unstable_cache, revalidatePath, revalidateTag } from 'next/cache'
+import { getCertificationStatus } from '@/lib/utils/certification-status'
 
 // Helper to safely revalidate tags (server-side only)
 function safeRevalidate(tag: string) {
@@ -86,26 +87,8 @@ export interface PilotWithRetirement extends Pilot {
   }
 }
 
-// ===================================
-// CERTIFICATION STATUS CALCULATION
-// ===================================
-
-function getCertificationStatus(expiryDate: Date | null) {
-  if (!expiryDate) return { color: 'gray', label: 'No Date' }
-
-  const today = new Date()
-  const daysUntilExpiry = Math.ceil(
-    (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
-
-  if (daysUntilExpiry < 0) {
-    return { color: 'red', label: 'Expired' }
-  }
-  if (daysUntilExpiry <= 30) {
-    return { color: 'yellow', label: 'Expiring Soon' }
-  }
-  return { color: 'green', label: 'Current' }
-}
+// NOTE: getCertificationStatus imported from @/lib/utils/certification-status
+// Uses default 30-day threshold for pilot overview
 
 // ===================================
 // SENIORITY CALCULATION
