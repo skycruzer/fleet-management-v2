@@ -10,7 +10,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { LeaveRequest } from '@/lib/services/leave-service'
+import type { LeaveRequest } from '@/lib/services/unified-request-service'
 
 interface LeaveRequestsListProps {
   requests: LeaveRequest[]

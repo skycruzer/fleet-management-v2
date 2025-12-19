@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { ChevronDown, ChevronUp, Eye } from 'lucide-react'
 import { format } from 'date-fns'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
-import type { LeaveRequest } from '@/lib/services/leave-service'
+import type { LeaveRequest } from '@/lib/services/unified-request-service'
 
 interface LeaveRequestGroupProps {
   type: string

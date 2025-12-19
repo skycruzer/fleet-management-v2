@@ -962,3 +962,28 @@ export function validateSubmissionChannel(channel: string): {
 
   return { valid: true }
 }
+
+// ============================================================================
+// Backward Compatibility Re-exports (from leave-service.ts)
+// ============================================================================
+// These re-exports allow gradual migration from leave-service to unified-request-service
+// Consumers can import from unified-request-service instead of leave-service
+
+export {
+  // Types
+  type LeaveRequest,
+  type LeaveRequestFormData,
+  type LeaveRequestStats,
+  // Functions
+  getAllLeaveRequests,
+  getLeaveRequestById,
+  getPilotLeaveRequests,
+  createLeaveRequestServer,
+  updateLeaveRequestServer,
+  updateLeaveRequestStatus,
+  deleteLeaveRequest,
+  getLeaveRequestStats,
+  getPendingLeaveRequests,
+  checkLeaveConflicts,
+  getLeaveRequestsByRosterPeriod,
+} from './leave-service'

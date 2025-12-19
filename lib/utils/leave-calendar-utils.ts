@@ -3,7 +3,7 @@
  * Helper functions for calendar event handling and date calculations
  */
 
-import type { LeaveRequest } from '@/lib/services/leave-service'
+import type { LeaveRequest } from '@/lib/services/unified-request-service'
 
 export interface CalendarEvent {
   id: string

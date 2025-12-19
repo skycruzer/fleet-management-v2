@@ -31,7 +31,7 @@ import {
   Star,
 } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
-import type { LeaveRequest } from '@/lib/services/leave-service'
+import type { LeaveRequest } from '@/lib/services/unified-request-service'
 import {
   leaveRequestToEvent,
   getEventsForDate,

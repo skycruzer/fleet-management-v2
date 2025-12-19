@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import type { LeaveRequest } from '@/lib/services/leave-service'
+import type { LeaveRequest } from '@/lib/services/unified-request-service'
 import type { CalendarEvent } from '@/lib/utils/leave-calendar-utils'
 import { format, differenceInDays } from 'date-fns'
 import { X, Users, Calendar as CalendarIcon } from 'lucide-react'

@@ -14,7 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { updateLeaveRequestStatus } from '@/lib/services/leave-service'
+import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
 import { createNotification } from '@/lib/services/notification-service'
 import { z } from 'zod'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'

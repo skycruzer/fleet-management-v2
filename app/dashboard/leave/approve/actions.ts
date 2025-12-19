@@ -10,7 +10,7 @@
  */
 
 import { revalidatePath } from 'next/cache'
-import { updateLeaveRequestStatus } from '@/lib/services/leave-service'
+import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
 import { createClient } from '@/lib/supabase/server'
 
 export async function approveLeaveRequest(requestId: string, comments?: string) {

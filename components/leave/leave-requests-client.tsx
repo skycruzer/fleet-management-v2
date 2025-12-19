@@ -15,7 +15,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { LeaveRequestGroup } from '@/components/leave/leave-request-group'
 import { Calendar, Filter } from 'lucide-react'
-import type { LeaveRequest } from '@/lib/services/leave-service'
+import type { LeaveRequest } from '@/lib/services/unified-request-service'
 
 interface LeaveRequestsClientProps {
   requests: LeaveRequest[]

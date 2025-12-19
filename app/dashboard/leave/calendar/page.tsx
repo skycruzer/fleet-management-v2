@@ -8,7 +8,7 @@
 
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { getAllLeaveRequests } from '@/lib/services/leave-service'
+import { getAllLeaveRequests } from '@/lib/services/unified-request-service'
 import { LeaveCalendarClient } from './leave-calendar-client'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'

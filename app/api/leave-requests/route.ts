@@ -17,7 +17,7 @@ import {
   getAllLeaveRequests,
   createLeaveRequestServer,
   checkLeaveConflicts,
-} from '@/lib/services/leave-service'
+} from '@/lib/services/unified-request-service'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
 import { createClient } from '@/lib/supabase/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
