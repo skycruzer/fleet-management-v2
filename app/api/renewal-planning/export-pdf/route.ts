@@ -105,7 +105,7 @@ export async function GET(request: Request) {
     // Get all renewals for the fetched roster periods
     const rosterPeriods = periods.map((p) => p.roster_period)
 
-    // FIX #2: Include 'planned' status in addition to 'confirmed' and 'pending'
+    // Query renewal plans - use uppercase status values to match database constraint
     const { data: renewals, error: renewalsError } = await supabase
       .from('certification_renewal_plans')
       .select(
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
       `
       )
       .in('planned_roster_period', rosterPeriods)
-      .in('status', ['confirmed', 'pending', 'planned']) // FIXED: Added 'planned' status
+      .in('status', ['PENDING', 'SCHEDULED', 'COMPLETED']) // Match database constraint values
 
     if (renewalsError) {
       console.error('Error fetching renewals:', renewalsError)
