@@ -28,79 +28,92 @@ export async function DashboardContent() {
   const metrics = await getCachedDashboardData()
 
   return (
-    <div className="w-full max-w-full space-y-3 overflow-x-hidden" style={{ minWidth: 0 }}>
-      {/* ROSTER PERIODS - Current + Next 13 - TOP OF PAGE */}
-      <ErrorBoundary>
-        <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
-          <CompactRosterDisplay />
-        </Suspense>
-      </ErrorBoundary>
+    <div className="w-full max-w-full overflow-x-hidden" style={{ minWidth: 0 }}>
+      {/* ROSTER PERIODS - Current + Next 13 - FULL WIDTH TOP */}
+      <div className="mb-3">
+        <ErrorBoundary>
+          <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+            <CompactRosterDisplay />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
 
-      {/* PILOT STAFFING REQUIREMENTS - Required vs Actual */}
-      <ErrorBoundary>
-        <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
-          <PilotRequirementsCard />
-        </Suspense>
-      </ErrorBoundary>
+      {/* 🚨 URGENT ALERT BANNER - FULL WIDTH */}
+      <div className="mb-3">
+        <ErrorBoundary>
+          <Suspense fallback={<div className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+            <UrgentAlertBanner />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
 
-      {/* RETIREMENT FORECAST - 2 and 5 Year Outlook */}
-      <ErrorBoundary>
-        <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
-          <RetirementForecastCard />
-        </Suspense>
-      </ErrorBoundary>
+      {/* TWO-COLUMN LAYOUT AT xl: */}
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-12">
+        {/* LEFT COLUMN - Primary operational data */}
+        <div className="space-y-3 xl:col-span-7">
+          {/* PILOT STAFFING REQUIREMENTS - Required vs Actual */}
+          <ErrorBoundary>
+            <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+              <PilotRequirementsCard />
+            </Suspense>
+          </ErrorBoundary>
 
-      {/* CERTIFICATIONS EXPIRING SOON - Banner */}
-      <ErrorBoundary>
-        <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
-          <ExpiringCertificationsBannerServer />
-        </Suspense>
-      </ErrorBoundary>
+          {/* CERTIFICATIONS EXPIRING SOON - Banner */}
+          <ErrorBoundary>
+            <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+              <ExpiringCertificationsBannerServer />
+            </Suspense>
+          </ErrorBoundary>
 
-      {/* 🚨 URGENT ALERT BANNER */}
-      <ErrorBoundary>
-        <Suspense fallback={<div className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
-          <UrgentAlertBanner />
-        </Suspense>
-      </ErrorBoundary>
-
-      {/* UNIFIED FLEET COMPLIANCE - Single Responsive Card */}
-      <ErrorBoundary>
-        <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
-          <UnifiedComplianceCard />
-        </Suspense>
-      </ErrorBoundary>
-
-      {/* Quick Actions */}
-      <Card className="p-4 min-w-0 overflow-hidden">
-        <h3 className="mb-3 text-sm font-semibold text-foreground">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <ActionCard
-            title="Add Pilot"
-            description="Add a new pilot to the fleet"
-            icon={<Plus className="h-6 w-6 text-primary" aria-hidden="true" />}
-            href="/dashboard/pilots/new"
-          />
-          <ActionCard
-            title="Update Certification"
-            description="Record a new certification check"
-            icon={<FileText className="h-6 w-6 text-primary" aria-hidden="true" />}
-            href="/dashboard/certifications/new"
-          />
-          <ActionCard
-            title="View Reports"
-            description="Access analytics and reports"
-            icon={<BarChart3 className="h-6 w-6 text-primary" aria-hidden="true" />}
-            href="/dashboard/analytics"
-          />
-          <ActionCard
-            title="Pilot Requests"
-            description="Manage pilot leave and flight requests"
-            icon={<Calendar className="h-6 w-6 text-primary" aria-hidden="true" />}
-            href="/dashboard/requests"
-          />
+          {/* Quick Actions */}
+          <Card className="p-4 min-w-0 overflow-hidden">
+            <h3 className="mb-3 text-sm font-semibold text-foreground">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <ActionCard
+                title="Add Pilot"
+                description="Add a new pilot to the fleet"
+                icon={<Plus className="h-6 w-6 text-primary" aria-hidden="true" />}
+                href="/dashboard/pilots/new"
+              />
+              <ActionCard
+                title="Update Certification"
+                description="Record a new certification check"
+                icon={<FileText className="h-6 w-6 text-primary" aria-hidden="true" />}
+                href="/dashboard/certifications/new"
+              />
+              <ActionCard
+                title="View Reports"
+                description="Access analytics and reports"
+                icon={<BarChart3 className="h-6 w-6 text-primary" aria-hidden="true" />}
+                href="/dashboard/analytics"
+              />
+              <ActionCard
+                title="Pilot Requests"
+                description="Manage pilot leave and flight requests"
+                icon={<Calendar className="h-6 w-6 text-primary" aria-hidden="true" />}
+                href="/dashboard/requests"
+              />
+            </div>
+          </Card>
         </div>
-      </Card>
+
+        {/* RIGHT COLUMN - Secondary data & forecasts */}
+        <div className="space-y-3 xl:col-span-5">
+          {/* RETIREMENT FORECAST - 2 and 5 Year Outlook */}
+          <ErrorBoundary>
+            <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+              <RetirementForecastCard />
+            </Suspense>
+          </ErrorBoundary>
+
+          {/* UNIFIED FLEET COMPLIANCE - Single Responsive Card */}
+          <ErrorBoundary>
+            <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+              <UnifiedComplianceCard />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+      </div>
     </div>
   )
 }

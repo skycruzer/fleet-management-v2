@@ -112,7 +112,7 @@ export function PilotForm({
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Basic Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormFieldWrapper
                   name="employee_id"
                   label="Employee ID"
@@ -129,7 +129,7 @@ export function PilotForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
                 <FormFieldWrapper
                   name="first_name"
                   label="First Name"
@@ -153,7 +153,7 @@ export function PilotForm({
             {/* Employment Details */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Employment Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormFieldWrapper
                   name="contract_type"
                   label="Contract Type"
@@ -166,7 +166,7 @@ export function PilotForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormFieldWrapper
                   name="seniority_number"
                   label="Seniority Number"
@@ -185,7 +185,7 @@ export function PilotForm({
             {/* Personal Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Personal Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormDatePickerWrapper
                   name="date_of_birth"
                   label="Date of Birth"
@@ -199,7 +199,7 @@ export function PilotForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormFieldWrapper
                   name="passport_number"
                   label="Passport Number"
@@ -219,7 +219,7 @@ export function PilotForm({
             {showCaptainQualifications && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Captain Qualifications</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   <FormCheckboxWrapper
                     name="captain_qualifications.line_captain"
                     label="Line Captain"

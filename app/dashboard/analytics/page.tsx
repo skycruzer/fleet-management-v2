@@ -174,11 +174,11 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Card className="p-12 text-center">
+      <div className="space-y-4">
+        <Card className="p-8 text-center">
           <div className="flex items-center justify-center space-x-2">
-            <Loader2 className="text-primary h-8 w-8 animate-spin" aria-hidden="true" />
-            <p className="text-muted-foreground">Loading analytics...</p>
+            <Loader2 className="text-primary h-6 w-6 animate-spin" aria-hidden="true" />
+            <p className="text-muted-foreground text-sm">Loading analytics...</p>
           </div>
         </Card>
       </div>
@@ -187,13 +187,13 @@ export default function AnalyticsPage() {
 
   if (error || !analytics) {
     return (
-      <div className="space-y-6">
-        <Card className="p-12 text-center">
-          <div className="space-y-4">
-            <span className="text-6xl">❌</span>
+      <div className="space-y-4">
+        <Card className="p-8 text-center">
+          <div className="space-y-3">
+            <span className="text-4xl">❌</span>
             <div>
-              <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
-              <p className="text-muted-foreground">{error || 'Analytics data not available'}</p>
+              <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
+              <p className="text-muted-foreground text-sm">{error || 'Analytics data not available'}</p>
             </div>
             <Button onClick={handleRefresh}>Try Again</Button>
           </div>
@@ -203,14 +203,14 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-xl font-bold sm:text-2xl">
+          <h2 className="text-foreground text-xl font-bold">
             Fleet Analytics Dashboard
           </h2>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-muted-foreground mt-0.5 text-sm">
             Comprehensive analytics and key performance indicators
           </p>
         </div>
@@ -233,12 +233,12 @@ export default function AnalyticsPage() {
 
       {/* Critical Alerts Section */}
       {analytics.risk.criticalAlerts.length > 0 && (
-        <Card className="border-destructive/20 bg-red-50 p-6">
-          <div className="flex items-start space-x-3">
-            <span className="text-3xl">🚨</span>
+        <Card className="border-destructive/20 bg-red-50 p-4">
+          <div className="flex items-start space-x-2">
+            <span className="text-2xl">🚨</span>
             <div className="flex-1">
-              <h3 className="text-foreground mb-3 text-lg font-bold">Critical Alerts</h3>
-              <div className="space-y-2">
+              <h3 className="text-foreground mb-2 text-base font-bold">Critical Alerts</h3>
+              <div className="space-y-1.5">
                 {analytics.risk.criticalAlerts.map((alert) => (
                   <div
                     key={alert.id}
@@ -266,68 +266,68 @@ export default function AnalyticsPage() {
       )}
 
       {/* Fleet Readiness Overview */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <BarChart3 className="h-10 w-10 text-blue-600" aria-hidden="true" />
-            <span className="text-3xl font-bold text-blue-900">{analytics.fleet.utilization}%</span>
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <BarChart3 className="h-8 w-8 text-blue-600" aria-hidden="true" />
+            <span className="text-2xl font-bold text-blue-900">{analytics.fleet.utilization}%</span>
           </div>
-          <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Utilization</h3>
-          <p className="text-muted-foreground mt-1 text-xs">Certification compliance rate</p>
+          <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Utilization</h3>
+          <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
         </Card>
 
-        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <Plane className="h-10 w-10 text-green-600" aria-hidden="true" />
-            <span className="text-3xl font-bold text-green-900">
+        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <Plane className="h-8 w-8 text-green-600" aria-hidden="true" />
+            <span className="text-2xl font-bold text-green-900">
               {analytics.fleet.availability}%
             </span>
           </div>
-          <h3 className="text-muted-foreground text-sm font-medium uppercase">
+          <h3 className="text-muted-foreground text-xs font-medium uppercase">
             Pilot Availability
           </h3>
-          <p className="text-muted-foreground mt-1 text-xs">
+          <p className="text-muted-foreground mt-0.5 text-xs">
             {analytics.fleet.pilotAvailability.available} available,{' '}
             {analytics.fleet.pilotAvailability.onLeave} on leave
           </p>
         </Card>
 
-        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-purple-100 p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <Target className="text-primary h-10 w-10" aria-hidden="true" />
-            <span className="text-primary-foreground text-3xl font-bold">
+        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-purple-100 p-4">
+          <div className="mb-2 flex items-center justify-between">
+            <Target className="text-primary h-8 w-8" aria-hidden="true" />
+            <span className="text-primary-foreground text-2xl font-bold">
               {analytics.fleet.readiness}%
             </span>
           </div>
-          <h3 className="text-muted-foreground text-sm font-medium uppercase">Fleet Readiness</h3>
-          <p className="text-muted-foreground mt-1 text-xs">Overall operational readiness</p>
+          <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Readiness</h3>
+          <p className="text-muted-foreground mt-0.5 text-xs">Overall operational readiness</p>
         </Card>
       </div>
 
       {/* Pilot Analytics */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
+        <Card className="p-4">
+          <h3 className="text-foreground mb-3 border-b pb-1.5 text-base font-semibold">
             👥 Pilot Distribution
           </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="text-foreground text-3xl font-bold">{analytics.pilot.total}</div>
-              <div className="text-muted-foreground text-sm">Total Pilots</div>
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="bg-muted/50 rounded-lg p-3">
+              <div className="text-foreground text-2xl font-bold">{analytics.pilot.total}</div>
+              <div className="text-muted-foreground text-xs">Total Pilots</div>
             </div>
-            <div className="rounded-lg bg-green-50 p-4">
-              <div className="text-3xl font-bold text-green-900">{analytics.pilot.active}</div>
-              <div className="text-muted-foreground text-sm">Active</div>
+            <div className="rounded-lg bg-green-50 p-3">
+              <div className="text-2xl font-bold text-green-900">{analytics.pilot.active}</div>
+              <div className="text-muted-foreground text-xs">Active</div>
             </div>
-            <div className="bg-primary/5 rounded-lg p-4">
-              <div className="text-3xl font-bold text-blue-900">{analytics.pilot.captains}</div>
-              <div className="text-muted-foreground text-sm">Captains</div>
+            <div className="bg-primary/5 rounded-lg p-3">
+              <div className="text-2xl font-bold text-blue-900">{analytics.pilot.captains}</div>
+              <div className="text-muted-foreground text-xs">Captains</div>
             </div>
-            <div className="rounded-lg bg-indigo-50 p-4">
-              <div className="text-3xl font-bold text-indigo-900">
+            <div className="rounded-lg bg-indigo-50 p-3">
+              <div className="text-2xl font-bold text-indigo-900">
                 {analytics.pilot.firstOfficers}
               </div>
-              <div className="text-muted-foreground text-sm">First Officers</div>
+              <div className="text-muted-foreground text-xs">First Officers</div>
             </div>
           </div>
         </Card>
@@ -404,7 +404,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Certification Analytics */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
         <Card className="p-6">
           <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
             <CheckCircle className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
@@ -500,7 +500,7 @@ export default function AnalyticsPage() {
         </div>
 
         <h4 className="text-foreground mb-3 font-medium">Leave Types Breakdown</h4>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
           {analytics.leave.byType.map((type) => (
             <div key={type.type} className="bg-muted/50 rounded-lg p-3">
               <div className="text-foreground font-medium">{type.type}</div>

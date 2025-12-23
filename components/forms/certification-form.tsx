@@ -69,7 +69,6 @@ export function CertificationForm({
     defaultValues: defaultValues ?? {
       pilot_id: '',
       check_type_id: '',
-      completion_date: null,
       expiry_date: null,
       expiry_roster_period: '',
       notes: '',
@@ -100,7 +99,7 @@ export function CertificationForm({
             {/* Pilot and Check Type Selection */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Certification Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {showPilotSelect && (
                   <FormSelectWrapper
                     name="pilot_id"
@@ -125,13 +124,7 @@ export function CertificationForm({
             {/* Date Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Date Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormDatePickerWrapper
-                  name="completion_date"
-                  label="Completion Date"
-                  disableFuture
-                  description="Date when the check was completed"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormDatePickerWrapper
                   name="expiry_date"
                   label="Expiry Date"

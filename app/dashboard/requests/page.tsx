@@ -1,30 +1,38 @@
 /**
- * Unified Requests Dashboard Page
+ * Unified Request Management Dashboard
  *
- * Central hub for managing all pilot requests (leave, flight, bids) with
- * comprehensive filtering, status management, and reporting capabilities.
+ * Central hub for managing all pilot requests (leave, flight) with
+ * multiple view modes: Table, Cards, and Calendar.
  *
  * Author: Maurice Rondeau
- * Date: November 12, 2025
+ * Date: December 20, 2025 (Refactored for unified view modes)
  */
 
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { getAllPilotRequests, updateRequestStatus, deletePilotRequest } from '@/lib/services/unified-request-service'
+import { invalidateAfterMutation } from '@/lib/services/cache-invalidation-helper'
 import { DeadlineWidgetWrapper } from '@/components/dashboard/deadline-widget-wrapper'
 import { RequestsTableWrapper } from '@/components/requests/requests-table-wrapper'
 import { RequestFiltersWrapper } from '@/components/requests/request-filters-wrapper'
 import { QuickEntryButton } from '@/components/requests/quick-entry-button'
-import { LeaveBidTableWrapper } from '@/components/requests/leave-bid-table-wrapper'
+import { ViewModeToggle, type ViewMode } from '@/components/requests/view-mode-toggle'
+import { StatsOverview } from '@/components/requests/stats-overview'
+import { RequestCardsGrid } from '@/components/requests/request-cards-grid'
+import { LeaveCalendarClient } from '@/app/dashboard/leave/calendar/leave-calendar-client'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { calculateRequestStats } from '@/lib/utils/request-stats-utils'
 
 export const metadata = {
-  title: 'Pilot Requests | Fleet Management',
-  description: 'Manage all pilot requests in one place',
+  title: 'Request Management | Fleet Management',
+  description: 'Manage all pilot requests with Table, Cards, and Calendar views',
 }
 
 interface PageProps {
   searchParams: Promise<{
+    view?: string
     tab?: string
     roster_period?: string
     pilot_id?: string
@@ -33,11 +41,11 @@ interface PageProps {
     channel?: string
     is_late?: string
     is_past_deadline?: string
+    month?: string
   }>
 }
 
 export default async function RequestsPage({ searchParams: searchParamsPromise }: PageProps) {
-  // Await searchParams in Next.js 16
   const searchParams = await searchParamsPromise
   const supabase = await createClient()
 
@@ -50,6 +58,11 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
     return <div>Unauthorized</div>
   }
 
+  // Parse URL parameters
+  const viewMode = (searchParams.view as ViewMode) || 'table'
+  const activeTab = searchParams.tab || 'leave'
+  const category = activeTab === 'flight' ? 'FLIGHT' : 'LEAVE'
+
   // Fetch pilots for quick entry
   const { data: pilotsData } = await supabase
     .from('pilots')
@@ -57,16 +70,12 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
     .eq('is_active', true)
     .order('seniority_number', { ascending: true })
 
-  // Map pilots to expected type (normalize role to Captain/First Officer)
-  // Note: Some pilots may have roles like "Training Captain" which we normalize to "Captain"
   const pilots =
     pilotsData?.map((p) => {
-      // Normalize role - treat any captain variant as Captain
       let normalizedRole: 'Captain' | 'First Officer' = 'First Officer'
       if (p.role === 'Captain' || (p.role as string).includes('Captain')) {
         normalizedRole = 'Captain'
       }
-
       return {
         id: p.id,
         first_name: p.first_name,
@@ -77,108 +86,288 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
       }
     }) || []
 
-  // Determine active tab from URL
-  const activeTab = searchParams.tab || 'leave'
+  // Fetch requests for stats and cards/calendar views
+  const requestsResponse = await getAllPilotRequests({
+    request_category: category === 'FLIGHT' ? ['FLIGHT'] : ['LEAVE'],
+  })
+
+  // Extract requests data (empty array if service failed)
+  const requests = requestsResponse.success && requestsResponse.data ? requestsResponse.data : []
+
+  // Calculate stats
+  const stats = calculateRequestStats(requests)
+
+  // Get crew counts for calendar
+  const captainCount = pilots.filter((p) => p.role === 'Captain').length
+  const foCount = pilots.filter((p) => p.role === 'First Officer').length
+
+  // Filter requests for cards view based on URL params (or default to pending)
+  const filteredRequests = requests.filter((r) => {
+    // Filter by status (if provided, else default to pending)
+    if (searchParams.status) {
+      const statuses = searchParams.status.split(',')
+      if (!statuses.includes(r.workflow_status)) return false
+    } else {
+      // Default to pending if no status filter specified
+      if (!['SUBMITTED', 'IN_REVIEW'].includes(r.workflow_status)) return false
+    }
+
+    // Filter by roster period
+    if (searchParams.roster_period && r.roster_period !== searchParams.roster_period) {
+      return false
+    }
+
+    // Filter by channel
+    if (searchParams.channel && r.submission_channel !== searchParams.channel) {
+      return false
+    }
+
+    // Filter by late flag
+    if (searchParams.is_late === 'true' && !r.is_late_request) return false
+
+    // Filter by past deadline flag
+    if (searchParams.is_past_deadline === 'true' && !r.is_past_deadline) return false
+
+    return true
+  })
+
+  // Server actions for approve/deny
+  async function handleApprove(id: string) {
+    'use server'
+    const supabase = await createClient()
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser()
+
+    if (!currentUser) {
+      throw new Error('Unauthorized')
+    }
+
+    const result = await updateRequestStatus(id, 'APPROVED', currentUser.id)
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to approve request')
+    }
+
+    await invalidateAfterMutation('leave', { resourceId: id })
+  }
+
+  async function handleDeny(id: string) {
+    'use server'
+    const supabase = await createClient()
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser()
+
+    if (!currentUser) {
+      throw new Error('Unauthorized')
+    }
+
+    const result = await updateRequestStatus(id, 'DENIED', currentUser.id, 'Denied by admin')
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to deny request')
+    }
+
+    await invalidateAfterMutation('leave', { resourceId: id })
+  }
+
+  async function handleDelete(id: string) {
+    'use server'
+    const supabase = await createClient()
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser()
+
+    if (!currentUser) {
+      throw new Error('Unauthorized')
+    }
+
+    const result = await deletePilotRequest(id)
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to delete request')
+    }
+
+    await invalidateAfterMutation('leave', { resourceId: id })
+  }
 
   return (
-    <div className="container mx-auto space-y-8 py-8">
+    <div className="w-full space-y-4 py-4 px-4 lg:px-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pilot Requests</h1>
-          <p className="text-muted-foreground">
-            Manage leave requests, flight requests, and leave bids
+          <h1 className="text-2xl font-bold tracking-tight">Request Management</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage leave and flight requests with Table, Cards, or Calendar views
           </p>
         </div>
-        <QuickEntryButton pilots={pilots} />
+        <div className="flex items-center gap-2">
+          <ViewModeToggle currentView={viewMode} />
+          <QuickEntryButton pilots={pilots} />
+        </div>
       </div>
 
-      {/* Deadline Widget */}
-      <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-        <DeadlineWidgetWrapper maxPeriods={3} />
-      </Suspense>
+      {/* Stats Overview */}
+      <StatsOverview stats={stats} />
 
-      {/* Tabs */}
+      {/* Deadline Widget (collapsible in table view) */}
+      {viewMode === 'table' && (
+        <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+          <DeadlineWidgetWrapper maxPeriods={1} />
+        </Suspense>
+      )}
+
+      {/* Category Tabs */}
       <Tabs value={activeTab} className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-3">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="leave" asChild>
-            <a href="/dashboard/requests?tab=leave">Leave Requests</a>
+            <Link href={`/dashboard/requests?tab=leave&view=${viewMode}`}>Leave Requests</Link>
           </TabsTrigger>
           <TabsTrigger value="flight" asChild>
-            <a href="/dashboard/requests?tab=flight">Flight Requests</a>
-          </TabsTrigger>
-          <TabsTrigger value="bids" asChild>
-            <a href="/dashboard/requests?tab=bids">Leave Bids</a>
+            <Link href={`/dashboard/requests?tab=flight&view=${viewMode}`}>Flight Requests</Link>
           </TabsTrigger>
         </TabsList>
 
         {/* Leave Requests Tab */}
-        <TabsContent value="leave" className="mt-6 space-y-6">
-          <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-            <RequestFiltersWrapper
-              searchParams={{
-                roster_period: searchParams.roster_period,
-                pilot_id: searchParams.pilot_id,
-                status: searchParams.status,
-                category: 'LEAVE',
-                channel: searchParams.channel,
-                is_late: searchParams.is_late,
-                is_past_deadline: searchParams.is_past_deadline,
-              }}
+        <TabsContent value="leave" className="mt-4 space-y-4">
+          {viewMode === 'table' && (
+            <>
+              <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+                <RequestFiltersWrapper
+                  searchParams={{
+                    roster_period: searchParams.roster_period,
+                    pilot_id: searchParams.pilot_id,
+                    status: searchParams.status,
+                    category: 'LEAVE',
+                    channel: searchParams.channel,
+                    is_late: searchParams.is_late,
+                    is_past_deadline: searchParams.is_past_deadline,
+                  }}
+                />
+              </Suspense>
+              <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <RequestsTableWrapper
+                  searchParams={Promise.resolve({
+                    roster_period: searchParams.roster_period,
+                    pilot_id: searchParams.pilot_id,
+                    status: searchParams.status,
+                    category: 'LEAVE',
+                    channel: searchParams.channel,
+                    is_late: searchParams.is_late,
+                    is_past_deadline: searchParams.is_past_deadline,
+                  })}
+                />
+              </Suspense>
+            </>
+          )}
+
+          {viewMode === 'cards' && (
+            <>
+              <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+                <RequestFiltersWrapper
+                  searchParams={{
+                    roster_period: searchParams.roster_period,
+                    pilot_id: searchParams.pilot_id,
+                    status: searchParams.status,
+                    category: 'LEAVE',
+                    channel: searchParams.channel,
+                    is_late: searchParams.is_late,
+                    is_past_deadline: searchParams.is_past_deadline,
+                  }}
+                />
+              </Suspense>
+              <RequestCardsGrid
+                requests={filteredRequests.filter((r) => r.request_category === 'LEAVE')}
+                onApprove={handleApprove}
+                onDeny={handleDeny}
+                onDelete={handleDelete}
+              />
+            </>
+          )}
+
+          {viewMode === 'calendar' && (
+            <LeaveCalendarClient
+              leaveRequests={requests}
+              totalCaptains={captainCount}
+              totalFirstOfficers={foCount}
             />
-          </Suspense>
-          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-            <RequestsTableWrapper
-              searchParams={Promise.resolve({
-                roster_period: searchParams.roster_period,
-                pilot_id: searchParams.pilot_id,
-                status: searchParams.status,
-                category: 'LEAVE',
-                channel: searchParams.channel,
-                is_late: searchParams.is_late,
-                is_past_deadline: searchParams.is_past_deadline,
-              })}
-            />
-          </Suspense>
+          )}
         </TabsContent>
 
         {/* Flight Requests Tab */}
-        <TabsContent value="flight" className="mt-6 space-y-6">
-          <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-            <RequestFiltersWrapper
-              searchParams={{
-                roster_period: searchParams.roster_period,
-                pilot_id: searchParams.pilot_id,
-                status: searchParams.status,
-                category: 'FLIGHT',
-                channel: searchParams.channel,
-                is_late: searchParams.is_late,
-                is_past_deadline: searchParams.is_past_deadline,
-              }}
-            />
-          </Suspense>
-          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-            <RequestsTableWrapper
-              searchParams={Promise.resolve({
-                roster_period: searchParams.roster_period,
-                pilot_id: searchParams.pilot_id,
-                status: searchParams.status,
-                category: 'FLIGHT',
-                channel: searchParams.channel,
-                is_late: searchParams.is_late,
-                is_past_deadline: searchParams.is_past_deadline,
-              })}
-            />
-          </Suspense>
-        </TabsContent>
+        <TabsContent value="flight" className="mt-4 space-y-4">
+          {viewMode === 'table' && (
+            <>
+              <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+                <RequestFiltersWrapper
+                  searchParams={{
+                    roster_period: searchParams.roster_period,
+                    pilot_id: searchParams.pilot_id,
+                    status: searchParams.status,
+                    category: 'FLIGHT',
+                    channel: searchParams.channel,
+                    is_late: searchParams.is_late,
+                    is_past_deadline: searchParams.is_past_deadline,
+                  }}
+                />
+              </Suspense>
+              <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <RequestsTableWrapper
+                  searchParams={Promise.resolve({
+                    roster_period: searchParams.roster_period,
+                    pilot_id: searchParams.pilot_id,
+                    status: searchParams.status,
+                    category: 'FLIGHT',
+                    channel: searchParams.channel,
+                    is_late: searchParams.is_late,
+                    is_past_deadline: searchParams.is_past_deadline,
+                  })}
+                />
+              </Suspense>
+            </>
+          )}
 
-        {/* Leave Bids Tab */}
-        <TabsContent value="bids" className="mt-6 space-y-6">
-          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-            <LeaveBidTableWrapper searchParams={searchParams} />
-          </Suspense>
+          {viewMode === 'cards' && (
+            <>
+              <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+                <RequestFiltersWrapper
+                  searchParams={{
+                    roster_period: searchParams.roster_period,
+                    pilot_id: searchParams.pilot_id,
+                    status: searchParams.status,
+                    category: 'FLIGHT',
+                    channel: searchParams.channel,
+                    is_late: searchParams.is_late,
+                    is_past_deadline: searchParams.is_past_deadline,
+                  }}
+                />
+              </Suspense>
+              <RequestCardsGrid
+                requests={filteredRequests.filter((r) => r.request_category === 'FLIGHT')}
+                onApprove={handleApprove}
+                onDeny={handleDeny}
+                onDelete={handleDelete}
+              />
+            </>
+          )}
+
+          {viewMode === 'calendar' && (
+            <LeaveCalendarClient
+              leaveRequests={requests}
+              totalCaptains={captainCount}
+              totalFirstOfficers={foCount}
+            />
+          )}
         </TabsContent>
       </Tabs>
+
+      {/* Link to Leave Bids (separate page) */}
+      <div className="border-t pt-4">
+        <Link
+          href="/dashboard/admin/leave-bids"
+          className="text-muted-foreground hover:text-foreground text-sm underline"
+        >
+          Manage Leave Bids (Annual Planning) →
+        </Link>
+      </div>
     </div>
   )
 }

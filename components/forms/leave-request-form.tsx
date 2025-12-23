@@ -132,7 +132,7 @@ export function LeaveRequestForm({
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Request Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {showPilotSelect && (
                   <FormSelectWrapper
                     name="pilot_id"
@@ -153,7 +153,7 @@ export function LeaveRequestForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormSelectWrapper
                   name="request_method"
                   label="Request Method"
@@ -174,7 +174,7 @@ export function LeaveRequestForm({
             {/* Date Range */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Leave Period</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 <FormDatePickerWrapper
                   name="start_date"
                   label="Start Date"
