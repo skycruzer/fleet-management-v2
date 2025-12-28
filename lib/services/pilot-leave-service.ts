@@ -81,18 +81,18 @@ export async function submitPilotLeaveRequest(
     }
 
     // Create leave request using core service (which now handles denormalized fields)
-    const createdRequest = await createLeaveRequestServer(leaveRequestData)
+    const result = await createLeaveRequestServer(leaveRequestData)
 
-    if (!createdRequest) {
+    if (!result.success || !result.data) {
       return {
         success: false,
-        error: ERROR_MESSAGES.LEAVE.CREATE_FAILED.message,
+        error: result.error || ERROR_MESSAGES.LEAVE.CREATE_FAILED.message,
       }
     }
 
     return {
       success: true,
-      data: createdRequest,
+      data: result.data,
     }
   } catch (error) {
     console.error('Submit pilot leave request error:', error)

@@ -69,7 +69,7 @@ export async function invalidateAfterMutation(
     if (domainOrOptions?.tags) {
       for (const tag of domainOrOptions.tags) {
         try {
-          revalidateTag(tag)
+          revalidateTag(tag, 'default')
         } catch {
           // Tag might not exist, continue
         }

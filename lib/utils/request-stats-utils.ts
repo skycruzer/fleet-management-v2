@@ -20,6 +20,9 @@ export interface RequestStats {
   withdrawn: number
   late: number
   pastDeadline: number
+  critical: number
+  warning: number
+  clean: number
   byCategory: {
     leave: number
     flight: number
@@ -40,6 +43,9 @@ export function calculateRequestStats(requests: PilotRequest[]): RequestStats {
     withdrawn: 0,
     late: 0,
     pastDeadline: 0,
+    critical: 0,
+    warning: 0,
+    clean: 0,
     byCategory: {
       leave: 0,
       flight: 0,
@@ -89,6 +95,23 @@ export function calculateRequestStats(requests: PilotRequest[]): RequestStats {
       case 'LEAVE_BID':
         stats.byCategory.leaveBid++
         break
+    }
+
+    // Count critical, warning, and clean for pending requests
+    if (request.workflow_status === 'SUBMITTED' || request.workflow_status === 'IN_REVIEW') {
+      const hasCriticalIssue =
+        request.is_past_deadline ||
+        (request.conflict_flags && request.conflict_flags.length > 0)
+      const hasWarningIssue =
+        request.is_late_request || request.is_past_deadline
+
+      if (hasCriticalIssue) {
+        stats.critical++
+      } else if (hasWarningIssue) {
+        stats.warning++
+      } else {
+        stats.clean++
+      }
     }
   }
 

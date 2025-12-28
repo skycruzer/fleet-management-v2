@@ -34,6 +34,9 @@ interface LeaveRequest {
   request_type: string
   start_date: string
   end_date: string | null
+  days_count?: number | null
+  workflow_status?: string
+  approval_checklist?: Record<string, boolean> | null
   reason: string | null
   notes: string | null
   roster_period_code: string | null
@@ -47,6 +50,8 @@ interface LeaveRequest {
     fos_after?: number
   } | null
   created_at: string
+  submission_channel?: string
+  roster_periods_spanned?: string[]
   pilots?: {
     seniority_number: number
   }
@@ -56,9 +61,24 @@ interface LeaveApprovalCardProps {
   request: LeaveRequest
   onApprove: (id: string) => Promise<void>
   onDeny: (id: string) => Promise<void>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onEdit?: (request: any) => void
+  onDelete?: (id: string) => void
+  isSelected?: boolean
+  onSelect?: () => void
+  showCheckbox?: boolean
 }
 
-export function LeaveApprovalCard({ request, onApprove, onDeny }: LeaveApprovalCardProps) {
+export function LeaveApprovalCard({
+  request,
+  onApprove,
+  onDeny,
+  onEdit,
+  onDelete,
+  isSelected,
+  onSelect,
+  showCheckbox,
+}: LeaveApprovalCardProps) {
   const [isApproving, setIsApproving] = useState(false)
   const [isDenying, setIsDenying] = useState(false)
 

@@ -134,6 +134,7 @@ export interface PilotRequest {
   priority_score: number
   reason: string | null
   notes: string | null
+  approval_checklist: Record<string, boolean> | null
 
   // Audit
   created_at: string
@@ -979,6 +980,9 @@ export type LeaveRequest = PilotRequest
  */
 export interface LeaveRequestFormData {
   pilot_id: string
+  employee_number?: string
+  rank?: PilotRank
+  name?: string
   request_type: LeaveRequestType
   start_date: string
   end_date?: string | null
@@ -1039,12 +1043,15 @@ export async function createLeaveRequestServer(
 ): Promise<ServiceResponse<LeaveRequest>> {
   return createPilotRequest({
     pilot_id: data.pilot_id,
+    employee_number: data.employee_number ?? '',
+    rank: data.rank ?? 'Captain',
+    name: data.name ?? '',
     request_category: 'LEAVE',
     request_type: data.request_type,
     start_date: data.start_date,
-    end_date: data.end_date ?? null,
-    reason: data.reason ?? null,
-    notes: data.notes ?? null,
+    end_date: data.end_date || undefined,
+    reason: data.reason || undefined,
+    notes: data.notes || undefined,
     submission_channel: data.submission_channel ?? 'ADMIN_PORTAL',
   })
 }
@@ -1059,9 +1066,9 @@ export async function updateLeaveRequestServer(
   return updatePilotRequest(id, {
     request_type: data.request_type,
     start_date: data.start_date,
-    end_date: data.end_date,
-    reason: data.reason,
-    notes: data.notes,
+    end_date: data.end_date || undefined,
+    reason: data.reason || undefined,
+    notes: data.notes || undefined,
   })
 }
 
@@ -1074,7 +1081,7 @@ export async function updateLeaveRequestStatus(
   reviewedBy?: string,
   comments?: string
 ): Promise<ServiceResponse<LeaveRequest>> {
-  return updateRequestStatus(id, status, reviewedBy, comments)
+  return updateRequestStatus(id, status, reviewedBy ?? 'system', comments)
 }
 
 /**
@@ -1125,23 +1132,25 @@ export async function getPendingLeaveRequests(): Promise<ServiceResponse<LeaveRe
 export async function checkLeaveConflicts(
   pilotId: string,
   startDate: string,
-  endDate?: string | null
+  endDate?: string | null,
+  rank: 'Captain' | 'First Officer' = 'Captain'
 ): Promise<ServiceResponse<{ hasConflicts: boolean; conflicts: import('@/lib/services/conflict-detection-service').Conflict[] }>> {
   try {
     const request: RequestInput = {
-      pilot_id: pilotId,
-      start_date: startDate,
-      end_date: endDate ?? startDate,
-      request_category: 'LEAVE',
+      pilotId,
+      rank,
+      startDate,
+      endDate: endDate ?? startDate,
+      requestCategory: 'LEAVE',
     }
 
-    const conflicts = await detectConflicts(request)
+    const result = await detectConflicts(request)
 
     return {
       success: true,
       data: {
-        hasConflicts: conflicts.length > 0,
-        conflicts,
+        hasConflicts: result.hasConflicts,
+        conflicts: result.conflicts,
       },
     }
   } catch (error) {

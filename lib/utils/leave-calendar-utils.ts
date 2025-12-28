@@ -27,13 +27,16 @@ export interface DayEvents {
  * Convert a leave request to a calendar event
  */
 export function leaveRequestToEvent(request: LeaveRequest): CalendarEvent {
+  // Handle nullable end_date - default to start_date for single-day requests
+  const endDate = request.end_date ? new Date(request.end_date) : new Date(request.start_date)
+
   return {
     id: request.id,
-    pilotName: request.pilot_name || 'Unknown',
-    rank: request.pilot_role || 'Unknown',
+    pilotName: request.name || 'Unknown',
+    rank: request.rank || 'Unknown',
     leaveType: request.request_type || 'UNKNOWN',
     startDate: new Date(request.start_date),
-    endDate: new Date(request.end_date),
+    endDate,
     status: request.workflow_status,
   }
 }
