@@ -85,10 +85,10 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
                 <p>
                   <strong>Dates:</strong>{' '}
                   {new Date(request.start_date).toLocaleDateString()} -{' '}
-                  {new Date(request.end_date).toLocaleDateString()}
+                  {request.end_date ? new Date(request.end_date).toLocaleDateString() : new Date(request.start_date).toLocaleDateString()}
                 </p>
                 <p>
-                  <strong>Days:</strong> {request.days_count}
+                  <strong>Days:</strong> {request.days_count ?? 1}
                 </p>
                 {request.roster_period && (
                   <p>
