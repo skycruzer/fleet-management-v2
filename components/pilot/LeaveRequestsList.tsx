@@ -102,9 +102,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
                 )}
                 <p>
                   <strong>Submitted:</strong>{' '}
-                  {request.request_date
-                    ? new Date(request.request_date).toLocaleDateString()
-                    : new Date(request.created_at || '').toLocaleDateString()}
+                  {new Date(request.submission_date || request.created_at).toLocaleDateString()}
                 </p>
               </div>
 
