@@ -129,8 +129,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(
       {
         success: true,
-        message: result.message,
-        requestId: result.requestId,
+        message: `Leave request ${status.toLowerCase()} successfully`,
+        requestId: result.data?.id ?? requestId,
       },
       { status: 200 }
     )
