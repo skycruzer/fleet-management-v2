@@ -40,7 +40,7 @@ export function LeaveRequestGroup({
     pending: allRequests.filter((r) => r.workflow_status === 'SUBMITTED').length,
     approved: allRequests.filter((r) => r.workflow_status === 'APPROVED').length,
     denied: allRequests.filter((r) => r.workflow_status === 'DENIED').length,
-    totalDays: allRequests.reduce((sum, r) => sum + r.days_count, 0),
+    totalDays: allRequests.reduce((sum, r) => sum + (r.days_count ?? 0), 0),
   }
 
   // Get type icon
