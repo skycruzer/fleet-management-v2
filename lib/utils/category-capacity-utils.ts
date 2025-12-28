@@ -40,10 +40,18 @@ export function getUtilizationStatus(utilization: number): UtilizationStatus {
 /**
  * Get CSS color classes for utilization status
  *
- * @param status - Utilization status
+ * @param statusOrPercentage - Utilization status string or percentage number
  * @returns Tailwind CSS classes
  */
-export function getUtilizationColorClass(status: UtilizationStatus): string {
+export function getUtilizationColorClass(
+  statusOrPercentage: UtilizationStatus | number
+): string {
+  // If passed a number, convert to status first
+  const status =
+    typeof statusOrPercentage === 'number'
+      ? getUtilizationStatus(statusOrPercentage)
+      : statusOrPercentage
+
   const colorMap: Record<UtilizationStatus, string> = {
     low: 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20',
     normal: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20',
