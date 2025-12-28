@@ -180,19 +180,19 @@ export function LeaveRequestGroup({
                         return (
                           <tr key={req.id} className="hover:bg-muted/50 transition-colors">
                             <td className="px-4 py-4 text-sm font-medium text-foreground whitespace-nowrap">
-                              {req.pilot_name || 'N/A'}
+                              {req.name || 'N/A'}
                             </td>
                             <td className="px-4 py-4 text-sm text-foreground whitespace-nowrap">
-                              {req.employee_id || 'N/A'}
+                              {req.employee_number || 'N/A'}
                             </td>
                             <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
                               {format(new Date(req.start_date), 'MMM dd, yyyy')}
                             </td>
                             <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
-                              {format(new Date(req.end_date), 'MMM dd, yyyy')}
+                              {req.end_date ? format(new Date(req.end_date), 'MMM dd, yyyy') : format(new Date(req.start_date), 'MMM dd, yyyy')}
                             </td>
                             <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
-                              {req.days_count}
+                              {req.days_count ?? 1}
                             </td>
                             <td className="px-4 py-4 text-sm whitespace-nowrap">
                               <div className="flex flex-col gap-1">
