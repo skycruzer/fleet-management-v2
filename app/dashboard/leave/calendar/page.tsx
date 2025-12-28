@@ -35,7 +35,8 @@ export default async function LeaveCalendarPage() {
   }
 
   // Fetch all leave requests
-  const leaveRequests = await getAllLeaveRequests()
+  const leaveRequestsResult = await getAllLeaveRequests()
+  const leaveRequests = leaveRequestsResult.data ?? []
 
   // Get total pilot counts by rank
   const { count: totalCaptains } = await supabase
