@@ -113,7 +113,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     const validatedData = LeaveRequestCreateSchema.parse(body)
 
     // Check for conflicts before creating
-    const conflicts = await checkLeaveConflicts(
+    const conflictResult = await checkLeaveConflicts(
       validatedData.pilot_id,
       validatedData.start_date,
       validatedData.end_date
@@ -121,10 +121,18 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
     // Return conflicts as a warning, but allow creation
     // (Manager/Admin can still approve despite conflicts)
-    const hasConflicts = conflicts.length > 0
+    const hasConflicts = conflictResult.success && conflictResult.data?.hasConflicts
+    const conflicts = conflictResult.data?.conflicts ?? []
 
     // Create leave request
-    const newRequest = await createLeaveRequestServer(validatedData)
+    const createResult = await createLeaveRequestServer(validatedData)
+
+    if (!createResult.success) {
+      return NextResponse.json({
+        success: false,
+        error: createResult.error ?? 'Failed to create leave request',
+      }, { status: 500 })
+    }
 
     // Revalidate cache for leave request pages
     revalidatePath('/dashboard/leave-requests')
@@ -134,7 +142,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     return NextResponse.json(
       {
         success: true,
-        data: newRequest,
+        data: createResult.data,
         message: 'Leave request created successfully',
         warnings: hasConflicts ? ['This request conflicts with existing leave dates'] : undefined,
         conflicts: hasConflicts ? conflicts : undefined,
