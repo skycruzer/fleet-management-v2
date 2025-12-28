@@ -47,10 +47,17 @@ export async function GET(_request: NextRequest) {
     const rosterPeriod = searchParams.get('rosterPeriod')
 
     // For now, get all requests (can add filtering later)
-    const requests = await getAllLeaveRequests()
+    const result = await getAllLeaveRequests()
+
+    if (!result.success || !result.data) {
+      return NextResponse.json({
+        success: false,
+        error: result.error ?? 'Failed to fetch leave requests',
+      }, { status: 500 })
+    }
 
     // Apply client-side filters if provided
-    let filteredRequests = requests
+    let filteredRequests = result.data
 
     if (pilotId) {
       filteredRequests = filteredRequests.filter((req) => req.pilot_id === pilotId)
