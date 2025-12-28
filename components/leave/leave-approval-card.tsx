@@ -30,6 +30,7 @@ interface LeaveRequest {
   employee_number: string
   rank: string
   name: string
+  request_category?: string
   request_type: string
   start_date: string
   end_date: string | null
