@@ -40,7 +40,7 @@ export function LeaveRequestsClient({ requests, availablePeriods }: LeaveRequest
       if (req.workflow_status === 'SUBMITTED') acc.pending++
       else if (req.workflow_status === 'APPROVED') acc.approved++
       else if (req.workflow_status === 'DENIED') acc.denied++
-      acc.totalDays += req.days_count
+      acc.totalDays += req.days_count ?? 0
       return acc
     },
     { total: 0, pending: 0, approved: 0, denied: 0, totalDays: 0 }
