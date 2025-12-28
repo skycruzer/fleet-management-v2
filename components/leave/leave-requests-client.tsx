@@ -50,7 +50,7 @@ export function LeaveRequestsClient({ requests, availablePeriods }: LeaveRequest
   const groupedRequests = filteredRequests.reduce(
     (acc, req) => {
       const type = req.request_type || 'Other'
-      const role = (req.pilots?.role as 'Captain' | 'First Officer') || 'Unknown'
+      const role = req.rank || 'Unknown'
 
       if (!acc[type]) {
         acc[type] = { Captain: [], 'First Officer': [], Unknown: [] }
