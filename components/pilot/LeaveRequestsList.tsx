@@ -144,8 +144,9 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
 }
 
 // Status Badge Component
-function StatusBadge({ status }: { status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN' }) {
-  const badgeStyles = {
+function StatusBadge({ status }: { status: 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN' }) {
+  const badgeStyles: Record<string, string> = {
+    DRAFT: 'bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400',
     SUBMITTED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
     IN_REVIEW: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
     APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
