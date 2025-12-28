@@ -2,6 +2,7 @@
  * View Mode Toggle Component
  *
  * Toggle between Table, Cards, and Calendar views for requests.
+ * Supports both controlled mode (value/onChange) and URL-based mode (currentView).
  *
  * @author Maurice Rondeau
  * @date December 2025
@@ -9,6 +10,7 @@
 
 'use client'
 
+import { useRouter, useSearchParams } from 'next/navigation'
 import { LayoutGrid, Table, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -16,8 +18,12 @@ import { cn } from '@/lib/utils'
 export type ViewMode = 'table' | 'cards' | 'calendar'
 
 interface ViewModeToggleProps {
-  value: ViewMode
-  onChange: (mode: ViewMode) => void
+  /** Current view mode (URL-based mode) */
+  currentView?: ViewMode
+  /** Controlled value (controlled mode) */
+  value?: ViewMode
+  /** Controlled onChange handler */
+  onChange?: (mode: ViewMode) => void
   className?: string
 }
 
@@ -27,21 +33,41 @@ const viewModes = [
   { value: 'calendar' as const, icon: Calendar, label: 'Calendar View' },
 ]
 
-export function ViewModeToggle({ value, onChange, className }: ViewModeToggleProps) {
+export function ViewModeToggle({
+  currentView,
+  value,
+  onChange,
+  className,
+}: ViewModeToggleProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Use currentView (URL-based) or value (controlled)
+  const activeMode = currentView ?? value ?? 'table'
+
+  const handleModeChange = (mode: ViewMode) => {
+    if (onChange) {
+      // Controlled mode
+      onChange(mode)
+    } else {
+      // URL-based mode - update search params
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('view', mode)
+      router.push(`?${params.toString()}`)
+    }
+  }
+
   return (
     <div className={cn('flex items-center gap-1 rounded-lg border bg-muted p-1', className)}>
       {viewModes.map(({ value: mode, icon: Icon, label }) => (
         <Button
           key={mode}
-          variant={value === mode ? 'secondary' : 'ghost'}
+          variant={activeMode === mode ? 'secondary' : 'ghost'}
           size="sm"
-          onClick={() => onChange(mode)}
-          className={cn(
-            'h-8 w-8 p-0',
-            value === mode && 'bg-background shadow-sm'
-          )}
+          onClick={() => handleModeChange(mode)}
+          className={cn('h-8 w-8 p-0', activeMode === mode && 'bg-background shadow-sm')}
           aria-label={label}
-          aria-pressed={value === mode}
+          aria-pressed={activeMode === mode}
         >
           <Icon className="h-4 w-4" />
         </Button>
