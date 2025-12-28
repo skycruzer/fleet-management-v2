@@ -55,7 +55,7 @@ export function LeaveCalendarClient({
       return false
     }
 
-    if (rankFilter !== 'all' && request.pilots?.role !== rankFilter) {
+    if (rankFilter !== 'all' && request.rank !== rankFilter) {
       return false
     }
 
