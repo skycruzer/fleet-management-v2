@@ -10,7 +10,7 @@
 /**
  * Utilization status levels
  */
-export type UtilizationStatus = 'low' | 'normal' | 'high' | 'critical' | 'over'
+export type UtilizationStatus = 'low' | 'normal' | 'medium' | 'high' | 'critical' | 'over'
 
 /**
  * Calculate utilization percentage
@@ -34,7 +34,8 @@ export function getUtilizationStatus(utilization: number): UtilizationStatus {
   if (utilization > 100) return 'over'
   if (utilization >= 90) return 'critical'
   if (utilization >= 75) return 'high'
-  if (utilization >= 50) return 'normal'
+  if (utilization >= 50) return 'medium'
+  if (utilization >= 25) return 'normal'
   return 'low'
 }
 
@@ -56,7 +57,8 @@ export function getUtilizationColorClass(
   const colorMap: Record<UtilizationStatus, string> = {
     low: 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20',
     normal: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20',
-    high: 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20',
+    medium: 'text-yellow-500 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20',
+    high: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-900/20',
     critical: 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20',
     over: 'text-red-700 bg-red-100 dark:text-red-300 dark:bg-red-900/30',
   }
