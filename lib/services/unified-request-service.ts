@@ -964,26 +964,202 @@ export function validateSubmissionChannel(channel: string): {
 }
 
 // ============================================================================
-// Backward Compatibility Re-exports (from leave-service.ts)
+// Backward Compatibility Layer (formerly leave-service.ts)
 // ============================================================================
-// These re-exports allow gradual migration from leave-service to unified-request-service
-// Consumers can import from unified-request-service instead of leave-service
+// These types and functions provide backward compatibility for code migrating
+// from the deprecated leave-service.ts to the unified request service.
 
-export {
-  // Types
-  type LeaveRequest,
-  type LeaveRequestFormData,
-  type LeaveRequestStats,
-  // Functions
-  getAllLeaveRequests,
-  getLeaveRequestById,
-  getPilotLeaveRequests,
-  createLeaveRequestServer,
-  updateLeaveRequestServer,
-  updateLeaveRequestStatus,
-  deleteLeaveRequest,
-  getLeaveRequestStats,
-  getPendingLeaveRequests,
-  checkLeaveConflicts,
-  getLeaveRequestsByRosterPeriod,
-} from './leave-service'
+/**
+ * LeaveRequest type alias - represents a PilotRequest with request_category='LEAVE'
+ */
+export type LeaveRequest = PilotRequest
+
+/**
+ * Leave request form data for creating new leave requests
+ */
+export interface LeaveRequestFormData {
+  pilot_id: string
+  request_type: LeaveRequestType
+  start_date: string
+  end_date?: string | null
+  reason?: string | null
+  notes?: string | null
+  submission_channel?: SubmissionChannel
+}
+
+/**
+ * Leave request statistics
+ */
+export interface LeaveRequestStats {
+  total: number
+  pending: number
+  approved: number
+  denied: number
+  withdrawn: number
+}
+
+/**
+ * Get all leave requests (filtered from pilot_requests)
+ */
+export async function getAllLeaveRequests(
+  filters?: Partial<PilotRequestFilters>
+): Promise<ServiceResponse<LeaveRequest[]>> {
+  return getAllPilotRequests({
+    ...filters,
+    request_category: ['LEAVE'],
+  })
+}
+
+/**
+ * Get leave request by ID
+ */
+export async function getLeaveRequestById(
+  id: string
+): Promise<ServiceResponse<LeaveRequest>> {
+  return getPilotRequestById(id)
+}
+
+/**
+ * Get leave requests for a specific pilot
+ */
+export async function getPilotLeaveRequests(
+  pilotId: string
+): Promise<ServiceResponse<LeaveRequest[]>> {
+  return getAllPilotRequests({
+    pilot_id: pilotId,
+    request_category: ['LEAVE'],
+  })
+}
+
+/**
+ * Create a leave request (server-side)
+ */
+export async function createLeaveRequestServer(
+  data: LeaveRequestFormData
+): Promise<ServiceResponse<LeaveRequest>> {
+  return createPilotRequest({
+    pilot_id: data.pilot_id,
+    request_category: 'LEAVE',
+    request_type: data.request_type,
+    start_date: data.start_date,
+    end_date: data.end_date ?? null,
+    reason: data.reason ?? null,
+    notes: data.notes ?? null,
+    submission_channel: data.submission_channel ?? 'ADMIN_PORTAL',
+  })
+}
+
+/**
+ * Update a leave request (server-side)
+ */
+export async function updateLeaveRequestServer(
+  id: string,
+  data: Partial<LeaveRequestFormData>
+): Promise<ServiceResponse<LeaveRequest>> {
+  return updatePilotRequest(id, {
+    request_type: data.request_type,
+    start_date: data.start_date,
+    end_date: data.end_date,
+    reason: data.reason,
+    notes: data.notes,
+  })
+}
+
+/**
+ * Update leave request status
+ */
+export async function updateLeaveRequestStatus(
+  id: string,
+  status: WorkflowStatus,
+  reviewedBy?: string,
+  comments?: string
+): Promise<ServiceResponse<LeaveRequest>> {
+  return updateRequestStatus(id, status, reviewedBy, comments)
+}
+
+/**
+ * Delete a leave request
+ */
+export async function deleteLeaveRequest(
+  id: string
+): Promise<ServiceResponse<void>> {
+  return deletePilotRequest(id)
+}
+
+/**
+ * Get leave request statistics
+ */
+export async function getLeaveRequestStats(): Promise<ServiceResponse<LeaveRequestStats>> {
+  const result = await getAllPilotRequests({ request_category: ['LEAVE'] })
+
+  if (!result.success || !result.data) {
+    return { success: false, error: result.error }
+  }
+
+  const requests = result.data
+  return {
+    success: true,
+    data: {
+      total: requests.length,
+      pending: requests.filter(r => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW').length,
+      approved: requests.filter(r => r.workflow_status === 'APPROVED').length,
+      denied: requests.filter(r => r.workflow_status === 'DENIED').length,
+      withdrawn: requests.filter(r => r.workflow_status === 'WITHDRAWN').length,
+    },
+  }
+}
+
+/**
+ * Get pending leave requests
+ */
+export async function getPendingLeaveRequests(): Promise<ServiceResponse<LeaveRequest[]>> {
+  return getAllPilotRequests({
+    request_category: ['LEAVE'],
+    status: ['SUBMITTED', 'IN_REVIEW'],
+  })
+}
+
+/**
+ * Check for leave conflicts (delegates to conflict detection service)
+ */
+export async function checkLeaveConflicts(
+  pilotId: string,
+  startDate: string,
+  endDate?: string | null
+): Promise<ServiceResponse<{ hasConflicts: boolean; conflicts: import('@/lib/services/conflict-detection-service').Conflict[] }>> {
+  try {
+    const request: RequestInput = {
+      pilot_id: pilotId,
+      start_date: startDate,
+      end_date: endDate ?? startDate,
+      request_category: 'LEAVE',
+    }
+
+    const conflicts = await detectConflicts(request)
+
+    return {
+      success: true,
+      data: {
+        hasConflicts: conflicts.length > 0,
+        conflicts,
+      },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to check conflicts',
+    }
+  }
+}
+
+/**
+ * Get leave requests by roster period
+ */
+export async function getLeaveRequestsByRosterPeriod(
+  rosterPeriod: string
+): Promise<ServiceResponse<LeaveRequest[]>> {
+  return getAllPilotRequests({
+    roster_period: rosterPeriod,
+    request_category: ['LEAVE'],
+  })
+}
