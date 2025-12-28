@@ -32,6 +32,13 @@ export async function approveLeaveRequest(requestId: string, comments?: string) 
     // Update status via service layer
     const result = await updateLeaveRequestStatus(requestId, 'APPROVED', user.id, comments)
 
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error ?? 'Failed to approve leave request',
+      }
+    }
+
     // Revalidate all affected paths
     revalidatePath('/dashboard/leave/approve')
     revalidatePath('/dashboard/requests')
@@ -39,8 +46,8 @@ export async function approveLeaveRequest(requestId: string, comments?: string) 
 
     return {
       success: true,
-      message: result.message || 'Leave request approved successfully',
-      requestId: result.requestId,
+      message: 'Leave request approved successfully',
+      requestId: result.data?.id ?? requestId,
     }
   } catch (error) {
     console.error('Approve leave request error:', error)
@@ -78,6 +85,13 @@ export async function denyLeaveRequest(requestId: string, comments?: string) {
     // Update status via service layer
     const result = await updateLeaveRequestStatus(requestId, 'DENIED', user.id, comments)
 
+    if (!result.success) {
+      return {
+        success: false,
+        error: result.error ?? 'Failed to deny leave request',
+      }
+    }
+
     // Revalidate all affected paths
     revalidatePath('/dashboard/leave/approve')
     revalidatePath('/dashboard/requests')
@@ -85,8 +99,8 @@ export async function denyLeaveRequest(requestId: string, comments?: string) {
 
     return {
       success: true,
-      message: result.message || 'Leave request denied successfully',
-      requestId: result.requestId,
+      message: 'Leave request denied successfully',
+      requestId: result.data?.id ?? requestId,
     }
   } catch (error) {
     console.error('Deny leave request error:', error)
