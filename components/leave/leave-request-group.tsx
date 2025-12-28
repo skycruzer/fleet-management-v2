@@ -62,7 +62,8 @@ export function LeaveRequestGroup({
   // Check if leave spans multiple roster periods
   const getMultiPeriodInfo = (req: LeaveRequest) => {
     const startDate = new Date(req.start_date)
-    const endDate = new Date(req.end_date)
+    // end_date can be null for single-day requests, default to start_date
+    const endDate = req.end_date ? new Date(req.end_date) : startDate
     const affectedPeriods = getAffectedRosterPeriods(startDate, endDate)
 
     if (affectedPeriods.length > 1) {
