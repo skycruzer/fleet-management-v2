@@ -180,10 +180,7 @@ function getResourceConfig(resourceType: ResourceType): {
   table: string
   userColumn: string
 } | null {
-  const configs: Record<
-    ResourceType,
-    { table: string; userColumn: string }
-  > = {
+  const configs: Record<ResourceType, { table: string; userColumn: string }> = {
     [ResourceType.TASK]: {
       table: 'tasks',
       userColumn: 'created_by',
@@ -201,7 +198,7 @@ function getResourceConfig(resourceType: ResourceType): {
       userColumn: 'pilot_id',
     },
     [ResourceType.DISCIPLINARY]: {
-      table: 'disciplinary_actions',
+      table: 'disciplinary_matters',
       userColumn: 'pilot_id',
     },
     [ResourceType.LEAVE_BID]: {
