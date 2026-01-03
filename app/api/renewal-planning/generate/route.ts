@@ -12,18 +12,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateRenewalPlan } from '@/lib/services/certification-renewal-planning-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
     // Check authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized - Please log in' },
         { status: 401 }
@@ -31,10 +27,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify admin/manager role (lowercase!)
+    const supabase = await createClient()
     const { data: adminUser } = await supabase
       .from('an_users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', auth.userId!)
       .single()
 
     if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {

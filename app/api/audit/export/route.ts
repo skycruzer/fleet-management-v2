@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { exportAuditTrailCSV } from '@/lib/services/audit-service'
 
 /**
@@ -29,21 +30,17 @@ import { exportAuditTrailCSV } from '@/lib/services/audit-service'
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized - Please sign in' }, { status: 401 })
     }
 
     // Get user role to verify permissions
+    const supabase = await createClient()
     const { data: userData, error: userError } = await supabase
       .from('an_users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', auth.userId!)
       .single()
 
     if (userError || !userData) {

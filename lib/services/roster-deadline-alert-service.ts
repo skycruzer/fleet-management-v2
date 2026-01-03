@@ -9,10 +9,7 @@
  * @spec UNIFIED-REQUEST-SYSTEM-IMPLEMENTATION.md (Phase 3)
  */
 
-import {
-  getUpcomingRosterPeriods,
-  RosterPeriodDates,
-} from '@/lib/services/roster-period-service'
+import { getUpcomingRosterPeriods, RosterPeriodDates } from '@/lib/services/roster-period-service'
 import { getAllPilotRequests } from '@/lib/services/unified-request-service'
 import { logger } from '@/lib/services/logging-service'
 import { Resend } from 'resend'
@@ -100,9 +97,7 @@ export interface AlertCheckResult {
  * const alerts = await checkUpcomingDeadlines()
  * // Returns alerts for periods at milestone thresholds
  */
-export async function checkUpcomingDeadlines(
-  lookAheadCount: number = 3
-): Promise<DeadlineAlert[]> {
+export async function checkUpcomingDeadlines(lookAheadCount: number = 3): Promise<DeadlineAlert[]> {
   try {
     // Get upcoming roster periods
     const periods = getUpcomingRosterPeriods(lookAheadCount)
@@ -125,13 +120,9 @@ export async function checkUpcomingDeadlines(
             (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
           ).length
 
-          const submittedCount = requests.filter(
-            (r) => r.workflow_status === 'SUBMITTED'
-          ).length
+          const submittedCount = requests.filter((r) => r.workflow_status === 'SUBMITTED').length
 
-          const approvedCount = requests.filter(
-            (r) => r.workflow_status === 'APPROVED'
-          ).length
+          const approvedCount = requests.filter((r) => r.workflow_status === 'APPROVED').length
 
           const deniedCount = requests.filter((r) => r.workflow_status === 'DENIED').length
 
@@ -149,10 +140,14 @@ export async function checkUpcomingDeadlines(
             deniedCount,
             leaveRequestsCount: leaveRequests.length,
             flightRequestsCount: flightRequests.length,
-            leavePendingCount: leaveRequests.filter((r) => r.workflow_status === 'SUBMITTED').length,
-            flightPendingCount: flightRequests.filter((r) => r.workflow_status === 'SUBMITTED').length,
-            leaveApprovedCount: leaveRequests.filter((r) => r.workflow_status === 'APPROVED').length,
-            flightApprovedCount: flightRequests.filter((r) => r.workflow_status === 'APPROVED').length,
+            leavePendingCount: leaveRequests.filter((r) => r.workflow_status === 'SUBMITTED')
+              .length,
+            flightPendingCount: flightRequests.filter((r) => r.workflow_status === 'SUBMITTED')
+              .length,
+            leaveApprovedCount: leaveRequests.filter((r) => r.workflow_status === 'APPROVED')
+              .length,
+            flightApprovedCount: flightRequests.filter((r) => r.workflow_status === 'APPROVED')
+              .length,
           })
         }
       }
@@ -202,21 +197,17 @@ export async function getAllDeadlineAlerts(): Promise<DeadlineAlert[]> {
         })
 
         // Filter by category
-        const leaveRequests = requests.filter(r => r.request_category === 'LEAVE')
-        const flightRequests = requests.filter(r => r.request_category === 'FLIGHT')
+        const leaveRequests = requests.filter((r) => r.request_category === 'LEAVE')
+        const flightRequests = requests.filter((r) => r.request_category === 'FLIGHT')
 
         // Overall counts
         const pendingCount = requests.filter(
           (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
         ).length
 
-        const submittedCount = requests.filter(
-          (r) => r.workflow_status === 'SUBMITTED'
-        ).length
+        const submittedCount = requests.filter((r) => r.workflow_status === 'SUBMITTED').length
 
-        const approvedCount = requests.filter(
-          (r) => r.workflow_status === 'APPROVED'
-        ).length
+        const approvedCount = requests.filter((r) => r.workflow_status === 'APPROVED').length
 
         const deniedCount = requests.filter((r) => r.workflow_status === 'DENIED').length
 
@@ -474,7 +465,7 @@ export async function sendScheduledDeadlineAlerts(): Promise<AlertCheckResult> {
     result.alertsTriggered = alerts
 
     // Get fleet manager email addresses from system settings
-    // TODO: Replace with actual system settings table/query when implemented
+    // Tracked: tasks/062-tracked-infrastructure-enhancements.md #1
     // For now, use environment variable or fallback
     const recipients: { email: string; name: string }[] = [
       {
@@ -486,17 +477,11 @@ export async function sendScheduledDeadlineAlerts(): Promise<AlertCheckResult> {
     // Send emails to all recipients for each alert
     for (const alert of alerts) {
       for (const recipient of recipients) {
-        const emailResult = await sendDeadlineAlertEmail(
-          alert,
-          recipient.email,
-          recipient.name
-        )
+        const emailResult = await sendDeadlineAlertEmail(alert, recipient.email, recipient.name)
         result.emailsSent.push(emailResult)
 
         if (!emailResult.success) {
-          result.errors.push(
-            `Failed to send alert to ${recipient.email}: ${emailResult.error}`
-          )
+          result.errors.push(`Failed to send alert to ${recipient.email}: ${emailResult.error}`)
         }
       }
     }

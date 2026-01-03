@@ -14,6 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
@@ -497,7 +498,8 @@ export const getPilotStats = unstable_cache(
 // ===================================
 
 export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   // Helper to convert empty strings to null (PostgreSQL requires null, not '')
   const toNullIfEmpty = (value: string | null | undefined): string | null => {
@@ -580,7 +582,8 @@ export async function createPilotWithCertifications(
   pilotData: PilotFormData,
   certifications: CertificationCreateData[]
 ): Promise<{ pilot: Pilot; certificationCount: number }> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     // Prepare pilot data for PostgreSQL function
@@ -662,15 +665,12 @@ export async function updatePilot(
   pilotId: string,
   pilotData: Partial<PilotFormData>
 ): Promise<Pilot> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
-    console.log('🔧 [updatePilot] Starting update for pilot:', pilotId)
-    console.log('🔧 [updatePilot] Received data:', JSON.stringify(pilotData, null, 2))
-
     // Fetch old data for audit trail
     const { data: oldData } = await supabase.from('pilots').select('*').eq('id', pilotId).single()
-    console.log('🔧 [updatePilot] Old data role:', oldData?.role)
 
     let seniorityNumber = undefined
     if (pilotData.commencement_date) {
@@ -682,15 +682,11 @@ export async function updatePilot(
       seniority_number: seniorityNumber,
     }
 
-    console.log('🔧 [updatePilot] Update data before cleaning:', JSON.stringify(updateData, null, 2))
-
     const cleanedData = Object.fromEntries(
       Object.entries(updateData)
         .filter(([_, value]) => value !== undefined)
         .map(([key, value]) => [key, value === '' ? null : value])
     )
-
-    console.log('🔧 [updatePilot] Cleaned data being sent to DB:', JSON.stringify(cleanedData, null, 2))
 
     const { data, error } = await supabase
       .from('pilots')
@@ -703,9 +699,6 @@ export async function updatePilot(
       console.error('❌ [updatePilot] Database error:', error)
       throw error
     }
-
-    console.log('✅ [updatePilot] Database updated successfully')
-    console.log('✅ [updatePilot] New data role:', data?.role)
 
     // Audit log the update
     await createAuditLog({
@@ -721,7 +714,6 @@ export async function updatePilot(
     await safeRevalidate('pilots')
     await safeRevalidate('pilot-stats')
 
-    console.log('✅ [updatePilot] Update complete, returning data')
     return data
   } catch (error) {
     console.error('❌ [updatePilot] Error in updatePilot:', error)
@@ -743,7 +735,8 @@ export async function updatePilot(
  * Deletes pilot and all related records (leave requests, certifications) atomically
  */
 export async function deletePilot(pilotId: string): Promise<void> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     // Fetch pilot data before deletion for audit trail
@@ -781,10 +774,7 @@ export async function deletePilot(pilotId: string): Promise<void> {
     }
 
     // Step 3: Delete the pilot record
-    const { error: pilotError } = await supabase
-      .from('pilots')
-      .delete()
-      .eq('id', pilotId)
+    const { error: pilotError } = await supabase.from('pilots').delete().eq('id', pilotId)
 
     if (pilotError) {
       throw new Error(`Failed to delete pilot: ${pilotError.message}`)

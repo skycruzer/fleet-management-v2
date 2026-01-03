@@ -23,10 +23,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle, Info } from 'lucide-react'
-import {
-  getRosterPeriodFromDate,
-  formatRosterPeriodFromObject,
-} from '@/lib/utils/roster-utils'
+import { getRosterPeriodFromDate, formatRosterPeriodFromObject } from '@/lib/utils/roster-utils'
 import { useEffect, useState } from 'react'
 
 // Form validation schema
@@ -147,7 +144,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
 
   if (showSuccess) {
     return (
-      <Alert className="bg-green-50 border-green-200">
+      <Alert className="border-green-300 bg-green-50">
         <CheckCircle className="h-4 w-4 text-green-600" />
         <AlertDescription className="text-green-800">
           {requestType} request submitted successfully! Redirecting...
@@ -157,31 +154,31 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {error && <FormErrorAlert error={error} onDismiss={resetError} />}
 
       {/* Request Type Selection */}
-      <div className="space-y-2">
-        <label htmlFor="request_type" className="block text-sm font-medium text-gray-700">
-          Request Type <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label htmlFor="request_type" className="text-foreground text-sm font-medium">
+          Request Type <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <select
           id="request_type"
           {...register('request_type')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
         >
           <option value="RDO">RDO (Rostered Day Off)</option>
           <option value="SDO">SDO (Scheduled Day Off)</option>
         </select>
         {errors.request_type && (
-          <p className="text-sm text-red-600">{errors.request_type.message}</p>
+          <p className="text-destructive text-xs font-medium">{errors.request_type.message}</p>
         )}
       </div>
 
       {/* Request Type Info */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
+      <Alert className="border-accent/20 bg-accent/5">
+        <Info className="text-accent h-4 w-4" />
+        <AlertDescription className="text-sm">
           {requestType === 'RDO' ? (
             <span>
               <strong>RDO (Rostered Day Off):</strong> A rostered day off within your normal roster
@@ -197,62 +194,69 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
       </Alert>
 
       {/* Start Date */}
-      <div className="space-y-2">
-        <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">
-          Start Date <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label htmlFor="start_date" className="text-foreground text-sm font-medium">
+          Start Date <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <Input
           id="start_date"
           type="date"
           {...register('start_date')}
-          className={errors.start_date ? 'border-red-500' : ''}
+          className="h-11"
+          error={!!errors.start_date}
         />
-        {errors.start_date && <p className="text-sm text-red-600">{errors.start_date.message}</p>}
+        {errors.start_date && (
+          <p className="text-destructive text-xs font-medium">{errors.start_date.message}</p>
+        )}
       </div>
 
       {/* End Date (Optional) */}
-      <div className="space-y-2">
-        <label htmlFor="end_date" className="block text-sm font-medium text-gray-700">
-          End Date <span className="text-gray-400">(Optional - defaults to start date)</span>
+      <div className="space-y-1.5">
+        <label htmlFor="end_date" className="text-foreground text-sm font-medium">
+          End Date{' '}
+          <span className="text-muted-foreground text-xs">(Optional - defaults to start date)</span>
         </label>
         <Input
           id="end_date"
           type="date"
           {...register('end_date')}
-          className={errors.end_date ? 'border-red-500' : ''}
+          className="h-11"
+          error={!!errors.end_date}
         />
-        {errors.end_date && <p className="text-sm text-red-600">{errors.end_date.message}</p>}
+        {errors.end_date && (
+          <p className="text-destructive text-xs font-medium">{errors.end_date.message}</p>
+        )}
       </div>
 
       {/* Days Count Display */}
       {startDate && (
-        <Alert className="bg-blue-50 border-blue-200">
-          <Info className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-800">
+        <div className="border-accent/20 bg-accent/5 rounded-lg border p-4">
+          <p className="text-foreground text-sm font-medium">
             <strong>Request Duration:</strong> {daysCount} day{daysCount !== 1 ? 's' : ''}
-            {rosterPeriod && (
-              <>
-                <br />
-                <strong>Roster Period:</strong> {formatRosterPeriodFromObject(rosterPeriod)}
-              </>
-            )}
-          </AlertDescription>
-        </Alert>
+          </p>
+          {rosterPeriod && (
+            <p className="text-muted-foreground mt-1 text-sm">
+              <strong>Roster Period:</strong> {formatRosterPeriodFromObject(rosterPeriod)}
+            </p>
+          )}
+        </div>
       )}
 
       {/* Reason (Optional) */}
-      <div className="space-y-2">
-        <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
-          Reason <span className="text-gray-400">(Optional)</span>
+      <div className="space-y-1.5">
+        <label htmlFor="reason" className="text-foreground text-sm font-medium">
+          Reason <span className="text-muted-foreground text-xs">(Optional)</span>
         </label>
         <Textarea
           id="reason"
           {...register('reason')}
           placeholder="Optional: Provide additional context for your request"
           rows={3}
-          className={errors.reason ? 'border-red-500' : ''}
+          error={!!errors.reason}
         />
-        {errors.reason && <p className="text-sm text-red-600">{errors.reason.message}</p>}
+        {errors.reason && (
+          <p className="text-destructive text-xs font-medium">{errors.reason.message}</p>
+        )}
       </div>
 
       {/* Submit Button */}
@@ -261,7 +265,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
       </SubmitButton>
 
       {/* Help Text */}
-      <p className="text-sm text-gray-500">
+      <p className="text-muted-foreground text-xs">
         Your {requestType} request will be submitted for manager review. You'll be notified of the
         decision via email and in your portal dashboard.
       </p>

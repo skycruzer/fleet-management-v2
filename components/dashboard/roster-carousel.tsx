@@ -11,7 +11,15 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, ArrowRight, Users, ClipboardCheck, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  Calendar,
+  ArrowRight,
+  Users,
+  ClipboardCheck,
+  ChevronLeft,
+  ChevronRight,
+  CalendarDays,
+} from 'lucide-react'
 import type { RosterPeriod } from '@/lib/utils/roster-utils'
 
 // Extended RosterPeriod with leave request and certification check data
@@ -36,8 +44,8 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
   const [canScrollRight, setCanScrollRight] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Duplicate periods for seamless infinite scroll
-  const duplicatedPeriods = [...periods, ...periods]
+  // Check if we have periods to display
+  const hasPeriods = periods && periods.length > 0
 
   // Check scroll position and update button states
   const updateScrollButtons = () => {
@@ -57,8 +65,10 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
   }
 
-  // Set up scroll listener
+  // Set up scroll listener - must be called before any returns
   useEffect(() => {
+    if (!hasPeriods) return
+
     const container = scrollContainerRef.current
     if (!container) return
 
@@ -68,7 +78,36 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
     return () => {
       container.removeEventListener('scroll', updateScrollButtons)
     }
-  }, [periods])
+  }, [periods, hasPeriods])
+
+  // Empty state when no periods are available
+  if (!hasPeriods) {
+    return (
+      <div className="bg-muted/50 rounded-lg py-6">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="bg-muted mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+            <CalendarDays className="text-muted-foreground h-6 w-6" aria-hidden="true" />
+          </div>
+          <h4 className="text-foreground mb-1 text-sm font-semibold">No Roster Periods</h4>
+          <p className="text-muted-foreground mb-3 max-w-[280px] text-xs">
+            Roster periods will appear here once configured. Each period represents a 28-day
+            scheduling cycle.
+          </p>
+          <Link
+            href="/dashboard/roster-periods"
+            className="bg-muted text-foreground hover:bg-muted/80 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+            aria-label="View roster period settings"
+          >
+            <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+            View Settings
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // Duplicate periods for seamless infinite scroll
+  const duplicatedPeriods = [...periods, ...periods]
 
   // Scroll handlers
   const handleScrollLeft = () => {
@@ -100,17 +139,17 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
       }}
     >
       {/* Enhanced Gradient Fade Edges with stronger effect */}
-      <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80" />
-      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-slate-900 dark:via-slate-900/80" />
+      <div className="from-background via-background/80 pointer-events-none absolute top-0 left-0 z-10 h-full w-16 bg-gradient-to-r to-transparent" />
+      <div className="from-background via-background/80 pointer-events-none absolute top-0 right-0 z-10 h-full w-16 bg-gradient-to-l to-transparent" />
 
       {/* Left Navigation Button */}
       {showScrollControls && canScrollLeft && (
         <button
           onClick={handleScrollLeft}
-          className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+          className="bg-card hover:bg-muted absolute top-1/2 left-2 z-20 -translate-y-1/2 rounded-full p-2 shadow-lg transition-all"
           aria-label="Scroll left"
         >
-          <ChevronLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+          <ChevronLeft className="text-foreground h-5 w-5" />
         </button>
       )}
 
@@ -118,20 +157,18 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
       {showScrollControls && canScrollRight && (
         <button
           onClick={handleScrollRight}
-          className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+          className="bg-card hover:bg-muted absolute top-1/2 right-2 z-20 -translate-y-1/2 rounded-full p-2 shadow-lg transition-all"
           aria-label="Scroll right"
         >
-          <ChevronRight className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+          <ChevronRight className="text-foreground h-5 w-5" />
         </button>
       )}
 
       {/* Scrolling Container */}
-      <div
-        className="overflow-hidden rounded-lg bg-slate-50/50 py-3 dark:bg-slate-800/50"
-      >
+      <div className="bg-muted/50 overflow-hidden rounded-lg py-3">
         <div
           ref={scrollContainerRef}
-          className="flex gap-3 px-2 animate-scroll"
+          className="animate-scroll flex gap-3 px-2"
           style={{
             width: 'max-content',
             pointerEvents: 'auto',
@@ -148,40 +185,38 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                 key={periodKey}
                 className={`group relative flex w-[180px] flex-shrink-0 flex-col overflow-hidden rounded-xl border-2 shadow-md transition-all ${
                   isNext
-                    ? 'border-blue-500 bg-gradient-to-br from-blue-100 via-blue-50 to-indigo-100 dark:border-blue-600 dark:from-blue-950 dark:via-blue-900 dark:to-indigo-950'
-                    : 'border-slate-300 bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:border-slate-600 dark:from-slate-800 dark:via-slate-800 dark:to-slate-900'
+                    ? 'border-primary from-primary/10 via-primary/5 to-accent/10 bg-gradient-to-br'
+                    : 'border-border bg-card'
                 }`}
                 style={{ pointerEvents: 'auto' }}
               >
                 {/* Animated Background Glow */}
                 {isNext && (
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="from-primary/20 to-accent/20 absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 )}
 
                 {/* Header - Non-clickable */}
                 <div className="relative z-10 p-3 pb-2">
                   <div className="mb-2 flex items-center justify-between">
                     {isNext ? (
-                      <Badge className="h-5 bg-blue-600 px-2 text-[9px] font-black text-white shadow-lg">
+                      <Badge className="bg-primary text-primary-foreground h-5 px-2 text-[9px] font-black shadow-lg">
                         NEXT UP
                       </Badge>
                     ) : (
                       <Badge
                         variant="outline"
-                        className="h-5 border-2 border-slate-400 px-2 text-[9px] font-bold dark:border-slate-500"
+                        className="border-border h-5 border-2 px-2 text-[9px] font-bold"
                       >
                         UPCOMING
                       </Badge>
                     )}
                     <div
                       className={`flex h-6 w-6 items-center justify-center rounded-lg ${
-                        isNext
-                          ? 'bg-blue-600 shadow-md'
-                          : 'bg-slate-300 dark:bg-slate-600'
+                        isNext ? 'bg-primary shadow-md' : 'bg-muted'
                       }`}
                     >
                       <Calendar
-                        className={`h-3.5 w-3.5 ${isNext ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}
+                        className={`h-3.5 w-3.5 ${isNext ? 'text-primary-foreground' : 'text-muted-foreground'}`}
                       />
                     </div>
                   </div>
@@ -190,28 +225,22 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                   <div className="mb-2">
                     <h4
                       className={`mb-1 text-xl font-black tracking-tight ${
-                        isNext
-                          ? 'text-blue-900 dark:text-blue-100'
-                          : 'text-slate-900 dark:text-white'
+                        isNext ? 'text-primary' : 'text-foreground'
                       }`}
                     >
                       {period.code}
                     </h4>
                     <div
                       className={`h-0.5 w-10 rounded-full ${
-                        isNext
-                          ? 'bg-blue-600'
-                          : 'bg-slate-400 dark:bg-slate-500'
+                        isNext ? 'bg-primary' : 'bg-muted-foreground'
                       }`}
                     />
                   </div>
 
                   {/* Date Range */}
                   <p
-                    className={`text-[10px] font-semibold leading-tight ${
-                      isNext
-                        ? 'text-blue-800 dark:text-blue-200'
-                        : 'text-slate-700 dark:text-slate-300'
+                    className={`text-[10px] leading-tight font-semibold ${
+                      isNext ? 'text-primary/80' : 'text-muted-foreground'
                     }`}
                   >
                     {new Date(period.startDate).toLocaleDateString('en-US', {
@@ -233,29 +262,23 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                     <Link
                       href={`/dashboard/leave?period=${period.code}`}
                       className={`flex flex-col gap-0.5 px-3 py-2 transition-colors ${
-                        isNext
-                          ? 'hover:bg-blue-200/50 dark:hover:bg-blue-900/30'
-                          : 'hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+                        isNext ? 'hover:bg-primary/10' : 'hover:bg-muted'
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
                         <Users
                           className={`h-3 w-3 flex-shrink-0 ${
-                            isNext
-                              ? 'text-blue-600 dark:text-blue-400'
-                              : 'text-slate-600 dark:text-slate-400'
+                            isNext ? 'text-primary' : 'text-muted-foreground'
                           }`}
                         />
                         <span
                           className={`text-[10px] font-bold ${
-                            isNext
-                              ? 'text-blue-700 dark:text-blue-300'
-                              : 'text-slate-700 dark:text-slate-300'
+                            isNext ? 'text-primary' : 'text-foreground'
                           }`}
                         >
                           {period.leaveRequests.total} leave
                           {period.leaveRequests.pending > 0 && (
-                            <span className="ml-0.5 text-orange-600 dark:text-orange-400">
+                            <span className="text-warning ml-0.5">
                               ({period.leaveRequests.pending}p)
                             </span>
                           )}
@@ -263,36 +286,29 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                         <ArrowRight className="ml-auto h-2.5 w-2.5 opacity-50" />
                       </div>
                       {/* Request Type Breakdown */}
-                      {period.leaveRequests.byType && Object.keys(period.leaveRequests.byType).length > 0 && (
-                        <div className="ml-5 flex flex-wrap gap-1">
-                          {Object.entries(period.leaveRequests.byType)
-                            .sort((a, b) => b[1] - a[1]) // Sort by count descending
-                            .slice(0, 3) // Show top 3 types
-                            .map(([type, count]) => (
-                              <span
-                                key={type}
-                                className={`text-[8px] font-medium ${
-                                  isNext
-                                    ? 'text-blue-600 dark:text-blue-400'
-                                    : 'text-slate-600 dark:text-slate-400'
-                                }`}
-                              >
-                                {type}:{count}
+                      {period.leaveRequests.byType &&
+                        Object.keys(period.leaveRequests.byType).length > 0 && (
+                          <div className="ml-5 flex flex-wrap gap-1">
+                            {Object.entries(period.leaveRequests.byType)
+                              .sort((a, b) => b[1] - a[1]) // Sort by count descending
+                              .slice(0, 3) // Show top 3 types
+                              .map(([type, count]) => (
+                                <span
+                                  key={type}
+                                  className={`text-[8px] font-medium ${
+                                    isNext ? 'text-primary/80' : 'text-muted-foreground'
+                                  }`}
+                                >
+                                  {type}:{count}
+                                </span>
+                              ))}
+                            {Object.keys(period.leaveRequests.byType).length > 3 && (
+                              <span className={`text-muted-foreground text-[8px] font-medium`}>
+                                +{Object.keys(period.leaveRequests.byType).length - 3} more
                               </span>
-                            ))}
-                          {Object.keys(period.leaveRequests.byType).length > 3 && (
-                            <span
-                              className={`text-[8px] font-medium ${
-                                isNext
-                                  ? 'text-blue-500 dark:text-blue-500'
-                                  : 'text-slate-500 dark:text-slate-500'
-                              }`}
-                            >
-                              +{Object.keys(period.leaveRequests.byType).length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      )}
+                            )}
+                          </div>
+                        )}
                     </Link>
                   )}
 
@@ -301,23 +317,17 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                     <Link
                       href={`/dashboard/renewal-planning/roster-period/${period.code}`}
                       className={`flex items-center gap-1.5 px-3 py-2 transition-colors ${
-                        isNext
-                          ? 'hover:bg-blue-200/50 dark:hover:bg-blue-900/30'
-                          : 'hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+                        isNext ? 'hover:bg-primary/10' : 'hover:bg-muted'
                       }`}
                     >
                       <ClipboardCheck
                         className={`h-3 w-3 flex-shrink-0 ${
-                          isNext
-                            ? 'text-blue-600 dark:text-blue-400'
-                            : 'text-slate-600 dark:text-slate-400'
+                          isNext ? 'text-primary' : 'text-muted-foreground'
                         }`}
                       />
                       <span
                         className={`text-[10px] font-bold ${
-                          isNext
-                            ? 'text-blue-700 dark:text-blue-300'
-                            : 'text-slate-700 dark:text-slate-300'
+                          isNext ? 'text-primary' : 'text-foreground'
                         }`}
                       >
                         {period.certChecks} cert{period.certChecks !== 1 ? 's' : ''}
@@ -332,16 +342,12 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                       <Link
                         href={`/dashboard/renewal-planning/roster-period/${period.code}`}
                         className={`flex items-center gap-1.5 px-3 py-2 transition-colors ${
-                          isNext
-                            ? 'hover:bg-blue-200/50 dark:hover:bg-blue-900/30'
-                            : 'hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+                          isNext ? 'hover:bg-primary/10' : 'hover:bg-muted'
                         }`}
                       >
                         <span
                           className={`text-[10px] font-semibold ${
-                            isNext
-                              ? 'text-blue-700 dark:text-blue-300'
-                              : 'text-slate-600 dark:text-slate-400'
+                            isNext ? 'text-primary' : 'text-muted-foreground'
                           }`}
                         >
                           View Details
@@ -359,7 +365,7 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
       {/* Pause Indicator - More prominent */}
       {isPaused && (
         <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
-          <Badge className="shadow-lg backdrop-blur-md bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-white dark:bg-white/90 dark:text-slate-900">
+          <Badge className="bg-foreground/90 text-background px-3 py-1.5 text-xs font-semibold shadow-lg backdrop-blur-md">
             ⏸ Paused - Hover to interact
           </Badge>
         </div>

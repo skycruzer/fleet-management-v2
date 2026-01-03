@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
+import { cn } from '@/lib/utils'
 
 export interface FormCheckboxWrapperProps {
   name: string
@@ -41,7 +42,7 @@ export function FormCheckboxWrapper({
       control={form.control}
       name={name}
       render={({ field, fieldState }) => (
-        <FormItem className={`flex flex-row items-start space-x-3 space-y-0 ${className}`}>
+        <FormItem className={cn('flex flex-row items-center gap-2.5', className)}>
           <FormControl>
             <Checkbox
               checked={field.value}
@@ -52,13 +53,13 @@ export function FormCheckboxWrapper({
               aria-invalid={!!fieldState.error}
             />
           </FormControl>
-          <div className="space-y-1 leading-none">
-            <FormLabel className="cursor-pointer">{label}</FormLabel>
+          <div className="space-y-0.5 leading-none">
+            <FormLabel className="cursor-pointer font-normal">{label}</FormLabel>
             {description && (
               <FormDescription id={`${name}-description`}>{description}</FormDescription>
             )}
+            <FormMessage role="alert" aria-live="polite" />
           </div>
-          <FormMessage role="alert" aria-live="polite" />
         </FormItem>
       )}
     />

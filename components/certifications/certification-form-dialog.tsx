@@ -66,9 +66,10 @@ interface Certification {
   id: string
   pilot_id: string
   check_type_id: string
-  completion_date: string | null
   expiry_date: string | null
-  notes: string | null
+  // Optional fields for backwards compatibility
+  completion_date?: string | null
+  notes?: string | null
 }
 
 interface CertificationFormDialogProps {
@@ -186,9 +187,7 @@ export function CertificationFormDialog({
       }
 
       const url =
-        mode === 'create'
-          ? '/api/certifications'
-          : `/api/certifications/${certification!.id}`
+        mode === 'create' ? '/api/certifications' : `/api/certifications/${certification!.id}`
 
       const method = mode === 'create' ? 'POST' : 'PUT'
 
@@ -260,7 +259,7 @@ export function CertificationFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             {/* Pilot Selection */}
             <FormField
               control={form.control}

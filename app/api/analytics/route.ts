@@ -11,7 +11,7 @@ import {
   getFleetAnalytics,
   getRiskAnalytics,
 } from '@/lib/services/analytics-service'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
@@ -21,12 +21,8 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
 export async function GET(_request: NextRequest) {
   try {
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

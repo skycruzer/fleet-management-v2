@@ -19,10 +19,22 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCsrfToken } from '@/lib/providers/csrf-provider'
-import { PilotCreateSchema, PilotUpdateSchema, type PilotCreate, type PilotUpdate } from '@/lib/validations/pilot-validation'
+import {
+  PilotCreateSchema,
+  PilotUpdateSchema,
+  type PilotCreate,
+  type PilotUpdate,
+} from '@/lib/validations/pilot-validation'
 import { Form } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { FormFieldWrapper } from './form-field-wrapper'
 import { FormSelectWrapper } from './form-select-wrapper'
 import { FormDatePickerWrapper } from './form-date-picker-wrapper'
@@ -72,17 +84,17 @@ export function PilotForm({
 
   // Deduplicated submit handler prevents duplicate submissions
   // when users rapidly click the submit button
-  const {
-    handleSubmit: deduplicatedSubmit,
-    isSubmitting,
-  } = useDeduplicatedSubmit(
+  const { handleSubmit: deduplicatedSubmit, isSubmitting } = useDeduplicatedSubmit(
     async (data: PilotCreate | PilotUpdate) => {
       // Note: CSRF token is handled via fetchWithCsrf() in the parent component
       // or via header in API calls. This form passes data to parent onSubmit.
       await onSubmit(data)
     },
     {
-      key: mode === 'create' ? 'pilot-form-create' : `pilot-form-edit-${(defaultValues as any)?.id || 'new'}`,
+      key:
+        mode === 'create'
+          ? 'pilot-form-create'
+          : `pilot-form-edit-${(defaultValues as any)?.id || 'new'}`,
     }
   )
 
@@ -97,9 +109,7 @@ export function PilotForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          {mode === 'create' ? 'Create New Pilot' : 'Edit Pilot'}
-        </CardTitle>
+        <CardTitle>{mode === 'create' ? 'Create New Pilot' : 'Edit Pilot'}</CardTitle>
         <CardDescription>
           {mode === 'create'
             ? 'Enter the pilot details to create a new record'
@@ -108,11 +118,13 @@ export function PilotForm({
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(deduplicatedSubmit)}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-8">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Basic Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                Basic Information
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormFieldWrapper
                   name="employee_id"
                   label="Employee ID"
@@ -129,31 +141,24 @@ export function PilotForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-3">
                 <FormFieldWrapper
                   name="first_name"
                   label="First Name"
                   placeholder="John"
                   required
                 />
-                <FormFieldWrapper
-                  name="middle_name"
-                  label="Middle Name"
-                  placeholder="Michael"
-                />
-                <FormFieldWrapper
-                  name="last_name"
-                  label="Last Name"
-                  placeholder="Doe"
-                  required
-                />
+                <FormFieldWrapper name="middle_name" label="Middle Name" placeholder="Michael" />
+                <FormFieldWrapper name="last_name" label="Last Name" placeholder="Doe" required />
               </div>
             </div>
 
             {/* Employment Details */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Employment Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                Employment Details
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormFieldWrapper
                   name="contract_type"
                   label="Contract Type"
@@ -166,7 +171,7 @@ export function PilotForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormFieldWrapper
                   name="seniority_number"
                   label="Seniority Number"
@@ -184,22 +189,20 @@ export function PilotForm({
 
             {/* Personal Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Personal Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                Personal Information
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormDatePickerWrapper
                   name="date_of_birth"
                   label="Date of Birth"
                   disableFuture
                   description="Pilot must be at least 18 years old"
                 />
-                <FormFieldWrapper
-                  name="nationality"
-                  label="Nationality"
-                  placeholder="Australian"
-                />
+                <FormFieldWrapper name="nationality" label="Nationality" placeholder="Australian" />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormFieldWrapper
                   name="passport_number"
                   label="Passport Number"
@@ -218,8 +221,10 @@ export function PilotForm({
             {/* Captain Qualifications */}
             {showCaptainQualifications && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Captain Qualifications</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                  Captain Qualifications
+                </h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                   <FormCheckboxWrapper
                     name="captain_qualifications.line_captain"
                     label="Line Captain"
@@ -257,12 +262,18 @@ export function PilotForm({
               </Button>
             )}
             <Button type="submit" disabled={isLoading || isSubmitting || csrfLoading || !csrfToken}>
-              {(isLoading || isSubmitting || csrfLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {(isLoading || isSubmitting || csrfLoading) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               {isSubmitting
-                ? mode === 'create' ? 'Creating...' : 'Updating...'
+                ? mode === 'create'
+                  ? 'Creating...'
+                  : 'Updating...'
                 : csrfLoading
-                ? 'Loading...'
-                : mode === 'create' ? 'Create Pilot' : 'Update Pilot'}
+                  ? 'Loading...'
+                  : mode === 'create'
+                    ? 'Create Pilot'
+                    : 'Update Pilot'}
             </Button>
           </CardFooter>
         </form>

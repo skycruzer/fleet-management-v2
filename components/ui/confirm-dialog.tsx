@@ -71,7 +71,10 @@ export function ConfirmDialog({
           <div className="flex items-center gap-3">
             {variant === 'destructive' && (
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" aria-hidden="true" />
+                <AlertTriangle
+                  className="h-5 w-5 text-red-600 dark:text-red-400"
+                  aria-hidden="true"
+                />
               </div>
             )}
             <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -83,7 +86,11 @@ export function ConfirmDialog({
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={isLoading}
-            className={variant === 'destructive' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+            className={
+              variant === 'destructive'
+                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
+                : ''
+            }
           >
             {isLoading ? 'Processing...' : confirmText}
           </AlertDialogAction>
@@ -98,6 +105,9 @@ export function ConfirmDialog({
  * Returns a promise that resolves when user confirms, rejects when they cancel
  */
 export function useConfirm() {
+  // Store resolve function in a ref to avoid memoization issues
+  const resolveRef = React.useRef<((value: boolean) => void) | null>(null)
+
   const [state, setState] = React.useState<{
     open: boolean
     title: string
@@ -105,7 +115,6 @@ export function useConfirm() {
     confirmText: string
     cancelText: string
     variant: 'destructive' | 'default'
-    resolve?: (value: boolean) => void
   }>({
     open: false,
     title: '',
@@ -124,6 +133,7 @@ export function useConfirm() {
       variant?: 'destructive' | 'default'
     }) => {
       return new Promise<boolean>((resolve) => {
+        resolveRef.current = resolve
         setState({
           open: true,
           title: options.title,
@@ -131,7 +141,6 @@ export function useConfirm() {
           confirmText: options.confirmText || 'Confirm',
           cancelText: options.cancelText || 'Cancel',
           variant: options.variant || 'destructive',
-          resolve,
         })
       })
     },
@@ -139,14 +148,16 @@ export function useConfirm() {
   )
 
   const handleConfirm = React.useCallback(() => {
-    state.resolve?.(true)
+    resolveRef.current?.(true)
+    resolveRef.current = null
     setState((prev) => ({ ...prev, open: false }))
-  }, [state.resolve])
+  }, [])
 
   const handleCancel = React.useCallback(() => {
-    state.resolve?.(false)
+    resolveRef.current?.(false)
+    resolveRef.current = null
     setState((prev) => ({ ...prev, open: false }))
-  }, [state.resolve])
+  }, [])
 
   const ConfirmDialogComponent = React.useCallback(
     () => (
@@ -156,7 +167,10 @@ export function useConfirm() {
             <div className="flex items-center gap-3">
               {state.variant === 'destructive' && (
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" aria-hidden="true" />
+                  <AlertTriangle
+                    className="h-5 w-5 text-red-600 dark:text-red-400"
+                    aria-hidden="true"
+                  />
                 </div>
               )}
               <AlertDialogTitle>{state.title}</AlertDialogTitle>

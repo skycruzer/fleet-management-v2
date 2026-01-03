@@ -12,7 +12,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import {
@@ -38,16 +38,10 @@ interface RouteContext {
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params
-    console.log(`🌐 [API GET /api/feedback/${id}] Request received`)
 
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      console.error('❌ [API] Unauthorized access attempt')
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -90,21 +84,15 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (csrfError) return csrfError
 
     const { id } = await context.params
-    console.log(`🌐 [API PUT /api/feedback/${id}] Request received`)
 
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      console.error('❌ [API] Unauthorized access attempt')
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },

@@ -9,7 +9,7 @@ const meta = {
   parameters: {
     layout: 'centered',
   },
-} satisfies Meta<typeof Empty State>
+} satisfies Meta<typeof EmptyState>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -57,7 +57,8 @@ export const SearchEmpty: Story = {
   args: {
     icon: Search,
     title: 'No results found',
-    description: 'We couldn\'t find anything matching "John Smith". Try adjusting your search terms.',
+    description:
+      'We couldn\'t find anything matching "John Smith". Try adjusting your search terms.',
   },
 }
 
@@ -72,15 +73,11 @@ export const InboxEmpty: Story = {
 export const MultipleSizes: Story = {
   render: () => (
     <div className="space-y-8 p-4">
-      <div className="border rounded-lg p-4">
+      <div className="rounded-lg border p-4">
         <h3 className="mb-4 font-semibold">Compact</h3>
-        <EmptyState
-          icon={Users}
-          title="No pilots"
-          description="Add your first pilot."
-        />
+        <EmptyState icon={Users} title="No pilots" description="Add your first pilot." />
       </div>
-      <div className="border rounded-lg p-8">
+      <div className="rounded-lg border p-8">
         <h3 className="mb-4 font-semibold">Default</h3>
         <EmptyState
           icon={FileText}
@@ -98,8 +95,8 @@ export const MultipleSizes: Story = {
 
 export const DifferentScenarios: Story = {
   render: () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
-      <div className="border rounded-lg p-6">
+    <div className="grid grid-cols-1 gap-6 p-4 md:grid-cols-2">
+      <div className="rounded-lg border p-6">
         <EmptyState
           icon={Users}
           title="No active pilots"
@@ -110,14 +107,14 @@ export const DifferentScenarios: Story = {
           }}
         />
       </div>
-      <div className="border rounded-lg p-6">
+      <div className="rounded-lg border p-6">
         <EmptyState
           icon={Calendar}
           title="No pending requests"
           description="All leave requests have been reviewed."
         />
       </div>
-      <div className="border rounded-lg p-6">
+      <div className="rounded-lg border p-6">
         <EmptyState
           icon={Search}
           title="No search results"
@@ -128,7 +125,7 @@ export const DifferentScenarios: Story = {
           }}
         />
       </div>
-      <div className="border rounded-lg p-6">
+      <div className="rounded-lg border p-6">
         <EmptyState
           icon={FileText}
           title="No documents"
@@ -145,7 +142,7 @@ export const DifferentScenarios: Story = {
 
 export const InCard: Story = {
   render: () => (
-    <div className="border rounded-lg p-8 max-w-2xl mx-auto">
+    <div className="mx-auto max-w-2xl rounded-lg border p-8">
       <EmptyState
         icon={Users}
         title="No pilots in this category"
@@ -164,7 +161,7 @@ export const DarkMode: Story = {
     backgrounds: { default: 'dark' },
   },
   render: () => (
-    <div className="dark p-8 bg-slate-900 rounded-lg">
+    <div className="dark rounded-lg bg-slate-900 p-8">
       <EmptyState
         icon={Users}
         title="No pilots found"

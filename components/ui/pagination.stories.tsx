@@ -29,7 +29,7 @@ function PaginationDemo({
 
   return (
     <div className="space-y-4">
-      <div className="text-center text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-center text-sm">
         Page {currentPage} of {totalPages} ({totalItems} items total)
       </div>
       <Pagination
@@ -110,58 +110,61 @@ export const EdgeCases: Story = {
   ),
 }
 
-export const WithTable: Story = {
-  render: () => {
-    const [currentPage, setCurrentPage] = useState(1)
-    const [pageSize, setPageSize] = useState(10)
+// Table demo component extracted to comply with React hooks rules
+function TablePaginationDemo() {
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
 
-    const allItems = Array.from({ length: 100 }, (_, i) => ({
-      id: i + 1,
-      name: `Item ${i + 1}`,
-      status: i % 3 === 0 ? 'Active' : i % 3 === 1 ? 'Pending' : 'Inactive',
-    }))
+  const allItems = Array.from({ length: 100 }, (_, i) => ({
+    id: i + 1,
+    name: `Item ${i + 1}`,
+    status: i % 3 === 0 ? 'Active' : i % 3 === 1 ? 'Pending' : 'Inactive',
+  }))
 
-    const totalPages = Math.ceil(allItems.length / pageSize)
-    const startIndex = (currentPage - 1) * pageSize
-    const endIndex = startIndex + pageSize
-    const currentItems = allItems.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(allItems.length / pageSize)
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const currentItems = allItems.slice(startIndex, endIndex)
 
-    return (
-      <div className="w-full max-w-2xl space-y-4">
-        <div className="rounded-lg border">
-          <table className="w-full">
-            <thead className="bg-muted">
-              <tr>
-                <th className="p-2 text-left">ID</th>
-                <th className="p-2 text-left">Name</th>
-                <th className="p-2 text-left">Status</th>
+  return (
+    <div className="w-full max-w-2xl space-y-4">
+      <div className="rounded-lg border">
+        <table className="w-full">
+          <thead className="bg-muted">
+            <tr>
+              <th className="p-2 text-left">ID</th>
+              <th className="p-2 text-left">Name</th>
+              <th className="p-2 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.map((item) => (
+              <tr key={item.id} className="border-t">
+                <td className="p-2">{item.id}</td>
+                <td className="p-2">{item.name}</td>
+                <td className="p-2">{item.status}</td>
               </tr>
-            </thead>
-            <tbody>
-              {currentItems.map((item) => (
-                <tr key={item.id} className="border-t">
-                  <td className="p-2">{item.id}</td>
-                  <td className="p-2">{item.name}</td>
-                  <td className="p-2">{item.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          totalItems={allItems.length}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={(newSize) => {
-            setPageSize(newSize)
-            setCurrentPage(1) // Reset to first page when changing page size
-          }}
-        />
+            ))}
+          </tbody>
+        </table>
       </div>
-    )
-  },
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={allItems.length}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize)
+          setCurrentPage(1) // Reset to first page when changing page size
+        }}
+      />
+    </div>
+  )
+}
+
+export const WithTable: Story = {
+  render: () => <TablePaginationDemo />,
 }
 
 export const Mobile: Story = {

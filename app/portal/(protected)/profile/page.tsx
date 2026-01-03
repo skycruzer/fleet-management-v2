@@ -8,7 +8,6 @@
  * - Animations moved to client wrapper component
  */
 
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -32,6 +31,9 @@ import {
 } from 'lucide-react'
 import { format, differenceInYears, differenceInMonths } from 'date-fns'
 import { ProfileAnimationWrapper } from './profile-animation-wrapper'
+import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { createClient } from '@/lib/supabase/server'
+import { getPilotRequirements } from '@/lib/services/admin-service'
 
 interface PilotProfile {
   id: string
@@ -64,40 +66,117 @@ interface PilotProfile {
   rhs_captain_expiry: string | null
 }
 
-// Server-side data fetching
+// Server-side data fetching - calls services directly instead of HTTP fetch
 async function getProfile(): Promise<{
   profile: PilotProfile | null
   retirementAge: number
   error?: string
 }> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
-    // Get all cookies to forward to API
-    const cookieStore = await cookies()
-    const cookieString = cookieStore
-      .getAll()
-      .map((cookie) => `${cookie.name}=${cookie.value}`)
-      .join('; ')
-
-    const response = await fetch(`${baseUrl}/api/portal/profile`, {
-      headers: {
-        Cookie: cookieString,
-      },
-      cache: 'no-store', // Always fetch fresh data
-    })
-
-    const result = await response.json()
-
-    if (!response.ok || !result.success) {
-      return { profile: null, retirementAge: 65, error: result.error || 'Failed to fetch profile' }
+    // Get current pilot from session
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
+      console.error('Profile: getCurrentPilot() returned null')
+      return { profile: null, retirementAge: 65, error: 'Unauthorized - please log in again' }
     }
 
-    return {
-      profile: result.data,
-      retirementAge: result.systemSettings?.pilot_retirement_age || 65,
+    // Get requirements for retirement age
+    const requirements = await getPilotRequirements()
+    const retirementAge = requirements.pilot_retirement_age || 65
+
+    // Check if pilot has a linked pilots table record
+    if (pilot.pilot_id) {
+      // Fetch full pilot details from pilots table
+      const supabase = await createClient()
+      const { data: pilotData, error: pilotError } = await supabase
+        .from('pilots')
+        .select('*')
+        .eq('id', pilot.pilot_id)
+        .single()
+
+      if (pilotError) {
+        console.error('Fetch pilot details error:', pilotError)
+        // Fall back to pilot_users data
+        return {
+          profile: {
+            id: pilot.id,
+            first_name: pilot.first_name,
+            last_name: pilot.last_name,
+            middle_name: pilot.middle_name || null,
+            rank: pilot.rank,
+            email: pilot.email,
+            employee_id: pilot.employee_id,
+            seniority_number: null,
+            date_of_birth: null,
+            commencement_date: null,
+            status: 'active',
+            phone: null,
+            address: null,
+            city: null,
+            state: null,
+            postal_code: null,
+            country: null,
+            license_number: null,
+            qualifications: null,
+            captain_qualifications: null,
+            qualification_notes: null,
+            contract_type: null,
+            role: null,
+            is_active: true,
+            nationality: null,
+            passport_number: null,
+            passport_expiry: null,
+            rhs_captain_expiry: null,
+          } as PilotProfile,
+          retirementAge,
+        }
+      }
+
+      return {
+        profile: {
+          ...pilotData,
+          email: pilot.email,
+        } as unknown as PilotProfile,
+        retirementAge,
+      }
+    } else {
+      // Pilot only exists in pilot_users table (no linked pilots record)
+      return {
+        profile: {
+          id: pilot.id,
+          first_name: pilot.first_name,
+          last_name: pilot.last_name,
+          middle_name: pilot.middle_name || null,
+          rank: pilot.rank,
+          email: pilot.email,
+          employee_id: pilot.employee_id,
+          seniority_number: null,
+          date_of_birth: null,
+          commencement_date: null,
+          status: 'active',
+          phone: null,
+          address: null,
+          city: null,
+          state: null,
+          postal_code: null,
+          country: null,
+          license_number: null,
+          qualifications: null,
+          captain_qualifications: null,
+          qualification_notes: null,
+          contract_type: null,
+          role: null,
+          is_active: true,
+          nationality: null,
+          passport_number: null,
+          passport_expiry: null,
+          rhs_captain_expiry: null,
+        } as PilotProfile,
+        retirementAge,
+      }
     }
   } catch (err) {
+    console.error('Profile getProfile error:', err)
     return { profile: null, retirementAge: 65, error: 'An unexpected error occurred' }
   }
 }

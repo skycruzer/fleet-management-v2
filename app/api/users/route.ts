@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllUsers, createUser, getUsersByRole } from '@/lib/services/user-service'
 import { UserCreateSchema } from '@/lib/validations/user-validation'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 
 /**
  * GET /api/users
@@ -15,12 +15,8 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(_request: NextRequest) {
   try {
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -55,12 +51,8 @@ export async function GET(_request: NextRequest) {
 export async function POST(_request: NextRequest) {
   try {
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

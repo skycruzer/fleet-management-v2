@@ -18,20 +18,21 @@ interface ErrorAlertProps {
 }
 
 /**
- * Get icon based on error severity
+ * Icon component based on error severity
  */
-function getErrorIcon(severity: ErrorSeverity) {
+function ErrorIcon({ severity }: { severity: ErrorSeverity }) {
+  const iconProps = { className: 'h-4 w-4', 'aria-hidden': true as const }
   switch (severity) {
     case 'info':
-      return Info
+      return <Info {...iconProps} />
     case 'warning':
-      return AlertTriangle
+      return <AlertTriangle {...iconProps} />
     case 'error':
-      return AlertCircle
+      return <AlertCircle {...iconProps} />
     case 'critical':
-      return XCircle
+      return <XCircle {...iconProps} />
     default:
-      return AlertCircle
+      return <AlertCircle {...iconProps} />
   }
 }
 
@@ -71,18 +72,17 @@ export function ErrorAlert({ error, onDismiss, onRetry, className }: ErrorAlertP
         }
       : error
 
-  const Icon = getErrorIcon(errorMessage.severity)
   const variant = getAlertVariant(errorMessage.severity)
   const title = getErrorTitle(errorMessage.severity)
 
   return (
     <Alert variant={variant} className={className}>
-      <Icon className="h-4 w-4" aria-hidden="true" />
+      <ErrorIcon severity={errorMessage.severity} />
       <div className="flex flex-1 flex-col gap-1">
         <AlertTitle>{title}</AlertTitle>
         <AlertDescription>{errorMessage.message}</AlertDescription>
         {errorMessage.action && (
-          <p className="mt-1 text-xs text-muted-foreground">{errorMessage.action}</p>
+          <p className="text-muted-foreground mt-1 text-xs">{errorMessage.action}</p>
         )}
         {(onRetry || onDismiss) && (
           <div className="mt-3 flex gap-2">
@@ -149,13 +149,7 @@ export function FormErrorAlert({
 /**
  * Success alert variant
  */
-export function SuccessAlert({
-  message,
-  onDismiss,
-}: {
-  message: string
-  onDismiss?: () => void
-}) {
+export function SuccessAlert({ message, onDismiss }: { message: string; onDismiss?: () => void }) {
   return (
     <Alert className="border-green-200 bg-green-50">
       <AlertCircle className="h-4 w-4 text-green-600" aria-hidden="true" />

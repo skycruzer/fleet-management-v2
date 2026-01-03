@@ -93,14 +93,18 @@ function getLeaveApprovedEmailHTML(pilot: PilotInfo, request: LeaveRequestInfo):
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">End Date:</td>
                         <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.endDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                       </tr>
-                      ${request.comments ? `
+                      ${
+                        request.comments
+                          ? `
                       <tr>
                         <td colspan="2" style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">Comments:</td>
                       </tr>
                       <tr>
                         <td colspan="2" style="padding: 8px 0; font-size: 14px; color: #111827;">${request.comments}</td>
                       </tr>
-                      ` : ''}
+                      `
+                          : ''
+                      }
                     </table>
                   </td>
                 </tr>
@@ -146,7 +150,11 @@ function getLeaveApprovedEmailHTML(pilot: PilotInfo, request: LeaveRequestInfo):
 /**
  * Leave Request Denied Email Template
  */
-function getLeaveDeniedemailHTML(pilot: PilotInfo, request: LeaveRequestInfo, reason?: string): string {
+function getLeaveDeniedemailHTML(
+  pilot: PilotInfo,
+  request: LeaveRequestInfo,
+  reason?: string
+): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -196,14 +204,18 @@ function getLeaveDeniedemailHTML(pilot: PilotInfo, request: LeaveRequestInfo, re
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">End Date:</td>
                         <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.endDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                       </tr>
-                      ${reason ? `
+                      ${
+                        reason
+                          ? `
                       <tr>
                         <td colspan="2" style="padding: 16px 0 8px; font-size: 14px; color: #6b7280; font-weight: 600;">Reason for Denial:</td>
                       </tr>
                       <tr>
                         <td colspan="2" style="padding: 0 0 8px; font-size: 14px; color: #dc2626; font-weight: 600;">${reason}</td>
                       </tr>
-                      ` : ''}
+                      `
+                          : ''
+                      }
                     </table>
                   </td>
                 </tr>
@@ -365,13 +377,12 @@ export async function sendLeaveApprovedEmail(
       return { success: false, error: error.message }
     }
 
-    console.log('Leave approved email sent successfully:', data)
     return { success: true }
   } catch (err) {
     console.error('Unexpected error sending leave approved email:', err)
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'Unknown error'
+      error: err instanceof Error ? err.message : 'Unknown error',
     }
   }
 }
@@ -397,13 +408,12 @@ export async function sendLeaveDeniedEmail(
       return { success: false, error: error.message }
     }
 
-    console.log('Leave denied email sent successfully:', data)
     return { success: true }
   } catch (err) {
     console.error('Unexpected error sending leave denied email:', err)
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'Unknown error'
+      error: err instanceof Error ? err.message : 'Unknown error',
     }
   }
 }
@@ -428,13 +438,12 @@ export async function sendFlightApprovedEmail(
       return { success: false, error: error.message }
     }
 
-    console.log('Flight approved email sent successfully:', data)
     return { success: true }
   } catch (err) {
     console.error('Unexpected error sending flight approved email:', err)
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'Unknown error'
+      error: err instanceof Error ? err.message : 'Unknown error',
     }
   }
 }

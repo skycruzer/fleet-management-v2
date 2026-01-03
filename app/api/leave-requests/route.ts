@@ -19,7 +19,7 @@ import {
   checkLeaveConflicts,
 } from '@/lib/services/unified-request-service'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -30,13 +30,10 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  */
 export async function GET(_request: NextRequest) {
   try {
-    // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
 
-    if (!user) {
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -50,10 +47,13 @@ export async function GET(_request: NextRequest) {
     const result = await getAllLeaveRequests()
 
     if (!result.success || !result.data) {
-      return NextResponse.json({
-        success: false,
-        error: result.error ?? 'Failed to fetch leave requests',
-      }, { status: 500 })
+      return NextResponse.json(
+        {
+          success: false,
+          error: result.error ?? 'Failed to fetch leave requests',
+        },
+        { status: 500 }
+      )
     }
 
     // Apply client-side filters if provided
@@ -98,13 +98,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       return csrfError
     }
 
-    // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
 
-    if (!user) {
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -128,10 +125,13 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     const createResult = await createLeaveRequestServer(validatedData)
 
     if (!createResult.success) {
-      return NextResponse.json({
-        success: false,
-        error: createResult.error ?? 'Failed to create leave request',
-      }, { status: 500 })
+      return NextResponse.json(
+        {
+          success: false,
+          error: createResult.error ?? 'Failed to create leave request',
+        },
+        { status: 500 }
+      )
     }
 
     // Revalidate cache for leave request pages

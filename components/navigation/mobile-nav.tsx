@@ -43,6 +43,23 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
     }
   }, [isOpen])
 
+  // Keyboard navigation: Close drawer on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen])
+
   // Swipe gesture handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     startXRef.current = e.touches[0].clientX
@@ -97,16 +114,13 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
   return (
     <>
       {/* Mobile Header - Touch-optimized */}
-      <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 lg:hidden">
-        <div className="flex h-16 items-center justify-between px-4">
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">FM</span>
+      <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-40 border-b backdrop-blur lg:hidden">
+        <div className="flex h-12 items-center justify-between px-3">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
+              <span className="text-xs font-semibold text-white">FM</span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">Admin Dashboard</span>
-              <span className="text-xs text-muted-foreground">Fleet Management</span>
-            </div>
+            <span className="text-foreground text-[13px] font-semibold">Fleet Management</span>
           </Link>
 
           <Button
@@ -115,12 +129,12 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
-            className="h-11 w-11" // Touch-optimized size (44px)
+            className="text-muted-foreground hover:text-foreground h-9 w-9"
           >
             {isOpen ? (
-              <X className="h-6 w-6" aria-hidden="true" />
+              <X className="h-5 w-5" aria-hidden="true" />
             ) : (
-              <Menu className="h-6 w-6" aria-hidden="true" />
+              <Menu className="h-5 w-5" aria-hidden="true" />
             )}
           </Button>
         </div>
@@ -129,7 +143,7 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
       {/* Mobile Menu Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 lg:hidden"
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity duration-200 lg:hidden"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
@@ -138,40 +152,40 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
       {/* Mobile Menu Drawer - With swipe support */}
       <div
         ref={drawerRef}
-        className="fixed inset-y-0 left-0 z-50 w-72 bg-card shadow-xl transition-transform duration-300 ease-in-out lg:hidden"
+        className="bg-background border-border/40 fixed inset-y-0 left-0 z-50 w-64 border-r shadow-lg transition-transform duration-200 ease-out lg:hidden"
         style={{
           transform: getDrawerTransform(),
-          transition: isDragging ? 'none' : 'transform 300ms ease-in-out',
+          transition: isDragging ? 'none' : 'transform 200ms ease-out',
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
       >
         {/* Logo */}
-        <div className="flex h-16 items-center border-b border-border px-6">
+        <div className="border-border/40 flex h-12 items-center border-b px-4">
           <Link
             href="/dashboard"
-            className="flex items-center space-x-2"
+            className="flex items-center gap-2"
             onClick={() => setIsOpen(false)}
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">FM</span>
+            <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
+              <span className="text-xs font-semibold text-white">FM</span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">Admin Dashboard</span>
-              <span className="text-xs text-muted-foreground">Fleet Management</span>
-            </div>
+            <span className="text-foreground text-[13px] font-semibold">Fleet Management</span>
           </Link>
         </div>
 
         {/* Navigation - Touch-optimized */}
-        <nav className="flex-1 space-y-1 overflow-y-auto px-4 py-6">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
           {navLinks.map((link) => (
             <div key={link.href} onClick={() => setIsOpen(false)}>
               <DashboardNavLink
                 href={link.href}
                 icon={link.icon}
-                className="min-h-[44px] touch-manipulation" // Touch-optimized
+                className="min-h-[40px] touch-manipulation rounded-md"
               >
                 {link.label}
               </DashboardNavLink>
@@ -180,21 +194,21 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
         </nav>
 
         {/* User Info - Touch-optimized */}
-        <div className="border-t border-border p-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-              <span className="text-sm font-medium text-card-foreground">
+        <div className="border-border/40 border-t p-3">
+          <div className="flex items-center gap-2">
+            <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+              <span className="text-muted-foreground text-xs font-medium">
                 {user.email?.[0].toUpperCase()}
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">{user.email}</p>
+              <p className="text-foreground truncate text-[13px] font-medium">{user.email}</p>
               <form action="/api/auth/signout" method="POST">
                 <Button
                   type="submit"
                   variant="ghost"
                   size="sm"
-                  className="h-8 px-0 text-xs text-muted-foreground hover:text-card-foreground touch-manipulation"
+                  className="text-muted-foreground hover:text-foreground h-6 touch-manipulation px-0 text-xs"
                 >
                   Sign out
                 </Button>
@@ -204,7 +218,7 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
         </div>
 
         {/* Swipe indicator (visual hint) */}
-        <div className="absolute right-0 top-1/2 h-12 w-1 -translate-y-1/2 rounded-l-full bg-muted-foreground/20" />
+        <div className="bg-border absolute top-1/2 right-0 h-10 w-0.5 -translate-y-1/2 rounded-l-full" />
       </div>
 
       {/* Edge swipe detection zone */}

@@ -109,7 +109,7 @@ export function logError(error: Error, context?: ErrorContext): void {
 
   // Production: Send to error monitoring service
   if (process.env.NODE_ENV === 'production') {
-    // TODO: Integrate with error monitoring service (e.g., Sentry, LogRocket)
+    // Tracked: tasks/062 #7 - Integrate Sentry/LogRocket
     // Example:
     // Sentry.captureException(error, {
     //   level: mapSeverityToSentryLevel(context?.severity),

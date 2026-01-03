@@ -5,7 +5,7 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -24,61 +24,41 @@ interface UserData {
   last_sign_in_at?: string
 }
 
-export function SettingsClient() {
-  const [userData, setUserData] = useState<UserData | null>(null)
-  const [loading, setLoading] = useState(true)
+interface SettingsClientProps {
+  initialUserData: UserData
+}
+
+export function SettingsClient({ initialUserData }: SettingsClientProps) {
+  const [userData, setUserData] = useState<UserData>(initialUserData)
+  const [loading, setLoading] = useState(false)
   const supabase = createClient()
 
   const fetchUserData = async () => {
     setLoading(true)
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        console.error('No user found')
-        return
-      }
-
-      // Fetch user data from an_users table
+      // Try to refresh from an_users table
       const { data: anUser, error } = await supabase
         .from('an_users')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', userData.id)
         .single()
 
-      if (error) {
-        console.error('Error fetching user data:', error)
-        // Fallback to auth user data
-        setUserData({
-          id: user.id,
-          email: user.email || '',
-          name: user.user_metadata?.name || 'User',
-          role: user.user_metadata?.role || 'user',
-          created_at: user.created_at,
-          last_sign_in_at: user.last_sign_in_at,
-        })
-      } else {
+      if (!error && anUser) {
         setUserData({
           id: anUser.id,
           email: anUser.email,
           name: anUser.name || 'User',
-          role: anUser.role || 'user',
+          role: anUser.role || 'admin',
           created_at: anUser.created_at || new Date().toISOString(),
-          last_sign_in_at: user.last_sign_in_at,
+          last_sign_in_at: anUser.updated_at || undefined, // Use updated_at as last activity indicator
         })
       }
     } catch (error) {
-      console.error('Error fetching user data:', error)
+      console.error('Error refreshing user data:', error)
     } finally {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    fetchUserData()
-  }, [])
 
   if (loading) {
     return (
@@ -90,14 +70,6 @@ export function SettingsClient() {
           <Skeleton className="h-32" />
         </div>
         <Skeleton className="h-96" />
-      </div>
-    )
-  }
-
-  if (!userData) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-muted-foreground">Failed to load user data</p>
       </div>
     )
   }

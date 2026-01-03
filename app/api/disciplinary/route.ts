@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatters, createMatter, getMatterStats } from '@/lib/services/disciplinary-service'
 
 /**
@@ -35,12 +36,8 @@ import { getMatters, createMatter, getMatterStats } from '@/lib/services/discipl
  */
 export async function GET(_request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -166,12 +163,8 @@ export async function GET(_request: NextRequest) {
  */
 export async function POST(_request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -200,7 +193,7 @@ export async function POST(_request: NextRequest) {
     // Create matter
     const result = await createMatter({
       ...body,
-      reported_by: user.id, // Auto-set reported_by to current user
+      reported_by: auth.userId!, // Auto-set reported_by to current user
     })
 
     if (!result.success) {

@@ -29,8 +29,6 @@ export async function GET(request: Request) {
 
     const supabase = await createClient()
 
-    console.log(`🧪 TEST MODE: Only sending emails to ${TEST_EMAIL}`)
-
     // Get all expiring certifications using database function
     // This bypasses the PostgREST relationship issues
     const { data: expiringChecks, error } = await supabase.rpc(
@@ -46,7 +44,6 @@ export async function GET(request: Request) {
     }
 
     if (!expiringChecks || expiringChecks.length === 0) {
-      console.log('✅ No expiring certifications found')
       return NextResponse.json({
         success: true,
         message: 'No expiring certifications',
@@ -98,7 +95,6 @@ export async function GET(request: Request) {
 
       // TEST MODE: Skip all pilots except the test email
       if (pilotEmail !== TEST_EMAIL) {
-        console.log(`⏭️  Skipping ${pilotEmail} (test mode - not test email)`)
         skippedCount++
         continue
       }
@@ -113,8 +109,6 @@ export async function GET(request: Request) {
       } else {
         urgencyLevel = 'notice'
       }
-
-      console.log(`📧 Sending TEST alert to ${pilotEmail}`)
 
       // Send email
       const emailResult = await sendCertificationExpiryAlert({
@@ -137,25 +131,13 @@ export async function GET(request: Request) {
       })
 
       if (!emailResult.success) {
-        console.error(`❌ Failed to send alert to ${pilotEmail}:`, emailResult.error)
-      } else {
-        console.log(
-          `✅ Sent ${urgencyLevel} alert to ${pilot.first_name} ${pilot.last_name} (${certifications.length} certs)`
-        )
+        console.error(`Failed to send alert to ${pilotEmail}:`, emailResult.error)
       }
     }
 
     // Summary
     const successCount = emailResults.filter((r) => r.success).length
     const failureCount = emailResults.filter((r) => !r.success).length
-
-    console.log(`\n📧 Certification Expiry Alerts Summary (TEST MODE):`)
-    console.log(`   Test Email: ${TEST_EMAIL}`)
-    console.log(`   Total pilots with expiring certs: ${Object.keys(certsByPilot).length}`)
-    console.log(`   Skipped (not test email): ${skippedCount}`)
-    console.log(`   Emails sent: ${emailResults.length}`)
-    console.log(`   ✅ Successful: ${successCount}`)
-    console.log(`   ❌ Failed: ${failureCount}`)
 
     return NextResponse.json({
       success: true,

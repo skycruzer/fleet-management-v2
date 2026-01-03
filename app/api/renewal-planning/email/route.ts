@@ -67,8 +67,6 @@ async function sendEmailWithRetry(emailData: any, attempt = 1): Promise<any> {
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'Fleet Management <onboarding@resend.dev>'
     const toEmail = process.env.RESEND_TO_EMAIL || 'rostering-team@example.com'
 
-    console.log(`[Email] Attempt ${attempt}/${MAX_RETRIES} - Sending to ${toEmail}`)
-
     const result = await resend.emails.send({
       from: fromEmail,
       to: toEmail,
@@ -77,7 +75,6 @@ async function sendEmailWithRetry(emailData: any, attempt = 1): Promise<any> {
       text: emailData.text,
     })
 
-    console.log(`[Email] Successfully sent email:`, result)
     return result
   } catch (error: any) {
     console.error(`[Email] Attempt ${attempt} failed:`, error)
@@ -92,7 +89,6 @@ async function sendEmailWithRetry(emailData: any, attempt = 1): Promise<any> {
     // Retry logic
     if (attempt < MAX_RETRIES) {
       const delay = INITIAL_DELAY * Math.pow(2, attempt - 1) // Exponential backoff
-      console.log(`[Email] Retrying in ${delay}ms...`)
       await sleep(delay)
       return sendEmailWithRetry(emailData, attempt + 1)
     }
@@ -351,8 +347,6 @@ export async function POST(request: Request) {
 
     const supabase = await createClient()
 
-    console.log(`[Email] Fetching roster periods for year ${year}...`)
-
     // Get roster periods for the year
     const { data: periods, error: periodsError } = await supabase
       .from('roster_period_capacity')
@@ -362,7 +356,6 @@ export async function POST(request: Request) {
       .order('period_start_date')
 
     if (periodsError) {
-      console.error('[Email] Error fetching periods:', periodsError)
       return NextResponse.json(
         { error: 'Failed to fetch roster periods', details: periodsError.message },
         { status: 500 }
@@ -378,8 +371,6 @@ export async function POST(request: Request) {
         { status: 404 }
       )
     }
-
-    console.log(`[Email] Found ${periods.length} roster periods`)
 
     // Get capacity summaries
     const summaries = await Promise.all(
@@ -403,10 +394,6 @@ export async function POST(request: Request) {
     const totalPlanned = validSummaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
     const overallUtilization = totalCapacity > 0 ? (totalPlanned / totalCapacity) * 100 : 0
     const highRiskPeriods = validSummaries.filter((s) => s.utilizationPercentage > 80)
-
-    console.log(
-      `[Email] Stats - Total: ${totalPlanned}/${totalCapacity}, Utilization: ${Math.round(overallUtilization)}%, High Risk: ${highRiskPeriods.length}`
-    )
 
     // Validate that we have renewals to report
     if (totalPlanned === 0) {
@@ -491,8 +478,6 @@ Air Niugini - Fleet Operations
       },
       description: `Renewal planning email sent for year ${year}`,
     })
-
-    console.log(`[Email] Email sent successfully - ID: ${emailResult.id}`)
 
     return NextResponse.json({
       success: true,

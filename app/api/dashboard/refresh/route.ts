@@ -21,6 +21,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import type { PilotDashboardMetrics } from '@/types/database-views'
@@ -31,19 +32,14 @@ import type { PilotDashboardMetrics } from '@/types/database-views'
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-
     // Verify user is authenticated
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Call the refresh function
+    const supabase = await createClient()
     const { error: refreshError } = await supabase.rpc('refresh_dashboard_metrics')
 
     if (refreshError) {
@@ -90,19 +86,14 @@ export async function POST(request: Request) {
  */
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
-
     // Verify user is authenticated
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get view metadata
+    const supabase = await createClient()
     const { data: viewData, error: viewError } = await supabase
       .from('pilot_dashboard_metrics' as any)
       .select('last_refreshed')

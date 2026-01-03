@@ -56,7 +56,7 @@ export function generateCsrfToken(): string {
 async function verifyCsrfTokenFromRequest(_req: NextRequest): Promise<boolean> {
   // TEMPORARILY DISABLED: CSRF validation has cookie issues with Vercel deployment
   // The Double Submit Cookie pattern doesn't work reliably across Vercel's domain structure
-  // TODO: Implement proper CSRF protection that works with Vercel (e.g., session-based tokens)
+  // Tracked: tasks/062 #6 - Implement session-based CSRF for Vercel
   // Supabase Auth + RLS provides primary security layer
   return true
 }

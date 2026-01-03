@@ -10,6 +10,7 @@ import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { LeaveApprovalCard } from '@/components/leave/leave-approval-card'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,14 +24,13 @@ export const metadata: Metadata = {
 }
 
 export default async function LeaveApprovalPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
+
+  const supabase = await createClient()
 
   // Fetch ONLY pending leave requests with pilot details
   const { data: pendingRequests, error } = await supabase
@@ -237,17 +237,18 @@ export default async function LeaveApprovalPage() {
                 }}
                 onApprove={async (id) => {
                   'use server'
-                  const supabase = await createClient()
-                  const {
-                    data: { user: currentUser },
-                  } = await supabase.auth.getUser()
+                  const auth = await getAuthenticatedAdmin()
+                  if (!auth.authenticated) {
+                    throw new Error('Unauthorized')
+                  }
 
+                  const supabase = await createClient()
                   const { error } = await supabase
                     .from('pilot_requests')
                     .update({
                       workflow_status: 'APPROVED',
                       approval_status: 'APPROVED',
-                      reviewed_by: currentUser?.id,
+                      reviewed_by: auth.userId,
                       reviewed_at: new Date().toISOString(),
                       updated_at: new Date().toISOString(),
                     })
@@ -262,17 +263,18 @@ export default async function LeaveApprovalPage() {
                 }}
                 onDeny={async (id) => {
                   'use server'
-                  const supabase = await createClient()
-                  const {
-                    data: { user: currentUser },
-                  } = await supabase.auth.getUser()
+                  const auth = await getAuthenticatedAdmin()
+                  if (!auth.authenticated) {
+                    throw new Error('Unauthorized')
+                  }
 
+                  const supabase = await createClient()
                   const { error } = await supabase
                     .from('pilot_requests')
                     .update({
                       workflow_status: 'DENIED',
                       approval_status: 'DENIED',
-                      reviewed_by: currentUser?.id,
+                      reviewed_by: auth.userId,
                       reviewed_at: new Date().toISOString(),
                       updated_at: new Date().toISOString(),
                     })

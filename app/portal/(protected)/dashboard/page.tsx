@@ -88,10 +88,10 @@ export default async function PilotDashboardPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Page Header */}
-      <div className="border-b border-slate-200 bg-white px-8 py-6 dark:border-slate-700 dark:bg-slate-900">
+      {/* Page Header - Linear-inspired: clean, minimal border */}
+      <div className="border-border bg-background border-b px-8 py-6">
         <div>
-          <h1 className="text-foreground text-2xl font-bold">
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
             Welcome, {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
           </h1>
         </div>
@@ -125,7 +125,9 @@ export default async function PilotDashboardPage() {
           (stats?.critical_certifications || 0) > 0 ||
           (stats?.upcoming_checks || 0) > 0) && (
           <div className="mb-8 space-y-4">
-            <h2 className="text-foreground text-xl font-bold">Certification Status</h2>
+            <h2 className="text-foreground text-lg font-semibold tracking-tight">
+              Certification Status
+            </h2>
             {/* Expired Certifications Alert */}
             {(stats?.expired_certifications || 0) > 0 && (
               <Card className="border-red-300 bg-red-50 p-6 dark:border-red-800 dark:bg-red-950/30">
@@ -304,16 +306,18 @@ export default async function PilotDashboardPage() {
           </div>
         )}
 
-        {/* Statistics Cards */}
-        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Statistics Cards - Linear-inspired: clean, minimal */}
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Pending Leave Requests */}
-          <Card className="p-6 transition-shadow hover:shadow-lg">
+          <Card className="hover:border-foreground/20 p-5 transition-all duration-200">
             <div className="mb-2 flex items-center justify-between">
-              <Calendar className="text-primary h-8 w-8" aria-hidden="true" />
+              <Calendar className="text-accent h-6 w-6" aria-hidden="true" />
             </div>
-            <h3 className="text-muted-foreground text-sm font-medium">Leave Requests</h3>
-            <div className="mt-3 space-y-1">
-              <p className="text-foreground text-2xl font-bold">
+            <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+              Leave Requests
+            </h3>
+            <div className="mt-2 space-y-1">
+              <p className="text-foreground text-2xl font-semibold">
                 {stats?.pending_leave_requests || 0}
               </p>
               <p className="text-muted-foreground text-xs">Pending requests</p>
@@ -321,13 +325,15 @@ export default async function PilotDashboardPage() {
           </Card>
 
           {/* RDO/SDO Requests */}
-          <Card className="p-6 transition-shadow hover:shadow-lg">
+          <Card className="hover:border-foreground/20 p-5 transition-all duration-200">
             <div className="mb-2 flex items-center justify-between">
-              <Plane className="h-8 w-8 text-indigo-600 dark:text-indigo-400" aria-hidden="true" />
+              <Plane className="text-accent h-6 w-6" aria-hidden="true" />
             </div>
-            <h3 className="text-muted-foreground text-sm font-medium">RDO/SDO Requests</h3>
-            <div className="mt-3 space-y-1">
-              <p className="text-foreground text-2xl font-bold">
+            <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+              RDO/SDO Requests
+            </h3>
+            <div className="mt-2 space-y-1">
+              <p className="text-foreground text-2xl font-semibold">
                 {stats?.pending_flight_requests || 0}
               </p>
               <p className="text-muted-foreground text-xs">Pending requests</p>

@@ -108,8 +108,8 @@ export function calculateRosterStartDate(periodNumber: number, year: number): Da
   }
 
   // Calculate total periods from anchor point
-  const anchorTotalPeriods = (ANCHOR_YEAR * ROSTER_PERIODS_PER_YEAR) + ANCHOR_ROSTER_PERIOD
-  const targetTotalPeriods = (year * ROSTER_PERIODS_PER_YEAR) + periodNumber
+  const anchorTotalPeriods = ANCHOR_YEAR * ROSTER_PERIODS_PER_YEAR + ANCHOR_ROSTER_PERIOD
+  const targetTotalPeriods = year * ROSTER_PERIODS_PER_YEAR + periodNumber
   const periodsDifference = targetTotalPeriods - anchorTotalPeriods
 
   // Calculate days offset from anchor
@@ -134,10 +134,7 @@ export function calculateRosterStartDate(periodNumber: number, year: number): Da
  * console.log(rp1.code) // "RP1/2025"
  * console.log(rp1.daysUntilDeadline) // Days until request deadline
  */
-export function calculateRosterPeriodDates(
-  periodNumber: number,
-  year: number
-): RosterPeriodDates {
+export function calculateRosterPeriodDates(periodNumber: number, year: number): RosterPeriodDates {
   // Calculate start date
   const startDate = calculateRosterStartDate(periodNumber, year)
 
@@ -163,9 +160,7 @@ export function calculateRosterPeriodDates(
   const daysUntilPublish = Math.ceil(
     (publishDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   )
-  const daysUntilStart = Math.ceil(
-    (startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysUntilStart = Math.ceil((startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 
   // Determine status
   const isPastDeadline = daysUntilDeadline < 0
@@ -224,11 +219,11 @@ export function getRosterPeriodCodeFromDate(date: Date): string {
   const periodsFromAnchor = Math.floor(daysFromAnchor / ROSTER_PERIOD_DAYS)
 
   // Calculate target period and year
-  const anchorTotalPeriods = (ANCHOR_YEAR * ROSTER_PERIODS_PER_YEAR) + ANCHOR_ROSTER_PERIOD
+  const anchorTotalPeriods = ANCHOR_YEAR * ROSTER_PERIODS_PER_YEAR + ANCHOR_ROSTER_PERIOD
   const targetTotalPeriods = anchorTotalPeriods + periodsFromAnchor
 
   let year = Math.floor((targetTotalPeriods - 1) / ROSTER_PERIODS_PER_YEAR)
-  let periodNumber = targetTotalPeriods - (year * ROSTER_PERIODS_PER_YEAR)
+  let periodNumber = targetTotalPeriods - year * ROSTER_PERIODS_PER_YEAR
 
   // Handle edge cases
   if (periodNumber < 1) {
@@ -326,7 +321,7 @@ export function getRosterPeriodsForDateRange(
     }
 
     // Move to next day
-    currentDate = new Date(currentDate.getTime() + (24 * 60 * 60 * 1000))
+    currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000)
 
     // Safety check: if we've found more than 5 periods, something is wrong
     if (periods.length > 5) {
@@ -407,9 +402,7 @@ export async function ensureRosterPeriodsExist(): Promise<{
         }
 
         // Insert all periods for this year
-        const { error: insertError } = await supabase
-          .from('roster_periods')
-          .insert(periodsToCreate)
+        const { error: insertError } = await supabase.from('roster_periods').insert(periodsToCreate)
 
         if (insertError) {
           return {
@@ -527,10 +520,8 @@ export async function syncRosterPeriodsToDatabase(): Promise<{
  * @param code - Roster period code (e.g., "RP1/2025")
  * @returns Roster period data or null if not found
  */
-export async function getRosterPeriodByCode(
-  code: string
-): Promise<RosterPeriod | null> {
-  // TODO: Uncomment after migration is deployed
+export async function getRosterPeriodByCode(code: string): Promise<RosterPeriod | null> {
+  // Tracked: tasks/062 #4 - Uncomment after migration
   /*
   const supabase = await createClient()
 
@@ -570,10 +561,8 @@ export async function getRosterPeriodByCode(
  * @param year - Year to fetch periods for
  * @returns Array of roster periods
  */
-export async function getRosterPeriodsByYear(
-  year: number
-): Promise<RosterPeriod[]> {
-  // TODO: Uncomment after migration is deployed
+export async function getRosterPeriodsByYear(year: number): Promise<RosterPeriod[]> {
+  // Tracked: tasks/062 #4 - Uncomment after migration
   /*
   const supabase = await createClient()
 
@@ -619,7 +608,7 @@ export async function updateRosterPeriodStatus(
   code: string,
   status: 'OPEN' | 'LOCKED' | 'PUBLISHED' | 'ARCHIVED'
 ): Promise<boolean> {
-  // TODO: Uncomment after migration is deployed
+  // Tracked: tasks/062 #4 - Uncomment after migration
   /*
   const supabase = await createClient()
 
@@ -659,9 +648,7 @@ export function formatRosterDate(date: Date): string {
  * @param status - Roster period status
  * @returns Human-readable description
  */
-export function getStatusDescription(
-  status: 'OPEN' | 'LOCKED' | 'PUBLISHED' | 'ARCHIVED'
-): string {
+export function getStatusDescription(status: 'OPEN' | 'LOCKED' | 'PUBLISHED' | 'ARCHIVED'): string {
   switch (status) {
     case 'OPEN':
       return 'Open for requests'
@@ -695,9 +682,7 @@ export function isValidRosterPeriodCode(code: string): boolean {
  * @param code - Roster period code (e.g., "RP1/2025")
  * @returns Object with period number and year, or null if invalid
  */
-export function parseRosterPeriodCode(
-  code: string
-): { periodNumber: number; year: number } | null {
+export function parseRosterPeriodCode(code: string): { periodNumber: number; year: number } | null {
   if (!isValidRosterPeriodCode(code)) {
     return null
   }

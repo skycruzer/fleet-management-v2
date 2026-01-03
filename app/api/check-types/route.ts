@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getCheckTypes } from '@/lib/services/check-types-service'
 
 /**
@@ -17,13 +17,10 @@ import { getCheckTypes } from '@/lib/services/check-types-service'
  */
 export async function GET(_request: NextRequest) {
   try {
-    // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
 
-    if (!user) {
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

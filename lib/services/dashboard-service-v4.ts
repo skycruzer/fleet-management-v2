@@ -147,9 +147,7 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
  * Internal function to fetch dashboard metrics from materialized view
  * PERFORMANCE: Single query replaces 9+ queries
  */
-async function fetchDashboardMetricsFromView(
-  startTime: number
-): Promise<DashboardMetrics> {
+async function fetchDashboardMetricsFromView(startTime: number): Promise<DashboardMetrics> {
   const supabase = await createClient()
 
   try {
@@ -191,17 +189,20 @@ async function fetchDashboardMetricsFromView(
         pending: typedViewData.pending_leave || 0,
         approved: typedViewData.approved_leave || 0,
         denied: typedViewData.rejected_leave || 0,
-        totalThisMonth: (typedViewData.pending_leave || 0) + (typedViewData.approved_leave || 0) + (typedViewData.rejected_leave || 0),
+        totalThisMonth:
+          (typedViewData.pending_leave || 0) +
+          (typedViewData.approved_leave || 0) +
+          (typedViewData.rejected_leave || 0),
       },
       alerts: {
         criticalExpired: typedViewData.total_expired || 0,
         expiringThisWeek: typedViewData.total_expiring_30_days || 0,
-        missingCertifications: 0, // TODO: Add to materialized view
+        missingCertifications: 0, // Tracked: tasks/062 #2
       },
       retirement: {
         nearingRetirement: typedViewData.pilots_nearing_retirement || 0,
         dueSoon: typedViewData.pilots_due_retire_2_years || 0,
-        overdue: 0, // TODO: Add to materialized view
+        overdue: 0, // Tracked: tasks/062 #2
       },
       performance: {
         queryTime,
@@ -209,7 +210,11 @@ async function fetchDashboardMetricsFromView(
         cacheLayer: 'materialized_view',
         lastUpdated: typedViewData.last_refreshed || new Date().toISOString(),
       },
-      categories: (typedViewData.category_compliance as Record<string, { total: number; current: number; compliance_rate: number }>) || undefined,
+      categories:
+        (typedViewData.category_compliance as Record<
+          string,
+          { total: number; current: number; compliance_rate: number }
+        >) || undefined,
     }
   } catch (error) {
     logError(error as Error, {
@@ -319,7 +324,11 @@ export async function getRecentActivity(): Promise<
     if (recentLeaveRequests.data) {
       recentLeaveRequests.data.forEach((request: any) => {
         const color =
-          request.workflow_status === 'APPROVED' ? 'green' : request.workflow_status === 'DENIED' ? 'red' : 'amber'
+          request.workflow_status === 'APPROVED'
+            ? 'green'
+            : request.workflow_status === 'DENIED'
+              ? 'red'
+              : 'amber'
 
         activity.push({
           id: `leave-${request.id}`,

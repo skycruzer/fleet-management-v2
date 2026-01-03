@@ -19,7 +19,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
@@ -44,20 +44,14 @@ export async function POST(request: NextRequest) {
     const csrfError = await validateCsrf(request)
     if (csrfError) return csrfError
 
-    const supabase = await createClient()
-
     // Verify user is authenticated and is admin
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },
@@ -103,7 +97,7 @@ export async function POST(request: NextRequest) {
       source: 'CacheInvalidateAPI',
       metadata: {
         operation: 'POST /api/cache/invalidate',
-        userId: user.id,
+        userId: auth.userId!,
         keys,
         pattern,
         invalidatedCount,
@@ -142,20 +136,14 @@ export async function DELETE(request: NextRequest) {
     const csrfError = await validateCsrf(request)
     if (csrfError) return csrfError
 
-    const supabase = await createClient()
-
     // Verify user is authenticated and is admin
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting (strict for destructive cache flush)
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },
@@ -182,7 +170,7 @@ export async function DELETE(request: NextRequest) {
       source: 'CacheInvalidateAPI',
       metadata: {
         operation: 'DELETE /api/cache/invalidate',
-        userId: user.id,
+        userId: auth.userId!,
       },
     })
 

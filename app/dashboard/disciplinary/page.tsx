@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatters, getMatterStats } from '@/lib/services/disciplinary-service'
 import Link from 'next/link'
 import { DisciplinaryFilters } from './components/disciplinary-filters'
@@ -25,12 +25,9 @@ interface DisciplinaryPageProps {
 }
 
 export default async function DisciplinaryPage({ searchParams }: DisciplinaryPageProps) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
 

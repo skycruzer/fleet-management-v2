@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatterWithTimeline, getIncidentTypes } from '@/lib/services/disciplinary-service'
 import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatterForm'
 import Link from 'next/link'
@@ -21,14 +22,13 @@ interface DisciplinaryDetailPageProps {
 }
 
 export default async function DisciplinaryDetailPage({ params }: DisciplinaryDetailPageProps) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
+
+  const supabase = await createClient()
 
   // Await params in Next.js 16
   const { id } = await params

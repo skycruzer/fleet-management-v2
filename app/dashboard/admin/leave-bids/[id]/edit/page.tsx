@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { LeaveBidEditForm } from '@/components/admin/leave-bid-edit-form'
 
 interface PageProps {
@@ -15,16 +16,14 @@ interface PageProps {
 
 export default async function LeaveBidEditPage({ params }: PageProps) {
   const { id } = await params
-  const supabase = await createClient()
 
-  // Check authentication
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
+
+  const supabase = await createClient()
 
   // Fetch leave bid with all related data
   const { data: bid, error } = await supabase
@@ -71,7 +70,7 @@ export default async function LeaveBidEditPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto space-y-6 p-6">
-      <LeaveBidEditForm bid={typedBid} userId={user.id} />
+      <LeaveBidEditForm bid={typedBid} userId={auth.userId!} />
     </div>
   )
 }

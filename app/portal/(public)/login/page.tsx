@@ -1,6 +1,6 @@
 /**
  * Pilot Portal Login Page
- * Aviation-themed, friendly crew authentication
+ * Minimal/Clean design - friendly crew authentication
  * Completely separate from Admin Portal
  *
  * @spec 001-missing-core-features (US1)
@@ -53,10 +53,7 @@ export default function PilotLoginPage() {
     setError('')
 
     try {
-      console.log('[LOGIN] Starting login request...')
-
       // Call the login API endpoint which handles password authentication
-      // API returns 307 redirect on success, which browser follows automatically
       const response = await fetch('/api/portal/login', {
         method: 'POST',
         headers: {
@@ -68,41 +65,23 @@ export default function PilotLoginPage() {
         }),
       })
 
-      console.log('[LOGIN] Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        redirected: response.redirected,
-        url: response.url,
-        type: response.type,
-        headers: Array.from(response.headers.entries()),
-      })
-
       // Success - browser followed redirect to dashboard
       if (response.redirected && response.url.includes('/portal/dashboard')) {
-        console.log('[LOGIN] ✅ Login successful - redirected to dashboard')
         window.location.href = '/portal/dashboard'
         return
       }
 
       // Handle different response statuses
       if (response.status === 200) {
-        console.log('[LOGIN] Got 200 response, parsing body...')
         const result = await response.json()
-        console.log('[LOGIN] Parsed result:', result)
 
         if (result.success) {
-          console.log('[LOGIN] ✅ Success in JSON, navigating to dashboard...')
-          console.log('[LOGIN] About to set window.location.href = /portal/dashboard')
-
           // Force a small delay to ensure state updates
           setTimeout(() => {
-            console.log('[LOGIN] Executing redirect NOW')
             window.location.href = '/portal/dashboard'
           }, 100)
           return
         } else {
-          console.log('[LOGIN] ❌ Error in JSON:', result)
           setError(result.error?.message || result.message || 'Login failed')
           setIsLoading(false)
           return
@@ -111,14 +90,12 @@ export default function PilotLoginPage() {
 
       // Handle error responses (4xx, 5xx)
       if (response.status === 401) {
-        console.log('[LOGIN] ❌ 401 Unauthorized')
         setError('Invalid email or password')
         setIsLoading(false)
         return
       }
 
       if (response.status === 423) {
-        console.log('[LOGIN] ❌ 423 Account Locked')
         const result = await response.json()
         setError(result.error?.message || 'Account is temporarily locked')
         setIsLoading(false)
@@ -126,23 +103,14 @@ export default function PilotLoginPage() {
       }
 
       // Try to parse error response
-      console.log('[LOGIN] Attempting to parse error response...')
       try {
         const result = await response.json()
-        console.log('[LOGIN] ❌ Error response:', result)
         setError(result.error?.message || result.message || 'Login failed')
-      } catch (parseError) {
-        console.error('[LOGIN] ❌ Failed to parse error response:', parseError)
+      } catch {
         setError(`Login failed (Status: ${response.status})`)
       }
       setIsLoading(false)
-    } catch (err) {
-      console.error('[LOGIN] ❌ Caught exception:', {
-        error: err,
-        name: (err as Error)?.name,
-        message: (err as Error)?.message,
-        stack: (err as Error)?.stack,
-      })
+    } catch {
       setError('Network error. Please check your connection and try again.')
       setIsLoading(false)
     }
@@ -151,12 +119,12 @@ export default function PilotLoginPage() {
   const { email, password } = form.watch()
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 px-4">
-      {/* Aviation Background Elements */}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-zinc-100 via-zinc-50 to-white px-4 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      {/* Minimal Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Static gradient orbs */}
-        <div className="absolute top-1/4 -right-1/4 h-96 w-96 rounded-full bg-cyan-300/20 blur-3xl" />
-        <div className="absolute bottom-1/4 -left-1/4 h-96 w-96 rounded-full bg-blue-300/20 blur-3xl" />
+        {/* Subtle gradient orbs */}
+        <div className="absolute top-1/4 -right-1/4 h-96 w-96 rounded-full bg-zinc-200/40 blur-3xl dark:bg-zinc-800/20" />
+        <div className="absolute bottom-1/4 -left-1/4 h-96 w-96 rounded-full bg-zinc-200/40 blur-3xl dark:bg-zinc-800/20" />
       </div>
 
       {/* Main Card */}
@@ -165,15 +133,15 @@ export default function PilotLoginPage() {
           {/* Logo and Title */}
           <div className="mb-8 text-center">
             <div className="mb-4 inline-flex">
-              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 shadow-xl">
-                <Plane className="h-10 w-10 text-white" />
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-zinc-900 shadow-xl dark:bg-zinc-100">
+                <Plane className="h-10 w-10 text-white dark:text-zinc-900" />
               </div>
             </div>
 
-            <h1 className="mb-2 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-4xl font-bold text-transparent">
+            <h1 className="mb-2 text-4xl font-bold text-zinc-900 dark:text-zinc-100">
               Pilot Portal
             </h1>
-            <div className="flex items-center justify-center gap-2 text-blue-600">
+            <div className="flex items-center justify-center gap-2 text-zinc-600 dark:text-zinc-400">
               <UserCircle className="h-5 w-5" />
               <p className="text-sm font-medium">Crew Member Access</p>
             </div>
@@ -204,7 +172,7 @@ export default function PilotLoginPage() {
                   onBlur={() => setEmailFocused(false)}
                   placeholder="pilot@airniugini.com"
                   disabled={isLoading}
-                  className="border-gray-300 bg-white pl-10 text-gray-900 placeholder:text-gray-400 focus:border-cyan-500 focus:ring-cyan-500/30"
+                  className="border-zinc-300 bg-white pl-10 text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-blue-500/30"
                 />
                 {email && email.includes('@') && !form.formState.errors.email && (
                   <div className="absolute top-1/2 right-3 -translate-y-1/2">
@@ -232,7 +200,7 @@ export default function PilotLoginPage() {
                   onBlur={() => setPasswordFocused(false)}
                   placeholder="Enter your password"
                   disabled={isLoading}
-                  className="border-gray-300 bg-white px-10 text-gray-900 placeholder:text-gray-400 focus:border-cyan-500 focus:ring-cyan-500/30"
+                  className="border-zinc-300 bg-white px-10 text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-blue-500/30"
                 />
                 <button
                   type="button"
@@ -249,7 +217,7 @@ export default function PilotLoginPage() {
               <div className="text-right">
                 <Link
                   href="/portal/forgot-password"
-                  className="text-sm font-medium text-cyan-600 transition-colors hover:text-cyan-700"
+                  className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
                 >
                   Forgot password?
                 </Link>
@@ -260,7 +228,7 @@ export default function PilotLoginPage() {
             <div>
               <Button
                 type="submit"
-                className="relative w-full overflow-hidden bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg hover:from-cyan-600 hover:to-blue-700 disabled:opacity-50"
+                className="relative w-full overflow-hidden bg-zinc-900 text-white shadow-lg hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                 disabled={isLoading}
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -293,11 +261,11 @@ export default function PilotLoginPage() {
 
             {/* Register Link */}
             <div className="text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-zinc-600">
                 New crew member?{' '}
                 <Link
                   href="/portal/register"
-                  className="font-semibold text-cyan-600 hover:text-cyan-700"
+                  className="font-semibold text-blue-600 hover:text-blue-700"
                 >
                   Register here
                 </Link>
@@ -309,7 +277,7 @@ export default function PilotLoginPage() {
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-700"
+              className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-700"
             >
               <ChevronLeft className="h-4 w-4" />
               <span>Back to home</span>
@@ -318,7 +286,7 @@ export default function PilotLoginPage() {
         </Card>
 
         {/* Footer Note */}
-        <div className="mt-4 text-center text-xs text-white/80">
+        <div className="mt-4 text-center text-xs text-zinc-500">
           <p>Air Niugini Crew Portal</p>
         </div>
       </div>

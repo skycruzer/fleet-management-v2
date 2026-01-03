@@ -7,8 +7,8 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { generateReport } from '@/lib/services/reports-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportPreviewRequestSchema } from '@/lib/validations/reports-schema'
@@ -19,13 +19,8 @@ const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_S
 export async function POST(request: Request) {
   try {
     // Authentication check
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       log?.warn('Unauthorized report preview attempt', {
         ip: request.headers.get('x-forwarded-for'),
         timestamp: new Date().toISOString(),
@@ -37,13 +32,13 @@ export async function POST(request: Request) {
     }
 
     // Rate limiting
-    const identifier = user.id
+    const identifier = auth.userId!
     const { success: rateLimitSuccess } = await authRateLimit.limit(identifier)
 
     if (!rateLimitSuccess) {
       log?.warn('Rate limit exceeded for report preview', {
-        userId: user.id,
-        email: user.email,
+        userId: auth.userId!,
+        email: auth.email,
         timestamp: new Date().toISOString(),
       })
       return NextResponse.json(
@@ -64,7 +59,7 @@ export async function POST(request: Request) {
       }))
 
       log?.warn('Report preview validation failed', {
-        userId: user.id,
+        userId: auth.userId!,
         errors,
         body,
         timestamp: new Date().toISOString(),
@@ -83,8 +78,8 @@ export async function POST(request: Request) {
     const { reportType, filters } = validationResult.data
 
     log?.info('Report preview requested', {
-      userId: user.id,
-      email: user.email,
+      userId: auth.userId!,
+      email: auth.email,
       reportType,
       filterCount: filters ? Object.keys(filters).length : 0,
       timestamp: new Date().toISOString(),
@@ -92,10 +87,15 @@ export async function POST(request: Request) {
 
     // Preview uses pagination (fullExport=false) but includes user context
     // Use empty object if filters is undefined
-    const report = await generateReport(reportType, filters ?? {}, false, user.email || user.id)
+    const report = await generateReport(
+      reportType,
+      filters ?? {},
+      false,
+      auth.email || auth.userId!
+    )
 
     log?.info('Report preview generated successfully', {
-      userId: user.id,
+      userId: auth.userId!,
       reportType,
       resultCount: report.data.length,
       executionTime: Date.now() - new Date(report.generatedAt).getTime(),

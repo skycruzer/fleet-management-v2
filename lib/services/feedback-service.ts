@@ -12,6 +12,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import type { Database } from '@/types/supabase'
 import { createNotification } from '@/lib/services/notification-service'
 
@@ -76,9 +77,13 @@ export async function getAllFeedback(
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 
@@ -108,9 +113,7 @@ export async function getAllFeedback(
     }
 
     if (filters?.search) {
-      query = query.or(
-        `subject.ilike.%${filters.search}%,message.ilike.%${filters.search}%`
-      )
+      query = query.or(`subject.ilike.%${filters.search}%,message.ilike.%${filters.search}%`)
     }
 
     if (filters?.startDate) {
@@ -163,9 +166,13 @@ export async function getFeedbackById(
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 
@@ -213,9 +220,7 @@ export async function getFeedbackById(
  *
  * @returns Service response with feedback statistics
  */
-export async function getFeedbackStats(): Promise<
-  ServiceResponse<FeedbackStats>
-> {
+export async function getFeedbackStats(): Promise<ServiceResponse<FeedbackStats>> {
   try {
     const supabase = await createClient()
 
@@ -224,16 +229,18 @@ export async function getFeedbackStats(): Promise<
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 
     // Get all feedback
-    const { data, error } = await supabase
-      .from('pilot_feedback')
-      .select('status, category')
+    const { data, error } = await supabase.from('pilot_feedback').select('status, category')
 
     if (error) {
       console.error('Error fetching feedback stats:', error)
@@ -296,9 +303,13 @@ export async function updateFeedbackStatus(
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 
@@ -350,11 +361,17 @@ export async function addAdminResponse(
     const {
       data: { user },
     } = await supabase.auth.getUser()
+    let adminUserId: string | undefined = user?.id
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated || !adminSession.userId) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
+      adminUserId = adminSession.userId
     }
 
     // Update the feedback with admin response
@@ -362,7 +379,7 @@ export async function addAdminResponse(
       .from('pilot_feedback')
       .update({
         admin_response: response,
-        responded_by: user.id,
+        responded_by: adminUserId,
         responded_at: new Date().toISOString(),
         status: 'REVIEWED',
         updated_at: new Date().toISOString(),
@@ -377,7 +394,7 @@ export async function addAdminResponse(
       }
     }
 
-    // TODO: Send notification to pilot about the response
+    // Tracked: tasks/062-tracked-infrastructure-enhancements.md #3
     // Requires pilot_user_id column in pilot_feedback table
 
     return {
@@ -415,9 +432,13 @@ export async function exportFeedbackToCSV(
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 
@@ -448,9 +469,7 @@ export async function exportFeedbackToCSV(
     const rows = feedbackResponse.data.map((f) => [
       f.id,
       new Date(f.created_at).toISOString(),
-      f.is_anonymous
-        ? 'Anonymous'
-        : `${f.pilot?.first_name} ${f.pilot?.last_name}`,
+      f.is_anonymous ? 'Anonymous' : `${f.pilot?.first_name} ${f.pilot?.last_name}`,
       f.is_anonymous ? 'N/A' : f.pilot?.employee_id || '',
       f.category,
       f.subject,

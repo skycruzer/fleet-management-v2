@@ -56,14 +56,8 @@ export function DataTable<T extends Record<string, any>>({
   const [sortDirection, setSortDirection] = React.useState<SortDirection>(null)
 
   // Pagination state
-  const {
-    currentPage,
-    pageSize,
-    totalPages,
-    paginatedData,
-    setCurrentPage,
-    setPageSize,
-  } = usePagination(data, initialPageSize)
+  const { currentPage, pageSize, totalPages, paginatedData, setCurrentPage, setPageSize } =
+    usePagination(data, initialPageSize)
 
   // Handle column sorting
   const handleSort = (columnId: string) => {
@@ -127,7 +121,7 @@ export function DataTable<T extends Record<string, any>>({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border overflow-x-auto">
+      <div className="overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -137,9 +131,10 @@ export function DataTable<T extends Record<string, any>>({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="-ml-3 h-8 data-[state=open]:bg-accent"
+                      className="data-[state=open]:bg-accent -ml-3 h-8"
                       onClick={() => handleSort(column.id)}
-                      aria-label={`Sort by ${column.header}`}
+                      aria-label={`Sort by ${column.header}${sortColumn === column.id ? `, currently sorted ${sortDirection}ending` : ''}`}
+                      aria-pressed={sortColumn === column.id}
                     >
                       <span>{column.header}</span>
                       {renderSortIcon(column.id)}
@@ -162,14 +157,25 @@ export function DataTable<T extends Record<string, any>>({
               sortedData.map((row, index) => (
                 <TableRow
                   key={index}
-                  className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : 'hover:bg-muted/50'}
+                  className={
+                    onRowClick
+                      ? 'hover:bg-muted/50 focus:ring-primary cursor-pointer focus:ring-2 focus:outline-none focus:ring-inset'
+                      : 'hover:bg-muted/50'
+                  }
                   onClick={() => onRowClick?.(row)}
+                  onKeyDown={(e) => {
+                    if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault()
+                      onRowClick(row)
+                    }
+                  }}
+                  tabIndex={onRowClick ? 0 : undefined}
+                  role={onRowClick ? 'button' : undefined}
+                  aria-label={onRowClick ? `View details for row ${index + 1}` : undefined}
                 >
                   {columns.map((column) => (
                     <TableCell key={column.id} className="whitespace-nowrap">
-                      {column.cell
-                        ? column.cell(row)
-                        : getValue(row, column)?.toString() || '-'}
+                      {column.cell ? column.cell(row) : getValue(row, column)?.toString() || '-'}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -239,7 +245,7 @@ export function DataTableSearch({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         aria-label={placeholder}
       />
     </div>

@@ -17,7 +17,13 @@ import { format } from 'date-fns'
 export default async function CheckTypesPage() {
   const [checkTypes, categories] = await Promise.all([getCheckTypes(), getCheckTypeCategories()])
 
-  // Calculate stats
+  // Calculate stats - compute once before render for React Compiler compliance
+  // eslint-disable-next-line react-hooks/purity -- Date.now() is safe in Server Components (runs once per request)
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const recentlyUpdatedCount = checkTypes.filter(
+    (ct) => new Date(ct.updated_at) > thirtyDaysAgo
+  ).length
+
   const stats = categories.map((category) => ({
     category,
     count: checkTypes.filter((ct) => ct.category === category).length,
@@ -76,14 +82,7 @@ export default async function CheckTypesPage() {
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📅</span>
             <div>
-              <p className="text-foreground text-2xl font-bold">
-                {
-                  checkTypes.filter(
-                    (ct) =>
-                      new Date(ct.updated_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-                  ).length
-                }
-              </p>
+              <p className="text-foreground text-2xl font-bold">{recentlyUpdatedCount}</p>
               <p className="text-muted-foreground text-sm font-medium">Updated (30d)</p>
             </div>
           </div>

@@ -77,10 +77,6 @@ export async function GET(request: Request) {
       )
     }
 
-    console.log(
-      `[PDF Export] Found ${periods.length} roster periods for year ${year} (${periods[0].roster_period} - ${periods[periods.length - 1].roster_period})`
-    )
-
     // Get capacity summaries for each period
     const summaries = await Promise.all(
       periods.map(async (p) => {
@@ -129,10 +125,6 @@ export async function GET(request: Request) {
       )
     }
 
-    console.log(
-      `[PDF Export] Found ${renewals?.length || 0} renewals for roster periods: ${rosterPeriods.join(', ')}`
-    )
-
     // FIX #3: Validate that we have renewal data
     if (!renewals || renewals.length === 0) {
       return NextResponse.json(
@@ -166,8 +158,6 @@ export async function GET(request: Request) {
       status: r.status || 'pending',
     }))
 
-    console.log(`[PDF Export] Generating PDF for ${year} with ${typedRenewals.length} renewals...`)
-
     // Generate PDF
     const pdfBlob = await generateRenewalPlanPDF({
       year: year,
@@ -178,8 +168,6 @@ export async function GET(request: Request) {
 
     // Convert blob to buffer for Response
     const buffer = await pdfBlob.arrayBuffer()
-
-    console.log(`[PDF Export] PDF generated successfully (${buffer.byteLength} bytes)`)
 
     // Return PDF as download
     const headers = new Headers()

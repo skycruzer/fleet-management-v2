@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { adminLogin } from '@/lib/services/admin-auth-service'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
@@ -12,21 +12,12 @@ export async function loginAction(formData: FormData) {
     return { error: 'Email and password are required' }
   }
 
-  const supabase = await createClient()
+  const result = await adminLogin({ email, password })
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
-  if (error) {
-    return { error: error.message }
+  if (!result.success) {
+    return { error: result.error || 'Invalid credentials' }
   }
 
-  if (data.session) {
-    revalidatePath('/', 'layout')
-    redirect('/dashboard')
-  }
-
-  return { error: 'Login failed' }
+  revalidatePath('/', 'layout')
+  redirect('/dashboard')
 }

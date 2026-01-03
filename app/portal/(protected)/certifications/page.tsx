@@ -7,7 +7,7 @@
  * @spec 001-missing-core-features (US1)
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,65 +41,14 @@ type ViewMode = 'card' | 'list'
 
 export default function CertificationsPage() {
   const [certifications, setCertifications] = useState<Certification[]>([])
-  const [filteredCerts, setFilteredCerts] = useState<Certification[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [viewMode, setViewMode] = useState<ViewMode>('card')
 
-  // Fetch certifications
-  useEffect(() => {
-    fetchCertifications()
-  }, [])
-
-  // Apply filters
-  useEffect(() => {
-    let filtered = [...certifications]
-
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (cert) =>
-          cert.check_types?.check_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          cert.check_types?.check_description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          cert.check_types?.category.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    }
-
-    // Apply status filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((cert) => {
-        const status = getCertificationStatus(cert.expiry_date)
-        return status.filterKey === statusFilter
-      })
-    }
-
-    setFilteredCerts(filtered)
-  }, [searchQuery, statusFilter, certifications])
-
-  const fetchCertifications = async () => {
-    try {
-      // This would normally be an API call, but for now we'll fetch directly
-      const response = await fetch('/api/portal/certifications')
-      const result = await response.json()
-
-      if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to fetch certifications')
-        setIsLoading(false)
-        return
-      }
-
-      setCertifications(result.data || [])
-      setFilteredCerts(result.data || [])
-      setIsLoading(false)
-    } catch (err) {
-      setError('An unexpected error occurred')
-      setIsLoading(false)
-    }
-  }
-
-  const getCertificationStatus = (expiryDate: string | null) => {
+  // Define getCertificationStatus before it's used in effects
+  const getCertificationStatus = useCallback((expiryDate: string | null) => {
     if (!expiryDate) {
       return {
         status: 'No Expiry',
@@ -170,7 +119,67 @@ export default function CertificationsPage() {
         progressPercent,
       }
     }
-  }
+  }, [])
+
+  // Define fetchCertifications with useCallback before it's used in effect
+  const fetchCertifications = useCallback(async () => {
+    try {
+      // This would normally be an API call, but for now we'll fetch directly
+      const response = await fetch('/api/portal/certifications')
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        setError(result.error || 'Failed to fetch certifications')
+        setIsLoading(false)
+        return
+      }
+
+      setCertifications(result.data || [])
+      setIsLoading(false)
+    } catch (err) {
+      setError('An unexpected error occurred')
+      setIsLoading(false)
+    }
+  }, [])
+
+  // Fetch certifications on mount
+  useEffect(() => {
+    let isMounted = true
+    const fetchData = async () => {
+      const result = await fetchCertifications()
+      // State updates handled inside fetchCertifications
+    }
+    fetchData()
+    return () => {
+      isMounted = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Apply filters using useMemo (derived state - React Compiler friendly)
+  const filteredCerts = useMemo(() => {
+    let filtered = [...certifications]
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (cert) =>
+          cert.check_types?.check_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          cert.check_types?.check_description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          cert.check_types?.category.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((cert) => {
+        const status = getCertificationStatus(cert.expiry_date)
+        return status.filterKey === statusFilter
+      })
+    }
+
+    return filtered
+  }, [searchQuery, statusFilter, certifications, getCertificationStatus])
 
   // Calculate statistics
   const stats = {

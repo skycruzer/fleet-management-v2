@@ -9,6 +9,7 @@
 
 import { generateRetirementForecastCSV } from '@/lib/services/retirement-forecast-service'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { NextResponse } from 'next/server'
 
 /**
@@ -20,21 +21,17 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   try {
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get user role
+    const supabase = await createClient()
     const { data: userData, error: userError } = await supabase
       .from('an_users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', auth.userId!)
       .single()
 
     if (userError || !userData) {

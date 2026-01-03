@@ -9,8 +9,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 
@@ -39,14 +39,9 @@ type ConflictCheckRequest = z.infer<typeof ConflictCheckSchema>
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // Check authentication
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -54,7 +49,7 @@ export async function POST(request: NextRequest) {
     const validated = ConflictCheckSchema.parse(body)
 
     logger.info('Checking conflicts for request', {
-      userId: user.id,
+      userId: auth.userId!,
       pilotId: validated.pilotId,
       startDate: validated.startDate,
     })

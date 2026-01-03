@@ -8,7 +8,9 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import type { Database } from '@/types/supabase'
 
 // Types
@@ -72,7 +74,6 @@ export interface MatterFilters {
   sortOrder?: 'asc' | 'desc'
 }
 
-
 // Statistics types
 export interface MatterStats {
   totalMatters: number
@@ -105,7 +106,6 @@ export const MATTER_STATUSES = [
 
 export const MATTER_SEVERITIES = ['MINOR', 'MODERATE', 'SERIOUS', 'CRITICAL'] as const
 
-
 // ============================================================================
 // MATTER CRUD OPERATIONS
 // ============================================================================
@@ -123,13 +123,15 @@ export async function getMatters(
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return { success: false, error: 'Unauthorized' }
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return { success: false, error: 'Unauthorized' }
+      }
     }
 
-    let query = supabase
-      .from('disciplinary_matters')
-      .select(
-        `
+    let query = supabase.from('disciplinary_matters').select(
+      `
         *,
         pilot:pilots!disciplinary_matters_pilot_id_fkey (
           id,
@@ -159,8 +161,8 @@ export async function getMatters(
           name
         )
       `,
-        { count: 'exact' }
-      )
+      { count: 'exact' }
+    )
 
     // Apply filters
     if (filters?.pilotId) {
@@ -241,7 +243,9 @@ export async function getMatters(
 /**
  * Get single disciplinary matter by ID with full relations
  */
-export async function getMatterById(matterId: string): Promise<ServiceResponse<DisciplinaryMatterWithRelations>> {
+export async function getMatterById(
+  matterId: string
+): Promise<ServiceResponse<DisciplinaryMatterWithRelations>> {
   try {
     const supabase = await createClient()
     const {
@@ -249,7 +253,11 @@ export async function getMatterById(matterId: string): Promise<ServiceResponse<D
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return { success: false, error: 'Unauthorized' }
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return { success: false, error: 'Unauthorized' }
+      }
     }
 
     const { data, error } = await supabase
@@ -325,19 +333,14 @@ export async function getMatterWithTimeline(
 
 /**
  * Create new disciplinary matter
+ * Note: Authentication is handled at the API route level via getAuthenticatedAdmin()
  */
 export async function createMatter(
   matterData: Omit<DisciplinaryMatterInsert, 'id' | 'created_at' | 'updated_at'>
 ): Promise<ServiceResponse<DisciplinaryMatter>> {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { success: false, error: 'Unauthorized' }
-    }
+    // Use admin client to bypass RLS for admin operations
+    const supabase = createAdminClient()
 
     // Insert matter
     const { data: matter, error } = await supabase
@@ -362,18 +365,6 @@ export async function createMatter(
       newData: matter,
     })
 
-    // Send notification to assigned user if specified
-    if (matterData.assigned_to) {
-      // TODO: Implement notification system
-      console.log(`Notification: Matter assigned to user ${matterData.assigned_to}`)
-    }
-
-    // Send notification to pilot
-    if (matterData.pilot_id) {
-      // TODO: Implement notification system
-      console.log(`Notification: Disciplinary matter created for pilot ${matterData.pilot_id}`)
-    }
-
     return { success: true, data: matter }
   } catch (error) {
     console.error('Error in createMatter:', error)
@@ -383,20 +374,20 @@ export async function createMatter(
 
 /**
  * Update existing disciplinary matter
+ * Note: Authentication is handled at the API route level via getAuthenticatedAdmin()
+ *
+ * @param matterId - Matter ID to update
+ * @param updates - Fields to update
+ * @param adminUserId - Optional admin user ID for resolved_by tracking
  */
 export async function updateMatter(
   matterId: string,
-  updates: DisciplinaryMatterUpdate
+  updates: DisciplinaryMatterUpdate,
+  adminUserId?: string
 ): Promise<ServiceResponse<DisciplinaryMatter>> {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { success: false, error: 'Unauthorized' }
-    }
+    // Use admin client to bypass RLS for admin operations
+    const supabase = createAdminClient()
 
     // Get old values for audit
     const { data: oldMatter } = await supabase
@@ -416,7 +407,9 @@ export async function updateMatter(
       !oldMatter.resolved_date
     ) {
       updates.resolved_date = new Date().toISOString()
-      updates.resolved_by = user.id
+      if (adminUserId) {
+        updates.resolved_by = adminUserId
+      }
     }
 
     // Update matter
@@ -444,16 +437,6 @@ export async function updateMatter(
       newData: matter,
     })
 
-    // Send notification on status change
-    if (updates.status && updates.status !== oldMatter.status) {
-      console.log(`Notification: Matter ${matterId} status changed to ${updates.status}`)
-    }
-
-    // Send notification on assignment change
-    if (updates.assigned_to && updates.assigned_to !== oldMatter.assigned_to) {
-      console.log(`Notification: Matter ${matterId} assigned to user ${updates.assigned_to}`)
-    }
-
     return { success: true, data: matter }
   } catch (error) {
     console.error('Error in updateMatter:', error)
@@ -463,17 +446,12 @@ export async function updateMatter(
 
 /**
  * Delete disciplinary matter (soft delete by setting status to archived)
+ * Note: Authentication is handled at the API route level via getAuthenticatedAdmin()
  */
 export async function deleteMatter(matterId: string): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return { success: false, error: 'Unauthorized' }
-    }
+    // Use admin client to bypass RLS for admin operations
+    const supabase = createAdminClient()
 
     // Get old values for audit
     const { data: oldMatter } = await supabase
@@ -587,10 +565,7 @@ export async function getMatterStats(filters?: {
     const now = new Date()
     const overdueMatters = matters.filter(
       (m) =>
-        m.due_date &&
-        new Date(m.due_date) < now &&
-        m.status !== 'RESOLVED' &&
-        m.status !== 'CLOSED'
+        m.due_date && new Date(m.due_date) < now && m.status !== 'RESOLVED' && m.status !== 'CLOSED'
     ).length
 
     // Average resolution days (for resolved matters)
@@ -606,7 +581,8 @@ export async function getMatterStats(filters?: {
       }
       return sum
     }, 0)
-    const averageResolutionDays = resolvedWithDates.length > 0 ? totalDays / resolvedWithDates.length : 0
+    const averageResolutionDays =
+      resolvedWithDates.length > 0 ? totalDays / resolvedWithDates.length : 0
 
     const stats: MatterStats = {
       totalMatters,
@@ -650,9 +626,9 @@ export async function getIncidentTypes(): Promise<
     }
 
     // Map to ensure description is never null
-    const mappedData = (data || []).map(item => ({
+    const mappedData = (data || []).map((item) => ({
       ...item,
-      description: item.description || ''
+      description: item.description || '',
     }))
 
     return { success: true, data: mappedData }

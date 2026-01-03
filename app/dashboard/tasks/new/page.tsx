@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTaskCategories } from '@/lib/services/task-service'
 import TaskForm from '@/components/tasks/TaskForm'
 // Force dynamic rendering to prevent static generation at build time
@@ -14,14 +15,13 @@ export const dynamic = 'force-dynamic'
  */
 
 export default async function NewTaskPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
+
+  const supabase = await createClient()
 
   // Fetch users for assignment
   const { data: users } = await supabase

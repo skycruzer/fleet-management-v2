@@ -1,127 +1,159 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Professional Aviation Color Palette - Inspired by Boeing Blue */
+  /* =========================================================================
+   * LINEAR/NOTION-INSPIRED DESIGN SYSTEM
+   * Philosophy: Near-monochrome, subtle warmth, generous whitespace
+   * Accent: Refined indigo (softer than harsh blue)
+   * Author: Maurice Rondeau
+   * ========================================================================= */
 
-  /* Primary - Aviation Blue */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #0369a1; /* Main brand color */
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
+  /* === PRIMARY (Near-Black for buttons and emphasis) === */
+  --color-primary-50: #fafaf9;
+  --color-primary-100: #f5f5f4;
+  --color-primary-200: #e7e5e4;
+  --color-primary-300: #d6d3d1;
+  --color-primary-400: #a8a29e;
+  --color-primary-500: #1c1917;
+  --color-primary-600: #0c0a09;
+  --color-primary-700: #0c0a09;
+  --color-primary-800: #0c0a09;
+  --color-primary-900: #0c0a09;
 
-  --color-primary: #0369a1;
-  --color-primary-foreground: #ffffff;
+  --color-primary: #1c1917;
+  --color-primary-foreground: #fafaf9;
 
-  /* Accent - Aviation Gold (Premium touch) */
-  --color-accent-50: #fefce8;
-  --color-accent-100: #fef9c3;
-  --color-accent-200: #fef08a;
-  --color-accent-300: #fde047;
-  --color-accent-400: #facc15;
-  --color-accent-500: #eab308;
-  --color-accent-600: #ca8a04;
-  --color-accent-700: #a16207;
-  --color-accent-800: #854d0e;
-  --color-accent-900: #713f12;
+  /* === ACCENT (Refined Indigo - Linear-inspired) === */
+  --color-accent-50: #eef2ff;
+  --color-accent-100: #e0e7ff;
+  --color-accent-200: #c7d2fe;
+  --color-accent-300: #a5b4fc;
+  --color-accent-400: #818cf8;
+  --color-accent-500: #6366f1;
+  --color-accent-600: #4f46e5;
+  --color-accent-700: #4338ca;
+  --color-accent-800: #3730a3;
+  --color-accent-900: #312e81;
 
-  --color-accent: #eab308;
-  --color-accent-foreground: #713f12;
+  --color-accent: #6366f1;
+  --color-accent-foreground: #ffffff;
 
-  /* Success - FAA Compliant Green */
+  /* === SEMANTIC: SUCCESS (Aviation Green - Current) === */
   --color-success-500: #22c55e;
   --color-success-600: #16a34a;
   --color-success: #22c55e;
   --color-success-foreground: #ffffff;
+  --color-success-muted: #dcfce7;
+  --color-success-muted-foreground: #166534;
 
-  /* Warning - Expiring Soon Yellow */
+  /* === SEMANTIC: WARNING (Aviation Amber - Expiring ≤30 days) === */
   --color-warning-500: #f59e0b;
   --color-warning-600: #d97706;
   --color-warning: #f59e0b;
   --color-warning-foreground: #ffffff;
+  --color-warning-muted: #fef3c7;
+  --color-warning-muted-foreground: #92400e;
 
-  /* Danger/Destructive - Expired Red */
+  /* === SEMANTIC: DESTRUCTIVE (Aviation Red - Expired) === */
   --color-danger-500: #ef4444;
   --color-danger-600: #dc2626;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
+  --color-destructive-muted: #fee2e2;
+  --color-destructive-muted-foreground: #991b1b;
 
-  /* Neutral - Professional Slate */
-  --color-slate-50: #f8fafc;
-  --color-slate-100: #f1f5f9;
-  --color-slate-200: #e2e8f0;
-  --color-slate-300: #cbd5e1;
-  --color-slate-400: #94a3b8;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
+  /* === NEUTRAL (Stone-based for warmth) === */
+  --color-slate-50: #fafaf9;
+  --color-slate-100: #f5f5f4;
+  --color-slate-200: #e7e5e4;
+  --color-slate-300: #d6d3d1;
+  --color-slate-400: #a8a29e;
+  --color-slate-500: #78716c;
+  --color-slate-600: #57534e;
+  --color-slate-700: #44403c;
+  --color-slate-800: #292524;
+  --color-slate-900: #1c1917;
 
-  --color-secondary: #475569;
-  --color-secondary-foreground: #ffffff;
+  --color-secondary: #f5f5f4;
+  --color-secondary-foreground: #1c1917;
 
-  /* Background colors - Light Mode */
-  --color-background: #ffffff;
-  --color-foreground: #0f172a;
+  /* === BACKGROUNDS & SURFACES (Light Mode) === */
+  --color-background: #fafaf9;
+  --color-foreground: #1c1917;
 
   --color-card: #ffffff;
-  --color-card-foreground: #0f172a;
+  --color-card-foreground: #1c1917;
 
   --color-popover: #ffffff;
-  --color-popover-foreground: #0f172a;
+  --color-popover-foreground: #1c1917;
 
-  /* Border and input colors - Light Mode */
-  --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
-  --color-ring: #0369a1;
+  /* === BORDERS & INPUTS (Light Mode) === */
+  --color-border: #e7e5e4;
+  --color-input: #e7e5e4;
+  --color-ring: #a8a29e;
 
-  /* Muted colors - Light Mode */
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
+  /* === MUTED (Light Mode) === */
+  --color-muted: #f5f5f4;
+  --color-muted-foreground: #78716c;
 
-  /* Border radius - More modern, slightly larger */
+  /* === BORDER RADIUS (Linear-inspired) === */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+
+  /* === TRANSITIONS === */
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --transition-slow: 300ms;
+
+  /* === SHADOWS (Subtle, minimal) === */
+  --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
 }
 
-/* Dark Mode Colors */
+/* === DARK MODE (Stone-based for warmth) === */
 .dark {
-  /* Background colors - Dark Mode */
-  --color-background: #0f172a;
-  --color-foreground: #f8fafc;
+  /* Background - True dark, not pure black */
+  --color-background: #0c0a09;
+  --color-foreground: #fafaf9;
 
-  --color-card: #1e293b;
-  --color-card-foreground: #f8fafc;
+  /* Card - Elevated dark surface */
+  --color-card: #1c1917;
+  --color-card-foreground: #fafaf9;
 
-  --color-popover: #1e293b;
-  --color-popover-foreground: #f8fafc;
+  /* Popover */
+  --color-popover: #1c1917;
+  --color-popover-foreground: #fafaf9;
 
-  /* Border and input colors - Dark Mode */
-  --color-border: #334155;
-  --color-input: #334155;
-  --color-ring: #0284c7;
+  /* Borders & Inputs */
+  --color-border: #292524;
+  --color-input: #292524;
+  --color-ring: #a8a29e;
 
-  /* Muted colors - Dark Mode */
-  --color-muted: #334155;
-  --color-muted-foreground: #94a3b8;
+  /* Muted */
+  --color-muted: #292524;
+  --color-muted-foreground: #a8a29e;
 
-  /* Adjusted colors for better dark mode contrast */
-  --color-primary: #0284c7;
-  --color-accent: #fbbf24;
-  --color-destructive: #f87171;
+  /* Primary (inverted) */
+  --color-primary: #fafaf9;
+  --color-primary-foreground: #1c1917;
+
+  /* Secondary */
+  --color-secondary: #292524;
+  --color-secondary-foreground: #fafaf9;
+
+  /* Accent - Slightly brighter for dark mode */
+  --color-accent: #818cf8;
+
+  /* Semantic colors - Slightly brighter for dark mode */
   --color-success: #4ade80;
   --color-warning: #fbbf24;
+  --color-destructive: #f87171;
 }
 
-/* Base styles */
+/* === BASE STYLES === */
 @layer base {
   * {
     @apply border-border;
@@ -134,48 +166,59 @@
       -apple-system,
       BlinkMacSystemFont,
       'Segoe UI',
+      system-ui,
       sans-serif;
     font-feature-settings:
       'rlig' 1,
-      'calt' 1;
+      'calt' 1,
+      'ss01' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Typography - Compact, Linear-style */
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @apply font-semibold tracking-tight;
+    @apply leading-tight font-semibold tracking-tight;
   }
 
   h1 {
-    @apply text-4xl lg:text-5xl;
-  }
-
-  h2 {
-    @apply text-3xl lg:text-4xl;
-  }
-
-  h3 {
     @apply text-2xl lg:text-3xl;
   }
 
-  h4 {
+  h2 {
     @apply text-xl lg:text-2xl;
+  }
+
+  h3 {
+    @apply text-lg lg:text-xl;
+  }
+
+  h4 {
+    @apply text-base lg:text-lg;
+  }
+
+  p {
+    @apply leading-relaxed;
   }
 }
 
-/* Component styles */
+/* === COMPONENT STYLES === */
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors;
-    @apply focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium whitespace-nowrap;
+    @apply transition-all duration-200;
+    @apply focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none;
     @apply disabled:pointer-events-none disabled:opacity-50;
+    @apply active:scale-[0.98];
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm;
   }
 
   .btn-secondary {
@@ -183,22 +226,36 @@
   }
 
   .btn-destructive {
-    @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+    @apply bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm;
   }
 
   .btn-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground;
+    @apply hover:bg-muted hover:text-foreground;
+  }
+
+  .btn-outline {
+    @apply border-border bg-background hover:bg-muted hover:border-muted-foreground/20 border;
+  }
+
+  .btn-soft {
+    @apply bg-accent/10 text-accent hover:bg-accent/20;
   }
 
   .card {
-    @apply bg-card text-card-foreground rounded-lg border shadow-sm;
+    @apply bg-card text-card-foreground border-border rounded-xl border;
+    @apply transition-all duration-200;
+  }
+
+  .card:hover {
+    @apply border-border/80;
   }
 
   .input {
-    @apply border-input bg-background flex h-10 w-full rounded-md border px-3 py-2 text-sm;
-    @apply ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium;
-    @apply placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:outline-none;
-    @apply focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply border-border bg-background flex h-9 w-full rounded-lg border px-3 py-2 text-sm;
+    @apply transition-all duration-200;
+    @apply placeholder:text-muted-foreground;
+    @apply focus:ring-ring/20 focus:border-foreground/30 focus:ring-2 focus:outline-none;
+    @apply disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50;
   }
 }
 
@@ -275,6 +332,42 @@
     animation-play-state: paused;
   }
 
+  /* Shimmer animation for loading states */
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s ease-in-out infinite;
+    background: linear-gradient(
+      90deg,
+      var(--color-muted) 0%,
+      var(--color-muted-foreground, #a8a29e) 50%,
+      var(--color-muted) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  /* Subtle pulse for loading */
+  @keyframes subtle-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  .animate-subtle-pulse {
+    animation: subtle-pulse 1.5s ease-in-out infinite;
+  }
+
   /* Touch-optimized tap highlights */
   .touch-manipulation {
     touch-action: manipulation;
@@ -304,16 +397,16 @@
    * Ensures keyboard navigation focus is clearly visible
    * Meets WCAG 2.4.7 (Focus Visible) Level AA requirements
    *
-   * Color: cyan-600 (#0891b2) - 4.76:1 contrast ratio on white (WCAG AA)
+   * Color: indigo-500 (#6366f1) - matches accent color for consistency
    * Outline: 2px solid with 2px offset for visibility
-   * Border radius: 4px for professional appearance
+   * Border radius: 6px for Linear-inspired appearance
    */
 
   /* Primary focus indicator for all interactive elements */
   *:focus-visible {
-    outline: 2px solid #0891b2; /* cyan-600 */
+    outline: 2px solid #6366f1; /* indigo-500 - accent color */
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 6px;
   }
 
   /* Specific focus indicators for common interactive elements */
@@ -329,7 +422,7 @@
   [role='radio']:focus-visible,
   [role='checkbox']:focus-visible,
   [tabindex]:not([tabindex='-1']):focus-visible {
-    outline: 2px solid #0891b2; /* cyan-600 */
+    outline: 2px solid #6366f1; /* indigo-500 - accent color */
     outline-offset: 2px;
   }
 
@@ -348,9 +441,9 @@
   input[type='search']:focus-visible,
   input[type='date']:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid #0891b2;
+    outline: 2px solid #6366f1;
     outline-offset: 0px; /* No offset for inputs - looks cleaner */
-    box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.1); /* Subtle glow */
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); /* Subtle indigo glow */
   }
 
   /* High contrast mode support - ensures focus indicators work */
@@ -368,12 +461,12 @@
     left: 16px;
     z-index: 9999;
     padding: 12px 16px;
-    background-color: #0891b2;
+    background-color: #171717;
     color: white;
-    border-radius: 4px;
+    border-radius: 6px;
     outline: 2px solid white;
     outline-offset: 2px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
   }
 
   /* Screen reader only utility class */

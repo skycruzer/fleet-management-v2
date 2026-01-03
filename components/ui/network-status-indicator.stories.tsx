@@ -126,82 +126,80 @@ export const Reconnecting: Story = {
 }
 
 // ===================================
-// INTERACTIVE DEMO
+// INTERACTIVE DEMO COMPONENTS
 // ===================================
 
+function InteractiveDemoComponent() {
+  const [isOnline, setIsOnline] = useState(true)
+  const [isReconnecting, setIsReconnecting] = useState(false)
+
+  const handleReconnect = async () => {
+    setIsReconnecting(true)
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    setIsReconnecting(false)
+    setIsOnline(true)
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Network Status Indicator Demo</CardTitle>
+          <CardDescription>
+            Toggle the connection status to see how the indicator responds
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button onClick={() => setIsOnline(true)} variant={isOnline ? 'default' : 'outline'}>
+              Online
+            </Button>
+            <Button onClick={() => setIsOnline(false)} variant={!isOnline ? 'default' : 'outline'}>
+              Offline
+            </Button>
+          </div>
+
+          <div className="space-y-4 rounded-lg border p-4">
+            <h3 className="font-semibold">Current Indicators:</h3>
+
+            <div>
+              <p className="text-muted-foreground mb-2 text-sm">Banner variant:</p>
+              <NetworkStatusIndicator
+                isOnline={isOnline}
+                variant="banner"
+                showOnlyWhenOffline={false}
+                showReconnectButton={true}
+                onReconnect={handleReconnect}
+                isReconnecting={isReconnecting}
+              />
+            </div>
+
+            <div>
+              <p className="text-muted-foreground mb-2 text-sm">Badge variant:</p>
+              <NetworkStatusIndicator
+                isOnline={isOnline}
+                variant="badge"
+                showOnlyWhenOffline={false}
+              />
+            </div>
+
+            <div>
+              <p className="text-muted-foreground mb-2 text-sm">Inline variant:</p>
+              <NetworkStatusIndicator
+                isOnline={isOnline}
+                variant="inline"
+                showOnlyWhenOffline={false}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 export const InteractiveDemo: Story = {
-  render: () => {
-    const [isOnline, setIsOnline] = useState(true)
-    const [isReconnecting, setIsReconnecting] = useState(false)
-
-    const handleReconnect = async () => {
-      setIsReconnecting(true)
-      // Simulate reconnection
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      setIsReconnecting(false)
-      setIsOnline(true)
-    }
-
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Network Status Indicator Demo</CardTitle>
-            <CardDescription>
-              Toggle the connection status to see how the indicator responds
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Button onClick={() => setIsOnline(true)} variant={isOnline ? 'default' : 'outline'}>
-                Online
-              </Button>
-              <Button
-                onClick={() => setIsOnline(false)}
-                variant={!isOnline ? 'default' : 'outline'}
-              >
-                Offline
-              </Button>
-            </div>
-
-            <div className="space-y-4 rounded-lg border p-4">
-              <h3 className="font-semibold">Current Indicators:</h3>
-
-              <div>
-                <p className="mb-2 text-sm text-muted-foreground">Banner variant:</p>
-                <NetworkStatusIndicator
-                  isOnline={isOnline}
-                  variant="banner"
-                  showOnlyWhenOffline={false}
-                  showReconnectButton={true}
-                  onReconnect={handleReconnect}
-                  isReconnecting={isReconnecting}
-                />
-              </div>
-
-              <div>
-                <p className="mb-2 text-sm text-muted-foreground">Badge variant:</p>
-                <NetworkStatusIndicator
-                  isOnline={isOnline}
-                  variant="badge"
-                  showOnlyWhenOffline={false}
-                />
-              </div>
-
-              <div>
-                <p className="mb-2 text-sm text-muted-foreground">Inline variant:</p>
-                <NetworkStatusIndicator
-                  isOnline={isOnline}
-                  variant="inline"
-                  showOnlyWhenOffline={false}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  },
+  render: () => <InteractiveDemoComponent />,
 }
 
 // ===================================
@@ -265,83 +263,83 @@ export const BadgeWithoutLabel: StoryObj<typeof NetworkStatusBadge> = {
 // USAGE EXAMPLES
 // ===================================
 
+function FormWithOfflineWarningComponent() {
+  const [isOnline, setIsOnline] = useState(false)
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Pilot Form</CardTitle>
+        <CardDescription>Submit pilot information</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <NetworkStatusIndicator isOnline={isOnline} variant="banner" showOnlyWhenOffline={true} />
+
+        <OfflineWarning show={!isOnline} message="You must be online to submit this form." />
+
+        <form className="space-y-4">
+          <div className="rounded-lg border p-4">
+            <p className="text-muted-foreground text-sm">Form fields would appear here...</p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Button type="button" variant="outline" onClick={() => setIsOnline(!isOnline)}>
+              Toggle: {isOnline ? 'Online' : 'Offline'}
+            </Button>
+            <Button type="submit" disabled={!isOnline}>
+              Submit Form
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}
+
 export const FormWithOfflineWarning: Story = {
-  render: () => {
-    const [isOnline, setIsOnline] = useState(false)
+  render: () => <FormWithOfflineWarningComponent />,
+}
 
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Pilot Form</CardTitle>
-          <CardDescription>Submit pilot information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <NetworkStatusIndicator isOnline={isOnline} variant="banner" showOnlyWhenOffline={true} />
+function DashboardWithStatusBadgeComponent() {
+  const [isOnline, setIsOnline] = useState(true)
 
-          <OfflineWarning show={!isOnline} message="You must be online to submit this form." />
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Fleet Dashboard</CardTitle>
+            <CardDescription>Real-time fleet monitoring</CardDescription>
+          </div>
+          <NetworkStatusBadge isOnline={isOnline} size="md" showLabel={true} />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-lg border p-4">
+            <p className="text-2xl font-bold">27</p>
+            <p className="text-muted-foreground text-sm">Active Pilots</p>
+          </div>
+          <div className="rounded-lg border p-4">
+            <p className="text-2xl font-bold">607</p>
+            <p className="text-muted-foreground text-sm">Certifications</p>
+          </div>
+          <div className="rounded-lg border p-4">
+            <p className="text-2xl font-bold">34</p>
+            <p className="text-muted-foreground text-sm">Check Types</p>
+          </div>
+        </div>
 
-          <form className="space-y-4">
-            <div className="rounded-lg border p-4">
-              <p className="text-sm text-muted-foreground">Form fields would appear here...</p>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsOnline(!isOnline)}
-              >
-                Toggle: {isOnline ? 'Online' : 'Offline'}
-              </Button>
-              <Button type="submit" disabled={!isOnline}>
-                Submit Form
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    )
-  },
+        <Button variant="outline" onClick={() => setIsOnline(!isOnline)}>
+          Toggle Connection
+        </Button>
+      </CardContent>
+    </Card>
+  )
 }
 
 export const DashboardWithStatusBadge: Story = {
-  render: () => {
-    const [isOnline, setIsOnline] = useState(true)
-
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Fleet Dashboard</CardTitle>
-              <CardDescription>Real-time fleet monitoring</CardDescription>
-            </div>
-            <NetworkStatusBadge isOnline={isOnline} size="md" showLabel={true} />
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border p-4">
-              <p className="text-2xl font-bold">27</p>
-              <p className="text-sm text-muted-foreground">Active Pilots</p>
-            </div>
-            <div className="rounded-lg border p-4">
-              <p className="text-2xl font-bold">607</p>
-              <p className="text-sm text-muted-foreground">Certifications</p>
-            </div>
-            <div className="rounded-lg border p-4">
-              <p className="text-2xl font-bold">34</p>
-              <p className="text-sm text-muted-foreground">Check Types</p>
-            </div>
-          </div>
-
-          <Button variant="outline" onClick={() => setIsOnline(!isOnline)}>
-            Toggle Connection
-          </Button>
-        </CardContent>
-      </Card>
-    )
-  },
+  render: () => <DashboardWithStatusBadgeComponent />,
 }
 
 export const AllVariants: Story = {

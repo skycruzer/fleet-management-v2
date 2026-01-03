@@ -13,6 +13,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { QuickEntryForm } from '@/components/requests/quick-entry-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,16 +25,13 @@ export const metadata = {
 }
 
 export default async function QuickEntryPage() {
-  const supabase = await createClient()
-
-  // Check authentication
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
+
+  const supabase = await createClient()
 
   // Fetch all active pilots
   const { data: pilots, error } = await supabase

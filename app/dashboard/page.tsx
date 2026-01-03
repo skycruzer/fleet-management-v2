@@ -22,10 +22,12 @@ export default function DashboardPage() {
       {/* Breadcrumb Navigation */}
       <Breadcrumb />
 
-      {/* Page Header */}
+      {/* Page Header - Linear-inspired: compact, clean */}
       <div>
-        <h2 className="text-foreground text-3xl font-bold">Dashboard</h2>
-        <p className="text-muted-foreground mt-2 text-base">Fleet overview and key metrics</p>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Dashboard
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">Fleet overview and key metrics</p>
       </div>
 
       {/* Dashboard Content with Skeleton Loading */}

@@ -7,7 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -26,19 +27,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (csrfError) return csrfError
 
     const { id } = await context.params
-    const supabase = await createClient()
 
     // Check authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },
@@ -55,7 +52,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ success: false, error: 'Status is required' }, { status: 400 })
     }
 
-    // Update leave bid
+    // Use admin client to bypass RLS for admin operations
+    const supabase = createAdminClient()
     const { data, error } = await supabase
       .from('leave_bids')
       .update({

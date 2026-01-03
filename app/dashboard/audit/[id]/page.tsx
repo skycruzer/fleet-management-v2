@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getAuditLogById } from '@/lib/services/audit-service'
 import AuditLogDetail from '@/components/audit/AuditLogDetail'
 import Link from 'next/link'
@@ -22,12 +23,9 @@ interface AuditDetailPageProps {
 }
 
 export default async function AuditDetailPage({ params }: AuditDetailPageProps) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
 

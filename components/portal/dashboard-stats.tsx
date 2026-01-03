@@ -28,27 +28,27 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
   const [error, setError] = useState<string>('')
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/portal/stats')
+        const result = await response.json()
+
+        if (!response.ok || !result.success) {
+          setError(result.error || 'Failed to fetch statistics')
+          setIsLoading(false)
+          return
+        }
+
+        setStats(result.data)
+        setIsLoading(false)
+      } catch {
+        setError('An unexpected error occurred')
+        setIsLoading(false)
+      }
+    }
+
     fetchStats()
   }, [pilotId])
-
-  const fetchStats = async () => {
-    try {
-      const response = await fetch('/api/portal/stats')
-      const result = await response.json()
-
-      if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to fetch statistics')
-        setIsLoading(false)
-        return
-      }
-
-      setStats(result.data)
-      setIsLoading(false)
-    } catch (err) {
-      setError('An unexpected error occurred')
-      setIsLoading(false)
-    }
-  }
 
   if (isLoading) {
     return (
@@ -56,7 +56,7 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
         {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardContent className="p-6">
-              <div className="h-16 bg-gray-200 animate-pulse rounded"></div>
+              <div className="h-16 animate-pulse rounded bg-gray-200"></div>
             </CardContent>
           </Card>
         ))}
@@ -124,7 +124,7 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
             </CardHeader>
             <CardContent>
               <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
+              <p className="text-muted-foreground mt-1 text-xs">{stat.description}</p>
             </CardContent>
           </Card>
         )

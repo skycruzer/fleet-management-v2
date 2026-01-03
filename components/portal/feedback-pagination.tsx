@@ -7,6 +7,7 @@
  * - Full keyboard accessibility
  */
 
+import { useCallback } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useKeyboardShortcuts } from '@/lib/hooks/use-keyboard-nav'
@@ -25,19 +26,25 @@ interface PaginationProps {
 export function FeedbackPagination({ pagination }: PaginationProps) {
   const searchParams = useSearchParams()
 
-  // Build URL with page parameter
-  const buildPageUrl = (page: number): string => {
-    const params = new URLSearchParams(searchParams)
-    params.set('page', page.toString())
-    return `/portal/feedback?${params.toString()}`
-  }
+  // Build URL with page parameter - memoized for stability
+  const buildPageUrl = useCallback(
+    (page: number): string => {
+      const params = new URLSearchParams(searchParams)
+      params.set('page', page.toString())
+      return `/portal/feedback?${params.toString()}`
+    },
+    [searchParams]
+  )
 
-  // Navigate to page programmatically
-  const navigateToPage = (page: number) => {
-    if (page >= 1 && page <= pagination.totalPages) {
-      window.location.href = buildPageUrl(page)
-    }
-  }
+  // Navigate to page programmatically - memoized for use in keyboard shortcuts
+  const navigateToPage = useCallback(
+    (page: number) => {
+      if (page >= 1 && page <= pagination.totalPages) {
+        window.location.href = buildPageUrl(page)
+      }
+    },
+    [pagination.totalPages, buildPageUrl]
+  )
 
   // Keyboard shortcuts for pagination
   useKeyboardShortcuts([
@@ -145,14 +152,15 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
   const pageNumbers = getPageNumbers()
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       {/* Keyboard shortcuts hint */}
-      <div className="mb-4 text-xs text-gray-500 text-center">
-        Keyboard: <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">←</kbd>{' '}
-        <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">→</kbd> to navigate,{' '}
-        <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">Home</kbd>{' '}
-        <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">End</kbd> for first/last,{' '}
-        <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded">1-9</kbd> for quick jump
+      <div className="mb-4 text-center text-xs text-gray-500">
+        Keyboard: <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">←</kbd>{' '}
+        <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">→</kbd> to navigate,{' '}
+        <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">Home</kbd>{' '}
+        <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">End</kbd> for
+        first/last, <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">1-9</kbd>{' '}
+        for quick jump
       </div>
       <div className="flex items-center justify-between">
         {/* Previous Button */}
@@ -160,7 +168,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           {pagination.hasPrev ? (
             <Link href={buildPageUrl(pagination.page - 1)}>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="focus:ring-primary rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 aria-label="Go to previous page"
               >
                 ← Previous
@@ -169,7 +177,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           ) : (
             <button
               disabled
-              className="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed"
+              className="cursor-not-allowed rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-500"
               aria-label="Previous page (disabled)"
               aria-disabled="true"
             >
@@ -195,9 +203,9 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
             return (
               <Link key={pageNum} href={buildPageUrl(pageNum)}>
                 <button
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  className={`rounded-lg px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
                     isCurrentPage
-                      ? 'bg-blue-600 text-white focus:ring-primary'
+                      ? 'focus:ring-primary bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-400'
                   }`}
                   aria-label={`Go to page ${pageNum}`}
@@ -215,7 +223,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           {pagination.hasNext ? (
             <Link href={buildPageUrl(pagination.page + 1)}>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="focus:ring-primary rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 aria-label="Go to next page"
               >
                 Next →
@@ -224,7 +232,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           ) : (
             <button
               disabled
-              className="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed"
+              className="cursor-not-allowed rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-500"
               aria-label="Next page (disabled)"
               aria-disabled="true"
             >

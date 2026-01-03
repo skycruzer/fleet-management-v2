@@ -9,8 +9,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 
 /**
@@ -24,15 +24,9 @@ import { logger } from '@/lib/services/logging-service'
  */
 export async function GET(request: NextRequest, { params }: { params: { period: string } }) {
   try {
-    const supabase = await createClient()
-
     // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -44,14 +38,14 @@ export async function GET(request: NextRequest, { params }: { params: { period: 
     const shouldSave = searchParams.get('save') === 'true'
 
     logger.info('Generating roster period report', {
-      userId: user.id,
+      userId: auth.userId!,
       period,
       reportType,
       shouldSave,
     })
 
     // Generate report
-    const result = await generateRosterPeriodReport(period, reportType, user.id)
+    const result = await generateRosterPeriodReport(period, reportType, auth.userId!)
 
     if (!result.success || !result.data) {
       return NextResponse.json(

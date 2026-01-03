@@ -21,6 +21,7 @@ export const revalidate = 0 // Always fetch fresh data
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { validateAdminSession } from '@/lib/services/admin-auth-service'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { ProfessionalSidebar } from '@/components/layout/professional-sidebar'
 import { ProfessionalHeader } from '@/components/layout/professional-header'
@@ -42,13 +43,23 @@ import {
 } from 'lucide-react'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // Check authentication
+  // Check authentication - supports both Supabase Auth AND custom admin sessions
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // If no Supabase Auth user, check for admin session cookie (bcrypt-authenticated admins)
+  let adminUser = null
   if (!user) {
+    const adminSession = await validateAdminSession()
+    if (adminSession.isValid && adminSession.user) {
+      adminUser = adminSession.user
+    }
+  }
+
+  // Redirect to login if neither auth method is valid
+  if (!user && !adminUser) {
     redirect('/auth/login')
   }
 
@@ -56,57 +67,57 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const navLinks = [
     {
       href: '/dashboard',
-      icon: <LayoutDashboard className="h-5 w-5" aria-hidden="true" />,
+      icon: <LayoutDashboard className="h-4 w-4" aria-hidden="true" />,
       label: 'Dashboard',
     },
     {
       href: '/dashboard/pilots',
-      icon: <Users className="h-5 w-5" aria-hidden="true" />,
+      icon: <Users className="h-4 w-4" aria-hidden="true" />,
       label: 'Pilots',
     },
     {
       href: '/dashboard/certifications',
-      icon: <FileText className="h-5 w-5" aria-hidden="true" />,
+      icon: <FileText className="h-4 w-4" aria-hidden="true" />,
       label: 'Certifications',
     },
     {
       href: '/dashboard/requests',
-      icon: <Calendar className="h-5 w-5" aria-hidden="true" />,
+      icon: <Calendar className="h-4 w-4" aria-hidden="true" />,
       label: 'Pilot Requests',
     },
     {
       href: '/dashboard/renewal-planning',
-      icon: <RefreshCw className="h-5 w-5" aria-hidden="true" />,
+      icon: <RefreshCw className="h-4 w-4" aria-hidden="true" />,
       label: 'Renewal Planning',
     },
     {
       href: '/dashboard/analytics',
-      icon: <TrendingUp className="h-5 w-5" aria-hidden="true" />,
+      icon: <TrendingUp className="h-4 w-4" aria-hidden="true" />,
       label: 'Analytics',
     },
     {
       href: '/dashboard/admin',
-      icon: <Settings className="h-5 w-5" aria-hidden="true" />,
+      icon: <Settings className="h-4 w-4" aria-hidden="true" />,
       label: 'Admin Dashboard',
     },
     {
       href: '/dashboard/tasks',
-      icon: <CheckSquare className="h-5 w-5" aria-hidden="true" />,
+      icon: <CheckSquare className="h-4 w-4" aria-hidden="true" />,
       label: 'Tasks',
     },
     {
       href: '/dashboard/disciplinary',
-      icon: <AlertTriangle className="h-5 w-5" aria-hidden="true" />,
+      icon: <AlertTriangle className="h-4 w-4" aria-hidden="true" />,
       label: 'Disciplinary',
     },
     {
       href: '/dashboard/audit-logs',
-      icon: <ScrollText className="h-5 w-5" aria-hidden="true" />,
+      icon: <ScrollText className="h-4 w-4" aria-hidden="true" />,
       label: 'Audit Logs',
     },
     {
       href: '/dashboard/settings',
-      icon: <Settings className="h-5 w-5" aria-hidden="true" />,
+      icon: <Settings className="h-4 w-4" aria-hidden="true" />,
       label: 'My Settings',
     },
   ]
@@ -117,17 +128,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <GlobalAnnouncer />
 
       {/* Mobile Navigation */}
-      <MobileNav user={user} navLinks={navLinks} />
+      <MobileNav user={user ?? { email: adminUser?.email }} navLinks={navLinks} />
 
       {/* Professional Layout */}
-      <div className="flex min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-900">
+      <div className="bg-background flex min-h-screen overflow-x-hidden">
         {/* Professional Sidebar - Hidden on mobile */}
         <div className="hidden lg:block">
           <ProfessionalSidebar />
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-x-hidden lg:ml-64">
+        <div className="flex-1 overflow-x-hidden lg:ml-56">
           {/* Professional Header - Hidden on mobile */}
           <div className="hidden lg:block">
             <ProfessionalHeader />
@@ -136,7 +147,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {/* Page Content */}
           <main
             id="main-content"
-            className="min-h-screen w-full max-w-full overflow-x-hidden bg-slate-50 p-6 dark:bg-slate-900"
+            className="bg-background min-h-screen w-full max-w-full overflow-x-hidden p-4 lg:p-5"
             role="main"
             aria-label="Main content"
           >

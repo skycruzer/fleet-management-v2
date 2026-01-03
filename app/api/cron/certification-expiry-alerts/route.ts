@@ -44,7 +44,6 @@ export async function GET(request: Request) {
     }
 
     if (!expiringChecks || expiringChecks.length === 0) {
-      console.log('✅ No expiring certifications found')
       return NextResponse.json({
         success: true,
         message: 'No expiring certifications',
@@ -122,21 +121,12 @@ export async function GET(request: Request) {
 
       if (!emailResult.success) {
         console.error(`Failed to send alert to ${pilotEmail}:`, emailResult.error)
-      } else {
-        console.log(
-          `✅ Sent ${urgencyLevel} alert to ${pilot.first_name} ${pilot.last_name} (${certifications.length} certs)`
-        )
       }
     }
 
     // Summary
     const successCount = emailResults.filter((r) => r.success).length
     const failureCount = emailResults.filter((r) => !r.success).length
-
-    console.log(`\n📧 Certification Expiry Alerts Summary:`)
-    console.log(`   Total pilots: ${emailResults.length}`)
-    console.log(`   ✅ Successful: ${successCount}`)
-    console.log(`   ❌ Failed: ${failureCount}`)
 
     return NextResponse.json({
       success: true,

@@ -11,7 +11,12 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { getAllPilotRequests, updateRequestStatus, deletePilotRequest } from '@/lib/services/unified-request-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import {
+  getAllPilotRequests,
+  updateRequestStatus,
+  deletePilotRequest,
+} from '@/lib/services/unified-request-service'
 import { invalidateAfterMutation } from '@/lib/services/cache-invalidation-helper'
 import { DeadlineWidgetWrapper } from '@/components/dashboard/deadline-widget-wrapper'
 import { RequestsTableWrapper } from '@/components/requests/requests-table-wrapper'
@@ -47,16 +52,14 @@ interface PageProps {
 
 export default async function RequestsPage({ searchParams: searchParamsPromise }: PageProps) {
   const searchParams = await searchParamsPromise
-  const supabase = await createClient()
 
-  // Check authentication
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     return <div>Unauthorized</div>
   }
+
+  const supabase = await createClient()
 
   // Parse URL parameters
   const viewMode = (searchParams.view as ViewMode) || 'table'
@@ -134,16 +137,12 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
   // Server actions for approve/deny
   async function handleApprove(id: string) {
     'use server'
-    const supabase = await createClient()
-    const {
-      data: { user: currentUser },
-    } = await supabase.auth.getUser()
-
-    if (!currentUser) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       throw new Error('Unauthorized')
     }
 
-    const result = await updateRequestStatus(id, 'APPROVED', currentUser.id)
+    const result = await updateRequestStatus(id, 'APPROVED', auth.userId!)
     if (!result.success) {
       throw new Error(result.error || 'Failed to approve request')
     }
@@ -153,16 +152,12 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
 
   async function handleDeny(id: string) {
     'use server'
-    const supabase = await createClient()
-    const {
-      data: { user: currentUser },
-    } = await supabase.auth.getUser()
-
-    if (!currentUser) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       throw new Error('Unauthorized')
     }
 
-    const result = await updateRequestStatus(id, 'DENIED', currentUser.id, 'Denied by admin')
+    const result = await updateRequestStatus(id, 'DENIED', auth.userId!, 'Denied by admin')
     if (!result.success) {
       throw new Error(result.error || 'Failed to deny request')
     }
@@ -172,12 +167,8 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
 
   async function handleDelete(id: string) {
     'use server'
-    const supabase = await createClient()
-    const {
-      data: { user: currentUser },
-    } = await supabase.auth.getUser()
-
-    if (!currentUser) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       throw new Error('Unauthorized')
     }
 
@@ -190,12 +181,12 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
   }
 
   return (
-    <div className="w-full space-y-4 py-4 px-4 lg:px-6">
-      {/* Header */}
+    <div className="w-full space-y-4 px-4 py-4 lg:px-6">
+      {/* Header - Linear-inspired: compact, clean */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Request Management</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">Request Management</h1>
+          <p className="text-muted-foreground text-sm">
             Manage leave and flight requests with Table, Cards, or Calendar views
           </p>
         </div>
@@ -359,11 +350,11 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
         </TabsContent>
       </Tabs>
 
-      {/* Link to Leave Bids (separate page) */}
-      <div className="border-t pt-4">
+      {/* Link to Leave Bids (separate page) - Linear-inspired link style */}
+      <div className="border-border/50 border-t pt-4">
         <Link
           href="/dashboard/admin/leave-bids"
-          className="text-muted-foreground hover:text-foreground text-sm underline"
+          className="text-muted-foreground hover:text-foreground text-sm transition-colors duration-200"
         >
           Manage Leave Bids (Annual Planning) →
         </Link>

@@ -100,13 +100,6 @@ export async function pilotLogin(
       .eq('email', credentials.email)
       .single()
 
-    console.log('📊 Query result:', {
-      hasPilotUser: !!pilotUser,
-      hasError: !!pilotError,
-      errorMessage: pilotError?.message,
-      errorDetails: pilotError,
-    })
-
     if (pilotError || !pilotUser) {
       return {
         success: false,

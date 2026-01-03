@@ -62,7 +62,7 @@ export function FormSelectWrapper({
           <FormLabel>
             {label}
             {required && (
-              <span className="text-destructive ml-1" aria-label="required">
+              <span className="text-destructive/70 ml-0.5 text-xs" aria-label="required">
                 *
               </span>
             )}

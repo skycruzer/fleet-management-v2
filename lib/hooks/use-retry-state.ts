@@ -10,7 +10,7 @@
 
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   retryWithState,
   createRetryState,
@@ -85,14 +85,16 @@ export function useRetryState(maxRetries: number = 3): UseRetryStateReturn {
   const [retryState, setRetryState] = useState<RetryState>(() => createRetryState(maxRetries))
   const stateRef = useRef(retryState)
 
-  // Keep ref in sync
-  stateRef.current = retryState
+  // Keep ref in sync - must be in useEffect, not during render
+  useEffect(() => {
+    stateRef.current = retryState
+  }, [retryState])
 
   /**
    * Execute function with retry and state tracking
    */
   const executeWithRetry = useCallback(
-    async <T,>(fn: () => Promise<T>, config?: RetryConfig): Promise<T> => {
+    async <T>(fn: () => Promise<T>, config?: RetryConfig): Promise<T> => {
       // Create fresh state for this execution
       const executionState = createRetryState(config?.maxRetries || maxRetries)
       setRetryState(executionState)
@@ -166,7 +168,7 @@ export function useRetry(config?: RetryConfig) {
   )
 
   const execute = useCallback(
-    async <T,>(fn: () => Promise<T>): Promise<T | null> => {
+    async <T>(fn: () => Promise<T>): Promise<T | null> => {
       setIsLoading(true)
       setError(null)
 

@@ -37,9 +37,6 @@ export default function FeedbackPage() {
         is_anonymous: false,
       }
 
-      // Debug: Log what we're sending
-      console.log('Submitting feedback data:', sanitizedData)
-
       // Submit feedback to API
       const response = await fetch('/api/portal/feedback', {
         method: 'POST',
@@ -51,7 +48,6 @@ export default function FeedbackPage() {
       })
 
       const result = await response.json()
-      console.log('API response:', result)
 
       if (!response.ok) {
         throw new Error(result.error || 'Failed to submit feedback')

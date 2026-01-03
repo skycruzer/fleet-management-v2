@@ -14,6 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
 import { createNotification } from '@/lib/services/notification-service'
 import { z } from 'zod'
@@ -54,14 +55,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return csrfError
     }
 
-    // Get authenticated user
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
 
-    if (authError || !user) {
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -85,9 +82,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { status, comments } = validationResult.data
 
     // Update leave request status using service function
-    const result = await updateLeaveRequestStatus(requestId, status, user.id, comments)
+    const result = await updateLeaveRequestStatus(requestId, status, auth.userId!, comments)
 
     // Fetch the leave request details to get pilot information
+    const supabase = await createClient()
     const { data: leaveRequest } = await supabase
       .from('pilot_requests')
       .select('*')

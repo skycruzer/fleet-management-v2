@@ -14,11 +14,7 @@ import Link from 'next/link'
 import { Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatDistanceToNow } from 'date-fns'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
@@ -38,6 +34,22 @@ export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('/api/portal/notifications')
+        const result = await response.json()
+
+        if (response.ok && result.success) {
+          setNotifications(result.data || [])
+        }
+
+        setIsLoading(false)
+      } catch (err) {
+        console.error('Failed to fetch notifications:', err)
+        setIsLoading(false)
+      }
+    }
+
     fetchNotifications()
 
     // Poll for new notifications every 30 seconds
@@ -46,23 +58,7 @@ export function NotificationBell() {
     return () => clearInterval(interval)
   }, [])
 
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch('/api/portal/notifications')
-      const result = await response.json()
-
-      if (response.ok && result.success) {
-        setNotifications(result.data || [])
-      }
-
-      setIsLoading(false)
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err)
-      setIsLoading(false)
-    }
-  }
-
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length
 
   const getNotificationIcon = (type: string) => {
     const colors: Record<string, string> = {
@@ -89,7 +85,7 @@ export function NotificationBell() {
           {!isLoading && unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center p-0 text-xs"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
@@ -112,39 +108,41 @@ export function NotificationBell() {
           {/* Notification List */}
           <ScrollArea className="max-h-[400px]">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-sm text-gray-500">
-                No notifications yet
-              </div>
+              <div className="p-8 text-center text-sm text-gray-500">No notifications yet</div>
             ) : (
               <div className="divide-y">
                 {notifications.slice(0, 5).map((notification) => (
                   <Link
                     key={notification.id}
                     href={notification.link || '/portal/notifications'}
-                    className="block hover:bg-gray-50 transition-colors"
+                    className="block transition-colors hover:bg-gray-50"
                     onClick={() => setIsOpen(false)}
                   >
                     <div className="p-4">
                       <div className="flex items-start gap-3">
                         {/* Color Indicator */}
-                        <div className={`h-2 w-2 rounded-full mt-2 flex-shrink-0 ${getNotificationIcon(notification.notification_type)}`} />
+                        <div
+                          className={`mt-2 h-2 w-2 flex-shrink-0 rounded-full ${getNotificationIcon(notification.notification_type)}`}
+                        />
 
                         {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-gray-900">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-gray-900">
                             {notification.title}
                           </p>
-                          <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                          <p className="mt-1 line-clamp-2 text-sm text-gray-600">
                             {notification.message}
                           </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                          <p className="mt-1 text-xs text-gray-400">
+                            {formatDistanceToNow(new Date(notification.created_at), {
+                              addSuffix: true,
+                            })}
                           </p>
                         </div>
 
                         {/* Unread Indicator */}
                         {!notification.read && (
-                          <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 mt-2" />
+                          <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
                         )}
                       </div>
                     </div>

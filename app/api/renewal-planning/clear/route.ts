@@ -12,24 +12,20 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
     // SECURITY: Validate CSRF token
     const csrfError = await validateCsrf(request)
     if (csrfError) return csrfError
 
     // Check authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized - Please log in' },
         { status: 401 }
@@ -37,7 +33,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // SECURITY: Rate limiting (strict for destructive operations)
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },
@@ -46,10 +42,11 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verify admin/manager role (lowercase!)
+    const supabase = await createClient()
     const { data: adminUser } = await supabase
       .from('an_users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', auth.userId!)
       .single()
 
     if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {

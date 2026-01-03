@@ -28,6 +28,7 @@
     "db:deploy": "supabase db push"
   },
   "dependencies": {
+    "@alloc/quick-lru": "^5.2.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -86,6 +87,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
     "@eslint/eslintrc": "^3.3.1",
     "@hookform/resolvers": "3.10.0",
     "@next/bundle-analyzer": "^16.0.0",
@@ -114,7 +116,6 @@
     "eslint-plugin-storybook": "^0.12.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
-    "playwright": "^1.56.1",
     "postcss": "^8.5.1",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.7.1",

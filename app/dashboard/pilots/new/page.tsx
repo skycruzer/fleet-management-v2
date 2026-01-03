@@ -47,13 +47,6 @@ export default function NewPilotPage() {
     mode: 'onSubmit', // Validate on submit
   })
 
-  // Debug: Log form state changes
-  useEffect(() => {
-    if (Object.keys(formState.errors).length > 0) {
-      console.log('Form errors detected:', formState.errors)
-    }
-  }, [formState.errors])
-
   const selectedRole = watch('role')
 
   // Warn about unsaved changes when navigating away

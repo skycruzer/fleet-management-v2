@@ -1,13 +1,13 @@
-import * as React from "react"
-import { CheckCircle2, AlertCircle } from "lucide-react"
+import * as React from 'react'
+import { CheckCircle2, AlertCircle } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
-export interface TextareaProps extends React.ComponentProps<"textarea"> {
-  "aria-label"?: string
-  "aria-describedby"?: string
-  "aria-required"?: boolean
-  "aria-invalid"?: boolean
+export interface TextareaProps extends React.ComponentProps<'textarea'> {
+  'aria-label'?: string
+  'aria-describedby'?: string
+  'aria-required'?: boolean
+  'aria-invalid'?: boolean
   error?: boolean
   success?: boolean
   showIcon?: boolean
@@ -45,38 +45,42 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       <div className="relative">
         <textarea
           className={cn(
-            "flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm resize-none",
+            // Linear-inspired: clean border, subtle focus glow
+            'bg-background flex min-h-[60px] w-full rounded-lg border px-3 py-2 text-sm',
+            'transition-all duration-200',
+            'placeholder:text-muted-foreground',
+            'resize-none',
             // Default border
-            "border-input",
+            'border-border',
+            // Focus state - subtle indigo glow
+            'focus:ring-ring/20 focus:border-foreground/30 focus:ring-2 focus:outline-none',
+            // Disabled state
+            'disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50',
             // Error state
-            error && "border-red-500 focus-visible:ring-red-500 text-red-900 placeholder:text-red-300",
+            error &&
+              'border-destructive focus:ring-destructive/20 focus:border-destructive text-destructive',
             // Success state
-            success && "border-green-500 focus-visible:ring-green-500",
+            success && 'border-success focus:ring-success/20 focus:border-success',
             // Icon padding
-            showStateIcon && "pr-10",
-            // Focus ring default
-            !error && !success && "focus-visible:ring-ring",
+            showStateIcon && 'pr-10',
             // Character count padding
-            showCharCount && "pb-8",
+            showCharCount && 'pb-8',
             className
           )}
           ref={ref}
           maxLength={maxLength}
-          aria-required={props.required || props["aria-required"]}
-          aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
+          aria-required={props.required || props['aria-required']}
+          aria-invalid={error || props['aria-invalid'] ? 'true' : 'false'}
           onChange={handleChange}
           {...props}
         />
         {/* Validation icons */}
         {showStateIcon && error && (
-          <AlertCircle
-            className="absolute right-3 top-3 h-4 w-4 text-red-500"
-            aria-hidden="true"
-          />
+          <AlertCircle className="absolute top-3 right-3 h-4 w-4 text-red-500" aria-hidden="true" />
         )}
         {showStateIcon && success && (
           <CheckCircle2
-            className="absolute right-3 top-3 h-4 w-4 text-green-500"
+            className="absolute top-3 right-3 h-4 w-4 text-green-500"
             aria-hidden="true"
           />
         )}
@@ -84,10 +88,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {showCharCount && (
           <div
             className={cn(
-              "absolute bottom-2 right-3 text-xs transition-colors",
-              isAtLimit && "text-red-600 font-semibold",
-              isNearLimit && !isAtLimit && "text-orange-600",
-              !isNearLimit && "text-muted-foreground"
+              'absolute right-3 bottom-2 text-xs transition-colors',
+              isAtLimit && 'font-semibold text-red-600',
+              isNearLimit && !isAtLimit && 'text-orange-600',
+              !isNearLimit && 'text-muted-foreground'
             )}
             aria-live="polite"
             aria-atomic="true"
@@ -100,6 +104,6 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     )
   }
 )
-Textarea.displayName = "Textarea"
+Textarea.displayName = 'Textarea'
 
 export { Textarea }

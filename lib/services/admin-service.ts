@@ -75,7 +75,7 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
       // Log error type only, no user data
       console.error('Error fetching admin users:', {
         errorCode: error.code,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
       throw new Error(`Failed to fetch admin users: ${error.message}`)
     }
@@ -85,7 +85,7 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     // Log error type only, no user data
     console.error('Error in getAdminUsers:', {
       errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     })
     throw error
   }
@@ -98,17 +98,13 @@ export async function getAdminUserById(userId: string): Promise<AdminUser | null
   try {
     const supabase = await createClient()
 
-    const { data, error } = await supabase
-      .from('an_users')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    const { data, error } = await supabase.from('an_users').select('*').eq('id', userId).single()
 
     if (error) {
       // Log error type only, no user data
       console.error('Error fetching admin user:', {
         errorCode: error.code,
-        errorMessage: error.message
+        errorMessage: error.message,
       })
       throw new Error(`Failed to fetch admin user: ${error.message}`)
     }
@@ -118,7 +114,7 @@ export async function getAdminUserById(userId: string): Promise<AdminUser | null
     // Log error type only, no user data or IDs
     console.error('Error in getAdminUserById:', {
       errorType: error instanceof Error ? error.name : 'Unknown',
-      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
     })
     throw error
   }
@@ -196,7 +192,7 @@ export async function getCheckTypeCategories(): Promise<string[]> {
     }
 
     // Extract unique categories
-    const categories = Array.from(new Set(data?.map(item => item.category).filter(Boolean) || []))
+    const categories = Array.from(new Set(data?.map((item) => item.category).filter(Boolean) || []))
     return categories as string[]
   } catch (error) {
     console.error('Error in getCheckTypeCategories:', error)
@@ -239,11 +235,7 @@ export async function getSystemSetting(key: string): Promise<SystemSetting | nul
   try {
     const supabase = await createClient()
 
-    const { data, error } = await supabase
-      .from('settings')
-      .select('*')
-      .eq('key', key)
-      .single()
+    const { data, error } = await supabase.from('settings').select('*').eq('key', key).single()
 
     if (error) {
       console.error('Error fetching system setting:', error)
@@ -267,11 +259,6 @@ export async function updateSystemSetting(
   try {
     const supabase = await createClient()
 
-    console.log('🔄 updateSystemSetting - Before update:', {
-      id,
-      updates: JSON.stringify(updates),
-    })
-
     const { data, error } = await supabase
       .from('settings')
       .update({
@@ -291,13 +278,6 @@ export async function updateSystemSetting(
       })
       throw new Error(`Failed to update system setting: ${error.message}`)
     }
-
-    console.log('✅ updateSystemSetting - Success:', {
-      id: data.id,
-      key: data.key,
-      value: JSON.stringify(data.value),
-      updated_at: data.updated_at,
-    })
 
     return data
   } catch (error) {
@@ -389,12 +369,16 @@ export async function getPilotRequirements(): Promise<{
       return {
         pilot_retirement_age:
           typeof value.pilot_retirement_age === 'number' ? value.pilot_retirement_age : 65,
-        number_of_aircraft: typeof value.number_of_aircraft === 'number' ? value.number_of_aircraft : 2,
-        captains_per_hull: typeof value.captains_per_hull === 'number' ? value.captains_per_hull : 7,
+        number_of_aircraft:
+          typeof value.number_of_aircraft === 'number' ? value.number_of_aircraft : 2,
+        captains_per_hull:
+          typeof value.captains_per_hull === 'number' ? value.captains_per_hull : 7,
         first_officers_per_hull:
           typeof value.first_officers_per_hull === 'number' ? value.first_officers_per_hull : 7,
         minimum_captains_per_hull:
-          typeof value.minimum_captains_per_hull === 'number' ? value.minimum_captains_per_hull : 10,
+          typeof value.minimum_captains_per_hull === 'number'
+            ? value.minimum_captains_per_hull
+            : 10,
         minimum_first_officers_per_hull:
           typeof value.minimum_first_officers_per_hull === 'number'
             ? value.minimum_first_officers_per_hull
@@ -544,13 +528,16 @@ export async function getAdminStats(): Promise<AdminStats> {
         supabase.from('pilots').select('*', { count: 'exact', head: true }),
         supabase.from('check_types').select('*', { count: 'exact', head: true }),
         supabase.from('pilot_checks').select('*', { count: 'exact', head: true }),
-        supabase.from('pilot_requests').select('*', { count: 'exact', head: true }).eq('request_category', 'LEAVE'),
+        supabase
+          .from('pilot_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('request_category', 'LEAVE'),
       ])
 
     // Count admins and managers separately
     const { data: users } = await supabase.from('an_users').select('role')
-    const totalAdmins = users?.filter(u => u.role === 'admin').length || 0
-    const totalManagers = users?.filter(u => u.role === 'manager').length || 0
+    const totalAdmins = users?.filter((u) => u.role === 'admin').length || 0
+    const totalManagers = users?.filter((u) => u.role === 'manager').length || 0
 
     return {
       totalAdmins,

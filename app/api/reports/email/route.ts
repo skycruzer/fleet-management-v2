@@ -8,8 +8,8 @@
 
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { createClient } from '@/lib/supabase/server'
 import { generateReport, generatePDF } from '@/lib/services/reports-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportEmailRequestSchema } from '@/lib/validations/reports-schema'
@@ -21,13 +21,8 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(request: Request) {
   try {
     // Authentication check
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       log?.warn('Unauthorized email send attempt', {
         ip: request.headers.get('x-forwarded-for'),
         timestamp: new Date().toISOString(),
@@ -39,13 +34,13 @@ export async function POST(request: Request) {
     }
 
     // Rate limiting (strictest for email - prevents spam)
-    const identifier = user.id
+    const identifier = auth.userId!
     const { success: rateLimitSuccess } = await authRateLimit.limit(identifier)
 
     if (!rateLimitSuccess) {
       log?.warn('Rate limit exceeded for email send', {
-        userId: user.id,
-        email: user.email,
+        userId: auth.userId!,
+        email: auth.email,
         timestamp: new Date().toISOString(),
       })
       return NextResponse.json(
@@ -66,7 +61,7 @@ export async function POST(request: Request) {
       }))
 
       log?.warn('Email report validation failed', {
-        userId: user.id,
+        userId: auth.userId!,
         errors,
         body,
         timestamp: new Date().toISOString(),
@@ -85,8 +80,8 @@ export async function POST(request: Request) {
     const { reportType, filters, recipients, subject, message } = validationResult.data
 
     log?.info('Email report requested', {
-      userId: user.id,
-      email: user.email,
+      userId: auth.userId!,
+      email: auth.email,
       reportType,
       recipientCount: recipients.length,
       timestamp: new Date().toISOString(),
@@ -94,7 +89,7 @@ export async function POST(request: Request) {
 
     // Generate report data with fullExport=true and user context
     // Use empty object if filters is undefined
-    const report = await generateReport(reportType, filters ?? {}, true, user.email || user.id)
+    const report = await generateReport(reportType, filters ?? {}, true, auth.email || auth.userId!)
 
     // Generate PDF
     const pdfBuffer = await generatePDF(report, reportType)
@@ -154,7 +149,7 @@ export async function POST(request: Request) {
 
     if (error) {
       log?.error('Resend email error', {
-        userId: user?.id,
+        userId: auth.userId!,
         reportType,
         recipientCount: recipients.length,
         error: error.message,
@@ -166,7 +161,7 @@ export async function POST(request: Request) {
     const executionTime = Date.now() - startTime
 
     log?.info('Email report sent successfully', {
-      userId: user?.id,
+      userId: auth.userId!,
       reportType,
       recipientCount: recipients.length,
       messageId: data?.id,

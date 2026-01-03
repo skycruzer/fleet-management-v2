@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { getPilotById, updatePilot, deletePilot } from '@/lib/services/pilot-service'
 import { getPilotRequirements } from '@/lib/services/admin-service'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
@@ -29,13 +29,8 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Verify authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -78,8 +73,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    console.log('🌐 [API PUT /api/pilots/[id]] Request received')
-
     // Rate Limiting
     const identifier = getClientIp(request)
     const { success, limit, reset, remaining } = await mutationRateLimit.limit(identifier)
@@ -106,44 +99,27 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // CSRF Protection
     const csrfError = await validateCsrf(request)
     if (csrfError) {
-      console.error('❌ [API] CSRF validation failed')
       return csrfError
     }
 
     // Verify authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      console.error('❌ [API] Authentication failed')
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
-
-    console.log('✅ [API] User authenticated:', user.email)
 
     // Get pilot ID from params (Next.js 15 requires await)
     const { id: pilotId } = await params
 
     if (!pilotId) {
-      console.error('❌ [API] No pilot ID provided')
       return NextResponse.json({ success: false, error: 'Pilot ID is required' }, { status: 400 })
     }
 
-    console.log('🔑 [API] Pilot ID:', pilotId)
-
     // Parse request body
     const body = await request.json()
-    console.log('📦 [API] Request body:', JSON.stringify(body, null, 2))
 
     // Update pilot using service layer
-    console.log('🔄 [API] Calling updatePilot service...')
     const updatedPilot = await updatePilot(pilotId, body)
-
-    console.log('✅ [API] Pilot updated successfully')
-    console.log('📤 [API] Returning updated pilot with role:', updatedPilot.role)
 
     // Revalidate cache for pilot-related pages
     revalidatePath('/dashboard/pilots')
@@ -156,7 +132,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       message: 'Pilot updated successfully',
     })
   } catch (error: any) {
-    console.error('❌ [API] Error updating pilot:', error)
+    console.error('Error updating pilot:', error)
     const { id: pilotId } = await params
     const sanitized = sanitizeError(error, {
       operation: 'updatePilot',
@@ -206,13 +182,8 @@ export async function DELETE(
     }
 
     // Verify authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 

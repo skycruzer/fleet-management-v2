@@ -18,7 +18,7 @@ import {
   PilotRequestFilters,
   CreatePilotRequestInput,
 } from '@/lib/services/unified-request-service'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { authRateLimit, getClientIp } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -51,12 +51,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
         status: 401,
       })
@@ -178,12 +174,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
         status: 401,
       })
@@ -231,7 +223,7 @@ export async function POST(request: NextRequest) {
       flight_date: body.flight_date,
       reason: body.reason,
       notes: body.notes,
-      submitted_by_admin_id: body.submitted_by_admin_id || user.id,
+      submitted_by_admin_id: body.submitted_by_admin_id || auth.userId!,
       source_reference: body.source_reference,
       source_attachment_url: body.source_attachment_url,
     }

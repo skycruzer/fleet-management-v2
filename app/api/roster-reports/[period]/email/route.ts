@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
 import { generateRosterPDF } from '@/lib/services/roster-pdf-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
 
@@ -57,15 +58,9 @@ type EmailRequest = z.infer<typeof EmailRequestSchema>
  */
 export async function POST(request: NextRequest, { params }: { params: { period: string } }) {
   try {
-    const supabase = await createClient()
-
     // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -76,14 +71,18 @@ export async function POST(request: NextRequest, { params }: { params: { period:
     const period = params.period
 
     logger.info('Processing roster report email request', {
-      userId: user.id,
+      userId: auth.userId!,
       period,
       reportType: validated.reportType,
       recipientCount: validated.recipients.length,
     })
 
     // Step 1: Generate report data
-    const reportResult = await generateRosterPeriodReport(period, validated.reportType, user.id)
+    const reportResult = await generateRosterPeriodReport(
+      period,
+      validated.reportType,
+      auth.userId!
+    )
 
     if (!reportResult.success || !reportResult.data) {
       return NextResponse.json(
@@ -259,6 +258,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
     await saveRosterReport(report)
 
     // Update roster_reports table with sent_at timestamp
+    const supabase = await createClient()
     await supabase
       .from('roster_reports')
       .update({
@@ -271,7 +271,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
       .limit(1)
 
     logger.info('Roster report email sent successfully', {
-      userId: user.id,
+      userId: auth.userId!,
       period,
       reportType: validated.reportType,
       emailId: emailResult.data.id,

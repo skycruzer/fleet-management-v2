@@ -18,7 +18,7 @@ import {
   deleteCertification,
 } from '@/lib/services/certification-service'
 import { CertificationUpdateSchema } from '@/lib/validations/certification-validation'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { revalidatePath } from 'next/cache'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
@@ -36,12 +36,8 @@ type RouteContext = {
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -82,8 +78,6 @@ export async function GET(_request: NextRequest, context: RouteContext) {
  */
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    console.log('🌐 [API PUT /api/certifications/[id]] Request received')
-
     // Rate Limiting
     const identifier = getClientIp(request)
     const { success, limit, reset } = await mutationRateLimit.limit(identifier)
@@ -102,39 +96,26 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     // CSRF Protection
     const csrfError = await validateCsrf(request)
     if (csrfError) {
-      console.error('❌ [API] CSRF validation failed')
       return csrfError
     }
 
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      console.error('❌ [API] Authentication failed')
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log('✅ [API] User authenticated:', user.email)
-
     const { id } = await context.params
-    console.log('🔑 [API] Certification ID:', id)
 
     // Parse and validate request body
     const body = await request.json()
-    console.log('📦 [API] Request body:', JSON.stringify(body, null, 2))
 
     const validatedData = CertificationUpdateSchema.parse(body)
-    console.log('✅ [API] Validation passed')
-    console.log('🔄 [API] Calling updateCertification service...')
 
     // Update certification
     const updatedCertification = await updateCertification(id, validatedData)
 
     if (!updatedCertification) {
-      console.error('❌ [API] Certification not found')
       return NextResponse.json(
         {
           success: false,
@@ -143,12 +124,6 @@ export async function PUT(request: NextRequest, context: RouteContext) {
         { status: 404 }
       )
     }
-
-    console.log('✅ [API] Certification updated successfully')
-    console.log(
-      '📤 [API] Returning updated certification with expiry:',
-      updatedCertification.expiry_date
-    )
 
     // Revalidate certification pages to clear Next.js cache
     revalidatePath('/dashboard/certifications')
@@ -169,7 +144,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       message: 'Certification updated successfully',
     })
   } catch (error) {
-    console.error('❌ [API] Error updating certification:', error)
+    console.error('Error updating certification:', error)
 
     // Handle validation errors
     if (error instanceof Error && error.name === 'ZodError') {
@@ -221,12 +196,8 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     }
 
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

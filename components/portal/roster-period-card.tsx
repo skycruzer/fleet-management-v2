@@ -20,46 +20,49 @@ import { Clock, CalendarDays } from 'lucide-react'
 import {
   getCurrentRosterPeriodObject,
   getNextRosterPeriodObject,
-  type RosterPeriod
+  type RosterPeriod,
 } from '@/lib/utils/roster-utils'
 
 export function RosterPeriodCard() {
-  const [currentPeriod, setCurrentPeriod] = useState<RosterPeriod | null>(null)
-  const [nextPeriod, setNextPeriod] = useState<RosterPeriod | null>(null)
-  const [daysRemaining, setDaysRemaining] = useState(0)
-
-  useEffect(() => {
-    // Initialize periods
+  // Initialize periods using lazy initialization
+  const [currentPeriod, setCurrentPeriod] = useState<RosterPeriod | null>(() =>
+    getCurrentRosterPeriodObject()
+  )
+  const [nextPeriod, setNextPeriod] = useState<RosterPeriod | null>(() => {
     const current = getCurrentRosterPeriodObject()
-    const next = getNextRosterPeriodObject(current)
+    return getNextRosterPeriodObject(current)
+  })
+  const [daysRemaining, setDaysRemaining] = useState(
+    () => getCurrentRosterPeriodObject().daysRemaining
+  )
 
-    setCurrentPeriod(current)
-    setNextPeriod(next)
-    setDaysRemaining(current.daysRemaining)
+  // Update countdown every hour
+  useEffect(() => {
+    const interval = setInterval(
+      () => {
+        const updated = getCurrentRosterPeriodObject()
+        setDaysRemaining(updated.daysRemaining)
 
-    // Update countdown every hour
-    const interval = setInterval(() => {
-      const updated = getCurrentRosterPeriodObject()
-      setDaysRemaining(updated.daysRemaining)
-
-      // If period changed, update everything
-      if (updated.code !== current.code) {
-        setCurrentPeriod(updated)
-        setNextPeriod(getNextRosterPeriodObject(updated))
-      }
-    }, 60 * 60 * 1000) // Update every hour
+        // If period changed, update everything
+        if (updated.code !== currentPeriod?.code) {
+          setCurrentPeriod(updated)
+          setNextPeriod(getNextRosterPeriodObject(updated))
+        }
+      },
+      60 * 60 * 1000
+    ) // Update every hour
 
     return () => clearInterval(interval)
-  }, [])
+  }, [currentPeriod?.code])
 
   if (!currentPeriod || !nextPeriod) {
     return null
   }
 
   return (
-    <Card className="overflow-hidden border-2 border-primary-200 bg-gradient-to-br from-white to-slate-50 dark:border-primary-800 dark:from-slate-800 dark:to-slate-900">
+    <Card className="border-primary-200 dark:border-primary-800 overflow-hidden border-2 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4">
+      <div className="from-primary-600 to-primary-700 bg-gradient-to-r px-6 py-4">
         <div className="flex items-center gap-3">
           <CalendarDays className="h-6 w-6 text-white" />
           <div>
@@ -72,11 +75,11 @@ export function RosterPeriodCard() {
       {/* Content */}
       <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-2">
         {/* Current Period */}
-        <div className="rounded-lg bg-primary-50 p-5 dark:bg-primary-950/30">
-          <Badge className="mb-3 bg-primary-600 text-white hover:bg-primary-700">
+        <div className="bg-primary-50 dark:bg-primary-950/30 rounded-lg p-5">
+          <Badge className="bg-primary-600 hover:bg-primary-700 mb-3 text-white">
             ACTIVE PERIOD
           </Badge>
-          <h4 className="mb-2 text-3xl font-black text-primary-900 dark:text-primary-100">
+          <h4 className="text-primary-900 dark:text-primary-100 mb-2 text-3xl font-black">
             {currentPeriod.code}
           </h4>
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
@@ -94,8 +97,8 @@ export function RosterPeriodCard() {
 
           {/* Countdown */}
           <div className="flex items-baseline gap-2">
-            <Clock className="h-5 w-5 text-primary-600" />
-            <span className="text-4xl font-black text-primary-600 dark:text-primary-400">
+            <Clock className="text-primary-600 h-5 w-5" />
+            <span className="text-primary-600 dark:text-primary-400 text-4xl font-black">
               {daysRemaining}
             </span>
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -107,7 +110,7 @@ export function RosterPeriodCard() {
           <div className="mt-4">
             <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
               <div
-                className="h-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500"
+                className="from-primary-500 to-primary-600 h-full bg-gradient-to-r transition-all duration-500"
                 style={{
                   width: `${((28 - daysRemaining) / 28) * 100}%`,
                 }}
@@ -121,9 +124,7 @@ export function RosterPeriodCard() {
 
         {/* Next Period */}
         <div className="rounded-lg border-2 border-dashed border-blue-200 bg-blue-50 p-5 dark:border-blue-700 dark:bg-blue-950/30">
-          <Badge className="mb-3 bg-blue-600 text-white hover:bg-blue-700">
-            NEXT UP
-          </Badge>
+          <Badge className="mb-3 bg-blue-600 text-white hover:bg-blue-700">NEXT UP</Badge>
           <h4 className="mb-2 text-3xl font-black text-blue-900 dark:text-blue-100">
             {nextPeriod.code}
           </h4>

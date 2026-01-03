@@ -32,7 +32,7 @@ export async function DashboardContent() {
       {/* ROSTER PERIODS - Current + Next 13 - FULL WIDTH TOP */}
       <div className="mb-3">
         <ErrorBoundary>
-          <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+          <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
             <CompactRosterDisplay />
           </Suspense>
         </ErrorBoundary>
@@ -41,7 +41,7 @@ export async function DashboardContent() {
       {/* 🚨 URGENT ALERT BANNER - FULL WIDTH */}
       <div className="mb-3">
         <ErrorBoundary>
-          <Suspense fallback={<div className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+          <Suspense fallback={<div className="bg-muted h-16 animate-pulse rounded-lg" />}>
             <UrgentAlertBanner />
           </Suspense>
         </ErrorBoundary>
@@ -53,44 +53,46 @@ export async function DashboardContent() {
         <div className="space-y-3 xl:col-span-7">
           {/* PILOT STAFFING REQUIREMENTS - Required vs Actual */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+            <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
               <PilotRequirementsCard />
             </Suspense>
           </ErrorBoundary>
 
           {/* CERTIFICATIONS EXPIRING SOON - Banner */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="h-48 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+            <Suspense fallback={<div className="bg-muted h-48 animate-pulse rounded-lg" />}>
               <ExpiringCertificationsBannerServer />
             </Suspense>
           </ErrorBoundary>
 
-          {/* Quick Actions */}
-          <Card className="p-4 min-w-0 overflow-hidden">
-            <h3 className="mb-3 text-sm font-semibold text-foreground">Quick Actions</h3>
+          {/* Quick Actions - Linear-inspired section header */}
+          <Card className="min-w-0 overflow-hidden p-4">
+            <h3 className="text-muted-foreground mb-3 text-xs font-medium tracking-wider uppercase">
+              Quick Actions
+            </h3>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <ActionCard
                 title="Add Pilot"
                 description="Add a new pilot to the fleet"
-                icon={<Plus className="h-6 w-6 text-primary" aria-hidden="true" />}
+                icon={<Plus className="text-primary h-6 w-6" aria-hidden="true" />}
                 href="/dashboard/pilots/new"
               />
               <ActionCard
                 title="Update Certification"
                 description="Record a new certification check"
-                icon={<FileText className="h-6 w-6 text-primary" aria-hidden="true" />}
+                icon={<FileText className="text-primary h-6 w-6" aria-hidden="true" />}
                 href="/dashboard/certifications/new"
               />
               <ActionCard
                 title="View Reports"
                 description="Access analytics and reports"
-                icon={<BarChart3 className="h-6 w-6 text-primary" aria-hidden="true" />}
+                icon={<BarChart3 className="text-primary h-6 w-6" aria-hidden="true" />}
                 href="/dashboard/analytics"
               />
               <ActionCard
                 title="Pilot Requests"
                 description="Manage pilot leave and flight requests"
-                icon={<Calendar className="h-6 w-6 text-primary" aria-hidden="true" />}
+                icon={<Calendar className="text-primary h-6 w-6" aria-hidden="true" />}
                 href="/dashboard/requests"
               />
             </div>
@@ -101,14 +103,14 @@ export async function DashboardContent() {
         <div className="space-y-3 xl:col-span-5">
           {/* RETIREMENT FORECAST - 2 and 5 Year Outlook */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+            <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
               <RetirementForecastCard />
             </Suspense>
           </ErrorBoundary>
 
           {/* UNIFIED FLEET COMPLIANCE - Single Responsive Card */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="h-64 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
+            <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
               <UnifiedComplianceCard />
             </Suspense>
           </ErrorBoundary>
@@ -118,7 +120,7 @@ export async function DashboardContent() {
   )
 }
 
-// Memoized ActionCard component for performance (compact version)
+// Memoized ActionCard component for performance (Linear-inspired: clean, minimal)
 const ActionCard = memo(function ActionCard({
   title,
   description,
@@ -133,14 +135,15 @@ const ActionCard = memo(function ActionCard({
   return (
     <Link
       href={href}
-      className="block rounded-lg border border-border p-3 transition-all hover:border-primary-300 hover:bg-accent/50 hover:shadow-sm"
+      className="group border-border bg-background hover:border-foreground/20 hover:bg-muted/50 focus:ring-ring/20 block rounded-lg border p-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+      aria-label={`${title}: ${description}`}
     >
-      <div className="flex flex-col items-center text-center space-y-2">
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/20">
-          <div className="scale-75">{icon}</div>
+      <div className="flex flex-col items-center space-y-2 text-center">
+        <div className="bg-muted group-hover:bg-accent/10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors">
+          <div className="text-foreground/70 group-hover:text-accent scale-75">{icon}</div>
         </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="text-xs font-semibold text-foreground">{title}</h4>
+        <div className="min-w-0 flex-1">
+          <h4 className="text-foreground text-xs font-medium">{title}</h4>
         </div>
       </div>
     </Link>

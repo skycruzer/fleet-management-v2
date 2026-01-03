@@ -8,7 +8,9 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { Database } from '@/types/supabase'
 
@@ -91,7 +93,9 @@ export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 /**
  * Get all tasks with optional filtering
  */
-export async function getTasks(filters?: TaskFilters): Promise<ServiceResponse<TaskWithRelations[]>> {
+export async function getTasks(
+  filters?: TaskFilters
+): Promise<ServiceResponse<TaskWithRelations[]>> {
   try {
     const supabase = await createClient()
     const {
@@ -99,21 +103,27 @@ export async function getTasks(filters?: TaskFilters): Promise<ServiceResponse<T
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 
     let query = supabase
       .from('tasks')
-      .select(`
+      .select(
+        `
         *,
         assigned_user:an_users!tasks_assigned_to_fkey(id, email, name),
         created_user:an_users!tasks_created_by_fkey(id, email, name),
         category:task_categories(id, name, color, icon),
         related_pilot:pilots(id, first_name, last_name, role)
-      `)
+      `
+      )
       .order('created_at', { ascending: false })
 
     // Apply filters
@@ -197,21 +207,27 @@ export async function getTaskById(taskId: string): Promise<ServiceResponse<TaskW
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 
     const { data, error } = await supabase
       .from('tasks')
-      .select(`
+      .select(
+        `
         *,
         assigned_user:an_users!tasks_assigned_to_fkey(id, email, name),
         created_user:an_users!tasks_created_by_fkey(id, email, name),
         category:task_categories(id, name, color, icon),
         related_pilot:pilots(id, first_name, last_name, role)
-      `)
+      `
+      )
       .eq('id', taskId)
       .single()
 
@@ -263,14 +279,23 @@ export async function createTask(taskData: {
   parent_task_id?: string
   tags?: string[]
   checklist_items?: Array<{ text: string; completed: boolean }>
+  created_by?: string // Optional: pass from API route if using admin-session auth
 }): Promise<ServiceResponse<Task>> {
   try {
-    const supabase = await createClient()
+    // Use admin client to bypass RLS (auth verified at API layer)
+    const supabase = createAdminClient()
+
+    // Try to get user from Supabase Auth, but don't require it
+    // (admin-session auth is verified at API layer)
+    const readSupabase = await createClient()
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await readSupabase.auth.getUser()
 
-    if (!user) {
+    // Use provided created_by or fall back to Supabase Auth user
+    const createdBy = taskData.created_by || user?.id
+
+    if (!createdBy) {
       return {
         success: false,
         error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
@@ -293,7 +318,7 @@ export async function createTask(taskData: {
       checklist_items: taskData.checklist_items
         ? JSON.parse(JSON.stringify(taskData.checklist_items))
         : null,
-      created_by: user.id,
+      created_by: createdBy,
       progress_percentage: 0,
     }
 
@@ -337,17 +362,8 @@ export async function updateTask(
   updates: Partial<TaskUpdate>
 ): Promise<ServiceResponse<Task>> {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
-    }
+    // Use admin client to bypass RLS (auth verified at API layer)
+    const supabase = createAdminClient()
 
     // Fetch existing task for audit log
     const { data: existingTask, error: fetchError } = await supabase
@@ -422,17 +438,8 @@ export async function deleteTask(
   deleteSubtasks: boolean = false
 ): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
-    }
+    // Use admin client to bypass RLS (auth verified at API layer)
+    const supabase = createAdminClient()
 
     // Fetch task for audit log
     const { data: task, error: fetchError } = await supabase
@@ -520,9 +527,13 @@ export async function getTaskStats(filters?: TaskFilters): Promise<ServiceRespon
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      // Fallback to admin-session cookie auth
+      const adminSession = await getAuthenticatedAdmin()
+      if (!adminSession.authenticated) {
+        return {
+          success: false,
+          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        }
       }
     }
 

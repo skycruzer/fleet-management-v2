@@ -254,45 +254,55 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
 
   return (
     <motion.aside
-      initial={{ x: -280 }}
+      initial={{ x: -260 }}
       animate={{ x: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-slate-700 bg-slate-900"
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      className="border-border/40 bg-background fixed top-0 left-0 z-40 h-screen w-56 border-r"
+      style={{ willChange: 'transform' }}
     >
       {/* Logo Header */}
-      <div className="flex h-16 items-center gap-3 border-b border-slate-700 px-6">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
-          <Plane className="h-5 w-5 text-white" />
+      <div className="border-border/40 flex h-12 items-center gap-2 border-b px-4">
+        <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
+          <Plane className="h-3.5 w-3.5 text-white" />
         </div>
-        <div>
-          <h1 className="text-lg font-semibold text-white" suppressHydrationWarning>
+        <div className="min-w-0">
+          <h1
+            className="text-foreground truncate text-[13px] font-semibold"
+            suppressHydrationWarning
+          >
             {appTitle}
           </h1>
-          <p className="text-xs text-slate-400">Operations</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-2 overflow-y-auto p-4">
-        <div className="space-y-4">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
+        <div className="space-y-2">
           {navigationSections.map((section) => {
             const isCollapsed = collapsedSections[section.title]
+
+            const sectionId = `nav-section-${section.title.toLowerCase().replace(/\s+/g, '-')}`
 
             return (
               <div key={section.title}>
                 {/* Section Header - Clickable to toggle */}
                 <button
                   onClick={() => toggleSection(section.title)}
-                  className="mb-2 flex w-full items-center justify-between px-3 py-1 transition-colors hover:bg-slate-800/50 rounded-md"
+                  className="hover:bg-muted/40 focus:ring-ring/20 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors focus:ring-1 focus:outline-none"
+                  aria-expanded={!isCollapsed}
+                  aria-controls={sectionId}
+                  aria-label={`${section.title} navigation section, ${isCollapsed ? 'expand' : 'collapse'}`}
                 >
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <h3 className="text-muted-foreground/70 text-[10px] font-medium tracking-widest uppercase">
                     {section.title}
                   </h3>
                   <motion.div
                     animate={{ rotate: isCollapsed ? -90 : 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.12 }}
+                    aria-hidden="true"
+                    style={{ willChange: 'transform' }}
                   >
-                    <ChevronDown className="h-4 w-4 text-slate-500" />
+                    <ChevronDown className="text-muted-foreground/50 h-3 w-3" />
                   </motion.div>
                 </button>
 
@@ -300,11 +310,15 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                 <AnimatePresence initial={false}>
                   {!isCollapsed && (
                     <motion.div
+                      id={sectionId}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="space-y-1 overflow-hidden"
+                      transition={{ duration: 0.15 }}
+                      className="space-y-0.5 overflow-hidden"
+                      role="group"
+                      aria-label={`${section.title} navigation links`}
+                      style={{ willChange: 'height, opacity' }}
                     >
                       {section.items.map((item) => {
                         const Icon = item.icon
@@ -314,54 +328,46 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                           <Link key={item.href} href={item.href}>
                             <div
                               className={cn(
-                                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                                'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
                                 active
-                                  ? 'bg-primary-600 text-white'
-                                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                  ? 'bg-muted text-foreground'
+                                  : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                               )}
                             >
-                              {/* Active indicator */}
-                              {active && (
-                                <motion.div
-                                  layoutId="activeIndicator"
-                                  className="absolute left-0 h-8 w-1 rounded-r-full bg-accent-500"
-                                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                                />
-                              )}
-
                               <Icon
                                 className={cn(
-                                  'h-5 w-5 transition-colors',
-                                  active ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                                  'h-4 w-4 flex-shrink-0 transition-colors',
+                                  active
+                                    ? 'text-foreground'
+                                    : 'text-muted-foreground/70 group-hover:text-muted-foreground'
                                 )}
+                                aria-hidden="true"
                               />
 
-                              <span className="flex-1">{item.title}</span>
+                              <span className="flex-1 truncate">{item.title}</span>
 
-                              {/* Badge */}
+                              {/* Badge - Linear style minimal */}
                               {item.badge && (
                                 <span
                                   className={cn(
-                                    'rounded-full px-2 py-0.5 text-xs font-semibold',
-                                    item.badgeVariant === 'warning' &&
-                                      'bg-warning-500/20 text-warning-400 ring-1 ring-warning-500/30',
+                                    'flex-shrink-0 rounded px-1 py-0.5 text-[10px] font-medium tabular-nums',
+                                    item.badgeVariant === 'warning' && 'bg-warning/10 text-warning',
                                     item.badgeVariant === 'danger' &&
-                                      'bg-danger-500/20 text-danger-400 ring-1 ring-danger-500/30',
-                                    !item.badgeVariant && 'bg-slate-700 text-slate-300'
+                                      'bg-destructive/10 text-destructive',
+                                    !item.badgeVariant &&
+                                      'bg-muted-foreground/10 text-muted-foreground'
                                   )}
+                                  aria-label={
+                                    item.badgeVariant === 'danger'
+                                      ? `${item.badge} items requiring attention`
+                                      : item.badgeVariant === 'warning'
+                                        ? `${item.badge} items expiring soon`
+                                        : `${item.badge} new items`
+                                  }
                                 >
                                   {item.badge}
                                 </span>
                               )}
-
-                              {/* Chevron on hover */}
-                              <ChevronRight
-                                className={cn(
-                                  'h-4 w-4 opacity-0 transition-opacity',
-                                  'group-hover:opacity-100',
-                                  active && 'opacity-100'
-                                )}
-                              />
                             </div>
                           </Link>
                         )
@@ -374,7 +380,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           })}
 
           {/* Settings (standalone) */}
-          <div className="border-t border-slate-700 pt-4">
+          <div className="border-border/40 mt-1 border-t pt-2">
             {(() => {
               const Icon = settingsItem.icon
               const active = isActive(settingsItem.href)
@@ -383,36 +389,22 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                 <Link href={settingsItem.href}>
                   <div
                     className={cn(
-                      'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
                       active
-                        ? 'bg-primary-600 text-white'
-                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                        ? 'bg-muted text-foreground'
+                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                     )}
                   >
-                    {active && (
-                      <motion.div
-                        layoutId="activeIndicator"
-                        className="absolute left-0 h-8 w-1 rounded-r-full bg-accent-500"
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      />
-                    )}
-
                     <Icon
                       className={cn(
-                        'h-5 w-5 transition-colors',
-                        active ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                        'h-4 w-4 flex-shrink-0 transition-colors',
+                        active
+                          ? 'text-foreground'
+                          : 'text-muted-foreground/70 group-hover:text-muted-foreground'
                       )}
                     />
 
-                    <span className="flex-1">{settingsItem.title}</span>
-
-                    <ChevronRight
-                      className={cn(
-                        'h-4 w-4 opacity-0 transition-opacity',
-                        'group-hover:opacity-100',
-                        active && 'opacity-100'
-                      )}
-                    />
+                    <span className="flex-1 truncate">{settingsItem.title}</span>
                   </div>
                 </Link>
               )
@@ -421,31 +413,14 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         </div>
       </nav>
 
-      {/* Bottom Section - Support CTA */}
-      <div className="border-t border-slate-700 p-4">
-        <div className="rounded-lg bg-primary-700 p-4">
-          <div className="mb-2 flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-white" />
-            <h3 className="font-semibold text-white">Need Help?</h3>
-          </div>
-          <p className="mb-3 text-sm text-slate-200">
-            Contact our support team for assistance.
-          </p>
-          <Link
-            href="/dashboard/support"
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-primary-700 transition-colors hover:bg-slate-50"
-          >
-            Get Support
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-
+      {/* Bottom Section - Minimal */}
+      <div className="border-border/40 border-t p-2">
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-white"
+          className="text-muted-foreground hover:bg-muted/50 hover:text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-4 w-4 flex-shrink-0" />
           <span>Logout</span>
         </button>
       </div>

@@ -10,6 +10,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { updateRequestStatus } from '@/lib/services/unified-request-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 import { revalidatePath } from 'next/cache'
 
@@ -24,11 +25,8 @@ export async function POST(request: Request) {
 
   try {
     // Check authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -71,7 +69,7 @@ export async function POST(request: Request) {
         } else {
           // Update status (approve or deny)
           const newStatus = action === 'approve' ? 'APPROVED' : 'DENIED'
-          const result = await updateRequestStatus(requestId, newStatus, user.id, comments)
+          const result = await updateRequestStatus(requestId, newStatus, auth.userId!, comments)
 
           if (result.success) {
             successCount++
@@ -96,7 +94,7 @@ export async function POST(request: Request) {
       totalRequests: request_ids.length,
       successCount,
       failureCount,
-      userId: user.id,
+      userId: auth.userId!,
     })
 
     // Revalidate paths

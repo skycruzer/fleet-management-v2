@@ -9,12 +9,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import {
   generateRosterPeriodReport,
   saveRosterReport,
   getRosterReportHistory,
 } from '@/lib/services/roster-report-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 
 // ============================================================================
@@ -35,16 +35,11 @@ import { logger } from '@/lib/services/logging-service'
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   try {
-    const supabase = await createClient()
     const resolvedParams = await params
 
     // Verify authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -55,7 +50,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     logger.info('GET /api/reports/roster-period/[code]', {
       rosterPeriodCode,
       showHistory,
-      userId: user.id,
+      userId: auth.userId!,
     })
 
     // ========================================================================
@@ -83,7 +78,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const format = searchParams.get('format') || 'json'
     const reportType = (searchParams.get('reportType') || 'PREVIEW') as 'PREVIEW' | 'FINAL'
 
-    const result = await generateRosterPeriodReport(rosterPeriodCode, reportType, user.id)
+    const result = await generateRosterPeriodReport(rosterPeriodCode, reportType, auth.userId!)
 
     if (!result.success || !result.data) {
       return NextResponse.json(
@@ -146,16 +141,11 @@ export async function POST(
   { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const supabase = await createClient()
     const resolvedParams = await params
 
     // Verify authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -166,11 +156,15 @@ export async function POST(
     logger.info('POST /api/reports/roster-period/[code]', {
       rosterPeriodCode,
       reportType,
-      userId: user.id,
+      userId: auth.userId!,
     })
 
     // Generate report
-    const reportResult = await generateRosterPeriodReport(rosterPeriodCode, reportType, user.id)
+    const reportResult = await generateRosterPeriodReport(
+      rosterPeriodCode,
+      reportType,
+      auth.userId!
+    )
 
     if (!reportResult.success || !reportResult.data) {
       return NextResponse.json(

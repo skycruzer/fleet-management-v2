@@ -11,7 +11,8 @@
  * @updated 2025-10-27 - Added rate limiting
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
@@ -25,25 +26,23 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       return csrfError
     }
 
-    const supabase = await createClient()
-
     // Check authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized - Please log in' },
         { status: 401 }
       )
     }
 
+    // Use admin client to bypass RLS for admin operations
+    const supabase = createAdminClient()
+
     // Verify admin/manager role
     const { data: adminUser } = await supabase
       .from('an_users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', auth.userId!)
       .single()
 
     if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
@@ -97,8 +96,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       return NextResponse.json({ success: false, error: 'Leave bid not found' }, { status: 404 })
     }
 
-    // TODO: Send notification to pilot
-    // This will be implemented when notification system is ready
+    // Notification pending: See tasks/060-tracked-leave-bid-notifications.md
     // await sendPilotNotification(updatedBid.pilot_id, {
     //   type: action === 'approve' ? 'LEAVE_BID_APPROVED' : 'LEAVE_BID_REJECTED',
     //   rosterPeriodCode: updatedBid.roster_period_code,

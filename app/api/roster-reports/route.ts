@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 
 /**
@@ -19,15 +20,9 @@ import { logger } from '@/lib/services/logging-service'
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
     // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -36,6 +31,7 @@ export async function GET(request: NextRequest) {
     const rosterPeriod = searchParams.get('rosterPeriod')
 
     // Build query
+    const supabase = await createClient()
     let query = supabase
       .from('roster_reports')
       .select('*')
@@ -60,7 +56,7 @@ export async function GET(request: NextRequest) {
     }
 
     logger.info('Fetched roster reports', {
-      userId: user.id,
+      userId: auth.userId!,
       count: reports?.length || 0,
       rosterPeriod,
     })

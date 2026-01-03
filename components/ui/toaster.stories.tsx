@@ -16,14 +16,14 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 // Demo component that uses the toast hook
-const ToasterDemo = () => {
+function ToasterDemo() {
   const { toast } = useToast()
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8">
-      <div className="space-y-4 max-w-2xl">
-        <h1 className="text-3xl font-bold mb-8">Toast Notification System</h1>
-        
+    <div className="flex min-h-screen items-center justify-center p-8">
+      <div className="max-w-2xl space-y-4">
+        <h1 className="mb-8 text-3xl font-bold">Toast Notification System</h1>
+
         <div className="grid grid-cols-2 gap-4">
           <Button
             onClick={() => {
@@ -119,117 +119,124 @@ const ToasterDemo = () => {
   )
 }
 
+// Story wrapper components to fix React hooks rules
+function PilotUpdatedDemo() {
+  const { toast } = useToast()
+
+  return (
+    <div className="flex min-h-screen items-center justify-center p-8">
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Pilot Management Actions</h2>
+        <Button
+          onClick={() => {
+            toast({
+              title: 'Pilot Updated',
+              description: 'Captain John Smith profile has been updated.',
+              variant: 'success',
+            })
+          }}
+        >
+          Update Pilot
+        </Button>
+      </div>
+      <Toaster />
+    </div>
+  )
+}
+
+function CertificationAlertDemo() {
+  const { toast } = useToast()
+
+  return (
+    <div className="flex min-h-screen items-center justify-center p-8">
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Certification Alerts</h2>
+        <Button
+          variant="outline"
+          onClick={() => {
+            toast({
+              title: 'Certification Expiring',
+              description: 'Line Check for Capt. Smith expires in 15 days.',
+              variant: 'warning',
+              action: <Button size="sm">Schedule</Button>,
+            })
+          }}
+        >
+          Show Expiry Alert
+        </Button>
+      </div>
+      <Toaster />
+    </div>
+  )
+}
+
+function LeaveRequestDemo() {
+  const { toast } = useToast()
+
+  return (
+    <div className="flex min-h-screen items-center justify-center p-8">
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold">Leave Request Actions</h2>
+        <div className="space-x-2">
+          <Button
+            onClick={() => {
+              toast({
+                title: 'Leave Request Submitted',
+                description: 'Your request for RP12/2025 has been submitted.',
+                variant: 'success',
+              })
+            }}
+          >
+            Submit Request
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              toast({
+                title: 'Leave Request Approved',
+                description: 'Your leave for RP12/2025 has been approved.',
+                variant: 'success',
+                action: (
+                  <Button size="sm" variant="outline">
+                    View
+                  </Button>
+                ),
+              })
+            }}
+          >
+            Approve
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              toast({
+                title: 'Leave Request Denied',
+                description: 'Minimum crew requirements not met.',
+                variant: 'destructive',
+              })
+            }}
+          >
+            Deny
+          </Button>
+        </div>
+      </div>
+      <Toaster />
+    </div>
+  )
+}
+
 export const Default: Story = {
   render: () => <ToasterDemo />,
 }
 
 export const PilotUpdated: Story = {
-  render: () => {
-    const { toast } = useToast()
-
-    return (
-      <div className="min-h-screen flex items-center justify-center p-8">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">Pilot Management Actions</h2>
-          <Button
-            onClick={() => {
-              toast({
-                title: 'Pilot Updated',
-                description: 'Captain John Smith profile has been updated.',
-                variant: 'success',
-              })
-            }}
-          >
-            Update Pilot
-          </Button>
-        </div>
-        <Toaster />
-      </div>
-    )
-  },
+  render: () => <PilotUpdatedDemo />,
 }
 
 export const CertificationAlert: Story = {
-  render: () => {
-    const { toast } = useToast()
-
-    return (
-      <div className="min-h-screen flex items-center justify-center p-8">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">Certification Alerts</h2>
-          <Button
-            variant="outline"
-            onClick={() => {
-              toast({
-                title: 'Certification Expiring',
-                description: 'Line Check for Capt. Smith expires in 15 days.',
-                variant: 'warning',
-                action: (
-                  <Button size="sm">Schedule</Button>
-                ),
-              })
-            }}
-          >
-            Show Expiry Alert
-          </Button>
-        </div>
-        <Toaster />
-      </div>
-    )
-  },
+  render: () => <CertificationAlertDemo />,
 }
 
 export const LeaveRequest: Story = {
-  render: () => {
-    const { toast } = useToast()
-
-    return (
-      <div className="min-h-screen flex items-center justify-center p-8">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">Leave Request Actions</h2>
-          <div className="space-x-2">
-            <Button
-              onClick={() => {
-                toast({
-                  title: 'Leave Request Submitted',
-                  description: 'Your request for RP12/2025 has been submitted.',
-                  variant: 'success',
-                })
-              }}
-            >
-              Submit Request
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                toast({
-                  title: 'Leave Request Approved',
-                  description: 'Your leave for RP12/2025 has been approved.',
-                  variant: 'success',
-                  action: (
-                    <Button size="sm" variant="outline">View</Button>
-                  ),
-                })
-              }}
-            >
-              Approve
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                toast({
-                  title: 'Leave Request Denied',
-                  description: 'Minimum crew requirements not met.',
-                  variant: 'destructive',
-                })
-              }}
-            >
-              Deny
-            </Button>
-          </div>
-        </div>
-        <Toaster />
-      </div>
-    )
-  },
+  render: () => <LeaveRequestDemo />,
 }

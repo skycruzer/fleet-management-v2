@@ -13,15 +13,13 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
 import { differenceInDays } from 'date-fns'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { unifiedCacheService, invalidateCacheByTag } from './unified-cache-service'
-import {
-  getCertificationStatus,
-  DEFAULT_THRESHOLDS,
-} from '@/lib/utils/certification-status'
+import { getCertificationStatus, DEFAULT_THRESHOLDS } from '@/lib/utils/certification-status'
 
 // Type aliases for convenience
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
@@ -89,7 +87,7 @@ export async function getCertifications(
   // Generate cache key based on parameters
   const cacheKey = `certifications:${page}:${pageSize}:${JSON.stringify(filters || {})}`
 
-  // Try to get from cache (5 minute TTL)
+  // Try to get from cache (5 minute TTL) with 'certifications' tag for invalidation
   return unifiedCacheService.getOrSet(
     cacheKey,
     async () => {
@@ -163,7 +161,10 @@ export async function getCertifications(
 
         const certificationsWithStatus = (data || []).map((cert: any) => ({
           ...cert,
-          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
+          status: getCertificationStatus(
+            cert.expiry_date ? new Date(cert.expiry_date) : null,
+            DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
+          ),
         }))
 
         return {
@@ -181,7 +182,8 @@ export async function getCertifications(
         throw error
       }
     },
-    5 * 60 * 1000 // 5 minute cache TTL
+    5 * 60 * 1000, // 5 minute cache TTL
+    { tags: ['certifications'] } // Tag for cache invalidation on create/update/delete
   )
 }
 
@@ -234,7 +236,10 @@ export async function getCertificationById(
 
     return {
       ...data,
-      status: getCertificationStatus(data.expiry_date ? new Date(data.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
+      status: getCertificationStatus(
+        data.expiry_date ? new Date(data.expiry_date) : null,
+        DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
+      ),
     }
   } catch (error) {
     logError(error as Error, {
@@ -275,7 +280,10 @@ export async function getCertificationsByPilotId(
 
     const certificationsWithStatus = (data || []).map((cert: any) => ({
       ...cert,
-      status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
+      status: getCertificationStatus(
+        cert.expiry_date ? new Date(cert.expiry_date) : null,
+        DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
+      ),
     }))
 
     return certificationsWithStatus
@@ -363,7 +371,8 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
 export async function createCertification(
   certificationData: CertificationFormData
 ): Promise<PilotCheck> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -410,12 +419,10 @@ export async function updateCertification(
   certificationId: string,
   certificationData: Partial<CertificationFormData>
 ): Promise<PilotCheck> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
-    console.log('🔧 [updateCertification] Starting update for certification:', certificationId)
-    console.log('🔧 [updateCertification] Received data:', JSON.stringify(certificationData, null, 2))
-
     // Fetch old data for audit trail
     const { data: oldData, error: fetchError } = await supabase
       .from('pilot_checks')
@@ -428,15 +435,11 @@ export async function updateCertification(
       throw fetchError
     }
 
-    console.log('🔧 [updateCertification] Old data expiry_date:', oldData?.expiry_date)
-
     const cleanedData = Object.fromEntries(
       Object.entries(certificationData)
         .filter(([_, value]) => value !== undefined)
         .map(([key, value]) => [key, value === '' ? null : value])
     )
-
-    console.log('🔧 [updateCertification] Cleaned data being sent to DB:', JSON.stringify(cleanedData, null, 2))
 
     const { data, error } = await supabase
       .from('pilot_checks')
@@ -450,9 +453,6 @@ export async function updateCertification(
       throw error
     }
 
-    console.log('✅ [updateCertification] Database updated successfully')
-    console.log('✅ [updateCertification] New data expiry_date:', data?.expiry_date)
-
     // Audit log the update
     await createAuditLog({
       action: 'UPDATE',
@@ -463,13 +463,8 @@ export async function updateCertification(
       description: `Updated certification for pilot ID: ${data.pilot_id}`,
     })
 
-    console.log('✅ [updateCertification] Audit log created')
-
     // Invalidate certification cache to ensure fresh data is fetched
     invalidateCacheByTag('certifications')
-
-    console.log('✅ [updateCertification] Cache invalidated')
-    console.log('✅ [updateCertification] Update complete, returning data')
 
     return data
   } catch (error) {
@@ -487,7 +482,8 @@ export async function updateCertification(
  * Delete certification
  */
 export async function deleteCertification(certificationId: string): Promise<void> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     // Fetch certification data before deletion for audit trail
@@ -532,7 +528,8 @@ export async function deleteCertification(certificationId: string): Promise<void
 export async function bulkDeleteCertifications(
   certificationIds: string[]
 ): Promise<{ deletedCount: number; requestedCount: number }> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     // Use PostgreSQL function for atomic bulk delete
@@ -585,7 +582,8 @@ export async function batchUpdateCertifications(
     updates: Partial<CertificationFormData>
   }>
 ): Promise<{ updatedCount: number; totalRequested: number }> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     // Prepare updates for PostgreSQL function
@@ -663,7 +661,10 @@ export async function getCertificationStats() {
           return acc
         }
 
-        const status = getCertificationStatus(new Date(cert.expiry_date), DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS)
+        const status = getCertificationStatus(
+          new Date(cert.expiry_date),
+          DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
+        )
 
         if (status.color === 'red') acc.expired++
         else if (status.color === 'yellow') acc.expiring++
@@ -730,7 +731,10 @@ export async function getCertificationsByCategory() {
           return acc
         }
 
-        const status = getCertificationStatus(new Date(cert.expiry_date), DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS)
+        const status = getCertificationStatus(
+          new Date(cert.expiry_date),
+          DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
+        )
 
         if (status.color === 'red') acc[category].expired++
         else if (status.color === 'yellow') acc[category].expiring++
@@ -807,7 +811,10 @@ export async function getCertificationsGroupedByCategory(): Promise<
         // Add status calculation
         const certWithStatus = {
           ...cert,
-          status: getCertificationStatus(cert.expiry_date ? new Date(cert.expiry_date) : null, DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS),
+          status: getCertificationStatus(
+            cert.expiry_date ? new Date(cert.expiry_date) : null,
+            DEFAULT_THRESHOLDS.EXTENDED_WARNING_DAYS
+          ),
         }
 
         acc[category].push(certWithStatus)

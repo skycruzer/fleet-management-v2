@@ -41,11 +41,7 @@ export async function updateSession(request: NextRequest) {
       const now = Date.now()
       const retryAfter = Math.ceil((rateLimitResult.reset - now) / 1000)
 
-      return createRateLimitResponse(
-        retryAfter,
-        rateLimitResult.limit,
-        rateLimitResult.reset
-      )
+      return createRateLimitResponse(retryAfter, rateLimitResult.limit, rateLimitResult.reset)
     }
 
     // Add rate limit headers to all auth responses
@@ -102,15 +98,25 @@ export async function updateSession(request: NextRequest) {
   // ============================================================================
 
   // Admin/Manager Dashboard Protection
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
+  // Check both Supabase Auth AND custom admin session cookie
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    const adminSessionCookie = request.cookies.get('admin-session')
+
+    // If no Supabase user AND no admin session cookie, redirect to login
+    if (!user && !adminSessionCookie) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/auth/login'
+      return NextResponse.redirect(url)
+    }
   }
 
   // Pilot Portal Protection (US1)
   // Check both Supabase Auth AND custom pilot session cookies
-  if (request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login') && !request.nextUrl.pathname.startsWith('/portal/register')) {
+  if (
+    request.nextUrl.pathname.startsWith('/portal') &&
+    !request.nextUrl.pathname.startsWith('/portal/login') &&
+    !request.nextUrl.pathname.startsWith('/portal/register')
+  ) {
     // Check for custom pilot session cookie (bcrypt-authenticated pilots)
     // Note: Full validation happens in protected routes via validatePilotSession()
     const pilotSessionCookie = request.cookies.get('pilot-session')
@@ -158,14 +164,25 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Redirect admins trying to access pilot portal
-    if (adminUser && !pilotUser && request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login') && !request.nextUrl.pathname.startsWith('/portal/register')) {
+    if (
+      adminUser &&
+      !pilotUser &&
+      request.nextUrl.pathname.startsWith('/portal') &&
+      !request.nextUrl.pathname.startsWith('/portal/login') &&
+      !request.nextUrl.pathname.startsWith('/portal/register')
+    ) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)
     }
 
     // Redirect unapproved pilot registrations
-    if (pilotUser && !pilotUser.registration_approved && request.nextUrl.pathname.startsWith('/portal') && !request.nextUrl.pathname.startsWith('/portal/login')) {
+    if (
+      pilotUser &&
+      !pilotUser.registration_approved &&
+      request.nextUrl.pathname.startsWith('/portal') &&
+      !request.nextUrl.pathname.startsWith('/portal/login')
+    ) {
       // Allow access to pilot portal but dashboard will show pending message
       // No redirect needed - handled in dashboard page
     }

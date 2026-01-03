@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTasks, getTaskStats } from '@/lib/services/task-service'
 import TaskKanban from '@/components/tasks/TaskKanban'
 import TaskList from '@/components/tasks/TaskList'
@@ -24,12 +24,9 @@ interface TasksPageProps {
 }
 
 export default async function TasksPage({ searchParams }: TasksPageProps) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
 

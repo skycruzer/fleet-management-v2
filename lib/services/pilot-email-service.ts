@@ -216,7 +216,6 @@ Please do not reply to this email.
       }
     }
 
-    console.log(`✅ Approval email sent to ${pilotData.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending approval email:', error)
@@ -239,7 +238,7 @@ export async function sendRegistrationDenialEmail(
   denialReason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supportEmail = 'support@yourdomain.com' // TODO: Update with actual support email
+    const supportEmail = 'support@yourdomain.com' // Tracked: tasks/062 #5
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -269,13 +268,17 @@ export async function sendRegistrationDenialEmail(
         Thank you for your interest in registering for the Pilot Portal. After reviewing your application, we regret to inform you that your registration has <strong style="color: #dc3545;">not been approved</strong> at this time.
       </p>
 
-      ${denialReason ? `
+      ${
+        denialReason
+          ? `
       <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
         <p style="margin: 0; font-size: 14px; color: #856404;">
           <strong>Reason:</strong> ${denialReason}
         </p>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
 
       <div style="background-color: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0; border-radius: 4px;">
         <p style="margin: 0; font-size: 14px; color: #004085;">
@@ -341,7 +344,6 @@ If you have questions, please contact ${supportEmail}
       }
     }
 
-    console.log(`📧 Denial email sent to ${pilotData.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending denial email:', error)
@@ -462,7 +464,6 @@ Please do not reply to this email.
       }
     }
 
-    console.log(`✅ Leave approval email sent to ${requestData.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending leave approval email:', error)
@@ -516,11 +517,15 @@ export async function sendLeaveRequestDenialEmail(
       <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">
         <p style="margin: 0; font-size: 14px; color: #856404;"><strong>Leave Type:</strong> ${requestData.requestType}</p>
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #856404;"><strong>Requested Dates:</strong> ${requestData.startDate} to ${requestData.endDate}</p>
-        ${requestData.denialReason || requestData.reviewerComments ? `
+        ${
+          requestData.denialReason || requestData.reviewerComments
+            ? `
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #856404;">
           <strong>Reason:</strong> ${requestData.denialReason || requestData.reviewerComments}
         </p>
-        ` : ''}
+        `
+            : ''
+        }
       </div>
 
       <div style="background-color: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0; border-radius: 4px;">
@@ -593,7 +598,6 @@ Please do not reply to this email.
       }
     }
 
-    console.log(`📧 Leave denial email sent to ${requestData.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending leave denial email:', error)
@@ -712,7 +716,6 @@ Please do not reply to this email.
       }
     }
 
-    console.log(`✅ Flight approval email sent to ${requestData.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending flight approval email:', error)
@@ -767,11 +770,15 @@ export async function sendFlightRequestDenialEmail(
         <p style="margin: 0; font-size: 14px; color: #856404;"><strong>Request Type:</strong> ${requestData.requestType}</p>
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #856404;"><strong>Flight Date:</strong> ${requestData.flightDate}</p>
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #856404;"><strong>Description:</strong> ${requestData.description}</p>
-        ${requestData.denialReason || requestData.reviewerComments ? `
+        ${
+          requestData.denialReason || requestData.reviewerComments
+            ? `
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #856404;">
           <strong>Reason:</strong> ${requestData.denialReason || requestData.reviewerComments}
         </p>
-        ` : ''}
+        `
+            : ''
+        }
       </div>
 
       <div style="background-color: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0; border-radius: 4px;">
@@ -845,7 +852,6 @@ Please do not reply to this email.
       }
     }
 
-    console.log(`📧 Flight denial email sent to ${requestData.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending flight denial email:', error)
@@ -874,20 +880,20 @@ export async function sendCertificationExpiryAlert(
         color: '#dc3545',
         icon: '🔴',
         label: 'CRITICAL',
-        message: 'requires immediate action'
+        message: 'requires immediate action',
       },
       warning: {
         color: '#ffc107',
         icon: '🟡',
         label: 'WARNING',
-        message: 'expiring soon'
+        message: 'expiring soon',
       },
       notice: {
         color: '#0066cc',
         icon: '🔵',
         label: 'NOTICE',
-        message: 'plan ahead'
-      }
+        message: 'plan ahead',
+      },
     }
 
     const config = urgencyConfig[data.urgencyLevel]
@@ -916,28 +922,36 @@ export async function sendCertificationExpiryAlert(
         You have <strong>${data.certifications.length}</strong> certification${data.certifications.length > 1 ? 's' : ''} that ${config.message}.
       </p>
 
-      ${data.certifications.map(cert => `
+      ${data.certifications
+        .map(
+          (cert) => `
       <div style="background-color: ${data.urgencyLevel === 'critical' ? '#fff5f5' : data.urgencyLevel === 'warning' ? '#fff3cd' : '#e7f3ff'}; border-left: 4px solid ${config.color}; padding: 15px; margin: 15px 0; border-radius: 4px;">
         <p style="margin: 0; font-size: 16px; color: #333;"><strong>${cert.checkCode}</strong> - ${cert.checkDescription}</p>
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #555;">
           <strong>Expiry Date:</strong> ${cert.expiryDate}
         </p>
         <p style="margin: 5px 0 0 0; font-size: 14px; color: ${config.color}; font-weight: bold;">
-          ${cert.daysUntilExpiry < 0
-            ? `EXPIRED ${Math.abs(cert.daysUntilExpiry)} days ago`
-            : `${cert.daysUntilExpiry} days remaining`}
+          ${
+            cert.daysUntilExpiry < 0
+              ? `EXPIRED ${Math.abs(cert.daysUntilExpiry)} days ago`
+              : `${cert.daysUntilExpiry} days remaining`
+          }
         </p>
       </div>
-      `).join('')}
+      `
+        )
+        .join('')}
 
       <div style="background-color: #f8f9fa; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0; border-radius: 4px;">
         <p style="margin: 0; font-size: 14px; color: #333;"><strong>Action Required:</strong></p>
         <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 14px; color: #555;">
-          ${data.urgencyLevel === 'critical'
-            ? '<li><strong>DO NOT FLY</strong> with expired certifications</li><li>Contact training immediately to schedule renewal</li><li>Update your status in the system</li>'
-            : data.urgencyLevel === 'warning'
-            ? '<li>Schedule renewal as soon as possible</li><li>Contact training to book your renewal</li><li>Review renewal requirements</li>'
-            : '<li>Plan your renewal well in advance</li><li>Check training calendar availability</li><li>Prepare required documentation</li>'}
+          ${
+            data.urgencyLevel === 'critical'
+              ? '<li><strong>DO NOT FLY</strong> with expired certifications</li><li>Contact training immediately to schedule renewal</li><li>Update your status in the system</li>'
+              : data.urgencyLevel === 'warning'
+                ? '<li>Schedule renewal as soon as possible</li><li>Contact training to book your renewal</li><li>Review renewal requirements</li>'
+                : '<li>Plan your renewal well in advance</li><li>Check training calendar availability</li><li>Prepare required documentation</li>'
+          }
         </ul>
       </div>
 
@@ -975,20 +989,28 @@ Attention ${data.rank} ${data.lastName}!
 
 You have ${data.certifications.length} certification${data.certifications.length > 1 ? 's' : ''} that ${config.message}.
 
-${data.certifications.map(cert => `
+${data.certifications
+  .map(
+    (cert) => `
 ${cert.checkCode} - ${cert.checkDescription}
 Expiry Date: ${cert.expiryDate}
-${cert.daysUntilExpiry < 0
-  ? `EXPIRED ${Math.abs(cert.daysUntilExpiry)} days ago`
-  : `${cert.daysUntilExpiry} days remaining`}
-`).join('\n')}
+${
+  cert.daysUntilExpiry < 0
+    ? `EXPIRED ${Math.abs(cert.daysUntilExpiry)} days ago`
+    : `${cert.daysUntilExpiry} days remaining`
+}
+`
+  )
+  .join('\n')}
 
 Action Required:
-${data.urgencyLevel === 'critical'
-  ? '- DO NOT FLY with expired certifications\n- Contact training immediately to schedule renewal\n- Update your status in the system'
-  : data.urgencyLevel === 'warning'
-  ? '- Schedule renewal as soon as possible\n- Contact training to book your renewal\n- Review renewal requirements'
-  : '- Plan your renewal well in advance\n- Check training calendar availability\n- Prepare required documentation'}
+${
+  data.urgencyLevel === 'critical'
+    ? '- DO NOT FLY with expired certifications\n- Contact training immediately to schedule renewal\n- Update your status in the system'
+    : data.urgencyLevel === 'warning'
+      ? '- Schedule renewal as soon as possible\n- Contact training to book your renewal\n- Review renewal requirements'
+      : '- Plan your renewal well in advance\n- Check training calendar availability\n- Prepare required documentation'
+}
 
 View your certifications: ${portalUrl}
 
@@ -1015,7 +1037,6 @@ Please do not reply to this email.
       }
     }
 
-    console.log(`🔔 Certification expiry alert sent to ${data.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending certification expiry alert:', error)
@@ -1138,7 +1159,6 @@ Please do not reply to this email.
       }
     }
 
-    console.log(`🔑 Password reset email sent to ${data.email}`)
     return { success: true }
   } catch (error) {
     console.error('Error sending password reset email:', error)

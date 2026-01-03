@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { exportAnalyticsData } from '@/lib/services/export-service'
 import type { AnalyticsExportData, ExportFormat } from '@/lib/services/export-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -118,12 +118,8 @@ Overall Risk Score: ${data.risk.overallRiskScore}/100
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 

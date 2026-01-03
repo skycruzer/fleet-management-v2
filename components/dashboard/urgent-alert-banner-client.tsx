@@ -27,19 +27,16 @@ export function UrgentAlertBannerClient({
   notice,
   urgencyLevel,
 }: UrgentAlertBannerClientProps) {
-  const [isDismissed, setIsDismissed] = useState(false)
-
-  // Check localStorage on mount
-  useEffect(() => {
+  // Initialize dismissed state using lazy initialization
+  const [isDismissed, setIsDismissed] = useState(() => {
+    // Check localStorage (only on client-side)
+    if (typeof window === 'undefined') return false
     const dismissed = localStorage.getItem('urgent-alert-dismissed')
     const dismissedTime = dismissed ? parseInt(dismissed) : 0
     const now = Date.now()
-
     // Auto-show after 24 hours (86400000ms)
-    if (now - dismissedTime < 86400000) {
-      setIsDismissed(true)
-    }
-  }, [])
+    return now - dismissedTime < 86400000
+  })
 
   const handleDismiss = () => {
     setIsDismissed(true)
@@ -87,20 +84,21 @@ export function UrgentAlertBannerClient({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className={cn(
-            'relative overflow-hidden rounded-lg border p-4',
-            colors.bg,
-            colors.border
-          )}
+          className={cn('relative overflow-hidden rounded-lg border p-4', colors.bg, colors.border)}
         >
           <div className="flex items-center gap-4">
             {/* Icon */}
-            <div className={cn('flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg', colors.iconBg)}>
+            <div
+              className={cn(
+                'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg',
+                colors.iconBg
+              )}
+            >
               <AlertCircle className={cn('h-5 w-5', colors.iconText)} />
             </div>
 
             {/* Content */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <h3 className={cn('font-semibold', colors.text)}>
                 {total} Certification{total !== 1 ? 's' : ''} Expiring Soon
               </h3>

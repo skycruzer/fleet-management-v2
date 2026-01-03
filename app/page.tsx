@@ -18,8 +18,8 @@ export const metadata = publicMetadata.home
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section with Gradient Background */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950">
+      {/* Hero Section - Clean Minimal Background */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
 
         <div className="relative container mx-auto px-4 py-24 sm:py-32">
@@ -107,7 +107,7 @@ export default function HomePage() {
         </div>
 
         {/* Benefits Section */}
-        <div className="rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 p-12 text-center dark:from-gray-900 dark:to-blue-950">
+        <div className="rounded-3xl bg-gradient-to-br from-zinc-50 to-zinc-100 p-12 text-center dark:from-zinc-900 dark:to-zinc-950">
           <h2 className="mb-8 text-3xl font-bold sm:text-4xl">Why Choose Our Platform?</h2>
           <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
             <BenefitItem

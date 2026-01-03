@@ -1,12 +1,23 @@
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
+/**
+ * Skeleton component with modern shimmer animation
+ * Uses gradient-based shimmer for a more polished loading experience
+ */
 function Skeleton({
   className,
+  shimmer = true,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: React.HTMLAttributes<HTMLDivElement> & { shimmer?: boolean }) {
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn(
+        'bg-muted rounded-md',
+        shimmer
+          ? 'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent'
+          : 'animate-pulse',
+        className
+      )}
       {...props}
     />
   )
@@ -20,10 +31,10 @@ function PilotListSkeleton({ count = 5 }: { count?: number }) {
     <div className="space-y-4">
       {[...Array(count)].map((_, i) => (
         <div key={i} className="flex items-center justify-between py-4">
-          <div className="flex items-center space-x-3 flex-1">
+          <div className="flex flex-1 items-center space-x-3">
             {/* Avatar skeleton */}
             <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="space-y-2 flex-1">
+            <div className="flex-1 space-y-2">
               {/* Name skeleton */}
               <Skeleton className="h-4 w-48" />
               {/* Employee ID skeleton */}
@@ -54,7 +65,7 @@ function CardGridSkeleton({ count = 6 }: { count?: number }) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {[...Array(count)].map((_, i) => (
-        <div key={i} className="rounded-lg border bg-card p-6 space-y-4">
+        <div key={i} className="bg-card space-y-4 rounded-lg border p-6">
           <div className="flex items-center space-x-2">
             <Skeleton className="h-8 w-8 rounded" />
             <Skeleton className="h-6 w-32" />
@@ -74,7 +85,7 @@ function TableSkeleton({ rows = 5, columns = 4 }: { rows?: number; columns?: num
   return (
     <div className="w-full">
       {/* Table header */}
-      <div className="flex items-center border-b py-3 mb-2">
+      <div className="mb-2 flex items-center border-b py-3">
         {[...Array(columns)].map((_, i) => (
           <div key={i} className="flex-1 px-4">
             <Skeleton className="h-4 w-24" />
@@ -122,7 +133,7 @@ function MetricCardSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {[...Array(count)].map((_, i) => (
-        <div key={i} className="rounded-lg border bg-card p-6 space-y-3">
+        <div key={i} className="bg-card space-y-3 rounded-lg border p-6">
           <div className="flex items-center justify-between">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-4 rounded" />
@@ -140,7 +151,7 @@ function MetricCardSkeleton({ count = 4 }: { count?: number }) {
  */
 function ChartSkeleton({ height = 300 }: { height?: number }) {
   return (
-    <div className="rounded-lg border bg-card p-6 space-y-4">
+    <div className="bg-card space-y-4 rounded-lg border p-6">
       <div className="flex items-center justify-between">
         <Skeleton className="h-6 w-32" />
         <Skeleton className="h-8 w-24 rounded-md" />
@@ -167,7 +178,7 @@ function DetailPageSkeleton() {
 
       {/* Content Cards */}
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-lg border bg-card p-6 space-y-4">
+        <div className="bg-card space-y-4 rounded-lg border p-6">
           <Skeleton className="h-6 w-32" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-full" />
@@ -175,7 +186,7 @@ function DetailPageSkeleton() {
             <Skeleton className="h-4 w-3/4" />
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-6 space-y-4">
+        <div className="bg-card space-y-4 rounded-lg border p-6">
           <Skeleton className="h-6 w-32" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-full" />
@@ -186,8 +197,8 @@ function DetailPageSkeleton() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card p-6">
-        <Skeleton className="h-6 w-32 mb-4" />
+      <div className="bg-card rounded-lg border p-6">
+        <Skeleton className="mb-4 h-6 w-32" />
         <TableSkeleton rows={5} columns={4} />
       </div>
     </div>
@@ -211,7 +222,7 @@ function PageSkeleton() {
         </div>
 
         {/* Filter card */}
-        <div className="rounded-lg border bg-card p-6 space-y-4">
+        <div className="bg-card space-y-4 rounded-lg border p-6">
           <Skeleton className="h-5 w-32" />
           <div className="flex gap-4">
             <Skeleton className="h-10 flex-1" />
@@ -222,8 +233,8 @@ function PageSkeleton() {
         </div>
 
         {/* Content card */}
-        <div className="rounded-lg border bg-card p-6">
-          <div className="space-y-2 mb-4">
+        <div className="bg-card rounded-lg border p-6">
+          <div className="mb-4 space-y-2">
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-64" />
           </div>

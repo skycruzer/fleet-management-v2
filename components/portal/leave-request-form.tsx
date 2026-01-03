@@ -24,7 +24,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle } from 'lucide-react'
 import { submitLeaveRequestAction } from '@/app/portal/leave/actions'
-import { getRosterPeriodFromDate, formatRosterPeriodFromObject, getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
+import {
+  getRosterPeriodFromDate,
+  formatRosterPeriodFromObject,
+  getAffectedRosterPeriods,
+} from '@/lib/utils/roster-utils'
 import { useEffect, useState } from 'react'
 
 // Form validation schema (aligned with leave_requests table schema)
@@ -117,7 +121,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
       // Get all affected roster periods
       const affectedPeriods = getAffectedRosterPeriods(new Date(startDate), new Date(endDate))
       // Store all roster period codes separated by commas
-      const rosterPeriodCodes = affectedPeriods.map(p => p.code).join(', ')
+      const rosterPeriodCodes = affectedPeriods.map((p) => p.code).join(', ')
       setValue('roster_period', rosterPeriodCodes)
     } else if (startDate) {
       // If only start date, use that roster period
@@ -135,11 +139,12 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
       : 0
 
   // Get roster period details for display
-  const affectedRosterPeriods = startDate && endDate
-    ? getAffectedRosterPeriods(new Date(startDate), new Date(endDate))
-    : startDate
-    ? [getRosterPeriodFromDate(new Date(startDate))]
-    : []
+  const affectedRosterPeriods =
+    startDate && endDate
+      ? getAffectedRosterPeriods(new Date(startDate), new Date(endDate))
+      : startDate
+        ? [getRosterPeriodFromDate(new Date(startDate))]
+        : []
 
   async function onSubmit(data: LeaveRequestFormData) {
     // Create FormData for Server Action
@@ -159,7 +164,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Success Alert */}
       {showSuccess && (
         <Alert className="border-green-300 bg-green-50">
@@ -174,13 +179,13 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
       <FormErrorAlert error={error} onDismiss={resetError} />
 
       {/* Leave Type */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-gray-700">
-          Leave Type <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label className="text-foreground text-sm font-medium">
+          Leave Type <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <select
           {...register('request_type')}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-primary"
+          className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
         >
           <option value="ANNUAL">Annual Leave</option>
           <option value="SICK">Sick Leave</option>
@@ -190,19 +195,19 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
           <option value="COMPASSIONATE">Compassionate Leave</option>
         </select>
         {errors.request_type && (
-          <p className="mt-1 text-sm text-red-600">{errors.request_type.message}</p>
+          <p className="text-destructive text-xs font-medium">{errors.request_type.message}</p>
         )}
-        <p className="mt-1 text-xs text-gray-500">
-          ℹ️ For RDO or SDO requests, please use the dedicated RDO/SDO Request form
+        <p className="text-muted-foreground text-xs">
+          For RDO or SDO requests, please use the dedicated RDO/SDO Request form
         </p>
       </div>
 
       {/* Date Range */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Start Date */}
-        <div>
-          <label htmlFor="start_date" className="mb-2 block text-sm font-medium text-gray-700">
-            Start Date <span className="text-red-500">*</span>
+        <div className="space-y-1.5">
+          <label htmlFor="start_date" className="text-foreground text-sm font-medium">
+            Start Date <span className="text-destructive/70 ml-0.5 text-xs">*</span>
           </label>
           <Input
             id="start_date"
@@ -215,16 +220,16 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
             aria-describedby="start_date_error"
           />
           {errors.start_date && (
-            <p id="start_date_error" className="mt-1 text-sm text-red-600" role="alert">
+            <p id="start_date_error" className="text-destructive text-xs font-medium" role="alert">
               {errors.start_date.message}
             </p>
           )}
         </div>
 
         {/* End Date */}
-        <div>
-          <label htmlFor="end_date" className="mb-2 block text-sm font-medium text-gray-700">
-            End Date <span className="text-red-500">*</span>
+        <div className="space-y-1.5">
+          <label htmlFor="end_date" className="text-foreground text-sm font-medium">
+            End Date <span className="text-destructive/70 ml-0.5 text-xs">*</span>
           </label>
           <Input
             id="end_date"
@@ -238,7 +243,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
             aria-describedby="end_date_error"
           />
           {errors.end_date && (
-            <p id="end_date_error" className="mt-1 text-sm text-red-600" role="alert">
+            <p id="end_date_error" className="text-destructive text-xs font-medium" role="alert">
               {errors.end_date.message}
             </p>
           )}
@@ -247,19 +252,20 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
 
       {/* Days Count Display */}
       {daysCount > 0 && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <p className="text-sm font-medium text-blue-900">
-            Total Days: <span className="text-xl font-bold">{daysCount}</span> day
+        <div className="border-accent/20 bg-accent/5 rounded-lg border p-4">
+          <p className="text-accent-foreground text-sm font-medium">
+            Total Days: <span className="text-accent text-xl font-bold">{daysCount}</span> day
             {daysCount !== 1 ? 's' : ''}
           </p>
         </div>
       )}
 
       {/* Roster Period - Auto-calculated */}
-      <div>
-        <label htmlFor="roster_period" className="mb-2 block text-sm font-medium text-gray-700">
-          Roster Period{affectedRosterPeriods.length > 1 ? 's' : ''} <span className="text-red-500">*</span>{' '}
-          <span className="text-xs font-normal text-gray-500">(Auto-calculated)</span>
+      <div className="space-y-1.5">
+        <label htmlFor="roster_period" className="text-foreground text-sm font-medium">
+          Roster Period{affectedRosterPeriods.length > 1 ? 's' : ''}{' '}
+          <span className="text-destructive/70 ml-0.5 text-xs">*</span>{' '}
+          <span className="text-muted-foreground text-xs font-normal">(Auto-calculated)</span>
         </label>
         <Input
           id="roster_period"
@@ -268,50 +274,50 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
           placeholder="Select start and end dates first"
           readOnly
           disabled
-          className="cursor-not-allowed bg-gray-100"
+          className="bg-muted cursor-not-allowed"
           aria-required={true}
           aria-describedby="roster_period_help roster_period_error"
         />
         {errors.roster_period && (
-          <p id="roster_period_error" className="mt-1 text-sm text-red-600" role="alert">
+          <p id="roster_period_error" className="text-destructive text-xs font-medium" role="alert">
             {errors.roster_period.message}
           </p>
         )}
         {affectedRosterPeriods.length > 0 && (
-          <div className="mt-2 rounded-lg border border-cyan-200 bg-cyan-50 p-3">
-            <p className="mb-2 text-xs font-semibold text-cyan-900">
-              {affectedRosterPeriods.length === 1 ? '📅 Roster Period:' : '📅 Affected Roster Periods:'}
+          <div className="border-accent/20 bg-accent/5 rounded-lg border p-3">
+            <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
+              {affectedRosterPeriods.length === 1 ? 'Roster Period' : 'Affected Roster Periods'}
             </p>
             <div className="space-y-1">
               {affectedRosterPeriods.map((period) => (
-                <p key={period.code} className="text-sm font-medium text-cyan-900">
+                <p key={period.code} className="text-foreground text-sm font-medium">
                   {formatRosterPeriodFromObject(period)}
                 </p>
               ))}
             </div>
             {affectedRosterPeriods.length > 1 && (
-              <p className="mt-2 text-xs text-cyan-700">
-                ⚠️ This leave request spans {affectedRosterPeriods.length} roster periods
+              <p className="text-muted-foreground mt-2 text-xs">
+                This leave request spans {affectedRosterPeriods.length} roster periods
               </p>
             )}
             {affectedRosterPeriods.length === 1 && (
-              <p className="mt-2 text-xs text-cyan-700">
-                This roster period is automatically calculated from your dates
+              <p className="text-muted-foreground mt-2 text-xs">
+                Automatically calculated from your dates
               </p>
             )}
           </div>
         )}
         {affectedRosterPeriods.length === 0 && (
-          <p id="roster_period_help" className="mt-1 text-xs text-gray-500">
+          <p id="roster_period_help" className="text-muted-foreground text-xs">
             The roster period(s) will be automatically calculated when you select dates
           </p>
         )}
       </div>
 
       {/* Reason (Optional) */}
-      <div>
-        <label htmlFor="reason" className="mb-2 block text-sm font-medium text-gray-700">
-          Reason <span className="text-gray-400">(Optional)</span>
+      <div className="space-y-1.5">
+        <label htmlFor="reason" className="text-foreground text-sm font-medium">
+          Reason <span className="text-muted-foreground text-xs">(Optional)</span>
         </label>
         <Textarea
           id="reason"
@@ -325,18 +331,18 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
           aria-describedby="reason_error"
         />
         {errors.reason && (
-          <p id="reason_error" className="mt-1 text-sm text-red-600" role="alert">
+          <p id="reason_error" className="text-destructive text-xs font-medium" role="alert">
             {errors.reason.message}
           </p>
         )}
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex items-center justify-end space-x-4 border-t pt-6">
+      <div className="border-border flex items-center justify-end gap-3 border-t pt-5">
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          className="border-border bg-background text-foreground hover:bg-muted h-9 rounded-lg border px-4 text-sm font-medium transition-colors duration-200"
           disabled={isSubmitting}
         >
           Cancel

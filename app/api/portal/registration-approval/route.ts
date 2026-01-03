@@ -21,47 +21,19 @@ import {
 } from '@/lib/services/pilot-portal-service'
 import { RegistrationApprovalSchema } from '@/lib/validations/pilot-portal-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
-
-/**
- * Verify admin role middleware
- */
-async function verifyAdmin() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    return { authorized: false, user: null }
-  }
-
-  const { data: userData, error: userError } = await supabase
-    .from('an_users')
-    .select('id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (userError || !userData || userData.role !== 'admin') {
-    return { authorized: false, user: null }
-  }
-
-  return { authorized: true, user: userData }
-}
 
 /**
  * GET - Get pending registrations (admin only)
  */
 export async function GET(_request: NextRequest) {
   try {
-    // Verify admin
-    const { authorized } = await verifyAdmin()
-    if (!authorized) {
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.FORBIDDEN, 403), { status: 403 })
     }
 
@@ -107,9 +79,9 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       return csrfError
     }
 
-    // Verify admin
-    const { authorized, user } = await verifyAdmin()
-    if (!authorized || !user) {
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.FORBIDDEN, 403), { status: 403 })
     }
 
@@ -144,7 +116,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     }
 
     // Review registration
-    const result = await reviewPilotRegistration(registrationId, validation.data, user.id)
+    const result = await reviewPilotRegistration(registrationId, validation.data, auth.userId!)
 
     if (!result.success) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.PORTAL.APPROVAL_FAILED, 500), {

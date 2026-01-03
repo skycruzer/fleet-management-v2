@@ -174,13 +174,11 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
   }
 
   const handleSubmit = async (data: QuickEntryFormInput) => {
-    console.log('🚀 handleSubmit called with data:', data)
     setIsSubmitting(true)
 
     try {
       // Get selected pilot details
       const selectedPilot = pilots.find((p) => p.id === data.pilot_id)
-      console.log('👤 Selected pilot:', selectedPilot)
 
       if (!selectedPilot) {
         throw new Error('Selected pilot not found')
@@ -193,8 +191,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         rank: selectedPilot.role,
         name: `${selectedPilot.first_name} ${selectedPilot.last_name}`,
         request_category: data.request_category,
-        request_type:
-          data.request_category === 'LEAVE' ? data.leave_type : data.flight_type,
+        request_type: data.request_category === 'LEAVE' ? data.leave_type : data.flight_type,
         submission_channel: data.submission_channel,
         start_date: data.start_date,
         end_date: data.end_date || data.start_date,
@@ -202,9 +199,6 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         notes: data.notes,
         source_reference: data.source_reference,
       }
-
-      console.log('📦 Request payload:', payload)
-      console.log('🌐 Sending POST to /api/requests...')
 
       const response = await fetch('/api/requests', {
         method: 'POST',
@@ -214,14 +208,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         body: JSON.stringify(payload),
       })
 
-      console.log('📥 Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      })
-
       const result = await response.json()
-      console.log('📄 Response body:', result)
 
       if (!response.ok) {
         console.error('❌ Request failed:', result)
@@ -232,8 +219,6 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         }
         throw new Error(result.error || 'Failed to submit request')
       }
-
-      console.log('✅ Request succeeded!')
 
       // Show success with any warnings
       let description = `${data.request_category} request successfully created for roster period ${rosterPeriod}`
@@ -266,16 +251,13 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         variant: 'destructive',
       })
     } finally {
-      console.log('🏁 Submission complete, setting isSubmitting to false')
       setIsSubmitting(false)
     }
   }
 
   const nextStep = async () => {
-    // Get current form values for debugging
+    // Get current form values
     const formValues = form.getValues()
-    console.log('🔍 Form values when clicking Next:', formValues)
-    console.log('🔍 Current step:', currentStep)
 
     // Validate specific fields based on step
     let isValid = false
@@ -283,14 +265,6 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
     if (currentStep === 1) {
       // Step 1: Check required fields manually first
       const { pilot_id, request_category, submission_channel, leave_type, flight_type } = formValues
-
-      console.log('🔍 Step 1 values:', {
-        pilot_id,
-        request_category,
-        submission_channel,
-        leave_type,
-        flight_type,
-      })
 
       // Check pilot_id
       if (!pilot_id || pilot_id.trim() === '') {
@@ -362,7 +336,9 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
 
       // End date is required for LEAVE, LEAVE_BID, and FLIGHT (RDO/SDO)
       if (
-        (request_category === 'LEAVE' || request_category === 'LEAVE_BID' || request_category === 'FLIGHT') &&
+        (request_category === 'LEAVE' ||
+          request_category === 'LEAVE_BID' ||
+          request_category === 'FLIGHT') &&
         (!end_date || end_date.trim() === '')
       ) {
         toast({
@@ -380,7 +356,6 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
     }
 
     if (isValid) {
-      console.log('✅ Validation passed, moving to next step')
       setCurrentStep((prev) => Math.min(prev + 1, 4))
     }
   }
@@ -401,12 +376,12 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         {/* Progress Indicator */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex items-center justify-between">
           {[1, 2, 3, 4].map((step) => (
-            <div key={step} className="flex items-center flex-1">
+            <div key={step} className="flex flex-1 items-center">
               <div
                 className={cn(
-                  'flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold transition-colors',
+                  'flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold transition-colors',
                   currentStep >= step
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-background text-muted-foreground border-muted'
@@ -417,7 +392,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
               {step < 4 && (
                 <div
                   className={cn(
-                    'flex-1 h-1 mx-2 transition-colors',
+                    'mx-2 h-1 flex-1 transition-colors',
                     currentStep > step ? 'bg-primary' : 'bg-muted'
                   )}
                 />
@@ -486,9 +461,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         <SelectItem value="LEAVE_BID">Leave Bid</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      Choose the category of request to submit
-                    </FormDescription>
+                    <FormDescription>Choose the category of request to submit</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -502,10 +475,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Leave Type *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || undefined}
-                      >
+                      <Select onValueChange={field.onChange} value={field.value || undefined}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select leave type..." />
@@ -519,9 +489,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                           <SelectItem value="LSL">Long Service Leave</SelectItem>
                           <SelectItem value="LWOP">Leave Without Pay</SelectItem>
                           <SelectItem value="MATERNITY">Maternity Leave</SelectItem>
-                          <SelectItem value="COMPASSIONATE">
-                            Compassionate Leave
-                          </SelectItem>
+                          <SelectItem value="COMPASSIONATE">Compassionate Leave</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -538,10 +506,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>RDO/SDO Request Type *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || undefined}
-                      >
+                      <Select onValueChange={field.onChange} value={field.value || undefined}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select flight request type..." />
@@ -578,9 +543,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         <SelectItem value="ORACLE">Oracle System</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      How was this request originally submitted?
-                    </FormDescription>
+                    <FormDescription>How was this request originally submitted?</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -597,9 +560,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                 <CalendarIcon className="h-5 w-5" />
                 Step 2: Date Selection
               </CardTitle>
-              <CardDescription>
-                Specify the start and end dates for this request
-              </CardDescription>
+              <CardDescription>Specify the start and end dates for this request</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Start Date */}
@@ -635,9 +596,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                           onSelect={(date) => {
                             field.onChange(date ? format(date, 'yyyy-MM-dd') : '')
                           }}
-                          disabled={(date) =>
-                            date < new Date(new Date().setHours(0, 0, 0, 0))
-                          }
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                           initialFocus
                         />
                       </PopoverContent>
@@ -648,7 +607,9 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
               />
 
               {/* End Date */}
-              {(selectedCategory === 'LEAVE' || selectedCategory === 'LEAVE_BID' || selectedCategory === 'FLIGHT') && (
+              {(selectedCategory === 'LEAVE' ||
+                selectedCategory === 'LEAVE_BID' ||
+                selectedCategory === 'FLIGHT') && (
                 <FormField
                   control={form.control}
                   name="end_date"
@@ -691,9 +652,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormDescription>
-                        Select date range for multi-day requests
-                      </FormDescription>
+                      <FormDescription>Select date range for multi-day requests</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -740,8 +699,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Conflicting Requests Detected</AlertTitle>
                   <AlertDescription>
-                    This pilot has {conflictWarning.conflicts.length} existing request(s)
-                    for overlapping dates. Review before submitting.
+                    This pilot has {conflictWarning.conflicts.length} existing request(s) for
+                    overlapping dates. Review before submitting.
                   </AlertDescription>
                 </Alert>
               )}
@@ -757,9 +716,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                 <FileText className="h-5 w-5" />
                 Step 3: Additional Details
               </CardTitle>
-              <CardDescription>
-                Provide additional context and source information
-              </CardDescription>
+              <CardDescription>Provide additional context and source information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Reason */}
@@ -777,9 +734,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         value={field.value || ''}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Optional explanation provided by the pilot
-                    </FormDescription>
+                    <FormDescription>Optional explanation provided by the pilot</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -799,9 +754,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         value={field.value || ''}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Reference number from the original submission
-                    </FormDescription>
+                    <FormDescription>Reference number from the original submission</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -822,9 +775,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         value={field.value || ''}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Internal notes for admin reference only
-                    </FormDescription>
+                    <FormDescription>Internal notes for admin reference only</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -841,21 +792,17 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                 <CheckCircle2 className="h-5 w-5" />
                 Step 4: Review & Submit
               </CardTitle>
-              <CardDescription>
-                Review the request details before submitting
-              </CardDescription>
+              <CardDescription>Review the request details before submitting</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Pilot Info */}
               <div>
-                <h4 className="font-semibold mb-2">Pilot Information</h4>
+                <h4 className="mb-2 font-semibold">Pilot Information</h4>
                 <div className="space-y-1 text-sm">
                   <p>
                     <span className="text-muted-foreground">Name:</span>{' '}
                     {getSelectedPilot()?.first_name}{' '}
-                    {getSelectedPilot()?.middle_name
-                      ? `${getSelectedPilot()?.middle_name} `
-                      : ''}
+                    {getSelectedPilot()?.middle_name ? `${getSelectedPilot()?.middle_name} ` : ''}
                     {getSelectedPilot()?.last_name}
                   </p>
                   <p>
@@ -863,8 +810,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                     {getSelectedPilot()?.employee_id}
                   </p>
                   <p>
-                    <span className="text-muted-foreground">Role:</span>{' '}
-                    {getSelectedPilot()?.role}
+                    <span className="text-muted-foreground">Role:</span> {getSelectedPilot()?.role}
                   </p>
                 </div>
               </div>
@@ -873,7 +819,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
 
               {/* Request Details */}
               <div>
-                <h4 className="font-semibold mb-2">Request Details</h4>
+                <h4 className="mb-2 font-semibold">Request Details</h4>
                 <div className="space-y-1 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">Category:</span>
@@ -887,9 +833,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                   </p>
                   <p>
                     <span className="text-muted-foreground">Start Date:</span>{' '}
-                    {selectedStartDate
-                      ? format(new Date(selectedStartDate), 'PPP')
-                      : 'N/A'}
+                    {selectedStartDate ? format(new Date(selectedStartDate), 'PPP') : 'N/A'}
                   </p>
                   {selectedEndDate && (
                     <p>
@@ -909,11 +853,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground">Status:</span>
                       <Badge
-                        variant={
-                          deadlineStatus.status === 'on-time'
-                            ? 'default'
-                            : 'destructive'
-                        }
+                        variant={deadlineStatus.status === 'on-time' ? 'default' : 'destructive'}
                       >
                         {deadlineStatus.status === 'on-time' ? 'On-Time' : 'Late'}
                       </Badge>
@@ -926,10 +866,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                 <>
                   <Separator />
                   <div>
-                    <h4 className="font-semibold mb-2">Reason</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {form.getValues('reason')}
-                    </p>
+                    <h4 className="mb-2 font-semibold">Reason</h4>
+                    <p className="text-muted-foreground text-sm">{form.getValues('reason')}</p>
                   </div>
                 </>
               )}
@@ -938,8 +876,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                 <>
                   <Separator />
                   <div>
-                    <h4 className="font-semibold mb-2">Source Reference</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <h4 className="mb-2 font-semibold">Source Reference</h4>
+                    <p className="text-muted-foreground text-sm">
                       {form.getValues('source_reference')}
                     </p>
                   </div>
@@ -951,8 +889,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Warning: Conflicting Requests</AlertTitle>
                   <AlertDescription>
-                    This pilot has {conflictWarning.conflicts.length} existing request(s)
-                    for overlapping dates. Proceeding will require manual review.
+                    This pilot has {conflictWarning.conflicts.length} existing request(s) for
+                    overlapping dates. Proceeding will require manual review.
                   </AlertDescription>
                 </Alert>
               )}

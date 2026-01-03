@@ -6,23 +6,19 @@
  * Server actions for admin approval/denial of leave requests.
  * Author: Maurice Rondeau
  *
- * @version 1.0.0
+ * @version 1.1.0
+ * @updated 2025-12-29 - Added dual auth support
  */
 
 import { revalidatePath } from 'next/cache'
 import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 
 export async function approveLeaveRequest(requestId: string, comments?: string) {
   try {
-    // Get authenticated admin user
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // Get authenticated admin user (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return {
         success: false,
         error: 'Unauthorized - Admin login required',
@@ -30,7 +26,7 @@ export async function approveLeaveRequest(requestId: string, comments?: string) 
     }
 
     // Update status via service layer
-    const result = await updateLeaveRequestStatus(requestId, 'APPROVED', user.id, comments)
+    const result = await updateLeaveRequestStatus(requestId, 'APPROVED', auth.userId!, comments)
 
     if (!result.success) {
       return {
@@ -60,14 +56,9 @@ export async function approveLeaveRequest(requestId: string, comments?: string) 
 
 export async function denyLeaveRequest(requestId: string, comments?: string) {
   try {
-    // Get authenticated admin user
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    // Get authenticated admin user (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return {
         success: false,
         error: 'Unauthorized - Admin login required',
@@ -83,7 +74,7 @@ export async function denyLeaveRequest(requestId: string, comments?: string) {
     }
 
     // Update status via service layer
-    const result = await updateLeaveRequestStatus(requestId, 'DENIED', user.id, comments)
+    const result = await updateLeaveRequestStatus(requestId, 'DENIED', auth.userId!, comments)
 
     if (!result.success) {
       return {

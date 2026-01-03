@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import {
   getAllFeedback,
   getFeedbackStats,
@@ -34,16 +34,9 @@ import {
  */
 export async function GET(request: NextRequest) {
   try {
-    console.log('🌐 [API GET /api/feedback] Request received')
-
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      console.error('❌ [API] Unauthorized access attempt')
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 

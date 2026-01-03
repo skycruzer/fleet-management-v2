@@ -94,18 +94,18 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Error Alert */}
       <FormErrorAlert error={error} onDismiss={resetError} />
 
       {/* Request Type */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-gray-700">
-          Request Type <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label className="text-foreground text-sm font-medium">
+          Request Type <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <select
           {...register('request_type')}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-primary"
+          className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
         >
           <option value="ADDITIONAL_FLIGHT">Additional Flight</option>
           <option value="ROUTE_CHANGE">Route Change</option>
@@ -113,9 +113,9 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
           <option value="PICKUP_REQUEST">Pickup Request</option>
         </select>
         {errors.request_type && (
-          <p className="mt-1 text-sm text-red-600">{errors.request_type.message}</p>
+          <p className="text-destructive text-xs font-medium">{errors.request_type.message}</p>
         )}
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="text-muted-foreground text-xs">
           {requestType === 'ADDITIONAL_FLIGHT' &&
             'Request to operate additional flights beyond your current schedule'}
           {requestType === 'ROUTE_CHANGE' && 'Request to change routes or destinations'}
@@ -125,9 +125,9 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
       </div>
 
       {/* Flight Date */}
-      <div>
-        <label htmlFor="flight_date" className="mb-2 block text-sm font-medium text-gray-700">
-          Flight Date <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label htmlFor="flight_date" className="text-foreground text-sm font-medium">
+          Flight Date <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <Input
           id="flight_date"
@@ -140,11 +140,11 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
           aria-describedby="flight_date_help flight_date_error"
         />
         {errors.flight_date && (
-          <p id="flight_date_error" className="mt-1 text-sm text-red-600" role="alert">
+          <p id="flight_date_error" className="text-destructive text-xs font-medium" role="alert">
             {errors.flight_date.message}
           </p>
         )}
-        <p id="flight_date_help" className="mt-1 text-xs text-gray-500">
+        <p id="flight_date_help" className="text-muted-foreground text-xs">
           {requestType === 'SCHEDULE_PREFERENCE'
             ? 'Approximate date or start of preferred period'
             : 'Date of the requested flight or change'}
@@ -152,11 +152,11 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
       </div>
 
       {/* Optional Flight Details */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Route */}
-        <div>
-          <label htmlFor="route" className="mb-2 block text-sm font-medium text-gray-700">
-            Route <span className="text-gray-400">(Optional)</span>
+        <div className="space-y-1.5">
+          <label htmlFor="route" className="text-foreground text-sm font-medium">
+            Route <span className="text-muted-foreground text-xs">(Optional)</span>
           </label>
           <Input
             id="route"
@@ -168,16 +168,16 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
             aria-describedby="route_error"
           />
           {errors.route && (
-            <p id="route_error" className="mt-1 text-sm text-red-600" role="alert">
+            <p id="route_error" className="text-destructive text-xs font-medium" role="alert">
               {errors.route.message}
             </p>
           )}
         </div>
 
         {/* Flight Number */}
-        <div>
-          <label htmlFor="flight_number" className="mb-2 block text-sm font-medium text-gray-700">
-            Flight Number <span className="text-gray-400">(Optional)</span>
+        <div className="space-y-1.5">
+          <label htmlFor="flight_number" className="text-foreground text-sm font-medium">
+            Flight Number <span className="text-muted-foreground text-xs">(Optional)</span>
           </label>
           <Input
             id="flight_number"
@@ -189,7 +189,11 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
             aria-describedby="flight_number_error"
           />
           {errors.flight_number && (
-            <p id="flight_number_error" className="mt-1 text-sm text-red-600" role="alert">
+            <p
+              id="flight_number_error"
+              className="text-destructive text-xs font-medium"
+              role="alert"
+            >
               {errors.flight_number.message}
             </p>
           )}
@@ -197,9 +201,9 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
       </div>
 
       {/* Description */}
-      <div>
-        <label htmlFor="description" className="mb-2 block text-sm font-medium text-gray-700">
-          Description <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label htmlFor="description" className="text-foreground text-sm font-medium">
+          Description <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <Textarea
           id="description"
@@ -220,19 +224,19 @@ Examples:
           aria-describedby="description_help description_error"
         />
         {errors.description && (
-          <p id="description_error" className="mt-1 text-sm text-red-600" role="alert">
+          <p id="description_error" className="text-destructive text-xs font-medium" role="alert">
             {errors.description.message}
           </p>
         )}
-        <p id="description_help" className="mt-1 text-xs text-gray-500">
+        <p id="description_help" className="text-muted-foreground text-xs">
           Provide as much detail as possible to help fleet management review your request.
         </p>
       </div>
 
       {/* Reason (Optional) */}
-      <div>
-        <label htmlFor="reason" className="mb-2 block text-sm font-medium text-gray-700">
-          Additional Comments <span className="text-gray-400">(Optional)</span>
+      <div className="space-y-1.5">
+        <label htmlFor="reason" className="text-foreground text-sm font-medium">
+          Additional Comments <span className="text-muted-foreground text-xs">(Optional)</span>
         </label>
         <Textarea
           id="reason"
@@ -246,18 +250,18 @@ Examples:
           aria-describedby="reason_error"
         />
         {errors.reason && (
-          <p id="reason_error" className="mt-1 text-sm text-red-600" role="alert">
+          <p id="reason_error" className="text-destructive text-xs font-medium" role="alert">
             {errors.reason.message}
           </p>
         )}
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex items-center justify-end space-x-4 border-t pt-6">
+      <div className="border-border flex items-center justify-end gap-3 border-t pt-5">
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          className="border-border bg-background text-foreground hover:bg-muted h-9 rounded-lg border px-4 text-sm font-medium transition-colors duration-200"
           disabled={isSubmitting}
         >
           Cancel

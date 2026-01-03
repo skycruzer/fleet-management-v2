@@ -14,7 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { getPilots, createPilot } from '@/lib/services/pilot-service'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
@@ -26,13 +26,10 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  */
 export async function GET(_request: NextRequest) {
   try {
-    // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
 
-    if (!user) {
+    if (!auth.authenticated) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
         status: 401,
       })
@@ -77,13 +74,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       return csrfError
     }
 
-    // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    // Check authentication (supports both Supabase Auth and admin-session cookie)
+    const auth = await getAuthenticatedAdmin()
 
-    if (!user) {
+    if (!auth.authenticated) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
         status: 401,
       })

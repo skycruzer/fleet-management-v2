@@ -158,7 +158,6 @@ export default function CertificationsPage() {
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (!document.hidden) {
-        console.log('🔄 [VISIBILITY] Certifications page visible - refreshing data')
         try {
           const response = await fetch('/api/certifications')
           if (response.ok) {
@@ -390,7 +389,9 @@ export default function CertificationsPage() {
       <div className="space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-foreground text-2xl font-bold">Certifications</h2>
+            <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+              Certifications
+            </h1>
             <p className="text-muted-foreground mt-1 text-sm">Error loading certifications</p>
           </div>
         </div>
@@ -411,10 +412,12 @@ export default function CertificationsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {/* Page Header - Linear-inspired: compact, clean */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-2xl font-bold">Certifications</h2>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+            Certifications
+          </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Manage pilot certifications and track expiry dates
           </p>

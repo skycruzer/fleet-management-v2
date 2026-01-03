@@ -7,8 +7,8 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { generateReport, generatePDF } from '@/lib/services/reports-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportExportRequestSchema } from '@/lib/validations/reports-schema'
@@ -22,13 +22,8 @@ const rateLimit = authRateLimit
 export async function POST(request: Request) {
   try {
     // Authentication check
-    const supabase = await createClient()
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       log?.warn('Unauthorized PDF export attempt', {
         ip: request.headers.get('x-forwarded-for'),
         timestamp: new Date().toISOString(),
@@ -40,13 +35,13 @@ export async function POST(request: Request) {
     }
 
     // Rate limiting (stricter for PDF generation - more resource intensive)
-    const identifier = user.id
+    const identifier = auth.userId!
     const { success: rateLimitSuccess } = await rateLimit.limit(identifier)
 
     if (!rateLimitSuccess) {
       log?.warn('Rate limit exceeded for PDF export', {
-        userId: user.id,
-        email: user.email,
+        userId: auth.userId!,
+        email: auth.email,
         timestamp: new Date().toISOString(),
       })
       return NextResponse.json(
@@ -67,7 +62,7 @@ export async function POST(request: Request) {
       }))
 
       log?.warn('PDF export validation failed', {
-        userId: user.id,
+        userId: auth.userId!,
         errors,
         body,
         timestamp: new Date().toISOString(),
@@ -86,8 +81,8 @@ export async function POST(request: Request) {
     const { reportType, filters } = validationResult.data
 
     log?.info('PDF export requested', {
-      userId: user.id,
-      email: user.email,
+      userId: auth.userId!,
+      email: auth.email,
       reportType,
       filterCount: filters ? Object.keys(filters).length : 0,
       timestamp: new Date().toISOString(),
@@ -97,7 +92,7 @@ export async function POST(request: Request) {
 
     // Generate report data with fullExport=true and user context
     // Use empty object if filters is undefined
-    const report = await generateReport(reportType, filters ?? {}, true, user.email || user.id)
+    const report = await generateReport(reportType, filters ?? {}, true, auth.email || auth.userId!)
 
     // Generate PDF
     const pdfBuffer = await generatePDF(report, reportType)
@@ -105,7 +100,7 @@ export async function POST(request: Request) {
     const executionTime = Date.now() - startTime
 
     log?.info('PDF export generated successfully', {
-      userId: user.id,
+      userId: auth.userId!,
       reportType,
       resultCount: report.data.length,
       pdfSize: pdfBuffer.length,

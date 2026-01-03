@@ -13,26 +13,24 @@ import {
   getSuccessionReadinessScore,
 } from '@/lib/services/succession-planning-service'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { NextRequest, NextResponse } from 'next/server'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check role (Admin/Manager only for succession planning)
+    const supabase = await createClient()
     const { data: userData, error: userError } = await supabase
       .from('an_users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', auth.userId!)
       .single()
 
     if (userError || !userData) {

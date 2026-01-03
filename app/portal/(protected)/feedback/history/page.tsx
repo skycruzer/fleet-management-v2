@@ -12,7 +12,7 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -38,11 +38,8 @@ export default function FeedbackHistoryPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>('')
 
-  useEffect(() => {
-    fetchFeedbackHistory()
-  }, [])
-
-  const fetchFeedbackHistory = async () => {
+  // Define fetchFeedbackHistory with useCallback before it's used in effect
+  const fetchFeedbackHistory = useCallback(async () => {
     try {
       const response = await fetch('/api/portal/feedback')
       const result = await response.json()
@@ -60,7 +57,13 @@ export default function FeedbackHistoryPage() {
       setError('An unexpected error occurred')
       setIsLoading(false)
     }
-  }
+  }, [])
+
+  // Fetch feedback on mount
+  useEffect(() => {
+    fetchFeedbackHistory()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const getStatusBadge = (status?: string | null) => {
     switch (status) {

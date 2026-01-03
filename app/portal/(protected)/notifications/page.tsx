@@ -35,27 +35,27 @@ export default function NotificationsPage() {
   const [markingAllAsRead, setMarkingAllAsRead] = useState(false)
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('/api/portal/notifications')
+        const result = await response.json()
+
+        if (!response.ok || !result.success) {
+          setError(result.error || 'Failed to fetch notifications')
+          setIsLoading(false)
+          return
+        }
+
+        setNotifications(result.data || [])
+        setIsLoading(false)
+      } catch {
+        setError('An unexpected error occurred')
+        setIsLoading(false)
+      }
+    }
+
     fetchNotifications()
   }, [])
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch('/api/portal/notifications')
-      const result = await response.json()
-
-      if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to fetch notifications')
-        setIsLoading(false)
-        return
-      }
-
-      setNotifications(result.data || [])
-      setIsLoading(false)
-    } catch (err) {
-      setError('An unexpected error occurred')
-      setIsLoading(false)
-    }
-  }
 
   const markAsRead = async (notificationId: string) => {
     setMarkingAsReadId(notificationId)

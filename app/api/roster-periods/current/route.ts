@@ -18,7 +18,7 @@ import {
   parseRosterPeriodCode,
   ensureRosterPeriodsExist,
 } from '@/lib/services/roster-period-service'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { authRateLimit, getClientIp } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -41,12 +41,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Check authentication
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
         status: 401,
       })

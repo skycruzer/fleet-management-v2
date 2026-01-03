@@ -1,0 +1,100 @@
+{
+  "memories": [
+    {
+      "type": "credential",
+      "content": "Test credentials - Admin: skycruzer@icloud.com / mron2393 | Pilot portal: mrondeau@airniugini.com.pg (requires registration in pilot_users table)",
+      "added_at": "2025-12-19T17:18:53.142688"
+    },
+    {
+      "type": "architecture",
+      "content": "Architecture Dec 2025: unified-request-service handles all requests. Cache invalidation helper (lib/services/cache-invalidation-helper.ts) handles 3-layer cache: Next.js SSR, Redis, in-memory. Always call invalidateAfterMutation() after DB mutations.",
+      "added_at": "2025-12-19T19:46:56.781932"
+    },
+    {
+      "type": "convention",
+      "content": "Use workflow_status (not status) for pilot_requests. Service layer pattern: all DB ops through lib/services/, never direct Supabase calls. Add revalidatePath() after mutations in API routes.",
+      "added_at": "2025-12-19T15:05:39.234514"
+    },
+    {
+      "type": "preference",
+      "content": "User prefers autonomous execution after approval. Add developer attribution (Maurice Rondeau) to files. Prefers inline table editing over popup dialogs for CRUD operations.",
+      "added_at": "2025-12-19T15:46:30.000746"
+    },
+    {
+      "type": "tech_note",
+      "content": "Hydration warnings on login pages caused by password manager extensions adding tabindex - use suppressHydrationWarning. React Hook Form Select components must use value= (not defaultValue=) for controlled behavior.",
+      "added_at": "2025-12-19T19:56:54.065951"
+    }
+  ],
+  "manual_memories": [],
+  "realtime_memories": [
+    {
+      "type": "claude_response",
+      "content": "Inline editing implemented. Test at http://localhost:3000/dashboard/certifications - click Edit on any row.",
+      "added_at": "2025-12-19T20:37:29.834804",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "message",
+      "content": "certifications are still not getting updated in real time through pilot edit page or certifications page",
+      "added_at": "2025-12-19T20:37:29.834818",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "claude_response",
+      "content": "`★ Insight ─────────────────────────────────────`\n**Three cache layers need invalidation**:\n1. **CSRF token** - Required for mutation security\n2. **TanStack Query** - Client-side data cache (`queryCli",
+      "added_at": "2025-12-19T20:43:36.494769",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "message",
+      "content": "the views gets updated after sometime and not instantly. i want all updates to be instant",
+      "added_at": "2025-12-19T20:43:36.494788",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "message",
+      "content": "remove check date from the certifications and from the prject. we only track the expiries",
+      "added_at": "2025-12-19T20:52:54.524503",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "message",
+      "content": "review my agents and suggest which ones i need and which ones i don'tr need",
+      "added_at": "2025-12-19T20:57:15.197583",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "claude_response",
+      "content": "Done. Your cleaned up setup:\n\n**Agents (1):**\n- `apple-engineer.md` - iOS/Swift development\n\n**Skills (5):**\n- `auto-agent-selector.md` - Task routing\n- `design-guide/` - UI/UX system\n- `idea-validato",
+      "added_at": "2025-12-19T21:00:38.965643",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "message",
+      "content": "what about the plugins?",
+      "added_at": "2025-12-19T21:00:38.965656",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "message",
+      "content": "are we done?",
+      "added_at": "2025-12-19T21:04:08.439794",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "claude_response",
+      "content": "Yes. Completion_date removed from all certification forms, tables, validations, and exports. Build passes. Database column retained for historical data.",
+      "added_at": "2025-12-19T21:04:25.217268",
+      "source": "realtime_capture"
+    },
+    {
+      "type": "message",
+      "content": "<bash-notification> <shell-id>bd62520</shell-id> <output-file>/tmp/claude/-Users-skycruzer-Desktop-fleet-management-v2/tasks/bd62520.output</output-file> <status>failed</status> <summary>Background co",
+      "added_at": "2025-12-19T21:04:25.217284",
+      "source": "realtime_capture"
+    }
+  ],
+  "created_at": "2025-12-19T15:05:39.234413",
+  "updated_at": "2025-12-19T21:04:25.217285"
+}

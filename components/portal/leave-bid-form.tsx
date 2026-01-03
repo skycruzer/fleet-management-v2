@@ -13,7 +13,7 @@
  * @updated 2025-10-27 - Added developer attribution
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -46,11 +46,11 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
   const currentYear = new Date().getFullYear()
   const [bidYear, setBidYear] = useState<number>(initialData?.bid_year || currentYear + 1)
   const [options, setOptions] = useState<LeaveBidOption[]>(
-    initialData?.options.map(opt => ({
+    initialData?.options.map((opt) => ({
       priority: opt.priority,
       start_date: opt.start_date,
       end_date: opt.end_date,
-      roster_periods: []
+      roster_periods: [],
     })) || [
       { priority: 1, start_date: '', end_date: '', roster_periods: [] },
       { priority: 2, start_date: '', end_date: '', roster_periods: [] },
@@ -65,8 +65,19 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
   // Generate year options (next year and up to 2 years ahead)
   const yearOptions = [currentYear + 1, currentYear + 2]
 
-  // Calculate roster periods when dates change
-  useEffect(() => {
+  // Create a stable dependency key for date changes
+  const optionDatesKey = useMemo(
+    () => options.map((o) => `${o.start_date}-${o.end_date}`).join('|'),
+    [options]
+  )
+
+  // Track previous dates key to detect changes during render (React Compiler pattern)
+  const [prevDatesKey, setPrevDatesKey] = useState(optionDatesKey)
+
+  // Calculate roster periods when dates change - using render-time comparison
+  if (optionDatesKey !== prevDatesKey) {
+    setPrevDatesKey(optionDatesKey)
+
     const updatedOptions = options.map((opt) => {
       if (opt.start_date && opt.end_date) {
         try {
@@ -78,7 +89,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
             ...opt,
             roster_periods: affectedPeriods.map((p) => p.code),
           }
-        } catch (error) {
+        } catch {
           return { ...opt, roster_periods: [] }
         }
       }
@@ -95,7 +106,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
     if (hasChanged) {
       setOptions(updatedOptions)
     }
-  }, [options.map((o) => `${o.start_date}-${o.end_date}`).join('|')])
+  }
 
   const updateOption = (priority: number, field: 'start_date' | 'end_date', value: string) => {
     setOptions((prev) =>
@@ -159,9 +170,10 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
       // Filter out empty options
       const filledOptions = options.filter((opt) => opt.start_date && opt.end_date)
 
-      const url = isEdit && initialData?.id
-        ? `/api/portal/leave-bids?id=${initialData.id}`
-        : '/api/portal/leave-bids'
+      const url =
+        isEdit && initialData?.id
+          ? `/api/portal/leave-bids?id=${initialData.id}`
+          : '/api/portal/leave-bids'
       const method = isEdit ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
@@ -214,206 +226,202 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
 
   const getPriorityColor = (priority: number): string => {
     const colors = [
-      'border-cyan-300 bg-cyan-50',
-      'border-blue-300 bg-blue-50',
-      'border-indigo-300 bg-indigo-50',
-      'border-purple-300 bg-purple-50',
+      'border-accent/30 bg-accent/5',
+      'border-accent/25 bg-accent/[0.03]',
+      'border-border bg-muted/30',
+      'border-border bg-muted/20',
     ]
-    return colors[priority - 1] || 'border-gray-300 bg-gray-50'
+    return colors[priority - 1] || 'border-border bg-muted/10'
   }
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Year Selection */}
-          <div>
-            <label htmlFor="bid-year" className="mb-2 block text-sm font-medium text-gray-700">
-              Select Year for Leave Bid
-            </label>
-            <select
-              id="bid-year"
-              value={bidYear}
-              onChange={(e) => {
-                setBidYear(Number(e.target.value))
-                // Reset dates when changing year
-                setOptions([
-                  { priority: 1, start_date: '', end_date: '', roster_periods: [] },
-                  { priority: 2, start_date: '', end_date: '', roster_periods: [] },
-                  { priority: 3, start_date: '', end_date: '', roster_periods: [] },
-                  { priority: 4, start_date: '', end_date: '', roster_periods: [] },
-                ])
-              }}
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            >
-              {yearOptions.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-xs text-gray-500">
-              Choose which year you want to submit your leave bid for
-            </p>
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Year Selection */}
+        <div className="space-y-1.5">
+          <label htmlFor="bid-year" className="text-foreground text-sm font-medium">
+            Select Year for Leave Bid
+          </label>
+          <select
+            id="bid-year"
+            value={bidYear}
+            onChange={(e) => {
+              setBidYear(Number(e.target.value))
+              // Reset dates when changing year
+              setOptions([
+                { priority: 1, start_date: '', end_date: '', roster_periods: [] },
+                { priority: 2, start_date: '', end_date: '', roster_periods: [] },
+                { priority: 3, start_date: '', end_date: '', roster_periods: [] },
+                { priority: 4, start_date: '', end_date: '', roster_periods: [] },
+              ])
+            }}
+            className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-200 focus:ring-2 focus:outline-none"
+          >
+            {yearOptions.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+          <p className="text-muted-foreground text-xs">
+            Choose which year you want to submit your leave bid for
+          </p>
+        </div>
 
-          {/* Instructions */}
-          <Alert className="border-cyan-200 bg-cyan-50">
-            <AlertDescription className="text-sm text-cyan-900">
-              Select up to 4 preferred leave periods in order of preference. At least one option is
-              required. All dates must be in {bidYear}.
-            </AlertDescription>
+        {/* Instructions */}
+        <Alert className="border-accent/20 bg-accent/5">
+          <AlertDescription className="text-sm">
+            Select up to 4 preferred leave periods in order of preference. At least one option is
+            required. All dates must be in {bidYear}.
+          </AlertDescription>
+        </Alert>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        {success && (
+          <Alert className="border-green-300 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">{success}</AlertDescription>
+          </Alert>
+        )}
 
-          {success && (
-            <Alert className="border-green-300 bg-green-50">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">{success}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Leave Options */}
-          <div className="space-y-4">
-            {options.map((option) => (
-              <div
-                key={option.priority}
-                className={`rounded-lg border-2 p-4 transition-all ${getPriorityColor(option.priority)}`}
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900">
-                    {getPriorityLabel(option.priority)}
-                  </h3>
-                  {(option.start_date || option.end_date) && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => clearOption(option.priority)}
-                      className="h-8 text-red-600 hover:bg-red-50 hover:text-red-700"
-                    >
-                      <Trash2 className="mr-1 h-3 w-3" />
-                      Clear
-                    </Button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {/* Start Date */}
-                  <div>
-                    <label
-                      htmlFor={`start-${option.priority}`}
-                      className="mb-2 block text-sm font-medium text-gray-700"
-                    >
-                      Start Date
-                    </label>
-                    <input
-                      type="date"
-                      id={`start-${option.priority}`}
-                      value={option.start_date}
-                      onChange={(e) => updateOption(option.priority, 'start_date', e.target.value)}
-                      className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                      min={`${bidYear}-01-01`}
-                      max={`${bidYear}-12-31`}
-                    />
-                  </div>
-
-                  {/* End Date */}
-                  <div>
-                    <label
-                      htmlFor={`end-${option.priority}`}
-                      className="mb-2 block text-sm font-medium text-gray-700"
-                    >
-                      End Date
-                    </label>
-                    <input
-                      type="date"
-                      id={`end-${option.priority}`}
-                      value={option.end_date}
-                      onChange={(e) => updateOption(option.priority, 'end_date', e.target.value)}
-                      className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                      min={option.start_date || `${bidYear}-01-01`}
-                      max={`${bidYear}-12-31`}
-                      disabled={!option.start_date}
-                    />
-                  </div>
-                </div>
-
-                {/* Date Preview with Roster Periods */}
-                {option.start_date && option.end_date && (
-                  <div className="mt-3 space-y-2 rounded-md bg-white px-3 py-2">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700">
-                        {format(new Date(option.start_date), 'MMM dd, yyyy')} -{' '}
-                        {format(new Date(option.end_date), 'MMM dd, yyyy')}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {Math.ceil(
-                          (new Date(option.end_date).getTime() -
-                            new Date(option.start_date).getTime()) /
-                            (1000 * 60 * 60 * 24)
-                        ) + 1}{' '}
-                        days
-                      </p>
-                    </div>
-                    {/* Roster Periods */}
-                    {option.roster_periods && option.roster_periods.length > 0 && (
-                      <div className="border-t border-gray-200 pt-2">
-                        <p className="text-xs font-medium text-gray-600">Roster Period(s):</p>
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {option.roster_periods.map((rp, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex rounded bg-cyan-100 px-2 py-0.5 text-xs font-semibold text-cyan-800"
-                            >
-                              {rp}
-                            </span>
-                          ))}
-                        </div>
-                        {option.roster_periods.length > 1 && (
-                          <p className="mt-1 text-xs text-orange-600">
-                            ⚠️ Spans multiple roster periods ({option.roster_periods.length})
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+        {/* Leave Options */}
+        <div className="space-y-4">
+          {options.map((option) => (
+            <div
+              key={option.priority}
+              className={`rounded-lg border p-4 transition-all duration-200 ${getPriorityColor(option.priority)}`}
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-foreground text-sm font-semibold">
+                  {getPriorityLabel(option.priority)}
+                </h3>
+                {(option.start_date || option.end_date) && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => clearOption(option.priority)}
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive h-7"
+                  >
+                    <Trash2 className="mr-1 h-3 w-3" />
+                    Clear
+                  </Button>
                 )}
               </div>
-            ))}
-          </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setOptions([
-                  { priority: 1, start_date: '', end_date: '', roster_periods: [] },
-                  { priority: 2, start_date: '', end_date: '', roster_periods: [] },
-                  { priority: 3, start_date: '', end_date: '', roster_periods: [] },
-                  { priority: 4, start_date: '', end_date: '', roster_periods: [] },
-                ])
-                setError('')
-                setSuccess('')
-              }}
-            >
-              Reset All
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Leave Bid'}
-            </Button>
-          </div>
-        </form>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {/* Start Date */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor={`start-${option.priority}`}
+                    className="text-foreground text-sm font-medium"
+                  >
+                    Start Date
+                  </label>
+                  <input
+                    type="date"
+                    id={`start-${option.priority}`}
+                    value={option.start_date}
+                    onChange={(e) => updateOption(option.priority, 'start_date', e.target.value)}
+                    className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
+                    min={`${bidYear}-01-01`}
+                    max={`${bidYear}-12-31`}
+                  />
+                </div>
+
+                {/* End Date */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor={`end-${option.priority}`}
+                    className="text-foreground text-sm font-medium"
+                  >
+                    End Date
+                  </label>
+                  <input
+                    type="date"
+                    id={`end-${option.priority}`}
+                    value={option.end_date}
+                    onChange={(e) => updateOption(option.priority, 'end_date', e.target.value)}
+                    className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    min={option.start_date || `${bidYear}-01-01`}
+                    max={`${bidYear}-12-31`}
+                    disabled={!option.start_date}
+                  />
+                </div>
+              </div>
+
+              {/* Date Preview with Roster Periods */}
+              {option.start_date && option.end_date && (
+                <div className="bg-background/80 border-border/50 mt-3 space-y-2 rounded-lg border px-3 py-2">
+                  <div>
+                    <p className="text-foreground text-sm font-medium">
+                      {format(new Date(option.start_date), 'MMM dd, yyyy')} -{' '}
+                      {format(new Date(option.end_date), 'MMM dd, yyyy')}
+                    </p>
+                    <p className="text-muted-foreground text-xs">
+                      {Math.ceil(
+                        (new Date(option.end_date).getTime() -
+                          new Date(option.start_date).getTime()) /
+                          (1000 * 60 * 60 * 24)
+                      ) + 1}{' '}
+                      days
+                    </p>
+                  </div>
+                  {/* Roster Periods */}
+                  {option.roster_periods && option.roster_periods.length > 0 && (
+                    <div className="border-border/50 border-t pt-2">
+                      <p className="text-muted-foreground text-xs font-medium">Roster Period(s):</p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {option.roster_periods.map((rp, index) => (
+                          <span
+                            key={index}
+                            className="bg-accent/10 text-accent inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                          >
+                            {rp}
+                          </span>
+                        ))}
+                      </div>
+                      {option.roster_periods.length > 1 && (
+                        <p className="text-warning mt-1 text-xs">
+                          ⚠️ Spans multiple roster periods ({option.roster_periods.length})
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Submit Button */}
+        <div className="border-border flex justify-end gap-3 border-t pt-5">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              setOptions([
+                { priority: 1, start_date: '', end_date: '', roster_periods: [] },
+                { priority: 2, start_date: '', end_date: '', roster_periods: [] },
+                { priority: 3, start_date: '', end_date: '', roster_periods: [] },
+                { priority: 4, start_date: '', end_date: '', roster_periods: [] },
+              ])
+              setError('')
+              setSuccess('')
+            }}
+          >
+            Reset All
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Submit Leave Bid'}
+          </Button>
+        </div>
+      </form>
     </div>
   )
 }

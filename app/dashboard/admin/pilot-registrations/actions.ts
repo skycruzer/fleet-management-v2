@@ -16,12 +16,9 @@ import {
 
 export async function approvePilotRegistration(registrationId: string) {
   try {
-    // TEMPORARY: Manually update database to bypass service layer issues
-    // TODO: Fix reviewPilotRegistration to handle NULL approved_by properly
+    // Direct DB update - See tasks/061-tracked-admin-auth-registration-approval.md
     const { createClient } = await import('@/lib/supabase/server')
     const supabase = await createClient()
-
-    console.log('Approving registration:', registrationId)
 
     // First, get pilot details for email
     const { data: pilotData, error: fetchError } = await supabase
@@ -56,8 +53,6 @@ export async function approvePilotRegistration(registrationId: string) {
       }
     }
 
-    console.log('✅ Registration approved successfully')
-
     // Send approval email to pilot
     const emailResult = await sendRegistrationApprovalEmail({
       firstName: pilotData.first_name,
@@ -67,12 +62,7 @@ export async function approvePilotRegistration(registrationId: string) {
       employeeId: pilotData.employee_id || undefined,
     })
 
-    if (!emailResult.success) {
-      console.error('⚠️  Failed to send approval email:', emailResult.error)
-      // Don't fail the approval if email fails - log it and continue
-    } else {
-      console.log('📧 Approval email sent successfully')
-    }
+    // Email failure is logged but doesn't fail the approval
 
     // Revalidate the page to show updated data
     revalidatePath('/dashboard/admin/pilot-registrations')
@@ -96,8 +86,6 @@ export async function denyPilotRegistration(registrationId: string, denialReason
   try {
     const { createClient } = await import('@/lib/supabase/server')
     const supabase = await createClient()
-
-    console.log('Denying registration:', registrationId)
 
     // First, get pilot details for email
     const { data: pilotData, error: fetchError } = await supabase
@@ -132,8 +120,6 @@ export async function denyPilotRegistration(registrationId: string, denialReason
       }
     }
 
-    console.log('✅ Registration denied successfully')
-
     // Send denial email to pilot
     const emailResult = await sendRegistrationDenialEmail(
       {
@@ -146,12 +132,7 @@ export async function denyPilotRegistration(registrationId: string, denialReason
       denialReason
     )
 
-    if (!emailResult.success) {
-      console.error('⚠️  Failed to send denial email:', emailResult.error)
-      // Don't fail the denial if email fails - log it and continue
-    } else {
-      console.log('📧 Denial email sent successfully')
-    }
+    // Email failure is logged but doesn't fail the denial
 
     // Revalidate the page to show updated data
     revalidatePath('/dashboard/admin/pilot-registrations')

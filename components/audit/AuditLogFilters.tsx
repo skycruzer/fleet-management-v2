@@ -34,18 +34,24 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
   const [startDate, setStartDate] = useState(currentFilters.startDate || '')
   const [endDate, setEndDate] = useState(currentFilters.endDate || '')
   const [searchQuery, setSearchQuery] = useState(currentFilters.searchQuery || '')
-  const [isExpanded, setIsExpanded] = useState(false)
 
-  // Check if any filters are active
+  // Check if any filters are active - computed from currentFilters for initial state
+  const hasActiveFiltersInitially = Boolean(
+    currentFilters.userEmail ||
+    currentFilters.tableName ||
+    currentFilters.action ||
+    currentFilters.recordId ||
+    currentFilters.startDate ||
+    currentFilters.endDate ||
+    currentFilters.searchQuery
+  )
+
+  // Initialize expanded state based on whether filters are active
+  const [isExpanded, setIsExpanded] = useState(hasActiveFiltersInitially)
+
+  // Check if any filters are active (for display purposes)
   const hasActiveFilters =
     userEmail || tableName || action || recordId || startDate || endDate || searchQuery
-
-  useEffect(() => {
-    // Auto-expand if filters are active
-    if (hasActiveFilters) {
-      setIsExpanded(true)
-    }
-  }, [hasActiveFilters])
 
   const applyFilters = () => {
     const params = new URLSearchParams(searchParams?.toString())
@@ -150,7 +156,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
                 placeholder="Filter by user email"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
@@ -168,7 +174,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={tableName}
                 onChange={(e) => setTableName(e.target.value)}
                 placeholder="Filter by table"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
@@ -184,7 +190,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 id="action"
                 value={action}
                 onChange={(e) => setAction(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
                 <option value="">All Actions</option>
                 <option value="INSERT">INSERT</option>
@@ -213,7 +219,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={recordId}
                 onChange={(e) => setRecordId(e.target.value)}
                 placeholder="Filter by record ID"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
@@ -230,7 +236,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
@@ -247,7 +253,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 id="endDate"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
@@ -265,7 +271,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search in descriptions..."
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
@@ -274,14 +280,14 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
           <div className="mt-4 flex gap-3">
             <button
               onClick={applyFilters}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
             >
               Apply Filters
             </button>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 Clear All
               </button>

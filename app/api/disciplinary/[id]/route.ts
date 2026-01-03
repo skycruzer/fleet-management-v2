@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import {
@@ -35,12 +35,8 @@ interface RouteParams {
  */
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -101,17 +97,13 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
     const csrfError = await validateCsrf(_request)
     if (csrfError) return csrfError
 
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },
@@ -198,17 +190,13 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     const csrfError = await validateCsrf(_request)
     if (csrfError) return csrfError
 
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },

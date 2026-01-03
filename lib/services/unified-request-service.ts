@@ -14,6 +14,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import {
   getRosterPeriodCodeFromDate,
   calculateRosterPeriodDates,
@@ -40,16 +41,10 @@ export type RequestCategory = 'LEAVE' | 'FLIGHT' | 'LEAVE_BID'
  * IMPORTANT: RDO and SDO are classified as FLIGHT requests (roster/schedule related)
  * NOT as leave requests. They represent rostered days off that are part of flight scheduling.
  */
-export type LeaveRequestType =
-  | 'ANNUAL'
-  | 'SICK'
-  | 'LSL'
-  | 'LWOP'
-  | 'MATERNITY'
-  | 'COMPASSIONATE'
+export type LeaveRequestType = 'ANNUAL' | 'SICK' | 'LSL' | 'LWOP' | 'MATERNITY' | 'COMPASSIONATE'
 export type FlightRequestType =
-  | 'RDO'        // Rostered Day Off (flight schedule related)
-  | 'SDO'        // Scheduled Day Off (flight schedule related)
+  | 'RDO' // Rostered Day Off (flight schedule related)
+  | 'SDO' // Scheduled Day Off (flight schedule related)
   | 'FLIGHT_REQUEST'
   | 'SCHEDULE_CHANGE'
 export type RequestType = LeaveRequestType | FlightRequestType
@@ -57,12 +52,7 @@ export type RequestType = LeaveRequestType | FlightRequestType
 /**
  * Submission channels
  */
-export type SubmissionChannel =
-  | 'PILOT_PORTAL'
-  | 'EMAIL'
-  | 'PHONE'
-  | 'ORACLE'
-  | 'ADMIN_PORTAL'
+export type SubmissionChannel = 'PILOT_PORTAL' | 'EMAIL' | 'PHONE' | 'ORACLE' | 'ADMIN_PORTAL'
 
 /**
  * Workflow status
@@ -244,7 +234,8 @@ export interface ServiceResponse<T = void> {
 export async function createPilotRequest(
   input: CreatePilotRequestInput
 ): Promise<ServiceResponse<PilotRequest>> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     // Ensure roster periods exist (auto-create if missing)
@@ -259,9 +250,7 @@ export async function createPilotRequest(
     }
 
     // Parse start date
-    console.log('🔍 Parsing start_date:', input.start_date)
     const startDate = new Date(input.start_date)
-    console.log('📅 Parsed Date object:', startDate)
     if (isNaN(startDate.getTime())) {
       return {
         success: false,
@@ -271,9 +260,7 @@ export async function createPilotRequest(
 
     // Calculate roster period from start date
     const rosterPeriodCode = getRosterPeriodCodeFromDate(startDate)
-    console.log('📍 Roster period code from date:', rosterPeriodCode)
     const parsed = parseRosterPeriodCode(rosterPeriodCode)
-    console.log('🔍 Parsed roster period:', parsed)
     if (!parsed) {
       return {
         success: false,
@@ -347,9 +334,7 @@ export async function createPilotRequest(
     const conflictResult = await detectConflicts(conflictInput)
 
     // If critical conflicts exist, prevent creation
-    const criticalConflicts = conflictResult.conflicts.filter(
-      (c) => c.severity === 'CRITICAL'
-    )
+    const criticalConflicts = conflictResult.conflicts.filter((c) => c.severity === 'CRITICAL')
 
     if (criticalConflicts.length > 0) {
       await logger.warn('Request blocked due to critical conflicts', {
@@ -475,10 +460,8 @@ export async function getAllPilotRequests(
   const supabase = await createClient()
 
   try {
-    let query = supabase
-      .from('pilot_requests')
-      .select(
-        `
+    let query = supabase.from('pilot_requests').select(
+      `
         *,
         pilot:pilots!pilot_id (
           first_name,
@@ -486,7 +469,7 @@ export async function getAllPilotRequests(
           seniority_number
         )
       `
-      )
+    )
 
     // Apply filters
     if (filters) {
@@ -572,9 +555,7 @@ export async function getAllPilotRequests(
  * @param id - Request ID
  * @returns Pilot request with joined pilot and reviewer data
  */
-export async function getPilotRequestById(
-  id: string
-): Promise<ServiceResponse<PilotRequest>> {
+export async function getPilotRequestById(id: string): Promise<ServiceResponse<PilotRequest>> {
   const supabase = await createClient()
 
   try {
@@ -643,7 +624,8 @@ export async function updateRequestStatus(
   reviewedBy: string,
   comments?: string
 ): Promise<ServiceResponse<PilotRequest>> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth verified at API layer)
+  const supabase = createAdminClient()
 
   try {
     // Validate required comments for denial
@@ -709,7 +691,8 @@ export async function updatePilotRequest(
   id: string,
   updates: UpdatePilotRequestInput
 ): Promise<ServiceResponse<PilotRequest>> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS for admin operations
+  const supabase = createAdminClient()
 
   try {
     // Build update object with only provided fields
@@ -824,18 +807,12 @@ export async function updatePilotRequest(
  * @param id - Request ID to delete
  * @returns Success/failure result
  */
-export async function deletePilotRequest(
-  id: string
-): Promise<ServiceResponse<void>> {
-  // Use service role client to bypass RLS for admin delete operations
-  const { createServiceRoleClient } = await import('@/lib/supabase/service-role')
-  const supabase = createServiceRoleClient()
+export async function deletePilotRequest(id: string): Promise<ServiceResponse<void>> {
+  // Use admin client to bypass RLS for admin delete operations
+  const supabase = createAdminClient()
 
   try {
-    const { error } = await supabase
-      .from('pilot_requests')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('pilot_requests').delete().eq('id', id)
 
     if (error) {
       await logger.error('Failed to delete pilot request', {
@@ -1017,9 +994,7 @@ export async function getAllLeaveRequests(
 /**
  * Get leave request by ID
  */
-export async function getLeaveRequestById(
-  id: string
-): Promise<ServiceResponse<LeaveRequest>> {
+export async function getLeaveRequestById(id: string): Promise<ServiceResponse<LeaveRequest>> {
   return getPilotRequestById(id)
 }
 
@@ -1087,9 +1062,7 @@ export async function updateLeaveRequestStatus(
 /**
  * Delete a leave request
  */
-export async function deleteLeaveRequest(
-  id: string
-): Promise<ServiceResponse<void>> {
+export async function deleteLeaveRequest(id: string): Promise<ServiceResponse<void>> {
   return deletePilotRequest(id)
 }
 
@@ -1108,10 +1081,12 @@ export async function getLeaveRequestStats(): Promise<ServiceResponse<LeaveReque
     success: true,
     data: {
       total: requests.length,
-      pending: requests.filter(r => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW').length,
-      approved: requests.filter(r => r.workflow_status === 'APPROVED').length,
-      denied: requests.filter(r => r.workflow_status === 'DENIED').length,
-      withdrawn: requests.filter(r => r.workflow_status === 'WITHDRAWN').length,
+      pending: requests.filter(
+        (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
+      ).length,
+      approved: requests.filter((r) => r.workflow_status === 'APPROVED').length,
+      denied: requests.filter((r) => r.workflow_status === 'DENIED').length,
+      withdrawn: requests.filter((r) => r.workflow_status === 'WITHDRAWN').length,
     },
   }
 }
@@ -1134,7 +1109,12 @@ export async function checkLeaveConflicts(
   startDate: string,
   endDate?: string | null,
   rank: 'Captain' | 'First Officer' = 'Captain'
-): Promise<ServiceResponse<{ hasConflicts: boolean; conflicts: import('@/lib/services/conflict-detection-service').Conflict[] }>> {
+): Promise<
+  ServiceResponse<{
+    hasConflicts: boolean
+    conflicts: import('@/lib/services/conflict-detection-service').Conflict[]
+  }>
+> {
   try {
     const request: RequestInput = {
       pilotId,

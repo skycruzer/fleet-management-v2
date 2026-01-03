@@ -5,14 +5,10 @@
 
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, FileText, Users, Calendar, TrendingUp, Shield, Settings } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
@@ -31,20 +27,55 @@ const searchablePages: SearchResult[] = [
 
   // Requests
   { title: 'Pilot Requests', href: '/dashboard/requests', icon: Calendar, category: 'Requests' },
-  { title: 'Leave Approval', href: '/dashboard/leave/approve', icon: FileText, category: 'Requests' },
-  { title: 'Leave Calendar', href: '/dashboard/leave/calendar', icon: Calendar, category: 'Requests' },
+  {
+    title: 'Leave Approval',
+    href: '/dashboard/leave/approve',
+    icon: FileText,
+    category: 'Requests',
+  },
+  {
+    title: 'Leave Calendar',
+    href: '/dashboard/leave/calendar',
+    icon: Calendar,
+    category: 'Requests',
+  },
 
   // Planning
-  { title: 'Renewal Planning', href: '/dashboard/renewal-planning', icon: FileText, category: 'Planning' },
-  { title: 'Calendar View', href: '/dashboard/renewal-planning/calendar', icon: Calendar, category: 'Planning' },
+  {
+    title: 'Renewal Planning',
+    href: '/dashboard/renewal-planning',
+    icon: FileText,
+    category: 'Planning',
+  },
+  {
+    title: 'Calendar View',
+    href: '/dashboard/renewal-planning/calendar',
+    icon: Calendar,
+    category: 'Planning',
+  },
   { title: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, category: 'Planning' },
 
   // Administration
   { title: 'Admin Dashboard', href: '/dashboard/admin', icon: Shield, category: 'Administration' },
   { title: 'Tasks', href: '/dashboard/tasks', icon: FileText, category: 'Administration' },
-  { title: 'Disciplinary', href: '/dashboard/disciplinary', icon: FileText, category: 'Administration' },
-  { title: 'Audit Logs', href: '/dashboard/audit-logs', icon: FileText, category: 'Administration' },
-  { title: 'Check Types', href: '/dashboard/admin/check-types', icon: FileText, category: 'Administration' },
+  {
+    title: 'Disciplinary',
+    href: '/dashboard/disciplinary',
+    icon: FileText,
+    category: 'Administration',
+  },
+  {
+    title: 'Audit Logs',
+    href: '/dashboard/audit-logs',
+    icon: FileText,
+    category: 'Administration',
+  },
+  {
+    title: 'Check Types',
+    href: '/dashboard/admin/check-types',
+    icon: FileText,
+    category: 'Administration',
+  },
 
   // Settings
   { title: 'My Settings', href: '/dashboard/settings', icon: Settings, category: 'Settings' },
@@ -53,9 +84,27 @@ const searchablePages: SearchResult[] = [
 export function GlobalSearch() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<SearchResult[]>(searchablePages)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const router = useRouter()
+
+  // Filter results based on query - pure computation, no effect needed
+  const results = useMemo(() => {
+    if (query.trim() === '') {
+      return searchablePages
+    }
+    return searchablePages.filter(
+      (page) =>
+        page.title.toLowerCase().includes(query.toLowerCase()) ||
+        page.category.toLowerCase().includes(query.toLowerCase())
+    )
+  }, [query])
+
+  // Reset selected index when results change
+  const [prevResultsLength, setPrevResultsLength] = useState(results.length)
+  if (results.length !== prevResultsLength) {
+    setPrevResultsLength(results.length)
+    setSelectedIndex(0)
+  }
 
   // Keyboard shortcut to open search (Cmd+K or Ctrl+K)
   useEffect(() => {
@@ -70,22 +119,15 @@ export function GlobalSearch() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Filter results based on query
-  useEffect(() => {
-    if (query.trim() === '') {
-      setResults(searchablePages)
-      setSelectedIndex(0)
-      return
-    }
-
-    const filtered = searchablePages.filter((page) =>
-      page.title.toLowerCase().includes(query.toLowerCase()) ||
-      page.category.toLowerCase().includes(query.toLowerCase())
-    )
-
-    setResults(filtered)
-    setSelectedIndex(0)
-  }, [query])
+  // Handle selecting a search result - defined before use in effects
+  const handleSelect = useCallback(
+    (result: SearchResult) => {
+      router.push(result.href)
+      setOpen(false)
+      setQuery('')
+    },
+    [router]
+  )
 
   // Keyboard navigation
   useEffect(() => {
@@ -106,13 +148,7 @@ export function GlobalSearch() {
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [open, selectedIndex, results])
-
-  const handleSelect = useCallback((result: SearchResult) => {
-    router.push(result.href)
-    setOpen(false)
-    setQuery('')
-  }, [router])
+  }, [open, selectedIndex, results, handleSelect])
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
@@ -123,13 +159,16 @@ export function GlobalSearch() {
   }
 
   // Group results by category
-  const groupedResults = results.reduce((acc, result) => {
-    if (!acc[result.category]) {
-      acc[result.category] = []
-    }
-    acc[result.category].push(result)
-    return acc
-  }, {} as Record<string, SearchResult[]>)
+  const groupedResults = results.reduce(
+    (acc, result) => {
+      if (!acc[result.category]) {
+        acc[result.category] = []
+      }
+      acc[result.category].push(result)
+      return acc
+    },
+    {} as Record<string, SearchResult[]>
+  )
 
   return (
     <>
@@ -140,7 +179,7 @@ export function GlobalSearch() {
       >
         <Search className="h-4 w-4" />
         <span className="flex-1 text-left">Quick search...</span>
-        <kbd className="bg-background pointer-events-none hidden rounded border px-1.5 py-0.5 text-xs font-mono sm:inline-block">
+        <kbd className="bg-background pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-xs sm:inline-block">
           ⌘K
         </kbd>
       </button>
@@ -171,7 +210,7 @@ export function GlobalSearch() {
               <div className="space-y-4">
                 {Object.entries(groupedResults).map(([category, items]) => (
                   <div key={category}>
-                    <div className="text-muted-foreground mb-2 px-2 text-xs font-semibold uppercase tracking-wider">
+                    <div className="text-muted-foreground mb-2 px-2 text-xs font-semibold tracking-wider uppercase">
                       {category}
                     </div>
                     <div className="space-y-1">
@@ -187,9 +226,7 @@ export function GlobalSearch() {
                             onMouseEnter={() => setSelectedIndex(globalIndex)}
                             className={cn(
                               'flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors',
-                              isSelected
-                                ? 'bg-primary text-primary-foreground'
-                                : 'hover:bg-muted'
+                              isSelected ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                             )}
                           >
                             <Icon className="h-4 w-4 flex-shrink-0" />

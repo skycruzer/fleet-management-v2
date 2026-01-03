@@ -19,22 +19,24 @@ import { WifiOff, Wifi, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function OfflineIndicator() {
-  const [isOnline, setIsOnline] = useState(true)
+  // Initialize with actual navigator state (only works client-side)
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  )
   const [wasOffline, setWasOffline] = useState(false)
 
   useEffect(() => {
-    // Initial check
-    setIsOnline(navigator.onLine)
-
     // Handlers for online/offline events
     const handleOnline = () => {
       setIsOnline(true)
       setWasOffline(true)
 
       // Hide the "back online" message after 5 seconds
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setWasOffline(false)
       }, 5000)
+
+      return () => clearTimeout(timeoutId)
     }
 
     const handleOffline = () => {
@@ -61,18 +63,18 @@ export function OfflineIndicator() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed top-0 left-0 right-0 z-50 bg-red-600 text-white shadow-lg"
+          className="fixed top-0 right-0 left-0 z-50 bg-red-600 text-white shadow-lg"
           role="alert"
           aria-live="assertive"
         >
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-                  <WifiOff className="w-5 h-5" />
+                <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+                  <WifiOff className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">You&apos;re Offline</p>
+                  <p className="text-sm font-semibold">You&apos;re Offline</p>
                   <p className="text-xs text-white/90">
                     Changes will be saved and synced when connection is restored
                   </p>
@@ -81,10 +83,10 @@ export function OfflineIndicator() {
 
               <button
                 onClick={() => window.location.reload()}
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20"
                 aria-label="Retry connection"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="h-4 w-4" />
                 <span className="hidden sm:inline">Retry</span>
               </button>
             </div>
@@ -99,17 +101,17 @@ export function OfflineIndicator() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed top-0 left-0 right-0 z-50 bg-green-600 text-white shadow-lg"
+          className="fixed top-0 right-0 left-0 z-50 bg-green-600 text-white shadow-lg"
           role="alert"
           aria-live="polite"
         >
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-                <Wifi className="w-5 h-5" />
+              <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+                <Wifi className="h-5 w-5" />
               </div>
               <div>
-                <p className="font-semibold text-sm">Back Online</p>
+                <p className="text-sm font-semibold">Back Online</p>
                 <p className="text-xs text-white/90">
                   Connection restored. Syncing pending changes...
                 </p>
@@ -129,11 +131,12 @@ export function OfflineIndicator() {
  * Alternative to the full banner for compact spaces.
  */
 export function OfflineBadge() {
-  const [isOnline, setIsOnline] = useState(true)
+  // Initialize with actual navigator state (only works client-side)
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator !== 'undefined' ? navigator.onLine : true
+  )
 
   useEffect(() => {
-    setIsOnline(navigator.onLine)
-
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
 
@@ -153,9 +156,9 @@ export function OfflineBadge() {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       exit={{ scale: 0 }}
-      className="flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1.5 rounded-full text-xs font-medium"
+      className="flex items-center gap-2 rounded-full bg-red-100 px-3 py-1.5 text-xs font-medium text-red-800"
     >
-      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+      <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
       <span>Offline</span>
     </motion.div>
   )

@@ -15,17 +15,19 @@ export const dynamic = 'force-dynamic'
 export default function PilotsPage() {
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {/* Page Header - Linear-inspired: compact, clean */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-2xl font-bold">Pilots</h2>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+            Pilots
+          </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Manage pilot profiles with sortable table or grouped by rank
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Link href="/dashboard/pilots/new" className="w-full sm:w-auto">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
               Add Pilot
             </Button>

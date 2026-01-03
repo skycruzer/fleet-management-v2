@@ -11,7 +11,7 @@
  * - Audit logging for compliance
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
@@ -23,20 +23,14 @@ export async function DELETE(request: NextRequest) {
     const csrfError = await validateCsrf(request)
     if (csrfError) return csrfError
 
-    const supabase = await createClient()
-
     // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 })
     }
 
     // SECURITY: Rate limiting (strict for destructive operations)
-    const { success: rateLimitSuccess } = await authRateLimit.limit(user.id)
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
     if (!rateLimitSuccess) {
       return NextResponse.json(
         { success: false, message: 'Too many requests. Please try again later.' },
@@ -46,8 +40,8 @@ export async function DELETE(request: NextRequest) {
 
     // Use service layer to handle account deletion
     const result = await deleteUserAccount({
-      userId: user.id,
-      userEmail: user.email || undefined,
+      userId: auth.userId!,
+      userEmail: auth.email || undefined,
       preserveAuditTrail: true,
       anonymizeData: true,
     })

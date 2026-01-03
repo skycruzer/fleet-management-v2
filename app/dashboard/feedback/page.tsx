@@ -5,7 +5,7 @@
 
 import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getAllFeedback, getFeedbackStats } from '@/lib/services/feedback-service'
 import { FeedbackDashboardClient } from '@/components/admin/feedback-dashboard-client'
 
@@ -15,12 +15,9 @@ export const metadata: Metadata = {
 }
 
 export default async function FeedbackAdminPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
 

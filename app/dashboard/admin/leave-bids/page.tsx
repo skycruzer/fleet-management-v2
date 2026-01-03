@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -16,16 +17,13 @@ import { LeaveBidReviewTable } from '@/components/admin/leave-bid-review-table'
 import { LeaveBidAnnualCalendar } from '@/components/admin/leave-bid-annual-calendar'
 
 export default async function AdminLeaveBidsPage() {
-  const supabase = await createClient()
-
-  // Check authentication
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
+
+  const supabase = await createClient()
 
   // Access control: Any authenticated user can access this page
   // Role-based restrictions can be added later when an_users table is populated

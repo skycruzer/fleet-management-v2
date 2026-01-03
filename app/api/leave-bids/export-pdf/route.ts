@@ -118,8 +118,6 @@ export async function GET(request: Request) {
       )
     }
 
-    console.log(`[PDF Export] Generating PDF for ${filteredBids.length} leave bids`)
-
     // Generate PDF
     const pdfBuffer = await generateLeaveBidsPDF(filteredBids, year, statusFilter)
 

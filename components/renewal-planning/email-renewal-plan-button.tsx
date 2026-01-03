@@ -73,8 +73,6 @@ export function EmailRenewalPlanButton({
         description: `Renewal plan for ${year} has been sent to the rostering team`,
         duration: 5000,
       })
-
-      console.log('Email sent:', data)
     } catch (error) {
       console.error('Error sending email:', error)
       toast.error('Network Error', {

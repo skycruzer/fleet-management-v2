@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import {
   getPilotLeaveStats,
   getPriorityRanking,
@@ -23,13 +23,9 @@ export async function GET(
   { params }: { params: Promise<{ pilotId: string; year: string }> }
 ) {
   try {
-    const supabase = await createClient()
-
     // Check authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 

@@ -21,7 +21,7 @@ import { FormErrorAlert } from '@/components/portal/form-error-alert'
 import { SubmitButton } from '@/components/portal/submit-button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { submitFeedbackAction } from '@/app/portal/feedback/actions'
+import { submitFeedbackAction } from '@/app/portal/(protected)/feedback/actions'
 
 interface PilotUser {
   id: string
@@ -98,17 +98,20 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Error Alert */}
       <FormErrorAlert error={error} onDismiss={resetError} />
 
       {/* Anonymous Toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <div className="border-border bg-muted/30 flex items-center justify-between rounded-lg border p-4">
         <div>
-          <label htmlFor="is_anonymous" className="cursor-pointer font-medium text-gray-900">
+          <label
+            htmlFor="is_anonymous"
+            className="text-foreground cursor-pointer text-sm font-medium"
+          >
             Submit Anonymously
           </label>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="text-muted-foreground mt-1 text-xs">
             {isAnonymous
               ? 'Your identity will be hidden from other pilots'
               : `Posting as ${pilotUser.rank} ${pilotUser.first_name} ${pilotUser.last_name}`}
@@ -118,19 +121,19 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
           type="checkbox"
           id="is_anonymous"
           {...register('is_anonymous')}
-          className="h-5 w-5 cursor-pointer rounded border-gray-300 text-primary focus:ring-primary"
+          className="border-border bg-background text-accent focus:ring-ring/20 h-4 w-4 cursor-pointer rounded transition-colors focus:ring-2"
         />
       </div>
 
       {/* Category */}
       {categories.length > 0 && (
-        <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Category <span className="text-gray-400">(Optional)</span>
+        <div className="space-y-1.5">
+          <label className="text-foreground text-sm font-medium">
+            Category <span className="text-muted-foreground text-xs">(Optional)</span>
           </label>
           <select
             {...register('category_id')}
-            className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-primary"
+            className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
           >
             <option value="">Select a category</option>
             {categories.map((category) => (
@@ -141,15 +144,15 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
             ))}
           </select>
           {errors.category_id && (
-            <p className="mt-1 text-sm text-red-600">{errors.category_id.message}</p>
+            <p className="text-destructive text-xs font-medium">{errors.category_id.message}</p>
           )}
         </div>
       )}
 
       {/* Title */}
-      <div>
-        <label htmlFor="title" className="mb-2 block text-sm font-medium text-gray-700">
-          Title <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label htmlFor="title" className="text-foreground text-sm font-medium">
+          Title <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <Input
           id="title"
@@ -162,16 +165,16 @@ export function FeedbackForm({ pilotUser, categories, csrfToken }: FeedbackFormP
           aria-describedby="title_error"
         />
         {errors.title && (
-          <p id="title_error" className="mt-1 text-sm text-red-600" role="alert">
+          <p id="title_error" className="text-destructive text-xs font-medium" role="alert">
             {errors.title.message}
           </p>
         )}
       </div>
 
       {/* Content */}
-      <div>
-        <label htmlFor="content" className="mb-2 block text-sm font-medium text-gray-700">
-          Feedback <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <label htmlFor="content" className="text-foreground text-sm font-medium">
+          Feedback <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
         <Textarea
           id="content"
@@ -194,21 +197,21 @@ Examples:
           aria-describedby="content_help content_error"
         />
         {errors.content && (
-          <p id="content_error" className="mt-1 text-sm text-red-600" role="alert">
+          <p id="content_error" className="text-destructive text-xs font-medium" role="alert">
             {errors.content.message}
           </p>
         )}
-        <p id="content_help" className="mt-1 text-xs text-gray-500">
+        <p id="content_help" className="text-muted-foreground text-xs">
           Be specific and constructive. Your feedback helps improve our operations.
         </p>
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex items-center justify-end space-x-4 border-t pt-6">
+      <div className="border-border flex items-center justify-end gap-3 border-t pt-5">
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          className="border-border bg-background text-foreground hover:bg-muted h-9 rounded-lg border px-4 text-sm font-medium transition-colors duration-200"
           disabled={isSubmitting}
         >
           Cancel

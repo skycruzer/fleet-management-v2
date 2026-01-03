@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { redirect } from 'next/navigation'
 import { RequestDetailActions } from '@/components/requests/request-detail-actions'
 
 export const dynamic = 'force-dynamic'
@@ -25,16 +27,14 @@ interface PageProps {
 
 export default async function RequestDetailPage({ params }: PageProps) {
   const { id } = await params
-  const supabase = await createClient()
 
-  // Check authentication
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return <div>Unauthorized</div>
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
+    redirect('/auth/login')
   }
+
+  const supabase = await createClient()
 
   // Fetch request details
   const { data: request, error } = await supabase

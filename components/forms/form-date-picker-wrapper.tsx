@@ -21,11 +21,7 @@ import {
 } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 export interface FormDatePickerWrapperProps {
@@ -62,7 +58,7 @@ export function FormDatePickerWrapper({
           <FormLabel>
             {label}
             {required && (
-              <span className="text-destructive ml-1" aria-label="required">
+              <span className="text-destructive/70 ml-0.5 text-xs" aria-label="required">
                 *
               </span>
             )}
@@ -74,7 +70,7 @@ export function FormDatePickerWrapper({
                   variant="outline"
                   disabled={disabled}
                   className={cn(
-                    'w-full pl-3 text-left font-normal',
+                    'h-9 w-full justify-start px-3 text-left font-normal',
                     !field.value && 'text-muted-foreground'
                   )}
                   aria-label={`${label}, ${field.value ? format(new Date(field.value), 'PPP') : placeholder}`}
@@ -84,16 +80,17 @@ export function FormDatePickerWrapper({
                   role="combobox"
                   aria-haspopup="dialog"
                 >
-                  {field.value ? (
-                    format(new Date(field.value), 'PPP')
-                  ) : (
-                    <span>{placeholder}</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" aria-hidden="true" />
+                  <CalendarIcon className="text-muted-foreground mr-2 h-4 w-4" aria-hidden="true" />
+                  {field.value ? format(new Date(field.value), 'PPP') : <span>{placeholder}</span>}
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start" role="dialog" aria-label={`${label} calendar`}>
+            <PopoverContent
+              className="w-auto p-0"
+              align="start"
+              role="dialog"
+              aria-label={`${label} calendar`}
+            >
               <Calendar
                 mode="single"
                 selected={field.value ? new Date(field.value) : undefined}

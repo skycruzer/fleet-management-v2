@@ -102,7 +102,6 @@ export default function NewLeaveRequestPage() {
   }
 
   const onSubmit = async (data: LeaveRequestFormData) => {
-    console.log('Form submitted with data:', data)
     setIsSubmitting(true)
     setError(null)
 
@@ -126,7 +125,6 @@ export default function NewLeaveRequestPage() {
       })
 
       const result = await response.json()
-      console.log('API response:', result)
 
       if (!response.ok) {
         throw new Error(result.error || 'Failed to create leave request')

@@ -39,29 +39,27 @@ interface AnnouncerProps {
  * ```
  */
 export function Announcer({ message, priority = 'polite', clearAfter }: AnnouncerProps) {
-  const [currentMessage, setCurrentMessage] = useState(message)
+  // Track which message was cleared (instead of a boolean flag)
+  // This avoids needing to reset state when message changes
+  const [clearedMessage, setClearedMessage] = useState<string | null>(null)
+
+  // Display the message unless it's the one that was cleared
+  const currentMessage = message === clearedMessage ? '' : message
 
   useEffect(() => {
-    setCurrentMessage(message)
-
-    if (clearAfter && message) {
+    if (clearAfter && message && message !== clearedMessage) {
       const timeout = setTimeout(() => {
-        setCurrentMessage('')
+        setClearedMessage(message)
       }, clearAfter)
 
       return () => clearTimeout(timeout)
     }
 
     return undefined
-  }, [message, clearAfter])
+  }, [message, clearAfter, clearedMessage])
 
   return (
-    <div
-      role="status"
-      aria-live={priority}
-      aria-atomic="true"
-      className="sr-only"
-    >
+    <div role="status" aria-live={priority} aria-atomic="true" className="sr-only">
       {currentMessage}
     </div>
   )

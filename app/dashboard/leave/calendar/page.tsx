@@ -8,6 +8,7 @@
 
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getAllLeaveRequests } from '@/lib/services/unified-request-service'
 import { LeaveCalendarClient } from './leave-calendar-client'
 import { Card } from '@/components/ui/card'
@@ -16,14 +17,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 export const dynamic = 'force-dynamic'
 
 export default async function LeaveCalendarPage() {
-  const supabase = await createClient()
-
-  // Check authentication
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     return (
       <div className="p-8">
         <Card className="p-8 text-center">
@@ -33,6 +29,8 @@ export default async function LeaveCalendarPage() {
       </div>
     )
   }
+
+  const supabase = await createClient()
 
   // Fetch all leave requests
   const leaveRequestsResult = await getAllLeaveRequests()

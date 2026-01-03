@@ -1,13 +1,13 @@
-import * as React from "react"
-import { CheckCircle2, AlertCircle } from "lucide-react"
+import * as React from 'react'
+import { CheckCircle2, AlertCircle } from 'lucide-react'
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
-export interface InputProps extends React.ComponentProps<"input"> {
-  "aria-label"?: string
-  "aria-describedby"?: string
-  "aria-required"?: boolean
-  "aria-invalid"?: boolean
+export interface InputProps extends React.ComponentProps<'input'> {
+  'aria-label'?: string
+  'aria-describedby'?: string
+  'aria-required'?: boolean
+  'aria-invalid'?: boolean
   error?: boolean
   success?: boolean
   showIcon?: boolean
@@ -33,34 +33,41 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           type={type}
           className={cn(
-            "flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            // Base styles - Linear-inspired
+            'bg-background flex h-9 w-full rounded-lg border px-3 py-2 text-sm',
+            'transition-all duration-200',
+            'file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium',
+            'placeholder:text-muted-foreground',
             // Default border
-            "border-input",
+            'border-border',
+            // Focus state - subtle indigo glow
+            'focus:ring-ring/20 focus:border-foreground/30 focus:ring-2 focus:outline-none',
+            // Disabled state
+            'disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50',
             // Error state
-            error && "border-red-500 focus-visible:ring-red-500 text-red-900 placeholder:text-red-300",
+            error &&
+              'border-destructive focus:ring-destructive/20 focus:border-destructive text-destructive',
             // Success state
-            success && "border-green-500 focus-visible:ring-green-500",
+            success && 'border-success focus:ring-success/20 focus:border-success',
             // Icon padding
-            showStateIcon && "pr-10",
-            // Focus ring default
-            !error && !success && "focus-visible:ring-ring",
+            showStateIcon && 'pr-10',
             className
           )}
           ref={inputRef}
-          aria-required={props.required || props["aria-required"]}
-          aria-invalid={error || props["aria-invalid"] ? "true" : "false"}
+          aria-required={props.required || props['aria-required']}
+          aria-invalid={error || props['aria-invalid'] ? 'true' : 'false'}
           {...props}
         />
         {/* Validation icons */}
         {showStateIcon && error && (
           <AlertCircle
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500"
+            className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-red-500"
             aria-hidden="true"
           />
         )}
         {showStateIcon && success && (
           <CheckCircle2
-            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500"
+            className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-green-500"
             aria-hidden="true"
           />
         )}
@@ -68,6 +75,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     )
   }
 )
-Input.displayName = "Input"
+Input.displayName = 'Input'
 
 export { Input }

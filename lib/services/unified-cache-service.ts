@@ -168,13 +168,21 @@ class UnifiedCacheService {
 
   /**
    * Get or compute and cache (with Redis fallback)
+   * @param key - Cache key
+   * @param computeFn - Function to compute value if not cached
+   * @param ttl - Time to live in milliseconds
+   * @param options - Optional settings (useRedis, tags for invalidation)
    */
   async getOrSet<T>(
     key: string,
     computeFn: () => Promise<T>,
     ttl: number,
-    useRedis: boolean = true
+    options: { useRedis?: boolean; tags?: string[] } | boolean = true
   ): Promise<T> {
+    // Handle legacy boolean parameter for backwards compatibility
+    const useRedis = typeof options === 'boolean' ? options : (options.useRedis ?? true)
+    const tags = typeof options === 'boolean' ? undefined : options.tags
+
     // Try local cache first
     let value = this.get<T>(key)
     if (value !== null) return value
@@ -183,8 +191,8 @@ class UnifiedCacheService {
     if (useRedis) {
       const redisValue = await redisCacheService.get<T>(key)
       if (redisValue !== null) {
-        // Populate local cache from Redis
-        this.set(key, redisValue, ttl)
+        // Populate local cache from Redis (include tags for invalidation)
+        this.set(key, redisValue, ttl, tags)
         return redisValue
       }
     }
@@ -192,8 +200,8 @@ class UnifiedCacheService {
     // Compute value
     value = await computeFn()
 
-    // Store in both caches
-    this.set(key, value, ttl)
+    // Store in both caches (include tags for invalidation)
+    this.set(key, value, ttl, tags)
     if (useRedis) {
       await redisCacheService.set(key, value, Math.floor(ttl / 1000))
     }
@@ -338,11 +346,7 @@ class UnifiedCacheService {
    */
   async warmUp(): Promise<void> {
     try {
-      await Promise.all([
-        this.getCheckTypes(),
-        this.getContractTypes(),
-        this.getSettings(),
-      ])
+      await Promise.all([this.getCheckTypes(), this.getContractTypes(), this.getSettings()])
     } catch (error) {
       logError(error as Error, {
         source: 'UnifiedCacheService',
@@ -361,10 +365,7 @@ class UnifiedCacheService {
       'check_types',
       async () => {
         const supabase = await createClient()
-        const { data, error } = await supabase
-          .from('check_types')
-          .select('*')
-          .order('check_code')
+        const { data, error } = await supabase.from('check_types').select('*').order('check_code')
 
         if (error) throw error
         return data || []

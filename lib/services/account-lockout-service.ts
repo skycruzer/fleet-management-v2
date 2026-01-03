@@ -83,13 +83,11 @@ export async function recordFailedAttempt(
     const currentAttempts = attempts?.length || 0
 
     // Record this failed attempt
-    const { error: insertError } = await supabase
-      .from('failed_login_attempts' as any)
-      .insert({
-        email: email.toLowerCase(),
-        attempted_at: new Date().toISOString(),
-        ip_address: ipAddress,
-      })
+    const { error: insertError } = await supabase.from('failed_login_attempts' as any).insert({
+      email: email.toLowerCase(),
+      attempted_at: new Date().toISOString(),
+      ip_address: ipAddress,
+    })
 
     if (insertError) {
       console.error('Error recording failed attempt:', insertError)
@@ -103,15 +101,13 @@ export async function recordFailedAttempt(
       lockedUntil.setMinutes(lockedUntil.getMinutes() + LOCKOUT_DURATION_MINUTES)
 
       // Lock the account
-      const { error: lockError } = await supabase
-        .from('account_lockouts' as any)
-        .insert({
-          email: email.toLowerCase(),
-          locked_at: new Date().toISOString(),
-          locked_until: lockedUntil.toISOString(),
-          failed_attempts: newAttemptCount,
-          reason: 'Too many failed login attempts',
-        })
+      const { error: lockError } = await supabase.from('account_lockouts' as any).insert({
+        email: email.toLowerCase(),
+        locked_at: new Date().toISOString(),
+        locked_until: lockedUntil.toISOString(),
+        failed_attempts: newAttemptCount,
+        reason: 'Too many failed login attempts',
+      })
 
       if (lockError) {
         console.error('Error locking account:', lockError)
@@ -153,9 +149,7 @@ export async function recordFailedAttempt(
  * @param email - Email address to check
  * @returns Lockout status
  */
-export async function checkAccountLockout(
-  email: string
-): Promise<ServiceResponse<LockoutStatus>> {
+export async function checkAccountLockout(email: string): Promise<ServiceResponse<LockoutStatus>> {
   try {
     const supabase = await createClient()
 
@@ -276,9 +270,6 @@ export async function unlockAccount(
     // Clear failed attempts
     await clearFailedAttempts(email)
 
-    // Log the unlock action
-    console.log(`Account unlocked by admin ${adminId}: ${email}`)
-
     // Send unlock notification email
     await sendUnlockNotification(email)
 
@@ -365,9 +356,7 @@ async function sendLockoutNotification(email: string, lockedUntil: Date): Promis
   try {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    const lockoutTime = Math.ceil(
-      (lockedUntil.getTime() - new Date().getTime()) / 60000
-    )
+    const lockoutTime = Math.ceil((lockedUntil.getTime() - new Date().getTime()) / 60000)
 
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'no-reply@fleet-mgmt.com',

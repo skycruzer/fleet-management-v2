@@ -15,6 +15,11 @@ export async function GET() {
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      console.error('Profile auth failed:', {
+        timestamp: new Date().toISOString(),
+        message:
+          'getCurrentPilot() returned null - check pilot-session cookie and session validity',
+      })
       return NextResponse.json(
         {
           success: false,

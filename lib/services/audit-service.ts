@@ -16,6 +16,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { format, subDays, startOfDay, endOfDay } from 'date-fns'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 
@@ -144,22 +145,16 @@ export interface TableModificationHistory {
  */
 export async function createAuditLog(params: CreateAuditLogParams): Promise<void> {
   try {
+    // Try to get user info from Supabase Auth (may be null for admin-session auth)
     const supabase = await createClient()
+    let user = null
+    let userRole: string | null = null
 
-    // Get current user information
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError) {
-      logWarning('Failed to get user during audit log creation', {
-        source: 'AuditService',
-        metadata: {
-          operation: 'createAuditLog',
-          error: userError?.message || String(userError),
-        },
-      })
+    try {
+      const { data: authData } = await supabase.auth.getUser()
+      user = authData?.user
+    } catch {
+      // Silently ignore - admin-session users won't have Supabase Auth
     }
 
     // Calculate changed fields if both old and new data provided
@@ -187,10 +182,12 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
       })
     }
 
+    // Use admin client to bypass RLS for audit log insert
+    const adminSupabase = createAdminClient()
+
     // Get user role from an_users table if user exists
-    let userRole: string | null = null
     if (user?.id) {
-      const { data: anUser } = await supabase
+      const { data: anUser } = await adminSupabase
         .from('an_users')
         .select('role')
         .eq('id', user.id)
@@ -199,8 +196,8 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
       userRole = anUser?.role || null
     }
 
-    // Create audit log entry
-    const { error: insertError } = await supabase.from('audit_logs').insert({
+    // Create audit log entry using admin client
+    const { error: insertError } = await adminSupabase.from('audit_logs').insert({
       user_id: user?.id || null,
       user_email: user?.email || null,
       user_role: userRole,
@@ -971,9 +968,7 @@ export interface AuditLogChanges {
  * @param auditLogId - UUID of the audit log entry
  * @returns Detailed change analysis with before/after values
  */
-export async function getAuditLogChanges(
-  auditLogId: string
-): Promise<AuditLogChanges | null> {
+export async function getAuditLogChanges(auditLogId: string): Promise<AuditLogChanges | null> {
   try {
     const supabase = await createClient()
 
@@ -1000,10 +995,7 @@ export async function getAuditLogChanges(
     const newValues = (auditLog.new_values as Record<string, any>) || {}
 
     // Get all unique field names from both objects
-    const allFields = new Set([
-      ...Object.keys(oldValues),
-      ...Object.keys(newValues),
-    ])
+    const allFields = new Set([...Object.keys(oldValues), ...Object.keys(newValues)])
 
     // Analyze each field
     for (const field of allFields) {
@@ -1167,14 +1159,16 @@ export async function getLeaveRequestApprovalHistory(
     // Get all audit logs for this leave request
     const { data: auditLogs, error: auditError } = await supabase
       .from('audit_logs')
-      .select(`
+      .select(
+        `
         *,
         an_users!audit_logs_user_id_fkey (
           id,
           email,
           role
         )
-      `)
+      `
+      )
       .eq('entity_type', 'leave_request')
       .eq('entity_id', leaveRequestId)
       .order('created_at', { ascending: true })
@@ -1227,15 +1221,10 @@ export async function getLeaveRequestApprovalHistory(
 
       // Identify changed fields
       const changedFields: string[] = []
-      const allFields = new Set([
-        ...Object.keys(oldValues),
-        ...Object.keys(newValues),
-      ])
+      const allFields = new Set([...Object.keys(oldValues), ...Object.keys(newValues)])
 
       for (const field of allFields) {
-        if (
-          JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])
-        ) {
+        if (JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])) {
           changedFields.push(field)
         }
       }
@@ -1257,7 +1246,9 @@ export async function getLeaveRequestApprovalHistory(
       timeline,
       currentStatus: (leaveRequest as any).workflow_status,
       submittedAt: new Date((leaveRequest as any).created_at),
-      lastModifiedAt: new Date((leaveRequest as any).updated_at || (leaveRequest as any).created_at),
+      lastModifiedAt: new Date(
+        (leaveRequest as any).updated_at || (leaveRequest as any).created_at
+      ),
     }
   } catch (error) {
     logError(error as Error, {
@@ -1293,22 +1284,22 @@ export interface ExportAuditFilters {
  * @param filters - Optional filters to limit the export
  * @returns CSV string ready for download
  */
-export async function exportAuditTrailCSV(
-  filters: ExportAuditFilters = {}
-): Promise<string> {
+export async function exportAuditTrailCSV(filters: ExportAuditFilters = {}): Promise<string> {
   try {
     const supabase = await createClient()
 
     // Build the query
     let query = supabase
       .from('audit_logs')
-      .select(`
+      .select(
+        `
         *,
         an_users!audit_logs_user_id_fkey (
           email,
           role
         )
-      `)
+      `
+      )
       .order('created_at', { ascending: false })
 
     // Apply filters
@@ -1373,15 +1364,10 @@ export async function exportAuditTrailCSV(
 
       // Identify changed fields
       const changedFields: string[] = []
-      const allFields = new Set([
-        ...Object.keys(oldValues),
-        ...Object.keys(newValues),
-      ])
+      const allFields = new Set([...Object.keys(oldValues), ...Object.keys(newValues)])
 
       for (const field of allFields) {
-        if (
-          JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])
-        ) {
+        if (JSON.stringify(oldValues[field]) !== JSON.stringify(newValues[field])) {
           changedFields.push(field)
         }
       }
@@ -1401,10 +1387,9 @@ export async function exportAuditTrailCSV(
     })
 
     // Combine headers and rows
-    const csv = [
-      headers.join(','),
-      ...rows.map((row) => row.map(escapeCsvValue).join(',')),
-    ].join('\n')
+    const csv = [headers.join(','), ...rows.map((row) => row.map(escapeCsvValue).join(','))].join(
+      '\n'
+    )
 
     return csv
   } catch (error) {
@@ -1428,11 +1413,7 @@ function escapeCsvValue(value: any): string {
   const stringValue = String(value)
 
   // If the value contains comma, quote, or newline, wrap in quotes and escape quotes
-  if (
-    stringValue.includes(',') ||
-    stringValue.includes('"') ||
-    stringValue.includes('\n')
-  ) {
+  if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
     return `"${stringValue.replace(/"/g, '""')}"`
   }
 

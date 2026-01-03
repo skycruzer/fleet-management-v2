@@ -6,7 +6,7 @@
 
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import {
   getUserNotifications,
   markAllNotificationsAsRead,
@@ -29,17 +29,16 @@ async function markAllAsReadAction(formData: FormData) {
 }
 
 export default async function NotificationsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
     redirect('/auth/login')
   }
 
+  const userId = auth.userId!
+
   // Fetch all notifications for the user
-  const result = await getUserNotifications(user.id, false)
+  const result = await getUserNotifications(userId, false)
   const notifications =
     result.success && result.data ? (Array.isArray(result.data) ? result.data : [result.data]) : []
 
@@ -89,7 +88,7 @@ export default async function NotificationsPage() {
         </div>
         {unreadNotifications.length > 0 && (
           <form action={markAllAsReadAction}>
-            <input type="hidden" name="userId" value={user.id} />
+            <input type="hidden" name="userId" value={userId} />
             <button
               type="submit"
               className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"

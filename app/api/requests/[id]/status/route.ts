@@ -8,8 +8,8 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { updateRequestStatus, type WorkflowStatus } from '@/lib/services/unified-request-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 import { revalidatePath } from 'next/cache'
 
@@ -20,15 +20,10 @@ interface RouteContext {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const supabase = await createClient()
-
   try {
     // Check authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -52,7 +47,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     // Update request status
     const { id } = await context.params
-    const result = await updateRequestStatus(id, status, user.id, comments)
+    const result = await updateRequestStatus(id, status, auth.userId!, comments)
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
@@ -63,7 +58,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       source: 'api:requests:status:patch',
       requestId: id,
       newStatus: status,
-      userId: user.id,
+      userId: auth.userId!,
       comments,
     })
 

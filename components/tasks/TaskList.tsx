@@ -19,6 +19,38 @@ interface TaskListProps {
 type SortField = 'title' | 'priority' | 'status' | 'due_date' | 'created_at'
 type SortOrder = 'asc' | 'desc'
 
+// Extracted outside component to avoid "component created during render" error
+interface SortIconProps {
+  field: SortField
+  currentSortField: SortField
+  currentSortOrder: SortOrder
+}
+
+function SortIcon({ field, currentSortField, currentSortOrder }: SortIconProps) {
+  if (currentSortField !== field) {
+    return (
+      <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+        />
+      </svg>
+    )
+  }
+  return (
+    <svg
+      className={`h-4 w-4 text-blue-600 transition-transform dark:text-blue-400 ${currentSortOrder === 'desc' ? 'rotate-180' : ''}`}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  )
+}
+
 export default function TaskList({ tasks }: TaskListProps) {
   const [sortField, setSortField] = useState<SortField>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
@@ -129,26 +161,6 @@ export default function TaskList({ tasks }: TaskListProps) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
-  const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field) {
-      return (
-        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-        </svg>
-      )
-    }
-    return (
-      <svg
-        className={`h-4 w-4 text-blue-600 transition-transform dark:text-blue-400 ${sortOrder === 'desc' ? 'rotate-180' : ''}`}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-      </svg>
-    )
-  }
-
   return (
     <div className="space-y-4">
       {/* Status Filter */}
@@ -212,45 +224,64 @@ export default function TaskList({ tasks }: TaskListProps) {
             <tr>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('title')}
               >
                 <div className="flex items-center gap-1">
                   Task
-                  <SortIcon field="title" />
+                  <SortIcon
+                    field="title"
+                    currentSortField={sortField}
+                    currentSortOrder={sortOrder}
+                  />
                 </div>
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center gap-1">
                   Status
-                  <SortIcon field="status" />
+                  <SortIcon
+                    field="status"
+                    currentSortField={sortField}
+                    currentSortOrder={sortOrder}
+                  />
                 </div>
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('priority')}
               >
                 <div className="flex items-center gap-1">
                   Priority
-                  <SortIcon field="priority" />
+                  <SortIcon
+                    field="priority"
+                    currentSortField={sortField}
+                    currentSortOrder={sortOrder}
+                  />
                 </div>
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+              >
                 Assignee
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('due_date')}
               >
                 <div className="flex items-center gap-1">
                   Due Date
-                  <SortIcon field="due_date" />
+                  <SortIcon
+                    field="due_date"
+                    currentSortField={sortField}
+                    currentSortOrder={sortOrder}
+                  />
                 </div>
               </th>
               <th scope="col" className="relative px-6 py-3">
@@ -261,7 +292,10 @@ export default function TaskList({ tasks }: TaskListProps) {
           <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
             {filteredAndSortedTasks.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                <td
+                  colSpan={6}
+                  className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+                >
                   No tasks found
                 </td>
               </tr>
@@ -280,13 +314,17 @@ export default function TaskList({ tasks }: TaskListProps) {
                       )}
                     </Link>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(task.status)}`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(task.status)}`}
+                    >
                       {task.status.replace('_', ' ')}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getPriorityBadgeColor(task.priority)}`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getPriorityBadgeColor(task.priority)}`}
+                    >
                       {task.priority}
                     </span>
                   </td>
@@ -296,15 +334,23 @@ export default function TaskList({ tasks }: TaskListProps) {
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
                           {(task.assigned_user.name || task.assigned_user.email)[0].toUpperCase()}
                         </div>
-                        <span className="truncate">{task.assigned_user.name || task.assigned_user.email}</span>
+                        <span className="truncate">
+                          {task.assigned_user.name || task.assigned_user.email}
+                        </span>
                       </div>
                     ) : (
                       <span className="text-gray-500 dark:text-gray-500">Unassigned</span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
+                  <td className="px-6 py-4 text-sm whitespace-nowrap">
                     {task.due_date ? (
-                      <span className={isOverdue(task) ? 'font-semibold text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}>
+                      <span
+                        className={
+                          isOverdue(task)
+                            ? 'font-semibold text-red-600 dark:text-red-400'
+                            : 'text-gray-900 dark:text-white'
+                        }
+                      >
                         {formatDate(task.due_date)}
                         {isOverdue(task) && ' (Overdue)'}
                       </span>
@@ -312,8 +358,11 @@ export default function TaskList({ tasks }: TaskListProps) {
                       <span className="text-gray-500 dark:text-gray-500">-</span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                    <Link href={`/dashboard/tasks/${task.id}`} className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                  <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
+                    <Link
+                      href={`/dashboard/tasks/${task.id}`}
+                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
                       View
                     </Link>
                   </td>

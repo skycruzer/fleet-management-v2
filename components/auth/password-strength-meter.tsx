@@ -10,7 +10,7 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import { Check, X } from 'lucide-react'
 import {
   PasswordStrength,
@@ -18,6 +18,100 @@ import {
   getPasswordStrengthColor,
   type PasswordValidationResult,
 } from '@/lib/services/password-validation-service'
+
+// Common passwords list - defined outside component for stability
+const COMMON_PASSWORDS = [
+  'password',
+  'password123',
+  '123456',
+  '12345678',
+  'qwerty',
+  'abc123',
+  'letmein',
+  'welcome',
+  'admin',
+  'admin123',
+]
+
+// Helper function to check for common passwords
+function isCommonPassword(pass: string): boolean {
+  return COMMON_PASSWORDS.includes(pass.toLowerCase())
+}
+
+// Pure function to compute validation result
+function computeValidation(password: string, email: string): PasswordValidationResult {
+  if (!password) {
+    return {
+      isValid: false,
+      score: PasswordStrength.VERY_WEAK,
+      errors: [],
+      suggestions: [],
+      strength: {
+        length: false,
+        hasUppercase: false,
+        hasLowercase: false,
+        hasNumber: false,
+        hasSpecial: false,
+        notCommon: false,
+      },
+    }
+  }
+
+  const errors: string[] = []
+  const suggestions: string[] = []
+  const strength = {
+    length: password.length >= 12,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    notCommon: !isCommonPassword(password),
+  }
+
+  // Calculate score
+  let score = 0
+  if (strength.length) score++
+  if (strength.hasUppercase && strength.hasLowercase) score++
+  if (strength.hasNumber) score++
+  if (strength.hasSpecial) score++
+  if (password.length >= 16) score++
+  if (!strength.notCommon) score--
+
+  const finalScore = Math.min(4, Math.max(0, score)) as PasswordStrength
+
+  // Generate errors
+  if (!strength.length) {
+    errors.push('Password must be at least 12 characters long')
+    suggestions.push('Use a longer passphrase')
+  }
+  if (!strength.hasUppercase) {
+    errors.push('Add at least one uppercase letter')
+  }
+  if (!strength.hasLowercase) {
+    errors.push('Add at least one lowercase letter')
+  }
+  if (!strength.hasNumber) {
+    errors.push('Add at least one number')
+  }
+  if (!strength.hasSpecial) {
+    errors.push('Add at least one special character')
+  }
+  if (!strength.notCommon) {
+    errors.push('This password is too common')
+    suggestions.push('Use a unique password')
+  }
+  if (email && password.toLowerCase().includes(email.toLowerCase())) {
+    errors.push('Password cannot contain your email')
+  }
+
+  return {
+    isValid: errors.length === 0 && finalScore >= 3,
+    score: finalScore,
+    errors,
+    suggestions,
+    strength,
+  }
+}
 
 interface PasswordStrengthMeterProps {
   password: string
@@ -32,123 +126,19 @@ export function PasswordStrengthMeter({
   onValidationChange,
   showRequirements = true,
 }: PasswordStrengthMeterProps) {
-  const [validation, setValidation] = useState<PasswordValidationResult>({
-    isValid: false,
-    score: PasswordStrength.VERY_WEAK,
-    errors: [],
-    suggestions: [],
-    strength: {
-      length: false,
-      hasUppercase: false,
-      hasLowercase: false,
-      hasNumber: false,
-      hasSpecial: false,
-      notCommon: false,
-    },
-  })
+  // Compute validation as a pure memo - no effects needed
+  const validation = useMemo(() => computeValidation(password, email), [password, email])
 
+  // Track previous validation to notify parent only on changes
+  const prevValidationRef = useRef<PasswordValidationResult | null>(null)
+
+  // Notify parent of validation changes during render
   useEffect(() => {
-    if (!password) {
-      setValidation({
-        isValid: false,
-        score: PasswordStrength.VERY_WEAK,
-        errors: [],
-        suggestions: [],
-        strength: {
-          length: false,
-          hasUppercase: false,
-          hasLowercase: false,
-          hasNumber: false,
-          hasSpecial: false,
-          notCommon: false,
-        },
-      })
-      return
-    }
-
-    // Client-side validation (lightweight)
-    validatePasswordClient(password, email)
-  }, [password, email])
-
-  useEffect(() => {
-    if (onValidationChange) {
+    if (onValidationChange && validation !== prevValidationRef.current) {
       onValidationChange(validation)
+      prevValidationRef.current = validation
     }
   }, [validation, onValidationChange])
-
-  function validatePasswordClient(pass: string, userEmail: string) {
-    const errors: string[] = []
-    const suggestions: string[] = []
-    const strength = {
-      length: pass.length >= 12,
-      hasUppercase: /[A-Z]/.test(pass),
-      hasLowercase: /[a-z]/.test(pass),
-      hasNumber: /[0-9]/.test(pass),
-      hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass),
-      notCommon: !isCommonPasswordClient(pass),
-    }
-
-    // Calculate score
-    let score = 0
-    if (strength.length) score++
-    if (strength.hasUppercase && strength.hasLowercase) score++
-    if (strength.hasNumber) score++
-    if (strength.hasSpecial) score++
-    if (pass.length >= 16) score++
-    if (!strength.notCommon) score--
-
-    const finalScore = Math.min(4, Math.max(0, score)) as PasswordStrength
-
-    // Generate errors
-    if (!strength.length) {
-      errors.push('Password must be at least 12 characters long')
-      suggestions.push('Use a longer passphrase')
-    }
-    if (!strength.hasUppercase) {
-      errors.push('Add at least one uppercase letter')
-    }
-    if (!strength.hasLowercase) {
-      errors.push('Add at least one lowercase letter')
-    }
-    if (!strength.hasNumber) {
-      errors.push('Add at least one number')
-    }
-    if (!strength.hasSpecial) {
-      errors.push('Add at least one special character')
-    }
-    if (!strength.notCommon) {
-      errors.push('This password is too common')
-      suggestions.push('Use a unique password')
-    }
-    if (userEmail && pass.toLowerCase().includes(userEmail.toLowerCase())) {
-      errors.push('Password cannot contain your email')
-    }
-
-    setValidation({
-      isValid: errors.length === 0 && finalScore >= 3,
-      score: finalScore,
-      errors,
-      suggestions,
-      strength,
-    })
-  }
-
-  function isCommonPasswordClient(pass: string): boolean {
-    const normalized = pass.toLowerCase()
-    const common = [
-      'password',
-      'password123',
-      '123456',
-      '12345678',
-      'qwerty',
-      'abc123',
-      'letmein',
-      'welcome',
-      'admin',
-      'admin123',
-    ]
-    return common.includes(normalized)
-  }
 
   if (!password) {
     return null
@@ -174,12 +164,8 @@ export function PasswordStrengthMeter({
       {/* Strength Bar */}
       <div className="space-y-1">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600 dark:text-gray-400">
-            Password Strength
-          </span>
-          <span className={`font-medium ${strengthColor}`}>
-            {strengthLabel}
-          </span>
+          <span className="text-gray-600 dark:text-gray-400">Password Strength</span>
+          <span className={`font-medium ${strengthColor}`}>{strengthLabel}</span>
         </div>
 
         <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
@@ -193,15 +179,10 @@ export function PasswordStrengthMeter({
       {/* Requirements Checklist */}
       {showRequirements && (
         <div className="space-y-2 text-sm">
-          <p className="font-medium text-gray-700 dark:text-gray-300">
-            Requirements:
-          </p>
+          <p className="font-medium text-gray-700 dark:text-gray-300">Requirements:</p>
 
           <ul className="space-y-1.5">
-            <RequirementItem
-              met={validation.strength.length}
-              text="At least 12 characters"
-            />
+            <RequirementItem met={validation.strength.length} text="At least 12 characters" />
             <RequirementItem
               met={validation.strength.hasUppercase}
               text="One uppercase letter (A-Z)"
@@ -210,18 +191,12 @@ export function PasswordStrengthMeter({
               met={validation.strength.hasLowercase}
               text="One lowercase letter (a-z)"
             />
-            <RequirementItem
-              met={validation.strength.hasNumber}
-              text="One number (0-9)"
-            />
+            <RequirementItem met={validation.strength.hasNumber} text="One number (0-9)" />
             <RequirementItem
               met={validation.strength.hasSpecial}
               text="One special character (!@#$%)"
             />
-            <RequirementItem
-              met={validation.strength.notCommon}
-              text="Not a common password"
-            />
+            <RequirementItem met={validation.strength.notCommon} text="Not a common password" />
           </ul>
         </div>
       )}
@@ -274,11 +249,7 @@ function RequirementItem({ met, text }: RequirementItemProps) {
         <X className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-600" />
       )}
       <span
-        className={
-          met
-            ? 'text-green-700 dark:text-green-400'
-            : 'text-gray-600 dark:text-gray-400'
-        }
+        className={met ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}
       >
         {text}
       </span>

@@ -28,14 +28,8 @@ interface PendingRegistration {
 
 async function getPendingRegistrations(): Promise<PendingRegistration[]> {
   try {
-    // TEMPORARY FIX: Call service directly instead of API to bypass auth issues
-    // TODO: Fix admin authentication in /api/portal/registration-approval
+    // Direct service call - See tasks/061-tracked-admin-auth-registration-approval.md
     const result = await getPendingRegistrationsService()
-    console.log('📋 Pending registrations result:', {
-      success: result.success,
-      count: result.data?.length || 0,
-      data: result.data,
-    })
     // Type cast to PendingRegistration[] to match client component interface
     return (result.success ? result.data || [] : []) as PendingRegistration[]
   } catch (error) {
