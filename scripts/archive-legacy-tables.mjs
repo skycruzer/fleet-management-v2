@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync } from 'fs'
 
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -73,7 +73,9 @@ async function archiveLegacyTables() {
   console.log(`   New table (pilot_requests LEAVE): ${leaveInUnified.length} records`)
 
   if (leaveInUnified.length >= leaveRequests.length) {
-    console.log(`✅ All leave data exists in unified table (+${leaveInUnified.length - leaveRequests.length} new records)\n`)
+    console.log(
+      `✅ All leave data exists in unified table (+${leaveInUnified.length - leaveRequests.length} new records)\n`
+    )
   } else {
     console.error(`❌ WARNING: Unified table has FEWER records!`)
     console.error(`   Missing ${leaveRequests.length - leaveInUnified.length} records`)
@@ -179,7 +181,9 @@ Migration completed: ${new Date().toISOString().split('T')[0]}';
   console.log('📊 Archive Summary:\n')
   console.log(`   ✅ leave_requests: ${leaveRequests.length} records backed up`)
   console.log(`   ✅ flight_requests: ${flightRequests.length} records backed up`)
-  console.log(`   ✅ pilot_requests: ${leaveInUnified.length + flightInUnified.length} total records verified`)
+  console.log(
+    `   ✅ pilot_requests: ${leaveInUnified.length + flightInUnified.length} total records verified`
+  )
   console.log(`   ✅ Migration created: ${migrationFile}`)
   console.log('\n⚠️  Next Steps:')
   console.log('   1. Review the migration file')

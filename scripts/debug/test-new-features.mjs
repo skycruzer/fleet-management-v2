@@ -4,14 +4,14 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   ADMIN_CREDENTIALS: {
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
-  }
+    password: 'mron2393',
+  },
 }
 
 console.log('\n' + '='.repeat(80))
@@ -21,7 +21,7 @@ console.log('='.repeat(80) + '\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: { width: 1920, height: 1080 },
-  slowMo: 100
+  slowMo: 100,
 })
 
 const page = await browser.newPage()
@@ -59,15 +59,15 @@ try {
   const yearSelector = await page.$('select, [role="combobox"]')
   if (yearSelector) {
     console.log('✅ Year selector found')
-    
+
     // Check for Previous/Next Year buttons
     const buttonTexts = await page.evaluate(() => {
       const buttons = Array.from(document.querySelectorAll('button'))
-      return buttons.map(btn => btn.textContent).filter(text => 
-        text.includes('Previous Year') || text.includes('Next Year')
-      )
+      return buttons
+        .map((btn) => btn.textContent)
+        .filter((text) => text.includes('Previous Year') || text.includes('Next Year'))
     })
-    
+
     if (buttonTexts.length >= 2) {
       console.log('✅ Year navigation buttons found:', buttonTexts)
     } else {
@@ -80,8 +80,9 @@ try {
   // Test current year display
   const currentYearDisplay = await page.evaluate(() => {
     const elements = Array.from(document.querySelectorAll('*'))
-    const yearElement = elements.find(el => 
-      el.textContent.match(/^\d{4}$/) && el.textContent === new Date().getFullYear().toString()
+    const yearElement = elements.find(
+      (el) =>
+        el.textContent.match(/^\d{4}$/) && el.textContent === new Date().getFullYear().toString()
     )
     return yearElement ? yearElement.textContent : null
   })
@@ -94,7 +95,7 @@ try {
 
   // Test 3: Test Pilot Portal (if we can)
   console.log('\n📝 Test 3: Testing Pilot Portal Notification Bell...')
-  
+
   // Logout from admin
   await page.goto(`${CONFIG.BASE_URL}/auth/logout`, { waitUntil: 'networkidle2' })
   await sleep(2000)
@@ -118,23 +119,23 @@ try {
   const notificationBell = await page.$('button svg[class*="lucide-bell"]')
   if (notificationBell) {
     console.log('✅ Notification bell found')
-    
+
     // Click the notification bell
     const bellButton = await page.$('button:has(svg[class*="lucide-bell"])')
     if (bellButton) {
       await bellButton.click()
       await sleep(1500)
-      
+
       // Check if popover opened
       const popover = await page.$('[role="dialog"], [data-radix-popper-content-wrapper]')
       if (popover) {
         console.log('✅ Notification dropdown opened')
-        
+
         // Check for notification content
         const hasNotificationHeader = await page.evaluate(() => {
           return document.body.textContent.includes('Notifications')
         })
-        
+
         if (hasNotificationHeader) {
           console.log('✅ Notification panel content loaded')
         }
@@ -156,11 +157,10 @@ try {
 
   // Keep browser open
   await new Promise(() => {})
-
 } catch (error) {
   console.error('\n❌ Test Error:', error.message)
   console.error(error.stack)
-  
+
   console.log('\n💡 Browser will stay open for inspection.')
   await new Promise(() => {})
 }

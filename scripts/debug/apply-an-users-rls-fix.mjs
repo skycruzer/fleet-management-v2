@@ -9,7 +9,7 @@ import { readFileSync } from 'fs'
 // Load .env.local manually
 const envFile = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
@@ -69,8 +69,8 @@ try {
   // Split into individual statements
   const statements = sql
     .split(';')
-    .map(s => s.trim())
-    .filter(s => s.length > 0 && !s.startsWith('--'))
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && !s.startsWith('--'))
 
   for (const statement of statements) {
     console.log(`Executing: ${statement.substring(0, 50)}...`)
@@ -104,7 +104,6 @@ try {
     console.log(`   User ID: ${data.id}`)
     console.log(`   Role: ${data.role}`)
   }
-
 } catch (error) {
   console.error('❌ Failed to apply fix:', error.message)
   process.exit(1)

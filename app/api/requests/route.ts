@@ -23,6 +23,7 @@ import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { authRateLimit, getClientIp } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
+import { CreatePilotRequestSchema } from '@/lib/validations/pilot-request-schema'
 
 /**
  * GET /api/requests
@@ -181,51 +182,25 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Parse request body
+    // Parse and validate request body with Zod
     const body = await request.json()
+    const validation = CreatePilotRequestSchema.safeParse(body)
 
-    // Validate required fields
-    if (!body.pilot_id || !body.employee_number || !body.rank || !body.name) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required fields: pilot_id, employee_number, rank, name' },
-        { status: 400 }
-      )
-    }
-
-    if (!body.request_category || !body.request_type || !body.submission_channel) {
+    if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Missing required fields: request_category, request_type, submission_channel',
+          error: 'Validation failed',
+          details: validation.error.flatten().fieldErrors,
         },
         { status: 400 }
       )
     }
 
-    if (!body.start_date) {
-      return NextResponse.json(
-        { success: false, error: 'Missing required field: start_date' },
-        { status: 400 }
-      )
-    }
-
-    // Build input
+    // Build input from validated data
     const input: CreatePilotRequestInput = {
-      pilot_id: body.pilot_id,
-      employee_number: body.employee_number,
-      rank: body.rank,
-      name: body.name,
-      request_category: body.request_category,
-      request_type: body.request_type,
-      submission_channel: body.submission_channel,
-      start_date: body.start_date,
-      end_date: body.end_date,
-      flight_date: body.flight_date,
-      reason: body.reason,
-      notes: body.notes,
-      submitted_by_admin_id: body.submitted_by_admin_id || auth.userId!,
-      source_reference: body.source_reference,
-      source_attachment_url: body.source_attachment_url,
+      ...validation.data,
+      submitted_by_admin_id: validation.data.submitted_by_admin_id || auth.userId!,
     }
 
     // Create request

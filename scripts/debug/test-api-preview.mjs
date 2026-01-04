@@ -11,8 +11,8 @@ const leaveRequestBody = {
   reportType: 'leave',
   filters: {
     rosterPeriods: ['RP01/2026', 'RP02/2026'],
-    status: ['SUBMITTED', 'APPROVED', 'DENIED', 'PENDING']
-  }
+    status: ['SUBMITTED', 'APPROVED', 'DENIED', 'PENDING'],
+  },
 }
 
 try {
@@ -21,7 +21,7 @@ try {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(leaveRequestBody)
+    body: JSON.stringify(leaveRequestBody),
   })
 
   console.log('Status:', leaveResponse.status)
@@ -51,8 +51,8 @@ const flightRequestBody = {
   reportType: 'flight',
   filters: {
     rosterPeriods: ['RP01/2026', 'RP02/2026'],
-    status: ['SUBMITTED', 'APPROVED', 'DENIED', 'PENDING']
-  }
+    status: ['SUBMITTED', 'APPROVED', 'DENIED', 'PENDING'],
+  },
 }
 
 try {
@@ -61,7 +61,7 @@ try {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(flightRequestBody)
+    body: JSON.stringify(flightRequestBody),
   })
 
   console.log('Status:', flightResponse.status)

@@ -37,7 +37,7 @@ export function PilotsViewToggle({ groupedPilots, allPilots }: PilotsViewToggleP
   return (
     <>
       {/* View Toggle */}
-      <div className="flex items-center rounded-lg border border-input bg-background p-1">
+      <div className="border-input bg-background flex items-center rounded-lg border p-1">
         <Button
           variant={viewMode === 'table' ? 'default' : 'ghost'}
           size="sm"
@@ -88,7 +88,9 @@ export function PilotsViewToggle({ groupedPilots, allPilots }: PilotsViewToggleP
           {rankCount === 0 && (
             <Card className="p-12 text-center">
               <p className="text-muted-foreground text-lg">No pilots found</p>
-              <p className="text-muted-foreground mt-2 text-sm">Add your first pilot to get started</p>
+              <p className="text-muted-foreground mt-2 text-sm">
+                Add your first pilot to get started
+              </p>
             </Card>
           )}
         </>

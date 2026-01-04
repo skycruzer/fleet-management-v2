@@ -80,7 +80,6 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
               .single()
 
             if (!error && pilotUser && pilotUser.registration_approved === true) {
-              console.log('✅ getCurrentPilot: Using bcrypt session for pilot:', pilotUser.email)
               return pilotUser as PilotUser
             }
           }
@@ -116,7 +115,6 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
       return null
     }
 
-    console.log('✅ getCurrentPilot: Using Supabase Auth for pilot:', pilotUser.email)
     return pilotUser as PilotUser
   } catch (error) {
     console.error('Error getting current pilot:', error)
@@ -152,9 +150,7 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
  * }
  * ```
  */
-export async function getPilotFromRequest(
-  request: NextRequest
-): Promise<PilotUser | null> {
+export async function getPilotFromRequest(request: NextRequest): Promise<PilotUser | null> {
   try {
     // Create Supabase client for API routes
     const supabase = createServerClient(

@@ -4,7 +4,6 @@ import {
   submitPilotFlightRequest,
   getCurrentPilotFlightRequests,
 } from '@/lib/services/pilot-flight-service'
-import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**

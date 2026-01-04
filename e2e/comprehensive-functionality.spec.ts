@@ -43,7 +43,9 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       await page.waitForLoadState('networkidle')
 
       // Check for pilots table or empty state
-      const hasPilots = await page.locator('table').isVisible({ timeout: 5000 })
+      const hasPilots = await page
+        .locator('table')
+        .isVisible({ timeout: 5000 })
         .catch(() => false)
 
       if (hasPilots) {
@@ -63,8 +65,7 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       const firstPilotLink = page.locator('a[href*="/dashboard/pilots/"]').first()
 
       // Check if pilots exist
-      const linkExists = await firstPilotLink.isVisible({ timeout: 5000 })
-        .catch(() => false)
+      const linkExists = await firstPilotLink.isVisible({ timeout: 5000 }).catch(() => false)
 
       if (linkExists) {
         await firstPilotLink.click()
@@ -102,7 +103,9 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       await page.waitForLoadState('networkidle')
 
       // Check for leave requests table or empty state
-      const hasRequests = await page.locator('table').isVisible({ timeout: 5000 })
+      const hasRequests = await page
+        .locator('table')
+        .isVisible({ timeout: 5000 })
         .catch(() => false)
 
       if (hasRequests) {
@@ -135,7 +138,9 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       await page.waitForLoadState('networkidle')
 
       // Check for certifications list
-      const hasContent = await page.locator('table, [role="table"]').isVisible({ timeout: 5000 })
+      const hasContent = await page
+        .locator('table, [role="table"]')
+        .isVisible({ timeout: 5000 })
         .catch(() => false)
 
       if (hasContent) {
@@ -165,7 +170,9 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       await page.waitForLoadState('networkidle')
 
       // Check for generate form or button
-      const hasForm = await page.locator('form, button[type="submit"]').isVisible({ timeout: 5000 })
+      const hasForm = await page
+        .locator('form, button[type="submit"]')
+        .isVisible({ timeout: 5000 })
         .catch(() => false)
 
       if (hasForm) {
@@ -229,7 +236,10 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       }
 
       // Check for admin content
-      const hasContent = await page.locator('h1, h2').first().isVisible({ timeout: 5000 })
+      const hasContent = await page
+        .locator('h1, h2')
+        .first()
+        .isVisible({ timeout: 5000 })
         .catch(() => false)
 
       if (hasContent) {
@@ -248,7 +258,10 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
         return
       }
 
-      const hasContent = await page.locator('h1, h2').first().isVisible({ timeout: 5000 })
+      const hasContent = await page
+        .locator('h1, h2')
+        .first()
+        .isVisible({ timeout: 5000 })
         .catch(() => false)
 
       if (hasContent) {
@@ -279,7 +292,7 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       const consoleMessages: string[] = []
       const consoleErrors: string[] = []
 
-      page.on('console', msg => {
+      page.on('console', (msg) => {
         if (msg.type() === 'log' || msg.type() === 'debug' || msg.type() === 'info') {
           consoleMessages.push(msg.text())
         }
@@ -292,28 +305,28 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       await page.waitForLoadState('networkidle')
 
       // Filter out expected logs (like Supabase auth, React DevTools)
-      const debugLogs = consoleMessages.filter(msg =>
-        !msg.includes('Supabase') &&
-        !msg.includes('React') &&
-        !msg.includes('Download the React DevTools')
+      const debugLogs = consoleMessages.filter(
+        (msg) =>
+          !msg.includes('Supabase') &&
+          !msg.includes('React') &&
+          !msg.includes('Download the React DevTools')
       )
 
       if (debugLogs.length === 0) {
         console.log('✓ Console is clean (no debug logs)')
       } else {
         console.log(`⚠ Found ${debugLogs.length} console logs`)
-        debugLogs.slice(0, 3).forEach(log => console.log(`  - ${log.substring(0, 100)}`))
+        debugLogs.slice(0, 3).forEach((log) => console.log(`  - ${log.substring(0, 100)}`))
       }
 
       // Critical errors should not exist
-      const criticalErrors = consoleErrors.filter(err =>
-        !err.includes('favicon') &&
-        !err.includes('404')
+      const criticalErrors = consoleErrors.filter(
+        (err) => !err.includes('favicon') && !err.includes('404')
       )
 
       if (criticalErrors.length > 0) {
         console.log(`⚠ Found ${criticalErrors.length} console errors`)
-        criticalErrors.slice(0, 3).forEach(err => console.log(`  - ${err.substring(0, 100)}`))
+        criticalErrors.slice(0, 3).forEach((err) => console.log(`  - ${err.substring(0, 100)}`))
       }
     })
   })

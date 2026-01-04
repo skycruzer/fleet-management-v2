@@ -14,31 +14,28 @@ import { readFileSync } from 'fs'
 // Read .env.local manually
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 /**
  * Map leave request type to unified request type
  */
 function mapLeaveType(type) {
   const typeMap = {
-    'annual': 'ANNUAL',
-    'sick': 'SICK',
-    'lsl': 'LSL',
-    'lwop': 'LWOP',
-    'maternity': 'MATERNITY',
-    'compassionate': 'COMPASSIONATE',
-    'rdo': 'RDO',
-    'sdo': 'SDO'
+    annual: 'ANNUAL',
+    sick: 'SICK',
+    lsl: 'LSL',
+    lwop: 'LWOP',
+    maternity: 'MATERNITY',
+    compassionate: 'COMPASSIONATE',
+    rdo: 'RDO',
+    sdo: 'SDO',
   }
   return typeMap[type?.toLowerCase()] || 'ANNUAL'
 }
@@ -48,10 +45,10 @@ function mapLeaveType(type) {
  */
 function mapStatus(status) {
   const statusMap = {
-    'pending': 'SUBMITTED',
-    'approved': 'APPROVED',
-    'rejected': 'DENIED',
-    'denied': 'DENIED'
+    pending: 'SUBMITTED',
+    approved: 'APPROVED',
+    rejected: 'DENIED',
+    denied: 'DENIED',
   }
   return statusMap[status?.toLowerCase()] || 'SUBMITTED'
 }
@@ -61,11 +58,11 @@ function mapStatus(status) {
  */
 function mapSubmissionChannel(requestMethod) {
   const channelMap = {
-    'email': 'EMAIL',
-    'oracle': 'ORACLE',
-    'system': 'ADMIN_PORTAL',
-    'pilot_portal': 'PILOT_PORTAL',
-    'phone': 'PHONE'
+    email: 'EMAIL',
+    oracle: 'ORACLE',
+    system: 'ADMIN_PORTAL',
+    pilot_portal: 'PILOT_PORTAL',
+    phone: 'PHONE',
   }
   return channelMap[requestMethod?.toLowerCase()] || 'EMAIL'
 }
@@ -82,9 +79,9 @@ function mapRequestCategory(type) {
 }
 
 async function migrateLeaveRequests() {
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
   console.log('🔄 Migrating Leave & Flight Requests to Pilot Requests')
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
 
   try {
     // First, clear any existing sample data in pilot_requests
@@ -104,7 +101,8 @@ async function migrateLeaveRequests() {
     console.log('\n📥 Fetching existing leave_requests...')
     const { data: leaveRequests, error: fetchError } = await supabase
       .from('leave_requests')
-      .select(`
+      .select(
+        `
         *,
         pilot:pilots!pilot_id (
           id,
@@ -114,7 +112,8 @@ async function migrateLeaveRequests() {
           role,
           seniority_number
         )
-      `)
+      `
+      )
       .order('created_at', { ascending: true })
 
     // Separately fetch roster periods for reference
@@ -122,7 +121,7 @@ async function migrateLeaveRequests() {
       .from('roster_periods')
       .select('code, start_date, publish_date, request_deadline_date')
 
-    const periodMap = new Map(rosterPeriods?.map(p => [p.code, p]) || [])
+    const periodMap = new Map(rosterPeriods?.map((p) => [p.code, p]) || [])
 
     if (fetchError) {
       console.error(`   ❌ Error fetching leave_requests: ${fetchError.message}`)
@@ -154,10 +153,16 @@ async function migrateLeaveRequests() {
 
         // Calculate is_late_request and is_past_deadline
         const today = new Date()
-        const rosterStart = rosterPeriodData?.start_date ? new Date(rosterPeriodData.start_date) : new Date(req.start_date)
-        const rosterDeadline = rosterPeriodData?.request_deadline_date ? new Date(rosterPeriodData.request_deadline_date) : new Date(req.start_date)
+        const rosterStart = rosterPeriodData?.start_date
+          ? new Date(rosterPeriodData.start_date)
+          : new Date(req.start_date)
+        const rosterDeadline = rosterPeriodData?.request_deadline_date
+          ? new Date(rosterPeriodData.request_deadline_date)
+          : new Date(req.start_date)
 
-        const daysUntilRosterStart = Math.ceil((rosterStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        const daysUntilRosterStart = Math.ceil(
+          (rosterStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+        )
         const isLateRequest = daysUntilRosterStart < 21
         const isPastDeadline = today > rosterDeadline
 
@@ -195,7 +200,8 @@ async function migrateLeaveRequests() {
           // Workflow
           workflow_status: mapStatus(req.status),
           reviewed_by: null,
-          reviewed_at: req.status === 'approved' || req.status === 'rejected' ? req.updated_at : null,
+          reviewed_at:
+            req.status === 'approved' || req.status === 'rejected' ? req.updated_at : null,
           review_comments: req.notes || null,
 
           // Metadata
@@ -207,32 +213,32 @@ async function migrateLeaveRequests() {
 
           // Timestamps
           created_at: req.created_at || new Date().toISOString(),
-          updated_at: req.updated_at || new Date().toISOString()
+          updated_at: req.updated_at || new Date().toISOString(),
         }
 
         // Insert into pilot_requests
-        const { error: insertError } = await supabase
-          .from('pilot_requests')
-          .insert(pilotRequest)
+        const { error: insertError } = await supabase.from('pilot_requests').insert(pilotRequest)
 
         if (insertError) {
           failCount++
           errors.push({
             id: req.id,
             pilot: pilotRequest.name,
-            error: insertError.message
+            error: insertError.message,
           })
           console.log(`   ❌ Failed: ${pilotRequest.name} - ${insertError.message}`)
         } else {
           successCount++
-          console.log(`   ✅ Migrated: ${pilotRequest.name} - ${pilotRequest.request_type} (${pilotRequest.roster_period})`)
+          console.log(
+            `   ✅ Migrated: ${pilotRequest.name} - ${pilotRequest.request_type} (${pilotRequest.roster_period})`
+          )
         }
       } catch (error) {
         failCount++
         errors.push({
           id: req.id,
           pilot: req.pilot ? `${req.pilot.first_name} ${req.pilot.last_name}` : 'Unknown',
-          error: error.message
+          error: error.message,
         })
         console.log(`   ❌ Exception: ${error.message}`)
       }
@@ -248,7 +254,7 @@ async function migrateLeaveRequests() {
 
     if (errors.length > 0) {
       console.log(`\n   ⚠️  Errors:`)
-      errors.slice(0, 5).forEach(err => {
+      errors.slice(0, 5).forEach((err) => {
         console.log(`      - ${err.pilot}: ${err.error}`)
       })
       if (errors.length > 5) {
@@ -271,7 +277,6 @@ async function migrateLeaveRequests() {
     console.log('   1. Reload: http://localhost:3000/dashboard/requests')
     console.log('   2. Verify your leave requests appear correctly')
     console.log('   3. Test filtering and status workflows\n')
-
   } catch (error) {
     console.error('\n❌ Migration failed with error:', error)
     console.error(error.stack)

@@ -66,9 +66,7 @@ export function calculateRetirementCountdown(
   }
 
   // Calculate total days for progress bars, etc.
-  const totalDays = Math.floor(
-    (retirementDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const totalDays = Math.floor((retirementDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 
   return {
     years,

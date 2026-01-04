@@ -8,11 +8,20 @@
  */
 
 // Base form structure components (NEW - reduces duplication)
-export { BaseFormCard, FormSection, type BaseFormCardProps, type FormSectionProps } from './base-form-card'
+export {
+  BaseFormCard,
+  FormSection,
+  type BaseFormCardProps,
+  type FormSectionProps,
+} from './base-form-card'
 
 // Field wrapper components
 export { FormFieldWrapper, type FormFieldWrapperProps } from './form-field-wrapper'
-export { FormSelectWrapper, type FormSelectWrapperProps, type SelectOption } from './form-select-wrapper'
+export {
+  FormSelectWrapper,
+  type FormSelectWrapperProps,
+  type SelectOption,
+} from './form-select-wrapper'
 export { FormTextareaWrapper, type FormTextareaWrapperProps } from './form-textarea-wrapper'
 export { FormCheckboxWrapper, type FormCheckboxWrapperProps } from './form-checkbox-wrapper'
 export { FormDatePickerWrapper, type FormDatePickerWrapperProps } from './form-date-picker-wrapper'

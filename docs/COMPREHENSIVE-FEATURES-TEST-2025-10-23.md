@@ -1,4 +1,5 @@
 # Fleet Management V2 - Comprehensive Features Test Report
+
 **Test Date**: October 23, 2025
 **Test Type**: Complete Admin & Pilot Portal Feature Testing
 **Status**: ✅ In Progress
@@ -8,6 +9,7 @@
 ## 🎯 Test Objective
 
 Comprehensive testing of all features, buttons, pages, and functionalities in both:
+
 1. **Admin Dashboard** - Fleet management and administration
 2. **Pilot Portal** - Individual pilot self-service portal
 
@@ -16,17 +18,21 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
 ## 📊 Admin Dashboard Testing
 
 ### ✅ Authentication & Access Control
+
 **Status**: PASSED ✅
+
 - **Login Status**: Already authenticated as `skycruzer@icloud.com`
 - **Session Management**: Active session maintained
 - **User Profile Display**: User initial "S" displayed in navigation
 - **Sign Out Button**: Visible and accessible
 
 ### ✅ Main Dashboard Page (`/dashboard`)
+
 **URL**: `http://localhost:3000/dashboard`
 **Status**: PASSED ✅
 
 #### Features Verified:
+
 1. **Current Roster Card** ✅
    - Displays: RP12/2025 (Oct 11 - Nov 07, 2025)
    - Time until next roster: 15 days, 9 hours
@@ -67,6 +73,7 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
    - **View Reports** → `/dashboard/analytics`
 
 #### Navigation Sidebar Verified:
+
 - ✅ Dashboard (active)
 - ✅ Pilots
 - ✅ Certifications
@@ -81,10 +88,12 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
 ---
 
 ### ✅ Pilots Management Page (`/dashboard/pilots`)
+
 **URL**: `http://localhost:3000/dashboard/pilots`
 **Status**: PASSED ✅
 
 #### Features Verified:
+
 1. **Page Header** ✅
    - Title: "Pilots"
    - Subtitle: "Manage pilot profiles with sortable table or grouped by rank"
@@ -107,7 +116,6 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
      - Displays: "19 Total, 19 Active"
      - Expandable/collapsible section
      - Sorted by seniority number (#1-#24)
-     
    - **First Officer Group** (7 pilots)
      - Header shows: "👤 First Officer" badge
      - Displays: "7 Total, 7 Active"
@@ -118,7 +126,7 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
    - **Seniority**: Seniority number (e.g., #1, #2, #3)
    - **Employee ID**: Unique identifier (e.g., 2683, 3563)
    - **Name**: Full name in UPPERCASE
-   - **Contract Type**: 
+   - **Contract Type**:
      - Full-time
      - Tours 21/21
      - Commuting 18/10
@@ -132,7 +140,7 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
    - #3 - 3564 - SAMIU TAUFA (Full-time, Active)
    - #6 - 7305 - NEIL CHRISTOPHER SEXTON (Tours 21/21, Active)
    - #9 - 2393 - MAURICE RONDEAU (Full-time, Active)
-   
+
    Sample pilots shown (First Officers):
    - #10 - 6196 - IAN BRUCE PEARSON (Full-time, Active)
    - #13 - 8870 - RICK KIBO NENDEPA (Full-time, Active)
@@ -144,6 +152,7 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
    - **More Options Menu** (⋮) → Additional actions
 
 #### Interactive Features:
+
 - ✅ Expandable rank groups (Captain/First Officer)
 - ✅ View/Edit buttons for each pilot
 - ✅ Grouped organization by rank
@@ -154,6 +163,7 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
 ### 🔄 Testing In Progress
 
 **Next Pages to Test**:
+
 - [ ] Certifications page
 - [ ] Leave Requests page
 - [ ] Flight Requests page
@@ -164,6 +174,7 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
 - [ ] Settings page
 
 **Interactive Features to Test**:
+
 - [ ] Add Pilot button functionality
 - [ ] View pilot profile
 - [ ] Edit pilot details
@@ -183,6 +194,7 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
 **Status**: Not Started - Pending
 
 **Pages to Test**:
+
 - [ ] Pilot login
 - [ ] Pilot dashboard
 - [ ] Pilot profile
@@ -212,4 +224,3 @@ Comprehensive testing of all features, buttons, pages, and functionalities in bo
 **Report Status**: ✅ In Progress
 **Last Updated**: October 23, 2025 - 11:05 PM
 **Next Update**: After completing admin dashboard testing
-

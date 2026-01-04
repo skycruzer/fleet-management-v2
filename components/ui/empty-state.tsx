@@ -77,8 +77,8 @@ export function EmptyState({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className={cn(
-            'font-semibold text-foreground',
-            isCompact ? 'text-lg mb-2' : 'text-2xl mb-3'
+            'text-foreground font-semibold',
+            isCompact ? 'mb-2 text-lg' : 'mb-3 text-2xl'
           )}
         >
           {title}
@@ -91,8 +91,8 @@ export function EmptyState({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             className={cn(
-              'text-muted-foreground max-w-md mx-auto',
-              isCompact ? 'text-sm mb-4' : 'text-base mb-6'
+              'text-muted-foreground mx-auto max-w-md',
+              isCompact ? 'mb-4 text-sm' : 'mb-6 text-base'
             )}
           >
             {description}
@@ -105,7 +105,7 @@ export function EmptyState({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="flex items-center gap-3 mt-6"
+            className="mt-6 flex items-center gap-3"
           >
             {action && (
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -166,7 +166,7 @@ export function SearchEmptyState({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="text-xl font-semibold text-foreground mb-3"
+          className="text-foreground mb-3 text-xl font-semibold"
         >
           No results found
         </motion.h3>
@@ -174,10 +174,10 @@ export function SearchEmptyState({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-sm text-muted-foreground mb-6 max-w-md"
+          className="text-muted-foreground mb-6 max-w-md text-sm"
         >
           We couldn't find anything matching{' '}
-          <span className="font-semibold text-foreground">"{searchQuery}"</span>
+          <span className="text-foreground font-semibold">"{searchQuery}"</span>
         </motion.p>
         {onClearSearch && (
           <motion.div

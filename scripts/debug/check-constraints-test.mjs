@@ -1,14 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = 'https://wgdmgvonqysflwdiiols.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
+const supabaseKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 console.log('🔍 Checking Database for Check Constraints\n')
 
 // Query to check if constraints exist
-const { data: constraints, error } = await supabase.rpc('check_constraints_status', {}, { count: 'exact' }).catch(() => ({ data: null, error: null }))
+const { data: constraints, error } = await supabase
+  .rpc('check_constraints_status', {}, { count: 'exact' })
+  .catch(() => ({ data: null, error: null }))
 
 // Alternative: Query PostgreSQL system catalog for constraints
 const { data: pgConstraints, error: pgError } = await supabase
@@ -39,20 +42,20 @@ console.log('📋 Listing all CHECK constraints in the database:\n')
 console.log('Note: This requires using a database client. Let me check the schema directly...\n')
 
 // Get table info for leave_requests
-const { data: leaveRequestsInfo } = await supabase
-  .from('leave_requests')
-  .select('*')
-  .limit(1)
+const { data: leaveRequestsInfo } = await supabase.from('leave_requests').select('*').limit(1)
 
-console.log('Sample leave_requests columns:', leaveRequestsInfo ? Object.keys(leaveRequestsInfo[0] || {}) : 'No data')
+console.log(
+  'Sample leave_requests columns:',
+  leaveRequestsInfo ? Object.keys(leaveRequestsInfo[0] || {}) : 'No data'
+)
 
-// Get table info for feedback_posts  
-const { data: feedbackPostsInfo } = await supabase
-  .from('feedback_posts')
-  .select('*')
-  .limit(1)
+// Get table info for feedback_posts
+const { data: feedbackPostsInfo } = await supabase.from('feedback_posts').select('*').limit(1)
 
-console.log('Sample feedback_posts columns:', feedbackPostsInfo ? Object.keys(feedbackPostsInfo[0] || {}) : 'No data')
+console.log(
+  'Sample feedback_posts columns:',
+  feedbackPostsInfo ? Object.keys(feedbackPostsInfo[0] || {}) : 'No data'
+)
 
 console.log('\n📝 Testing Constraints with Correct Schema\n')
 
@@ -74,7 +77,7 @@ const test1 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-19',
   days_count: 1,
-  status: 'PENDING'
+  status: 'PENDING',
 })
 
 if (test1.error) {
@@ -91,7 +94,7 @@ const test2 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-21',
   days_count: 0,
-  status: 'PENDING'
+  status: 'PENDING',
 })
 
 if (test2.error) {
@@ -108,7 +111,7 @@ const test3 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-21',
   days_count: -5,
-  status: 'PENDING'
+  status: 'PENDING',
 })
 
 if (test3.error) {
@@ -125,7 +128,7 @@ const test4 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-21',
   days_count: 2,
-  status: 'INVALID_STATUS'
+  status: 'INVALID_STATUS',
 })
 
 if (test4.error) {

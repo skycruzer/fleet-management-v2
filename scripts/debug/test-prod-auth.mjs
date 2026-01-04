@@ -25,7 +25,7 @@ const adminClient = createClient(supabaseUrl, supabaseAnonKey)
 try {
   const { data, error } = await adminClient.auth.signInWithPassword({
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
+    password: 'mron2393',
   })
 
   if (error) {

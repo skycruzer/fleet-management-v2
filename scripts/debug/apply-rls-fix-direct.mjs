@@ -5,7 +5,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { readFileSync } from 'fs'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!serviceRoleKey) {
@@ -17,8 +18,8 @@ if (!serviceRoleKey) {
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 async function main() {
@@ -32,8 +33,8 @@ async function main() {
   // Split by semicolon and execute each statement
   const statements = sql
     .split(';')
-    .map(s => s.trim())
-    .filter(s => s.length > 0 && !s.startsWith('--') && !s.startsWith('/*'))
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && !s.startsWith('--') && !s.startsWith('/*'))
 
   console.log(`Executing ${statements.length} SQL statements...`)
 
@@ -60,11 +61,11 @@ async function main() {
           const response = await fetch(`${supabaseUrl}/rest/v1/rpc/exec_sql`, {
             method: 'POST',
             headers: {
-              'apikey': serviceRoleKey,
-              'Authorization': `Bearer ${serviceRoleKey}`,
+              apikey: serviceRoleKey,
+              Authorization: `Bearer ${serviceRoleKey}`,
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ sql: statement + ';' })
+            body: JSON.stringify({ sql: statement + ';' }),
           })
 
           if (!response.ok) {

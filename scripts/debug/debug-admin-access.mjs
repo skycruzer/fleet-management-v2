@@ -4,7 +4,7 @@ import { readFileSync } from 'fs'
 // Read .env.local manually
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -22,7 +22,7 @@ async function debugAdminAccess() {
 
   // 1. Get user from Supabase Auth
   const { data: authData } = await supabase.auth.admin.listUsers()
-  const authUser = authData.users.find(u => u.email === 'skycruzer@icloud.com')
+  const authUser = authData.users.find((u) => u.email === 'skycruzer@icloud.com')
 
   if (!authUser) {
     console.log('❌ User not found in Supabase Auth')
@@ -113,7 +113,7 @@ async function debugAdminAccess() {
 
 debugAdminAccess()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

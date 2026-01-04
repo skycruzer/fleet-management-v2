@@ -20,13 +20,13 @@ const TESTS = {
   admin: {
     name: 'Admin Portal',
     script: 'test-admin-portal-comprehensive.js',
-    emoji: '🔐'
+    emoji: '🔐',
   },
   pilot: {
     name: 'Pilot Portal',
     script: 'test-pilot-portal-comprehensive.js',
-    emoji: '✈️'
-  }
+    emoji: '✈️',
+  },
 }
 
 // ============================================================================
@@ -54,7 +54,7 @@ function runTest(testKey) {
 
     const child = spawn('node', [scriptPath], {
       stdio: 'inherit',
-      env: { ...process.env }
+      env: { ...process.env },
     })
 
     child.on('close', (code) => {
@@ -91,14 +91,14 @@ async function runAllTests() {
     logInfo('You can start it with: npm run dev\n')
 
     // Wait 3 seconds to give user time to read
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    await new Promise((resolve) => setTimeout(resolve, 3000))
 
     // Run Admin Portal Tests
     const adminResult = await runTest('admin')
     results.push(adminResult)
 
     // Wait 2 seconds between tests
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000))
 
     // Run Pilot Portal Tests
     const pilotResult = await runTest('pilot')
@@ -113,8 +113,8 @@ async function runAllTests() {
       console.log(`${index + 1}. ${icon} ${result.name}: ${status}`)
     })
 
-    const allPassed = results.every(r => r.success)
-    const passedCount = results.filter(r => r.success).length
+    const allPassed = results.every((r) => r.success)
+    const passedCount = results.filter((r) => r.success).length
     const totalCount = results.length
 
     console.log(`\nTotal: ${passedCount}/${totalCount} test suites passed`)
@@ -129,7 +129,6 @@ async function runAllTests() {
     console.log('\n' + '='.repeat(80))
 
     process.exit(allPassed ? 0 : 1)
-
   } catch (error) {
     logError(`Test runner failed: ${error.message}`)
     console.error(error)
@@ -148,12 +147,12 @@ if (args.length === 0) {
 } else if (args[0] === 'admin') {
   // Run only admin tests
   runTest('admin')
-    .then(result => process.exit(result.success ? 0 : 1))
+    .then((result) => process.exit(result.success ? 0 : 1))
     .catch(() => process.exit(1))
 } else if (args[0] === 'pilot') {
   // Run only pilot tests
   runTest('pilot')
-    .then(result => process.exit(result.success ? 0 : 1))
+    .then((result) => process.exit(result.success ? 0 : 1))
     .catch(() => process.exit(1))
 } else {
   console.log('Usage:')

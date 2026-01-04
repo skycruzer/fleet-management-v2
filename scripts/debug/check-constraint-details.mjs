@@ -7,7 +7,7 @@ import { readFileSync } from 'fs'
 
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -43,7 +43,7 @@ async function checkConstraints() {
       WHERE rel.relname = 'leave_requests'
       AND nsp.nspname = 'public'
       ORDER BY con.conname;
-    `
+    `,
   })
 
   if (error) {

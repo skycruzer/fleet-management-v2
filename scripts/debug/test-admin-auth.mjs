@@ -25,10 +25,7 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 console.log('2. Testing Supabase Connection:')
 try {
   // Test basic query
-  const { data, error } = await supabase
-    .from('pilots')
-    .select('id')
-    .limit(1)
+  const { data, error } = await supabase.from('pilots').select('id').limit(1)
 
   if (error) {
     console.error('   ❌ Connection failed:', error.message)
@@ -47,10 +44,15 @@ try {
   if (!serviceRoleKey) {
     console.log('   ⚠️  SUPABASE_SERVICE_ROLE_KEY not set')
     console.log('   ℹ️  Cannot list users without service role key')
-    console.log('   ℹ️  Check Supabase Dashboard: https://app.supabase.com/project/wgdmgvonqysflwdiiols/auth/users')
+    console.log(
+      '   ℹ️  Check Supabase Dashboard: https://app.supabase.com/project/wgdmgvonqysflwdiiols/auth/users'
+    )
   } else {
     const adminClient = createClient(supabaseUrl, serviceRoleKey)
-    const { data: { users }, error } = await adminClient.auth.admin.listUsers()
+    const {
+      data: { users },
+      error,
+    } = await adminClient.auth.admin.listUsers()
 
     if (error) {
       console.error('   ❌ Failed to list users:', error.message)
@@ -58,8 +60,10 @@ try {
       console.log(`   ✅ Found ${users?.length || 0} auth users`)
       if (users && users.length > 0) {
         console.log('\n   Auth Users:')
-        users.forEach(user => {
-          console.log(`   - ${user.email} (created: ${new Date(user.created_at).toLocaleDateString()})`)
+        users.forEach((user) => {
+          console.log(
+            `   - ${user.email} (created: ${new Date(user.created_at).toLocaleDateString()})`
+          )
         })
       }
     }

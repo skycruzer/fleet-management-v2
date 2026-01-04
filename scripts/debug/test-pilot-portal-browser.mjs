@@ -13,7 +13,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 console.log('\n🧪 PILOT PORTAL FORMS - LIVE BROWSER TEST\n')
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 
 async function testPilotPortal() {
   const browser = await puppeteer.launch({
@@ -41,7 +41,7 @@ async function testPilotPortal() {
 
     await page.goto(`${BASE_URL}/portal/login`, {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
 
     console.log('✅ Pilot login page loaded')
@@ -49,9 +49,9 @@ async function testPilotPortal() {
     // Check form routes
     const routes = [
       '/portal/leave-requests/new',
-      '/portal/flight-requests/new', 
+      '/portal/flight-requests/new',
       '/portal/feedback',
-      '/dashboard/leave/approve'
+      '/dashboard/leave/approve',
     ]
 
     for (const route of routes) {
@@ -61,11 +61,10 @@ async function testPilotPortal() {
 
     if (errors.length > 0) {
       console.log('\n❌ Console errors found:')
-      errors.forEach(err => console.log(`   ${err}`))
+      errors.forEach((err) => console.log(`   ${err}`))
     } else {
       console.log('\n✅ No console errors')
     }
-
   } catch (error) {
     console.error('❌ Error:', error.message)
   } finally {

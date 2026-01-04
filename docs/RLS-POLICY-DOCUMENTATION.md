@@ -51,16 +51,17 @@ The system implements a **role-based access control (RBAC)** model with three pr
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Users can view own profile | SELECT | public | User can view their own profile (id = auth.uid()) |
-| an_users_insert_policy | INSERT | public | Only admins can create user accounts |
-| an_users_update_policy | UPDATE | public | Only admins can modify user accounts |
-| an_users_delete_policy | DELETE | public | Only admins can delete user accounts |
+| Policy Name                | Command | Role   | Logic                                             |
+| -------------------------- | ------- | ------ | ------------------------------------------------- |
+| Users can view own profile | SELECT  | public | User can view their own profile (id = auth.uid()) |
+| an_users_insert_policy     | INSERT  | public | Only admins can create user accounts              |
+| an_users_update_policy     | UPDATE  | public | Only admins can modify user accounts              |
+| an_users_delete_policy     | DELETE  | public | Only admins can delete user accounts              |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Self-service profile viewing prevents information leakage
 - Admin-only write operations ensure proper user management
 - No public insertion prevents unauthorized account creation
@@ -75,18 +76,19 @@ The system implements a **role-based access control (RBAC)** model with three pr
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Anyone can register as pilot | INSERT | public | Any authenticated user can register (auth.uid() IS NOT NULL) |
-| Pilots can view own profile | SELECT | public | Pilots see only their own data (id = auth.uid()) |
-| Pilots can update own profile | UPDATE | public | Pilots can modify their own profile |
-| Admins can view all pilot profiles | SELECT | public | Admins/managers see all pilot registrations |
-| Admins can update pilot registrations | UPDATE | public | Admins/managers can approve/modify registrations |
-| Admins can delete pilot registrations | DELETE | public | Only admins can remove pilot accounts |
+| Policy Name                           | Command | Role   | Logic                                                        |
+| ------------------------------------- | ------- | ------ | ------------------------------------------------------------ |
+| Anyone can register as pilot          | INSERT  | public | Any authenticated user can register (auth.uid() IS NOT NULL) |
+| Pilots can view own profile           | SELECT  | public | Pilots see only their own data (id = auth.uid())             |
+| Pilots can update own profile         | UPDATE  | public | Pilots can modify their own profile                          |
+| Admins can view all pilot profiles    | SELECT  | public | Admins/managers see all pilot registrations                  |
+| Admins can update pilot registrations | UPDATE  | public | Admins/managers can approve/modify registrations             |
+| Admins can delete pilot registrations | DELETE  | public | Only admins can remove pilot accounts                        |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Self-registration enabled for pilot onboarding
 - Strong isolation between pilot accounts
 - Admin oversight for approval workflow
@@ -103,22 +105,24 @@ The system implements a **role-based access control (RBAC)** model with three pr
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| pilots_select_policy | SELECT | public | All authenticated users can view pilot data |
-| pilots_insert_policy | INSERT | public | Only admins/managers can add pilots |
-| pilots_update_policy | UPDATE | public | Only admins/managers can modify pilot records |
-| pilots_delete_policy | DELETE | public | Only admins/managers can delete pilots |
-| Service role can modify pilots | ALL | service_role | System operations for data integrity |
+| Policy Name                    | Command | Role         | Logic                                         |
+| ------------------------------ | ------- | ------------ | --------------------------------------------- |
+| pilots_select_policy           | SELECT  | public       | All authenticated users can view pilot data   |
+| pilots_insert_policy           | INSERT  | public       | Only admins/managers can add pilots           |
+| pilots_update_policy           | UPDATE  | public       | Only admins/managers can modify pilot records |
+| pilots_delete_policy           | DELETE  | public       | Only admins/managers can delete pilots        |
+| Service role can modify pilots | ALL     | service_role | System operations for data integrity          |
 
 **Security Level**: 🟡 **MEDIUM** (Open read access)
 
 **Reasoning**:
+
 - Public read access allows dashboards and reports to function
 - Write operations properly restricted to authorized users
 - Service role access enables automated data processing
 
 **Considerations**:
+
 - All authenticated users can view pilot personal data (names, nationality, passport info)
 - This is acceptable for internal airline operations but should be monitored
 
@@ -132,17 +136,18 @@ The system implements a **role-based access control (RBAC)** model with three pr
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| contract_types_select_policy | SELECT | public | All authenticated users can view |
-| contract_types_insert_policy | INSERT | public | Only admins can create contract types |
-| contract_types_update_policy | UPDATE | public | Only admins can modify contract types |
-| contract_types_delete_policy | DELETE | public | Only admins can delete contract types |
-| Service role can modify contract types | ALL | service_role | System-level operations |
+| Policy Name                            | Command | Role         | Logic                                 |
+| -------------------------------------- | ------- | ------------ | ------------------------------------- |
+| contract_types_select_policy           | SELECT  | public       | All authenticated users can view      |
+| contract_types_insert_policy           | INSERT  | public       | Only admins can create contract types |
+| contract_types_update_policy           | UPDATE  | public       | Only admins can modify contract types |
+| contract_types_delete_policy           | DELETE  | public       | Only admins can delete contract types |
+| Service role can modify contract types | ALL     | service_role | System-level operations               |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Reference data needs to be readable by all users for dropdowns/forms
 - Write operations properly restricted to admins
 
@@ -158,17 +163,18 @@ The system implements a **role-based access control (RBAC)** model with three pr
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| pilot_checks_select_policy | SELECT | public | All authenticated users can view certifications |
-| pilot_checks_insert_policy | INSERT | public | Only admins/managers can add certifications |
-| pilot_checks_update_policy | UPDATE | public | Only admins/managers can modify certifications |
-| pilot_checks_delete_policy | DELETE | public | Only admins/managers can delete certifications |
-| Service role can modify pilot checks | ALL | service_role | System operations for data integrity |
+| Policy Name                          | Command | Role         | Logic                                           |
+| ------------------------------------ | ------- | ------------ | ----------------------------------------------- |
+| pilot_checks_select_policy           | SELECT  | public       | All authenticated users can view certifications |
+| pilot_checks_insert_policy           | INSERT  | public       | Only admins/managers can add certifications     |
+| pilot_checks_update_policy           | UPDATE  | public       | Only admins/managers can modify certifications  |
+| pilot_checks_delete_policy           | DELETE  | public       | Only admins/managers can delete certifications  |
+| Service role can modify pilot checks | ALL     | service_role | System operations for data integrity            |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Read access enables compliance monitoring and expiry alerts
 - Write restrictions ensure certification data integrity
 - Critical for FAA compliance and flight safety
@@ -183,17 +189,18 @@ The system implements a **role-based access control (RBAC)** model with three pr
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| check_types_select_policy | SELECT | public | All authenticated users can view |
-| check_types_insert_policy | INSERT | public | Only admins can create check types |
-| check_types_update_policy | UPDATE | public | Only admins can modify check types |
-| check_types_delete_policy | DELETE | public | Only admins can delete check types |
-| Service role can modify check types | ALL | service_role | System-level operations |
+| Policy Name                         | Command | Role         | Logic                              |
+| ----------------------------------- | ------- | ------------ | ---------------------------------- |
+| check_types_select_policy           | SELECT  | public       | All authenticated users can view   |
+| check_types_insert_policy           | INSERT  | public       | Only admins can create check types |
+| check_types_update_policy           | UPDATE  | public       | Only admins can modify check types |
+| check_types_delete_policy           | DELETE  | public       | Only admins can delete check types |
+| Service role can modify check types | ALL     | service_role | System-level operations            |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Reference data for certification system
 - Properly restricted write access
 
@@ -209,16 +216,17 @@ The system implements a **role-based access control (RBAC)** model with three pr
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Users can view own leave requests, admins can view all | SELECT | public | Pilots see own requests OR admins/managers see all |
-| leave_requests_insert_policy | INSERT | public | Only admins/managers can create leave requests |
-| leave_requests_update_policy | UPDATE | public | Only admins/managers can modify leave requests |
-| leave_requests_delete_policy | DELETE | public | Only admins/managers can delete leave requests |
+| Policy Name                                            | Command | Role   | Logic                                              |
+| ------------------------------------------------------ | ------- | ------ | -------------------------------------------------- |
+| Users can view own leave requests, admins can view all | SELECT  | public | Pilots see own requests OR admins/managers see all |
+| leave_requests_insert_policy                           | INSERT  | public | Only admins/managers can create leave requests     |
+| leave_requests_update_policy                           | UPDATE  | public | Only admins/managers can modify leave requests     |
+| leave_requests_delete_policy                           | DELETE  | public | Only admins/managers can delete leave requests     |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Pilots can view their own leave history (privacy maintained)
 - Admins/managers control the leave approval workflow
 - Prevents unauthorized leave modifications
@@ -236,21 +244,23 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Authenticated users can view leave bids | SELECT | authenticated | All authenticated users can view bids |
-| Authenticated users can insert leave bids | INSERT | authenticated | All authenticated users can submit bids |
-| Admins and managers can update leave bids | UPDATE | public | Only admins/managers can modify bids |
-| Admins can delete leave bids | DELETE | public | Only admins can delete bids |
+| Policy Name                               | Command | Role          | Logic                                   |
+| ----------------------------------------- | ------- | ------------- | --------------------------------------- |
+| Authenticated users can view leave bids   | SELECT  | authenticated | All authenticated users can view bids   |
+| Authenticated users can insert leave bids | INSERT  | authenticated | All authenticated users can submit bids |
+| Admins and managers can update leave bids | UPDATE  | public        | Only admins/managers can modify bids    |
+| Admins can delete leave bids              | DELETE  | public        | Only admins can delete bids             |
 
 **Security Level**: 🟡 **MEDIUM** (Open read/write for authenticated users)
 
 **Reasoning**:
+
 - All pilots can view and submit leave bids (collaborative planning)
 - Management retains approval authority
 - Open visibility supports fair leave allocation
 
 **Consideration**:
+
 - All authenticated users can INSERT leave bids (may need restriction to pilot_users only)
 
 ---
@@ -265,16 +275,17 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| disciplinary_select | SELECT | public | Only admins/managers can view cases |
-| disciplinary_insert | INSERT | public | Only admins/managers can create cases |
-| disciplinary_update | UPDATE | public | Only admins/managers can modify cases |
-| disciplinary_delete | DELETE | public | Only admins can delete cases |
+| Policy Name         | Command | Role   | Logic                                 |
+| ------------------- | ------- | ------ | ------------------------------------- |
+| disciplinary_select | SELECT  | public | Only admins/managers can view cases   |
+| disciplinary_insert | INSERT  | public | Only admins/managers can create cases |
+| disciplinary_update | UPDATE  | public | Only admins/managers can modify cases |
+| disciplinary_delete | DELETE  | public | Only admins can delete cases          |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Highly sensitive data with proper access restrictions
 - Pilots cannot view disciplinary records (privacy protection)
 - Admin-only deletion prevents record tampering
@@ -289,14 +300,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| disciplinary_actions_select | SELECT | public | Only admins/managers can view |
-| disciplinary_actions_all | ALL | public | Only admins/managers have full access |
+| Policy Name                 | Command | Role   | Logic                                 |
+| --------------------------- | ------- | ------ | ------------------------------------- |
+| disciplinary_actions_select | SELECT  | public | Only admins/managers can view         |
+| disciplinary_actions_all    | ALL     | public | Only admins/managers have full access |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Sensitive HR data with appropriate access controls
 - Progressive discipline system protected from unauthorized access
 
@@ -310,14 +322,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| disciplinary_comments_select | SELECT | public | Only admins/managers can view |
-| disciplinary_comments_insert | INSERT | public | Admins/managers can comment (must be own user_id) |
+| Policy Name                  | Command | Role   | Logic                                             |
+| ---------------------------- | ------- | ------ | ------------------------------------------------- |
+| disciplinary_comments_select | SELECT  | public | Only admins/managers can view                     |
+| disciplinary_comments_insert | INSERT  | public | Admins/managers can comment (must be own user_id) |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Comments linked to user_id for accountability
 - Access restricted to authorized personnel
 
@@ -331,16 +344,17 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| disciplinary_audit_log_select | SELECT | public | Only admins/managers can view audit logs |
-| disciplinary_audit_log_insert | INSERT | authenticated | All authenticated users can write logs |
-| disciplinary_audit_log_no_update | UPDATE | authenticated | Updates blocked (false) |
-| disciplinary_audit_log_no_delete | DELETE | authenticated | Deletions blocked (false) |
+| Policy Name                      | Command | Role          | Logic                                    |
+| -------------------------------- | ------- | ------------- | ---------------------------------------- |
+| disciplinary_audit_log_select    | SELECT  | public        | Only admins/managers can view audit logs |
+| disciplinary_audit_log_insert    | INSERT  | authenticated | All authenticated users can write logs   |
+| disciplinary_audit_log_no_update | UPDATE  | authenticated | Updates blocked (false)                  |
+| disciplinary_audit_log_no_delete | DELETE  | authenticated | Deletions blocked (false)                |
 
 **Security Level**: 🟢 **STRONG** (Immutable audit trail)
 
 **Reasoning**:
+
 - Proper audit log implementation (insert-only, no modifications)
 - Ensures compliance and accountability
 - Prevents tampering with historical records
@@ -355,15 +369,16 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Admin and manager can view action documents | SELECT | authenticated | Only admins/managers |
-| Admin and manager can insert action documents | INSERT | authenticated | Only admins/managers |
-| Admin can delete action documents | DELETE | authenticated | Only admins |
+| Policy Name                                   | Command | Role          | Logic                |
+| --------------------------------------------- | ------- | ------------- | -------------------- |
+| Admin and manager can view action documents   | SELECT  | authenticated | Only admins/managers |
+| Admin and manager can insert action documents | INSERT  | authenticated | Only admins/managers |
+| Admin can delete action documents             | DELETE  | authenticated | Only admins          |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Sensitive documentation with proper access controls
 - Admin-only deletion prevents evidence tampering
 
@@ -377,14 +392,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| incident_types_select | SELECT | authenticated | All authenticated users can view |
-| incident_types_all | ALL | public | Only admins/managers can modify |
+| Policy Name           | Command | Role          | Logic                            |
+| --------------------- | ------- | ------------- | -------------------------------- |
+| incident_types_select | SELECT  | authenticated | All authenticated users can view |
+| incident_types_all    | ALL     | public        | Only admins/managers can modify  |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Reference data accessible for incident reporting
 - Write access properly restricted
 
@@ -400,16 +416,17 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| tasks_select | SELECT | public | Users see own tasks (created/assigned) OR admins/managers see all |
-| tasks_insert | INSERT | public | Admins/managers can create tasks (must set created_by = auth.uid()) |
-| tasks_update | UPDATE | public | Users can update own tasks OR admins/managers update all |
-| tasks_delete | DELETE | public | Only admins can delete tasks |
+| Policy Name  | Command | Role   | Logic                                                               |
+| ------------ | ------- | ------ | ------------------------------------------------------------------- |
+| tasks_select | SELECT  | public | Users see own tasks (created/assigned) OR admins/managers see all   |
+| tasks_insert | INSERT  | public | Admins/managers can create tasks (must set created_by = auth.uid()) |
+| tasks_update | UPDATE  | public | Users can update own tasks OR admins/managers update all            |
+| tasks_delete | DELETE  | public | Only admins can delete tasks                                        |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Task isolation between users
 - Proper ownership validation
 - Admin oversight maintained
@@ -424,14 +441,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| task_comments_select | SELECT | public | View if own comment OR assigned/created task OR admin/manager |
-| task_comments_insert | INSERT | public | Must be authenticated and set user_id = auth.uid() |
+| Policy Name          | Command | Role   | Logic                                                         |
+| -------------------- | ------- | ------ | ------------------------------------------------------------- |
+| task_comments_select | SELECT  | public | View if own comment OR assigned/created task OR admin/manager |
+| task_comments_insert | INSERT  | public | Must be authenticated and set user_id = auth.uid()            |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Comments visible to task participants only
 - Proper user attribution enforced
 
@@ -445,16 +463,17 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| task_audit_log_select | SELECT | public | Only admins/managers can view |
-| task_audit_log_insert | INSERT | authenticated | All authenticated users can write logs |
-| task_audit_log_no_update | UPDATE | authenticated | Updates blocked (false) |
-| task_audit_log_no_delete | DELETE | authenticated | Deletions blocked (false) |
+| Policy Name              | Command | Role          | Logic                                  |
+| ------------------------ | ------- | ------------- | -------------------------------------- |
+| task_audit_log_select    | SELECT  | public        | Only admins/managers can view          |
+| task_audit_log_insert    | INSERT  | authenticated | All authenticated users can write logs |
+| task_audit_log_no_update | UPDATE  | authenticated | Updates blocked (false)                |
+| task_audit_log_no_delete | DELETE  | authenticated | Deletions blocked (false)              |
 
 **Security Level**: 🟢 **STRONG** (Immutable audit trail)
 
 **Reasoning**:
+
 - Proper audit log implementation
 - Ensures accountability for task changes
 
@@ -468,14 +487,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| task_categories_select | SELECT | authenticated | All authenticated users can view |
-| task_categories_all | ALL | public | Only admins/managers can modify |
+| Policy Name            | Command | Role          | Logic                            |
+| ---------------------- | ------- | ------------- | -------------------------------- |
+| task_categories_select | SELECT  | authenticated | All authenticated users can view |
+| task_categories_all    | ALL     | public        | Only admins/managers can modify  |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Reference data with proper access controls
 
 ---
@@ -490,16 +510,17 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Users can view their own documents | SELECT | public | Own documents OR public documents OR admin/manager |
-| Users can upload documents | INSERT | public | Must set uploaded_by = auth.uid() |
-| Users can update their own documents | UPDATE | public | Own documents only |
-| Admins can manage all documents | ALL | public | Full access for admins |
+| Policy Name                          | Command | Role   | Logic                                              |
+| ------------------------------------ | ------- | ------ | -------------------------------------------------- |
+| Users can view their own documents   | SELECT  | public | Own documents OR public documents OR admin/manager |
+| Users can upload documents           | INSERT  | public | Must set uploaded_by = auth.uid()                  |
+| Users can update their own documents | UPDATE  | public | Own documents only                                 |
+| Admins can manage all documents      | ALL     | public | Full access for admins                             |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - User document isolation maintained
 - Public document sharing enabled (is_public flag)
 - Admin oversight for document management
@@ -514,14 +535,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Anyone can view active document categories | SELECT | public | All users see active categories |
-| Admins can manage document categories | ALL | public | Only admins can modify |
+| Policy Name                                | Command | Role   | Logic                           |
+| ------------------------------------------ | ------- | ------ | ------------------------------- |
+| Anyone can view active document categories | SELECT  | public | All users see active categories |
+| Admins can manage document categories      | ALL     | public | Only admins can modify          |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Reference data accessible for document organization
 
 ---
@@ -534,15 +556,16 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Users can view their own access logs | SELECT | public | user_id = auth.uid() |
-| Admins can view all access logs | SELECT | public | Admins see all logs |
-| System can insert access logs | INSERT | public | user_id = auth.uid() OR admin/manager |
+| Policy Name                          | Command | Role   | Logic                                 |
+| ------------------------------------ | ------- | ------ | ------------------------------------- |
+| Users can view their own access logs | SELECT  | public | user_id = auth.uid()                  |
+| Admins can view all access logs      | SELECT  | public | Admins see all logs                   |
+| System can insert access logs        | INSERT  | public | user_id = auth.uid() OR admin/manager |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Access logging for compliance
 - Users can review their own access history
 - Admin visibility for auditing
@@ -559,14 +582,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Anyone can view active forms | SELECT | public | All users see active forms (is_active = true) |
-| Admins can manage forms | ALL | public | Only admins have full access |
+| Policy Name                  | Command | Role   | Logic                                         |
+| ---------------------------- | ------- | ------ | --------------------------------------------- |
+| Anyone can view active forms | SELECT  | public | All users see active forms (is_active = true) |
+| Admins can manage forms      | ALL     | public | Only admins have full access                  |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Form templates accessible to all users for submissions
 - Form design restricted to admins
 
@@ -580,15 +604,16 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Users can view their own submissions | SELECT | public | Own submissions OR admin/manager sees all |
-| Users can create submissions | INSERT | public | Must set submitted_by = auth.uid() |
-| Managers can approve submissions | UPDATE | public | Only admins/managers can update (for approval) |
+| Policy Name                          | Command | Role   | Logic                                          |
+| ------------------------------------ | ------- | ------ | ---------------------------------------------- |
+| Users can view their own submissions | SELECT  | public | Own submissions OR admin/manager sees all      |
+| Users can create submissions         | INSERT  | public | Must set submitted_by = auth.uid()             |
+| Managers can approve submissions     | UPDATE  | public | Only admins/managers can update (for approval) |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Submission isolation between users
 - Proper approval workflow enforced
 
@@ -604,17 +629,18 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Pilots can view own flight requests | SELECT | public | pilot_user_id = auth.uid() |
-| Admins can view all flight requests | SELECT | public | Admins/managers see all requests |
-| Pilots can create flight requests | INSERT | public | Must set pilot_user_id = auth.uid() |
-| Pilots can update own pending flight requests | UPDATE | public | Own pending requests only |
-| Admins can update flight requests | UPDATE | public | Admins/managers can update any request |
+| Policy Name                                   | Command | Role   | Logic                                  |
+| --------------------------------------------- | ------- | ------ | -------------------------------------- |
+| Pilots can view own flight requests           | SELECT  | public | pilot_user_id = auth.uid()             |
+| Admins can view all flight requests           | SELECT  | public | Admins/managers see all requests       |
+| Pilots can create flight requests             | INSERT  | public | Must set pilot_user_id = auth.uid()    |
+| Pilots can update own pending flight requests | UPDATE  | public | Own pending requests only              |
+| Admins can update flight requests             | UPDATE  | public | Admins/managers can update any request |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Pilots control their own pending requests
 - Approval authority maintained by management
 - Request isolation between pilots
@@ -631,17 +657,18 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Anyone can view active posts | SELECT | public | status = 'active' OR admin/manager |
-| Pilots can create posts | INSERT | public | Must be pilot user (EXISTS check on pilot_users) |
-| Pilots can update own posts | UPDATE | public | Own posts OR admin/manager |
-| Pilots can delete own posts | DELETE | public | Own posts OR admin |
-| Admins can manage posts | ALL | public | Full access for admins/managers |
+| Policy Name                  | Command | Role   | Logic                                            |
+| ---------------------------- | ------- | ------ | ------------------------------------------------ |
+| Anyone can view active posts | SELECT  | public | status = 'active' OR admin/manager               |
+| Pilots can create posts      | INSERT  | public | Must be pilot user (EXISTS check on pilot_users) |
+| Pilots can update own posts  | UPDATE  | public | Own posts OR admin/manager                       |
+| Pilots can delete own posts  | DELETE  | public | Own posts OR admin                               |
+| Admins can manage posts      | ALL     | public | Full access for admins/managers                  |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Open discussion platform with moderation controls
 - Admins can manage flagged content
 - Anonymous posting supported (is_anonymous flag)
@@ -656,17 +683,18 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Anyone can view comments | SELECT | public | Comments on active posts |
-| Pilots can create comments | INSERT | public | Must be pilot user |
-| Pilots can update own comments | UPDATE | public | Own comments OR admin/manager |
-| Pilots can delete own comments | DELETE | public | Own comments OR admin |
-| Admins can manage comments | ALL | public | Full access for admins/managers |
+| Policy Name                    | Command | Role   | Logic                           |
+| ------------------------------ | ------- | ------ | ------------------------------- |
+| Anyone can view comments       | SELECT  | public | Comments on active posts        |
+| Pilots can create comments     | INSERT  | public | Must be pilot user              |
+| Pilots can update own comments | UPDATE  | public | Own comments OR admin/manager   |
+| Pilots can delete own comments | DELETE  | public | Own comments OR admin           |
+| Admins can manage comments     | ALL     | public | Full access for admins/managers |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Threaded discussion with proper moderation
 - Comment ownership enforced
 
@@ -680,15 +708,16 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Anyone can view active categories | SELECT | public | All authenticated users |
-| Pilots can create categories | INSERT | public | Must set created_by = auth.uid() |
-| Admins can manage categories | ALL | public | Full access for admins/managers |
+| Policy Name                       | Command | Role   | Logic                            |
+| --------------------------------- | ------- | ------ | -------------------------------- |
+| Anyone can view active categories | SELECT  | public | All authenticated users          |
+| Pilots can create categories      | INSERT  | public | Must set created_by = auth.uid() |
+| Admins can manage categories      | ALL     | public | Full access for admins/managers  |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - User-driven category creation (collaborative)
 - Admin moderation available
 
@@ -704,14 +733,15 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Users can view own notifications | SELECT | public | recipient_id = auth.uid() |
-| Users can update own notifications | UPDATE | public | recipient_id = auth.uid() (for marking as read) |
+| Policy Name                        | Command | Role   | Logic                                           |
+| ---------------------------------- | ------- | ------ | ----------------------------------------------- |
+| Users can view own notifications   | SELECT  | public | recipient_id = auth.uid()                       |
+| Users can update own notifications | UPDATE  | public | recipient_id = auth.uid() (for marking as read) |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Notification isolation between users
 - Users can mark notifications as read
 - No INSERT policy (notifications created via server-side triggers/functions)
@@ -728,22 +758,24 @@ The SELECT policy uses a complex join to match pilot_id to the user's employee_i
 
 #### Policies
 
-| Policy Name | Command | Role | Logic |
-|-------------|---------|------|-------|
-| Authenticated users can read settings | SELECT | authenticated | All authenticated users |
-| Only admins can insert settings | INSERT | public | Only admins |
-| Only admins can update settings | UPDATE | public | Only admins |
-| Only admins can delete settings | DELETE | public | Only admins |
-| Service role can modify settings | ALL | service_role | System-level operations |
+| Policy Name                           | Command | Role          | Logic                   |
+| ------------------------------------- | ------- | ------------- | ----------------------- |
+| Authenticated users can read settings | SELECT  | authenticated | All authenticated users |
+| Only admins can insert settings       | INSERT  | public        | Only admins             |
+| Only admins can update settings       | UPDATE  | public        | Only admins             |
+| Only admins can delete settings       | DELETE  | public        | Only admins             |
+| Service role can modify settings      | ALL     | service_role  | System-level operations |
 
 **Security Level**: 🟢 **STRONG**
 
 **Reasoning**:
+
 - Configuration readable by all (needed for app functionality)
 - Write operations restricted to admins
 - Service role for automated configuration management
 
 **Current Settings**:
+
 - fleet_compliance_thresholds
 - roster_period_settings
 - system_notifications
@@ -766,13 +798,13 @@ All 28 tables have RLS enabled with comprehensive policy coverage.
 
 ### Policy Statistics
 
-| Access Level | Tables | Percentage |
-|--------------|--------|------------|
-| Public Read (all authenticated) | 12 | 43% |
-| Role-Based Read | 16 | 57% |
-| Admin-Only Write | 18 | 64% |
-| Admin/Manager Write | 10 | 36% |
-| Immutable Audit Logs | 2 | 7% |
+| Access Level                    | Tables | Percentage |
+| ------------------------------- | ------ | ---------- |
+| Public Read (all authenticated) | 12     | 43%        |
+| Role-Based Read                 | 16     | 57%        |
+| Admin-Only Write                | 18     | 64%        |
+| Admin/Manager Write             | 10     | 36%        |
+| Immutable Audit Logs            | 2      | 7%         |
 
 ### Critical Tables with Strong Policies
 
@@ -790,6 +822,7 @@ All 28 tables have RLS enabled with comprehensive policy coverage.
 ### 1. Medium Priority Improvements
 
 #### A. Restrict Leave Bid Creation
+
 **Current**: All authenticated users can insert leave_bids
 **Recommendation**: Restrict to pilot_users only
 
@@ -805,6 +838,7 @@ USING (
 ```
 
 #### B. Add Pilot Self-Service Read Access
+
 **Current**: Pilots cannot view their own certification data
 **Recommendation**: Add SELECT policy for pilots to view their own pilot_checks
 
@@ -824,28 +858,36 @@ USING (
 ### 2. Low Priority Enhancements
 
 #### A. Add Row-Level Auditing
+
 Consider adding trigger functions to automatically populate audit logs for critical tables:
+
 - pilot modifications
 - certification changes
 - leave request approvals
 
 #### B. Implement Data Retention Policies
+
 Create policies or scheduled jobs to archive:
+
 - Old leave requests (>2 years)
 - Expired certifications
 - Resolved disciplinary matters
 
 #### C. Add IP-Based Access Restrictions
+
 For admin operations, consider adding IP whitelist checks in policies (if supported by deployment environment).
 
 ### 3. Documentation Updates
 
 #### A. Policy Naming Convention
+
 Standardize policy names across all tables:
+
 - Use format: `{table}_{operation}_{role}`
 - Example: `pilots_select_all` instead of `pilots_select_policy`
 
 #### B. Policy Comments
+
 Add SQL comments to complex policies explaining business logic:
 
 ```sql
@@ -864,11 +906,11 @@ After comprehensive review, **no critical security gaps were identified**. All t
 
 ### Summary of Findings
 
-| Severity | Count | Status |
-|----------|-------|--------|
-| 🔴 Critical | 0 | ✅ None Found |
-| 🟡 Medium | 2 | See Recommendations |
-| 🟢 Low | 3 | Optional Enhancements |
+| Severity    | Count | Status                |
+| ----------- | ----- | --------------------- |
+| 🔴 Critical | 0     | ✅ None Found         |
+| 🟡 Medium   | 2     | See Recommendations   |
+| 🟢 Low      | 3     | Optional Enhancements |
 
 ---
 
@@ -877,11 +919,13 @@ After comprehensive review, **no critical security gaps were identified**. All t
 ### Audit Log Coverage
 
 The following tables have immutable audit trails:
+
 - `task_audit_log` - Task changes
 - `disciplinary_audit_log` - Disciplinary actions
 - `document_access_log` - Document access tracking
 
 **Recommendation**: Consider adding audit tables for:
+
 - `pilot_changes_log` - Track modifications to pilot records
 - `certification_changes_log` - Track certification updates
 - `leave_request_changes_log` - Track leave request approval workflow
@@ -889,6 +933,7 @@ The following tables have immutable audit trails:
 ### Data Privacy Compliance
 
 **GDPR/Privacy Considerations**:
+
 - ✅ Pilots can view their own data
 - ✅ Personal data access is logged
 - ✅ Data isolation between users is enforced
@@ -939,11 +984,11 @@ SELECT COUNT(*) FROM leave_requests; -- Should return all requests
 
 ### Regular Review Schedule
 
-| Activity | Frequency | Responsible |
-|----------|-----------|-------------|
-| RLS Policy Audit | Quarterly | Security Team |
-| Policy Performance Review | Monthly | DevOps Team |
-| Audit Log Analysis | Weekly | Admin Team |
+| Activity                    | Frequency | Responsible      |
+| --------------------------- | --------- | ---------------- |
+| RLS Policy Audit            | Quarterly | Security Team    |
+| Policy Performance Review   | Monthly   | DevOps Team      |
+| Audit Log Analysis          | Weekly    | Admin Team       |
 | Policy Documentation Update | As Needed | Development Team |
 
 ### Policy Change Management
@@ -976,37 +1021,37 @@ The system is **production-ready** from a security perspective. The minor improv
 
 ## Appendix A: Policy Count by Table
 
-| Table | Total Policies | SELECT | INSERT | UPDATE | DELETE | ALL |
-|-------|----------------|--------|--------|--------|--------|-----|
-| an_users | 4 | 1 | 1 | 1 | 1 | 0 |
-| check_types | 5 | 1 | 1 | 1 | 1 | 1 |
-| contract_types | 5 | 1 | 1 | 1 | 1 | 1 |
-| digital_forms | 2 | 1 | 0 | 0 | 0 | 1 |
-| disciplinary_action_documents | 3 | 1 | 1 | 0 | 1 | 0 |
-| disciplinary_actions | 2 | 1 | 0 | 0 | 0 | 1 |
-| disciplinary_audit_log | 5 | 2 | 1 | 1 | 1 | 0 |
-| disciplinary_comments | 2 | 1 | 1 | 0 | 0 | 0 |
-| disciplinary_matters | 4 | 1 | 1 | 1 | 1 | 0 |
-| document_access_log | 3 | 2 | 1 | 0 | 0 | 0 |
-| document_categories | 2 | 1 | 0 | 0 | 0 | 1 |
-| documents | 4 | 1 | 1 | 1 | 0 | 1 |
-| feedback_categories | 3 | 1 | 1 | 0 | 0 | 1 |
-| feedback_comments | 5 | 1 | 1 | 1 | 1 | 1 |
-| feedback_posts | 5 | 1 | 1 | 1 | 1 | 1 |
-| flight_requests | 5 | 2 | 1 | 2 | 0 | 0 |
-| form_submissions | 3 | 1 | 1 | 1 | 0 | 0 |
-| incident_types | 2 | 1 | 0 | 0 | 0 | 1 |
-| leave_bids | 4 | 1 | 1 | 1 | 1 | 0 |
-| leave_requests | 4 | 1 | 1 | 1 | 1 | 0 |
-| notifications | 2 | 1 | 0 | 1 | 0 | 0 |
-| pilot_checks | 5 | 1 | 1 | 1 | 1 | 1 |
-| pilot_users | 6 | 2 | 1 | 2 | 1 | 0 |
-| pilots | 5 | 1 | 1 | 1 | 1 | 1 |
-| settings | 5 | 1 | 1 | 1 | 1 | 1 |
-| task_audit_log | 5 | 2 | 1 | 1 | 1 | 0 |
-| task_categories | 2 | 1 | 0 | 0 | 0 | 1 |
-| task_comments | 2 | 1 | 1 | 0 | 0 | 0 |
-| tasks | 4 | 1 | 1 | 1 | 1 | 0 |
+| Table                         | Total Policies | SELECT | INSERT | UPDATE | DELETE | ALL |
+| ----------------------------- | -------------- | ------ | ------ | ------ | ------ | --- |
+| an_users                      | 4              | 1      | 1      | 1      | 1      | 0   |
+| check_types                   | 5              | 1      | 1      | 1      | 1      | 1   |
+| contract_types                | 5              | 1      | 1      | 1      | 1      | 1   |
+| digital_forms                 | 2              | 1      | 0      | 0      | 0      | 1   |
+| disciplinary_action_documents | 3              | 1      | 1      | 0      | 1      | 0   |
+| disciplinary_actions          | 2              | 1      | 0      | 0      | 0      | 1   |
+| disciplinary_audit_log        | 5              | 2      | 1      | 1      | 1      | 0   |
+| disciplinary_comments         | 2              | 1      | 1      | 0      | 0      | 0   |
+| disciplinary_matters          | 4              | 1      | 1      | 1      | 1      | 0   |
+| document_access_log           | 3              | 2      | 1      | 0      | 0      | 0   |
+| document_categories           | 2              | 1      | 0      | 0      | 0      | 1   |
+| documents                     | 4              | 1      | 1      | 1      | 0      | 1   |
+| feedback_categories           | 3              | 1      | 1      | 0      | 0      | 1   |
+| feedback_comments             | 5              | 1      | 1      | 1      | 1      | 1   |
+| feedback_posts                | 5              | 1      | 1      | 1      | 1      | 1   |
+| flight_requests               | 5              | 2      | 1      | 2      | 0      | 0   |
+| form_submissions              | 3              | 1      | 1      | 1      | 0      | 0   |
+| incident_types                | 2              | 1      | 0      | 0      | 0      | 1   |
+| leave_bids                    | 4              | 1      | 1      | 1      | 1      | 0   |
+| leave_requests                | 4              | 1      | 1      | 1      | 1      | 0   |
+| notifications                 | 2              | 1      | 0      | 1      | 0      | 0   |
+| pilot_checks                  | 5              | 1      | 1      | 1      | 1      | 1   |
+| pilot_users                   | 6              | 2      | 1      | 2      | 1      | 0   |
+| pilots                        | 5              | 1      | 1      | 1      | 1      | 1   |
+| settings                      | 5              | 1      | 1      | 1      | 1      | 1   |
+| task_audit_log                | 5              | 2      | 1      | 1      | 1      | 0   |
+| task_categories               | 2              | 1      | 0      | 0      | 0      | 1   |
+| task_comments                 | 2              | 1      | 1      | 0      | 0      | 0   |
+| tasks                         | 4              | 1      | 1      | 1      | 1      | 0   |
 
 **Total Policies**: 106 across 28 tables
 
@@ -1014,12 +1059,12 @@ The system is **production-ready** from a security perspective. The minor improv
 
 ## Appendix B: Role Permission Matrix
 
-| Role | Read Access | Write Access | Delete Access | Notes |
-|------|-------------|--------------|---------------|-------|
-| **Admin** | All tables | All tables | All tables | Full system access |
-| **Manager** | Most tables | Most tables | Limited | Cannot delete audit logs |
-| **Pilot User** | Own data only | Own data only | Own feedback only | Self-service portal |
-| **Service Role** | Critical tables | Critical tables | Critical tables | System operations |
+| Role             | Read Access     | Write Access    | Delete Access     | Notes                    |
+| ---------------- | --------------- | --------------- | ----------------- | ------------------------ |
+| **Admin**        | All tables      | All tables      | All tables        | Full system access       |
+| **Manager**      | Most tables     | Most tables     | Limited           | Cannot delete audit logs |
+| **Pilot User**   | Own data only   | Own data only   | Own feedback only | Self-service portal      |
+| **Service Role** | Critical tables | Critical tables | Critical tables   | System operations        |
 
 ---
 

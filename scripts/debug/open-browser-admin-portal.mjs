@@ -5,18 +5,14 @@ console.log('\n🚀 Opening Fleet Management V2 - Admin Portal in Browser...\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: null,
-  args: [
-    '--start-maximized',
-    '--disable-blink-features=AutomationControlled',
-    '--new-window'
-  ]
+  args: ['--start-maximized', '--disable-blink-features=AutomationControlled', '--new-window'],
 })
 
 const page = await browser.newPage()
 
 console.log('📍 Navigating to Admin Portal Login...')
-await page.goto('http://localhost:3000/auth/login', { 
-  waitUntil: 'networkidle2' 
+await page.goto('http://localhost:3000/auth/login', {
+  waitUntil: 'networkidle2',
 })
 
 console.log('✅ Browser opened!')

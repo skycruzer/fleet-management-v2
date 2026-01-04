@@ -9,10 +9,10 @@ const TOAST_REMOVE_DELAY = 5000
 
 // Toast duration configuration based on variant
 const TOAST_DURATIONS = {
-  success: 3000,    // 3 seconds for success messages
+  success: 3000, // 3 seconds for success messages
   destructive: 7000, // 7 seconds for error messages
-  warning: 5000,     // 5 seconds for warnings
-  default: 5000,     // 5 seconds for default toasts
+  warning: 5000, // 5 seconds for warnings
+  default: 5000, // 5 seconds for default toasts
 } as const
 
 type ToasterToast = ToastProps & {
@@ -108,9 +108,7 @@ export const reducer = (state: State, action: Action): State => {
     case 'UPDATE_TOAST':
       return {
         ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
+        toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
       }
 
     case 'DISMISS_TOAST': {

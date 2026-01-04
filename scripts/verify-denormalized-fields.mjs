@@ -15,7 +15,7 @@ import { readFileSync } from 'fs'
 
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -33,7 +33,8 @@ async function verifyDenormalizedFields() {
   // Fetch all requests with pilot data for comparison
   const { data: requests, error } = await supabase
     .from('pilot_requests')
-    .select(`
+    .select(
+      `
       id,
       pilot_id,
       employee_number,
@@ -48,7 +49,8 @@ async function verifyDenormalizedFields() {
         last_name,
         role
       )
-    `)
+    `
+    )
     .order('created_at', { ascending: true })
 
   if (error) {
@@ -65,10 +67,10 @@ async function verifyDenormalizedFields() {
     missingEmployeeNumber: [],
     incorrectName: [],
     incorrectRank: [],
-    incorrectEmployeeNumber: []
+    incorrectEmployeeNumber: [],
   }
 
-  requests.forEach(req => {
+  requests.forEach((req) => {
     const pilot = req.pilots
 
     // Check if denormalized fields are missing
@@ -89,7 +91,7 @@ async function verifyDenormalizedFields() {
         issues.incorrectName.push({
           id: req.id,
           current: req.name,
-          expected: expectedName
+          expected: expectedName,
         })
       }
 
@@ -97,7 +99,7 @@ async function verifyDenormalizedFields() {
         issues.incorrectRank.push({
           id: req.id,
           current: req.rank,
-          expected: pilot.role
+          expected: pilot.role,
         })
       }
 
@@ -105,7 +107,7 @@ async function verifyDenormalizedFields() {
         issues.incorrectEmployeeNumber.push({
           id: req.id,
           current: req.employee_number,
-          expected: pilot.employee_id
+          expected: pilot.employee_id,
         })
       }
     }
@@ -133,37 +135,47 @@ async function verifyDenormalizedFields() {
   // Missing fields
   if (issues.missingName.length > 0) {
     console.log(`❌ Missing name field: ${issues.missingName.length} record(s)`)
-    console.log(`   IDs: ${issues.missingName.slice(0, 5).join(', ')}${issues.missingName.length > 5 ? '...' : ''}`)
+    console.log(
+      `   IDs: ${issues.missingName.slice(0, 5).join(', ')}${issues.missingName.length > 5 ? '...' : ''}`
+    )
   }
 
   if (issues.missingRank.length > 0) {
     console.log(`❌ Missing rank field: ${issues.missingRank.length} record(s)`)
-    console.log(`   IDs: ${issues.missingRank.slice(0, 5).join(', ')}${issues.missingRank.length > 5 ? '...' : ''}`)
+    console.log(
+      `   IDs: ${issues.missingRank.slice(0, 5).join(', ')}${issues.missingRank.length > 5 ? '...' : ''}`
+    )
   }
 
   if (issues.missingEmployeeNumber.length > 0) {
-    console.log(`❌ Missing employee_number field: ${issues.missingEmployeeNumber.length} record(s)`)
-    console.log(`   IDs: ${issues.missingEmployeeNumber.slice(0, 5).join(', ')}${issues.missingEmployeeNumber.length > 5 ? '...' : ''}`)
+    console.log(
+      `❌ Missing employee_number field: ${issues.missingEmployeeNumber.length} record(s)`
+    )
+    console.log(
+      `   IDs: ${issues.missingEmployeeNumber.slice(0, 5).join(', ')}${issues.missingEmployeeNumber.length > 5 ? '...' : ''}`
+    )
   }
 
   // Incorrect fields
   if (issues.incorrectName.length > 0) {
     console.log(`\n⚠️  Incorrect name field: ${issues.incorrectName.length} record(s)`)
-    issues.incorrectName.slice(0, 3).forEach(issue => {
+    issues.incorrectName.slice(0, 3).forEach((issue) => {
       console.log(`   ID ${issue.id}: "${issue.current}" should be "${issue.expected}"`)
     })
   }
 
   if (issues.incorrectRank.length > 0) {
     console.log(`\n⚠️  Incorrect rank field: ${issues.incorrectRank.length} record(s)`)
-    issues.incorrectRank.slice(0, 3).forEach(issue => {
+    issues.incorrectRank.slice(0, 3).forEach((issue) => {
       console.log(`   ID ${issue.id}: "${issue.current}" should be "${issue.expected}"`)
     })
   }
 
   if (issues.incorrectEmployeeNumber.length > 0) {
-    console.log(`\n⚠️  Incorrect employee_number field: ${issues.incorrectEmployeeNumber.length} record(s)`)
-    issues.incorrectEmployeeNumber.slice(0, 3).forEach(issue => {
+    console.log(
+      `\n⚠️  Incorrect employee_number field: ${issues.incorrectEmployeeNumber.length} record(s)`
+    )
+    issues.incorrectEmployeeNumber.slice(0, 3).forEach((issue) => {
       console.log(`   ID ${issue.id}: "${issue.current}" should be "${issue.expected}"`)
     })
   }

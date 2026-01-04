@@ -50,11 +50,7 @@ export default function LeaveEligibilityIndicator({
   const displayMessage = message || config.defaultMessage
 
   return (
-    <div
-      className={`rounded-lg border-l-4 p-4 ${config.color}`}
-      role="alert"
-      aria-live="polite"
-    >
+    <div className={`rounded-lg border-l-4 p-4 ${config.color}`} role="alert" aria-live="polite">
       <div className="flex items-start">
         <div className="flex-shrink-0">
           <span className={`text-2xl ${config.textColor}`}>{config.icon}</span>
@@ -77,7 +73,11 @@ export default function LeaveEligibilityIndicator({
 /**
  * Compact version for inline display
  */
-export function LeaveEligibilityBadge({ status }: { status: 'available' | 'limited' | 'unavailable' }) {
+export function LeaveEligibilityBadge({
+  status,
+}: {
+  status: 'available' | 'limited' | 'unavailable'
+}) {
   const badgeConfig = {
     available: {
       color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
@@ -99,7 +99,9 @@ export function LeaveEligibilityBadge({ status }: { status: 'available' | 'limit
   const config = badgeConfig[status]
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${config.color}`}
+    >
       <span className="text-sm">{config.icon}</span>
       {config.label}
     </span>

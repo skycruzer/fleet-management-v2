@@ -43,10 +43,7 @@ interface FeedbackDashboardProps {
   initialStats: FeedbackStats
 }
 
-export function FeedbackDashboardClient({
-  initialFeedback,
-  initialStats,
-}: FeedbackDashboardProps) {
+export function FeedbackDashboardClient({ initialFeedback, initialStats }: FeedbackDashboardProps) {
   const { toast } = useToast()
   const [feedback, setFeedback] = useState<FeedbackWithPilot[]>(initialFeedback)
   const [stats, setStats] = useState<FeedbackStats>(initialStats)
@@ -250,39 +247,35 @@ export function FeedbackDashboardClient({
       DISMISSED: 'destructive',
     }
 
-    return (
-      <Badge variant={variants[status] || 'default'}>
-        {status}
-      </Badge>
-    )
+    return <Badge variant={variants[status] || 'default'}>{status}</Badge>
   }
 
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="rounded-lg border bg-card p-4">
-          <div className="text-sm font-medium text-muted-foreground">Total</div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="bg-card rounded-lg border p-4">
+          <div className="text-muted-foreground text-sm font-medium">Total</div>
           <div className="text-2xl font-bold">{stats.total}</div>
         </div>
-        <div className="rounded-lg border bg-card p-4">
-          <div className="text-sm font-medium text-muted-foreground">Pending</div>
+        <div className="bg-card rounded-lg border p-4">
+          <div className="text-muted-foreground text-sm font-medium">Pending</div>
           <div className="text-2xl font-bold text-orange-600">{stats.pending}</div>
         </div>
-        <div className="rounded-lg border bg-card p-4">
-          <div className="text-sm font-medium text-muted-foreground">Reviewed</div>
+        <div className="bg-card rounded-lg border p-4">
+          <div className="text-muted-foreground text-sm font-medium">Reviewed</div>
           <div className="text-2xl font-bold text-blue-600">{stats.reviewed}</div>
         </div>
-        <div className="rounded-lg border bg-card p-4">
-          <div className="text-sm font-medium text-muted-foreground">Resolved</div>
+        <div className="bg-card rounded-lg border p-4">
+          <div className="text-muted-foreground text-sm font-medium">Resolved</div>
           <div className="text-2xl font-bold text-green-600">{stats.resolved}</div>
         </div>
       </div>
 
       {/* Filters and Actions */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
           <Input
             placeholder="Search feedback..."
             value={searchTerm}
@@ -321,7 +314,7 @@ export function FeedbackDashboardClient({
         </Select>
 
         <Button onClick={handleExport} variant="outline">
-          <Download className="h-4 w-4 mr-2" />
+          <Download className="mr-2 h-4 w-4" />
           Export CSV
         </Button>
       </div>
@@ -342,22 +335,20 @@ export function FeedbackDashboardClient({
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-muted-foreground py-8 text-center">
                   Loading feedback...
                 </TableCell>
               </TableRow>
             ) : feedback.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-muted-foreground py-8 text-center">
                   No feedback found
                 </TableCell>
               </TableRow>
             ) : (
               feedback.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
                   <TableCell>
                     {item.is_anonymous
                       ? 'Anonymous'
@@ -375,7 +366,7 @@ export function FeedbackDashboardClient({
                         setAdminResponse(item.admin_response || '')
                       }}
                     >
-                      <MessageSquare className="h-4 w-4 mr-2" />
+                      <MessageSquare className="mr-2 h-4 w-4" />
                       View
                     </Button>
                   </TableCell>
@@ -388,12 +379,10 @@ export function FeedbackDashboardClient({
 
       {/* Feedback Detail Modal */}
       <Dialog open={!!selectedFeedback} onOpenChange={() => setSelectedFeedback(null)}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Feedback Details</DialogTitle>
-            <DialogDescription>
-              Review and respond to pilot feedback
-            </DialogDescription>
+            <DialogDescription>Review and respond to pilot feedback</DialogDescription>
           </DialogHeader>
 
           {selectedFeedback && (
@@ -402,7 +391,7 @@ export function FeedbackDashboardClient({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Submitted By</label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {selectedFeedback.is_anonymous
                       ? 'Anonymous'
                       : `${selectedFeedback.pilot?.first_name} ${selectedFeedback.pilot?.last_name}`}
@@ -410,13 +399,13 @@ export function FeedbackDashboardClient({
                 </div>
                 <div>
                   <label className="text-sm font-medium">Date</label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {new Date(selectedFeedback.created_at).toLocaleString()}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Category</label>
-                  <p className="text-sm text-muted-foreground">{selectedFeedback.category}</p>
+                  <p className="text-muted-foreground text-sm">{selectedFeedback.category}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Status</label>
@@ -427,13 +416,13 @@ export function FeedbackDashboardClient({
               {/* Subject */}
               <div>
                 <label className="text-sm font-medium">Subject</label>
-                <p className="text-sm mt-1">{selectedFeedback.subject}</p>
+                <p className="mt-1 text-sm">{selectedFeedback.subject}</p>
               </div>
 
               {/* Message */}
               <div>
                 <label className="text-sm font-medium">Message</label>
-                <p className="text-sm mt-1 whitespace-pre-wrap">{selectedFeedback.message}</p>
+                <p className="mt-1 text-sm whitespace-pre-wrap">{selectedFeedback.message}</p>
               </div>
 
               {/* Admin Response */}

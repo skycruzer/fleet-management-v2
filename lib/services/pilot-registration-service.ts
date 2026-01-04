@@ -79,8 +79,12 @@ export async function submitDirectRegistration(
       success: true,
       data: {
         id: data.id,
-        status: data.registration_approved === null ? 'PENDING' :
-                (data.registration_approved ? 'APPROVED' : 'DENIED'),
+        status:
+          data.registration_approved === null
+            ? 'PENDING'
+            : data.registration_approved
+              ? 'APPROVED'
+              : 'DENIED',
       },
     }
   } catch (error) {

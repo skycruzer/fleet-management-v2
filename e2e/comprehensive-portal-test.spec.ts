@@ -33,7 +33,7 @@ test.describe('Comprehensive Portal Testing', () => {
     // Wait for redirect to dashboard
     await page.waitForURL('/portal/dashboard', {
       timeout: 15000,
-      waitUntil: 'domcontentloaded'
+      waitUntil: 'domcontentloaded',
     })
   })
 
@@ -142,7 +142,7 @@ test.describe('Comprehensive Portal Testing', () => {
       '/portal/certifications',
       '/portal/leave-requests',
       '/portal/flight-requests',
-      '/portal/feedback'
+      '/portal/feedback',
     ]
 
     for (const pagePath of pages) {
@@ -165,7 +165,7 @@ test.describe('Comprehensive Portal Testing', () => {
     const consoleErrors: string[] = []
 
     // Capture console errors
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text())
       }
@@ -178,7 +178,7 @@ test.describe('Comprehensive Portal Testing', () => {
       '/portal/certifications',
       '/portal/leave-requests',
       '/portal/flight-requests',
-      '/portal/feedback'
+      '/portal/feedback',
     ]
 
     for (const pagePath of pages) {
@@ -190,16 +190,17 @@ test.describe('Comprehensive Portal Testing', () => {
     // Log any errors found
     if (consoleErrors.length > 0) {
       console.log('⚠️  Console errors found:')
-      consoleErrors.forEach(error => console.log('  -', error))
+      consoleErrors.forEach((error) => console.log('  -', error))
     } else {
       console.log('✅ No console errors found')
     }
 
     // Critical errors should not exist
-    const criticalErrors = consoleErrors.filter(error =>
-      error.includes('is not defined') ||
-      error.includes('Cannot read') ||
-      error.includes('undefined')
+    const criticalErrors = consoleErrors.filter(
+      (error) =>
+        error.includes('is not defined') ||
+        error.includes('Cannot read') ||
+        error.includes('undefined')
     )
 
     expect(criticalErrors.length).toBe(0)
@@ -209,7 +210,7 @@ test.describe('Comprehensive Portal Testing', () => {
     const failedRequests: string[] = []
 
     // Monitor network requests
-    page.on('response', response => {
+    page.on('response', (response) => {
       if (response.status() >= 400 && response.url().includes('/api/portal/')) {
         failedRequests.push(`${response.status()} ${response.url()}`)
       }
@@ -222,7 +223,7 @@ test.describe('Comprehensive Portal Testing', () => {
       '/portal/certifications',
       '/portal/leave-requests',
       '/portal/flight-requests',
-      '/portal/feedback'
+      '/portal/feedback',
     ]
 
     for (const pagePath of pages) {
@@ -234,7 +235,7 @@ test.describe('Comprehensive Portal Testing', () => {
     // Log any failed requests
     if (failedRequests.length > 0) {
       console.log('⚠️  Failed API requests:')
-      failedRequests.forEach(req => console.log('  -', req))
+      failedRequests.forEach((req) => console.log('  -', req))
     } else {
       console.log('✅ All API requests succeeded')
     }
@@ -250,7 +251,7 @@ test.describe('Comprehensive Portal Testing', () => {
     await page.waitForTimeout(2000)
 
     // Check if there are any leave requests to cancel
-    const hasRequests = await page.locator('[data-testid="leave-request-item"]').count() > 0
+    const hasRequests = (await page.locator('[data-testid="leave-request-item"]').count()) > 0
 
     if (!hasRequests) {
       console.log('ℹ️  No leave requests to test cancellation')
@@ -259,14 +260,17 @@ test.describe('Comprehensive Portal Testing', () => {
 
     // Monitor console for errors
     const consoleErrors: string[] = []
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text())
       }
     })
 
     // Try to find a cancel button
-    const cancelButton = page.locator('button').filter({ hasText: /cancel|withdraw/i }).first()
+    const cancelButton = page
+      .locator('button')
+      .filter({ hasText: /cancel|withdraw/i })
+      .first()
 
     if (await cancelButton.isVisible()) {
       // Click cancel (but don't confirm if there's a confirmation dialog)
@@ -276,13 +280,13 @@ test.describe('Comprehensive Portal Testing', () => {
       await page.waitForTimeout(1000)
 
       // Check for errors
-      const criticalErrors = consoleErrors.filter(error =>
+      const criticalErrors = consoleErrors.filter((error) =>
         error.includes('createClient is not defined')
       )
 
       if (criticalErrors.length > 0) {
         console.log('❌ Found createClient error:')
-        criticalErrors.forEach(error => console.log('  -', error))
+        criticalErrors.forEach((error) => console.log('  -', error))
         throw new Error('createClient is not defined error still occurring')
       } else {
         console.log('✅ No createClient errors found')

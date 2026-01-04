@@ -1,7 +1,7 @@
 ---
 status: completed
 priority: p1
-issue_id: "040"
+issue_id: '040'
 tags: [security, logging, pii, sensitive-data]
 dependencies: []
 ---
@@ -19,6 +19,7 @@ Service functions and Server Actions log sensitive user data (PII, reasons for l
 - **Agent**: security-sentinel
 
 **Exposed Data:**
+
 ```typescript
 // ❌ Logs entire error with user data
 console.error('Error submitting leave request:', error)
@@ -49,12 +50,15 @@ console.error('Error submitting leave request:', {
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** security-sentinel
 **Learnings:** Console logs expose sensitive user data
 
 ### 2025-10-19 - Resolution Complete
+
 **By:** Claude Code
 **Changes Made:**
+
 - Sanitized all console.error() calls in `pilot-portal-service.ts` (24 locations)
 - Sanitized error logging in all portal action files (3 files)
 - Sanitized error logging in `admin-service.ts` (4 locations)
@@ -70,6 +74,7 @@ console.error('Error submitting leave request:', {
   - Personal identifiable information (PII)
 
 **Impact:**
+
 - All sensitive data removed from production logs
 - GDPR compliance improved (Article 32 - Security of processing)
 - Maintains debugging capability with error types and messages

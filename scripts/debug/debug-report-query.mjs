@@ -3,14 +3,17 @@ import { readFileSync } from 'fs'
 
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const parts = line.split('=')
   if (parts.length >= 2) {
     env[parts[0].trim()] = parts.slice(1).join('=').trim()
   }
 })
 
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+const supabase = createClient(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 console.log('🔍 Debugging Report Query Issues\n')
 
@@ -52,7 +55,7 @@ const { data: withRank, error: err4 } = await supabase
   .from('leave_requests')
   .select('*, pilot:pilots!leave_requests_pilot_id_fkey(first_name, last_name, role)')
 
-const filtered = withRank?.filter(r => ['Captain', 'First Officer'].includes(r.pilot?.role))
+const filtered = withRank?.filter((r) => ['Captain', 'First Officer'].includes(r.pilot?.role))
 console.log(`Result: ${filtered?.length || 0} records`)
 if (err4) console.error('Error:', err4.message)
 console.log()
@@ -84,7 +87,7 @@ if (all && all.length > 0) {
 }
 
 // Check if pilot data is missing
-const withoutPilot = all?.filter(r => !r.pilot)
+const withoutPilot = all?.filter((r) => !r.pilot)
 if (withoutPilot && withoutPilot.length > 0) {
   console.log(`⚠️  WARNING: ${withoutPilot.length} records have NULL pilot data!`)
 }

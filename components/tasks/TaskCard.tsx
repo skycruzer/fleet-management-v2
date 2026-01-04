@@ -68,9 +68,9 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
 
   return (
     <div
-      className={`group relative rounded-lg border-l-4 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-gray-800 ${
-        getPriorityColor(task.priority)
-      } ${isDragging ? 'opacity-50' : ''} ${onClick ? 'cursor-pointer' : ''}`}
+      className={`group relative rounded-lg border-l-4 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-gray-800 ${getPriorityColor(
+        task.priority
+      )} ${isDragging ? 'opacity-50' : ''} ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
     >
       {/* Title and Priority Badge */}
@@ -99,7 +99,9 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-500">
         {/* Due Date */}
         {task.due_date && (
-          <div className={`flex items-center gap-1 ${overdue ? 'text-red-600 dark:text-red-400' : ''}`}>
+          <div
+            className={`flex items-center gap-1 ${overdue ? 'text-red-600 dark:text-red-400' : ''}`}
+          >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
@@ -126,9 +128,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
-            <span className="truncate">
-              {task.assigned_user.name || task.assigned_user.email}
-            </span>
+            <span className="truncate">{task.assigned_user.name || task.assigned_user.email}</span>
           </div>
         )}
 
@@ -157,7 +157,8 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
               />
             </svg>
             <span className="truncate">
-              {task.related_pilot.rank} {task.related_pilot.first_name} {task.related_pilot.last_name}
+              {task.related_pilot.rank} {task.related_pilot.first_name}{' '}
+              {task.related_pilot.last_name}
             </span>
           </div>
         )}
@@ -210,13 +211,14 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
             />
           </svg>
           <span>
-            {task.subtasks.filter((st) => st.status === 'DONE').length}/{task.subtasks.length} subtasks
+            {task.subtasks.filter((st) => st.status === 'DONE').length}/{task.subtasks.length}{' '}
+            subtasks
           </span>
         </div>
       )}
 
       {/* Quick Actions (visible on hover) */}
-      <div className="absolute right-2 top-2 opacity-0 transition-opacity group-hover:opacity-100">
+      <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
         <Link
           href={`/dashboard/tasks/${task.id}`}
           className="rounded-md bg-white p-1 text-gray-600 shadow-sm hover:text-blue-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:text-blue-400"

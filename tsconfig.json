@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es6",
-      "ES2022"
-    ],
+    "lib": ["dom", "dom.iterable", "es6", "ES2022"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -25,27 +20,13 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/components/*": [
-        "./components/*"
-      ],
-      "@/lib/*": [
-        "./lib/*"
-      ],
-      "@/types/*": [
-        "./types/*"
-      ],
-      "@/styles/*": [
-        "./styles/*"
-      ],
-      "@/app/*": [
-        "./app/*"
-      ],
-      "@/public/*": [
-        "./public/*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/types/*": ["./types/*"],
+      "@/styles/*": ["./styles/*"],
+      "@/app/*": ["./app/*"],
+      "@/public/*": ["./public/*"]
     },
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": false,

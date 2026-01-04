@@ -50,7 +50,10 @@ test.describe('Leave Approval Dashboard - Authenticated Tests', () => {
       // Check for error messages
       const errorMessage = await page.locator('[role="alert"], .error, .text-red-500').count()
       if (errorMessage > 0) {
-        const errorText = await page.locator('[role="alert"], .error, .text-red-500').first().textContent()
+        const errorText = await page
+          .locator('[role="alert"], .error, .text-red-500')
+          .first()
+          .textContent()
         console.log(`❌ Error message: ${errorText}`)
       }
     }
@@ -67,14 +70,21 @@ test.describe('Leave Approval Dashboard - Authenticated Tests', () => {
     console.log('\nStep 5: Verifying dashboard elements...')
 
     // Check for heading
-    const heading = await page.locator('h1, h2').filter({ hasText: /Leave.*Approval/i }).count()
-    console.log(`  ${heading > 0 ? '✅' : '❌'} Leave Approval heading: ${heading > 0 ? 'Found' : 'Not found'}`)
+    const heading = await page
+      .locator('h1, h2')
+      .filter({ hasText: /Leave.*Approval/i })
+      .count()
+    console.log(
+      `  ${heading > 0 ? '✅' : '❌'} Leave Approval heading: ${heading > 0 ? 'Found' : 'Not found'}`
+    )
 
     // Check for statistics cards
     const stats = ['Pending', 'Eligible', 'Conflict', 'Violation']
     for (const stat of stats) {
       const count = await page.getByText(new RegExp(stat, 'i')).count()
-      console.log(`  ${count > 0 ? '✅' : 'ℹ️ '} ${stat} stat: ${count > 0 ? 'Found' : 'Not found'}`)
+      console.log(
+        `  ${count > 0 ? '✅' : 'ℹ️ '} ${stat} stat: ${count > 0 ? 'Found' : 'Not found'}`
+      )
     }
 
     // Check for filter controls
@@ -89,7 +99,10 @@ test.describe('Leave Approval Dashboard - Authenticated Tests', () => {
     console.log('\nStep 6: Testing filter interactions...')
 
     // Try to click status filter
-    const statusFilter = page.locator('select, button').filter({ hasText: /Status/i }).first()
+    const statusFilter = page
+      .locator('select, button')
+      .filter({ hasText: /Status/i })
+      .first()
     const statusCount = await statusFilter.count()
 
     if (statusCount > 0) {
@@ -101,7 +114,9 @@ test.describe('Leave Approval Dashboard - Authenticated Tests', () => {
 
     // Step 7: Check for request cards
     console.log('\nStep 7: Checking for leave request cards...')
-    const requestCards = await page.locator('[data-testid="leave-request-card"], .leave-request-card, [class*="card"]').count()
+    const requestCards = await page
+      .locator('[data-testid="leave-request-card"], .leave-request-card, [class*="card"]')
+      .count()
     console.log(`  ℹ️  Found ${requestCards} potential request card elements`)
 
     // Check for any data display
@@ -113,7 +128,9 @@ test.describe('Leave Approval Dashboard - Authenticated Tests', () => {
     // Step 8: Check for crew availability widget
     console.log('\nStep 8: Checking for crew availability widget...')
     const crewWidget = await page.getByText(/Crew.*Availability/i).count()
-    console.log(`  ${crewWidget > 0 ? '✅' : 'ℹ️ '} Crew Availability widget: ${crewWidget > 0 ? 'Found' : 'Not found'}`)
+    console.log(
+      `  ${crewWidget > 0 ? '✅' : 'ℹ️ '} Crew Availability widget: ${crewWidget > 0 ? 'Found' : 'Not found'}`
+    )
 
     const captainInfo = await page.getByText(/Captain/i).count()
     const foInfo = await page.getByText(/First Officer/i).count()
@@ -127,8 +144,12 @@ test.describe('Leave Approval Dashboard - Authenticated Tests', () => {
     const approveButton = await page.getByRole('button', { name: /approve/i }).count()
     const denyButton = await page.getByRole('button', { name: /deny/i }).count()
 
-    console.log(`  ${approveButton > 0 ? '✅' : 'ℹ️ '} Approve button: ${approveButton > 0 ? 'Found' : 'Not found'}`)
-    console.log(`  ${denyButton > 0 ? '✅' : 'ℹ️ '} Deny button: ${denyButton > 0 ? 'Found' : 'Not found'}`)
+    console.log(
+      `  ${approveButton > 0 ? '✅' : 'ℹ️ '} Approve button: ${approveButton > 0 ? 'Found' : 'Not found'}`
+    )
+    console.log(
+      `  ${denyButton > 0 ? '✅' : 'ℹ️ '} Deny button: ${denyButton > 0 ? 'Found' : 'Not found'}`
+    )
 
     // Step 10: Full page screenshot
     console.log('\nStep 10: Taking final full page screenshot...')

@@ -1,4 +1,5 @@
 # UX Review Report
+
 **Fleet Management V2 - Phase 1.4**
 **Date**: October 27, 2025
 **Auditor**: Claude Code (Comprehensive Project Review)
@@ -12,6 +13,7 @@ Fleet Management V2 demonstrates **strong accessibility foundations** with ARIA 
 **Overall UX Score**: 7.0/10
 
 ### Critical Findings Summary
+
 - **P0 Issues**: 2 (Form submission feedback missing, error handling inconsistent)
 - **P1 Issues**: 10 (Loading states, navigation, mobile UX, offline UX)
 - **P2 Issues**: 12 (Accessibility gaps, form validation UX, empty states)
@@ -51,6 +53,7 @@ Fleet Management V2 demonstrates **strong accessibility foundations** with ARIA 
 ```
 
 **✅ Strengths:**
+
 - Decorative icons properly hidden with `aria-hidden="true"`
 - Form elements have descriptive labels
 - Live regions for dynamic content
@@ -64,6 +67,7 @@ Fleet Management V2 demonstrates **strong accessibility foundations** with ARIA 
 **Issue**: Focus not managed after modal close or navigation
 
 **Example**:
+
 ```tsx
 // components/ui/dialog.tsx (hypothetical)
 function closeDialog() {
@@ -73,12 +77,13 @@ function closeDialog() {
 ```
 
 **Recommended Fix:**
+
 ```tsx
 const triggerRef = useRef<HTMLButtonElement>(null)
 
 function closeDialog() {
   setIsOpen(false)
-  triggerRef.current?.focus()  // ✅ Return focus
+  triggerRef.current?.focus() // ✅ Return focus
 }
 ```
 
@@ -95,11 +100,13 @@ function closeDialog() {
 **Test**: Tab through application, verify all interactive elements are reachable
 
 **Common Issues**:
+
 - Click handlers on `<div>` without `tabIndex={0}` and `role="button"`
 - Custom components without keyboard event handlers
 - Focus traps in modals
 
 **Recommendation**: Audit for:
+
 ```tsx
 // ❌ Not keyboard accessible
 <div onClick={handleClick}>Click me</div>
@@ -130,16 +137,15 @@ function closeDialog() {
 **Current State**: Some forms use `role="alert"`, others don't
 
 **Recommendation**: Standardize error announcements
+
 ```tsx
-{errors.fieldName && (
-  <p
-    role="alert"
-    aria-live="assertive"
-    className="text-sm text-red-600"
-  >
-    {errors.fieldName.message}
-  </p>
-)}
+{
+  errors.fieldName && (
+    <p role="alert" aria-live="assertive" className="text-sm text-red-600">
+      {errors.fieldName.message}
+    </p>
+  )
+}
 ```
 
 **Severity**: MEDIUM
@@ -152,6 +158,7 @@ function closeDialog() {
 **Issue**: No systematic audit of image alt text
 
 **Recommendation**: Audit all `<Image>` and `<img>` tags
+
 ```tsx
 // ✅ Descriptive alt text
 <Image src="/pilot.jpg" alt="Captain John Smith, B767 pilot" />
@@ -173,6 +180,7 @@ function closeDialog() {
 **✅ Good Practice**: Using semantic elements
 
 **Examples**:
+
 - `<nav>` for navigation
 - `<main>` for main content
 - `<header>`, `<footer>` sections
@@ -185,6 +193,7 @@ function closeDialog() {
 **Issue**: Heading levels may skip (h1 → h3, skipping h2)
 
 **Recommendation**: Audit heading structure
+
 ```tsx
 <h1>Dashboard</h1>
 <h2>Pilot Information</h2>  {/* ✅ h2 follows h1 */}
@@ -206,11 +215,13 @@ function closeDialog() {
 **Recommendation**: Run automated contrast checker
 
 **Tool**: Use Lighthouse accessibility audit
+
 ```bash
 npx playwright test --grep accessibility
 ```
 
 **Check**:
+
 - Text on background meets WCAG AA (4.5:1 for normal text, 3:1 for large text)
 - Interactive elements have visible focus indicators
 - Error states use more than just color (icons, text)
@@ -227,6 +238,7 @@ npx playwright test --grep accessibility
 **Statistics**: 414+ responsive utility instances found
 
 **Breakpoints Used:**
+
 ```typescript
 sm:   // 640px
 md:   // 768px
@@ -245,11 +257,13 @@ xl:   // 1280px
 **Issue**: Mobile navigation test is skipped (disabled)
 
 **Potential Problems**:
+
 - Hamburger menu may not work
 - Touch targets may be too small
 - Mobile navigation may overlap content
 
 **Recommendation**: Re-enable and fix mobile navigation tests
+
 ```bash
 mv e2e/mobile-navigation.spec.ts.skip e2e/mobile-navigation.spec.ts
 npm test -- mobile-navigation
@@ -266,6 +280,7 @@ npm test -- mobile-navigation
 **Issue**: Interactive elements may be smaller than 44×44px (Apple/WCAG recommendation)
 
 **Examples to Check**:
+
 ```tsx
 // ❌ Too small for mobile
 <button className="p-1">...</button>  // ~32px
@@ -286,15 +301,15 @@ npm test -- mobile-navigation
 **Issue**: Tables may cause horizontal scroll on mobile
 
 **Recommendation**: Wrap tables in scroll containers
+
 ```tsx
 <div className="overflow-x-auto">
-  <table className="min-w-full">
-    {/* Table content */}
-  </table>
+  <table className="min-w-full">{/* Table content */}</table>
 </div>
 ```
 
 **Or use card layout on mobile:**
+
 ```tsx
 <div className="hidden md:block">
   <Table />  {/* Desktop: Table */}
@@ -314,6 +329,7 @@ npm test -- mobile-navigation
 #### **P2-005: No Mobile Gestures**
 
 **Missing Features**:
+
 - Swipe to delete
 - Pull to refresh
 - Swipe navigation between views
@@ -330,6 +346,7 @@ npm test -- mobile-navigation
 ### 3.1 Loading Indicators
 
 **✅ Loading Components Exist:**
+
 - `app/portal/(protected)/dashboard/loading.tsx`
 - `components/ui/retry-indicator.tsx`
 
@@ -340,33 +357,35 @@ npm test -- mobile-navigation
 **Issue**: Some forms/actions don't show loading state during submission
 
 **Example** (hypothetical):
+
 ```tsx
 async function handleSubmit(data) {
   // ❌ No loading state shown
   await fetch('/api/pilots', {
     method: 'POST',
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
   // User sees no feedback during API call
 }
 ```
 
 **Recommended Fix:**
+
 ```tsx
 const [isSubmitting, setIsSubmitting] = useState(false)
 
 async function handleSubmit(data) {
-  setIsSubmitting(true)  // ✅ Show loading
+  setIsSubmitting(true) // ✅ Show loading
   try {
     await fetch('/api/pilots', {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
     toast.success('Pilot created successfully')
   } catch (error) {
     toast.error('Failed to create pilot')
   } finally {
-    setIsSubmitting(false)  // ✅ Hide loading
+    setIsSubmitting(false) // ✅ Hide loading
   }
 }
 
@@ -395,22 +414,25 @@ return (
 **Issue**: Pages show blank space while loading data
 
 **Current**:
+
 ```tsx
 // ❌ Blank space during load
-{data ? <PilotTable data={data} /> : null}
+{
+  data ? <PilotTable data={data} /> : null
+}
 ```
 
 **Better**:
+
 ```tsx
 // ✅ Skeleton loader
-{data ? (
-  <PilotTable data={data} />
-) : (
-  <PilotTableSkeleton />
-)}
+{
+  data ? <PilotTable data={data} /> : <PilotTableSkeleton />
+}
 ```
 
 **Recommendation**: Use shadcn/ui skeleton component
+
 ```bash
 npx shadcn@latest add skeleton
 ```
@@ -428,12 +450,14 @@ npx shadcn@latest add skeleton
 **Issue**: Errors displayed differently across the app
 
 **Patterns Found**:
+
 1. Toast notifications
 2. Inline error messages
 3. Alert banners
 4. Console logs only (worst)
 
 **Recommendation**: Standardize error display
+
 ```tsx
 // lib/utils/error-display.ts
 export function displayError(error: Error, context: string) {
@@ -447,6 +471,7 @@ export function displayError(error: Error, context: string) {
 ```
 
 **Usage**:
+
 ```tsx
 catch (error) {
   displayError(error, 'PilotCreation')
@@ -464,6 +489,7 @@ catch (error) {
 **Issue**: React errors may crash entire app
 
 **Recommendation**: Add error boundaries
+
 ```tsx
 // components/error-boundary.tsx
 import { ErrorBoundary } from 'react-error-boundary'
@@ -479,9 +505,7 @@ function ErrorFallback({ error, resetErrorBoundary }) {
 }
 
 // app/layout.tsx
-<ErrorBoundary FallbackComponent={ErrorFallback}>
-  {children}
-</ErrorBoundary>
+;<ErrorBoundary FallbackComponent={ErrorFallback}>{children}</ErrorBoundary>
 ```
 
 **Severity**: HIGH
@@ -497,15 +521,17 @@ function ErrorFallback({ error, resetErrorBoundary }) {
 **Issue**: After successful action, no clear confirmation
 
 **Current** (hypothetical):
+
 ```tsx
 await createPilot(data)
-router.push('/dashboard/pilots')  // ❌ No confirmation
+router.push('/dashboard/pilots') // ❌ No confirmation
 ```
 
 **Better**:
+
 ```tsx
 await createPilot(data)
-toast.success('Pilot created successfully')  // ✅ Confirmation
+toast.success('Pilot created successfully') // ✅ Confirmation
 router.push('/dashboard/pilots')
 ```
 
@@ -520,6 +546,7 @@ router.push('/dashboard/pilots')
 ### 4.1 Navigation Structure
 
 **✅ Good Structure**:
+
 - Admin dashboard: `/dashboard/*`
 - Pilot portal: `/portal/*`
 - Clear separation of concerns
@@ -531,11 +558,13 @@ router.push('/dashboard/pilots')
 **Issue**: Some features buried deep in menu structure
 
 **Example Path**:
+
 ```
 Dashboard → Admin → Leave Bids → Review → [Specific Bid]
 ```
 
 **Recommendation**: Flatten hierarchy, add breadcrumbs
+
 ```tsx
 // components/navigation/breadcrumb.tsx exists
 <Breadcrumb>
@@ -556,13 +585,14 @@ Dashboard → Admin → Leave Bids → Review → [Specific Bid]
 **Issue**: Users must navigate manually to find pilots, certifications
 
 **Recommendation**: Add global search
+
 ```tsx
 // components/search/global-search.tsx
 <CommandDialog>
   <CommandInput placeholder="Search pilots, certifications..." />
   <CommandList>
     <CommandGroup heading="Pilots">
-      {pilots.map(pilot => (
+      {pilots.map((pilot) => (
         <CommandItem key={pilot.id} onSelect={() => navigate(pilot.id)}>
           {pilot.name}
         </CommandItem>
@@ -587,10 +617,12 @@ Dashboard → Admin → Leave Bids → Review → [Specific Bid]
 **Issue**: Client-side routing may cause unexpected back button behavior
 
 **Recommendation**: Test back button for all flows
+
 - Form submission → back → form data preserved?
 - Modal open → back → modal closes?
 
 **Tool**: Add E2E tests for back button
+
 ```typescript
 test('back button works after pilot creation', async ({ page }) => {
   await page.goto('/dashboard/pilots/new')
@@ -598,7 +630,7 @@ test('back button works after pilot creation', async ({ page }) => {
   await page.click('button[type="submit"]')
   await page.waitForURL('/dashboard/pilots')
   await page.goBack()
-  expect(await page.inputValue('[name="first_name"]')).toBe('John')  // Preserved?
+  expect(await page.inputValue('[name="first_name"]')).toBe('John') // Preserved?
 })
 ```
 
@@ -620,6 +652,7 @@ test('back button works after pilot creation', async ({ page }) => {
 **Issue**: No real-time validation feedback
 
 **Current**:
+
 ```tsx
 // ❌ Errors only appear after submit
 <form onSubmit={handleSubmit(onSubmit)}>
@@ -629,11 +662,12 @@ test('back button works after pilot creation', async ({ page }) => {
 ```
 
 **Better**:
+
 ```tsx
 // ✅ Real-time validation with debounce
 <input
   {...register('email', {
-    onBlur: (e) => trigger('email'),  // Validate on blur
+    onBlur: (e) => trigger('email'), // Validate on blur
   })}
   aria-invalid={!!errors.email}
 />
@@ -650,6 +684,7 @@ test('back button works after pilot creation', async ({ page }) => {
 **Issue**: Complex fields lack explanatory help text
 
 **Example**:
+
 ```tsx
 // ❌ No help text
 <input name="seniority_number" />
@@ -674,6 +709,7 @@ test('back button works after pilot creation', async ({ page }) => {
 **Issue**: Long forms lose data if user navigates away
 
 **Recommendation**: Implement autosave with localStorage
+
 ```tsx
 import { useAutosave } from '@/lib/hooks/use-autosave'
 
@@ -681,7 +717,7 @@ function PilotForm() {
   const [formData, setFormData] = useState({})
 
   useAutosave('pilot-form-draft', formData, {
-    delay: 1000,  // Save after 1 second of inactivity
+    delay: 1000, // Save after 1 second of inactivity
   })
 
   useEffect(() => {
@@ -707,6 +743,7 @@ function PilotForm() {
 **Issue**: Some inputs missing proper labels
 
 **Check**:
+
 ```tsx
 // ❌ Bad: Placeholder as label
 <input placeholder="Email" name="email" />
@@ -726,11 +763,13 @@ function PilotForm() {
 ### 6.1 PWA Implementation
 
 **✅ PWA Configured**:
+
 - Service worker: `/public/sw.js`
 - Manifest: `/public/manifest.json`
 - Offline indicator: `components/offline/OfflineIndicator.tsx`
 
 **Caching Strategies**:
+
 - Fonts: CacheFirst (1 year)
 - Images: StaleWhileRevalidate (24 hours)
 - API: NetworkFirst (1 minute fallback)
@@ -744,6 +783,7 @@ function PilotForm() {
 **Issue**: Users may not know what works offline
 
 **Recommendation**: Add offline capabilities page
+
 ```tsx
 // app/offline/page.tsx
 <h1>You're Offline</h1>
@@ -767,6 +807,7 @@ function PilotForm() {
 **Issue**: Failed mutations (create/update/delete) are lost when offline
 
 **Recommendation**: Implement offline queue
+
 ```typescript
 // lib/offline-queue.ts
 export async function queueMutation(operation: () => Promise<void>) {
@@ -806,14 +847,16 @@ window.addEventListener('online', async () => {
 **Issue**: UI waits for server response before updating
 
 **Current**:
+
 ```tsx
 async function toggleStatus(id) {
   await updateStatus(id, 'APPROVED')
-  refetch()  // ❌ Wait for server
+  refetch() // ❌ Wait for server
 }
 ```
 
 **Better**:
+
 ```tsx
 async function toggleStatus(id) {
   // ✅ Update UI immediately
@@ -842,6 +885,7 @@ async function toggleStatus(id) {
 **Issue**: UI changes instantly without transitions
 
 **Recommendation**: Add smooth transitions
+
 ```tsx
 // components/ui/transition-wrapper.tsx
 <motion.div
@@ -855,6 +899,7 @@ async function toggleStatus(id) {
 ```
 
 **Use for**:
+
 - Page transitions
 - Modal open/close
 - Item add/remove from list
@@ -874,25 +919,31 @@ async function toggleStatus(id) {
 **Issue**: Empty tables/lists show nothing or generic message
 
 **Current**:
+
 ```tsx
-{pilots.length === 0 && <p>No pilots found</p>}
+{
+  pilots.length === 0 && <p>No pilots found</p>
+}
 ```
 
 **Better**:
+
 ```tsx
-{pilots.length === 0 && (
-  <EmptyState
-    icon={Users}
-    title="No pilots yet"
-    description="Get started by adding your first pilot to the system."
-    action={
-      <Button onClick={openAddPilotDialog}>
-        <Plus className="mr-2 h-4 w-4" />
-        Add Pilot
-      </Button>
-    }
-  />
-)}
+{
+  pilots.length === 0 && (
+    <EmptyState
+      icon={Users}
+      title="No pilots yet"
+      description="Get started by adding your first pilot to the system."
+      action={
+        <Button onClick={openAddPilotDialog}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Pilot
+        </Button>
+      }
+    />
+  )
+}
 ```
 
 **Severity**: MEDIUM
@@ -910,6 +961,7 @@ async function toggleStatus(id) {
 **Issue**: Common mobile gestures not implemented
 
 **Recommendations**:
+
 - Swipe to delete items in lists
 - Swipe between tabs
 - Pull to refresh lists
@@ -928,6 +980,7 @@ async function toggleStatus(id) {
 **Issue**: Input types not optimized for mobile keyboards
 
 **Check**:
+
 ```tsx
 // ❌ Generic text input for email
 <input type="text" name="email" />
@@ -1063,6 +1116,7 @@ async function toggleStatus(id) {
 ## 11. UX Metrics
 
 ### Current State
+
 ```
 ✅ Accessibility (A11y):     75% (good ARIA, some gaps)
 ⚠️  Mobile Responsiveness:   70% (responsive utilities, mobile nav issues)
@@ -1079,12 +1133,14 @@ async function toggleStatus(id) {
 ### Overall Grade: **C+ (7.0/10)**
 
 **Strengths:**
+
 - Strong accessibility foundations (ARIA, semantic HTML)
 - Comprehensive responsive design (414+ instances)
 - PWA infrastructure complete
 - Good form validation (Zod)
 
 **Critical Weaknesses:**
+
 - Inconsistent loading states (users confused)
 - Inconsistent error handling (poor feedback)
 - Mobile navigation untested/broken

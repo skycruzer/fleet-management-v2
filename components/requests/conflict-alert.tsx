@@ -144,12 +144,10 @@ export function ConflictAlert({
             <AlertDescription className="mt-2">
               <p className="font-medium">{conflict.message}</p>
               {conflict.details && Object.keys(conflict.details).length > 0 && (
-                <div className="mt-3 text-sm space-y-1">
+                <div className="mt-3 space-y-1 text-sm">
                   {Object.entries(conflict.details).map(([key, value]) => (
                     <div key={key} className="flex gap-2">
-                      <span className="font-medium capitalize">
-                        {key.replace(/_/g, ' ')}:
-                      </span>
+                      <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span>
                       <span>{String(value)}</span>
                     </div>
                   ))}
@@ -237,11 +235,11 @@ export function ConflictAlert({
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <Alert variant="default" className="bg-yellow-50 border-yellow-200">
+        <Alert variant="default" className="border-yellow-200 bg-yellow-50">
           <AlertCircle className="h-4 w-4 text-yellow-600" />
           <AlertTitle>Warnings</AlertTitle>
           <AlertDescription>
-            <ul className="list-disc list-inside space-y-1 mt-2">
+            <ul className="mt-2 list-inside list-disc space-y-1">
               {warnings.map((warning, index) => (
                 <li key={index}>{warning}</li>
               ))}
@@ -255,40 +253,30 @@ export function ConflictAlert({
         <Alert
           variant={crewImpact.belowMinimum ? 'destructive' : 'default'}
           className={
-            crewImpact.belowMinimum
-              ? 'bg-red-50 border-red-200'
-              : 'bg-blue-50 border-blue-200'
+            crewImpact.belowMinimum ? 'border-red-200 bg-red-50' : 'border-blue-200 bg-blue-50'
           }
         >
           <Info className="h-4 w-4" />
           <AlertTitle>Crew Availability Impact</AlertTitle>
           <AlertDescription>
-            <div className="grid grid-cols-2 gap-4 mt-3">
+            <div className="mt-3 grid grid-cols-2 gap-4">
               <div>
                 <p className="font-medium">Captains</p>
-                <p className="text-sm">
-                  Before: {crewImpact.captainsBefore} available
-                </p>
+                <p className="text-sm">Before: {crewImpact.captainsBefore} available</p>
                 <p className="text-sm">
                   After: {crewImpact.captainsAfter} available
                   {crewImpact.captainsAfter < 10 && (
-                    <span className="text-red-600 font-bold ml-2">
-                      ⚠️ Below minimum (10)
-                    </span>
+                    <span className="ml-2 font-bold text-red-600">⚠️ Below minimum (10)</span>
                   )}
                 </p>
               </div>
               <div>
                 <p className="font-medium">First Officers</p>
-                <p className="text-sm">
-                  Before: {crewImpact.firstOfficersBefore} available
-                </p>
+                <p className="text-sm">Before: {crewImpact.firstOfficersBefore} available</p>
                 <p className="text-sm">
                   After: {crewImpact.firstOfficersAfter} available
                   {crewImpact.firstOfficersAfter < 10 && (
-                    <span className="text-red-600 font-bold ml-2">
-                      ⚠️ Below minimum (10)
-                    </span>
+                    <span className="ml-2 font-bold text-red-600">⚠️ Below minimum (10)</span>
                   )}
                 </p>
               </div>

@@ -48,12 +48,7 @@ export default function NotificationBell() {
       aria-label="View notifications"
     >
       {/* Bell Icon */}
-      <svg
-        className="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
+      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -64,7 +59,7 @@ export default function NotificationBell() {
 
       {/* Unread Badge */}
       {!isLoading && unreadCount > 0 && (
-        <span className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+        <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
           {unreadCount > 9 ? '9+' : unreadCount}
         </span>
       )}

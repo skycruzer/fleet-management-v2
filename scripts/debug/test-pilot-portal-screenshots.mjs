@@ -11,7 +11,7 @@ const TEST_PASSWORD = 'Lemakot@1972'
 const BASE_URL = 'http://localhost:3000'
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 // Create screenshots directory
@@ -21,7 +21,7 @@ if (!fs.existsSync('./screenshots')) {
 
 async function testPilotPortal() {
   console.log('📸 Starting Pilot Portal Screenshot Testing...\n')
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
 
   const browser = await puppeteer.launch({
     headless: false,
@@ -175,8 +175,7 @@ async function testPilotPortal() {
     console.log('='.repeat(80))
     console.log('\n📂 Screenshots created:')
     const files = fs.readdirSync('./screenshots')
-    files.forEach(file => console.log(`  - ${file}`))
-
+    files.forEach((file) => console.log(`  - ${file}`))
   } catch (error) {
     console.error('\n❌ Test failed with error:', error.message)
     console.error(error)

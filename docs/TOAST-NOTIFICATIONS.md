@@ -100,6 +100,7 @@ toast({
 ```
 
 **When to use:**
+
 - Pilot created/updated/deleted
 - Certification added/renewed
 - Leave request approved
@@ -119,6 +120,7 @@ toast({
 ```
 
 **When to use:**
+
 - Certification expiring soon (30 days)
 - Approaching leave quota limit
 - Non-critical validation warnings
@@ -137,6 +139,7 @@ toast({
 ```
 
 **When to use:**
+
 - API request failed
 - Validation errors
 - Database errors
@@ -253,10 +256,7 @@ const handleDeletePilot = async (pilot) => {
       title: 'Pilot Deleted',
       description: `${pilot.full_name} has been removed`,
       action: (
-        <ToastAction
-          altText="Undo deletion"
-          onClick={() => handleRestorePilot(pilot)}
-        >
+        <ToastAction altText="Undo deletion" onClick={() => handleRestorePilot(pilot)}>
           Undo
         </ToastAction>
       ),
@@ -621,6 +621,7 @@ test('should show error toast on failed submission', async ({ page }) => {
 ### Toast Not Appearing
 
 1. Verify Toaster is added to layout:
+
    ```tsx
    // app/layout.tsx
    import { Toaster } from '@/components/ui/toaster'

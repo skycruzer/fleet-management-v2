@@ -16,7 +16,8 @@ console.log('=== Testing Query with Filters ===\n')
 console.log('1. Testing base query (no filters):')
 const { data: baseData, error: baseError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -25,7 +26,8 @@ const { data: baseData, error: baseError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .order('start_date', { ascending: false })
 
@@ -42,7 +44,10 @@ if (baseError) {
     console.log('   - Workflow Status:', baseData[0].workflow_status)
     console.log('   - Pilot:', baseData[0].pilots ? 'JOINED ✅' : 'MISSING ❌')
     if (baseData[0].pilots) {
-      console.log('   - Pilot Name:', `${baseData[0].pilots.first_name} ${baseData[0].pilots.last_name}`)
+      console.log(
+        '   - Pilot Name:',
+        `${baseData[0].pilots.first_name} ${baseData[0].pilots.last_name}`
+      )
       console.log('   - Pilot Role:', baseData[0].pilots.role)
     }
   }
@@ -52,7 +57,8 @@ if (baseError) {
 console.log('\n2. Testing with roster period RP01/2026:')
 const { data: rpData, error: rpError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -61,7 +67,8 @@ const { data: rpData, error: rpError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .eq('roster_period', 'RP01/2026')
   .order('start_date', { ascending: false })
@@ -77,7 +84,8 @@ console.log('\n3. Testing with date range filter:')
 console.log('   Date range: 2026-01-10 to 2026-02-06')
 const { data: dateData, error: dateError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -86,7 +94,8 @@ const { data: dateData, error: dateError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .gte('start_date', '2026-01-10')
   .lte('end_date', '2026-02-06')
@@ -98,8 +107,10 @@ if (dateError) {
   console.log(`   ✅ Found ${dateData?.length || 0} leave requests in date range`)
   if (dateData && dateData.length > 0) {
     console.log('\n   Matching records:')
-    dateData.forEach(req => {
-      console.log(`   - ${req.roster_period}: ${req.pilots?.first_name} ${req.pilots?.last_name} (${req.start_date} to ${req.end_date})`)
+    dateData.forEach((req) => {
+      console.log(
+        `   - ${req.roster_period}: ${req.pilots?.first_name} ${req.pilots?.last_name} (${req.start_date} to ${req.end_date})`
+      )
     })
   }
 }
@@ -112,7 +123,7 @@ const { data: allData } = await supabase
   .eq('request_category', 'LEAVE')
 
 if (allData) {
-  const uniquePeriods = [...new Set(allData.map(r => r.roster_period))].sort()
+  const uniquePeriods = [...new Set(allData.map((r) => r.roster_period))].sort()
   console.log('   Unique roster periods:', uniquePeriods.join(', '))
 }
 

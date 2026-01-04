@@ -34,13 +34,17 @@ export function RouteChangeFocusManager() {
         targetElement.focus({ preventScroll: false })
 
         // Restore or remove tabindex after focus
-        targetElement.addEventListener('blur', () => {
-          if (originalTabIndex !== null) {
-            targetElement.setAttribute('tabindex', originalTabIndex)
-          } else {
-            targetElement.removeAttribute('tabindex')
-          }
-        }, { once: true })
+        targetElement.addEventListener(
+          'blur',
+          () => {
+            if (originalTabIndex !== null) {
+              targetElement.setAttribute('tabindex', originalTabIndex)
+            } else {
+              targetElement.removeAttribute('tabindex')
+            }
+          },
+          { once: true }
+        )
 
         // Announce page change to screen readers
         announcePageChange()
@@ -103,13 +107,17 @@ export function useRouteChangeFocus(options?: {
       targetElement.setAttribute('tabindex', '-1')
       targetElement.focus({ preventScroll: false })
 
-      targetElement.addEventListener('blur', () => {
-        if (originalTabIndex !== null) {
-          targetElement.setAttribute('tabindex', originalTabIndex)
-        } else {
-          targetElement.removeAttribute('tabindex')
-        }
-      }, { once: true })
+      targetElement.addEventListener(
+        'blur',
+        () => {
+          if (originalTabIndex !== null) {
+            targetElement.setAttribute('tabindex', originalTabIndex)
+          } else {
+            targetElement.removeAttribute('tabindex')
+          }
+        },
+        { once: true }
+      )
     }
 
     if (announceChange) {

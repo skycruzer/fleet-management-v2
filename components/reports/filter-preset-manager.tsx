@@ -125,7 +125,7 @@ export function FilterPresetManager({
           disabled={!hasActiveFilters}
           className="h-9"
         >
-          <Save className="h-4 w-4 mr-2" />
+          <Save className="mr-2 h-4 w-4" />
           Save Filters
         </Button>
 
@@ -134,9 +134,9 @@ export function FilterPresetManager({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button type="button" variant="outline" size="sm" className="h-9">
-                <BookmarkPlus className="h-4 w-4 mr-2" />
+                <BookmarkPlus className="mr-2 h-4 w-4" />
                 Load Preset
-                <ChevronDown className="h-3 w-3 ml-2" />
+                <ChevronDown className="ml-2 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-64">
@@ -146,7 +146,7 @@ export function FilterPresetManager({
                 <DropdownMenuItem
                   key={preset.id}
                   onClick={() => handleLoadPreset(preset)}
-                  className="flex items-center justify-between cursor-pointer"
+                  className="flex cursor-pointer items-center justify-between"
                 >
                   <span className="flex-1">{preset.name}</span>
                   <Button
@@ -154,7 +154,7 @@ export function FilterPresetManager({
                     variant="ghost"
                     size="sm"
                     onClick={(e) => handleDeletePreset(preset, e)}
-                    className="h-6 w-6 p-0 ml-2 hover:bg-destructive hover:text-destructive-foreground"
+                    className="hover:bg-destructive hover:text-destructive-foreground ml-2 h-6 w-6 p-0"
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>

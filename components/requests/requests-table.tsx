@@ -127,10 +127,7 @@ export interface RequestsTableProps {
   /**
    * Callback for bulk actions
    */
-  onBulkAction?: (
-    requestIds: string[],
-    action: 'approve' | 'deny' | 'delete'
-  ) => Promise<void>
+  onBulkAction?: (requestIds: string[], action: 'approve' | 'deny' | 'delete') => Promise<void>
 
   /**
    * Enable selection for bulk actions
@@ -351,9 +348,9 @@ export function RequestsTable({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-center space-y-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto" />
-          <p className="text-sm text-muted-foreground">Loading requests...</p>
+        <div className="space-y-3 text-center">
+          <div className="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-b-2" />
+          <p className="text-muted-foreground text-sm">Loading requests...</p>
         </div>
       </div>
     )
@@ -361,10 +358,10 @@ export function RequestsTable({
 
   if (requests.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12 border border-dashed rounded-lg">
-        <div className="text-center space-y-3">
+      <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
+        <div className="space-y-3 text-center">
           <p className="text-lg font-medium">No requests found</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Try adjusting your filters or create a new request.
           </p>
         </div>
@@ -376,22 +373,22 @@ export function RequestsTable({
     <>
       {/* Bulk Actions Bar */}
       {enableSelection && selectedIds.size > 0 && (
-        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-4">
+        <div className="bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">
               {selectedIds.size} request{selectedIds.size !== 1 ? 's' : ''} selected
             </p>
             <div className="flex gap-2">
               <Button size="sm" onClick={handleBulkApprove}>
-                <CheckCircle className="h-4 w-4 mr-1" />
+                <CheckCircle className="mr-1 h-4 w-4" />
                 Approve All
               </Button>
               <Button size="sm" variant="secondary" onClick={handleBulkDeny}>
-                <XCircle className="h-4 w-4 mr-1" />
+                <XCircle className="mr-1 h-4 w-4" />
                 Deny All
               </Button>
               <Button size="sm" variant="destructive" onClick={handleBulkDelete}>
-                <Trash2 className="h-4 w-4 mr-1" />
+                <Trash2 className="mr-1 h-4 w-4" />
                 Delete All
               </Button>
               <Button size="sm" variant="ghost" onClick={clearSelection}>
@@ -403,7 +400,7 @@ export function RequestsTable({
       )}
 
       {/* Table */}
-      <div className={`border rounded-lg overflow-hidden ${className}`}>
+      <div className={`overflow-hidden rounded-lg border ${className}`}>
         <Table>
           <TableHeader>
             <TableRow>
@@ -462,7 +459,11 @@ export function RequestsTable({
               <React.Fragment key={request.id}>
                 {/* Main Row */}
                 <TableRow
-                  className={selectedIds.has(request.id) ? 'bg-muted/50 hover:bg-muted/60' : 'hover:bg-muted/30'}
+                  className={
+                    selectedIds.has(request.id)
+                      ? 'bg-muted/50 hover:bg-muted/60'
+                      : 'hover:bg-muted/30'
+                  }
                 >
                   <TableCell>
                     <Button
@@ -488,240 +489,264 @@ export function RequestsTable({
                       />
                     </TableCell>
                   )}
-                <TableCell>
-                  <div className="space-y-1">
-                    <p className="font-medium">{request.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {request.rank} • #{request.employee_number}
-                    </p>
-                  </div>
-                </TableCell>
-                <TableCell>{getCategoryBadge(request.request_category)}</TableCell>
-                <TableCell>
-                  <span className="text-sm">{request.request_type}</span>
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm font-mono">
-                    {(request as any).roster_periods_spanned
-                      ? (request as any).roster_periods_spanned.join(', ')
-                      : request.roster_period}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="space-y-1">
-                    <p className="text-sm">{formatDate(request.start_date)}</p>
-                    {request.end_date && (
-                      <p className="text-xs text-muted-foreground">
-                        to {formatDate(request.end_date)}
+                  <TableCell>
+                    <div className="space-y-1">
+                      <p className="font-medium">{request.name}</p>
+                      <p className="text-muted-foreground text-xs">
+                        {request.rank} • #{request.employee_number}
                       </p>
-                    )}
-                    {request.days_count && (
-                      <p className="text-xs text-muted-foreground">
-                        {request.days_count} day{request.days_count !== 1 ? 's' : ''}
-                      </p>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {getChannelIcon(request.submission_channel)}
-                    <span className="text-xs">{request.submission_channel}</span>
-                  </div>
-                </TableCell>
-                <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
-                <TableCell>
-                  <div className="flex gap-1 flex-wrap">
-                    {request.is_late_request && (
-                      <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Late
-                      </Badge>
-                    )}
-                    {request.is_past_deadline && (
-                      <Badge variant="outline" className="text-red-600 border-red-600">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        Past
-                      </Badge>
-                    )}
-                    {request.conflict_flags && request.conflict_flags.length > 0 && (
-                      <Badge variant="outline" className="text-red-600 border-red-600 bg-red-50">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        {request.conflict_flags.length} Conflict{request.conflict_flags.length > 1 ? 's' : ''}
-                      </Badge>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {onViewRequest && (
-                        <DropdownMenuItem onClick={() => onViewRequest(request)} className="cursor-pointer">
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
+                    </div>
+                  </TableCell>
+                  <TableCell>{getCategoryBadge(request.request_category)}</TableCell>
+                  <TableCell>
+                    <span className="text-sm">{request.request_type}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono text-sm">
+                      {(request as any).roster_periods_spanned
+                        ? (request as any).roster_periods_spanned.join(', ')
+                        : request.roster_period}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <p className="text-sm">{formatDate(request.start_date)}</p>
+                      {request.end_date && (
+                        <p className="text-muted-foreground text-xs">
+                          to {formatDate(request.end_date)}
+                        </p>
                       )}
-                      {onUpdateStatus &&
-                        request.workflow_status !== 'APPROVED' &&
-                        request.workflow_status !== 'DENIED' && (
-                          <>
-                            <DropdownMenuItem
-                              onClick={() => onUpdateStatus(request.id, 'APPROVED')}
-                              className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50"
-                            >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Approve
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => onUpdateStatus(request.id, 'DENIED')}
-                              className="cursor-pointer text-orange-600 focus:text-orange-600 focus:bg-orange-50"
-                            >
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Deny
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      {onDeleteRequest && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteClick(request.id)}
-                            className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-
-              {/* Expanded Details Row */}
-              {expandedRequest === request.id && (
-                <TableRow>
-                  <TableCell colSpan={enableSelection ? 10 : 9} className="bg-gray-50">
-                    <div className="space-y-4 py-4">
-                      <h4 className="font-semibold text-gray-900">Request Details</h4>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {/* Request Information Card */}
-                        <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                          <h5 className="mb-3 text-sm font-semibold text-gray-700">Request Information</h5>
-                          <div className="space-y-2 text-sm">
-                            <div>
-                              <span className="font-medium text-gray-600">Type:</span>{' '}
-                              <span className="text-gray-900">{request.request_type}</span>
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-600">Category:</span>{' '}
-                              {getCategoryBadge(request.request_category)}
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-600">Submitted:</span>{' '}
-                              <span className="text-gray-900">{formatDate(request.submission_date)}</span>
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-600">Channel:</span>{' '}
-                              <span className="text-gray-900">{request.submission_channel}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Date Information Card */}
-                        <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                          <h5 className="mb-3 text-sm font-semibold text-gray-700">Date Information</h5>
-                          <div className="space-y-2 text-sm">
-                            <div>
-                              <span className="font-medium text-gray-600">Start Date:</span>{' '}
-                              <span className="text-gray-900">{formatDate(request.start_date)}</span>
-                            </div>
-                            {request.end_date && (
-                              <div>
-                                <span className="font-medium text-gray-600">End Date:</span>{' '}
-                                <span className="text-gray-900">{formatDate(request.end_date)}</span>
-                              </div>
-                            )}
-                            {request.days_count && (
-                              <div>
-                                <span className="font-medium text-gray-600">Duration:</span>{' '}
-                                <span className="text-gray-900">{request.days_count} days</span>
-                              </div>
-                            )}
-                            <div>
-                              <span className="font-medium text-gray-600">Roster Period(s):</span>{' '}
-                              <div className="mt-1 flex flex-wrap gap-1">
-                                {(request as any).roster_periods_spanned ? (
-                                  (request as any).roster_periods_spanned.map((period: string) => (
-                                    <Badge
-                                      key={period}
-                                      variant="outline"
-                                      className="text-[10px] px-1.5 py-0 h-4"
-                                    >
-                                      {period}
-                                    </Badge>
-                                  ))
-                                ) : (
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
-                                    {request.roster_period}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Status & Flags Card */}
-                        <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                          <h5 className="mb-3 text-sm font-semibold text-gray-700">Status & Flags</h5>
-                          <div className="space-y-2 text-sm">
-                            <div>
-                              <span className="font-medium text-gray-600">Status:</span>{' '}
-                              {getStatusBadge(request.workflow_status)}
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-600">Priority Score:</span>{' '}
-                              <span className="text-gray-900">{request.priority_score}</span>
-                            </div>
-                            {request.is_late_request && (
-                              <div>
-                                <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-                                  <Clock className="h-3 w-3 mr-1" />
-                                  Late Request
-                                </Badge>
-                              </div>
-                            )}
-                            {request.is_past_deadline && (
-                              <div>
-                                <Badge variant="outline" className="text-red-600 border-red-600">
-                                  <AlertTriangle className="h-3 w-3 mr-1" />
-                                  Past Deadline
-                                </Badge>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Reason (if provided) */}
-                      {request.reason && (
-                        <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                          <h5 className="mb-2 text-sm font-semibold text-gray-700">Reason</h5>
-                          <p className="text-sm text-gray-900">{request.reason}</p>
-                        </div>
+                      {request.days_count && (
+                        <p className="text-muted-foreground text-xs">
+                          {request.days_count} day{request.days_count !== 1 ? 's' : ''}
+                        </p>
                       )}
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getChannelIcon(request.submission_channel)}
+                      <span className="text-xs">{request.submission_channel}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {request.is_late_request && (
+                        <Badge variant="outline" className="border-yellow-600 text-yellow-600">
+                          <Clock className="mr-1 h-3 w-3" />
+                          Late
+                        </Badge>
+                      )}
+                      {request.is_past_deadline && (
+                        <Badge variant="outline" className="border-red-600 text-red-600">
+                          <AlertTriangle className="mr-1 h-3 w-3" />
+                          Past
+                        </Badge>
+                      )}
+                      {request.conflict_flags && request.conflict_flags.length > 0 && (
+                        <Badge variant="outline" className="border-red-600 bg-red-50 text-red-600">
+                          <AlertTriangle className="mr-1 h-3 w-3" />
+                          {request.conflict_flags.length} Conflict
+                          {request.conflict_flags.length > 1 ? 's' : ''}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {onViewRequest && (
+                          <DropdownMenuItem
+                            onClick={() => onViewRequest(request)}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                        )}
+                        {onUpdateStatus &&
+                          request.workflow_status !== 'APPROVED' &&
+                          request.workflow_status !== 'DENIED' && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() => onUpdateStatus(request.id, 'APPROVED')}
+                                className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600"
+                              >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Approve
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => onUpdateStatus(request.id, 'DENIED')}
+                                className="cursor-pointer text-orange-600 focus:bg-orange-50 focus:text-orange-600"
+                              >
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Deny
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        {onDeleteRequest && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClick(request.id)}
+                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
-              )}
-            </React.Fragment>
+
+                {/* Expanded Details Row */}
+                {expandedRequest === request.id && (
+                  <TableRow>
+                    <TableCell colSpan={enableSelection ? 10 : 9} className="bg-gray-50">
+                      <div className="space-y-4 py-4">
+                        <h4 className="font-semibold text-gray-900">Request Details</h4>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                          {/* Request Information Card */}
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
+                            <h5 className="mb-3 text-sm font-semibold text-gray-700">
+                              Request Information
+                            </h5>
+                            <div className="space-y-2 text-sm">
+                              <div>
+                                <span className="font-medium text-gray-600">Type:</span>{' '}
+                                <span className="text-gray-900">{request.request_type}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-600">Category:</span>{' '}
+                                {getCategoryBadge(request.request_category)}
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-600">Submitted:</span>{' '}
+                                <span className="text-gray-900">
+                                  {formatDate(request.submission_date)}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-600">Channel:</span>{' '}
+                                <span className="text-gray-900">{request.submission_channel}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Date Information Card */}
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
+                            <h5 className="mb-3 text-sm font-semibold text-gray-700">
+                              Date Information
+                            </h5>
+                            <div className="space-y-2 text-sm">
+                              <div>
+                                <span className="font-medium text-gray-600">Start Date:</span>{' '}
+                                <span className="text-gray-900">
+                                  {formatDate(request.start_date)}
+                                </span>
+                              </div>
+                              {request.end_date && (
+                                <div>
+                                  <span className="font-medium text-gray-600">End Date:</span>{' '}
+                                  <span className="text-gray-900">
+                                    {formatDate(request.end_date)}
+                                  </span>
+                                </div>
+                              )}
+                              {request.days_count && (
+                                <div>
+                                  <span className="font-medium text-gray-600">Duration:</span>{' '}
+                                  <span className="text-gray-900">{request.days_count} days</span>
+                                </div>
+                              )}
+                              <div>
+                                <span className="font-medium text-gray-600">Roster Period(s):</span>{' '}
+                                <div className="mt-1 flex flex-wrap gap-1">
+                                  {(request as any).roster_periods_spanned ? (
+                                    (request as any).roster_periods_spanned.map(
+                                      (period: string) => (
+                                        <Badge
+                                          key={period}
+                                          variant="outline"
+                                          className="h-4 px-1.5 py-0 text-[10px]"
+                                        >
+                                          {period}
+                                        </Badge>
+                                      )
+                                    )
+                                  ) : (
+                                    <Badge
+                                      variant="outline"
+                                      className="h-4 px-1.5 py-0 text-[10px]"
+                                    >
+                                      {request.roster_period}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Status & Flags Card */}
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
+                            <h5 className="mb-3 text-sm font-semibold text-gray-700">
+                              Status & Flags
+                            </h5>
+                            <div className="space-y-2 text-sm">
+                              <div>
+                                <span className="font-medium text-gray-600">Status:</span>{' '}
+                                {getStatusBadge(request.workflow_status)}
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-600">Priority Score:</span>{' '}
+                                <span className="text-gray-900">{request.priority_score}</span>
+                              </div>
+                              {request.is_late_request && (
+                                <div>
+                                  <Badge
+                                    variant="outline"
+                                    className="border-yellow-600 text-yellow-600"
+                                  >
+                                    <Clock className="mr-1 h-3 w-3" />
+                                    Late Request
+                                  </Badge>
+                                </div>
+                              )}
+                              {request.is_past_deadline && (
+                                <div>
+                                  <Badge variant="outline" className="border-red-600 text-red-600">
+                                    <AlertTriangle className="mr-1 h-3 w-3" />
+                                    Past Deadline
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Reason (if provided) */}
+                        {request.reason && (
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
+                            <h5 className="mb-2 text-sm font-semibold text-gray-700">Reason</h5>
+                            <p className="text-sm text-gray-900">{request.reason}</p>
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
             ))}
           </TableBody>
         </Table>

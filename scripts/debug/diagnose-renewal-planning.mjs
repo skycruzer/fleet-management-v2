@@ -38,7 +38,9 @@ async function checkDatabase() {
 
   if (capacityError) {
     console.error('   ❌ roster_period_capacity table ERROR:', capacityError.message)
-    console.log('   💡 Solution: Run SQL from RENEWAL-PLANNING-SETUP-GUIDE.md to create this table\n')
+    console.log(
+      '   💡 Solution: Run SQL from RENEWAL-PLANNING-SETUP-GUIDE.md to create this table\n'
+    )
     return false
   }
 
@@ -48,9 +50,13 @@ async function checkDatabase() {
     return false
   }
 
-  console.log(\`   ✅ roster_period_capacity table exists with \${capacityData.length} periods (showing first 5)\`)
-  capacityData.forEach(period => {
-    console.log(\`      - \${period.roster_period}: \${period.period_start_date} to \${period.period_end_date}\`)
+  console.log(
+    `   ✅ roster_period_capacity table exists with ${capacityData.length} periods (showing first 5)`
+  )
+  capacityData.forEach((period) => {
+    console.log(
+      `      - ${period.roster_period}: ${period.period_start_date} to ${period.period_end_date}`
+    )
   })
   console.log('')
 
@@ -63,15 +69,19 @@ async function checkDatabase() {
 
   if (plansError) {
     console.error('   ❌ certification_renewal_plans table ERROR:', plansError.message)
-    console.log('   💡 Solution: Run SQL from RENEWAL-PLANNING-SETUP-GUIDE.md to create this table\n')
+    console.log(
+      '   💡 Solution: Run SQL from RENEWAL-PLANNING-SETUP-GUIDE.md to create this table\n'
+    )
     return false
   }
 
-  console.log(\`   ✅ certification_renewal_plans table exists with \${plansData?.length || 0} plans\`)
+  console.log(`   ✅ certification_renewal_plans table exists with ${plansData?.length || 0} plans`)
   if (plansData && plansData.length > 0) {
     console.log('      Recent plans:')
-    plansData.forEach(plan => {
-      console.log(\`      - Plan \${plan.id}: Roster Period \${plan.planned_roster_period}, Status: \${plan.status}\`)
+    plansData.forEach((plan) => {
+      console.log(
+        `      - Plan ${plan.id}: Roster Period ${plan.planned_roster_period}, Status: ${plan.status}`
+      )
     })
   } else {
     console.log('      ⚠️  No renewal plans generated yet. Run "Generate Plan" in the UI.')

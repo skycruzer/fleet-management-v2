@@ -37,9 +37,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
   const newValues = auditLog.new_values || {}
 
   // Get all unique keys from both objects
-  const allKeys = Array.from(
-    new Set([...Object.keys(oldValues), ...Object.keys(newValues)])
-  ).sort()
+  const allKeys = Array.from(new Set([...Object.keys(oldValues), ...Object.keys(newValues)])).sort()
 
   // Determine which fields changed
   const changedFields = allKeys.filter((key) => {
@@ -88,7 +86,10 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
           const isMultiline = oldVal.includes('\n') || newVal.includes('\n')
 
           return (
-            <div key={key} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <div
+              key={key}
+              className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+            >
               <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">
                 <code className="rounded bg-gray-100 px-2 py-1 text-sm dark:bg-gray-900">
                   {key}
@@ -98,7 +99,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
               {isMultiline ? (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                    <p className="mb-2 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
                       Old Value
                     </p>
                     <pre className="overflow-x-auto rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200">
@@ -106,7 +107,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
                     </pre>
                   </div>
                   <div>
-                    <p className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                    <p className="mb-2 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
                       New Value
                     </p>
                     <pre className="overflow-x-auto rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-200">
@@ -117,7 +118,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="flex-1 overflow-hidden">
-                    <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                    <p className="mb-1 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
                       Old
                     </p>
                     <code className="block truncate rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200">
@@ -138,7 +139,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
                     />
                   </svg>
                   <div className="flex-1 overflow-hidden">
-                    <p className="mb-1 text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                    <p className="mb-1 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
                       New
                     </p>
                     <code className="block truncate rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-200">
@@ -190,13 +191,17 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
     return (
       <div className="space-y-4">
         <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">Old Values (Raw JSON)</h3>
+          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">
+            Old Values (Raw JSON)
+          </h3>
           <pre className="overflow-x-auto rounded-md bg-gray-50 p-4 text-xs dark:bg-gray-900">
             {JSON.stringify(oldValues, null, 2)}
           </pre>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">New Values (Raw JSON)</h3>
+          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">
+            New Values (Raw JSON)
+          </h3>
           <pre className="overflow-x-auto rounded-md bg-gray-50 p-4 text-xs dark:bg-gray-900">
             {JSON.stringify(newValues, null, 2)}
           </pre>
@@ -248,7 +253,8 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
       {hasChanges && viewMode === 'diff' && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/50 dark:bg-blue-900/20">
           <p className="text-sm text-blue-800 dark:text-blue-200">
-            <strong>{changedFields.length}</strong> field{changedFields.length !== 1 ? 's' : ''} changed
+            <strong>{changedFields.length}</strong> field{changedFields.length !== 1 ? 's' : ''}{' '}
+            changed
           </p>
         </div>
       )}

@@ -5,12 +5,7 @@
  */
 
 // Pilot hooks
-export {
-  usePilots,
-  usePilot,
-  useUpdatePilot,
-  usePrefetchPilot,
-} from './use-pilots'
+export { usePilots, usePilot, useUpdatePilot, usePrefetchPilot } from './use-pilots'
 
 // Certification hooks
 export {
@@ -20,8 +15,4 @@ export {
 } from './use-certifications'
 
 // Dashboard hooks
-export {
-  useDashboardMetrics,
-  useComplianceStats,
-  useDashboard,
-} from './use-dashboard'
+export { useDashboardMetrics, useComplianceStats, useDashboard } from './use-dashboard'

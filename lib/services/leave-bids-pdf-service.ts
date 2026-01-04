@@ -82,9 +82,11 @@ export async function generateLeaveBidsPDF(
   doc.text(subtitle, pageWidth / 2, 22, { align: 'center' })
 
   // Statistics Summary
-  const pendingCount = bids.filter(b => b.status === 'PENDING' || b.status === 'PROCESSING').length
-  const approvedCount = bids.filter(b => b.status === 'APPROVED').length
-  const rejectedCount = bids.filter(b => b.status === 'REJECTED').length
+  const pendingCount = bids.filter(
+    (b) => b.status === 'PENDING' || b.status === 'PROCESSING'
+  ).length
+  const approvedCount = bids.filter((b) => b.status === 'APPROVED').length
+  const rejectedCount = bids.filter((b) => b.status === 'REJECTED').length
 
   doc.setFontSize(10)
   doc.setFont('helvetica', 'bold')
@@ -100,9 +102,9 @@ export async function generateLeaveBidsPDF(
 
   // Group bids by status
   const bidsByStatus = {
-    PENDING: bids.filter(b => b.status === 'PENDING' || b.status === 'PROCESSING'),
-    APPROVED: bids.filter(b => b.status === 'APPROVED'),
-    REJECTED: bids.filter(b => b.status === 'REJECTED'),
+    PENDING: bids.filter((b) => b.status === 'PENDING' || b.status === 'PROCESSING'),
+    APPROVED: bids.filter((b) => b.status === 'APPROVED'),
+    REJECTED: bids.filter((b) => b.status === 'REJECTED'),
   }
 
   // Render each status group
@@ -124,7 +126,7 @@ export async function generateLeaveBidsPDF(
     yPosition += 7
 
     // Table data for this status
-    const tableData = statusBids.map(bid => {
+    const tableData = statusBids.map((bid) => {
       const pilot = bid.pilots
       const pilotName = `${pilot.first_name} ${pilot.last_name}`
       const seniority = pilot.seniority_number ? `#${pilot.seniority_number}` : 'N/A'
@@ -133,7 +135,9 @@ export async function generateLeaveBidsPDF(
       // Format leave options
       const optionsText = bid.leave_bid_options
         .sort((a, b) => a.priority - b.priority)
-        .map(opt => `P${opt.priority}: ${formatDate(opt.start_date)} - ${formatDate(opt.end_date)}`)
+        .map(
+          (opt) => `P${opt.priority}: ${formatDate(opt.start_date)} - ${formatDate(opt.end_date)}`
+        )
         .join('\n')
 
       return [
@@ -144,14 +148,25 @@ export async function generateLeaveBidsPDF(
         optionsText,
         formatDate(bid.created_at),
         bid.reviewed_at ? formatDate(bid.reviewed_at) : 'Not reviewed',
-        bid.review_comments || '-'
+        bid.review_comments || '-',
       ]
     })
 
     // Add table
     autoTable(doc, {
       startY: yPosition,
-      head: [['Seniority', 'Pilot Name', 'Rank', 'Roster Period', 'Leave Preferences', 'Submitted', 'Reviewed', 'Comments']],
+      head: [
+        [
+          'Seniority',
+          'Pilot Name',
+          'Rank',
+          'Roster Period',
+          'Leave Preferences',
+          'Submitted',
+          'Reviewed',
+          'Comments',
+        ],
+      ],
       body: tableData,
       theme: 'grid',
       headStyles: {
@@ -165,14 +180,14 @@ export async function generateLeaveBidsPDF(
         cellPadding: 2,
       },
       columnStyles: {
-        0: { cellWidth: 18 },  // Seniority
-        1: { cellWidth: 35 },  // Pilot Name
-        2: { cellWidth: 25 },  // Rank
-        3: { cellWidth: 25 },  // Roster Period
-        4: { cellWidth: 70 },  // Leave Preferences
-        5: { cellWidth: 25 },  // Submitted
-        6: { cellWidth: 25 },  // Reviewed
-        7: { cellWidth: 35 },  // Comments
+        0: { cellWidth: 18 }, // Seniority
+        1: { cellWidth: 35 }, // Pilot Name
+        2: { cellWidth: 25 }, // Rank
+        3: { cellWidth: 25 }, // Roster Period
+        4: { cellWidth: 70 }, // Leave Preferences
+        5: { cellWidth: 25 }, // Submitted
+        6: { cellWidth: 25 }, // Reviewed
+        7: { cellWidth: 35 }, // Comments
       },
       didDrawPage: (data) => {
         // Footer
@@ -185,11 +200,7 @@ export async function generateLeaveBidsPDF(
           pageHeight - 10,
           { align: 'center' }
         )
-        doc.text(
-          'Fleet Management V2 - Leave Bid Report',
-          14,
-          pageHeight - 10
-        )
+        doc.text('Fleet Management V2 - Leave Bid Report', 14, pageHeight - 10)
       },
     })
 

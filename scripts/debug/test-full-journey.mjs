@@ -131,7 +131,8 @@ async function testLoginPage() {
 
       // Check for login form elements
       const hasEmailInput = response.body.includes('email') || response.body.includes('Email')
-      const hasPasswordInput = response.body.includes('password') || response.body.includes('Password')
+      const hasPasswordInput =
+        response.body.includes('password') || response.body.includes('Password')
       const hasLoginButton = response.body.includes('Sign in') || response.body.includes('Login')
 
       if (hasEmailInput) logSuccess('Email input field found')
@@ -263,7 +264,11 @@ async function testNavigation() {
     try {
       const response = await makeRequest(route.path)
 
-      if (response.statusCode === 200 || response.statusCode === 307 || response.statusCode === 302) {
+      if (
+        response.statusCode === 200 ||
+        response.statusCode === 307 ||
+        response.statusCode === 302
+      ) {
         logSuccess(`${route.name} - Route exists ✓`)
         accessibleCount++
       } else {

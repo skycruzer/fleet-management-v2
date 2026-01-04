@@ -110,9 +110,13 @@ export const SuccessMessage = React.forwardRef<HTMLDivElement, SuccessMessagePro
         messageRef.current.focus()
 
         // Remove tabindex after focus
-        messageRef.current.addEventListener('blur', () => {
-          messageRef.current?.removeAttribute('tabindex')
-        }, { once: true })
+        messageRef.current.addEventListener(
+          'blur',
+          () => {
+            messageRef.current?.removeAttribute('tabindex')
+          },
+          { once: true }
+        )
       }
     }, [autoFocus, messageRef])
 
@@ -124,7 +128,7 @@ export const SuccessMessage = React.forwardRef<HTMLDivElement, SuccessMessagePro
         aria-atomic="true"
         className={cn(
           'rounded-lg border border-green-200 bg-green-50 p-4',
-          'focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2',
+          'focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none',
           className
         )}
       >
@@ -157,9 +161,13 @@ export const ErrorMessage = React.forwardRef<HTMLDivElement, ErrorMessageProps>(
         messageRef.current.focus()
 
         // Remove tabindex after focus
-        messageRef.current.addEventListener('blur', () => {
-          messageRef.current?.removeAttribute('tabindex')
-        }, { once: true })
+        messageRef.current.addEventListener(
+          'blur',
+          () => {
+            messageRef.current?.removeAttribute('tabindex')
+          },
+          { once: true }
+        )
       }
     }, [autoFocus, messageRef])
 
@@ -171,7 +179,7 @@ export const ErrorMessage = React.forwardRef<HTMLDivElement, ErrorMessageProps>(
         aria-atomic="true"
         className={cn(
           'rounded-lg border border-red-200 bg-red-50 p-4',
-          'focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
+          'focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none',
           className
         )}
       >

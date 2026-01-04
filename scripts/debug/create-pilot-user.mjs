@@ -16,7 +16,7 @@ console.log('🔧 Creating pilot user in an_users table\n')
 const { data, error } = await serviceClient.rpc('create_pilot_user', {
   p_email: 'mrondeau@airniugini.com.pg',
   p_password: 'Lemakot@1972',
-  p_employee_number: '001'
+  p_employee_number: '001',
 })
 
 if (error) {
@@ -29,7 +29,7 @@ if (error) {
       email: 'mrondeau@airniugini.com.pg',
       employee_number: '001',
       status: 'active',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
     })
     .select()
 

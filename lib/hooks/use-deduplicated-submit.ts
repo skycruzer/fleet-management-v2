@@ -127,10 +127,7 @@ export function useDeduplicatedSubmit<T>(
         setError(null)
 
         // Use the deduplication utility
-        const deduplicatedSubmit = createDeduplicatedSubmitHandler(
-          submitFn,
-          options.key
-        )
+        const deduplicatedSubmit = createDeduplicatedSubmitHandler(submitFn, options.key)
 
         await deduplicatedSubmit(data)
 

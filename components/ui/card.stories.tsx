@@ -1,12 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from './card'
+import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card'
 import { Button } from './button'
 
 const meta = {
@@ -40,12 +33,10 @@ export const WithFooter: Story = {
     <Card className="w-[350px]">
       <CardHeader>
         <CardTitle>Create Account</CardTitle>
-        <CardDescription>
-          Enter your information to create a new account
-        </CardDescription>
+        <CardDescription>Enter your information to create a new account</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Fill out the form below to get started with your new account.
         </p>
       </CardContent>
@@ -68,7 +59,7 @@ export const PilotCard: Story = {
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="text-sm font-medium">Contract Type:</span>
-            <span className="text-sm text-muted-foreground">Permanent</span>
+            <span className="text-muted-foreground text-sm">Permanent</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm font-medium">Status:</span>
@@ -76,7 +67,7 @@ export const PilotCard: Story = {
           </div>
           <div className="flex justify-between">
             <span className="text-sm font-medium">Certifications:</span>
-            <span className="text-sm text-muted-foreground">23 Current</span>
+            <span className="text-muted-foreground text-sm">23 Current</span>
           </div>
         </div>
       </CardContent>
@@ -100,9 +91,7 @@ export const CertificationAlert: Story = {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <p className="text-sm text-yellow-900 dark:text-yellow-100">
-            Line Check - Captain
-          </p>
+          <p className="text-sm text-yellow-900 dark:text-yellow-100">Line Check - Captain</p>
           <p className="text-sm text-yellow-700 dark:text-yellow-300">
             Expires: December 15, 2025 (28 days)
           </p>
@@ -130,7 +119,7 @@ export const DashboardMetric: Story = {
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth="2"
-          className="h-4 w-4 text-muted-foreground"
+          className="text-muted-foreground h-4 w-4"
         >
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
           <circle cx="9" cy="7" r="4" />
@@ -139,9 +128,7 @@ export const DashboardMetric: Story = {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">27</div>
-        <p className="text-xs text-muted-foreground">
-          15 Captains, 12 First Officers
-        </p>
+        <p className="text-muted-foreground text-xs">15 Captains, 12 First Officers</p>
       </CardContent>
     </Card>
   ),

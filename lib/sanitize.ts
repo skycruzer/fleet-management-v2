@@ -31,23 +31,23 @@ import DOMPurify from 'isomorphic-dompurify'
 export function sanitizeHtml(dirty: string): string {
   return DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS: [
-      'b',        // Bold text
-      'i',        // Italic text
-      'em',       // Emphasis (italic)
-      'strong',   // Strong emphasis (bold)
-      'a',        // Links
-      'p',        // Paragraphs
-      'br',       // Line breaks
-      'ul',       // Unordered lists
-      'ol',       // Ordered lists
-      'li',       // List items
-      'code',     // Inline code
-      'pre',      // Preformatted text
+      'b', // Bold text
+      'i', // Italic text
+      'em', // Emphasis (italic)
+      'strong', // Strong emphasis (bold)
+      'a', // Links
+      'p', // Paragraphs
+      'br', // Line breaks
+      'ul', // Unordered lists
+      'ol', // Ordered lists
+      'li', // List items
+      'code', // Inline code
+      'pre', // Preformatted text
     ],
     ALLOWED_ATTR: [
-      'href',     // Link URLs (for <a> tags)
-      'target',   // Link target (for opening in new tab)
-      'rel',      // Link relationship (for security)
+      'href', // Link URLs (for <a> tags)
+      'target', // Link target (for opening in new tab)
+      'rel', // Link relationship (for security)
     ],
     ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
   })
@@ -73,9 +73,9 @@ export function sanitizeHtml(dirty: string): string {
 export function sanitizePlainText(input: string): string {
   // Remove all HTML tags, keep only text content
   return DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: [],      // No HTML tags allowed
-    ALLOWED_ATTR: [],      // No attributes allowed
-    KEEP_CONTENT: true,    // Keep text content
+    ALLOWED_TAGS: [], // No HTML tags allowed
+    ALLOWED_ATTR: [], // No attributes allowed
+    KEEP_CONTENT: true, // Keep text content
   })
 }
 

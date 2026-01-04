@@ -10,12 +10,12 @@ const TEST_PASSWORD = 'Lemakot@1972'
 const BASE_URL = 'http://localhost:3000'
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testPilotPortal() {
   console.log('🚀 Starting Pilot Portal Browser Testing V2...\n')
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
 
   const browser = await puppeteer.launch({
     headless: false, // Show browser
@@ -36,7 +36,7 @@ async function testPilotPortal() {
       apiResponses[apiName] = {
         status,
         ok: response.ok(),
-        url
+        url,
       }
     }
   })
@@ -145,10 +145,14 @@ async function testPilotPortal() {
     await sleep(2000)
 
     if (apiResponses['certifications'] && apiResponses['certifications'].ok) {
-      console.log(`  ✅ Certifications API responded with status ${apiResponses['certifications'].status}`)
+      console.log(
+        `  ✅ Certifications API responded with status ${apiResponses['certifications'].status}`
+      )
       testsPassed++
     } else {
-      console.log(`  ❌ Certifications API failed with status ${apiResponses['certifications']?.status || 'N/A'}`)
+      console.log(
+        `  ❌ Certifications API failed with status ${apiResponses['certifications']?.status || 'N/A'}`
+      )
       testsFailed++
     }
 
@@ -163,10 +167,14 @@ async function testPilotPortal() {
     await sleep(2000)
 
     if (apiResponses['leave-requests'] && apiResponses['leave-requests'].ok) {
-      console.log(`  ✅ Leave Requests API responded with status ${apiResponses['leave-requests'].status}`)
+      console.log(
+        `  ✅ Leave Requests API responded with status ${apiResponses['leave-requests'].status}`
+      )
       testsPassed++
     } else {
-      console.log(`  ❌ Leave Requests API failed with status ${apiResponses['leave-requests']?.status || 'N/A'}`)
+      console.log(
+        `  ❌ Leave Requests API failed with status ${apiResponses['leave-requests']?.status || 'N/A'}`
+      )
       testsFailed++
     }
 
@@ -185,10 +193,14 @@ async function testPilotPortal() {
       await sleep(2000)
 
       if (apiResponses['leave-bids'] && apiResponses['leave-bids'].ok) {
-        console.log(`  ✅ Leave Bids API responded with status ${apiResponses['leave-bids'].status}`)
+        console.log(
+          `  ✅ Leave Bids API responded with status ${apiResponses['leave-bids'].status}`
+        )
         testsPassed++
       } else {
-        console.log(`  ❌ Leave Bids API failed with status ${apiResponses['leave-bids']?.status || 'N/A'}`)
+        console.log(
+          `  ❌ Leave Bids API failed with status ${apiResponses['leave-bids']?.status || 'N/A'}`
+        )
         testsFailed++
       }
     } else {
@@ -207,10 +219,14 @@ async function testPilotPortal() {
     await sleep(2000)
 
     if (apiResponses['flight-requests'] && apiResponses['flight-requests'].ok) {
-      console.log(`  ✅ Flight Requests API responded with status ${apiResponses['flight-requests'].status}`)
+      console.log(
+        `  ✅ Flight Requests API responded with status ${apiResponses['flight-requests'].status}`
+      )
       testsPassed++
     } else {
-      console.log(`  ❌ Flight Requests API failed with status ${apiResponses['flight-requests']?.status || 'N/A'}`)
+      console.log(
+        `  ❌ Flight Requests API failed with status ${apiResponses['flight-requests']?.status || 'N/A'}`
+      )
       testsFailed++
     }
 
@@ -221,14 +237,16 @@ async function testPilotPortal() {
 
     const navLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('nav a, aside a'))
-      return links.map(link => ({
-        text: link.textContent.trim(),
-        href: link.getAttribute('href')
-      })).filter(link => link.href && link.href.includes('/portal/'))
+      return links
+        .map((link) => ({
+          text: link.textContent.trim(),
+          href: link.getAttribute('href'),
+        }))
+        .filter((link) => link.href && link.href.includes('/portal/'))
     })
 
     console.log(`  ✓ Found ${navLinks.length} navigation links`)
-    navLinks.forEach(link => {
+    navLinks.forEach((link) => {
       console.log(`    - ${link.text}: ${link.href}`)
     })
 
@@ -246,7 +264,7 @@ async function testPilotPortal() {
     console.log('\n🐛 TEST 10: Checking for Console Errors')
 
     const errors = []
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text())
       }
@@ -260,7 +278,7 @@ async function testPilotPortal() {
       testsPassed++
     } else {
       console.log(`  ⚠️  Found ${errors.length} console errors:`)
-      errors.forEach(err => console.log(`    - ${err}`))
+      errors.forEach((err) => console.log(`    - ${err}`))
       testsPassed++ // Don't fail test for console warnings
     }
 
@@ -283,7 +301,9 @@ async function testPilotPortal() {
     console.log('='.repeat(80))
     console.log(`✅ Tests Passed: ${testsPassed}`)
     console.log(`❌ Tests Failed: ${testsFailed}`)
-    console.log(`📈 Success Rate: ${((testsPassed / (testsPassed + testsFailed)) * 100).toFixed(1)}%`)
+    console.log(
+      `📈 Success Rate: ${((testsPassed / (testsPassed + testsFailed)) * 100).toFixed(1)}%`
+    )
     console.log('='.repeat(80))
 
     if (testsFailed === 0) {
@@ -291,7 +311,6 @@ async function testPilotPortal() {
     } else {
       console.log(`\n⚠️  ${testsFailed} test(s) failed. Please review the errors above.`)
     }
-
   } catch (error) {
     console.error('\n❌ Test failed with error:', error.message)
     console.error(error)

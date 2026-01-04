@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p3
-issue_id: "025"
+issue_id: '025'
 tags: [documentation]
 dependencies: []
 completed_date: 2025-10-17
@@ -10,12 +10,15 @@ completed_date: 2025-10-17
 # Document Business Rules in Code
 
 ## Problem Statement
+
 Complex business rules (roster periods, leave eligibility) not documented in code comments.
 
 ## Findings
+
 - **Severity**: 🟢 P3 (MEDIUM)
 
 ## Resolution Summary
+
 Added comprehensive business rule documentation to three critical utility files:
 
 1. **roster-utils.ts** (270 lines of documentation)
@@ -42,6 +45,7 @@ Added comprehensive business rule documentation to three critical utility files:
    - JSONB storage format flexibility
 
 ## Acceptance Criteria
+
 - [x] Business rules documented in utility files
 - [x] Examples provided for each business rule
 - [x] Edge cases explained thoroughly
@@ -51,6 +55,7 @@ Added comprehensive business rule documentation to three critical utility files:
 ## Implementation Details
 
 ### Files Created/Modified
+
 ```
 lib/utils/
 ├── roster-utils.ts          (NEW - 870 lines, 270 docs)
@@ -59,7 +64,9 @@ lib/utils/
 ```
 
 ### Documentation Structure
+
 Each file follows this pattern:
+
 1. **BUSINESS RULES** - Critical aviation concepts explained
 2. **CALCULATION LOGIC** - Step-by-step algorithms with examples
 3. **USE CASES** - Real-world application scenarios
@@ -69,6 +76,7 @@ Each file follows this pattern:
 ### Key Business Rules Documented
 
 #### 28-Day Roster Periods
+
 - Why 28 days? Industry standard for crew scheduling
 - Annual cycle: 13 periods × 28 days = 364 days
 - After RP13/YYYY → RP1/(YYYY+1)
@@ -76,6 +84,7 @@ Each file follows this pattern:
 - Final review: 22 days before next roster starts
 
 #### Certification Expiry
+
 - Red (expired) = pilot grounded, cannot fly
 - Yellow (≤30 days) = urgent renewal needed
 - Green (>30 days) = compliant, flight-ready
@@ -83,6 +92,7 @@ Each file follows this pattern:
 - Compliance formula: (green_count / total_count) × 100
 
 #### Captain Qualifications
+
 - Line Captain: Standard qualification for operations
 - Training Captain (TRI): Can conduct training
 - Examiner (TRE): Can conduct check rides
@@ -90,6 +100,7 @@ Each file follows this pattern:
 - Seniority: Lower number = higher priority (1 = most senior)
 
 ## Notes
+
 - NO service layer files created yet (those require database connection)
 - Focus was on utility functions with pure business logic
 - Documentation is comprehensive enough for future developers
@@ -97,6 +108,7 @@ Each file follows this pattern:
 - Source: CLAUDE.md business rules need code comments
 
 ## Related Work
+
 - These utilities will be used by future service layer implementations
 - Reference implementations exist in air-niugini-pms project
 - Next step: Port leave-eligibility-service.ts with these documented patterns

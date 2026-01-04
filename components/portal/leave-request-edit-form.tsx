@@ -13,7 +13,10 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PilotLeaveRequestSchema, type PilotLeaveRequestInput } from '@/lib/validations/pilot-leave-schema'
+import {
+  PilotLeaveRequestSchema,
+  type PilotLeaveRequestInput,
+} from '@/lib/validations/pilot-leave-schema'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -115,7 +118,7 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
           id="request_type"
           {...form.register('request_type')}
           disabled={isSubmitting}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:bg-gray-100"
+          className="focus:ring-primary w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100"
         >
           <option value="ANNUAL">Annual Leave</option>
           <option value="SICK">Sick Leave</option>
@@ -146,12 +149,7 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
       {/* End Date */}
       <div className="space-y-2">
         <Label htmlFor="end_date">End Date *</Label>
-        <Input
-          id="end_date"
-          type="date"
-          {...form.register('end_date')}
-          disabled={isSubmitting}
-        />
+        <Input id="end_date" type="date" {...form.register('end_date')} disabled={isSubmitting} />
         {form.formState.errors.end_date && (
           <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
         )}
@@ -168,9 +166,7 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
           {...form.register('reason')}
           disabled={isSubmitting}
         />
-        <p className="text-xs text-gray-500">
-          {form.watch('reason')?.length || 0}/500 characters
-        </p>
+        <p className="text-xs text-gray-500">{form.watch('reason')?.length || 0}/500 characters</p>
         {form.formState.errors.reason && (
           <p className="text-sm text-red-500">{form.formState.errors.reason.message}</p>
         )}
@@ -179,18 +175,14 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          <strong>Note:</strong> You can only edit requests with SUBMITTED or IN_REVIEW status. Once approved or denied, requests cannot be edited.
+          <strong>Note:</strong> You can only edit requests with SUBMITTED or IN_REVIEW status. Once
+          approved or denied, requests cannot be edited.
         </AlertDescription>
       </Alert>
 
       {/* Action Buttons */}
       <div className="flex items-center justify-end space-x-4 border-t pt-6">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>

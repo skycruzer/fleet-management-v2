@@ -122,6 +122,7 @@ Use hierarchical query keys for better cache management:
 ## Configuration
 
 Global configuration is set in `app/providers.tsx`:
+
 - **staleTime**: 60 seconds (data fresh for 1 minute)
 - **gcTime**: 5 minutes (garbage collection for inactive queries)
 - **refetchOnWindowFocus**: false (prevents disruption)
@@ -140,6 +141,7 @@ Hook for implementing optimistic UI updates with automatic rollback on errors. U
 **File**: `use-optimistic-mutation.ts`
 
 **Example:**
+
 ```typescript
 import { useOptimisticMutation } from '@/lib/hooks/use-optimistic-mutation'
 import { generateTempId } from '@/lib/utils/optimistic-utils'
@@ -182,13 +184,14 @@ function PilotList({ initialPilots }) {
 ```
 
 **API:**
+
 ```typescript
 interface OptimisticMutationResult<T> {
-  data: T[]                // Current data with optimistic updates
-  isPending: boolean       // Mutation in progress
-  error: Error | null      // Error if failed
+  data: T[] // Current data with optimistic updates
+  isPending: boolean // Mutation in progress
+  error: Error | null // Error if failed
   mutate: (update, options?) => Promise<void>
-  reset: () => void        // Clear error state
+  reset: () => void // Clear error state
 }
 ```
 
@@ -199,22 +202,19 @@ TanStack Query integration for optimistic updates. Manages cache invalidation an
 **File**: `use-optimistic-mutation.ts`
 
 **Example:**
+
 ```typescript
 import { useOptimisticQuery } from '@/lib/hooks/use-optimistic-mutation'
 import { useQueryClient } from '@tanstack/react-query'
 
 const queryClient = useQueryClient()
-const { mutate } = useOptimisticQuery(
-  ['pilots'],
-  queryClient,
-  async (update) => {
-    const response = await fetch('/api/pilots', {
-      method: 'POST',
-      body: JSON.stringify(update.data)
-    })
-    return response.json()
-  }
-)
+const { mutate } = useOptimisticQuery(['pilots'], queryClient, async (update) => {
+  const response = await fetch('/api/pilots', {
+    method: 'POST',
+    body: JSON.stringify(update.data),
+  })
+  return response.json()
+})
 ```
 
 ### usePortalForm (Enhanced v2.0)
@@ -224,6 +224,7 @@ Enhanced form submission hook with optimistic update support.
 **File**: `use-portal-form.ts`
 
 **Example:**
+
 ```typescript
 import { usePortalForm } from '@/lib/hooks/use-portal-form'
 
@@ -260,13 +261,14 @@ function FeedbackForm() {
 ```
 
 **API:**
+
 ```typescript
 interface UsePortalFormOptions {
   onSuccess?: (data: any) => void
   successRedirect?: string
   successMessage?: string
-  enableOptimistic?: boolean     // Enable optimistic updates
-  optimisticFeedback?: string    // Message during optimistic state
+  enableOptimistic?: boolean // Enable optimistic updates
+  optimisticFeedback?: string // Message during optimistic state
 }
 ```
 
@@ -296,6 +298,7 @@ Monitor online/offline status with automatic event handling and callbacks.
 **File**: `use-online-status.ts`
 
 **Example:**
+
 ```typescript
 import { useOnlineStatus } from '@/lib/hooks/use-online-status'
 import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator'
@@ -327,10 +330,11 @@ function MyComponent() {
 ```
 
 **API:**
+
 ```typescript
 interface UseOnlineStatusReturn {
-  isOnline: boolean          // Current online status
-  isOffline: boolean         // Inverse of isOnline
+  isOnline: boolean // Current online status
+  isOffline: boolean // Inverse of isOnline
   lastChanged: string | null // ISO timestamp of last change
   checkStatus: () => boolean // Manual status check
 }
@@ -343,6 +347,7 @@ Execute functions with automatic retry logic and visual feedback.
 **File**: `use-retry-state.ts`
 
 **Example:**
+
 ```typescript
 import { useRetryState } from '@/lib/hooks/use-retry-state'
 import { RetryIndicator } from '@/components/ui/retry-indicator'
@@ -396,14 +401,15 @@ function DataLoader() {
 ```
 
 **API:**
+
 ```typescript
 interface UseRetryStateReturn {
-  retryState: RetryState      // Full retry state
-  isRetrying: boolean         // Retry in progress
-  statusMessage: string       // User-friendly message
-  progress: number            // Progress 0-100%
+  retryState: RetryState // Full retry state
+  isRetrying: boolean // Retry in progress
+  statusMessage: string // User-friendly message
+  progress: number // Progress 0-100%
   executeWithRetry: <T>(fn, config?) => Promise<T>
-  reset: () => void           // Reset state
+  reset: () => void // Reset state
 }
 ```
 
@@ -412,6 +418,7 @@ interface UseRetryStateReturn {
 Combines online status with automatic reconnection handling.
 
 **Example:**
+
 ```typescript
 import { useOnlineStatusWithReconnect } from '@/lib/hooks/use-online-status'
 
@@ -531,5 +538,6 @@ function PilotForm() {
 ## Documentation
 
 For comprehensive documentation, see:
+
 - **`docs/OPTIMISTIC-UI-GUIDE.md`** - Complete guide with examples, best practices, and troubleshooting
 - **`docs/CONNECTION-ERROR-HANDLING.md`** - Connection error handling, offline detection, and retry strategies

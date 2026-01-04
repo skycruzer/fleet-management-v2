@@ -103,10 +103,11 @@ export function isServerError(error: Error): boolean {
   // Check for HTTP 5xx status codes
   const serverErrorCodes = ['500', '502', '503', '504', '505', '507', '508', '509', '510', '511']
 
-  return serverErrorCodes.some((code) =>
-    message.includes(code) ||
-    message.includes(`status ${code}`) ||
-    message.includes(`status code ${code}`)
+  return serverErrorCodes.some(
+    (code) =>
+      message.includes(code) ||
+      message.includes(`status ${code}`) ||
+      message.includes(`status code ${code}`)
   )
 }
 
@@ -119,10 +120,11 @@ export function isClientError(error: Error): boolean {
   // Check for HTTP 4xx status codes
   const clientErrorCodes = ['400', '401', '403', '404', '405', '406', '407', '408', '409', '410']
 
-  return clientErrorCodes.some((code) =>
-    message.includes(code) ||
-    message.includes(`status ${code}`) ||
-    message.includes(`status code ${code}`)
+  return clientErrorCodes.some(
+    (code) =>
+      message.includes(code) ||
+      message.includes(`status ${code}`) ||
+      message.includes(`status code ${code}`)
   )
 }
 
@@ -309,10 +311,7 @@ export async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Pr
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
-      setTimeout(
-        () => reject(new Error(`Request timeout after ${timeoutMs}ms`)),
-        timeoutMs
-      )
+      setTimeout(() => reject(new Error(`Request timeout after ${timeoutMs}ms`)), timeoutMs)
     ),
   ])
 }
@@ -431,9 +430,7 @@ export async function fetchWithRetry(
 
       // Check for HTTP errors
       if (!response.ok) {
-        throw new Error(
-          `HTTP ${response.status}: ${response.statusText || 'Request failed'}`
-        )
+        throw new Error(`HTTP ${response.status}: ${response.statusText || 'Request failed'}`)
       }
 
       return response

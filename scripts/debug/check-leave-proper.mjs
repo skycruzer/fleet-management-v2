@@ -8,7 +8,9 @@ const supabase = createClient(
 // Proper join using hint
 const { data, error } = await supabase
   .from('leave_requests')
-  .select('*, pilot:pilots!leave_requests_pilot_id_fkey(first_name, last_name, rank, employee_number)')
+  .select(
+    '*, pilot:pilots!leave_requests_pilot_id_fkey(first_name, last_name, rank, employee_number)'
+  )
   .limit(1)
 
 if (error) {

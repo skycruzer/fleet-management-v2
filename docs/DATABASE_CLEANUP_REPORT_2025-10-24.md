@@ -1,4 +1,5 @@
 # Database Cleanup & Security Fixes Report
+
 **Date**: October 24, 2025
 **Project**: Fleet Management V2
 **Database**: Supabase (wgdmgvonqysflwdiiols)
@@ -18,13 +19,13 @@ Successfully cleaned up the Supabase database by removing 10 unused tables, fixi
 
 ## 📊 Before & After Comparison
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| **Base Tables** | 30 | 20 | -10 (33% reduction) |
-| **Views** | 19 | 15 | -4 (21% reduction) |
-| **Security Issues** | 20 | 9 | -11 (55% reduction) |
-| **Critical Errors** | 1 | 0 | ✅ 100% fixed |
-| **Security Warnings** | 19 | 9 | -10 (53% reduction) |
+| Metric                | Before | After | Change              |
+| --------------------- | ------ | ----- | ------------------- |
+| **Base Tables**       | 30     | 20    | -10 (33% reduction) |
+| **Views**             | 19     | 15    | -4 (21% reduction)  |
+| **Security Issues**   | 20     | 9     | -11 (55% reduction) |
+| **Critical Errors**   | 1      | 0     | ✅ 100% fixed       |
+| **Security Warnings** | 19     | 9     | -10 (53% reduction) |
 
 ---
 
@@ -33,19 +34,23 @@ Successfully cleaned up the Supabase database by removing 10 unused tables, fixi
 All the following tables had **0 rows** and were not referenced in the application code:
 
 ### Disciplinary System (3 tables)
+
 1. ✅ `disciplinary_action_documents` - Document attachments for disciplinary actions
 2. ✅ `disciplinary_comments` - Comments on disciplinary matters
 3. ✅ `disciplinary_actions` - Disciplinary actions and warnings
 
 ### Document Management (2 tables)
+
 4. ✅ `document_access_log` - Access logging for documents
 5. ✅ `documents` - General document storage
 
 ### Feedback System (2 tables)
+
 6. ✅ `feedback_comments` - Comments on feedback posts
 7. ✅ `feedback_posts` - Pilot feedback and suggestions
 
 ### Other Systems (3 tables)
+
 8. ✅ `form_submissions` - Digital form submissions
 9. ✅ `notifications` - System notifications
 10. ✅ `task_comments` - Comments on tasks
@@ -66,11 +71,13 @@ All the following tables had **0 rows** and were not referenced in the applicati
 ### ❌ CRITICAL ERROR - Fixed (1 issue)
 
 #### 1. Security Definer View - `pilot_warning_history`
+
 **Status**: ✅ **FIXED**
 
 **Problem**: View was using `SECURITY DEFINER` which enforces creator's permissions instead of querying user's permissions, creating a security risk.
 
 **Solution**:
+
 ```sql
 -- Recreated view with security_invoker = true
 ALTER VIEW pilot_warning_history SET (security_invoker = true);
@@ -89,34 +96,42 @@ ALTER VIEW pilot_warning_history SET (security_invoker = true);
 **Solution**: All functions recreated with `SET search_path = public`:
 
 ##### ✅ Trigger Functions (2 fixed)
+
 1. `update_updated_at_column()` - Universal timestamp trigger
 2. `update_flight_requests_updated_at()` - Flight requests timestamp
 
 ##### ✅ Audit Functions (1 fixed)
+
 3. `log_pilot_users_changes()` - Audit logging for pilot_users table
 
 ##### ✅ Utility Functions (1 fixed)
+
 4. `get_pilot_warning_count(uuid)` - Count warnings for a pilot
 
 ##### ✅ Transaction Functions (3 fixed)
+
 5. `create_pilot_with_certifications(jsonb, jsonb[])` - Atomic pilot creation
 6. `submit_leave_request_tx(...)` - Leave request submission
 7. `approve_leave_request(...)` - Leave request approval
 
 ##### ✅ Flight Request Functions (1 fixed)
+
 8. `submit_flight_request_tx(...)` - Flight request submission
 
 ##### ✅ Batch Operation Functions (3 fixed)
+
 9. `bulk_delete_certifications(uuid[])` - Batch certification deletion
 10. `delete_pilot_with_cascade(uuid)` - Cascade pilot deletion
 11. `batch_update_certifications(jsonb[])` - Batch certification updates
 
 ##### ✅ Removed Functions (3 obsolete)
+
 12. `update_disciplinary_action_documents_updated_at()` - Table dropped
 13. `submit_feedback_post_tx()` - feedback_posts table dropped
 14. (Function name unknown) - Cleaned up orphaned reference
 
 **Code Pattern Applied**:
+
 ```sql
 CREATE OR REPLACE FUNCTION function_name(...)
 RETURNS type
@@ -139,6 +154,7 @@ These issues require **manual fixes** via Supabase Dashboard:
 ### 1-3. Extensions in Public Schema (3 warnings) - Low Priority
 
 **Extensions**:
+
 - `btree_gin`
 - `btree_gist`
 - `pg_trgm`
@@ -148,6 +164,7 @@ These issues require **manual fixes** via Supabase Dashboard:
 **Why It Remains**: Moving extensions requires **superuser privileges** which are not available via standard Supabase API.
 
 **Manual Fix Required**:
+
 ```sql
 -- Requires superuser access (run in Supabase SQL Editor if possible)
 ALTER EXTENSION btree_gin SET SCHEMA extensions;
@@ -172,6 +189,7 @@ ALTER EXTENSION pg_trgm SET SCHEMA extensions;
 **Manual Fix Options**:
 
 **Option A - Restrict API Access** (Recommended):
+
 ```sql
 -- Revoke access from anon role
 REVOKE SELECT ON dashboard_metrics FROM anon;
@@ -181,6 +199,7 @@ REVOKE SELECT ON dashboard_metrics FROM anon;
 ```
 
 **Option B - Convert to Regular View**:
+
 ```sql
 DROP MATERIALIZED VIEW dashboard_metrics;
 CREATE VIEW dashboard_metrics AS
@@ -196,6 +215,7 @@ SELECT ...;  -- Same query
 ### 5-6. Function Search Path Issues (3 warnings) - Already Fixed (Duplicate References)
 
 **Functions** (showing duplicates):
+
 - `submit_leave_request_tx`
 - `approve_leave_request`
 - `submit_flight_request_tx`
@@ -215,6 +235,7 @@ SELECT ...;  -- Same query
 **What It Does**: Checks passwords against HaveIBeenPwned.org database of compromised passwords.
 
 **Manual Fix Required**:
+
 1. Go to Supabase Dashboard → Authentication → Policies
 2. Enable "Password Strength and Leaked Password Protection"
 3. Configure minimum password strength requirements
@@ -230,11 +251,13 @@ SELECT ...;  -- Same query
 **Issue**: Only one MFA method is enabled (TOTP).
 
 **Available MFA Methods**:
+
 - ✅ TOTP (Time-based One-Time Password) - Currently enabled
 - ❌ SMS (Text message) - Disabled
 - ❌ Phone (Voice call) - Disabled
 
 **Manual Fix Required**:
+
 1. Go to Supabase Dashboard → Authentication → Providers
 2. Enable additional MFA providers (SMS, Phone)
 3. Configure Twilio or similar service for SMS/Phone
@@ -248,11 +271,13 @@ SELECT ...;  -- Same query
 ## 📈 Database Performance Impact
 
 ### Space Savings
+
 - **Tables Removed**: 10 tables (estimated ~2-3 MB saved)
 - **Indexes Removed**: ~20 indexes (estimated ~1-2 MB saved)
 - **Total Space Saved**: ~3-5 MB
 
 ### Query Performance Improvements
+
 - Reduced table scan overhead in information_schema queries
 - Cleaner database structure for easier maintenance
 - Removed unused indexes that were consuming memory
@@ -264,6 +289,7 @@ SELECT ...;  -- Same query
 Added comprehensive table and view comments for better discoverability:
 
 ### Tables (11 documented)
+
 ```sql
 COMMENT ON TABLE pilots IS 'Core pilot information including qualifications and seniority';
 COMMENT ON TABLE pilot_checks IS 'Certification tracking for pilots with expiry dates';
@@ -279,6 +305,7 @@ COMMENT ON TABLE contract_types IS 'Employment contract type definitions';
 ```
 
 ### Views (7 documented)
+
 ```sql
 COMMENT ON VIEW expiring_checks IS 'Certifications expiring within 60 days';
 COMMENT ON VIEW detailed_expiring_checks IS 'Detailed view with FAA color coding for expiring certifications';
@@ -298,6 +325,7 @@ COMMENT ON VIEW active_tasks_dashboard IS 'Active and pending tasks for dashboar
 **Applied**: October 24, 2025
 
 **Migration Sections**:
+
 1. ✅ Remove unused empty tables (10 tables)
 2. ✅ Fix security definer view (1 view)
 3. ✅ Fix function search_path issues (14 functions)
@@ -310,28 +338,28 @@ COMMENT ON VIEW active_tasks_dashboard IS 'Active and pending tasks for dashboar
 
 ### Tables Remaining (20 - All Active)
 
-| Table Name | Row Count | Purpose | Status |
-|-----------|-----------|---------|--------|
-| `pilots` | 26 | Pilot profiles | ✅ Active |
-| `pilot_checks` | 598 | Certifications | ✅ Active |
-| `leave_requests` | 19 | Leave management | ✅ Active |
-| `flight_requests` | 1 | Flight requests | ✅ Active |
-| `tasks` | 2 | Task management | ✅ Active |
-| `disciplinary_matters` | 1 | Disciplinary tracking | ✅ Active |
-| `audit_logs` | 29 | Audit trail | ✅ Active |
-| `pilot_users` | 4 | Portal accounts | ✅ Active |
-| `an_users` | 3 | Admin accounts | ✅ Active |
-| `check_types` | 34 | Check definitions | ✅ Active |
-| `contract_types` | 4 | Contract types | ✅ Active |
-| `incident_types` | 10 | Incident categories | ✅ Active |
-| `task_categories` | 9 | Task categories | ✅ Active |
-| `feedback_categories` | 6 | Feedback types | ✅ Active |
-| `settings` | 3 | System settings | ✅ Active |
-| `digital_forms` | 3 | Form definitions | ✅ Active |
-| `leave_bids` | 1 | Leave bidding | ✅ Active |
-| `document_categories` | 18 | Doc categories | ✅ Active |
-| `disciplinary_audit_log` | 1 | Audit log | ✅ Active |
-| `task_audit_log` | 2 | Task audit log | ✅ Active |
+| Table Name               | Row Count | Purpose               | Status    |
+| ------------------------ | --------- | --------------------- | --------- |
+| `pilots`                 | 26        | Pilot profiles        | ✅ Active |
+| `pilot_checks`           | 598       | Certifications        | ✅ Active |
+| `leave_requests`         | 19        | Leave management      | ✅ Active |
+| `flight_requests`        | 1         | Flight requests       | ✅ Active |
+| `tasks`                  | 2         | Task management       | ✅ Active |
+| `disciplinary_matters`   | 1         | Disciplinary tracking | ✅ Active |
+| `audit_logs`             | 29        | Audit trail           | ✅ Active |
+| `pilot_users`            | 4         | Portal accounts       | ✅ Active |
+| `an_users`               | 3         | Admin accounts        | ✅ Active |
+| `check_types`            | 34        | Check definitions     | ✅ Active |
+| `contract_types`         | 4         | Contract types        | ✅ Active |
+| `incident_types`         | 10        | Incident categories   | ✅ Active |
+| `task_categories`        | 9         | Task categories       | ✅ Active |
+| `feedback_categories`    | 6         | Feedback types        | ✅ Active |
+| `settings`               | 3         | System settings       | ✅ Active |
+| `digital_forms`          | 3         | Form definitions      | ✅ Active |
+| `leave_bids`             | 1         | Leave bidding         | ✅ Active |
+| `document_categories`    | 18        | Doc categories        | ✅ Active |
+| `disciplinary_audit_log` | 1         | Audit log             | ✅ Active |
+| `task_audit_log`         | 2         | Task audit log        | ✅ Active |
 
 ### Views Remaining (15 - All Used)
 
@@ -344,9 +372,11 @@ All remaining views are actively used by the application for performance optimiz
 ### Required Actions
 
 1. **Regenerate TypeScript Types** ⚡ **HIGH PRIORITY**
+
    ```bash
    npm run db:types
    ```
+
    - Update `types/supabase.ts` to reflect removed tables
    - Prevent TypeScript errors in application
 
@@ -362,6 +392,7 @@ All remaining views are actively used by the application for performance optimiz
    - Configure password strength requirements
 
 4. **Fix Materialized View Access** ⚡ **MEDIUM PRIORITY**
+
    ```sql
    REVOKE SELECT ON dashboard_metrics FROM anon;
    ```
@@ -386,6 +417,7 @@ All remaining views are actively used by the application for performance optimiz
 ## 📋 Summary Statistics
 
 ### Issues Resolved
+
 - ✅ **1 Critical Error Fixed** (Security Definer View)
 - ✅ **10 Security Warnings Fixed** (Function search_path)
 - ✅ **10 Empty Tables Removed**
@@ -393,6 +425,7 @@ All remaining views are actively used by the application for performance optimiz
 - ✅ **18 Documentation Comments Added**
 
 ### Remaining Issues (9 warnings)
+
 - ⚠️ 3 Extensions in public schema (Low priority - requires superuser)
 - ⚠️ 1 Materialized view exposed (Medium priority - fix with REVOKE)
 - ⚠️ 3 Function duplicates (Already fixed - cache issue)
@@ -400,6 +433,7 @@ All remaining views are actively used by the application for performance optimiz
 - ⚠️ 1 Insufficient MFA options (Low priority - TOTP is sufficient)
 
 ### Database Health
+
 - **Before**: 30 tables, 19 views, 20 security issues
 - **After**: 20 tables, 15 views, 9 security issues
 - **Improvement**: 33% fewer tables, 21% fewer views, 55% fewer security issues
@@ -408,13 +442,13 @@ All remaining views are actively used by the application for performance optimiz
 
 ## 🎯 Success Metrics
 
-| Metric | Target | Achieved | Status |
-|--------|--------|----------|--------|
-| Remove unused tables | 10+ | 10 | ✅ 100% |
-| Fix critical errors | 1 | 1 | ✅ 100% |
-| Fix security warnings | 50%+ | 55% | ✅ 110% |
-| Add documentation | All tables/views | 18 objects | ✅ 100% |
-| Maintain app functionality | 0 breaking changes | 0 | ✅ 100% |
+| Metric                     | Target             | Achieved   | Status  |
+| -------------------------- | ------------------ | ---------- | ------- |
+| Remove unused tables       | 10+                | 10         | ✅ 100% |
+| Fix critical errors        | 1                  | 1          | ✅ 100% |
+| Fix security warnings      | 50%+               | 55%        | ✅ 110% |
+| Add documentation          | All tables/views   | 18 objects | ✅ 100% |
+| Maintain app functionality | 0 breaking changes | 0          | ✅ 100% |
 
 ---
 
@@ -427,6 +461,7 @@ All remaining views are actively used by the application for performance optimiz
 ## Appendix A: Manual Fix Scripts
 
 ### Fix Materialized View Access
+
 ```sql
 -- Revoke anonymous access to dashboard_metrics
 REVOKE SELECT ON dashboard_metrics FROM anon;
@@ -438,6 +473,7 @@ WHERE table_name = 'dashboard_metrics';
 ```
 
 ### Move Extensions (Requires Superuser)
+
 ```sql
 -- Create extensions schema if it doesn't exist
 CREATE SCHEMA IF NOT EXISTS extensions;
@@ -452,6 +488,7 @@ ALTER DATABASE postgres SET search_path = public, extensions;
 ```
 
 ### Verify Function Security
+
 ```sql
 -- Check all functions have proper search_path
 SELECT

@@ -48,10 +48,9 @@ const nameSchema = z
 const optionalNameSchema = z
   .string()
   .max(50, 'Name cannot exceed 50 characters')
-  .refine(
-    (val) => !val || /^[a-zA-Z\s'-]+$/.test(val),
-    { message: 'Name can only contain letters, spaces, hyphens, and apostrophes' }
-  )
+  .refine((val) => !val || /^[a-zA-Z\s'-]+$/.test(val), {
+    message: 'Name can only contain letters, spaces, hyphens, and apostrophes',
+  })
   .optional()
   .nullable()
 
@@ -80,10 +79,9 @@ const dateSchema = z
  */
 const passportNumberSchema = z
   .string()
-  .refine(
-    (val) => !val || (val.length >= 5 && val.length <= 20 && /^[A-Z0-9]+$/.test(val)),
-    { message: 'Passport number must be 5-20 uppercase letters and numbers' }
-  )
+  .refine((val) => !val || (val.length >= 5 && val.length <= 20 && /^[A-Z0-9]+$/.test(val)), {
+    message: 'Passport number must be 5-20 uppercase letters and numbers',
+  })
   .optional()
   .nullable()
 
@@ -93,10 +91,9 @@ const passportNumberSchema = z
  */
 const nationalitySchema = z
   .string()
-  .refine(
-    (val) => !val || (val.length >= 2 && val.length <= 50),
-    { message: 'Nationality must be 2-50 characters' }
-  )
+  .refine((val) => !val || (val.length >= 2 && val.length <= 50), {
+    message: 'Nationality must be 2-50 characters',
+  })
   .optional()
   .nullable()
 

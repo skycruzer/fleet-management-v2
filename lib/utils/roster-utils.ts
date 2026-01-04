@@ -712,9 +712,7 @@ export function getRosterPeriodsInRange(startDate: Date, endDate: Date): RosterP
  * @param code - Roster period code (e.g., "RP01/2025")
  * @returns Object with period number and year, or null if invalid
  */
-export function parseRosterPeriodCode(
-  code: string
-): { periodNumber: number; year: number } | null {
+export function parseRosterPeriodCode(code: string): { periodNumber: number; year: number } | null {
   // Validate format
   const match = code.match(/^RP(\d{1,2})\/(\d{4})$/)
   if (!match) {

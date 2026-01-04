@@ -107,7 +107,14 @@ export function getCertificationStatus(
  */
 export function getDetailedCertificationStatus(expiryDate: Date | string | null | undefined): {
   status: CertificationStatus
-  category: 'EXPIRED' | 'EXPIRING_7_DAYS' | 'EXPIRING_30_DAYS' | 'EXPIRING_60_DAYS' | 'EXPIRING_90_DAYS' | 'CURRENT' | 'NO_DATE'
+  category:
+    | 'EXPIRED'
+    | 'EXPIRING_7_DAYS'
+    | 'EXPIRING_30_DAYS'
+    | 'EXPIRING_60_DAYS'
+    | 'EXPIRING_90_DAYS'
+    | 'CURRENT'
+    | 'NO_DATE'
   urgency: 'critical' | 'high' | 'medium' | 'low' | 'none'
 } {
   const status = getCertificationStatus(expiryDate, 90)
@@ -155,9 +162,7 @@ export function getDaysUntilExpiry(expiryDate: Date | string | null | undefined)
   const expiryNormalized = new Date(expiry)
   expiryNormalized.setHours(0, 0, 0, 0)
 
-  return Math.ceil(
-    (expiryNormalized.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
+  return Math.ceil((expiryNormalized.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 /**

@@ -233,7 +233,7 @@ export const Interactive: Story = {
 
         {role && (
           <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">Selected value:</p>
+            <p className="text-muted-foreground text-sm">Selected value:</p>
             <p className="font-mono text-lg font-semibold">{role}</p>
           </div>
         )}
@@ -276,7 +276,7 @@ export const LongList: Story = {
 
 export const MultipleSelects: Story = {
   render: () => (
-    <div className="space-y-6 max-w-md">
+    <div className="max-w-md space-y-6">
       <div className="space-y-2">
         <Label htmlFor="pilot-name">Pilot</Label>
         <Select>
@@ -327,7 +327,7 @@ export const DarkMode: Story = {
     backgrounds: { default: 'dark' },
   },
   render: () => (
-    <div className="dark p-4 space-y-4">
+    <div className="dark space-y-4 p-4">
       <div className="space-y-2">
         <Label htmlFor="dark-role">Pilot Role</Label>
         <Select defaultValue="captain">

@@ -88,7 +88,7 @@ export function CrewShortageWarnings({
             ) : (
               <CheckCircle2 className="h-5 w-5 text-green-600" />
             )}
-            <h3 className="text-lg font-semibold text-foreground">Crew Shortage Analysis</h3>
+            <h3 className="text-foreground text-lg font-semibold">Crew Shortage Analysis</h3>
           </div>
           <Badge variant={hasShortages ? 'destructive' : 'default'}>
             {hasShortages ? 'Action Required' : 'All Clear'}
@@ -146,9 +146,7 @@ export function CrewShortageWarnings({
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
             <p className="text-xs font-medium text-blue-700">Time to First Shortage</p>
             <p className="text-2xl font-bold text-blue-900">
-              {summary.timeToFirstShortage !== null
-                ? `${summary.timeToFirstShortage} mo`
-                : 'None'}
+              {summary.timeToFirstShortage !== null ? `${summary.timeToFirstShortage} mo` : 'None'}
             </p>
           </div>
         </div>
@@ -159,7 +157,7 @@ export function CrewShortageWarnings({
         <Card className="p-6">
           <div className="mb-4 flex items-center space-x-2">
             <Calendar className="h-5 w-5 text-orange-600" />
-            <h4 className="text-base font-semibold text-foreground">
+            <h4 className="text-foreground text-base font-semibold">
               Critical Shortage Periods ({criticalPeriods.length})
             </h4>
           </div>
@@ -174,14 +172,14 @@ export function CrewShortageWarnings({
                     : 'border-orange-300 bg-orange-50'
                 }`}
               >
-                <div className="flex items-start justify-between mb-2">
+                <div className="mb-2 flex items-start justify-between">
                   <div className="flex items-center space-x-2">
                     <AlertCircle
                       className={`h-4 w-4 ${
                         period.severity === 'critical' ? 'text-red-600' : 'text-orange-600'
                       }`}
                     />
-                    <span className="font-semibold text-sm text-foreground">
+                    <span className="text-foreground text-sm font-semibold">
                       {period.startMonth} - {period.endMonth}
                     </span>
                   </div>
@@ -190,18 +188,18 @@ export function CrewShortageWarnings({
                   </Badge>
                 </div>
 
-                <p className="text-xs text-muted-foreground mb-2">{period.impactDescription}</p>
+                <p className="text-muted-foreground mb-2 text-xs">{period.impactDescription}</p>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs text-muted-foreground">Captain Shortage:</span>
-                    <Badge variant="outline" className="text-xs font-mono">
+                    <span className="text-muted-foreground text-xs">Captain Shortage:</span>
+                    <Badge variant="outline" className="font-mono text-xs">
                       {period.captainShortage}
                     </Badge>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs text-muted-foreground">FO Shortage:</span>
-                    <Badge variant="outline" className="text-xs font-mono">
+                    <span className="text-muted-foreground text-xs">FO Shortage:</span>
+                    <Badge variant="outline" className="font-mono text-xs">
                       {period.firstOfficerShortage}
                     </Badge>
                   </div>
@@ -217,7 +215,7 @@ export function CrewShortageWarnings({
         <Card className="p-6">
           <div className="mb-4 flex items-center space-x-2">
             <TrendingUp className="h-5 w-5 text-blue-600" />
-            <h4 className="text-base font-semibold text-foreground">
+            <h4 className="text-foreground text-base font-semibold">
               Recommended Actions ({recommendations.length})
             </h4>
           </div>
@@ -226,27 +224,27 @@ export function CrewShortageWarnings({
             {recommendations.map((rec, index) => (
               <div
                 key={index}
-                className="rounded-lg border border-blue-200 bg-blue-50 p-4 space-y-2"
+                className="space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
+                    <div className="mb-1 flex items-center space-x-2">
                       <Badge className={getPriorityBadgeClasses(rec.priority)}>
                         {rec.priority.toUpperCase()}
                       </Badge>
-                      <span className="text-sm font-semibold text-foreground">{rec.action}</span>
+                      <span className="text-foreground text-sm font-semibold">{rec.action}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-xs text-muted-foreground">Timeline:</span>
-                    <p className="text-xs font-medium text-foreground">{rec.timeline}</p>
+                    <span className="text-muted-foreground text-xs">Timeline:</span>
+                    <p className="text-foreground text-xs font-medium">{rec.timeline}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-muted-foreground">Impact:</span>
-                    <p className="text-xs font-medium text-foreground">{rec.impact}</p>
+                    <span className="text-muted-foreground text-xs">Impact:</span>
+                    <p className="text-foreground text-xs font-medium">{rec.impact}</p>
                   </div>
                 </div>
               </div>
@@ -259,15 +257,15 @@ export function CrewShortageWarnings({
       {!hasShortages && (
         <Card className="p-6">
           <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
-            <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-3" />
-            <h4 className="text-base font-semibold text-green-900 mb-2">
+            <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-green-600" />
+            <h4 className="mb-2 text-base font-semibold text-green-900">
               No Crew Shortages Predicted
             </h4>
             <p className="text-sm text-green-700">
               Based on current retirement projections and minimum crew requirements, no critical
               shortages are expected in the next 5 years.
             </p>
-            <p className="text-xs text-green-600 mt-2">
+            <p className="mt-2 text-xs text-green-600">
               Continue monitoring succession planning and recruitment to maintain adequate staffing
               levels.
             </p>

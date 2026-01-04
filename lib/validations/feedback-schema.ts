@@ -8,9 +8,7 @@ import { z } from 'zod'
 
 // Feedback post creation schema
 export const FeedbackPostSchema = z.object({
-  category_id: z
-    .string()
-    .uuid('Invalid category ID format'),
+  category_id: z.string().uuid('Invalid category ID format'),
   title: z
     .string()
     .min(3, 'Title must be at least 3 characters')
@@ -19,19 +17,18 @@ export const FeedbackPostSchema = z.object({
     .string()
     .min(10, 'Content must be at least 10 characters')
     .max(10000, 'Content must be less than 10,000 characters'),
-  status: z.enum(['draft', 'published'], {
-    message: 'Status must be either draft or published',
-  }).default('published'),
+  status: z
+    .enum(['draft', 'published'], {
+      message: 'Status must be either draft or published',
+    })
+    .default('published'),
 })
 
 export type FeedbackPostInput = z.infer<typeof FeedbackPostSchema>
 
 // Feedback post update schema (pilot can edit own post)
 export const FeedbackPostUpdateSchema = z.object({
-  category_id: z
-    .string()
-    .uuid('Invalid category ID format')
-    .optional(),
+  category_id: z.string().uuid('Invalid category ID format').optional(),
   title: z
     .string()
     .min(3, 'Title must be at least 3 characters')
@@ -53,11 +50,7 @@ export const FeedbackCommentSchema = z.object({
     .string()
     .min(1, 'Comment cannot be empty')
     .max(2000, 'Comment must be less than 2,000 characters'),
-  parent_comment_id: z
-    .string()
-    .uuid('Invalid parent comment ID format')
-    .nullable()
-    .optional(),
+  parent_comment_id: z.string().uuid('Invalid parent comment ID format').nullable().optional(),
   mentions: z
     .array(z.string().uuid('Invalid user ID in mentions'))
     .max(20, 'Maximum 20 mentions allowed')
@@ -91,28 +84,30 @@ export const FeedbackVoteSchema = z.object({
 export type FeedbackVoteInput = z.infer<typeof FeedbackVoteSchema>
 
 // Admin moderation schema
-export const FeedbackModerationSchema = z.object({
-  action: z.enum(['pin', 'unpin', 'hide', 'unhide'], {
-    message: 'Moderation action is required',
-  }),
-  reason: z
-    .string()
-    .min(10, 'Reason must be at least 10 characters')
-    .max(500, 'Reason must be less than 500 characters')
-    .optional(),
-}).refine(
-  (data) => {
-    // If action is hide, reason should be provided (not required but recommended)
-    if (data.action === 'hide' && !data.reason) {
-      return false
+export const FeedbackModerationSchema = z
+  .object({
+    action: z.enum(['pin', 'unpin', 'hide', 'unhide'], {
+      message: 'Moderation action is required',
+    }),
+    reason: z
+      .string()
+      .min(10, 'Reason must be at least 10 characters')
+      .max(500, 'Reason must be less than 500 characters')
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      // If action is hide, reason should be provided (not required but recommended)
+      if (data.action === 'hide' && !data.reason) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Reason is recommended when hiding a post',
+      path: ['reason'],
     }
-    return true
-  },
-  {
-    message: 'Reason is recommended when hiding a post',
-    path: ['reason'],
-  }
-)
+  )
 
 export type FeedbackModerationInput = z.infer<typeof FeedbackModerationSchema>
 
@@ -122,11 +117,11 @@ export const FeedbackCategorySchema = z.object({
     .string()
     .min(2, 'Category name must be at least 2 characters')
     .max(50, 'Category name must be less than 50 characters')
-    .regex(/^[a-zA-Z\s&-]+$/, 'Category name can only contain letters, spaces, hyphens, and ampersands'),
-  description: z
-    .string()
-    .max(500, 'Description must be less than 500 characters')
-    .optional(),
+    .regex(
+      /^[a-zA-Z\s&-]+$/,
+      'Category name can only contain letters, spaces, hyphens, and ampersands'
+    ),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
   color: z
     .string()
     .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color code (e.g., #3b82f6)')

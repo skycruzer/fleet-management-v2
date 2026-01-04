@@ -17,7 +17,7 @@ import { lazyLoadDashboard } from '@/lib/utils/dynamic-imports'
  * ~80KB minified
  */
 export const LazyRenewalPlanningDashboard = lazyLoadDashboard(() =>
-  import('./renewal-planning-dashboard').then(mod => ({
-    default: mod.RenewalPlanningDashboard
+  import('./renewal-planning-dashboard').then((mod) => ({
+    default: mod.RenewalPlanningDashboard,
   }))
 )

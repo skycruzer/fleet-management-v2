@@ -9,48 +9,48 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { autoRefreshToken: false, persistSession: false }
+  auth: { autoRefreshToken: false, persistSession: false },
 })
 
 async function fixLeaveBidButtons() {
   const email = 'skycruzer@icloud.com'
-  
+
   console.log('\n🔍 Checking admin role for leave bid management...')
-  console.log('=' .repeat(60))
-  
+  console.log('='.repeat(60))
+
   // Check current role
   const { data: anUser, error } = await supabase
     .from('an_users')
     .select('id, email, role, full_name')
     .eq('email', email)
     .single()
-  
+
   if (error || !anUser) {
     console.error('❌ User not found:', error?.message)
     return
   }
-  
+
   console.log('Current role:', anUser.role)
-  
+
   // API expects 'Admin' or 'Manager' (capitalized)
   if (anUser.role !== 'Admin' && anUser.role !== 'Manager') {
     console.log('\n🔄 Updating role to "Admin" (capitalized)...')
-    
+
     const { error: updateError } = await supabase
       .from('an_users')
       .update({ role: 'Admin', full_name: 'Maurice Rondeau' })
       .eq('id', anUser.id)
-    
+
     if (updateError) {
       console.error('❌ Error updating role:', updateError.message)
       return
     }
-    
+
     console.log('✅ Role updated to "Admin"')
   } else {
     console.log('✅ Role is already correct')
   }
-  
+
   // Update full_name if it's null
   if (!anUser.full_name) {
     console.log('\n🔄 Setting full_name...')
@@ -58,12 +58,12 @@ async function fixLeaveBidButtons() {
       .from('an_users')
       .update({ full_name: 'Maurice Rondeau' })
       .eq('id', anUser.id)
-    
+
     if (!nameError) {
       console.log('✅ Full name set')
     }
   }
-  
+
   console.log('\n' + '='.repeat(60))
   console.log('✅ Admin configuration complete')
   console.log('\nYou should now be able to:')

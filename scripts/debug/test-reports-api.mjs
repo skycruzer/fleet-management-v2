@@ -58,7 +58,9 @@ async function testReportsAPI() {
     console.log(`   📊 Total records: ${previewResult.report.data.length}`)
     console.log(`   📈 Summary:`, previewResult.report.summary)
     if (previewResult.report.pagination) {
-      console.log(`   📄 Pagination: Page ${previewResult.report.pagination.currentPage} of ${previewResult.report.pagination.totalPages}`)
+      console.log(
+        `   📄 Pagination: Page ${previewResult.report.pagination.currentPage} of ${previewResult.report.pagination.totalPages}`
+      )
     }
   } else {
     console.error('❌ Preview failed:', previewResult.error)

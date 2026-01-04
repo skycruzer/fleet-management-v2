@@ -21,10 +21,10 @@ import { logger } from './logging-service'
  * Conflict types
  */
 export type ConflictType =
-  | 'OVERLAPPING_REQUEST'     // Same pilot has overlapping request
-  | 'CREW_BELOW_MINIMUM'      // Approval would cause crew < 10
-  | 'MULTIPLE_PENDING'        // Multiple pilots requesting same dates
-  | 'DUPLICATE_REQUEST'       // Duplicate request for same pilot/dates
+  | 'OVERLAPPING_REQUEST' // Same pilot has overlapping request
+  | 'CREW_BELOW_MINIMUM' // Approval would cause crew < 10
+  | 'MULTIPLE_PENDING' // Multiple pilots requesting same dates
+  | 'DUPLICATE_REQUEST' // Duplicate request for same pilot/dates
 
 /**
  * Conflict severity levels
@@ -120,9 +120,7 @@ export async function detectConflicts(
     conflicts.push(...duplicateConflicts)
 
     // Determine if request can be approved despite conflicts
-    const canApprove = !conflicts.some(
-      (c) => c.severity === 'CRITICAL' || c.severity === 'HIGH'
-    )
+    const canApprove = !conflicts.some((c) => c.severity === 'CRITICAL' || c.severity === 'HIGH')
 
     // Get crew impact
     const crewImpact = await calculateCrewImpact(requestInput)
@@ -163,9 +161,7 @@ export async function detectConflicts(
  * @param requestInput - Request details
  * @returns List of overlapping request conflicts
  */
-export async function checkOverlappingRequests(
-  requestInput: RequestInput
-): Promise<Conflict[]> {
+export async function checkOverlappingRequests(requestInput: RequestInput): Promise<Conflict[]> {
   const supabase = await createClient()
   const conflicts: Conflict[] = []
 
@@ -175,7 +171,9 @@ export async function checkOverlappingRequests(
       .select('*')
       .eq('pilot_id', requestInput.pilotId)
       .in('workflow_status', ['SUBMITTED', 'IN_REVIEW', 'APPROVED'])
-      .or(`start_date.lte.${requestInput.endDate || requestInput.startDate},end_date.gte.${requestInput.startDate}`)
+      .or(
+        `start_date.lte.${requestInput.endDate || requestInput.startDate},end_date.gte.${requestInput.startDate}`
+      )
 
     if (error) {
       logger.error('Error checking overlapping requests', { error })
@@ -263,7 +261,9 @@ export async function checkCrewAvailability(
       .eq('workflow_status', 'APPROVED')
       .eq('request_category', 'LEAVE')
       .eq('rank', requestInput.rank)
-      .or(`start_date.lte.${requestInput.endDate || requestInput.startDate},end_date.gte.${requestInput.startDate}`)
+      .or(
+        `start_date.lte.${requestInput.endDate || requestInput.startDate},end_date.gte.${requestInput.startDate}`
+      )
 
     if (leaveError) {
       logger.error('Error fetching approved leave', { error: leaveError })
@@ -385,10 +385,7 @@ async function calculateCrewImpact(requestInput: RequestInput) {
 
   try {
     // Get total active captains and first officers
-    const { data: pilots } = await supabase
-      .from('pilots')
-      .select('role')
-      .eq('is_active', true)
+    const { data: pilots } = await supabase.from('pilots').select('role').eq('is_active', true)
 
     if (!pilots) return undefined
 
@@ -401,7 +398,9 @@ async function calculateCrewImpact(requestInput: RequestInput) {
       .select('*')
       .eq('workflow_status', 'APPROVED')
       .eq('request_category', 'LEAVE')
-      .or(`start_date.lte.${requestInput.endDate || requestInput.startDate},end_date.gte.${requestInput.startDate}`)
+      .or(
+        `start_date.lte.${requestInput.endDate || requestInput.startDate},end_date.gte.${requestInput.startDate}`
+      )
 
     const captainsOnLeave = new Set(
       approvedLeave?.filter((r) => r.rank === 'Captain').map((r) => r.pilot_id) || []
@@ -414,10 +413,8 @@ async function calculateCrewImpact(requestInput: RequestInput) {
     const captainsBefore = totalCaptains - captainsOnLeave
     const fosBefore = totalFirstOfficers - fosOnLeave
 
-    const captainsAfter =
-      requestInput.rank === 'Captain' ? captainsBefore - 1 : captainsBefore
-    const fosAfter =
-      requestInput.rank === 'First Officer' ? fosBefore - 1 : fosBefore
+    const captainsAfter = requestInput.rank === 'Captain' ? captainsBefore - 1 : captainsBefore
+    const fosAfter = requestInput.rank === 'First Officer' ? fosBefore - 1 : fosBefore
 
     return {
       captainsBefore,

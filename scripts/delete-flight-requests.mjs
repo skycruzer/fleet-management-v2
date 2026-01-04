@@ -12,7 +12,7 @@ import { readFileSync } from 'fs'
 // Read .env.local file
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1]] = match[2]
@@ -66,11 +66,12 @@ async function deleteFlightRequests() {
     console.log(`✅ Successfully deleted ${data.length} FLIGHT request(s)`)
     console.log('\n📋 Deleted request IDs:')
     data.forEach((req, index) => {
-      console.log(`   ${index + 1}. ${req.id} - ${req.name} (${req.request_type}) - ${req.start_date} to ${req.end_date}`)
+      console.log(
+        `   ${index + 1}. ${req.id} - ${req.name} (${req.request_type}) - ${req.start_date} to ${req.end_date}`
+      )
     })
 
     console.log('\n✨ Database cleaned successfully!')
-
   } catch (error) {
     console.error('💥 Unexpected error:', error)
     process.exit(1)

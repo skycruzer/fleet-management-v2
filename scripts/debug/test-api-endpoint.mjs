@@ -13,8 +13,8 @@ const payload = {
     rosterPeriods: ['RP01/2026', 'RP13/2025', 'RP12/2025'],
     status: ['PENDING', 'APPROVED', 'REJECTED'],
     rank: ['Captain', 'First Officer'],
-    submissionMethod: ['EMAIL', 'ORACLE', 'SYSTEM']
-  }
+    submissionMethod: ['EMAIL', 'ORACLE', 'SYSTEM'],
+  },
 }
 
 console.log('🧪 Testing Live API Endpoint\n')
@@ -28,7 +28,7 @@ try {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   })
 
   console.log(`📊 Response Status: ${response.status} ${response.statusText}`)
@@ -60,7 +60,9 @@ try {
   if (data.data?.data && data.data.data.length > 0) {
     console.log('\n📋 Sample Records (first 3):\n')
     data.data.data.slice(0, 3).forEach((record, idx) => {
-      console.log(`${idx + 1}. ${record.pilot?.first_name} ${record.pilot?.last_name} (${record.pilot?.role})`)
+      console.log(
+        `${idx + 1}. ${record.pilot?.first_name} ${record.pilot?.last_name} (${record.pilot?.role})`
+      )
       console.log(`   Status: ${record.status}`)
       console.log(`   Type: ${record.request_type}`)
       console.log(`   Roster Period: ${record.roster_period}`)
@@ -72,13 +74,13 @@ try {
   console.log('✅ API Test Complete!')
 
   // Determine if test passed
-  const passed = data.success &&
-                 data.data?.summary?.totalRequests > 0 &&
-                 (data.data?.summary?.pending > 0 || data.data?.summary?.approved > 0)
+  const passed =
+    data.success &&
+    data.data?.summary?.totalRequests > 0 &&
+    (data.data?.summary?.pending > 0 || data.data?.summary?.approved > 0)
 
   console.log(`\n${passed ? '✅ TEST PASSED' : '❌ TEST FAILED'}`)
   process.exit(passed ? 0 : 1)
-
 } catch (error) {
   console.error('❌ Request Failed:', error.message)
   process.exit(1)

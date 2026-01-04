@@ -3,17 +3,14 @@ import { readFileSync } from 'fs'
 
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 async function fixPeriodCodes() {
   console.log('Fixing roster period codes...\n')

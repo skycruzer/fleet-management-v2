@@ -35,7 +35,9 @@ test.describe('Dashboard Metrics Accuracy', () => {
     }
   })
 
-  test('should display total certification count matching database (607 certifications)', async ({ page }) => {
+  test('should display total certification count matching database (607 certifications)', async ({
+    page,
+  }) => {
     // Look for certification count metric
     const certMetric = page.locator('text=/\\d+\\s*certifications?/i').first()
 
@@ -51,7 +53,9 @@ test.describe('Dashboard Metrics Accuracy', () => {
 
   test('should display fleet compliance percentage (realistic range 80-100%)', async ({ page }) => {
     // Look for compliance percentage
-    const complianceText = page.getByText(/\d+%.*compliance/i).or(page.getByText(/compliance.*\d+%/i))
+    const complianceText = page
+      .getByText(/\d+%.*compliance/i)
+      .or(page.getByText(/compliance.*\d+%/i))
 
     if (await complianceText.first().isVisible()) {
       const text = await complianceText.first().textContent()
@@ -79,7 +83,10 @@ test.describe('Dashboard Metrics Accuracy', () => {
 
   test('should have consistent metrics across dashboard and detail pages', async ({ page }) => {
     // Get pilot count from dashboard
-    const dashboardPilotText = await page.getByText(/\d+\s*pilots?/i).first().textContent()
+    const dashboardPilotText = await page
+      .getByText(/\d+\s*pilots?/i)
+      .first()
+      .textContent()
     const dashboardCount = parseInt(dashboardPilotText?.match(/\d+/)?.[0] || '0')
 
     // Navigate to pilots page
@@ -129,21 +136,39 @@ test.describe('Certification Expiry Calculations', () => {
     }
   })
 
-  test('should apply correct color coding (red=expired, yellow=expiring, green=current)', async ({ page }) => {
+  test('should apply correct color coding (red=expired, yellow=expiring, green=current)', async ({
+    page,
+  }) => {
     // Check if any certification rows exist
     const certRows = page.getByRole('row')
     const rowCount = await certRows.count()
 
-    if (rowCount > 1) { // More than just header
+    if (rowCount > 1) {
+      // More than just header
       // Look for status badges
-      const expiredBadge = page.locator('.badge, [data-testid*="status"]').filter({ hasText: /expired/i })
-      const expiringBadge = page.locator('.badge, [data-testid*="status"]').filter({ hasText: /expiring/i })
-      const currentBadge = page.locator('.badge, [data-testid*="status"]').filter({ hasText: /current/i })
+      const expiredBadge = page
+        .locator('.badge, [data-testid*="status"]')
+        .filter({ hasText: /expired/i })
+      const expiringBadge = page
+        .locator('.badge, [data-testid*="status"]')
+        .filter({ hasText: /expiring/i })
+      const currentBadge = page
+        .locator('.badge, [data-testid*="status"]')
+        .filter({ hasText: /current/i })
 
       // At least one status type should exist
-      const hasExpired = await expiredBadge.first().isVisible().catch(() => false)
-      const hasExpiring = await expiringBadge.first().isVisible().catch(() => false)
-      const hasCurrent = await currentBadge.first().isVisible().catch(() => false)
+      const hasExpired = await expiredBadge
+        .first()
+        .isVisible()
+        .catch(() => false)
+      const hasExpiring = await expiringBadge
+        .first()
+        .isVisible()
+        .catch(() => false)
+      const hasCurrent = await currentBadge
+        .first()
+        .isVisible()
+        .catch(() => false)
 
       expect(hasExpired || hasExpiring || hasCurrent).toBe(true)
     }
@@ -176,7 +201,9 @@ test.describe('Leave Eligibility Logic', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
   })
 
-  test('should enforce minimum crew requirement (10 Captains + 10 First Officers)', async ({ page }) => {
+  test('should enforce minimum crew requirement (10 Captains + 10 First Officers)', async ({
+    page,
+  }) => {
     // This test verifies the business rule is visible in the UI
     const minCrewInfo = page.getByText(/minimum.*10.*crew|10.*captains.*10.*first officers/i)
 
@@ -187,7 +214,8 @@ test.describe('Leave Eligibility Logic', () => {
 
   test('should display eligibility alerts for overlapping requests', async ({ page }) => {
     // Look for eligibility alert widget
-    const eligibilityAlert = page.locator('[data-testid="eligibility-alert"]')
+    const eligibilityAlert = page
+      .locator('[data-testid="eligibility-alert"]')
       .or(page.getByText(/eligibility.*alert|overlapping.*requests/i))
 
     // Alert should exist or not (depends on current data)
@@ -198,7 +226,9 @@ test.describe('Leave Eligibility Logic', () => {
 
   test('should show pending leave requests count', async ({ page }) => {
     // Look for pending count
-    const pendingCount = page.getByText(/\d+.*pending/i).or(page.locator('[data-testid="pending-count"]'))
+    const pendingCount = page
+      .getByText(/\d+.*pending/i)
+      .or(page.locator('[data-testid="pending-count"]'))
 
     if (await pendingCount.first().isVisible()) {
       const text = await pendingCount.first().textContent()
@@ -318,7 +348,9 @@ test.describe('Roster Period Calculations', () => {
 
   test('should show roster period dates (28-day cycles)', async ({ page }) => {
     // Look for date range display
-    const dateRange = page.getByText(/\d{4}-\d{2}-\d{2}\s*to\s*\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}\s*-\s*\d{2}\/\d{2}\/\d{4}/i)
+    const dateRange = page.getByText(
+      /\d{4}-\d{2}-\d{2}\s*to\s*\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}\s*-\s*\d{2}\/\d{2}\/\d{4}/i
+    )
 
     if (await dateRange.first().isVisible()) {
       await expect(dateRange.first()).toBeVisible({ timeout: 60000 })
@@ -343,12 +375,15 @@ test.describe('Captain Qualifications Tracking', () => {
       await page.waitForTimeout(1000)
 
       // Look for qualification badges
-      const qualBadge = page.locator('[data-testid*="qual"]').or(
-        page.getByText(/line captain|training captain|examiner/i)
-      )
+      const qualBadge = page
+        .locator('[data-testid*="qual"]')
+        .or(page.getByText(/line captain|training captain|examiner/i))
 
       // At least some captains should have qualifications
-      const hasQual = await qualBadge.first().isVisible().catch(() => false)
+      const hasQual = await qualBadge
+        .first()
+        .isVisible()
+        .catch(() => false)
       expect(typeof hasQual).toBe('boolean')
     }
   })
@@ -384,7 +419,9 @@ test.describe('Retirement Forecast Accuracy', () => {
   })
 
   test('should display retirement forecast widget', async ({ page }) => {
-    const retirementWidget = page.getByRole('heading', { name: /retirement.*forecast|upcoming.*retirement/i })
+    const retirementWidget = page.getByRole('heading', {
+      name: /retirement.*forecast|upcoming.*retirement/i,
+    })
 
     if (await retirementWidget.first().isVisible()) {
       await expect(retirementWidget.first()).toBeVisible({ timeout: 60000 })
@@ -393,7 +430,8 @@ test.describe('Retirement Forecast Accuracy', () => {
 
   test('should show years until retirement (0-20 year range)', async ({ page }) => {
     // Look for retirement info
-    const retirementInfo = page.locator('[data-testid="retirement-forecast"]')
+    const retirementInfo = page
+      .locator('[data-testid="retirement-forecast"]')
       .or(page.getByText(/\d+\s*years?.*retirement|retirement.*\d+\s*years?/i))
 
     if (await retirementInfo.first().isVisible()) {
@@ -441,7 +479,9 @@ test.describe('Analytics Data Accuracy', () => {
   })
 
   test('should display analytics dashboard', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /analytics|reports/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /analytics|reports/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should show fleet statistics with realistic values', async ({ page }) => {
@@ -480,7 +520,10 @@ test.describe('Data Consistency Across Pages', () => {
     await page.goto('/dashboard')
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
-    const dashboardText = await page.getByText(/\d+\s*pilots?/i).first().textContent()
+    const dashboardText = await page
+      .getByText(/\d+\s*pilots?/i)
+      .first()
+      .textContent()
     const dashboardCount = parseInt(dashboardText?.match(/\d+/)?.[0] || '0')
 
     // Get count from pilots page
@@ -503,7 +546,10 @@ test.describe('Data Consistency Across Pages', () => {
     await page.goto('/dashboard')
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
-    const dashboardCertText = await page.getByText(/\d+\s*certifications?/i).first().textContent()
+    const dashboardCertText = await page
+      .getByText(/\d+\s*certifications?/i)
+      .first()
+      .textContent()
     const dashboardCertCount = parseInt(dashboardCertText?.match(/\d+/)?.[0] || '0')
 
     // Get count from certifications page
@@ -530,7 +576,10 @@ test.describe('Data Consistency Across Pages', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Get initial metrics
-    const initialPilotText = await page.getByText(/\d+\s*pilots?/i).first().textContent()
+    const initialPilotText = await page
+      .getByText(/\d+\s*pilots?/i)
+      .first()
+      .textContent()
     const initialPilotCount = parseInt(initialPilotText?.match(/\d+/)?.[0] || '0')
 
     // Refresh page
@@ -538,7 +587,10 @@ test.describe('Data Consistency Across Pages', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Get metrics after refresh
-    const refreshedPilotText = await page.getByText(/\d+\s*pilots?/i).first().textContent()
+    const refreshedPilotText = await page
+      .getByText(/\d+\s*pilots?/i)
+      .first()
+      .textContent()
     const refreshedPilotCount = parseInt(refreshedPilotText?.match(/\d+/)?.[0] || '0')
 
     // Should be identical

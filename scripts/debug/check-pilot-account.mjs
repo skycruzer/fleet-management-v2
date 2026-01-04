@@ -23,15 +23,15 @@ if (error) {
 } else if (pilots.length === 0) {
   console.log('❌ No pilot found with email mrondeau@airniugini.com.pg')
   console.log('\nLet me check all pilots with similar names:')
-  
+
   const { data: allPilots } = await supabase
     .from('pilots')
     .select('id, first_name, last_name, email, rank')
     .or('last_name.ilike.%rondeau%,email.ilike.%rondeau%')
-  
+
   if (allPilots && allPilots.length > 0) {
     console.log('Found similar pilots:')
-    allPilots.forEach(p => {
+    allPilots.forEach((p) => {
       console.log(`  - ${p.first_name} ${p.last_name} (${p.email}) - ${p.rank}`)
     })
   } else {
@@ -39,7 +39,7 @@ if (error) {
   }
 } else {
   console.log('✅ Found pilot:')
-  pilots.forEach(p => {
+  pilots.forEach((p) => {
     console.log(`  ID: ${p.id}`)
     console.log(`  Name: ${p.first_name} ${p.last_name}`)
     console.log(`  Email: ${p.email}`)

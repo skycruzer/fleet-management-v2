@@ -4,7 +4,7 @@ import { readFileSync } from 'fs'
 // Load environment variables
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1]] = match[2]
@@ -18,9 +18,7 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 console.log('\n=== Checking ALL Leave Requests (No Filter) ===\n')
 
-const { data, error, count } = await supabase
-  .from('leave_requests')
-  .select('*', { count: 'exact' })
+const { data, error, count } = await supabase.from('leave_requests').select('*', { count: 'exact' })
 
 if (error) {
   console.error('Error:', error)
@@ -33,12 +31,14 @@ console.log(`Data records: ${data?.length || 0}`)
 if (data && data.length > 0) {
   console.log('\n=== Sample Leave Requests ===\n')
   data.forEach((req, idx) => {
-    console.log(`${idx + 1}. Period: ${req.roster_period}, Type: ${req.request_type}, Status: ${req.status}`)
+    console.log(
+      `${idx + 1}. Period: ${req.roster_period}, Type: ${req.request_type}, Status: ${req.status}`
+    )
   })
 
   // Group by period and type
   const grouped = {}
-  data.forEach(req => {
+  data.forEach((req) => {
     const period = req.roster_period
     if (!grouped[period]) {
       grouped[period] = { total: 0, byType: {}, pending: 0, approved: 0 }

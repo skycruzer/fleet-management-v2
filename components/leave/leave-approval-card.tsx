@@ -12,15 +12,7 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Clock,
-  Calendar,
-  User,
-  FileText
-} from 'lucide-react'
+import { CheckCircle, XCircle, AlertTriangle, Clock, Calendar, User, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -165,10 +157,10 @@ export function LeaveApprovalCard({
       )}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      <div className="mb-4 flex items-start justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <User className="h-4 w-4 text-muted-foreground" />
+          <div className="mb-1 flex items-center gap-2">
+            <User className="text-muted-foreground h-4 w-4" />
             <h3 className="text-lg font-semibold">{request.name}</h3>
             <Badge variant="outline" className="text-xs">
               {request.rank}
@@ -179,21 +171,17 @@ export function LeaveApprovalCard({
               </Badge>
             )}
           </div>
-          <p className="text-sm text-muted-foreground">
-            Employee #{request.employee_number}
-          </p>
+          <p className="text-muted-foreground text-sm">Employee #{request.employee_number}</p>
         </div>
 
         {/* Request Type Badge */}
-        <Badge className="bg-primary-600 text-white">
-          {request.request_type}
-        </Badge>
+        <Badge className="bg-primary-600 text-white">{request.request_type}</Badge>
       </div>
 
       {/* Dates */}
-      <div className="flex items-center gap-4 mb-4">
+      <div className="mb-4 flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <Calendar className="text-muted-foreground h-4 w-4" />
           <span className="text-sm font-medium">
             {startDate} - {endDate}
           </span>
@@ -209,10 +197,10 @@ export function LeaveApprovalCard({
       {request.reason && (
         <div className="mb-4">
           <div className="flex items-start gap-2">
-            <FileText className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <FileText className="text-muted-foreground mt-0.5 h-4 w-4" />
             <div>
-              <p className="text-sm font-medium mb-1">Reason:</p>
-              <p className="text-sm text-muted-foreground">{request.reason}</p>
+              <p className="mb-1 text-sm font-medium">Reason:</p>
+              <p className="text-muted-foreground text-sm">{request.reason}</p>
             </div>
           </div>
         </div>
@@ -221,7 +209,7 @@ export function LeaveApprovalCard({
       {/* Notes */}
       {request.notes && (
         <div className="mb-4">
-          <p className="text-xs text-muted-foreground">{request.notes}</p>
+          <p className="text-muted-foreground text-xs">{request.notes}</p>
         </div>
       )}
 
@@ -229,16 +217,16 @@ export function LeaveApprovalCard({
       {alertLevel && (
         <div
           className={cn(
-            'mb-4 p-3 rounded-lg border',
-            alertLevel === 'critical' && 'bg-red-100 border-red-300',
-            alertLevel === 'warning' && 'bg-yellow-100 border-yellow-300',
-            alertLevel === 'info' && 'bg-blue-100 border-blue-300'
+            'mb-4 rounded-lg border p-3',
+            alertLevel === 'critical' && 'border-red-300 bg-red-100',
+            alertLevel === 'warning' && 'border-yellow-300 bg-yellow-100',
+            alertLevel === 'info' && 'border-blue-300 bg-blue-100'
           )}
         >
           <div className="flex items-start gap-2">
             <AlertTriangle
               className={cn(
-                'h-5 w-5 mt-0.5',
+                'mt-0.5 h-5 w-5',
                 alertLevel === 'critical' && 'text-red-600',
                 alertLevel === 'warning' && 'text-yellow-600',
                 alertLevel === 'info' && 'text-blue-600'
@@ -247,7 +235,7 @@ export function LeaveApprovalCard({
             <div className="flex-1">
               <p
                 className={cn(
-                  'text-sm font-semibold mb-1',
+                  'mb-1 text-sm font-semibold',
                   alertLevel === 'critical' && 'text-red-900',
                   alertLevel === 'warning' && 'text-yellow-900',
                   alertLevel === 'info' && 'text-blue-900'
@@ -260,7 +248,7 @@ export function LeaveApprovalCard({
 
               {/* Conflict Flags */}
               {request.conflict_flags && request.conflict_flags.length > 0 && (
-                <p className="text-sm text-red-800 mb-2">
+                <p className="mb-2 text-sm text-red-800">
                   Conflicts detected: {request.conflict_flags.join(', ')}
                 </p>
               )}
@@ -307,9 +295,7 @@ export function LeaveApprovalCard({
 
               {/* Late/Past Deadline */}
               {request.is_past_deadline && (
-                <p className="text-sm text-yellow-800">
-                  Submitted past roster deadline
-                </p>
+                <p className="text-sm text-yellow-800">Submitted past roster deadline</p>
               )}
             </div>
           </div>
@@ -317,16 +303,16 @@ export function LeaveApprovalCard({
       )}
 
       {/* Flags */}
-      <div className="flex gap-2 mb-4">
+      <div className="mb-4 flex gap-2">
         {request.is_late_request && (
-          <Badge variant="outline" className="text-yellow-600 border-yellow-600">
-            <Clock className="h-3 w-3 mr-1" />
+          <Badge variant="outline" className="border-yellow-600 text-yellow-600">
+            <Clock className="mr-1 h-3 w-3" />
             Late Request
           </Badge>
         )}
         {request.is_past_deadline && (
-          <Badge variant="outline" className="text-red-600 border-red-600">
-            <AlertTriangle className="h-3 w-3 mr-1" />
+          <Badge variant="outline" className="border-red-600 text-red-600">
+            <AlertTriangle className="mr-1 h-3 w-3" />
             Past Deadline
           </Badge>
         )}
@@ -337,9 +323,9 @@ export function LeaveApprovalCard({
         <Button
           onClick={handleApprove}
           disabled={isApproving || isDenying}
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+          className="flex-1 bg-green-600 text-white hover:bg-green-700"
         >
-          <CheckCircle className="h-4 w-4 mr-2" />
+          <CheckCircle className="mr-2 h-4 w-4" />
           {isApproving ? 'Approving...' : 'Approve'}
         </Button>
         <Button
@@ -348,14 +334,14 @@ export function LeaveApprovalCard({
           variant="destructive"
           className="flex-1"
         >
-          <XCircle className="h-4 w-4 mr-2" />
+          <XCircle className="mr-2 h-4 w-4" />
           {isDenying ? 'Denying...' : 'Deny'}
         </Button>
       </div>
 
       {/* Submission Info */}
-      <div className="mt-4 pt-4 border-t">
-        <p className="text-xs text-muted-foreground">
+      <div className="mt-4 border-t pt-4">
+        <p className="text-muted-foreground text-xs">
           Submitted{' '}
           {new Date(request.created_at).toLocaleDateString('en-US', {
             month: 'short',

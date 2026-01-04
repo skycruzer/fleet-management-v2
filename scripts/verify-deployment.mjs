@@ -74,9 +74,9 @@ try {
   pass(`Current branch: ${branch}`)
 
   if (hasUncommitted) {
-    const newDocs = hasUncommitted.split('\n').filter(line =>
-      line.includes('POST-DEPLOYMENT') || line.includes('BETTER-STACK')
-    )
+    const newDocs = hasUncommitted
+      .split('\n')
+      .filter((line) => line.includes('POST-DEPLOYMENT') || line.includes('BETTER-STACK'))
     if (newDocs.length > 0) {
       warn(`${newDocs.length} new documentation files uncommitted`)
       info('Run: git add docs/ && git commit -m "docs: add post-deployment guides"')
@@ -167,7 +167,7 @@ const requiredFiles = [
 ]
 
 let filesPresent = 0
-requiredFiles.forEach(file => {
+requiredFiles.forEach((file) => {
   try {
     execSync(`test -f ${file}`, { encoding: 'utf8' })
     filesPresent++
@@ -219,7 +219,7 @@ const docFiles = [
 ]
 
 let docsPresent = 0
-docFiles.forEach(file => {
+docFiles.forEach((file) => {
   try {
     execSync(`test -f ${file}`, { encoding: 'utf8' })
     docsPresent++
@@ -241,13 +241,19 @@ console.log(`${COLORS.bright}Verification Summary${COLORS.reset}\n`)
 const percentage = Math.round((passedChecks / totalChecks) * 100)
 
 if (percentage === 100) {
-  console.log(`${SUCCESS} ${COLORS.green}${COLORS.bright}All checks passed! (${passedChecks}/${totalChecks})${COLORS.reset}`)
+  console.log(
+    `${SUCCESS} ${COLORS.green}${COLORS.bright}All checks passed! (${passedChecks}/${totalChecks})${COLORS.reset}`
+  )
   console.log(`\n${COLORS.green}✓ Phase 0 is ready for production deployment${COLORS.reset}`)
 } else if (percentage >= 80) {
-  console.log(`${WARNING} ${COLORS.yellow}${COLORS.bright}Most checks passed (${passedChecks}/${totalChecks} - ${percentage}%)${COLORS.reset}`)
+  console.log(
+    `${WARNING} ${COLORS.yellow}${COLORS.bright}Most checks passed (${passedChecks}/${totalChecks} - ${percentage}%)${COLORS.reset}`
+  )
   console.log(`\n${COLORS.yellow}⚠ Review warnings before deploying${COLORS.reset}`)
 } else {
-  console.log(`${ERROR} ${COLORS.red}${COLORS.bright}Some checks failed (${passedChecks}/${totalChecks} - ${percentage}%)${COLORS.reset}`)
+  console.log(
+    `${ERROR} ${COLORS.red}${COLORS.bright}Some checks failed (${passedChecks}/${totalChecks} - ${percentage}%)${COLORS.reset}`
+  )
   console.log(`\n${COLORS.red}✗ Fix issues before deploying${COLORS.reset}`)
 }
 
@@ -263,7 +269,9 @@ console.log(`\n${COLORS.bright}Next Steps:${COLORS.reset}\n`)
 
 if (percentage >= 80) {
   console.log(`  1. ${INFO} Commit new documentation:`)
-  console.log(`     ${COLORS.cyan}git add docs/ && git commit -m "docs: add post-deployment guides"${COLORS.reset}`)
+  console.log(
+    `     ${COLORS.cyan}git add docs/ && git commit -m "docs: add post-deployment guides"${COLORS.reset}`
+  )
   console.log(`\n  2. ${INFO} Push to GitHub:`)
   console.log(`     ${COLORS.cyan}git push origin 001-missing-core-features${COLORS.reset}`)
   console.log(`\n  3. ${INFO} Set up Better Stack (10 minutes):`)
@@ -278,7 +286,9 @@ if (percentage >= 80) {
   console.log(`  3. ${INFO} Review documentation: docs/DEPLOYMENT-GUIDE.md`)
 }
 
-console.log(`\n${COLORS.bright}${COLORS.cyan}─────────────────────────────────────${COLORS.reset}\n`)
+console.log(
+  `\n${COLORS.bright}${COLORS.cyan}─────────────────────────────────────${COLORS.reset}\n`
+)
 
 // Exit with appropriate code
 process.exit(percentage >= 80 ? 0 : 1)

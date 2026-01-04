@@ -121,25 +121,21 @@ export function QuickEntryButton({
   return (
     <>
       {/* Trigger Button */}
-      <Button
-        variant={variant}
-        size={size}
-        onClick={() => setOpen(true)}
-        className={className}
-      >
+      <Button variant={variant} size={size} onClick={() => setOpen(true)} className={className}>
         <Plus className="h-4 w-4" />
         {!compact && <span className="ml-2">Quick Entry</span>}
       </Button>
 
       {/* Modal Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl">Quick Entry - Manual Request Creation</DialogTitle>
             <DialogDescription>
-              Create pilot requests received through alternative channels (email, phone, Oracle system).
+              Create pilot requests received through alternative channels (email, phone, Oracle
+              system).
             </DialogDescription>
-            <div className="flex gap-4 pt-2 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex gap-4 pt-2 text-sm">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-blue-600" />
                 <span>Email</span>

@@ -1,4 +1,5 @@
 # Architecture Review & Modernization Plan
+
 ## Fleet Management V2 - B767 Pilot Management System
 
 **Document Version**: 1.0
@@ -13,10 +14,13 @@
 ## Executive Summary
 
 ### Purpose
+
 This document provides a comprehensive architectural review of Fleet Management V2 and establishes a modernization roadmap to elevate the system to the highest modern standards. This is a strategic initiative to prepare the foundation for future feature additions while ensuring the existing system meets enterprise-grade quality standards.
 
 ### Current System Overview
+
 Fleet Management V2 is a **production-ready B767 Pilot Management System** with:
+
 - **27 active pilots** managed
 - **607 certifications** tracked
 - **34 check types** defined
@@ -37,6 +41,7 @@ Fleet Management V2 is a **production-ready B767 Pilot Management System** with:
 
 **Modernization Opportunity**:
 The system is **functionally complete** but requires systematic modernization to achieve:
+
 1. **Highest code quality standards**
 2. **Enterprise-grade performance**
 3. **Best-in-class user experience**
@@ -44,6 +49,7 @@ The system is **functionally complete** but requires systematic modernization to
 5. **Maintainability for long-term success**
 
 ### Proposed Changes
+
 **Strategic Modernization Initiative** across 5 key dimensions:
 
 1. **Architecture Excellence** - Optimize service layer, implement advanced patterns
@@ -64,21 +70,21 @@ The system is **functionally complete** but requires systematic modernization to
 
 **Current Tech Stack**:
 
-| Layer | Technology | Version | Status |
-|-------|------------|---------|--------|
-| **Frontend** | Next.js (App Router) | 15.5.4 | ✅ Latest |
-| **UI Library** | React | 19.1.0 | ✅ Latest |
-| **Language** | TypeScript (strict) | 5.7.3 | ✅ Latest |
-| **Styling** | Tailwind CSS | 4.1.0 | ✅ Latest |
-| **UI Components** | Radix UI (shadcn/ui) | Latest | ✅ Modern |
-| **Backend** | Next.js API Routes + Server Actions | 15.5.4 | ✅ Latest |
-| **Database** | Supabase PostgreSQL | 2.75.1 | ✅ Production |
-| **State Management** | TanStack Query | 5.90.2 | ✅ Latest |
-| **Forms** | React Hook Form + Zod | 7.65.0 + 4.1.12 | ✅ Latest |
-| **Testing** | Playwright | 1.55.0 | ✅ Latest |
-| **Build System** | Turbopack | Built-in | ✅ Latest |
-| **PWA** | Serwist/Next | 9.2.1 | ✅ Modern |
-| **Animation** | Framer Motion | 12.23.24 | ✅ Latest |
+| Layer                | Technology                          | Version         | Status        |
+| -------------------- | ----------------------------------- | --------------- | ------------- |
+| **Frontend**         | Next.js (App Router)                | 15.5.4          | ✅ Latest     |
+| **UI Library**       | React                               | 19.1.0          | ✅ Latest     |
+| **Language**         | TypeScript (strict)                 | 5.7.3           | ✅ Latest     |
+| **Styling**          | Tailwind CSS                        | 4.1.0           | ✅ Latest     |
+| **UI Components**    | Radix UI (shadcn/ui)                | Latest          | ✅ Modern     |
+| **Backend**          | Next.js API Routes + Server Actions | 15.5.4          | ✅ Latest     |
+| **Database**         | Supabase PostgreSQL                 | 2.75.1          | ✅ Production |
+| **State Management** | TanStack Query                      | 5.90.2          | ✅ Latest     |
+| **Forms**            | React Hook Form + Zod               | 7.65.0 + 4.1.12 | ✅ Latest     |
+| **Testing**          | Playwright                          | 1.55.0          | ✅ Latest     |
+| **Build System**     | Turbopack                           | Built-in        | ✅ Latest     |
+| **PWA**              | Serwist/Next                        | 9.2.1           | ✅ Modern     |
+| **Animation**        | Framer Motion                       | 12.23.24        | ✅ Latest     |
 
 **Assessment**: ✅ **Excellent** - Using cutting-edge, stable versions across the board.
 
@@ -125,6 +131,7 @@ The system is **functionally complete** but requires systematic modernization to
 ```
 
 **Current Data Flow**:
+
 1. User interaction (Admin/Pilot/Public)
 2. Client Component → TanStack Query
 3. API Route or Server Action
@@ -133,6 +140,7 @@ The system is **functionally complete** but requires systematic modernization to
 6. PostgreSQL Database
 
 **Existing Integrations**:
+
 - ✅ Supabase Auth (authentication)
 - ✅ Upstash Redis (rate limiting)
 - ✅ Browser Storage (PWA offline support)
@@ -165,12 +173,14 @@ The system is **functionally complete** but requires systematic modernization to
    - Ready for international expansion
 
 **Stakeholders**:
+
 - **Product Owner**: Maurice (Skycruzer)
 - **End Users**: Fleet operations managers, pilots, administrators
 - **Development Team**: Future developers joining the project
 - **Business**: Sales prospects evaluating the system
 
 **Success Criteria**:
+
 1. **Performance**: All pages load <100ms, 60fps interactions
 2. **Quality**: Zero linting errors, 100% type coverage, >80% test coverage
 3. **UX**: Net Promoter Score >70, task completion time reduced 40%
@@ -182,6 +192,7 @@ The system is **functionally complete** but requires systematic modernization to
 ### 1.3 Constraints
 
 **Technical Constraints**:
+
 - ✅ **Must maintain existing stack** (Next.js, React, TypeScript, Supabase)
 - ✅ **Cannot break existing functionality** (27 pilots, 607 certifications in production)
 - ✅ **Must preserve service-layer architecture** (core design principle)
@@ -189,17 +200,20 @@ The system is **functionally complete** but requires systematic modernization to
 - ⚠️ **Limited to Supabase free tier initially** (cost consideration)
 
 **Business Constraints**:
+
 - **Timeline**: 8-12 weeks for complete modernization
 - **Budget**: Optimize existing infrastructure (no major new services)
 - **Resources**: Solo developer (Maurice) + AI assistance
 - **Continuity**: Zero downtime deployment required
 
 **Organizational Constraints**:
+
 - **Skills**: Full-stack TypeScript/React expertise available
 - **Processes**: Agile, iterative development approach
 - **Tools**: Claude Code, GitHub, Supabase, Vercel
 
 **Regulatory/Compliance Constraints**:
+
 - ⚠️ **Future**: Aviation compliance (FAA regulations for certification tracking)
 - ⚠️ **Future**: Data privacy (GDPR if expanding internationally)
 - ✅ **Current**: General security best practices
@@ -211,30 +225,35 @@ The system is **functionally complete** but requires systematic modernization to
 ### 2.1 Modernization Goals
 
 **Goal 1: Achieve Sub-100ms Response Times Across All Pages**
+
 - **Current**: Dashboard ~500ms, Renewal Planning ~8s, Pilot List ~200ms
 - **Target**: All pages <100ms initial load, <50ms interactions
 - **Measurement**: Lighthouse performance score >95, Core Web Vitals all green
 - **Impact**: Premium user experience, enterprise credibility
 
 **Goal 2: Eliminate All Technical Debt**
+
 - **Current**: Some inconsistencies, unused code, missing error handling
 - **Target**: Zero ESLint errors/warnings, 100% type coverage, comprehensive error boundaries
 - **Measurement**: Automated quality gates pass, code review checklist 100%
 - **Impact**: Sustainable codebase, faster feature development
 
 **Goal 3: Implement Enterprise-Grade Monitoring & Observability**
+
 - **Current**: Basic error logging, no performance monitoring
 - **Target**: Full APM, real-time dashboards, proactive alerts
 - **Measurement**: Mean Time To Detection (MTTD) <5min, automated alerts for issues
 - **Impact**: Production stability, rapid issue resolution
 
 **Goal 4: Optimize for 10x Scale**
+
 - **Current**: Handles 27 pilots comfortably
 - **Target**: Support 270 pilots (10x) with same performance
 - **Measurement**: Load testing passes at 10x volume, database query times unchanged
 - **Impact**: Enterprise customer readiness
 
 **Goal 5: Create World-Class Developer Experience**
+
 - **Current**: Good development setup
 - **Target**: Instant feedback loops, automated quality checks, comprehensive docs
 - **Measurement**: New feature implementation time reduced 50%
@@ -245,15 +264,17 @@ The system is **functionally complete** but requires systematic modernization to
 ### 2.2 Architectural Principles
 
 **Principle 1: Service Layer Inviolability**
-*"All database operations MUST go through the service layer"*
+_"All database operations MUST go through the service layer"_
 
 **Rationale**:
+
 - Centralized business logic
 - Consistent error handling
 - Easy testing and mocking
 - Clear separation of concerns
 
 **Modernization Impact**: Strengthen service layer with:
+
 - Consistent error handling patterns
 - Comprehensive input validation
 - Transaction management
@@ -262,15 +283,17 @@ The system is **functionally complete** but requires systematic modernization to
 ---
 
 **Principle 2: Progressive Enhancement**
-*"Core functionality works without JavaScript, enhanced with it"*
+_"Core functionality works without JavaScript, enhanced with it"_
 
 **Rationale**:
+
 - Better accessibility
 - Faster initial page loads
 - Resilient to network issues
 - SEO benefits
 
 **Modernization Impact**:
+
 - Server Components for initial render
 - Client Components only where needed
 - Streaming for long operations
@@ -279,15 +302,17 @@ The system is **functionally complete** but requires systematic modernization to
 ---
 
 **Principle 3: Performance is a Feature**
-*"Every interaction should feel instant (<100ms)"*
+_"Every interaction should feel instant (<100ms)"_
 
 **Rationale**:
+
 - User satisfaction directly correlates with speed
 - Competitive advantage
 - Reduces user frustration
 - Increases task completion
 
 **Modernization Impact**:
+
 - Implement aggressive caching
 - Optimize database queries
 - Reduce bundle sizes
@@ -296,15 +321,17 @@ The system is **functionally complete** but requires systematic modernization to
 ---
 
 **Principle 4: Type Safety Everywhere**
-*"If it can be typed, it must be typed"*
+_"If it can be typed, it must be typed"_
 
 **Rationale**:
+
 - Catch errors at compile time
 - Better IDE support
 - Self-documenting code
 - Refactoring confidence
 
 **Modernization Impact**:
+
 - 100% type coverage (no `any` types)
 - Strict TypeScript configuration
 - Runtime validation with Zod
@@ -313,15 +340,17 @@ The system is **functionally complete** but requires systematic modernization to
 ---
 
 **Principle 5: Observability First**
-*"If we can't measure it, we can't improve it"*
+_"If we can't measure it, we can't improve it"_
 
 **Rationale**:
+
 - Data-driven decisions
 - Proactive issue detection
 - Performance optimization targets
 - User behavior insights
 
 **Modernization Impact**:
+
 - Comprehensive logging
 - Real-time monitoring
 - Performance metrics
@@ -340,6 +369,7 @@ The system is **functionally complete** but requires systematic modernization to
 5. **Data Preservation** - Existing database untouched, schema migrations additive only
 
 **Migration Strategy**:
+
 - **Week 1-2**: Performance optimization (immediate wins)
 - **Week 3-4**: Code quality improvements (refactoring)
 - **Week 5-6**: Enhanced error handling & monitoring
@@ -348,6 +378,7 @@ The system is **functionally complete** but requires systematic modernization to
 - **Week 11-12**: Documentation & polish
 
 **Backward Compatibility Considerations**:
+
 - ✅ All existing API routes remain functional
 - ✅ Database schema changes are additive only
 - ✅ No breaking changes to service layer interfaces
@@ -468,6 +499,7 @@ The system is **functionally complete** but requires systematic modernization to
 **Purpose**: Ensure all 13 services follow consistent, best-practice patterns
 
 **Current State**:
+
 - 13 services implemented: pilot, certification, leave, dashboard, analytics, PDF, cache, audit, admin, user, portal, leave-eligibility, expiring-certifications
 - Basic error handling
 - Some inconsistencies between services
@@ -484,7 +516,7 @@ import { cache } from '@/lib/services/cache-service'
 
 // 1. Define Input/Output Schemas (Zod)
 const GetPilotSchema = z.object({
-  pilotId: z.string().uuid()
+  pilotId: z.string().uuid(),
 })
 
 const PilotResponseSchema = z.object({
@@ -527,20 +559,11 @@ export async function getPilot(params: unknown) {
       .single()
 
     if (error) {
-      throw new ServiceError(
-        'Failed to fetch pilot',
-        'PILOT_FETCH_ERROR',
-        500,
-        error
-      )
+      throw new ServiceError('Failed to fetch pilot', 'PILOT_FETCH_ERROR', 500, error)
     }
 
     if (!data) {
-      throw new ServiceError(
-        'Pilot not found',
-        'PILOT_NOT_FOUND',
-        404
-      )
+      throw new ServiceError('Pilot not found', 'PILOT_NOT_FOUND', 404)
     }
 
     // 3d. Validate Output
@@ -551,16 +574,10 @@ export async function getPilot(params: unknown) {
 
     // 3f. Return Result
     return result
-
   } catch (error) {
     // 3g. Error Handling
     if (error instanceof z.ZodError) {
-      throw new ServiceError(
-        'Invalid input parameters',
-        'VALIDATION_ERROR',
-        400,
-        error.errors
-      )
+      throw new ServiceError('Invalid input parameters', 'VALIDATION_ERROR', 400, error.errors)
     }
 
     if (error instanceof ServiceError) {
@@ -569,12 +586,7 @@ export async function getPilot(params: unknown) {
 
     // Unknown errors
     console.error('Unexpected error in getPilot:', error)
-    throw new ServiceError(
-      'An unexpected error occurred',
-      'UNKNOWN_ERROR',
-      500,
-      error
-    )
+    throw new ServiceError('An unexpected error occurred', 'UNKNOWN_ERROR', 500, error)
   }
 }
 
@@ -585,7 +597,9 @@ export async function updatePilot(params: unknown) {
   const supabase = await createClient()
 
   // Get current user for audit
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   // Perform update
   const { data, error } = await supabase
@@ -603,7 +617,7 @@ export async function updatePilot(params: unknown) {
     entityType: 'pilot',
     entityId: validated.pilotId,
     userId: user?.id,
-    changes: validated.updates
+    changes: validated.updates,
   })
 
   // Invalidate cache
@@ -625,6 +639,7 @@ export async function updatePilot(params: unknown) {
 **Purpose**: Achieve sub-100ms response times and 60fps interactions
 
 **Technology Stack**:
+
 - React 19 Concurrent Features
 - TanStack Query 5.90.2 (advanced patterns)
 - Redis caching (Upstash)
@@ -635,6 +650,7 @@ export async function updatePilot(params: unknown) {
 **Key Optimizations**:
 
 1. **Database Query Optimization**
+
 ```sql
 -- Add strategic indexes
 CREATE INDEX CONCURRENTLY idx_pilot_checks_pilot_id_date
@@ -650,20 +666,22 @@ CREATE INDEX CONCURRENTLY idx_pilot_checks_expiry_date
 ```
 
 2. **Multi-Level Caching**
+
 ```typescript
 // L1: Browser cache (React Query)
 // L2: Redis cache (5-15 min TTL)
 // L3: Supabase (database)
 
 const cacheStrategy = {
-  dashboard: { ttl: 60, staleTime: 30 },      // 1 min cache, 30s stale
-  pilots: { ttl: 300, staleTime: 120 },       // 5 min cache, 2min stale
+  dashboard: { ttl: 60, staleTime: 30 }, // 1 min cache, 30s stale
+  pilots: { ttl: 300, staleTime: 120 }, // 5 min cache, 2min stale
   certifications: { ttl: 180, staleTime: 60 }, // 3 min cache, 1min stale
-  renewalPlans: { ttl: 600, staleTime: 300 }  // 10 min cache, 5min stale
+  renewalPlans: { ttl: 600, staleTime: 300 }, // 10 min cache, 5min stale
 }
 ```
 
 3. **Code Splitting & Bundle Optimization**
+
 ```typescript
 // Lazy load heavy components
 const RenewalPlanning = dynamic(() => import('@/components/renewal-planning'))
@@ -674,6 +692,7 @@ const AnalyticsDashboard = dynamic(() => import('@/components/analytics'))
 ```
 
 4. **Virtualization for Large Lists**
+
 ```typescript
 // Before: Render all 27 pilots → slow scrolling
 // After: Render only visible pilots → 60fps smooth
@@ -694,6 +713,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 **Technology**: React Error Boundaries, Zod validation, Standardized error responses
 
 **Error Boundary Hierarchy**:
+
 ```
 RootLayout
   ├─ GlobalErrorBoundary (top-level crashes)
@@ -704,6 +724,7 @@ RootLayout
 ```
 
 **User-Friendly Error Messages**:
+
 ```typescript
 // Before
 Error: Database connection failed
@@ -725,6 +746,7 @@ Please try again in a moment.
 **Modernization Enhancements**:
 
 1. **Strategic Indexes** (additive only, no schema changes)
+
 ```sql
 -- Performance indexes
 CREATE INDEX CONCURRENTLY idx_pilots_rank_seniority
@@ -739,16 +761,19 @@ CREATE INDEX CONCURRENTLY idx_active_pilots
 ```
 
 2. **Query Optimization**
+
 - Use database views for complex aggregations
 - Implement prepared statements for common queries
 - Leverage Supabase's connection pooling
 
 3. **Data Migration Strategy**
+
 - **Phase 1**: Add indexes (zero downtime)
 - **Phase 2**: Optimize views (zero downtime)
 - **Phase 3**: Monitor query performance
 
 4. **Caching Strategy**
+
 ```
 Redis (Upstash)
 ├─ dashboard:metrics (60s TTL)
@@ -758,6 +783,7 @@ Redis (Upstash)
 ```
 
 5. **State Management**
+
 ```typescript
 // TanStack Query for server state
 // React Context for UI state only (minimal)
@@ -770,12 +796,14 @@ Redis (Upstash)
 ### 3.4 Integration Architecture
 
 **Current Integrations**:
+
 - ✅ Supabase Auth
 - ✅ Upstash Redis (rate limiting)
 
 **Enhanced Integrations**:
 
 1. **API Integration Pattern**
+
 ```typescript
 // Standardized API client
 import { createApiClient } from '@/lib/api-client'
@@ -785,14 +813,15 @@ const api = createApiClient({
   timeout: 30000,
   retries: 3,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 })
 
 // Automatic error handling, retries, logging
 ```
 
 2. **Event Integration** (Future)
+
 ```typescript
 // Event-driven architecture for real-time updates
 // Supabase Realtime for live data
@@ -800,10 +829,12 @@ const api = createApiClient({
 ```
 
 3. **Data Integration**
+
 - Current: Direct database access via service layer
 - Future: GraphQL layer for complex queries (optional)
 
 4. **Authentication/Authorization**
+
 ```typescript
 // Enhanced auth middleware
 // Role-based access control (RBAC)
@@ -816,23 +847,23 @@ const api = createApiClient({
 
 ### 4.1 Technology Stack (Confirmed & Enhanced)
 
-| Layer | Technology | Version | Justification | Compatibility |
-|-------|------------|---------|---------------|---------------|
-| **Frontend** | Next.js | 15.5.4 | Latest App Router, Server Components, Streaming | ✅ Existing stack |
-| **UI Library** | React | 19.1.0 | Concurrent features, automatic batching, Suspense | ✅ Existing stack |
-| **Language** | TypeScript | 5.7.3 | Strict mode, latest features, best type safety | ✅ Existing stack |
-| **Styling** | Tailwind CSS | 4.1.0 | Latest version, best DX, smallest builds | ✅ Existing stack |
-| **Components** | Radix UI + shadcn/ui | Latest | Accessible, composable, customizable | ✅ Existing stack |
-| **State** | TanStack Query | 5.90.2 | Best server state management, caching | ✅ Existing stack |
-| **Forms** | React Hook Form | 7.65.0 | Performance, DX, validation integration | ✅ Existing stack |
-| **Validation** | Zod | 4.1.12 | Runtime validation, TypeScript inference | ✅ Existing stack |
-| **Database** | Supabase PostgreSQL | 2.75.1 | Managed, real-time, auth, storage | ✅ Existing stack |
-| **Caching** | Upstash Redis | Latest | Serverless, pay-per-use, low latency | ✅ Enhanced usage |
-| **Testing** | Playwright | 1.55.0 | Best E2E testing, cross-browser | ✅ Existing stack |
-| **Build** | Turbopack | Built-in | Fastest builds, HMR, production-ready | ✅ Existing stack |
-| **Deployment** | Vercel | Latest | Best Next.js hosting, edge network | ✅ Existing stack |
-| **Monitoring** | **NEW: Vercel Analytics** | Latest | Zero-config, real-time, Web Vitals | ➕ New addition |
-| **Logging** | **NEW: Better Stack** | Latest | Structured logging, search, alerts | ➕ New addition |
+| Layer          | Technology                | Version  | Justification                                     | Compatibility     |
+| -------------- | ------------------------- | -------- | ------------------------------------------------- | ----------------- |
+| **Frontend**   | Next.js                   | 15.5.4   | Latest App Router, Server Components, Streaming   | ✅ Existing stack |
+| **UI Library** | React                     | 19.1.0   | Concurrent features, automatic batching, Suspense | ✅ Existing stack |
+| **Language**   | TypeScript                | 5.7.3    | Strict mode, latest features, best type safety    | ✅ Existing stack |
+| **Styling**    | Tailwind CSS              | 4.1.0    | Latest version, best DX, smallest builds          | ✅ Existing stack |
+| **Components** | Radix UI + shadcn/ui      | Latest   | Accessible, composable, customizable              | ✅ Existing stack |
+| **State**      | TanStack Query            | 5.90.2   | Best server state management, caching             | ✅ Existing stack |
+| **Forms**      | React Hook Form           | 7.65.0   | Performance, DX, validation integration           | ✅ Existing stack |
+| **Validation** | Zod                       | 4.1.12   | Runtime validation, TypeScript inference          | ✅ Existing stack |
+| **Database**   | Supabase PostgreSQL       | 2.75.1   | Managed, real-time, auth, storage                 | ✅ Existing stack |
+| **Caching**    | Upstash Redis             | Latest   | Serverless, pay-per-use, low latency              | ✅ Enhanced usage |
+| **Testing**    | Playwright                | 1.55.0   | Best E2E testing, cross-browser                   | ✅ Existing stack |
+| **Build**      | Turbopack                 | Built-in | Fastest builds, HMR, production-ready             | ✅ Existing stack |
+| **Deployment** | Vercel                    | Latest   | Best Next.js hosting, edge network                | ✅ Existing stack |
+| **Monitoring** | **NEW: Vercel Analytics** | Latest   | Zero-config, real-time, Web Vitals                | ➕ New addition   |
+| **Logging**    | **NEW: Better Stack**     | Latest   | Structured logging, search, alerts                | ➕ New addition   |
 
 **Assessment**: ✅ **Perfect Stack** - No technology changes needed, only enhanced usage.
 
@@ -843,6 +874,7 @@ const api = createApiClient({
 #### Choice 1: Stay with Next.js 15 App Router
 
 **Options Considered**:
+
 - A) Stay with Next.js 15 App Router
 - B) Migrate to another framework (Remix, SvelteKit)
 - C) Use Next.js Pages Router
@@ -850,6 +882,7 @@ const api = createApiClient({
 **Decision**: ✅ **A) Stay with Next.js 15 App Router**
 
 **Rationale**:
+
 - Already on the latest version
 - App Router is the future of Next.js
 - Server Components provide performance benefits
@@ -857,6 +890,7 @@ const api = createApiClient({
 - Vercel deployment is seamless
 
 **Trade-offs**:
+
 - ✅ Gained: Best performance, latest features, excellent DX
 - ➖ Gave up: Nothing (already on this stack)
 
@@ -867,6 +901,7 @@ const api = createApiClient({
 #### Choice 2: TanStack Query for State Management
 
 **Options Considered**:
+
 - A) TanStack Query (current)
 - B) Redux Toolkit
 - C) Zustand
@@ -875,6 +910,7 @@ const api = createApiClient({
 **Decision**: ✅ **A) TanStack Query**
 
 **Rationale**:
+
 - Best-in-class server state management
 - Built-in caching, invalidation, refetching
 - Optimistic updates support
@@ -882,6 +918,7 @@ const api = createApiClient({
 - Minimal client state needed (server-first approach)
 
 **Trade-offs**:
+
 - ✅ Gained: Automatic caching, background refetching, optimistic updates
 - ➖ Gave up: Nothing (this is the right tool)
 
@@ -892,6 +929,7 @@ const api = createApiClient({
 #### Choice 3: Zod for Validation
 
 **Options Considered**:
+
 - A) Zod (current)
 - B) Yup
 - C) Joi
@@ -900,12 +938,14 @@ const api = createApiClient({
 **Decision**: ✅ **A) Zod**
 
 **Rationale**:
+
 - TypeScript-first design
 - Type inference (types flow automatically)
 - Runtime validation matches compile-time types
 - Best DX, smallest bundle
 
 **Trade-offs**:
+
 - ✅ Gained: Type safety, runtime validation, great DX
 - ➖ Gave up: Nothing
 
@@ -916,6 +956,7 @@ const api = createApiClient({
 #### Choice 4: Vercel Analytics for Monitoring
 
 **Options Considered**:
+
 - A) Vercel Analytics (free tier)
 - B) Google Analytics
 - C) Plausible Analytics
@@ -924,6 +965,7 @@ const api = createApiClient({
 **Decision**: ✅ **A) Vercel Analytics**
 
 **Rationale**:
+
 - Zero-config integration with Next.js
 - Privacy-friendly (no cookies)
 - Real Web Vitals monitoring
@@ -931,6 +973,7 @@ const api = createApiClient({
 - Vercel-native (already using Vercel)
 
 **Trade-offs**:
+
 - ✅ Gained: Instant setup, Web Vitals, real user monitoring
 - ➖ Gave up: Advanced features (acceptable for now)
 
@@ -941,6 +984,7 @@ const api = createApiClient({
 #### Choice 5: Better Stack for Logging
 
 **Options Considered**:
+
 - A) Better Stack (Logtail)
 - B) Datadog
 - C) New Relic
@@ -949,6 +993,7 @@ const api = createApiClient({
 **Decision**: ✅ **A) Better Stack**
 
 **Rationale**:
+
 - Generous free tier (500MB/month)
 - Structured logging support
 - Fast search and filtering
@@ -956,6 +1001,7 @@ const api = createApiClient({
 - SQL-like query language
 
 **Trade-offs**:
+
 - ✅ Gained: Structured logs, fast search, alerts
 - ➖ Gave up: Advanced APM features (can add later if needed)
 
@@ -969,19 +1015,20 @@ const api = createApiClient({
 
 **Requirements**:
 
-| Metric | Current | Target | Measurement |
-|--------|---------|--------|-------------|
-| **Dashboard Load** | 500ms | <100ms | Lighthouse, RUM |
-| **Pilot List Scroll** | Janky | 60fps | Chrome DevTools Performance |
-| **Renewal Planning** | 8 seconds | <1 second | Custom timing |
-| **Time to Interactive (TTI)** | 2.1s | <1.5s | Lighthouse |
-| **First Contentful Paint (FCP)** | 1.2s | <1.0s | Lighthouse |
-| **Largest Contentful Paint (LCP)** | 1.8s | <1.2s | Lighthouse |
-| **Cumulative Layout Shift (CLS)** | 0.05 | <0.1 | Lighthouse |
+| Metric                             | Current   | Target    | Measurement                 |
+| ---------------------------------- | --------- | --------- | --------------------------- |
+| **Dashboard Load**                 | 500ms     | <100ms    | Lighthouse, RUM             |
+| **Pilot List Scroll**              | Janky     | 60fps     | Chrome DevTools Performance |
+| **Renewal Planning**               | 8 seconds | <1 second | Custom timing               |
+| **Time to Interactive (TTI)**      | 2.1s      | <1.5s     | Lighthouse                  |
+| **First Contentful Paint (FCP)**   | 1.2s      | <1.0s     | Lighthouse                  |
+| **Largest Contentful Paint (LCP)** | 1.8s      | <1.2s     | Lighthouse                  |
+| **Cumulative Layout Shift (CLS)**  | 0.05      | <0.1      | Lighthouse                  |
 
 **Performance Testing Strategy**:
 
 1. **Automated Performance Testing**
+
 ```bash
 # Lighthouse CI (on every deploy)
 npm run lighthouse-ci
@@ -994,11 +1041,13 @@ npm run analyze-bundle
 ```
 
 2. **Real User Monitoring (RUM)**
+
 - Vercel Analytics for production
 - Track Core Web Vitals
 - Monitor by page and user segment
 
 3. **Load Testing**
+
 ```bash
 # Artillery for API load testing
 npm run load-test
@@ -1008,16 +1057,17 @@ npm run scenario-test
 ```
 
 4. **Performance Budgets**
+
 ```javascript
 // next.config.js performance budgets
 module.exports = {
   experimental: {
     performanceBudget: {
-      maxInitialLoad: 150 * 1024,  // 150KB initial JS
-      maxPerRoute: 50 * 1024,      // 50KB per route
-      maxCSS: 30 * 1024            // 30KB CSS
-    }
-  }
+      maxInitialLoad: 150 * 1024, // 150KB initial JS
+      maxPerRoute: 50 * 1024, // 50KB per route
+      maxCSS: 30 * 1024, // 30KB CSS
+    },
+  },
 }
 ```
 
@@ -1026,12 +1076,14 @@ module.exports = {
 ### 5.2 Security
 
 **Authentication/Authorization Approach**:
+
 - ✅ Supabase Auth (existing)
 - ✅ Row Level Security (RLS) policies
 - ➕ Enhanced: Role-based access control (RBAC)
 - ➕ Enhanced: Permission-based UI rendering
 
 **Data Encryption Requirements**:
+
 - ✅ HTTPS everywhere (Vercel automatic)
 - ✅ Database encryption at rest (Supabase)
 - ✅ Encrypted connections (TLS)
@@ -1039,6 +1091,7 @@ module.exports = {
 **Security Testing Strategy**:
 
 1. **Automated Security Scanning**
+
 ```bash
 # npm audit on every install
 npm audit
@@ -1051,6 +1104,7 @@ npm run pen-test
 ```
 
 2. **Security Checklist** (pre-deployment)
+
 - [ ] No secrets in code
 - [ ] All env vars validated
 - [ ] RLS policies tested
@@ -1061,6 +1115,7 @@ npm run pen-test
 - [ ] XSS protection enabled
 
 **Compliance Requirements**:
+
 - ✅ General security best practices
 - 🔄 Future: FAA compliance (aviation certification tracking)
 - 🔄 Future: GDPR (if international expansion)
@@ -1070,6 +1125,7 @@ npm run pen-test
 ### 5.3 Reliability & Availability
 
 **Uptime Requirements**:
+
 - **Target**: 99.9% uptime (8.76 hours downtime/year)
 - **Current**: Vercel's 99.99% SLA
 - **Monitoring**: Uptime Robot + Vercel monitoring
@@ -1077,18 +1133,21 @@ npm run pen-test
 **Fault Tolerance Mechanisms**:
 
 1. **Error Boundaries** (comprehensive)
+
 ```typescript
 // Graceful degradation at every level
 // User never sees white screen of death
 ```
 
 2. **Retry Logic**
+
 ```typescript
 // Automatic retries for transient failures
 // Exponential backoff for API calls
 ```
 
 3. **Fallback UI**
+
 ```typescript
 // Cached data shown while refetching
 // Skeleton screens for loading states
@@ -1098,14 +1157,17 @@ npm run pen-test
 **Disaster Recovery Strategy**:
 
 1. **Database Backups**
+
 - Supabase automatic daily backups
 - Point-in-time recovery (7 days)
 
 2. **Deployment Rollback**
+
 - Vercel instant rollback to previous deploy
 - Git-based version control
 
 3. **Monitoring & Alerts**
+
 - Vercel monitors uptime
 - Better Stack alerts on errors
 - PagerDuty integration (future)
@@ -1217,6 +1279,7 @@ Target: >80% code coverage
 **Phased Modernization** (8-12 weeks):
 
 **Phase 1: Performance Optimization** (Weeks 1-2)
+
 - **Tasks**:
   - Add database indexes
   - Implement Redis caching layer
@@ -1233,6 +1296,7 @@ Target: >80% code coverage
   - User-perceived speed improvement
 
 **Phase 2: Code Quality & Consistency** (Weeks 3-4)
+
 - **Tasks**:
   - Refactor all 13 services to standard pattern
   - Add Zod validation to all service inputs
@@ -1249,6 +1313,7 @@ Target: >80% code coverage
   - No `any` types in codebase
 
 **Phase 3: Enhanced Error Handling & Monitoring** (Weeks 5-6)
+
 - **Tasks**:
   - Implement Better Stack logging
   - Add Vercel Analytics
@@ -1265,6 +1330,7 @@ Target: >80% code coverage
   - Zero technical errors shown to users
 
 **Phase 4: Advanced Patterns & Optimizations** (Weeks 7-8)
+
 - **Tasks**:
   - Implement optimistic UI updates
   - Add Server Components where beneficial
@@ -1281,6 +1347,7 @@ Target: >80% code coverage
   - Cache hit rate >70%
 
 **Phase 5: Testing & Validation** (Weeks 9-10)
+
 - **Tasks**:
   - Expand E2E test coverage to >80%
   - Add integration tests for all services
@@ -1292,11 +1359,12 @@ Target: >80% code coverage
   - Security audit report
   - Accessibility compliance
 - **Success Criteria**:
-  - >80% test coverage
+  - > 80% test coverage
   - Zero critical security issues
   - WCAG 2.1 AA compliant
 
 **Phase 6: Documentation & Polish** (Weeks 11-12)
+
 - **Tasks**:
   - Update all documentation
   - Create architecture diagrams
@@ -1335,16 +1403,19 @@ Cutover:
 ```
 
 **Rollback Strategy**:
+
 1. **Instant Rollback** - Vercel's instant rollback feature (30 seconds)
 2. **Database Migrations** - All migrations reversible (down migrations)
 3. **Feature Flags** - Gradual rollout, instant disable if needed
 
 **Data Migration Plan**:
+
 - **No data migration needed** - only additive changes (indexes)
 - All existing data remains intact
 - Zero downtime for data changes
 
 **Cutover Strategy**:
+
 - **Continuous Deployment** - Every phase merges to main when ready
 - **Feature Flags** - New features can be toggled on/off
 - **Progressive Rollout** - New patterns adopted incrementally
@@ -1368,16 +1439,16 @@ Cutover:
 
 ## 7. Risks & Mitigations
 
-| Risk | Impact | Probability | Mitigation Strategy |
-|------|--------|-------------|---------------------|
-| **Performance improvements break functionality** | High | Medium | Comprehensive E2E testing after each phase, preview deploys for validation |
-| **Database query optimization causes regressions** | High | Low | Extensive testing, gradual rollout of query changes, monitoring query performance |
-| **New error handling hides real issues** | Medium | Low | Structured logging captures all errors, Better Stack monitors error rates |
-| **Caching introduces stale data issues** | Medium | Medium | Conservative TTLs, cache invalidation on mutations, real-time updates where needed |
-| **Timeline slips (8-12 weeks)** | Low | Medium | Phased approach allows partial completion, prioritize high-impact improvements first |
-| **Third-party service failures (Better Stack, Vercel)** | Medium | Low | Fallback logging to console, Vercel has 99.99% SLA, Better Stack has redundancy |
-| **Breaking changes in dependencies** | Medium | Low | Lock versions in package.json, test updates in preview environment first |
-| **Scope creep during modernization** | Low | Medium | Strict phase boundaries, resist adding new features during modernization |
+| Risk                                                    | Impact | Probability | Mitigation Strategy                                                                  |
+| ------------------------------------------------------- | ------ | ----------- | ------------------------------------------------------------------------------------ |
+| **Performance improvements break functionality**        | High   | Medium      | Comprehensive E2E testing after each phase, preview deploys for validation           |
+| **Database query optimization causes regressions**      | High   | Low         | Extensive testing, gradual rollout of query changes, monitoring query performance    |
+| **New error handling hides real issues**                | Medium | Low         | Structured logging captures all errors, Better Stack monitors error rates            |
+| **Caching introduces stale data issues**                | Medium | Medium      | Conservative TTLs, cache invalidation on mutations, real-time updates where needed   |
+| **Timeline slips (8-12 weeks)**                         | Low    | Medium      | Phased approach allows partial completion, prioritize high-impact improvements first |
+| **Third-party service failures (Better Stack, Vercel)** | Medium | Low         | Fallback logging to console, Vercel has 99.99% SLA, Better Stack has redundancy      |
+| **Breaking changes in dependencies**                    | Medium | Low         | Lock versions in package.json, test updates in preview environment first             |
+| **Scope creep during modernization**                    | Low    | Medium      | Strict phase boundaries, resist adding new features during modernization             |
 
 ---
 
@@ -1390,6 +1461,7 @@ Cutover:
 **Timeline**: Week 1-2
 
 **Tasks**:
+
 - [ ] Day 1-2: Add database indexes for top 10 queries
 - [ ] Day 3-4: Implement Redis caching layer with Upstash
 - [ ] Day 5-6: Optimize Renewal Planning query (8s → <1s)
@@ -1399,6 +1471,7 @@ Cutover:
 - [ ] Day 13-14: Performance testing and validation
 
 **Success Criteria**:
+
 - ✅ Dashboard loads <100ms
 - ✅ Renewal Planning <1 second
 - ✅ Lighthouse Performance score >90
@@ -1406,6 +1479,7 @@ Cutover:
 - ✅ Bundle size <150KB initial, <50KB per route
 
 **Deliverables**:
+
 - Database indexes SQL script
 - Redis caching configuration
 - Optimized queries documentation
@@ -1419,6 +1493,7 @@ Cutover:
 **Timeline**: Week 3-4
 
 **Tasks**:
+
 - [ ] Day 1-3: Create standard service pattern template
 - [ ] Day 4-8: Refactor all 13 services to standard pattern
 - [ ] Day 9-10: Add Zod schemas for all service inputs/outputs
@@ -1426,6 +1501,7 @@ Cutover:
 - [ ] Day 13-14: ESLint/TypeScript cleanup (zero errors)
 
 **Success Criteria**:
+
 - ✅ All 13 services follow standard pattern
 - ✅ 100% Zod validation coverage
 - ✅ Error boundaries on all routes
@@ -1433,6 +1509,7 @@ Cutover:
 - ✅ Zero TypeScript `any` types
 
 **Deliverables**:
+
 - Service pattern documentation
 - Zod schema library
 - Error boundary hierarchy
@@ -1446,6 +1523,7 @@ Cutover:
 **Timeline**: Week 5-6
 
 **Tasks**:
+
 - [ ] Day 1-2: Set up Better Stack logging
 - [ ] Day 3-4: Add Vercel Analytics
 - [ ] Day 5-6: Implement structured logging across all services
@@ -1455,6 +1533,7 @@ Cutover:
 - [ ] Day 13-14: Create runbooks for common issues
 
 **Success Criteria**:
+
 - ✅ All logs flowing to Better Stack
 - ✅ Real-time Web Vitals monitoring
 - ✅ Alerts configured for critical issues
@@ -1462,6 +1541,7 @@ Cutover:
 - ✅ Dashboards accessible to team
 
 **Deliverables**:
+
 - Logging infrastructure
 - Monitoring dashboards
 - Alert configuration
@@ -1475,6 +1555,7 @@ Cutover:
 **Timeline**: Week 7-8
 
 **Tasks**:
+
 - [ ] Day 1-3: Implement optimistic UI updates for mutations
 - [ ] Day 4-6: Convert components to Server Components where beneficial
 - [ ] Day 7-8: Add streaming for long operations
@@ -1483,6 +1564,7 @@ Cutover:
 - [ ] Day 13-14: Performance testing and refinement
 
 **Success Criteria**:
+
 - ✅ All mutations have optimistic updates
 - ✅ Strategic use of Server Components
 - ✅ No loading spinner >1 second
@@ -1490,6 +1572,7 @@ Cutover:
 - ✅ All performance targets met
 
 **Deliverables**:
+
 - Optimistic update patterns
 - Server/Client Component guide
 - Streaming implementation
@@ -1503,6 +1586,7 @@ Cutover:
 **Timeline**: Week 9-10
 
 **Tasks**:
+
 - [ ] Day 1-3: Expand E2E test coverage to >80%
 - [ ] Day 4-6: Add integration tests for all services
 - [ ] Day 7-8: Performance testing with 10x load
@@ -1511,6 +1595,7 @@ Cutover:
 - [ ] Day 13-14: Fix any issues found
 
 **Success Criteria**:
+
 - ✅ >80% E2E test coverage
 - ✅ 100% service integration tests
 - ✅ Handles 10x load without degradation
@@ -1518,6 +1603,7 @@ Cutover:
 - ✅ WCAG 2.1 AA compliant
 
 **Deliverables**:
+
 - Comprehensive test suite
 - Security audit report
 - Accessibility audit report
@@ -1531,6 +1617,7 @@ Cutover:
 **Timeline**: Week 11-12
 
 **Tasks**:
+
 - [ ] Day 1-3: Update all technical documentation
 - [ ] Day 4-5: Create architecture diagrams (Mermaid)
 - [ ] Day 6-7: Write migration guides for developers
@@ -1539,6 +1626,7 @@ Cutover:
 - [ ] Day 12-14: Sales/marketing material preparation
 
 **Success Criteria**:
+
 - ✅ All documentation current and accurate
 - ✅ Architecture diagrams complete
 - ✅ Demo-ready system
@@ -1546,6 +1634,7 @@ Cutover:
 - ✅ All performance targets exceeded
 
 **Deliverables**:
+
 - Updated documentation suite
 - Architecture diagrams
 - Migration guides
@@ -1600,6 +1689,7 @@ Target: >80% overall code coverage
    - Input validation tests
 
 **Continuous Testing**:
+
 ```yaml
 # GitHub Actions workflow
 on: [push, pull_request]
@@ -1618,6 +1708,7 @@ on: [push, pull_request]
 ### 8.3 Documentation Deliverables
 
 **Technical Documentation**:
+
 1. ✅ **Architecture Document** (this document)
 2. ✅ **Service Layer Guide** (existing SERVICE-MIGRATION-GUIDE.md)
 3. ➕ **Caching Strategy Guide** (new)
@@ -1627,12 +1718,14 @@ on: [push, pull_request]
 7. ➕ **Deployment Guide** (enhanced from existing)
 
 **API Documentation**:
+
 1. ➕ **OpenAPI Specification** (all routes)
 2. ➕ **Service Function Reference** (all 13 services)
 3. ➕ **Error Code Reference** (standardized codes)
 4. ➕ **Rate Limiting Guide**
 
 **Deployment Guides**:
+
 1. ✅ **Setup Guide** (existing SETUP.md)
 2. ➕ **Environment Setup Guide** (enhanced)
 3. ➕ **Production Deployment Guide** (new)
@@ -1640,6 +1733,7 @@ on: [push, pull_request]
 5. ➕ **Monitoring Setup Guide** (new)
 
 **Runbooks**:
+
 1. ➕ **Performance Issues Runbook**
 2. ➕ **Database Issues Runbook**
 3. ➕ **Authentication Issues Runbook**
@@ -1654,6 +1748,7 @@ on: [push, pull_request]
 **Metrics to Monitor**:
 
 **Application Performance**:
+
 - Response time (p50, p95, p99)
 - Throughput (requests/second)
 - Error rate (errors/minute)
@@ -1661,6 +1756,7 @@ on: [push, pull_request]
 - Database query time (ms)
 
 **Infrastructure**:
+
 - CPU usage (%)
 - Memory usage (MB)
 - Database connections (count)
@@ -1668,6 +1764,7 @@ on: [push, pull_request]
 - Network latency (ms)
 
 **User Experience**:
+
 - Core Web Vitals (LCP, FID, CLS)
 - Time to Interactive (TTI)
 - First Contentful Paint (FCP)
@@ -1675,6 +1772,7 @@ on: [push, pull_request]
 - Task completion rate
 
 **Business Metrics**:
+
 - Active users (daily, monthly)
 - Pilot certifications tracked
 - Leave requests processed
@@ -1692,18 +1790,19 @@ logger.info('Pilot created', {
   pilotId: pilot.id,
   userId: user.id,
   timestamp: new Date().toISOString(),
-  metadata: { rank: pilot.rank, seniority: pilot.seniority }
+  metadata: { rank: pilot.rank, seniority: pilot.seniority },
 })
 
 logger.error('Database query failed', {
   query: 'getPilots',
   error: error.message,
   stack: error.stack,
-  userId: user.id
+  userId: user.id,
 })
 ```
 
 **Log Levels**:
+
 - `DEBUG`: Development only, detailed execution flow
 - `INFO`: General informational messages, important events
 - `WARN`: Warning messages, potential issues
@@ -1714,15 +1813,15 @@ logger.error('Database query failed', {
 
 **Alerting Thresholds**:
 
-| Alert | Condition | Severity | Action |
-|-------|-----------|----------|--------|
-| High Error Rate | >1% of requests fail for 5 min | Critical | Page on-call engineer |
-| Slow Response Time | p95 >1 second for 5 min | High | Email team |
-| Database Connection Errors | Any connection error | Critical | Immediate notification |
-| Cache Failures | Cache unavailable for 2 min | Medium | Email team |
-| Deployment Failure | Build or deploy fails | High | Email team |
-| Uptime Drop | <99.9% uptime | Critical | Immediate notification |
-| Security Alert | Suspicious activity detected | Critical | Immediate notification |
+| Alert                      | Condition                      | Severity | Action                 |
+| -------------------------- | ------------------------------ | -------- | ---------------------- |
+| High Error Rate            | >1% of requests fail for 5 min | Critical | Page on-call engineer  |
+| Slow Response Time         | p95 >1 second for 5 min        | High     | Email team             |
+| Database Connection Errors | Any connection error           | Critical | Immediate notification |
+| Cache Failures             | Cache unavailable for 2 min    | Medium   | Email team             |
+| Deployment Failure         | Build or deploy fails          | High     | Email team             |
+| Uptime Drop                | <99.9% uptime                  | Critical | Immediate notification |
+| Security Alert             | Suspicious activity detected   | Critical | Immediate notification |
 
 ---
 
@@ -1759,22 +1858,26 @@ logger.error('Database query failed', {
 **Ongoing Maintenance Requirements**:
 
 **Daily**:
+
 - Monitor error logs for new issues
 - Review performance metrics
 - Check uptime status
 
 **Weekly**:
+
 - Review and address non-critical issues
 - Update dependencies (security patches)
 - Performance optimization opportunities
 
 **Monthly**:
+
 - Security audit
 - Performance review
 - Backup verification
 - Cost optimization review
 
 **Quarterly**:
+
 - Major dependency updates
 - Architecture review
 - Scalability assessment
@@ -1806,21 +1909,25 @@ Level 4: On-Call Engineer
 **Update/Patch Strategy**:
 
 **Security Updates**: Immediate
+
 - Apply critical security patches within 24 hours
 - Test in preview environment first
 - Deploy to production with monitoring
 
 **Feature Updates**: Bi-weekly
+
 - Release new features every 2 weeks
 - Follow full testing and validation process
 - Announce in release notes
 
 **Dependency Updates**: Monthly
+
 - Update non-critical dependencies monthly
 - Test compatibility in preview
 - Gradual rollout
 
 **Major Updates**: Quarterly
+
 - Plan major version upgrades
 - Comprehensive testing
 - Communication plan
@@ -1845,18 +1952,21 @@ Level 4: On-Call Engineer
 ### Appendix B: References
 
 **Documentation**:
+
 - Next.js 15 Documentation: https://nextjs.org/docs
 - React 19 Documentation: https://react.dev
 - Supabase Documentation: https://supabase.com/docs
 - TanStack Query Documentation: https://tanstack.com/query
 
 **Internal Documentation**:
+
 - CLAUDE.md - Development guidelines
 - PROFESSIONAL-UI-DESIGN-SYSTEM.md - UI/UX standards
 - UX-PERFORMANCE-IMPROVEMENTS.md - Performance targets
 - SERVICE-MIGRATION-GUIDE.md - Service layer patterns
 
 **Standards & Guidelines**:
+
 - TypeScript Strict Mode
 - ESLint Configuration
 - Prettier Configuration
@@ -1864,25 +1974,25 @@ Level 4: On-Call Engineer
 
 ### Appendix C: Decision Log
 
-| Date | Decision | Rationale | Decision Maker |
-|------|----------|-----------|----------------|
-| 2025-10-24 | Comprehensive modernization initiative | Prepare foundation for future growth, achieve enterprise readiness | Maurice |
-| 2025-10-24 | Keep existing tech stack | Already on latest versions, excellent DX, best performance | Maurice + BMad Master |
-| 2025-10-24 | Phased 8-12 week timeline | Allows validation at each phase, minimizes risk | Maurice + BMad Master |
-| 2025-10-24 | Add Vercel Analytics + Better Stack | Zero-config monitoring, comprehensive logging | Maurice + BMad Master |
-| 2025-10-24 | Target >80% test coverage | Balance between quality and development speed | Maurice + BMad Master |
-| 2025-10-24 | Maintain service layer pattern | Proven architecture, clear separation of concerns | Maurice |
+| Date       | Decision                               | Rationale                                                          | Decision Maker        |
+| ---------- | -------------------------------------- | ------------------------------------------------------------------ | --------------------- |
+| 2025-10-24 | Comprehensive modernization initiative | Prepare foundation for future growth, achieve enterprise readiness | Maurice               |
+| 2025-10-24 | Keep existing tech stack               | Already on latest versions, excellent DX, best performance         | Maurice + BMad Master |
+| 2025-10-24 | Phased 8-12 week timeline              | Allows validation at each phase, minimizes risk                    | Maurice + BMad Master |
+| 2025-10-24 | Add Vercel Analytics + Better Stack    | Zero-config monitoring, comprehensive logging                      | Maurice + BMad Master |
+| 2025-10-24 | Target >80% test coverage              | Balance between quality and development speed                      | Maurice + BMad Master |
+| 2025-10-24 | Maintain service layer pattern         | Proven architecture, clear separation of concerns                  | Maurice               |
 
 ---
 
 **Document Control**
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-10-24 | Maurice (Skycruzer) | Initial comprehensive architecture review and modernization plan |
+| Version | Date       | Author              | Changes                                                          |
+| ------- | ---------- | ------------------- | ---------------------------------------------------------------- |
+| 1.0     | 2025-10-24 | Maurice (Skycruzer) | Initial comprehensive architecture review and modernization plan |
 
 ---
 
-*Generated using BMAD Method - Brownfield Architecture Template*
-*Fleet Management V2 - B767 Pilot Management System*
-*Strategic Modernization Initiative - Foundation for Future Growth*
+_Generated using BMAD Method - Brownfield Architecture Template_
+_Fleet Management V2 - B767 Pilot Management System_
+_Strategic Modernization Initiative - Foundation for Future Growth_

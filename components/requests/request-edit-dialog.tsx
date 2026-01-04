@@ -141,9 +141,7 @@ export function RequestEditDialog({ open, onOpenChange, request }: RequestEditDi
       start_date: request.start_date
         ? new Date(request.start_date).toISOString().split('T')[0]
         : '',
-      end_date: request.end_date
-        ? new Date(request.end_date).toISOString().split('T')[0]
-        : null,
+      end_date: request.end_date ? new Date(request.end_date).toISOString().split('T')[0] : null,
       flight_date: request.flight_date
         ? new Date(request.flight_date).toISOString().split('T')[0]
         : null,
@@ -161,9 +159,7 @@ export function RequestEditDialog({ open, onOpenChange, request }: RequestEditDi
         start_date: request.start_date
           ? new Date(request.start_date).toISOString().split('T')[0]
           : '',
-        end_date: request.end_date
-          ? new Date(request.end_date).toISOString().split('T')[0]
-          : null,
+        end_date: request.end_date ? new Date(request.end_date).toISOString().split('T')[0] : null,
         flight_date: request.flight_date
           ? new Date(request.flight_date).toISOString().split('T')[0]
           : null,

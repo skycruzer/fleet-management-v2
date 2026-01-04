@@ -13,10 +13,7 @@
  * @param endDate - End date (string or Date)
  * @returns Number of days (inclusive), or 0 if invalid
  */
-export function calculateDaysBetween(
-  startDate: string | Date,
-  endDate: string | Date
-): number {
+export function calculateDaysBetween(startDate: string | Date, endDate: string | Date): number {
   if (!startDate || !endDate) return 0
 
   const start = typeof startDate === 'string' ? new Date(startDate) : startDate
@@ -36,10 +33,7 @@ export function calculateDaysBetween(
  * @param endDate - End date (string or Date)
  * @returns true if valid, false otherwise
  */
-export function isValidDateRange(
-  startDate: string | Date,
-  endDate: string | Date
-): boolean {
+export function isValidDateRange(startDate: string | Date, endDate: string | Date): boolean {
   if (!startDate || !endDate) return false
 
   const start = typeof startDate === 'string' ? new Date(startDate) : startDate
@@ -130,10 +124,7 @@ export function parseDateFromInput(dateString: string): Date | null {
  * @param referenceDate - Reference date (defaults to today)
  * @returns true if date is in the future
  */
-export function isFutureDate(
-  date: string | Date,
-  referenceDate: Date = new Date()
-): boolean {
+export function isFutureDate(date: string | Date, referenceDate: Date = new Date()): boolean {
   const d = typeof date === 'string' ? new Date(date) : date
   if (isNaN(d.getTime())) return false
 
@@ -153,10 +144,7 @@ export function isFutureDate(
  * @param referenceDate - Reference date (defaults to today)
  * @returns true if date is in the past
  */
-export function isPastDate(
-  date: string | Date,
-  referenceDate: Date = new Date()
-): boolean {
+export function isPastDate(date: string | Date, referenceDate: Date = new Date()): boolean {
   const d = typeof date === 'string' ? new Date(date) : date
   if (isNaN(d.getTime())) return false
 

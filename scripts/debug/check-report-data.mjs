@@ -11,7 +11,8 @@ console.log('=== Checking Report Data ===\n')
 console.log('1. Checking LEAVE requests for RP01/2026 and RP02/2026:')
 const { data: leaveData, error: leaveError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -20,7 +21,8 @@ const { data: leaveData, error: leaveError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .in('roster_period', ['RP01/2026', 'RP02/2026'])
 
@@ -29,8 +31,10 @@ if (leaveError) {
 } else {
   console.log(`   Found ${leaveData?.length || 0} leave requests`)
   if (leaveData && leaveData.length > 0) {
-    leaveData.forEach(req => {
-      console.log(`   - ${req.roster_period}: ${req.pilots?.first_name} ${req.pilots?.last_name} (${req.pilots?.role}) - ${req.request_type} - ${req.start_date} to ${req.end_date}`)
+    leaveData.forEach((req) => {
+      console.log(
+        `   - ${req.roster_period}: ${req.pilots?.first_name} ${req.pilots?.last_name} (${req.pilots?.role}) - ${req.request_type} - ${req.start_date} to ${req.end_date}`
+      )
     })
   }
 }
@@ -38,7 +42,8 @@ if (leaveError) {
 console.log('\n2. Checking FLIGHT requests for RP01/2026 and RP02/2026:')
 const { data: flightData, error: flightError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -47,7 +52,8 @@ const { data: flightData, error: flightError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'FLIGHT')
   .in('roster_period', ['RP01/2026', 'RP02/2026'])
 
@@ -56,8 +62,10 @@ if (flightError) {
 } else {
   console.log(`   Found ${flightData?.length || 0} flight requests`)
   if (flightData && flightData.length > 0) {
-    flightData.forEach(req => {
-      console.log(`   - ${req.roster_period}: ${req.pilots?.first_name} ${req.pilots?.last_name} (${req.pilots?.role}) - ${req.request_type} - ${req.flight_date}`)
+    flightData.forEach((req) => {
+      console.log(
+        `   - ${req.roster_period}: ${req.pilots?.first_name} ${req.pilots?.last_name} (${req.pilots?.role}) - ${req.request_type} - ${req.flight_date}`
+      )
     })
   }
 }
@@ -66,7 +74,8 @@ if (flightError) {
 console.log('\n3. Checking ALL pilot_requests (no filter):')
 const { data: allData, error: allError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     id,
     request_category,
     request_type,
@@ -76,7 +85,8 @@ const { data: allData, error: allError } = await supabase
     flight_date,
     pilot_id,
     employee_number
-  `)
+  `
+  )
   .order('created_at', { ascending: false })
   .limit(20)
 
@@ -86,8 +96,10 @@ if (allError) {
   console.log(`   Total records: ${allData?.length || 0}`)
   if (allData && allData.length > 0) {
     console.log('\n   Recent records:')
-    allData.forEach(req => {
-      console.log(`   - ${req.request_category} | ${req.request_type} | ${req.roster_period} | pilot_id: ${req.pilot_id} | employee_number: ${req.employee_number}`)
+    allData.forEach((req) => {
+      console.log(
+        `   - ${req.request_category} | ${req.request_type} | ${req.roster_period} | pilot_id: ${req.pilot_id} | employee_number: ${req.employee_number}`
+      )
     })
   }
 }

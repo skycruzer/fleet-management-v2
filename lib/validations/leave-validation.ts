@@ -24,9 +24,12 @@ export const LeaveRequestStatusEnum = z.enum(['PENDING', 'APPROVED', 'DENIED'], 
   message: 'Status must be one of: PENDING, APPROVED, DENIED',
 })
 
-export const RequestMethodEnum = z.enum(['PILOT_PORTAL', 'EMAIL', 'PHONE', 'ORACLE', 'ADMIN_PORTAL'], {
-  message: 'Request method must be one of: PILOT_PORTAL, EMAIL, PHONE, ORACLE, ADMIN_PORTAL',
-})
+export const RequestMethodEnum = z.enum(
+  ['PILOT_PORTAL', 'EMAIL', 'PHONE', 'ORACLE', 'ADMIN_PORTAL'],
+  {
+    message: 'Request method must be one of: PILOT_PORTAL, EMAIL, PHONE, ORACLE, ADMIN_PORTAL',
+  }
+)
 
 // ===================================
 // BASE SCHEMAS

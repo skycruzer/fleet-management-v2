@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * CSRF Token Provider
@@ -10,116 +10,119 @@
  * @since 2025-10-27
  */
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
 interface CsrfContextValue {
-  csrfToken: string | null;
-  isLoading: boolean;
-  error: string | null;
-  refreshToken: () => Promise<void>;
+  csrfToken: string | null
+  isLoading: boolean
+  error: string | null
+  refreshToken: () => Promise<void>
 }
 
-const CsrfContext = createContext<CsrfContextValue | undefined>(undefined);
+const CsrfContext = createContext<CsrfContextValue | undefined>(undefined)
 
 interface CsrfProviderProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export function CsrfProvider({ children }: CsrfProviderProps) {
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   /**
    * Fetch CSRF token from the API
    */
   const fetchToken = useCallback(async () => {
     try {
-      setIsLoading(true);
-      setError(null);
+      setIsLoading(true)
+      setError(null)
 
       const response = await fetch('/api/csrf', {
         method: 'GET',
         credentials: 'same-origin',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch CSRF token: ${response.statusText}`);
+        throw new Error(`Failed to fetch CSRF token: ${response.statusText}`)
       }
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.success && data.csrfToken) {
-        setCsrfToken(data.csrfToken);
+        setCsrfToken(data.csrfToken)
       } else {
-        throw new Error('Invalid CSRF token response');
+        throw new Error('Invalid CSRF token response')
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch CSRF token';
-      setError(errorMessage);
-      console.error('CSRF token fetch error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch CSRF token'
+      setError(errorMessage)
+      console.error('CSRF token fetch error:', err)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
   /**
    * Refresh the CSRF token (generates a new one)
    */
   const refreshToken = useCallback(async () => {
     try {
-      setIsLoading(true);
-      setError(null);
+      setIsLoading(true)
+      setError(null)
 
       const response = await fetch('/api/csrf', {
         method: 'POST',
         credentials: 'same-origin',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`Failed to refresh CSRF token: ${response.statusText}`);
+        throw new Error(`Failed to refresh CSRF token: ${response.statusText}`)
       }
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.success && data.csrfToken) {
-        setCsrfToken(data.csrfToken);
+        setCsrfToken(data.csrfToken)
       } else {
-        throw new Error('Invalid CSRF token response');
+        throw new Error('Invalid CSRF token response')
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to refresh CSRF token';
-      setError(errorMessage);
-      console.error('CSRF token refresh error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to refresh CSRF token'
+      setError(errorMessage)
+      console.error('CSRF token refresh error:', err)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, []);
+  }, [])
 
   // Fetch token on mount
   useEffect(() => {
-    fetchToken();
-  }, [fetchToken]);
+    fetchToken()
+  }, [fetchToken])
 
   // Auto-refresh token every 20 minutes
   useEffect(() => {
-    if (!csrfToken) return;
+    if (!csrfToken) return
 
-    const interval = setInterval(() => {
-      refreshToken();
-    }, 20 * 60 * 1000); // 20 minutes
+    const interval = setInterval(
+      () => {
+        refreshToken()
+      },
+      20 * 60 * 1000
+    ) // 20 minutes
 
-    return () => clearInterval(interval);
-  }, [csrfToken, refreshToken]);
+    return () => clearInterval(interval)
+  }, [csrfToken, refreshToken])
 
   const value: CsrfContextValue = {
     csrfToken,
     isLoading,
     error,
     refreshToken,
-  };
+  }
 
-  return <CsrfContext.Provider value={value}>{children}</CsrfContext.Provider>;
+  return <CsrfContext.Provider value={value}>{children}</CsrfContext.Provider>
 }
 
 /**
@@ -127,13 +130,13 @@ export function CsrfProvider({ children }: CsrfProviderProps) {
  * @returns CSRF token, loading state, error state, and refresh function
  */
 export function useCsrfToken() {
-  const context = useContext(CsrfContext);
+  const context = useContext(CsrfContext)
 
   if (context === undefined) {
-    throw new Error('useCsrfToken must be used within a CsrfProvider');
+    throw new Error('useCsrfToken must be used within a CsrfProvider')
   }
 
-  return context;
+  return context
 }
 
 /**
@@ -148,8 +151,8 @@ export function withCsrfProtection<P extends object>(
       <CsrfProvider>
         <Component {...props} />
       </CsrfProvider>
-    );
-  };
+    )
+  }
 }
 
 /**
@@ -157,13 +160,13 @@ export function withCsrfProtection<P extends object>(
  * Usage: <CsrfTokenField />
  */
 export function CsrfTokenField() {
-  const { csrfToken, isLoading } = useCsrfToken();
+  const { csrfToken, isLoading } = useCsrfToken()
 
   if (isLoading || !csrfToken) {
-    return null;
+    return null
   }
 
-  return <input type="hidden" name="csrf_token" value={csrfToken} />;
+  return <input type="hidden" name="csrf_token" value={csrfToken} />
 }
 
 /**
@@ -175,19 +178,19 @@ export async function fetchWithCsrf(url: string, options: RequestInit = {}): Pro
   const csrfToken = document.cookie
     .split('; ')
     .find((row) => row.startsWith('csrf-token='))
-    ?.split('=')[1];
+    ?.split('=')[1]
 
   if (!csrfToken) {
-    throw new Error('CSRF token not found. Please refresh the page.');
+    throw new Error('CSRF token not found. Please refresh the page.')
   }
 
   // Add CSRF token to headers
-  const headers = new Headers(options.headers);
-  headers.set('X-CSRF-Token', csrfToken);
+  const headers = new Headers(options.headers)
+  headers.set('X-CSRF-Token', csrfToken)
 
   return fetch(url, {
     ...options,
     headers,
     credentials: 'same-origin', // Ensure cookies are sent
-  });
+  })
 }

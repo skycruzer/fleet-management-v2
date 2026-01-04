@@ -14,7 +14,7 @@ import puppeteer from 'puppeteer'
 
 const ADMIN_CREDENTIALS = {
   email: 'skycruzer@icloud.com',
-  password: 'mron2393'
+  password: 'mron2393',
 }
 
 // Get the test pilot email from database query (most recent)
@@ -22,7 +22,7 @@ const TEST_PILOT_EMAIL = 'test-pilot-1761486869910@airniugini.com.pg'
 const TEST_PILOT_PASSWORD = 'TempPassword123!'
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testAdminApproval() {
@@ -35,18 +35,18 @@ async function testAdminApproval() {
     browser = await puppeteer.launch({
       headless: false,
       defaultViewport: { width: 1280, height: 900 },
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     })
 
     const page = await browser.newPage()
-    page.on('console', msg => console.log('  [Browser]:', msg.text()))
+    page.on('console', (msg) => console.log('  [Browser]:', msg.text()))
 
     // Step 1: Admin Login
     console.log('\n✅ Test 1: Admin Login')
     console.log('   Navigating to admin login page...')
     await page.goto('http://localhost:3000/auth/login', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     console.log('   ✓ Login page loaded')
 
@@ -92,7 +92,7 @@ async function testAdminApproval() {
     console.log('   Navigating to pilot registrations page...')
     await page.goto('http://localhost:3000/dashboard/admin/pilot-registrations', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     console.log('   ✓ Pilot registrations page loaded')
     await sleep(3000) // Wait for page to fully render
@@ -118,9 +118,10 @@ async function testAdminApproval() {
     // Find and click the approve button using text content
     const approveClicked = await page.evaluate(() => {
       const buttons = Array.from(document.querySelectorAll('button'))
-      const approveBtn = buttons.find(btn =>
-        btn.textContent.toLowerCase().includes('approve') ||
-        btn.getAttribute('aria-label')?.toLowerCase().includes('approve')
+      const approveBtn = buttons.find(
+        (btn) =>
+          btn.textContent.toLowerCase().includes('approve') ||
+          btn.getAttribute('aria-label')?.toLowerCase().includes('approve')
       )
       if (approveBtn) {
         approveBtn.click()
@@ -142,10 +143,11 @@ async function testAdminApproval() {
         // Click confirm button in dialog
         await page.evaluate(() => {
           const buttons = Array.from(document.querySelectorAll('button'))
-          const confirmBtn = buttons.find(btn =>
-            btn.textContent.toLowerCase().includes('confirm') ||
-            btn.textContent.toLowerCase().includes('yes') ||
-            btn.textContent.toLowerCase().includes('approve')
+          const confirmBtn = buttons.find(
+            (btn) =>
+              btn.textContent.toLowerCase().includes('confirm') ||
+              btn.textContent.toLowerCase().includes('yes') ||
+              btn.textContent.toLowerCase().includes('approve')
           )
           if (confirmBtn) {
             confirmBtn.click()
@@ -170,7 +172,7 @@ async function testAdminApproval() {
 
     // Logout admin
     await page.goto('http://localhost:3000/api/auth/logout', {
-      waitUntil: 'networkidle2'
+      waitUntil: 'networkidle2',
     })
     await sleep(2000) // Wait after logout
 
@@ -178,7 +180,7 @@ async function testAdminApproval() {
     console.log('   Navigating to pilot login page...')
     await page.goto('http://localhost:3000/portal/login', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     console.log('   ✓ Pilot login page loaded')
     await sleep(3000) // Wait for page to fully render
@@ -235,7 +237,6 @@ async function testAdminApproval() {
     console.log('   - 15-pilot-dashboard.png')
     console.log('\n🎯 Workflow Complete!')
     console.log('='.repeat(60) + '\n')
-
   } catch (error) {
     console.error('\n❌ TEST FAILED:', error.message)
     console.error('\nStack trace:', error.stack)

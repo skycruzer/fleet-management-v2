@@ -1,7 +1,7 @@
 ---
 status: resolved
 priority: p1
-issue_id: "031"
+issue_id: '031'
 tags: [security, rate-limiting, ddos, spam-prevention, server-actions]
 dependencies: []
 resolved_date: 2025-10-19
@@ -22,30 +22,35 @@ Server Actions have no rate limiting, allowing unlimited requests from a single 
 **Attack Scenarios:**
 
 **1. Spam Attack:**
+
 - Malicious user writes script to spam submitFeedbackAction
 - Submits 10,000 feedback posts in 60 seconds
 - Database fills with spam content
 - Legitimate feedback buried under spam
 
 **2. DoS Attack:**
+
 - Attacker sends rapid requests to Server Actions
 - Overloads database with write operations
 - Consumes Supabase quota
 - Legitimate users experience 503 errors
 
 **3. Resource Exhaustion:**
+
 - Unlimited submissions fill database storage
 - Hits Supabase row limits
 - Incurs unexpected costs
 - System becomes unusable
 
 **Vulnerable Endpoints:**
+
 - `app/portal/feedback/actions.ts` - submitFeedbackAction
 - `app/portal/leave/actions.ts` - submitLeaveRequestAction
 - `app/portal/flights/actions.ts` - submitFlightRequestAction
 - `lib/services/pilot-portal-service.ts` - voteFeedbackPost
 
 **Current Code (No Protection):**
+
 ```typescript
 export async function submitFeedbackAction(formData: FormData) {
   // ❌ No rate limiting - accepts unlimited requests
@@ -64,6 +69,7 @@ export async function submitFeedbackAction(formData: FormData) {
 ### Option 1: Upstash Redis Rate Limiting (Recommended)
 
 **Pros:**
+
 - Industry standard for Next.js apps
 - Distributed rate limiting (works across multiple servers)
 - Low latency (edge-optimized)
@@ -134,9 +140,7 @@ export async function submitFeedbackAction(formData: FormData) {
   }
 
   // ✅ Check rate limit
-  const { success, limit, reset, remaining } = await feedbackRateLimit.limit(
-    `user:${pilotUser.id}`
-  )
+  const { success, limit, reset, remaining } = await feedbackRateLimit.limit(`user:${pilotUser.id}`)
 
   if (!success) {
     const resetDate = new Date(reset)
@@ -151,6 +155,7 @@ export async function submitFeedbackAction(formData: FormData) {
 ```
 
 **Environment Variables Needed:**
+
 ```env
 # .env.local
 UPSTASH_REDIS_REST_URL=https://your-redis-url.upstash.io
@@ -160,11 +165,13 @@ UPSTASH_REDIS_REST_TOKEN=your-token-here
 ### Option 2: In-Memory Rate Limiting (Simpler but Limited)
 
 **Pros:**
+
 - No external dependencies
 - Zero cost
 - Simple implementation
 
 **Cons:**
+
 - Only works on single server (not edge/serverless)
 - Resets on deployment
 - Not suitable for production at scale
@@ -208,12 +215,12 @@ export async function checkRateLimit(
 
 ## Recommended Rate Limits
 
-| Action | Per Minute | Per Hour | Reasoning |
-|--------|-----------|----------|-----------|
-| Feedback Submissions | 5 | 20 | Prevent spam while allowing legitimate use |
-| Leave Requests | 3 | 10 | Low frequency operation, strict limit |
-| Flight Requests | 3 | 10 | Similar to leave requests |
-| Feedback Votes | 30 | 100 | Higher limit for reading/voting |
+| Action               | Per Minute | Per Hour | Reasoning                                  |
+| -------------------- | ---------- | -------- | ------------------------------------------ |
+| Feedback Submissions | 5          | 20       | Prevent spam while allowing legitimate use |
+| Leave Requests       | 3          | 10       | Low frequency operation, strict limit      |
+| Flight Requests      | 3          | 10       | Similar to leave requests                  |
+| Feedback Votes       | 30         | 100      | Higher limit for reading/voting            |
 
 ## Technical Details
 
@@ -226,6 +233,7 @@ export async function checkRateLimit(
    - Copy REST URL and token
 
 2. **Install Dependencies** (2 minutes)
+
    ```bash
    npm install @upstash/ratelimit @upstash/redis
    ```
@@ -264,12 +272,15 @@ export async function checkRateLimit(
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** security-sentinel (compounding-engineering review)
 **Learnings:** No rate limiting enables spam and DoS attacks
 
 ### 2025-10-19 - Implementation Complete
+
 **By:** Claude Code
 **Changes:**
+
 - Installed `@upstash/ratelimit` and `@upstash/redis` packages
 - Replaced in-memory rate limiting with distributed Upstash Redis implementation
 - Added rate limiting to 3 Server Actions:
@@ -280,7 +291,7 @@ export async function checkRateLimit(
 - Fixed middleware rate limiting to calculate retry time correctly
 - Updated `.env.example` with Upstash configuration
 - Created comprehensive `UPSTASH-SETUP.md` setup guide
-**Status:** Ready for Upstash account setup and testing
+  **Status:** Ready for Upstash account setup and testing
 
 ## Notes
 

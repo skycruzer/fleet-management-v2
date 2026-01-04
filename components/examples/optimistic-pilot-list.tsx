@@ -87,10 +87,13 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
   }
 
   // Use optimistic mutation hook
-  const { data: pilots, mutate, isPending, error, reset } = useOptimisticMutation(
-    initialPilots,
-    performMutation
-  )
+  const {
+    data: pilots,
+    mutate,
+    isPending,
+    error,
+    reset,
+  } = useOptimisticMutation(initialPilots, performMutation)
 
   // Handle create pilot
   const handleCreate = async () => {
@@ -174,7 +177,7 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
             <CardTitle>Optimistic Pilot List Example</CardTitle>
             <div className="flex items-center gap-2">
               {isPending && (
-                <span className="flex items-center text-sm text-muted-foreground">
+                <span className="text-muted-foreground flex items-center text-sm">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Syncing...
                 </span>
@@ -187,7 +190,7 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             This component demonstrates optimistic UI updates. When you create, update, or delete a
             pilot, the UI updates instantly without waiting for the server response. If the server
             request fails, the changes are automatically rolled back.
@@ -200,10 +203,10 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
         <Card className="border-red-200 bg-red-50">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+              <AlertCircle className="mt-0.5 h-5 w-5 text-red-600" />
               <div className="flex-1">
                 <h4 className="text-sm font-semibold text-red-900">Operation Failed</h4>
-                <p className="text-sm text-red-700 mt-1">{error.message}</p>
+                <p className="mt-1 text-sm text-red-700">{error.message}</p>
                 <Button variant="outline" size="sm" onClick={reset} className="mt-2">
                   Dismiss
                 </Button>
@@ -219,7 +222,10 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
           const isTemp = pilot.id.startsWith('temp-')
 
           return (
-            <Card key={pilot.id} className={isTemp ? 'border-dashed border-blue-300 bg-blue-50' : ''}>
+            <Card
+              key={pilot.id}
+              className={isTemp ? 'border-dashed border-blue-300 bg-blue-50' : ''}
+            >
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -227,18 +233,18 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
                       <h4 className="font-semibold">
                         {pilot.first_name} {pilot.last_name}
                       </h4>
-                      <p className="text-sm text-muted-foreground">{pilot.rank}</p>
+                      <p className="text-muted-foreground text-sm">{pilot.rank}</p>
                       {isTemp && (
-                        <p className="text-xs text-blue-600 mt-1">Creating (optimistic)...</p>
+                        <p className="mt-1 text-xs text-blue-600">Creating (optimistic)...</p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       {pilot.is_active ? (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
                           Inactive
                         </span>
                       )}
@@ -252,7 +258,7 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
                       onClick={() => handleUpdate(pilot)}
                       disabled={isPending || isTemp}
                     >
-                      <Edit2 className="h-4 w-4 mr-1" />
+                      <Edit2 className="mr-1 h-4 w-4" />
                       Update
                     </Button>
                     <Button
@@ -261,7 +267,7 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
                       onClick={() => handleDelete(pilot)}
                       disabled={isPending || isTemp}
                     >
-                      <Trash2 className="h-4 w-4 mr-1" />
+                      <Trash2 className="mr-1 h-4 w-4" />
                       Delete
                     </Button>
                   </div>
@@ -287,17 +293,17 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-2xl font-bold">{pilots.length}</p>
-              <p className="text-sm text-muted-foreground">Total Pilots</p>
+              <p className="text-muted-foreground text-sm">Total Pilots</p>
             </div>
             <div>
               <p className="text-2xl font-bold">
                 {pilots.filter((p) => p.id.startsWith('temp-')).length}
               </p>
-              <p className="text-sm text-muted-foreground">Pending Creates</p>
+              <p className="text-muted-foreground text-sm">Pending Creates</p>
             </div>
             <div>
               <p className="text-2xl font-bold">{isPending ? '1' : '0'}</p>
-              <p className="text-sm text-muted-foreground">Active Operations</p>
+              <p className="text-muted-foreground text-sm">Active Operations</p>
             </div>
           </div>
         </CardContent>

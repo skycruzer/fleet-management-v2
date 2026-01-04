@@ -24,7 +24,7 @@ async function checkData() {
   const periodCount = periods ? periods.length : 0
   console.log(`Found ${periodCount} roster periods for 2026:`)
   if (periods) {
-    periods.forEach(p => {
+    periods.forEach((p) => {
       console.log(`  - ${p.roster_period}: ${p.period_start_date} to ${p.period_end_date}`)
     })
   }
@@ -35,7 +35,7 @@ async function checkData() {
   }
 
   // Check renewal plans
-  const rosterPeriods = periods.map(p => p.roster_period)
+  const rosterPeriods = periods.map((p) => p.roster_period)
 
   const { data: renewals, error: renewalsError } = await supabase
     .from('certification_renewal_plans')
@@ -62,7 +62,9 @@ async function checkData() {
     })
   } else {
     console.log('\n❌ No renewal plans found for 2026')
-    console.log('\nSuggestion: Generate renewal plans for 2026 using the /api/renewal-planning/generate endpoint')
+    console.log(
+      '\nSuggestion: Generate renewal plans for 2026 using the /api/renewal-planning/generate endpoint'
+    )
   }
 }
 

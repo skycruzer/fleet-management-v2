@@ -199,9 +199,9 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="text-6xl mb-4">✅</div>
-            <p className="text-lg font-medium text-foreground">All caught up!</p>
-            <p className="text-sm text-muted-foreground mt-2">
+            <div className="mb-4 text-6xl">✅</div>
+            <p className="text-foreground text-lg font-medium">All caught up!</p>
+            <p className="text-muted-foreground mt-2 text-sm">
               There are no pending leave requests to review.
             </p>
           </div>
@@ -254,15 +254,13 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
                     <TableCell className="font-medium">
                       <div>
                         <div>{request.pilot_name || 'Unknown Pilot'}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-muted-foreground text-xs">
                           {request.employee_id || 'N/A'}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={request.pilot_role === 'Captain' ? 'default' : 'secondary'}
-                      >
+                      <Badge variant={request.pilot_role === 'Captain' ? 'default' : 'secondary'}>
                         {request.pilot_role || 'N/A'}
                       </Badge>
                     </TableCell>
@@ -280,7 +278,7 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
                     <TableCell className="text-sm">{formatDate(request.start_date)}</TableCell>
                     <TableCell className="text-sm">{formatDate(request.end_date)}</TableCell>
                     <TableCell className="font-medium">{request.days_count}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-sm">
                       {request.created_at ? formatDate(request.created_at) : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
@@ -288,7 +286,7 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
                         <Button
                           size="sm"
                           variant="default"
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-green-600 text-white hover:bg-green-700"
                           onClick={() => handleApproval(request.id)}
                           disabled={isProcessing === request.id}
                         >
@@ -325,9 +323,9 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
 
           {selectedRequest && (
             <div className="space-y-4">
-              <div className="rounded-md border p-3 bg-muted/50">
+              <div className="bg-muted/50 rounded-md border p-3">
                 <div className="text-sm font-medium">{selectedRequest.pilot_name}</div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {selectedRequest.request_type} • {formatDate(selectedRequest.start_date)} -{' '}
                   {formatDate(selectedRequest.end_date)} ({selectedRequest.days_count} days)
                 </div>
@@ -343,7 +341,7 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
                   rows={4}
                   className="resize-none"
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Comments are required when denying leave requests
                 </p>
               </div>

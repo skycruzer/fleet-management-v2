@@ -41,7 +41,7 @@ users.forEach((user, idx) => {
 })
 
 // Check specifically for mrondeau
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 console.log('\nSearching for: mrondeau@airniugini.com.pg\n')
 
 const { data: mrondeau, error: mError } = await serviceClient
@@ -56,7 +56,7 @@ if (mError) {
   console.log('\n💡 This user needs to be created in the pilot_users table')
 } else {
   console.log(`✅ Found ${mrondeau.length} user(s):`)
-  mrondeau.forEach(u => {
+  mrondeau.forEach((u) => {
     console.log(JSON.stringify(u, null, 2))
   })
 }

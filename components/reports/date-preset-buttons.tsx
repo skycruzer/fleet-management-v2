@@ -31,9 +31,9 @@ export function DatePresetButtons({ onPresetSelect, className }: DatePresetButto
 
   return (
     <div className={className}>
-      <div className="flex items-center gap-2 mb-2">
-        <Calendar className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium text-muted-foreground">Quick Dates:</span>
+      <div className="mb-2 flex items-center gap-2">
+        <Calendar className="text-muted-foreground h-4 w-4" />
+        <span className="text-muted-foreground text-sm font-medium">Quick Dates:</span>
       </div>
       <div className="flex flex-wrap gap-2">
         {presets.map((preset) => (

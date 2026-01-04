@@ -156,9 +156,7 @@ export async function getCurrentPilotFeedback(): Promise<ServiceResponse<Feedbac
  *
  * Retrieves single feedback item (pilot can only access their own)
  */
-export async function getFeedbackById(
-  feedbackId: string
-): Promise<ServiceResponse<Feedback>> {
+export async function getFeedbackById(feedbackId: string): Promise<ServiceResponse<Feedback>> {
   try {
     const supabase = await createClient()
 
@@ -214,9 +212,7 @@ export async function getAllFeedback(
     const supabase = await createClient()
 
     // Build query
-    let query = supabase
-      .from('pilot_feedback')
-      .select(`
+    let query = supabase.from('pilot_feedback').select(`
         *,
         pilot:pilots (
           first_name,

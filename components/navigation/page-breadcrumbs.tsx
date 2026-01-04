@@ -128,11 +128,7 @@ function generateBreadcrumbs(pathname: string, rootPath: 'dashboard' | 'portal')
  * ]} />
  * ```
  */
-export function PageBreadcrumbs({
-  items,
-  showHomeIcon = true,
-  rootPath,
-}: PageBreadcrumbsProps) {
+export function PageBreadcrumbs({ items, showHomeIcon = true, rootPath }: PageBreadcrumbsProps) {
   const pathname = usePathname()
 
   // Determine root path from pathname if not provided

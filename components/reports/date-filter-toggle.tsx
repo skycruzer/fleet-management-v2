@@ -34,7 +34,7 @@ export function DateFilterToggle({ value, onValueChange, className = '' }: DateF
           <RadioGroupItem value="roster" id="filter-roster" />
           <Label
             htmlFor="filter-roster"
-            className="flex items-center gap-2 cursor-pointer font-normal"
+            className="flex cursor-pointer items-center gap-2 font-normal"
           >
             <Calendar className="h-4 w-4" />
             Roster Period
@@ -44,7 +44,7 @@ export function DateFilterToggle({ value, onValueChange, className = '' }: DateF
           <RadioGroupItem value="dateRange" id="filter-dateRange" />
           <Label
             htmlFor="filter-dateRange"
-            className="flex items-center gap-2 cursor-pointer font-normal"
+            className="flex cursor-pointer items-center gap-2 font-normal"
           >
             <CalendarRange className="h-4 w-4" />
             Date Range

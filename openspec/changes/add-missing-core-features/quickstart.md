@@ -22,12 +22,14 @@ This guide provides step-by-step instructions for implementing the 7 core missin
 ### Development Environment
 
 **Required**:
+
 - Node.js 18+ and npm 9+
 - Supabase CLI installed (`npm install -g supabase`)
 - Git for version control
 - Code editor (VS Code recommended)
 
 **Recommended Extensions** (VS Code):
+
 - ESLint
 - Prettier
 - Tailwind CSS IntelliSense
@@ -55,6 +57,7 @@ npm run dev
 
 **Supabase Project**: `wgdmgvonqysflwdiiols`
 **Local Supabase** (optional):
+
 ```bash
 supabase init
 supabase start
@@ -82,6 +85,7 @@ supabase migration new add_missing_core_features
 Copy the complete migration SQL from `data-model.md` section "Migration File" into the new migration file.
 
 **Key sections**:
+
 1. Utility functions (`update_updated_at_column`, `audit_log_trigger`)
 2. Table creation (10 tables in dependency order)
 3. Indexes and constraints
@@ -92,6 +96,7 @@ Copy the complete migration SQL from `data-model.md` section "Migration File" in
 #### Step 1.3: Deploy Migration
 
 **Local testing**:
+
 ```bash
 # Reset local database (destroys data)
 supabase db reset
@@ -101,6 +106,7 @@ supabase migration up
 ```
 
 **Production deployment**:
+
 ```bash
 # Deploy to production (Supabase dashboard)
 # Go to https://app.supabase.com/project/wgdmgvonqysflwdiiols/editor
@@ -158,11 +164,7 @@ type PilotPortalInsert = Database['public']['Tables']['pilot_notifications']['In
 export async function getPilotByUserId(userId: string): Promise<Pilot | null> {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from('pilots')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
+  const { data, error } = await supabase.from('pilots').select('*').eq('user_id', userId).single()
 
   if (error) {
     console.error('Error fetching pilot by user ID:', error)
@@ -183,14 +185,16 @@ export async function getPilotDashboardData(pilotId: string) {
   // Fetch certifications with expiry status
   const { data: certs } = await supabase
     .from('pilot_checks')
-    .select(`
+    .select(
+      `
       *,
       check_types (
         name,
         category,
         expiry_days
       )
-    `)
+    `
+    )
     .eq('pilot_id', pilotId)
     .order('expiry_date', { ascending: true })
 
@@ -212,7 +216,7 @@ export async function getPilotDashboardData(pilotId: string) {
   return {
     certifications: certs || [],
     leaveRequests: leaveRequests || [],
-    unreadNotifications: unreadCount || 0
+    unreadNotifications: unreadCount || 0,
   }
 }
 ```
@@ -280,6 +284,7 @@ export async function getPilotDashboardData(pilotId: string) {
    - `exportAuditLogs(filters?, format)` → string (CSV)
 
 **Constitution Compliance**:
+
 - ✅ All database operations through services (Principle I)
 - ✅ Explicit return types for type safety (Principle II)
 - ✅ Error handling with try/catch and console.error logging
@@ -295,22 +300,25 @@ export async function getPilotDashboardData(pilotId: string) {
 ```typescript
 import { z } from 'zod'
 
-export const FlightRequestSchema = z.object({
-  request_type: z.enum(['additional_flight', 'route_change', 'schedule_swap', 'other']),
-  route: z.string().min(1, 'Route is required').max(100),
-  start_date: z.string().datetime('Invalid date format'),
-  end_date: z.string().datetime('Invalid date format'),
-  reason: z.string().min(10, 'Reason must be at least 10 characters').max(1000),
-  additional_details: z.string().max(2000).optional()
-}).refine(data => new Date(data.end_date) >= new Date(data.start_date), {
-  message: 'End date must be on or after start date',
-  path: ['end_date']
-})
+export const FlightRequestSchema = z
+  .object({
+    request_type: z.enum(['additional_flight', 'route_change', 'schedule_swap', 'other']),
+    route: z.string().min(1, 'Route is required').max(100),
+    start_date: z.string().datetime('Invalid date format'),
+    end_date: z.string().datetime('Invalid date format'),
+    reason: z.string().min(10, 'Reason must be at least 10 characters').max(1000),
+    additional_details: z.string().max(2000).optional(),
+  })
+  .refine((data) => new Date(data.end_date) >= new Date(data.start_date), {
+    message: 'End date must be on or after start date',
+    path: ['end_date'],
+  })
 
 export type FlightRequestInput = z.infer<typeof FlightRequestSchema>
 ```
 
 **Schemas to create**:
+
 - `pilot-portal-schema.ts` - Login, registration
 - `flight-request-schema.ts` - Flight request submission
 - `task-schema.ts` - Task creation/update
@@ -331,7 +339,10 @@ export type FlightRequestInput = z.infer<typeof FlightRequestSchema>
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { FlightRequestSchema } from '@/lib/validations/flight-request-schema'
-import { submitFlightRequest, getFlightRequestsByPilot } from '@/lib/services/flight-request-service'
+import {
+  submitFlightRequest,
+  getFlightRequestsByPilot,
+} from '@/lib/services/flight-request-service'
 import { getPilotByUserId } from '@/lib/services/pilot-portal-service'
 import { createNotification } from '@/lib/services/pilot-notification-service'
 import { logBusinessEvent } from '@/lib/services/audit-log-service'
@@ -341,22 +352,21 @@ import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     // Get pilot by user ID
     const pilot = await getPilotByUserId(user.id)
     if (!pilot) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.PILOT.NOT_FOUND, 404),
-        { status: 404 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.NOT_FOUND, 404), { status: 404 })
     }
 
     // Use service layer
@@ -367,15 +377,14 @@ export async function GET() {
       data: requests,
       metadata: {
         timestamp: new Date().toISOString(),
-        requestId: crypto.randomUUID()
-      }
+        requestId: crypto.randomUUID(),
+      },
     })
   } catch (error) {
     console.error('Error fetching flight requests:', error)
-    return NextResponse.json(
-      formatApiError(ERROR_MESSAGES.SERVER.INTERNAL_ERROR, 500),
-      { status: 500 }
-    )
+    return NextResponse.json(formatApiError(ERROR_MESSAGES.SERVER.INTERNAL_ERROR, 500), {
+      status: 500,
+    })
   }
 }
 
@@ -383,21 +392,20 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
     if (authError || !user) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     const pilot = await getPilotByUserId(user.id)
     if (!pilot) {
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.PILOT.NOT_FOUND, 404),
-        { status: 404 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.NOT_FOUND, 404), { status: 404 })
     }
 
     // Parse and validate request body
@@ -411,8 +419,8 @@ export async function POST(request: Request) {
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid request data',
-            details: validationResult.error.format()
-          }
+            details: validationResult.error.format(),
+          },
         },
         { status: 400 }
       )
@@ -430,37 +438,41 @@ export async function POST(request: Request) {
       metadata: {
         pilot_id: pilot.id,
         route: validationResult.data.route,
-        request_type: validationResult.data.request_type
-      }
+        request_type: validationResult.data.request_type,
+      },
     })
 
     // Notify admins (optional: implement later)
     // await createNotification(adminId, 'flight_request_submitted', ...)
 
-    return NextResponse.json({
-      success: true,
-      data: flightRequest,
-      metadata: {
-        timestamp: new Date().toISOString(),
-        requestId: crypto.randomUUID()
-      }
-    }, { status: 201 })
+    return NextResponse.json(
+      {
+        success: true,
+        data: flightRequest,
+        metadata: {
+          timestamp: new Date().toISOString(),
+          requestId: crypto.randomUUID(),
+        },
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Error submitting flight request:', error)
-    return NextResponse.json(
-      formatApiError(ERROR_MESSAGES.SERVER.INTERNAL_ERROR, 500),
-      { status: 500 }
-    )
+    return NextResponse.json(formatApiError(ERROR_MESSAGES.SERVER.INTERNAL_ERROR, 500), {
+      status: 500,
+    })
   }
 }
 ```
 
 **API routes to implement** (~30 files total):
+
 - Pilot routes (7 routes)
 - Admin dashboard routes (15 routes)
 - Admin-specific routes (8 routes)
 
 **Constitution Compliance**:
+
 - ✅ API routes are thin HTTP adapters (Principle I)
 - ✅ All logic in service layer
 - ✅ Zod validation for all inputs (Principle II)
@@ -583,6 +595,7 @@ export function PilotDashboardContent({ pilot, data }: PilotDashboardContentProp
 ```
 
 **Components to create** (~50 total):
+
 - Pilot portal components (15)
 - Task management components (8)
 - Disciplinary components (6)
@@ -591,6 +604,7 @@ export function PilotDashboardContent({ pilot, data }: PilotDashboardContentProp
 - Shared UI components (5)
 
 **shadcn/ui components to install**:
+
 ```bash
 npx shadcn@latest add dialog
 npx shadcn@latest add dropdown-menu
@@ -672,6 +686,7 @@ test.describe('Pilot Dashboard', () => {
 ```
 
 **Test files to create** (7 files):
+
 - `e2e/pilot-portal.spec.ts` - Authentication and dashboard
 - `e2e/pilot-leave.spec.ts` - Leave request submission
 - `e2e/flight-requests.spec.ts` - Flight request workflow
@@ -681,6 +696,7 @@ test.describe('Pilot Dashboard', () => {
 - `e2e/feedback.spec.ts` - Feedback posts and comments
 
 **Run tests**:
+
 ```bash
 # Run all tests
 npm test
@@ -711,20 +727,21 @@ Add new services and patterns to `CLAUDE.md`:
 All services located in `lib/services/`:
 
 1. **`pilot-service.ts`** - Pilot CRUD operations, captain qualifications
-... (existing services)
-13. **`pilot-portal-service.ts`** - Pilot-facing portal operations (NEW)
-14. **`flight-request-service.ts`** - Flight request management (NEW)
-15. **`task-service.ts`** - Task management operations (NEW)
-16. **`disciplinary-service.ts`** - Disciplinary matter tracking (NEW)
-17. **`feedback-service.ts`** - Community feedback operations (NEW)
-18. **`feedback-admin-service.ts`** - Feedback moderation (NEW)
-19. **`pilot-notification-service.ts`** - Pilot notifications (NEW)
-20. **`pilot-registration-service.ts`** - Registration approval (NEW)
+   ... (existing services)
+2. **`pilot-portal-service.ts`** - Pilot-facing portal operations (NEW)
+3. **`flight-request-service.ts`** - Flight request management (NEW)
+4. **`task-service.ts`** - Task management operations (NEW)
+5. **`disciplinary-service.ts`** - Disciplinary matter tracking (NEW)
+6. **`feedback-service.ts`** - Community feedback operations (NEW)
+7. **`feedback-admin-service.ts`** - Feedback moderation (NEW)
+8. **`pilot-notification-service.ts`** - Pilot notifications (NEW)
+9. **`pilot-registration-service.ts`** - Registration approval (NEW)
 ```
 
 #### Production Deployment
 
 1. **Merge PR**:
+
 ```bash
 git checkout main
 git merge 001-missing-core-features
@@ -870,6 +887,7 @@ export function NotificationBell({ pilotId }: { pilotId: string }) {
 **Error**: Supabase Realtime not receiving updates
 
 **Solution**:
+
 1. Enable Realtime in Supabase dashboard for table
 2. Verify channel subscription code
 3. Check browser console for connection errors
@@ -879,11 +897,13 @@ export function NotificationBell({ pilotId }: { pilotId: string }) {
 ## Checklist
 
 ### Pre-Implementation
+
 - [ ] Read plan.md, spec.md, research.md, data-model.md, contracts/
 - [ ] Setup development environment
 - [ ] Create feature branch `001-missing-core-features`
 
 ### Implementation
+
 - [ ] Deploy database migration (10 tables)
 - [ ] Generate TypeScript types
 - [ ] Create 9 service files
@@ -894,12 +914,14 @@ export function NotificationBell({ pilotId }: { pilotId: string }) {
 - [ ] Update CLAUDE.md with new services
 
 ### Testing
+
 - [ ] Run validation queries (database)
 - [ ] Run `npm run validate` (type-check + lint)
 - [ ] Run `npm test` (E2E tests pass)
 - [ ] Manual testing of all user stories
 
 ### Deployment
+
 - [ ] Merge PR to main
 - [ ] Deploy migration to production
 - [ ] Verify Vercel deployment successful

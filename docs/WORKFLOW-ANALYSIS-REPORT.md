@@ -1,4 +1,5 @@
 # Workflow Analysis Report
+
 **Fleet Management V2 - Phase 1.5**
 **Date**: October 27, 2025
 **Auditor**: Claude Code (Comprehensive Project Review)
@@ -12,6 +13,7 @@ Fleet Management V2 has **well-defined development workflows** with comprehensiv
 **Overall Workflow Score**: 6.5/10 (Would be 8.5/10 if TypeScript errors fixed)
 
 ### Critical Findings Summary
+
 - **P0 Issues**: 1 (TypeScript errors block entire workflow)
 - **P1 Issues**: 7 (CI/CD gaps, testing coverage, deployment process)
 - **P2 Issues**: 10 (Documentation, automation, monitoring)
@@ -26,6 +28,7 @@ Fleet Management V2 has **well-defined development workflows** with comprehensiv
 **Setup Time**: ~5 minutes (excellent)
 
 **Process**:
+
 ```bash
 # 1. Clone and install
 npm install                    # Fast (npm, not yarn)
@@ -45,6 +48,7 @@ npm test                      # Run E2E tests
 ```
 
 **✅ Strengths:**
+
 - Clear `.env.example` with all required variables
 - Type generation script (`npm run db:types`)
 - Fast dev server startup (Turbopack)
@@ -59,12 +63,13 @@ npm test                      # Run E2E tests
 **Impact**: Type-code drift, TypeScript errors
 
 **Recommendation**: Automate type generation
+
 ```json
 // package.json
 {
   "scripts": {
     "db:migrate": "supabase db push && npm run db:types",
-    "postinstall": "npm run db:types"  // Auto-generate on install
+    "postinstall": "npm run db:types" // Auto-generate on install
   }
 }
 ```
@@ -79,6 +84,7 @@ npm test                      # Run E2E tests
 **Validation Command**: `npm run validate`
 
 **Checks:**
+
 1. TypeScript type checking (`tsc --noEmit`)
 2. ESLint (`npm run lint`)
 3. Prettier (`npm run format:check`)
@@ -90,6 +96,7 @@ npm test                      # Run E2E tests
 #### **P0-001: Validation Pipeline Completely Broken**
 
 **Current Status**:
+
 ```bash
 $ npm run validate
 
@@ -105,18 +112,21 @@ BLOCKED (cannot run until lint passes)
 ```
 
 **Impact**:
+
 - Cannot verify code quality
 - Cannot run pre-commit hooks
 - Cannot deploy to production
 - Development velocity blocked
 
 **Root Causes:**
+
 1. Database schema out of sync with TypeScript types
 2. Missing columns (`leave_bids.bid_year`, `system_settings` table)
 3. Ambiguous foreign key relationships
 4. Zod error handling patterns incorrect
 
 **Immediate Actions Required**:
+
 ```bash
 # 1. Regenerate types
 npm run db:types
@@ -140,14 +150,12 @@ npm run validate  # Should pass
 **Tool**: Husky + lint-staged
 
 **Current Configuration**:
+
 ```json
 // package.json
 {
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   }
 }
 ```
@@ -161,11 +169,12 @@ npm run validate  # Should pass
 **Issue**: If TypeScript has errors, developers can still commit with `--no-verify`
 
 **Recommendation**: Add type check to pre-commit hook
+
 ```json
 {
   "lint-staged": {
     "*.{ts,tsx}": [
-      "tsc --noEmit",          // ✅ Type check first
+      "tsc --noEmit", // ✅ Type check first
       "eslint --fix",
       "prettier --write"
     ]
@@ -187,12 +196,14 @@ npm run validate  # Should pass
 **Tool**: Playwright
 
 **Statistics:**
+
 - Total Test Files: 24
 - Browser Coverage: Chromium only (Firefox/WebKit disabled)
 - Parallel Execution: ✅ Yes (`fullyParallel: true`)
 - CI Retries: 2 (on CI only)
 
 **Test Configuration** (`playwright.config.ts`):
+
 ```typescript
 {
   testDir: './e2e',
@@ -210,6 +221,7 @@ npm run validate  # Should pass
 ```
 
 **✅ Strengths:**
+
 - Comprehensive test coverage (24 test files)
 - Good reporter configuration
 - Automatic dev server startup
@@ -224,6 +236,7 @@ npm run validate  # Should pass
 **Production Users**: Chrome, Safari, Firefox, Edge
 
 **Recommendation**: Enable cross-browser testing
+
 ```typescript
 // playwright.config.ts
 projects: [
@@ -239,6 +252,7 @@ projects: [
 **Run Cost**: 5× longer test runs
 
 **Recommendation**: Run on CI only
+
 ```bash
 # Locally: Chromium only (fast)
 npm test
@@ -258,12 +272,13 @@ npm run test:all-browsers
 **Issue**: UI changes not visually verified
 
 **Recommendation**: Add Percy or Playwright screenshots
+
 ```typescript
 // e2e/visual-regression.spec.ts
 test('dashboard looks correct', async ({ page }) => {
   await page.goto('/dashboard')
   await expect(page).toHaveScreenshot('dashboard.png', {
-    maxDiffPixels: 100,  // Allow minor differences
+    maxDiffPixels: 100, // Allow minor differences
   })
 })
 ```
@@ -281,6 +296,7 @@ test('dashboard looks correct', async ({ page }) => {
 **Issue**: No GitHub Actions workflow for E2E tests
 
 **Recommendation**: Add CI workflow
+
 ```yaml
 # .github/workflows/e2e-tests.yml
 name: E2E Tests
@@ -325,16 +341,19 @@ jobs:
 **Issue**: No unit tests exist (see Codebase Quality Report P1-009)
 
 **Impact**:
+
 - Service layer functions not tested (197 functions)
 - Utility functions not tested
 - Hard to refactor with confidence
 
 **Recommendation**: Add Vitest
+
 ```bash
 npm install -D vitest @testing-library/react
 ```
 
 **Priority Test Targets**:
+
 1. Service layer functions (high business logic)
 2. Utility functions (error handling, validation)
 3. Complex components
@@ -352,6 +371,7 @@ npm install -D vitest @testing-library/react
 **Issue**: Unknown test coverage percentage
 
 **Recommendation**: Add coverage reporting
+
 ```json
 // package.json
 {
@@ -376,12 +396,14 @@ npm install -D vitest @testing-library/react
 **Build System**: Turbopack (Next.js 16)
 
 **Commands:**
+
 ```bash
 npm run build    # Production build
 npm run start    # Start production server
 ```
 
 **✅ Strengths:**
+
 - Fast builds with Turbopack
 - Automatic optimization (minification, tree-shaking)
 - Image optimization
@@ -391,6 +413,7 @@ npm run start    # Start production server
 #### **P1-006: Build Fails Due to TypeScript Errors**
 
 **Current**:
+
 ```bash
 $ npm run build
 ❌ 59 TypeScript errors
@@ -411,6 +434,7 @@ Build failed
 **Issue**: Don't know bundle size or optimization opportunities
 
 **Recommendation**: Add bundle analyzer
+
 ```bash
 npm install -D @next/bundle-analyzer
 ```
@@ -427,6 +451,7 @@ module.exports = withBundleAnalyzer({
 ```
 
 **Usage:**
+
 ```bash
 ANALYZE=true npm run build
 ```
@@ -447,6 +472,7 @@ ANALYZE=true npm run build
 **Issue**: No CI/CD for automatic deployments
 
 **Recommendation**: Set up Vercel integration
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy to Production
@@ -475,6 +501,7 @@ jobs:
 ```
 
 **Benefits:**
+
 - Automatic deployments on push to main
 - Quality gates before deploy
 - Preview deployments for PRs
@@ -490,6 +517,7 @@ jobs:
 **Current**: Exists in `CLAUDE.md` (comprehensive)
 
 **Checklist Items** (30 items):
+
 - ✅ Code quality checks
 - ✅ Tests pass
 - ✅ Build succeeds
@@ -509,6 +537,7 @@ jobs:
 #### **P2-003: Checklist Not Automated**
 
 **Recommendation**: Create pre-deploy script
+
 ```bash
 #!/bin/bash
 # scripts/pre-deploy-check.sh
@@ -534,6 +563,7 @@ echo "✅ All pre-deployment checks passed"
 ```
 
 **Usage:**
+
 ```bash
 npm run pre-deploy  # Run all checks
 ```
@@ -550,6 +580,7 @@ npm run pre-deploy  # Run all checks
 **Tool**: Supabase migrations
 
 **Commands:**
+
 ```bash
 npm run db:migration    # Create new migration
 npm run db:deploy       # Deploy migrations
@@ -565,6 +596,7 @@ npm run db:types        # Generate TypeScript types
 **Issue**: Migrations applied directly to production without staging test
 
 **Recommendation**: Add staging environment
+
 ```bash
 # Apply to staging first
 supabase db push --db-url $STAGING_DB_URL
@@ -587,6 +619,7 @@ supabase db push --db-url $PRODUCTION_DB_URL
 **Issue**: Migrations lack `down` scripts (see Database Audit Report P2-020)
 
 **Recommendation**: Create rollback migrations
+
 ```sql
 -- migrations/up/20251027_add_column.sql
 ALTER TABLE pilots ADD COLUMN nickname TEXT;
@@ -608,6 +641,7 @@ ALTER TABLE pilots DROP COLUMN nickname;
 **Issue**: After migration, types out of sync until manual `npm run db:types`
 
 **Recommendation**: Auto-generate types after migration
+
 ```json
 {
   "scripts": {
@@ -631,6 +665,7 @@ ALTER TABLE pilots DROP COLUMN nickname;
 **Recommendation**: Establish review guidelines
 
 **Suggested Workflow:**
+
 1. Developer creates feature branch
 2. Opens PR with description (what/why)
 3. Automated checks run (validate, test, build)
@@ -642,8 +677,10 @@ ALTER TABLE pilots DROP COLUMN nickname;
 5. Approve and merge (or request changes)
 
 **Checklist for Reviewers:**
+
 ```markdown
 ## Code Review Checklist
+
 - [ ] Code follows naming conventions (kebab-case components)
 - [ ] Service layer used (no direct Supabase calls)
 - [ ] Input validation with Zod
@@ -667,11 +704,13 @@ ALTER TABLE pilots DROP COLUMN nickname;
 **Recommendation**: Add code review automation
 
 **Tools**:
+
 - **Danger.js**: Automated PR checks
 - **CodeClimate**: Code quality metrics
 - **SonarCloud**: Security & quality analysis
 
 **Example (Danger.js)**:
+
 ```javascript
 // dangerfile.js
 import { danger, warn, fail } from 'danger'
@@ -687,7 +726,7 @@ if (danger.github.pr.body.length < 10) {
 }
 
 // Warn if no tests added
-const hasTests = danger.git.created_files.some(f => f.includes('.spec.ts'))
+const hasTests = danger.git.created_files.some((f) => f.includes('.spec.ts'))
 if (!hasTests) {
   warn('Consider adding tests for new features.')
 }
@@ -703,12 +742,14 @@ if (!hasTests) {
 ### 6.1 Documentation Status
 
 **Current Documentation:**
+
 - `README.md` - Good project overview
 - `CLAUDE.md` - Excellent comprehensive guide (300+ lines)
 - Service layer docs - Minimal JSDoc comments
 - API documentation - Not formalized
 
 **✅ Strengths:**
+
 - Comprehensive `CLAUDE.md`
 - Clear quick start guide
 - Pre-deployment checklist
@@ -720,11 +761,13 @@ if (!hasTests) {
 **Issue**: API endpoints not documented
 
 **Recommendation**: Add OpenAPI/Swagger documentation
+
 ```bash
 npm install -D swagger-jsdoc swagger-ui-react
 ```
 
 **Generate docs from code:**
+
 ```typescript
 /**
  * @swagger
@@ -752,6 +795,7 @@ export async function GET(request: Request) {
 **Exists**: `docs/ARCHITECTURE-DIAGRAMS.md` (✅ Good start)
 
 **Recommendation**: Expand architecture docs
+
 - Database schema diagram
 - Authentication flow diagram
 - Leave request workflow diagram
@@ -769,6 +813,7 @@ export async function GET(request: Request) {
 **Issue**: 197 exported functions missing JSDoc comments
 
 **Example**:
+
 ```typescript
 // ❌ No documentation
 export async function getPilots() {
@@ -804,6 +849,7 @@ export async function getPilots(): Promise<ServiceResponse<Pilot[]>> {
 ### 7.1 Logging
 
 **Current**:
+
 - Better Stack (Logtail) integration ✅
 - Server-side logging: `lib/services/logging-service.ts`
 - Client-side logging: `@logtail/browser`
@@ -817,6 +863,7 @@ export async function getPilots(): Promise<ServiceResponse<Pilot[]>> {
 **Issue**: Logs exist but no easy way to monitor/alert
 
 **Recommendation**: Create monitoring dashboard
+
 - Better Stack dashboard for errors
 - Alert on critical errors
 - Weekly summary report
@@ -837,6 +884,7 @@ export async function getPilots(): Promise<ServiceResponse<Pilot[]>> {
 **Issue**: Errors logged but no proactive alerts
 
 **Recommendation**: Add alerting
+
 ```javascript
 // lib/error-logger.ts
 export async function logError(error, context) {
@@ -845,7 +893,7 @@ export async function logError(error, context) {
 
   // Send alert for critical errors
   if (error.severity === 'critical') {
-    await sendSlackAlert(error)  // Or email, PagerDuty
+    await sendSlackAlert(error) // Or email, PagerDuty
   }
 }
 ```
@@ -862,13 +910,14 @@ export async function logError(error, context) {
 **Issue**: No tracking of API response times, page load times
 
 **Recommendation**: Add performance monitoring
+
 ```typescript
 // lib/performance-monitor.ts
 export function trackApiPerformance(endpoint: string, duration: number) {
   log.info('API Performance', {
     endpoint,
     duration_ms: duration,
-    slow: duration > 1000,  // Flag slow requests
+    slow: duration > 1000, // Flag slow requests
   })
 }
 
@@ -896,18 +945,20 @@ trackApiPerformance('/api/pilots', Date.now() - start)
 **Issue**: Dependencies may become outdated/vulnerable
 
 **Recommendation**: Add Dependabot
+
 ```yaml
 # .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 5
 ```
 
 **Benefits:**
+
 - Automatic PRs for dependency updates
 - Security alerts for vulnerabilities
 
@@ -921,6 +972,7 @@ updates:
 **Current**: No automated scanning (see Security Audit Report P2-004)
 
 **Recommendation**: Add to CI
+
 ```yaml
 # .github/workflows/security.yml
 - run: npm audit --audit-level=moderate
@@ -938,6 +990,7 @@ updates:
 **Current**: ⚠️ No versioning strategy
 
 **Recommendation**: Adopt Semantic Versioning
+
 ```
 MAJOR.MINOR.PATCH
 2.0.0
@@ -960,26 +1013,31 @@ MAJOR.MINOR.PATCH
 **Issue**: No record of changes between versions
 
 **Recommendation**: Maintain `CHANGELOG.md`
+
 ```markdown
 # Changelog
 
 ## [2.1.0] - 2025-10-27
 
 ### Added
+
 - Leave bid system
 - Pilot portal authentication
 - PWA offline support
 
 ### Fixed
+
 - TypeScript compilation errors
 - Mobile navigation issues
 
 ### Security
+
 - Added CSRF protection
 - Encrypted session tokens
 ```
 
 **Tool**: Auto-generate from commits
+
 ```bash
 npx conventional-changelog -p angular -i CHANGELOG.md -s
 ```
@@ -1108,6 +1166,7 @@ npx conventional-changelog -p angular -i CHANGELOG.md -s
 ## 11. Workflow Metrics
 
 ### Current State
+
 ```
 ❌ Build Process:          0% (blocked by TypeScript errors)
 ✅ Code Quality Checks:    90% (good infrastructure, currently broken)
@@ -1126,12 +1185,14 @@ npx conventional-changelog -p angular -i CHANGELOG.md -s
 **Would be B+ (8.5/10) if TypeScript errors fixed**
 
 **Strengths:**
+
 - Excellent E2E test coverage (24 test suites)
 - Good pre-commit hooks (Husky + lint-staged)
 - Comprehensive pre-deployment checklist
 - Better Stack logging integration
 
 **Critical Weaknesses:**
+
 - TypeScript errors block entire workflow (P0)
 - No CI/CD automation
 - No unit tests

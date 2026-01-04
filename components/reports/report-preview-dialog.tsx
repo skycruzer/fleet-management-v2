@@ -10,7 +10,13 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ReportData, ReportType } from '@/types/reports'
@@ -24,7 +30,12 @@ interface ReportPreviewDialogProps {
   reportType: ReportType
 }
 
-export function ReportPreviewDialog({ open, onOpenChange, reportData, reportType }: ReportPreviewDialogProps) {
+export function ReportPreviewDialog({
+  open,
+  onOpenChange,
+  reportData,
+  reportType,
+}: ReportPreviewDialogProps) {
   const [currentPage, setCurrentPage] = useState(1)
 
   if (!reportData) return null
@@ -52,7 +63,7 @@ export function ReportPreviewDialog({ open, onOpenChange, reportData, reportType
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh]">
+      <DialogContent className="max-h-[90vh] max-w-5xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {getIcon()}
@@ -69,18 +80,20 @@ export function ReportPreviewDialog({ open, onOpenChange, reportData, reportType
             {reportData.summary && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <BarChart3 className="h-4 w-4" />
                     Summary
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                     {Object.entries(reportData.summary).map(([key, value]) => {
-                      const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
+                      const label = key
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, (str) => str.toUpperCase())
                       return (
                         <div key={key} className="space-y-1">
-                          <p className="text-sm text-muted-foreground">{label}</p>
+                          <p className="text-muted-foreground text-sm">{label}</p>
                           <p className="text-2xl font-bold">{value}</p>
                         </div>
                       )

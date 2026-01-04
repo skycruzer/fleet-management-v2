@@ -16,6 +16,7 @@ The system SHALL allow pilots to submit flight requests for additional flying op
 **Rationale**: Provides formal channel for pilots to bid for additional flights or route changes.
 
 **Business Rules**:
+
 - Flight requests MUST include route, dates, reason
 - Requests MUST default to PENDING status
 - Pilots CAN edit or delete PENDING requests
@@ -50,6 +51,7 @@ The system SHALL allow admins to review, approve, or deny pilot flight requests 
 **Rationale**: Enables operational control over crew assignments and flight opportunities.
 
 **Business Rules**:
+
 - Admins MUST see all flight requests from all pilots
 - Admins MUST provide comments when denying requests
 - Approval/denial MUST send notification to pilot
@@ -81,6 +83,7 @@ The system SHALL provide filtering capabilities for admins to manage flight requ
 **Rationale**: Admins need to prioritize and manage requests based on status and seniority.
 
 **Business Rules**:
+
 - Filters MUST include: Status (PENDING/APPROVED/DENIED), Date Range, Pilot Rank
 - PENDING requests MUST be highlighted (default view)
 - Requests MUST be sortable by submission date, seniority, route
@@ -121,6 +124,7 @@ _No requirements are renamed._
 ### Database Table
 
 **`flight_requests`**:
+
 - Columns: id, pilot_id, route, start_date, end_date, reason, status (PENDING/APPROVED/DENIED), admin_comments, created_at, updated_at, reviewed_by, reviewed_at
 - RLS: Pilots see only own, Admins see all
 - Indexes: pilot_id, status, created_at

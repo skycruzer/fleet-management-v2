@@ -90,17 +90,13 @@ async function testFinalReview() {
         const reviewDeadline = addDays(startDate, -21)
         const daysUntilDeadline = differenceInDays(reviewDeadline, today)
 
-        const periodRequests = leaveRequests.filter(
-          (r) => r.roster_period === rosterPeriod
-        )
+        const periodRequests = leaveRequests.filter((r) => r.roster_period === rosterPeriod)
 
         const pending = periodRequests.filter((r) => r.status === 'PENDING')
         const approved = periodRequests.filter((r) => r.status === 'APPROVED')
         const denied = periodRequests.filter((r) => r.status === 'DENIED')
 
-        const captainsPending = pending.filter(
-          (r) => r.pilots?.role === 'Captain'
-        ).length
+        const captainsPending = pending.filter((r) => r.pilots?.role === 'Captain').length
         const firstOfficersPending = pending.filter(
           (r) => r.pilots?.role === 'First Officer'
         ).length
@@ -134,7 +130,9 @@ async function testFinalReview() {
         console.log(`   Alert Triggered:    ${alertTriggered ? 'YES ⚠️' : 'NO'}`)
         console.log(`   Requires Action:    ${requiresAction ? 'YES ⚠️' : 'NO'}`)
         console.log(`   Total Requests:     ${periodRequests.length}`)
-        console.log(`   ├─ Pending:         ${pending.length} (C: ${captainsPending}, FO: ${firstOfficersPending})`)
+        console.log(
+          `   ├─ Pending:         ${pending.length} (C: ${captainsPending}, FO: ${firstOfficersPending})`
+        )
         console.log(`   ├─ Approved:        ${approved.length}`)
         console.log(`   └─ Denied:          ${denied.length}`)
         console.log('')
@@ -164,15 +162,13 @@ async function testFinalReview() {
 
       alerts.forEach((alert) => {
         const emoji =
-          alert.urgencyLevel === 'critical'
-            ? '🔴'
-            : alert.urgencyLevel === 'urgent'
-            ? '🟠'
-            : '🟡'
+          alert.urgencyLevel === 'critical' ? '🔴' : alert.urgencyLevel === 'urgent' ? '🟠' : '🟡'
 
         console.log(`${emoji} ${alert.rosterPeriod}`)
         console.log(`   ${alert.totalPending} pending requests`)
-        console.log(`   Captains: ${alert.captainsPending}, First Officers: ${alert.firstOfficersPending}`)
+        console.log(
+          `   Captains: ${alert.captainsPending}, First Officers: ${alert.firstOfficersPending}`
+        )
         console.log(
           `   Deadline: ${alert.daysUntilDeadline < 0 ? `OVERDUE (${Math.abs(alert.daysUntilDeadline)} days ago)` : `${alert.daysUntilDeadline} days`}`
         )
@@ -192,16 +188,10 @@ async function testFinalReview() {
     console.log('📈 FINAL REVIEW SYSTEM STATUS')
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n')
 
-    const totalPendingInAlerts = alerts.reduce(
-      (sum, alert) => sum + alert.totalPending,
-      0
-    )
-    const criticalAlerts = alerts.filter((a) => a.urgencyLevel === 'critical')
-      .length
-    const urgentAlerts = alerts.filter((a) => a.urgencyLevel === 'urgent')
-      .length
-    const warningAlerts = alerts.filter((a) => a.urgencyLevel === 'warning')
-      .length
+    const totalPendingInAlerts = alerts.reduce((sum, alert) => sum + alert.totalPending, 0)
+    const criticalAlerts = alerts.filter((a) => a.urgencyLevel === 'critical').length
+    const urgentAlerts = alerts.filter((a) => a.urgencyLevel === 'urgent').length
+    const warningAlerts = alerts.filter((a) => a.urgencyLevel === 'warning').length
 
     console.log(`   Total Alerts:        ${alerts.length}`)
     console.log(`   ├─ Critical (🔴):    ${criticalAlerts}`)

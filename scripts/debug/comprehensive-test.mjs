@@ -14,7 +14,7 @@ const results = {
   pilotLogin: false,
   pilotDashboard: false,
   pilotProfile: false,
-  errors: []
+  errors: [],
 }
 
 // Helper function to test endpoint
@@ -96,7 +96,7 @@ async function testAdminLogin() {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: 'skycruzer@icloud.com',
-      password: 'mron2393'
+      password: 'mron2393',
     })
 
     if (error) {
@@ -106,7 +106,10 @@ async function testAdminLogin() {
       return null
     }
 
-    const role = data.user.user_metadata && data.user.user_metadata.role ? data.user.user_metadata.role : 'NOT SET'
+    const role =
+      data.user.user_metadata && data.user.user_metadata.role
+        ? data.user.user_metadata.role
+        : 'NOT SET'
 
     console.log('✅ Admin login successful')
     console.log(`   User ID: ${data.user.id}`)
@@ -137,8 +140,8 @@ async function testPilotLogin() {
       },
       body: JSON.stringify({
         email: 'mrondeau@airniugini.com.pg',
-        password: 'Lemakot@1972'
-      })
+        password: 'Lemakot@1972',
+      }),
     })
 
     const data = await response.json()
@@ -190,15 +193,11 @@ async function runTests() {
 
   // Test 3: Admin Dashboard
   if (adminToken) {
-    const dashboardTest = await testEndpoint(
-      'Admin Dashboard',
-      'http://localhost:3000/dashboard',
-      {
-        headers: {
-          'Authorization': `Bearer ${adminToken}`,
-        }
-      }
-    )
+    const dashboardTest = await testEndpoint('Admin Dashboard', 'http://localhost:3000/dashboard', {
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+    })
     results.adminDashboard = dashboardTest.success
   }
 
@@ -212,8 +211,8 @@ async function runTests() {
       'http://localhost:3000/portal/dashboard',
       {
         headers: {
-          'Cookie': `pilot_session=${pilotSession}`,
-        }
+          Cookie: `pilot_session=${pilotSession}`,
+        },
       }
     )
     results.pilotDashboard = pilotDashboardTest.success
@@ -226,8 +225,8 @@ async function runTests() {
       'http://localhost:3000/portal/profile',
       {
         headers: {
-          'Cookie': `pilot_session=${pilotSession}`,
-        }
+          Cookie: `pilot_session=${pilotSession}`,
+        },
       }
     )
     results.pilotProfile = profileTest.success
@@ -240,7 +239,7 @@ async function runTests() {
   console.log()
 
   const tests = [
-    { name: 'Database Connection', result: !results.errors.some(e => e.startsWith('Database:')) },
+    { name: 'Database Connection', result: !results.errors.some((e) => e.startsWith('Database:')) },
     { name: 'Admin Login', result: results.adminLogin },
     { name: 'Admin Dashboard', result: results.adminDashboard },
     { name: 'Pilot Login', result: results.pilotLogin },
@@ -251,7 +250,7 @@ async function runTests() {
   let passed = 0
   let failed = 0
 
-  tests.forEach(test => {
+  tests.forEach((test) => {
     const status = test.result ? '✅ PASS' : '❌ FAIL'
     console.log(`${status} - ${test.name}`)
     if (test.result) passed++
@@ -264,7 +263,7 @@ async function runTests() {
   if (results.errors.length > 0) {
     console.log()
     console.log('❌ ERRORS:')
-    results.errors.forEach(error => {
+    results.errors.forEach((error) => {
       console.log(`   • ${error}`)
     })
   }

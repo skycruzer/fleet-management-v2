@@ -282,12 +282,9 @@ export function generateAnalyticsPDF(
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.setFontSize(8)
-    doc.text(
-      `Page ${i} of ${pageCount}`,
-      pageWidth / 2,
-      doc.internal.pageSize.getHeight() - 10,
-      { align: 'center' }
-    )
+    doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, {
+      align: 'center',
+    })
   }
 
   return Buffer.from(doc.output('arraybuffer'))

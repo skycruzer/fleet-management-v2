@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p1
-issue_id: "003"
+issue_id: '003'
 tags: [data-integrity, security, validation, zod]
 dependencies: [002]
 ---
@@ -19,12 +19,14 @@ Zod 4.1.11 and React Hook Form 7.63.0 are installed but **zero validation schema
 - **Dependencies**: Requires service layer (Issue #002)
 
 **Current State**:
+
 - Zod 4.1.11 installed but unused
 - React Hook Form 7.63.0 installed but not integrated
 - All form data submitted without validation
 - Direct database insertion without type checking
 
 **Vulnerable Pattern**:
+
 ```typescript
 // ❌ WRONG - No validation
 async function POST(request: Request) {
@@ -35,6 +37,7 @@ async function POST(request: Request) {
 ```
 
 **Impact Scenarios**:
+
 - Invalid data inserted (e.g., string where number expected)
 - Missing required fields (first_name, employee_id)
 - Type mismatches corrupting 607 certification records
@@ -48,12 +51,14 @@ async function POST(request: Request) {
 **Create Directory**: `lib/schemas/`
 
 **Required Schemas**:
+
 1. `pilot-schema.ts` - Pilot creation/update validation
 2. `certification-schema.ts` - Certification validation with expiry dates
 3. `leave-schema.ts` - Leave request validation with roster periods
 4. `check-type-schema.ts` - Check type validation
 
 **Example** (pilot-schema.ts):
+
 ```typescript
 import { z } from 'zod'
 
@@ -63,18 +68,21 @@ export const PilotCreateSchema = z.object({
   employee_id: z.string().regex(/^\d{6}$/, 'Must be 6-digit employee ID'),
   rank: z.enum(['Captain', 'First Officer']),
   commencement_date: z.string().datetime(),
-  qualifications: z.object({
-    line_captain: z.boolean().optional(),
-    training_captain: z.boolean().optional(),
-    examiner: z.boolean().optional(),
-    rhs_captain_expiry: z.string().datetime().optional(),
-  }).optional(),
+  qualifications: z
+    .object({
+      line_captain: z.boolean().optional(),
+      training_captain: z.boolean().optional(),
+      examiner: z.boolean().optional(),
+      rhs_captain_expiry: z.string().datetime().optional(),
+    })
+    .optional(),
 })
 
 export type PilotCreate = z.infer<typeof PilotCreateSchema>
 ```
 
 **Service Layer Integration**:
+
 ```typescript
 // lib/services/pilot-service.ts
 import { PilotCreateSchema } from '@/lib/schemas/pilot-schema'
@@ -84,11 +92,7 @@ export async function createPilot(data: unknown) {
   const validated = PilotCreateSchema.parse(data)
 
   const supabase = await createClient()
-  const { data: pilot, error } = await supabase
-    .from('pilots')
-    .insert(validated)
-    .select()
-    .single()
+  const { data: pilot, error } = await supabase.from('pilots').insert(validated).select().single()
 
   if (error) throw new Error(`Failed to create pilot: ${error.message}`)
   return pilot
@@ -96,12 +100,14 @@ export async function createPilot(data: unknown) {
 ```
 
 **Pros**:
+
 - Prevents all data corruption at entry point
 - Type-safe validation
 - Proven schemas from production v1
 - Comprehensive error messages
 
 **Cons**:
+
 - Requires porting from v1
 
 **Effort**: Medium (2-3 days for all schemas)
@@ -142,6 +148,7 @@ Port validation schemas from air-niugini-pms v1 and integrate with service layer
 ## Work Log
 
 ### 2025-10-17 - Initial Discovery
+
 **By:** data-integrity-guardian, security-sentinel agents
 **Actions:** Identified as P1 critical issue
 **Learnings:** Zod installed but completely unused

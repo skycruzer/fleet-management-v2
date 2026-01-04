@@ -150,9 +150,7 @@ export function CertificationCategoryManager() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-foreground text-2xl font-bold">
-            📋 Certification Categories
-          </h2>
+          <h2 className="text-foreground text-2xl font-bold">📋 Certification Categories</h2>
           <p className="text-muted-foreground mt-1 text-sm">
             Manage certification types, categories, and grace periods for renewals
           </p>
@@ -176,13 +174,11 @@ export function CertificationCategoryManager() {
           {sortedCategoryNames.map((categoryName) => (
             <Card key={categoryName} className="p-6">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-foreground text-lg font-semibold flex items-center gap-2">
+                <h3 className="text-foreground flex items-center gap-2 text-lg font-semibold">
                   {getCategoryIcon(categoryName)}
                   {categoryName}
                 </h3>
-                <Badge variant="outline">
-                  {groupedCategories[categoryName].length} types
-                </Badge>
+                <Badge variant="outline">{groupedCategories[categoryName].length} types</Badge>
               </div>
 
               <div className="space-y-3">
@@ -190,12 +186,12 @@ export function CertificationCategoryManager() {
                   <Card key={category.id} className="bg-muted/30 p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="mb-1 flex items-center gap-2">
                           <Badge variant="secondary" className="text-xs">
                             {category.check_code}
                           </Badge>
                         </div>
-                        <p className="text-foreground text-sm font-medium mb-2">
+                        <p className="text-foreground mb-2 text-sm font-medium">
                           {category.check_description}
                         </p>
                         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -213,11 +209,7 @@ export function CertificationCategoryManager() {
                           </div>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(category)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => handleEdit(category)}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </div>
@@ -274,9 +266,7 @@ export function CertificationCategoryManager() {
               <Input
                 id="check_description"
                 value={formData.check_description}
-                onChange={(e) =>
-                  setFormData({ ...formData, check_description: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, check_description: e.target.value })}
                 placeholder="e.g., Pilot Proficiency Check"
                 className="mt-2"
               />

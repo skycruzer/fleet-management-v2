@@ -11,7 +11,8 @@ console.log('=== Checking pilot_requests Foreign Keys ===\n')
 console.log('Test 1: Using pilots!employee_number syntax')
 const { data: test1, error: error1 } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     id,
     employee_number,
     start_date,
@@ -22,7 +23,8 @@ const { data: test1, error: error1 } = await supabase
       last_name,
       role
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .limit(1)
 
@@ -38,7 +40,8 @@ console.log('\n---\n')
 console.log('Test 2: Using pilots!pilot_requests_employee_number_fkey syntax')
 const { data: test2, error: error2 } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     id,
     employee_number,
     start_date,
@@ -49,7 +52,8 @@ const { data: test2, error: error2 } = await supabase
       last_name,
       role
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .limit(1)
 
@@ -65,14 +69,16 @@ console.log('\n---\n')
 console.log('Test 3: Using pilots(employee_number) inner join syntax')
 const { data: test3, error: error3 } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     id,
     employee_number,
     start_date,
     end_date,
     request_category,
     pilots(first_name, last_name, role)
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .limit(1)
 
@@ -86,9 +92,7 @@ if (error3) {
 console.log('\n---\n')
 
 // Check if there are any pilot_requests records
-const { count } = await supabase
-  .from('pilot_requests')
-  .select('*', { count: 'exact', head: true })
+const { count } = await supabase.from('pilot_requests').select('*', { count: 'exact', head: true })
 
 console.log(`Total pilot_requests records: ${count}`)
 

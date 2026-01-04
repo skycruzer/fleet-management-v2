@@ -18,8 +18,8 @@ import { lazyLoadChart } from '@/lib/utils/dynamic-imports'
  * ~150KB minified
  */
 export const LazyMultiYearForecastChart = lazyLoadChart(() =>
-  import('./MultiYearForecastChart').then(mod => ({
-    default: mod.MultiYearForecastChart
+  import('./MultiYearForecastChart').then((mod) => ({
+    default: mod.MultiYearForecastChart,
   }))
 )
 
@@ -29,8 +29,8 @@ export const LazyMultiYearForecastChart = lazyLoadChart(() =>
  * ~50KB minified
  */
 export const LazyCrewShortageWarnings = lazyLoadChart(() =>
-  import('./CrewShortageWarnings').then(mod => ({
-    default: mod.CrewShortageWarnings
+  import('./CrewShortageWarnings').then((mod) => ({
+    default: mod.CrewShortageWarnings,
   }))
 )
 
@@ -40,7 +40,7 @@ export const LazyCrewShortageWarnings = lazyLoadChart(() =>
  * ~40KB minified
  */
 export const LazySuccessionPipelineTable = lazyLoadChart(() =>
-  import('./SuccessionPipelineTable').then(mod => ({
-    default: mod.SuccessionPipelineTable
+  import('./SuccessionPipelineTable').then((mod) => ({
+    default: mod.SuccessionPipelineTable,
   }))
 )

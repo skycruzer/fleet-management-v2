@@ -29,7 +29,10 @@ interface NotificationListProps {
   initialUnreadCount: number
 }
 
-export default function NotificationList({ notifications, initialUnreadCount }: NotificationListProps) {
+export default function NotificationList({
+  notifications,
+  initialUnreadCount,
+}: NotificationListProps) {
   const router = useRouter()
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount)
 
@@ -58,9 +61,7 @@ export default function NotificationList({ notifications, initialUnreadCount }: 
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white">
-          All Notifications
-        </h2>
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white">All Notifications</h2>
         <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
           {unreadCount} unread
         </span>
@@ -71,7 +72,7 @@ export default function NotificationList({ notifications, initialUnreadCount }: 
         {notifications.map((notification) => (
           <div
             key={notification.id}
-            className={`rounded-lg bg-white p-4 shadow transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750 ${
+            className={`dark:hover:bg-gray-750 rounded-lg bg-white p-4 shadow transition-colors hover:bg-gray-50 dark:bg-gray-800 ${
               !notification.is_read ? 'border-l-4 border-blue-500' : ''
             }`}
           >
@@ -91,7 +92,9 @@ export default function NotificationList({ notifications, initialUnreadCount }: 
                   {notification.message}
                 </p>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                  {notification.created_at ? new Date(notification.created_at).toLocaleString() : 'Unknown date'}
+                  {notification.created_at
+                    ? new Date(notification.created_at).toLocaleString()
+                    : 'Unknown date'}
                 </p>
               </div>
               {!notification.is_read && (

@@ -44,9 +44,13 @@ export function SkipLink({ href, children, className }: SkipLinkProps) {
       target.focus()
 
       // Remove tabindex after focus
-      target.addEventListener('blur', () => {
-        target.removeAttribute('tabindex')
-      }, { once: true })
+      target.addEventListener(
+        'blur',
+        () => {
+          target.removeAttribute('tabindex')
+        },
+        { once: true }
+      )
 
       // Scroll into view
       target.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -93,11 +97,7 @@ export function SkipLink({ href, children, className }: SkipLinkProps) {
  */
 export function SkipLinks({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className="skip-links"
-      role="navigation"
-      aria-label="Skip links"
-    >
+    <div className="skip-links" role="navigation" aria-label="Skip links">
       {children}
     </div>
   )
@@ -107,31 +107,19 @@ export function SkipLinks({ children }: { children: React.ReactNode }) {
  * Pre-configured skip link for main content
  */
 export function SkipToMainContent() {
-  return (
-    <SkipLink href="#main-content">
-      Skip to main content
-    </SkipLink>
-  )
+  return <SkipLink href="#main-content">Skip to main content</SkipLink>
 }
 
 /**
  * Pre-configured skip link for navigation
  */
 export function SkipToNavigation() {
-  return (
-    <SkipLink href="#navigation">
-      Skip to navigation
-    </SkipLink>
-  )
+  return <SkipLink href="#navigation">Skip to navigation</SkipLink>
 }
 
 /**
  * Pre-configured skip link for search
  */
 export function SkipToSearch() {
-  return (
-    <SkipLink href="#search">
-      Skip to search
-    </SkipLink>
-  )
+  return <SkipLink href="#search">Skip to search</SkipLink>
 }

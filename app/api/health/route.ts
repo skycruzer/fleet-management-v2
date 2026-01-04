@@ -7,7 +7,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getAllPilots } from '@/lib/services/pilot-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,17 +41,15 @@ export async function GET() {
     }
   }
 
-  // 2. Supabase Connection Check
+  // 2. Database Connection Check (via service layer)
   try {
-    const supabase = await createClient()
-    const { data, error } = await supabase.from('pilots').select('count').limit(1).single()
+    // Use service layer with minimal query to check database connectivity
+    const result = await getAllPilots(1, 1, false)
 
     checks.checks.supabase_connection = {
-      status: error ? 'error' : 'ok',
-      message: error
-        ? `Database connection failed: ${error.message}`
-        : 'Database connection successful',
-      details: error ? { code: error.code, hint: error.hint } : { count: data },
+      status: 'ok',
+      message: 'Database connection successful',
+      details: { totalPilots: result.total },
     }
   } catch (error) {
     checks.checks.supabase_connection = {

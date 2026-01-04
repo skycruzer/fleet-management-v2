@@ -1,7 +1,7 @@
 ---
 status: completed
 priority: p2
-issue_id: "042"
+issue_id: '042'
 tags: [performance, caching, optimization, database]
 dependencies: []
 completed_date: 2025-10-19
@@ -20,6 +20,7 @@ Service functions perform expensive database queries (with JOINs, aggregations, 
 - **Agent**: performance-oracle
 
 **Problem Scenario:**
+
 1. User loads feedback page
 2. Query executes: `SELECT * FROM feedback_posts JOIN categories` + COUNT votes (200ms)
 3. User navigates to different page
@@ -29,12 +30,14 @@ Service functions perform expensive database queries (with JOINs, aggregations, 
 7. Multiply by 100 concurrent users = 100x database load (20 seconds total query time)
 
 **Uncached Functions:**
+
 - `getAllFeedbackPosts()` - Expensive: JOINs categories + counts votes
 - `getCurrentPilotUser()` - Called on every Server Action (100+ times/session)
 - `getPilotLeaveRequests()` - Loads historical data that rarely changes
 - `getPilotFlightRequests()` - Same pattern as leave requests
 
 **Query Performance:**
+
 ```typescript
 // Without cache:
 getAllFeedbackPosts() → 200ms (every time)
@@ -70,11 +73,13 @@ export const getAllFeedbackPosts = unstable_cache(
     // Get paginated posts with joins
     const { data, error } = await supabase
       .from('feedback_posts')
-      .select(`
+      .select(
+        `
         *,
         category:feedback_categories(id, name, slug, icon),
         vote_count:feedback_votes(count)
-      `)
+      `
+      )
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -104,7 +109,9 @@ export const getCurrentPilotUser = unstable_cache(
   async (): Promise<PilotUser | null> => {
     const supabase = await createClient()
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) return null
 
     const { data, error } = await supabase
@@ -159,12 +166,10 @@ export async function submitFeedbackPost(
   const supabase = await createClient()
 
   // Insert new feedback post
-  const { error } = await supabase
-    .from('feedback_posts')
-    .insert({
-      pilot_user_id: pilotUserId,
-      ...data,
-    })
+  const { error } = await supabase.from('feedback_posts').insert({
+    pilot_user_id: pilotUserId,
+    ...data,
+  })
 
   if (error) throw error
 
@@ -179,12 +184,10 @@ export async function submitLeaveRequest(
 ): Promise<void> {
   const supabase = await createClient()
 
-  const { error } = await supabase
-    .from('leave_requests')
-    .insert({
-      pilot_user_id: pilotUserId,
-      ...data,
-    })
+  const { error } = await supabase.from('leave_requests').insert({
+    pilot_user_id: pilotUserId,
+    ...data,
+  })
 
   if (error) throw error
 
@@ -197,16 +200,17 @@ export async function submitLeaveRequest(
 
 **Cache Duration Guidelines:**
 
-| Data Type | Cache Duration | Reasoning |
-|-----------|---------------|-----------|
-| Feedback posts | 5 minutes | Updates frequently, needs balance |
-| Current user | 1 hour | Changes rarely, critical for auth |
-| Leave requests | 10 minutes | Updates moderately, user-specific |
-| Flight requests | 10 minutes | Similar to leave requests |
-| Categories | 24 hours | Static reference data |
-| Dashboard metrics | 1 minute | Real-time data, short cache |
+| Data Type         | Cache Duration | Reasoning                         |
+| ----------------- | -------------- | --------------------------------- |
+| Feedback posts    | 5 minutes      | Updates frequently, needs balance |
+| Current user      | 1 hour         | Changes rarely, critical for auth |
+| Leave requests    | 10 minutes     | Updates moderately, user-specific |
+| Flight requests   | 10 minutes     | Similar to leave requests         |
+| Categories        | 24 hours       | Static reference data             |
+| Dashboard metrics | 1 minute       | Real-time data, short cache       |
 
 **Invalidation Strategy:**
+
 - Create/Update/Delete operations: `revalidateTag()`
 - Manual refresh: `revalidatePath('/portal/feedback')`
 - Time-based: Automatic via `revalidate` option
@@ -215,21 +219,22 @@ export async function submitLeaveRequest(
 
 **Query Performance Improvement:**
 
-| Function | Without Cache | With Cache | Improvement |
-|----------|--------------|------------|-------------|
-| getAllFeedbackPosts | 200ms | 5ms | 40x faster |
-| getCurrentPilotUser | 50ms | 2ms | 25x faster |
-| getPilotLeaveRequests | 100ms | 3ms | 33x faster |
+| Function              | Without Cache | With Cache | Improvement |
+| --------------------- | ------------- | ---------- | ----------- |
+| getAllFeedbackPosts   | 200ms         | 5ms        | 40x faster  |
+| getCurrentPilotUser   | 50ms          | 2ms        | 25x faster  |
+| getPilotLeaveRequests | 100ms         | 3ms        | 33x faster  |
 
 **Database Load Reduction:**
 
 | Concurrent Users | Without Cache | With Cache | Load Reduction |
-|-----------------|---------------|------------|----------------|
-| 10 users | 2,000ms | 250ms | 88% |
-| 100 users | 20,000ms | 700ms | 96.5% |
-| 1,000 users | 200,000ms | 2,500ms | 98.75% |
+| ---------------- | ------------- | ---------- | -------------- |
+| 10 users         | 2,000ms       | 250ms      | 88%            |
+| 100 users        | 20,000ms      | 700ms      | 96.5%          |
+| 1,000 users      | 200,000ms     | 2,500ms    | 98.75%         |
 
 **User Experience:**
+
 - Page load time: 200ms → 5ms (40x faster)
 - Navigation feels instant (cached)
 - Reduced Supabase quota usage (96% reduction)
@@ -283,10 +288,12 @@ export async function submitLeaveRequest(
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** performance-oracle (compounding-engineering review)
 **Learnings:** Expensive queries run uncached on every request
 
 ### 2025-10-19 - Implementation Completed ✅
+
 **By:** Claude Code (Code Review Resolution Specialist)
 **Status:** COMPLETED
 
@@ -317,6 +324,7 @@ export async function submitLeaveRequest(
    - ✅ Supports tag-based invalidation, batch operations, access tracking
 
 **Caching Strategy**:
+
 - Next.js 15 `unstable_cache` for server-side caching
 - Tag-based invalidation with `revalidateTag`
 - User-specific cache isolation (user ID in cache keys)
@@ -324,17 +332,20 @@ export async function submitLeaveRequest(
 - Comprehensive invalidation on all write operations
 
 **Expected Performance Impact**:
+
 - 40-60x faster query response times (cache hit)
 - 90%+ database load reduction (with 90%+ cache hit rate)
 - < 10ms response time for cached queries
 - 98%+ load reduction with 1,000 concurrent users
 
 **Documentation**:
+
 - Created `CACHING-IMPLEMENTATION-SUMMARY.md` with complete details
 - Documented cache durations, invalidation strategy, and performance expectations
 - Added testing recommendations and future enhancement plans
 
 **Acceptance Criteria**: All ✅
+
 - getAllFeedbackPosts cached (5 min) ✅
 - getCurrentPilotUser cached (1 hour) ✅
 - getPilotLeaveRequests cached (10 min) ✅

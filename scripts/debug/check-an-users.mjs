@@ -37,7 +37,7 @@ users.forEach((user, idx) => {
 })
 
 // Check specifically for mrondeau
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 console.log('\nSearching for: mrondeau@airniugini.com.pg\n')
 
 const { data: mrondeau, error: mError } = await serviceClient
@@ -56,7 +56,7 @@ VALUES ('mrondeau@airniugini.com.pg', crypt('Lemakot@1972', gen_salt('bf')), '00
 `)
 } else {
   console.log(`✅ Found ${mrondeau.length} user(s):`)
-  mrondeau.forEach(u => {
+  mrondeau.forEach((u) => {
     console.log(JSON.stringify(u, null, 2))
   })
 }

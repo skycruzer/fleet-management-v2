@@ -67,10 +67,7 @@ try {
 console.log('\n📊 TEST 2: Verify Leave Bids Table Schema\n')
 
 try {
-  const { data: schema, error } = await supabase
-    .from('leave_bids')
-    .select('*')
-    .limit(1)
+  const { data: schema, error } = await supabase.from('leave_bids').select('*').limit(1)
 
   if (error && error.message.includes('does not exist')) {
     logTest('Leave bids table exists', false, 'Table does not exist in database')
@@ -93,9 +90,7 @@ try {
     .insert({
       pilot_id: testPilotId,
       roster_period_code: 'RP13/2025',
-      preferred_dates: JSON.stringify([
-        { start: '2025-12-01', end: '2025-12-14' }
-      ]),
+      preferred_dates: JSON.stringify([{ start: '2025-12-01', end: '2025-12-14' }]),
       priority: 'HIGH',
       reason: 'Annual leave for family vacation - testing leave bid workflow',
       status: 'PENDING',
@@ -124,7 +119,11 @@ if (leaveBidId) {
       .eq('id', leaveBidId)
       .single()
 
-    logTest('Leave bid visible to admin', !!adminView, adminView ? `Status: ${adminView.status}, Priority: ${adminView.priority}` : 'Not visible')
+    logTest(
+      'Leave bid visible to admin',
+      !!adminView,
+      adminView ? `Status: ${adminView.status}, Priority: ${adminView.priority}` : 'Not visible'
+    )
   } catch (error) {
     logTest('Admin visibility check', false, error.message)
   }

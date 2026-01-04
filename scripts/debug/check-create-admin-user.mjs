@@ -9,7 +9,7 @@ import { readFileSync } from 'fs'
 // Load .env.local manually
 const envFile = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
@@ -36,12 +36,12 @@ async function checkAndCreateAdmin() {
       return
     }
 
-    const adminAuthUser = authUsers.users.find(u => u.email === 'skycruzer@icloud.com')
+    const adminAuthUser = authUsers.users.find((u) => u.email === 'skycruzer@icloud.com')
 
     if (!adminAuthUser) {
       console.log('❌ No Supabase Auth user found for skycruzer@icloud.com')
       console.log('\nAvailable auth users:')
-      authUsers.users.forEach(u => console.log(`  - ${u.email} (id: ${u.id})`))
+      authUsers.users.forEach((u) => console.log(`  - ${u.email} (id: ${u.id})`))
       return
     }
 
@@ -98,7 +98,6 @@ async function checkAndCreateAdmin() {
     console.log(`   Email: ${newUser.email}`)
     console.log(`   Role: ${newUser.role}`)
     console.log('\n✨ Admin user is now ready to use!')
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
   }

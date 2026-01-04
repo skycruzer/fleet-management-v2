@@ -75,11 +75,7 @@ export async function getCheckTypeById(id: string): Promise<CheckType | null> {
   try {
     const supabase = await createClient()
 
-    const { data, error } = await supabase
-      .from('check_types')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data, error } = await supabase.from('check_types').select('*').eq('id', id).single()
 
     if (error) {
       if (error.code === 'PGRST116') {

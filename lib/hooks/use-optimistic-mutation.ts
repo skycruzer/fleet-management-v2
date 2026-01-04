@@ -70,10 +70,7 @@ export function useOptimisticMutation<T extends { id: string }>(
       switch (update.action) {
         case 'create':
           // Add new item with temporary ID
-          return [
-            ...state,
-            { ...update.data, id: update.tempId || `temp-${Date.now()}` } as T,
-          ]
+          return [...state, { ...update.data, id: update.tempId || `temp-${Date.now()}` } as T]
         case 'update':
           // Update existing item
           return state.map((item) =>
@@ -88,10 +85,7 @@ export function useOptimisticMutation<T extends { id: string }>(
     }
   )
 
-  const mutate = async (
-    update: OptimisticUpdate<T>,
-    options?: MutationOptions<T>
-  ) => {
+  const mutate = async (update: OptimisticUpdate<T>, options?: MutationOptions<T>) => {
     setError(null)
 
     startTransition(async () => {
@@ -160,10 +154,7 @@ export function useOptimisticQuery<T extends { id: string }>(
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<Error | null>(null)
 
-  const mutate = async (
-    update: OptimisticUpdate<T>,
-    options?: MutationOptions<T>
-  ) => {
+  const mutate = async (update: OptimisticUpdate<T>, options?: MutationOptions<T>) => {
     setError(null)
 
     // Cancel outgoing queries
@@ -177,10 +168,7 @@ export function useOptimisticQuery<T extends { id: string }>(
       queryClient.setQueryData(queryKey, (old: T[] = []) => {
         switch (update.action) {
           case 'create':
-            return [
-              ...old,
-              { ...update.data, id: update.tempId || `temp-${Date.now()}` } as T,
-            ]
+            return [...old, { ...update.data, id: update.tempId || `temp-${Date.now()}` } as T]
           case 'update':
             return old.map((item) =>
               item.id === update.data.id ? { ...item, ...update.data } : item
@@ -201,13 +189,9 @@ export function useOptimisticQuery<T extends { id: string }>(
           switch (update.action) {
             case 'create':
               // Replace temp item with real item
-              return old.map((item) =>
-                item.id === update.tempId ? result : item
-              )
+              return old.map((item) => (item.id === update.tempId ? result : item))
             case 'update':
-              return old.map((item) =>
-                item.id === result.id ? result : item
-              )
+              return old.map((item) => (item.id === result.id ? result : item))
             default:
               return old
           }

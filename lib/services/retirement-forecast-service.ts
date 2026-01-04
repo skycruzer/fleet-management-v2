@@ -141,15 +141,35 @@ export async function getRetirementForecastByRank(retirementAge: number = 65): P
     captains: number
     firstOfficers: number
     total: number
-    captainsList: Array<{ id: string; name: string; retirementDate: Date; monthsUntilRetirement: number }>
-    firstOfficersList: Array<{ id: string; name: string; retirementDate: Date; monthsUntilRetirement: number }>
+    captainsList: Array<{
+      id: string
+      name: string
+      retirementDate: Date
+      monthsUntilRetirement: number
+    }>
+    firstOfficersList: Array<{
+      id: string
+      name: string
+      retirementDate: Date
+      monthsUntilRetirement: number
+    }>
   }
   fiveYears: {
     captains: number
     firstOfficers: number
     total: number
-    captainsList: Array<{ id: string; name: string; retirementDate: Date; monthsUntilRetirement: number }>
-    firstOfficersList: Array<{ id: string; name: string; retirementDate: Date; monthsUntilRetirement: number }>
+    captainsList: Array<{
+      id: string
+      name: string
+      retirementDate: Date
+      monthsUntilRetirement: number
+    }>
+    firstOfficersList: Array<{
+      id: string
+      name: string
+      retirementDate: Date
+      monthsUntilRetirement: number
+    }>
   }
 }> {
   const forecast = await getRetirementForecast(retirementAge)
@@ -255,19 +275,22 @@ export async function getMonthlyRetirementTimeline(retirementAge: number = 65): 
   fiveYearsFromNow.setFullYear(today.getFullYear() + 5)
 
   // Create month buckets for next 5 years
-  const monthlyBuckets = new Map<string, {
-    month: string
-    year: number
-    captains: number
-    firstOfficers: number
-    total: number
-    pilots: Array<{
-      id: string
-      name: string
-      rank: string
-      retirementDate: Date
-    }>
-  }>()
+  const monthlyBuckets = new Map<
+    string,
+    {
+      month: string
+      year: number
+      captains: number
+      firstOfficers: number
+      total: number
+      pilots: Array<{
+        id: string
+        name: string
+        rank: string
+        retirementDate: Date
+      }>
+    }
+  >()
 
   // Initialize buckets for all months in next 5 years
   const current = new Date(today)
@@ -532,9 +555,7 @@ export async function getCrewImpactAnalysis(
  * @param retirementAge - Retirement age from system settings
  * @returns PDF buffer
  */
-export async function generateRetirementForecastPDF(
-  retirementAge: number = 65
-): Promise<Buffer> {
+export async function generateRetirementForecastPDF(retirementAge: number = 65): Promise<Buffer> {
   const puppeteer = await import('puppeteer')
 
   const { timeline, summary } = await getMonthlyRetirementTimeline(retirementAge)
@@ -635,12 +656,16 @@ export async function generateRetirementForecastPDF(
 
   <h2>CREW IMPACT WARNINGS</h2>
   ${warnings.length === 0 ? '<p>No crew shortages detected for the forecast period.</p>' : ''}
-  ${warnings.map((w) => `
+  ${warnings
+    .map(
+      (w) => `
     <div class="warning ${w.severity === 'critical' ? 'critical' : 'info'}">
       <strong>${w.severity === 'critical' ? '🔴 CRITICAL' : '🟡 WARNING'}: ${w.month}</strong><br>
       ${w.message}
     </div>
-  `).join('')}
+  `
+    )
+    .join('')}
 
   <h2>RETIREMENT SCHEDULE</h2>
   <table>
@@ -653,14 +678,19 @@ export async function generateRetirementForecastPDF(
       </tr>
     </thead>
     <tbody>
-      ${timeline.filter((m) => m.total > 0).map((m) => `
+      ${timeline
+        .filter((m) => m.total > 0)
+        .map(
+          (m) => `
         <tr>
           <td>${m.month}</td>
           <td>${m.captains}</td>
           <td>${m.firstOfficers}</td>
           <td><strong>${m.total}</strong></td>
         </tr>
-      `).join('')}
+      `
+        )
+        .join('')}
     </tbody>
   </table>
 
@@ -706,20 +736,18 @@ export async function generateRetirementForecastPDF(
  * @param retirementAge - Retirement age from system settings
  * @returns CSV string
  */
-export async function generateRetirementForecastCSV(
-  retirementAge: number = 65
-): Promise<string> {
+export async function generateRetirementForecastCSV(retirementAge: number = 65): Promise<string> {
   const Papa = await import('papaparse')
 
   const { timeline } = await getMonthlyRetirementTimeline(retirementAge)
 
   // Flatten pilot data for CSV export
   const rows: Array<{
-    'Month': string
+    Month: string
     'Pilot ID': string
     'Employee ID': string
-    'Name': string
-    'Rank': string
+    Name: string
+    Rank: string
     'Retirement Date': string
     'Days Until Retirement': number
   }> = []
@@ -732,11 +760,11 @@ export async function generateRetirementForecastCSV(
       )
 
       rows.push({
-        'Month': bucket.month,
+        Month: bucket.month,
         'Pilot ID': pilot.id,
         'Employee ID': 'N/A', // Could be fetched if needed
-        'Name': pilot.name,
-        'Rank': pilot.rank,
+        Name: pilot.name,
+        Rank: pilot.rank,
         'Retirement Date': pilot.retirementDate.toISOString().split('T')[0],
         'Days Until Retirement': daysUntil,
       })

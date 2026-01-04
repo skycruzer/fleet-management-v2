@@ -48,8 +48,8 @@ console.log(`   Supabase URL: ${supabaseUrl}\n`)
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 console.log('📊 Extracting RLS policies from database...\n')
@@ -77,19 +77,31 @@ async function extractRLSPolicies() {
       ORDER BY tablename, policyname;
     `
 
-    const { data, error } = await supabase.rpc('query', {
-      query_text: query
-    }).select()
+    const { data, error } = await supabase
+      .rpc('query', {
+        query_text: query,
+      })
+      .select()
 
     if (error) {
       console.log('⚠️  RPC query not available, trying alternative approach...\n')
 
       // Alternative: Get list of tables and check if we can query them
       const tables = [
-        'pilots', 'pilot_checks', 'leave_requests', 'flight_requests',
-        'an_users', 'tasks', 'notifications', 'check_types',
-        'contract_types', 'audit_logs', 'leave_bids', 'leave_bid_options',
-        'disciplinary_actions', 'pilot_users'
+        'pilots',
+        'pilot_checks',
+        'leave_requests',
+        'flight_requests',
+        'an_users',
+        'tasks',
+        'notifications',
+        'check_types',
+        'contract_types',
+        'audit_logs',
+        'leave_bids',
+        'leave_bid_options',
+        'disciplinary_actions',
+        'pilot_users',
       ]
 
       const policies = []
@@ -104,13 +116,13 @@ async function extractRLSPolicies() {
           policies.push({
             tablename: table,
             hasRLS: queryError?.code === 'PGRST301', // RLS enabled error
-            error: queryError?.message
+            error: queryError?.message,
           })
         } catch (err) {
           policies.push({
             tablename: table,
             hasRLS: 'unknown',
-            error: err.message
+            error: err.message,
           })
         }
       }
@@ -119,7 +131,6 @@ async function extractRLSPolicies() {
     }
 
     return { policies: data, method: 'direct-query' }
-
   } catch (err) {
     console.error('❌ Error:', err.message)
     throw err
@@ -142,9 +153,10 @@ function generateReport(result) {
 
 ## Extraction Method
 
-${method === 'direct-query'
-  ? '✅ Successfully queried pg_policies view directly'
-  : '⚠️ Could not query pg_policies directly - performed table-level RLS checks instead'
+${
+  method === 'direct-query'
+    ? '✅ Successfully queried pg_policies view directly'
+    : '⚠️ Could not query pg_policies directly - performed table-level RLS checks instead'
 }
 
 ---
@@ -184,7 +196,6 @@ ${method === 'direct-query'
       }
       report += '---\n\n'
     }
-
   } else if (method === 'table-check') {
     report += `
 **Tables Checked**: ${policies.length}
@@ -195,9 +206,12 @@ ${method === 'direct-query'
 |-------|------------|-------|
 `
     for (const policy of policies) {
-      const status = policy.hasRLS === true ? '✅ Enabled' :
-                     policy.hasRLS === false ? '❌ Disabled' :
-                     '⚠️ Unknown'
+      const status =
+        policy.hasRLS === true
+          ? '✅ Enabled'
+          : policy.hasRLS === false
+            ? '❌ Disabled'
+            : '⚠️ Unknown'
       const notes = policy.error || 'OK'
       report += `| ${policy.tablename} | ${status} | ${notes} |\n`
     }
@@ -277,8 +291,8 @@ async function main() {
       }
       console.log(`   Tables with Policies: ${Object.keys(byTable).length}`)
     } else {
-      const enabled = result.policies.filter(p => p.hasRLS === true).length
-      const disabled = result.policies.filter(p => p.hasRLS === false).length
+      const enabled = result.policies.filter((p) => p.hasRLS === true).length
+      const disabled = result.policies.filter((p) => p.hasRLS === false).length
       console.log(`   Tables with RLS Enabled: ${enabled}`)
       console.log(`   Tables with RLS Disabled: ${disabled}`)
     }
@@ -287,7 +301,6 @@ async function main() {
     console.log(`📄 Review the full report: ${filename}`)
     console.log('\n💡 For complete policy details, run the SQL script in Supabase SQL Editor:')
     console.log('   scripts/extract-rls-policies.sql')
-
   } catch (error) {
     console.error('\n❌ Fatal error:', error.message)
     console.error('\n📝 Troubleshooting:')

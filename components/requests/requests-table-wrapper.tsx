@@ -59,10 +59,10 @@ export async function RequestsTableWrapper({ searchParams }: RequestsTableWrappe
   // Handle error state
   if (!response.success || !response.data) {
     return (
-      <div className="flex items-center justify-center py-12 border border-dashed rounded-lg">
-        <div className="text-center space-y-3">
+      <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
+        <div className="space-y-3 text-center">
           <p className="text-lg font-medium text-red-600">Error loading requests</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {response.error || 'An unexpected error occurred'}
           </p>
         </div>

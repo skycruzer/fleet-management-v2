@@ -1,4 +1,5 @@
 # Service Layer Migration Guide
+
 ## From air-niugini-pms (v1) to fleet-management-v2 (v2)
 
 **Status**: IN PROGRESS
@@ -111,9 +112,7 @@ export async function functionName() {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase
-      .from('table_name')
-      .select('*')
+    const { data, error } = await supabase.from('table_name').select('*')
 
     if (error) throw error
     return data
@@ -152,21 +151,25 @@ export async function functionName() {
 ## Critical Business Logic to Preserve
 
 ### 1. Leave Eligibility (leave-eligibility-service.ts)
+
 - **Rank Separation**: Captains and First Officers evaluated independently
 - **Minimum Crew**: 10 Captains AND 10 First Officers required
 - **Priority**: Seniority number (lower = higher priority)
 
 ### 2. Roster Periods (roster-utils.ts)
+
 - **28-day cycles**: RP1-RP13 annual cycle (13 periods × 28 days = 364 days)
 - **Known anchor**: RP12/2025 starts 2025-10-11
 - **Rollover**: After RP13/YYYY → RP1/(YYYY+1)
 
 ### 3. Certification Status (certification-utils.ts)
+
 - **Red**: Expired (days_until_expiry < 0)
 - **Yellow**: Expiring soon (days_until_expiry ≤ 30)
 - **Green**: Current (days_until_expiry > 30)
 
 ### 4. Seniority Calculation (pilot-service.ts)
+
 - Based on `commencement_date`
 - Earlier date = lower seniority number = higher priority
 - Automatic recalculation on commencement date changes

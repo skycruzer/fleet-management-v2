@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p1
-issue_id: "036"
+issue_id: '036'
 tags: [database, data-integrity, transactions, acid]
 dependencies: []
 ---
@@ -19,11 +19,13 @@ Service functions perform multiple database operations without transaction prote
 - **Agent**: data-integrity-guardian
 
 **Problem Functions:**
+
 - `submitFeedbackPost()` - Multiple inserts without transaction
 - `submitLeaveRequest()` - Multiple inserts without transaction
 - `submitFlightRequest()` - Multiple inserts without transaction
 
 **Attack Scenario:**
+
 ```typescript
 // submitFeedbackPost performs:
 1. Insert into feedback_posts
@@ -62,6 +64,7 @@ export async function submitFeedbackPost(
 ```
 
 **Database Function:**
+
 ```sql
 CREATE OR REPLACE FUNCTION submit_feedback_with_transaction(
   p_pilot_user_id uuid,
@@ -92,12 +95,15 @@ $$ LANGUAGE plpgsql;
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** data-integrity-guardian
 **Learnings:** Multi-step operations need ACID guarantees
 
 ### 2025-10-19 - Resolution Complete
+
 **By:** Claude Code
 **Changes:**
+
 1. Created database migration: `20251019_add_pilot_portal_transaction_functions.sql`
 2. Implemented three transaction-wrapped functions:
    - `submit_feedback_post_tx()` - Atomically creates feedback posts

@@ -115,11 +115,7 @@ const pilotColumns: Column<Pilot>[] = [
     accessorKey: 'status',
     cell: (row) => {
       const variant =
-        row.status === 'active'
-          ? 'default'
-          : row.status === 'on-leave'
-            ? 'secondary'
-            : 'outline'
+        row.status === 'active' ? 'default' : row.status === 'on-leave' ? 'secondary' : 'outline'
       return <Badge variant={variant}>{row.status}</Badge>
     },
   },
@@ -152,10 +148,10 @@ const certificationColumns: Column<Certification>[] = [
     sortable: true,
     cell: (row) => {
       if (row.daysUntil < 0) {
-        return <span className="text-red-600 font-semibold">{row.daysUntil} (Expired)</span>
+        return <span className="font-semibold text-red-600">{row.daysUntil} (Expired)</span>
       }
       if (row.daysUntil <= 30) {
-        return <span className="text-yellow-600 font-semibold">{row.daysUntil}</span>
+        return <span className="font-semibold text-yellow-600">{row.daysUntil}</span>
       }
       return <span className="text-green-600">{row.daysUntil}</span>
     },
@@ -228,7 +224,12 @@ export const LargeDataset: Story = {
       id: String(i + 1),
       name: `Pilot ${i + 1}`,
       role: i % 2 === 0 ? ('Captain' as const) : ('First Officer' as const),
-      status: i % 3 === 0 ? ('active' as const) : i % 3 === 1 ? ('inactive' as const) : ('on-leave' as const),
+      status:
+        i % 3 === 0
+          ? ('active' as const)
+          : i % 3 === 1
+            ? ('inactive' as const)
+            : ('on-leave' as const),
       seniority: i + 1,
     })),
     columns: pilotColumns,
@@ -270,7 +271,12 @@ export const WithSearchAndPagination: Story = {
       id: String(i + 1),
       name: `Pilot ${i + 1}`,
       role: i % 2 === 0 ? ('Captain' as const) : ('First Officer' as const),
-      status: i % 3 === 0 ? ('active' as const) : i % 3 === 1 ? ('inactive' as const) : ('on-leave' as const),
+      status:
+        i % 3 === 0
+          ? ('active' as const)
+          : i % 3 === 1
+            ? ('inactive' as const)
+            : ('on-leave' as const),
       seniority: i + 1,
     }))
 
@@ -289,7 +295,7 @@ export const WithSearchAndPagination: Story = {
             placeholder="Search pilots..."
             className="max-w-sm"
           />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {filteredData.length} pilot{filteredData.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -317,9 +323,9 @@ export const InteractiveSorting: Story = {
   render: function InteractiveSortingStory() {
     return (
       <div className="space-y-4">
-        <div className="rounded-lg border p-4 bg-muted/50">
-          <h3 className="font-semibold mb-2">Try sorting</h3>
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-muted/50 rounded-lg border p-4">
+          <h3 className="mb-2 font-semibold">Try sorting</h3>
+          <p className="text-muted-foreground text-sm">
             Click on column headers to sort. Click again to reverse order, and a third time to clear
             sorting.
           </p>
@@ -366,8 +372,8 @@ export const CompleteExample: Story = {
         />
 
         {selectedPilot && (
-          <div className="rounded-lg border p-4 bg-muted/50">
-            <h3 className="font-semibold mb-2">Selected Pilot</h3>
+          <div className="bg-muted/50 rounded-lg border p-4">
+            <h3 className="mb-2 font-semibold">Selected Pilot</h3>
             <div className="space-y-1 text-sm">
               <p>
                 <span className="font-medium">Name:</span> {selectedPilot.name}

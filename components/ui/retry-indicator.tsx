@@ -101,7 +101,7 @@ export function RetryIndicator({
     return (
       <div
         className={cn(
-          'fixed bottom-4 right-4 z-50 flex min-w-[300px] items-center gap-3 rounded-lg',
+          'fixed right-4 bottom-4 z-50 flex min-w-[300px] items-center gap-3 rounded-lg',
           'border border-blue-200 bg-white p-4 shadow-lg',
           'dark:border-blue-800 dark:bg-gray-900',
           className
@@ -232,7 +232,7 @@ export function NetworkErrorBanner({
           onClick={onRetry}
           className={cn(
             'flex items-center gap-2 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white',
-            'hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
+            'hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none',
             'dark:bg-red-500 dark:hover:bg-red-600'
           )}
         >

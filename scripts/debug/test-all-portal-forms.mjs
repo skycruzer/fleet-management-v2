@@ -19,7 +19,7 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 console.log('\n🧪 PILOT PORTAL FORMS - COMPREHENSIVE TEST SUITE\n')
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 
 const results = {
   passed: 0,
@@ -324,8 +324,9 @@ try {
   const { readFileSync } = await import('fs')
 
   // Check if feedback dashboard page exists
-  const feedbackPageExists = await import('fs')
-    .then(fs => fs.existsSync('app/dashboard/feedback/page.tsx'))
+  const feedbackPageExists = await import('fs').then((fs) =>
+    fs.existsSync('app/dashboard/feedback/page.tsx')
+  )
 
   logTest(
     'Admin feedback dashboard exists',
@@ -446,11 +447,7 @@ try {
 
   for (const file of files) {
     const exists = existsSync(file.path)
-    logTest(
-      file.name,
-      exists,
-      exists ? `${file.path}` : `Missing: ${file.path}`
-    )
+    logTest(file.name, exists, exists ? `${file.path}` : `Missing: ${file.path}`)
   }
 } catch (error) {
   logTest('Component file structure test', false, `Error: ${error.message}`)
@@ -473,8 +470,8 @@ console.log(`📈 Pass Rate: ${passRate}%\n`)
 if (results.failed > 0) {
   console.log('❌ FAILED TESTS:\n')
   results.tests
-    .filter(t => !t.passed)
-    .forEach(t => {
+    .filter((t) => !t.passed)
+    .forEach((t) => {
       console.log(`   - ${t.name}`)
       if (t.details) console.log(`     ${t.details}`)
     })

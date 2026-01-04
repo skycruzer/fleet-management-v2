@@ -301,7 +301,10 @@ test.describe('Unified Request System', () => {
 
       await page.click('button:has-text("Bulk Deny")')
 
-      await page.fill('[data-testid="bulk-review-comments"]', 'Bulk denial - operational constraints')
+      await page.fill(
+        '[data-testid="bulk-review-comments"]',
+        'Bulk denial - operational constraints'
+      )
 
       await page.click('button:has-text("Confirm Bulk Denial")')
 

@@ -139,7 +139,7 @@ export function GenerateReportButton({
           <div className="space-y-4 py-4">
             {!report ? (
               <>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Generate a preview or final report with all approved/denied requests and crew
                   availability analysis.
                 </p>

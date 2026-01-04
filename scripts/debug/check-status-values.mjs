@@ -8,26 +8,22 @@ const supabase = createClient(
 console.log('\n=== CHECKING STATUS VALUES IN OLD TABLES ===\n')
 
 // Check leave_requests status values
-const { data: leaveData } = await supabase
-  .from('leave_requests')
-  .select('status')
+const { data: leaveData } = await supabase.from('leave_requests').select('status')
 
-const leaveStatuses = [...new Set(leaveData.map(r => r.status))].sort()
+const leaveStatuses = [...new Set(leaveData.map((r) => r.status))].sort()
 console.log('Leave requests status values:')
-leaveStatuses.forEach(status => {
-  const count = leaveData.filter(r => r.status === status).length
+leaveStatuses.forEach((status) => {
+  const count = leaveData.filter((r) => r.status === status).length
   console.log(`   ${status}: ${count} records`)
 })
 
 // Check flight_requests status values
-const { data: flightData } = await supabase
-  .from('flight_requests')
-  .select('status')
+const { data: flightData } = await supabase.from('flight_requests').select('status')
 
-const flightStatuses = [...new Set(flightData.map(r => r.status))].sort()
+const flightStatuses = [...new Set(flightData.map((r) => r.status))].sort()
 console.log('\nFlight requests status values:')
-flightStatuses.forEach(status => {
-  const count = flightData.filter(r => r.status === status).length
+flightStatuses.forEach((status) => {
+  const count = flightData.filter((r) => r.status === status).length
   console.log(`   ${status}: ${count} records`)
 })
 

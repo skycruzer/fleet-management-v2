@@ -68,8 +68,12 @@ if (newError) {
   const count = newRequests ? newRequests.length : 0
   console.log(`   Found ${count} records\n`)
 
-  const leaveCount = newRequests ? newRequests.filter(r => r.request_category === 'LEAVE').length : 0
-  const flightCount = newRequests ? newRequests.filter(r => r.request_category === 'FLIGHT').length : 0
+  const leaveCount = newRequests
+    ? newRequests.filter((r) => r.request_category === 'LEAVE').length
+    : 0
+  const flightCount = newRequests
+    ? newRequests.filter((r) => r.request_category === 'FLIGHT').length
+    : 0
 
   console.log(`   LEAVE requests: ${leaveCount}`)
   console.log(`   FLIGHT requests: ${flightCount}\n`)
@@ -80,8 +84,12 @@ console.log('\n=== MIGRATION STATUS ===\n')
 const oldLeaveCount = oldLeave ? oldLeave.length : 0
 const oldFlightCount = oldFlight ? oldFlight.length : 0
 const newCount = newRequests ? newRequests.length : 0
-const newLeaveCount = newRequests ? newRequests.filter(r => r.request_category === 'LEAVE').length : 0
-const newFlightCount = newRequests ? newRequests.filter(r => r.request_category === 'FLIGHT').length : 0
+const newLeaveCount = newRequests
+  ? newRequests.filter((r) => r.request_category === 'LEAVE').length
+  : 0
+const newFlightCount = newRequests
+  ? newRequests.filter((r) => r.request_category === 'FLIGHT').length
+  : 0
 
 console.log(`Old leave_requests:    ${oldLeaveCount} records`)
 console.log(`Old flight_requests:   ${oldFlightCount} records`)

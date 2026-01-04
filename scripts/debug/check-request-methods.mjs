@@ -8,7 +8,7 @@ import { readFileSync } from 'fs'
 // Load environment variables from .env.local
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -37,7 +37,7 @@ if (error) {
 console.log(`📊 Found ${requests.length} recent leave requests:\n`)
 
 const methodCounts = {}
-requests.forEach(r => {
+requests.forEach((r) => {
   const method = r.request_method || 'NULL'
   methodCounts[method] = (methodCounts[method] || 0) + 1
 })
@@ -48,14 +48,14 @@ Object.entries(methodCounts).forEach(([method, count]) => {
 })
 
 console.log('\nSample records:')
-requests.slice(0, 5).forEach(r => {
-  console.log(`  - ID: ${r.id.substring(0, 8)}... | Method: ${r.request_method || 'NULL'} | Type: ${r.request_type} | Status: ${r.status}`)
+requests.slice(0, 5).forEach((r) => {
+  console.log(
+    `  - ID: ${r.id.substring(0, 8)}... | Method: ${r.request_method || 'NULL'} | Type: ${r.request_type} | Status: ${r.status}`
+  )
 })
 
 // Check total count
-const { count } = await supabase
-  .from('leave_requests')
-  .select('*', { count: 'exact', head: true })
+const { count } = await supabase.from('leave_requests').select('*', { count: 'exact', head: true })
 
 console.log(`\n📈 Total leave requests in database: ${count}`)
 
@@ -69,7 +69,9 @@ console.log(`⚠️  Records with NULL request_method: ${nullCount}`)
 
 if (nullCount > 0) {
   console.log(`\n💡 Recommendation: Backfill NULL request_method values`)
-  console.log(`   Run: UPDATE leave_requests SET request_method = 'SYSTEM' WHERE request_method IS NULL;`)
+  console.log(
+    `   Run: UPDATE leave_requests SET request_method = 'SYSTEM' WHERE request_method IS NULL;`
+  )
 }
 
 process.exit(0)

@@ -12,7 +12,13 @@ import { useState, useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { LeaveRequestGroup } from '@/components/leave/leave-request-group'
 import { Calendar, Filter } from 'lucide-react'
 import type { LeaveRequest } from '@/lib/services/unified-request-service'
@@ -82,11 +88,11 @@ export function LeaveRequestsClient({ requests, availablePeriods }: LeaveRequest
       <Card className="p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <Filter className="h-5 w-5 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">Filter Requests</h3>
+            <Filter className="text-muted-foreground h-5 w-5" />
+            <h3 className="text-foreground text-sm font-semibold">Filter Requests</h3>
           </div>
           <div className="flex items-center gap-3">
-            <label htmlFor="period-filter" className="text-sm font-medium text-foreground">
+            <label htmlFor="period-filter" className="text-foreground text-sm font-medium">
               Roster Period:
             </label>
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -105,7 +111,7 @@ export function LeaveRequestsClient({ requests, availablePeriods }: LeaveRequest
           </div>
         </div>
         {selectedPeriod !== 'all' && (
-          <div className="mt-3 text-sm text-muted-foreground">
+          <div className="text-muted-foreground mt-3 text-sm">
             Showing {filteredRequests.length} request{filteredRequests.length !== 1 ? 's' : ''} for{' '}
             {selectedPeriod}
           </div>
@@ -143,7 +149,11 @@ export function LeaveRequestsClient({ requests, availablePeriods }: LeaveRequest
       {filteredRequests.length === 0 && (
         <EmptyState
           icon={Calendar}
-          title={selectedPeriod === 'all' ? 'No leave requests found' : `No requests for ${selectedPeriod}`}
+          title={
+            selectedPeriod === 'all'
+              ? 'No leave requests found'
+              : `No requests for ${selectedPeriod}`
+          }
           description={
             selectedPeriod === 'all'
               ? 'Submit your first leave request to get started with the leave management system.'

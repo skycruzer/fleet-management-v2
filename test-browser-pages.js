@@ -3,9 +3,9 @@
  * Tests actual page rendering in a real browser
  */
 
-const { chromium } = require('playwright');
+const { chromium } = require('playwright')
 
-const baseUrl = 'http://localhost:3000';
+const baseUrl = 'http://localhost:3000'
 
 const pagesToTest = [
   { path: '/dashboard', name: 'Dashboard Home' },
@@ -22,69 +22,70 @@ const pagesToTest = [
   { path: '/dashboard/disciplinary', name: 'Disciplinary Actions' },
   { path: '/dashboard/tasks', name: 'Tasks' },
   { path: '/dashboard/audit-logs', name: 'Audit Logs' },
-];
+]
 
 async function testPagesInBrowser() {
-  console.log('🌐 Testing Dashboard Pages in Browser\n');
-  console.log('━'.repeat(80));
+  console.log('🌐 Testing Dashboard Pages in Browser\n')
+  console.log('━'.repeat(80))
 
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext()
+  const page = await context.newPage()
 
-  const results = [];
+  const results = []
 
   // First, check if we get redirected to login (expected for unauthenticated)
   try {
-    console.log('🔐 Testing authentication redirect...');
-    await page.goto(`${baseUrl}/dashboard`, { waitUntil: 'networkidle', timeout: 10000 });
+    console.log('🔐 Testing authentication redirect...')
+    await page.goto(`${baseUrl}/dashboard`, { waitUntil: 'networkidle', timeout: 10000 })
 
-    const currentUrl = page.url();
+    const currentUrl = page.url()
     if (currentUrl.includes('/auth/login')) {
-      console.log('✅ Correctly redirects to login page\n');
+      console.log('✅ Correctly redirects to login page\n')
     } else {
-      console.log('⚠️  Did not redirect to login (might be authenticated)\n');
+      console.log('⚠️  Did not redirect to login (might be authenticated)\n')
     }
   } catch (err) {
-    console.log(`❌ Failed to load dashboard: ${err.message}\n`);
+    console.log(`❌ Failed to load dashboard: ${err.message}\n`)
   }
 
   // Test each page
   for (const pageInfo of pagesToTest) {
     try {
-      console.log(`Testing: ${pageInfo.name}`);
+      console.log(`Testing: ${pageInfo.name}`)
 
       await page.goto(`${baseUrl}${pageInfo.path}`, {
         waitUntil: 'domcontentloaded',
-        timeout: 10000
-      });
+        timeout: 10000,
+      })
 
       // Check for common error indicators
-      const pageContent = await page.content();
-      const hasError = pageContent.includes('Something went wrong') ||
-                       pageContent.includes('404') ||
-                       pageContent.includes('Internal Server Error') ||
-                       pageContent.includes('Error:');
+      const pageContent = await page.content()
+      const hasError =
+        pageContent.includes('Something went wrong') ||
+        pageContent.includes('404') ||
+        pageContent.includes('Internal Server Error') ||
+        pageContent.includes('Error:')
 
       // Check if page loaded (not a blank page)
-      const hasContent = pageContent.length > 1000; // Reasonable page should have content
+      const hasContent = pageContent.length > 1000 // Reasonable page should have content
 
       // Check current URL (might redirect to login)
-      const currentUrl = page.url();
-      const redirectedToLogin = currentUrl.includes('/auth/login');
+      const currentUrl = page.url()
+      const redirectedToLogin = currentUrl.includes('/auth/login')
 
-      let status = '✅ OK';
-      let details = '';
+      let status = '✅ OK'
+      let details = ''
 
       if (hasError) {
-        status = '❌ ERROR ON PAGE';
+        status = '❌ ERROR ON PAGE'
         // Try to extract error message
-        const errorText = await page.textContent('body').catch(() => 'Unknown error');
-        details = ` - ${errorText.substring(0, 100)}`;
+        const errorText = await page.textContent('body').catch(() => 'Unknown error')
+        details = ` - ${errorText.substring(0, 100)}`
       } else if (!hasContent && !redirectedToLogin) {
-        status = '⚠️  BLANK PAGE';
+        status = '⚠️  BLANK PAGE'
       } else if (redirectedToLogin) {
-        status = '✅ PROTECTED (redirects to login)';
+        status = '✅ PROTECTED (redirects to login)'
       }
 
       results.push({
@@ -92,53 +93,54 @@ async function testPagesInBrowser() {
         status,
         details,
         hasError: status.includes('❌'),
-        url: currentUrl
-      });
+        url: currentUrl,
+      })
 
-      console.log(`  ${status}${details}`);
-
+      console.log(`  ${status}${details}`)
     } catch (err) {
       results.push({
         ...pageInfo,
         status: '❌ FAILED TO LOAD',
         details: ` - ${err.message}`,
-        hasError: true
-      });
-      console.log(`  ❌ FAILED TO LOAD - ${err.message}`);
+        hasError: true,
+      })
+      console.log(`  ❌ FAILED TO LOAD - ${err.message}`)
     }
 
     // Small delay between pages
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300))
   }
 
-  await browser.close();
+  await browser.close()
 
-  console.log('━'.repeat(80));
+  console.log('━'.repeat(80))
 
   // Summary
-  const ok = results.filter(r => r.status.includes('✅')).length;
-  const errors = results.filter(r => r.hasError).length;
-  const warnings = results.filter(r => r.status.includes('⚠️')).length;
+  const ok = results.filter((r) => r.status.includes('✅')).length
+  const errors = results.filter((r) => r.hasError).length
+  const warnings = results.filter((r) => r.status.includes('⚠️')).length
 
-  console.log(`\n📊 Summary:`);
-  console.log(`   ✅ Passing: ${ok}/${results.length}`);
-  console.log(`   ❌ Errors: ${errors}`);
-  console.log(`   ⚠️  Warnings: ${warnings}`);
+  console.log(`\n📊 Summary:`)
+  console.log(`   ✅ Passing: ${ok}/${results.length}`)
+  console.log(`   ❌ Errors: ${errors}`)
+  console.log(`   ⚠️  Warnings: ${warnings}`)
 
   if (errors > 0) {
-    console.log(`\n❌ ${errors} page(s) have errors in the browser.`);
-    console.log('\nPages with errors:');
-    results.filter(r => r.hasError).forEach(r => {
-      console.log(`  - ${r.name}: ${r.details}`);
-    });
-    process.exit(1);
+    console.log(`\n❌ ${errors} page(s) have errors in the browser.`)
+    console.log('\nPages with errors:')
+    results
+      .filter((r) => r.hasError)
+      .forEach((r) => {
+        console.log(`  - ${r.name}: ${r.details}`)
+      })
+    process.exit(1)
   } else {
-    console.log(`\n✅ All pages render correctly in the browser!`);
-    process.exit(0);
+    console.log(`\n✅ All pages render correctly in the browser!`)
+    process.exit(0)
   }
 }
 
-testPagesInBrowser().catch(err => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+testPagesInBrowser().catch((err) => {
+  console.error('Fatal error:', err)
+  process.exit(1)
+})

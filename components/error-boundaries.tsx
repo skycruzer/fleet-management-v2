@@ -26,32 +26,24 @@ export function FormErrorBoundary({ children, onError }: SectionErrorBoundaryPro
   return (
     <ErrorBoundary
       fallback={
-        <Card className="p-8 border-red-200 bg-red-50">
-          <div className="flex flex-col items-center text-center space-y-4">
+        <Card className="border-red-200 bg-red-50 p-8">
+          <div className="flex flex-col items-center space-y-4 text-center">
             <div className="rounded-full bg-red-100 p-3">
               <AlertTriangle className="h-8 w-8 text-red-600" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                Form Error
-              </h3>
-              <p className="text-gray-600 mb-4">
-                There was an error loading the form. Your data has not been lost.
-                Please try refreshing the page or contact support if the issue persists.
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">Form Error</h3>
+              <p className="mb-4 text-gray-600">
+                There was an error loading the form. Your data has not been lost. Please try
+                refreshing the page or contact support if the issue persists.
               </p>
             </div>
             <div className="flex gap-3">
-              <Button
-                onClick={() => window.location.reload()}
-                variant="default"
-              >
+              <Button onClick={() => window.location.reload()} variant="default">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh Page
               </Button>
-              <Button
-                onClick={() => window.history.back()}
-                variant="outline"
-              >
+              <Button onClick={() => window.history.back()} variant="outline">
                 Go Back
               </Button>
             </div>
@@ -73,7 +65,7 @@ export function WidgetErrorBoundary({ children, onError }: SectionErrorBoundaryP
   return (
     <ErrorBoundary
       fallback={
-        <Card className="p-6 border-yellow-200 bg-yellow-50">
+        <Card className="border-yellow-200 bg-yellow-50 p-6">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="h-5 w-5 text-yellow-600" />
             <p className="text-sm text-gray-600">
@@ -97,21 +89,16 @@ export function TableErrorBoundary({ children, onError }: SectionErrorBoundaryPr
   return (
     <ErrorBoundary
       fallback={
-        <Card className="p-8 border-yellow-200 bg-yellow-50">
-          <div className="flex flex-col items-center text-center space-y-4">
+        <Card className="border-yellow-200 bg-yellow-50 p-8">
+          <div className="flex flex-col items-center space-y-4 text-center">
             <AlertTriangle className="h-8 w-8 text-yellow-600" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Unable to Load Data
-              </h3>
-              <p className="text-gray-600 mb-4">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">Unable to Load Data</h3>
+              <p className="mb-4 text-gray-600">
                 There was an error loading the table data. Please try refreshing the page.
               </p>
             </div>
-            <Button
-              onClick={() => window.location.reload()}
-              variant="default"
-            >
+            <Button onClick={() => window.location.reload()} variant="default">
               <RefreshCw className="mr-2 h-4 w-4" />
               Refresh Page
             </Button>
@@ -133,21 +120,15 @@ export function DialogErrorBoundary({ children, onError }: SectionErrorBoundaryP
   return (
     <ErrorBoundary
       fallback={
-        <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6">
           <div className="flex items-start space-x-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600" />
             <div className="flex-1">
-              <h4 className="font-semibold text-gray-900 mb-1">
-                Error Loading Dialog
-              </h4>
-              <p className="text-sm text-gray-600 mb-3">
+              <h4 className="mb-1 font-semibold text-gray-900">Error Loading Dialog</h4>
+              <p className="mb-3 text-sm text-gray-600">
                 There was an error loading this dialog. Please close and try again.
               </p>
-              <Button
-                onClick={() => window.location.reload()}
-                size="sm"
-                variant="outline"
-              >
+              <Button onClick={() => window.location.reload()} size="sm" variant="outline">
                 Refresh Page
               </Button>
             </div>
@@ -168,19 +149,17 @@ export function DialogErrorBoundary({ children, onError }: SectionErrorBoundaryP
 export function PageSectionErrorBoundary({
   children,
   onError,
-  sectionName = 'section'
+  sectionName = 'section',
 }: SectionErrorBoundaryProps & { sectionName?: string }) {
   return (
     <ErrorBoundary
       fallback={
-        <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="h-5 w-5 text-yellow-600" />
             <div>
-              <p className="text-sm font-medium text-gray-900">
-                Unable to load {sectionName}
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-sm font-medium text-gray-900">Unable to load {sectionName}</p>
+              <p className="mt-1 text-xs text-gray-600">
                 The rest of the page is still functional.
               </p>
             </div>
@@ -202,22 +181,14 @@ export function ChartErrorBoundary({ children, onError }: SectionErrorBoundaryPr
   return (
     <ErrorBoundary
       fallback={
-        <Card className="p-6 border-gray-200">
-          <div className="flex flex-col items-center justify-center min-h-[200px] text-center space-y-3">
+        <Card className="border-gray-200 p-6">
+          <div className="flex min-h-[200px] flex-col items-center justify-center space-y-3 text-center">
             <AlertTriangle className="h-8 w-8 text-gray-400" />
             <div>
-              <p className="text-sm font-medium text-gray-700">
-                Unable to load visualization
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Chart data could not be rendered
-              </p>
+              <p className="text-sm font-medium text-gray-700">Unable to load visualization</p>
+              <p className="mt-1 text-xs text-gray-500">Chart data could not be rendered</p>
             </div>
-            <Button
-              onClick={() => window.location.reload()}
-              size="sm"
-              variant="outline"
-            >
+            <Button onClick={() => window.location.reload()} size="sm" variant="outline">
               <RefreshCw className="mr-2 h-3 w-3" />
               Retry
             </Button>
@@ -239,14 +210,12 @@ export function NavigationErrorBoundary({ children, onError }: SectionErrorBound
   return (
     <ErrorBoundary
       fallback={
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg m-4">
+        <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="h-5 w-5 text-red-600" />
             <div>
-              <p className="text-sm font-medium text-gray-900">
-                Navigation Error
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-sm font-medium text-gray-900">Navigation Error</p>
+              <p className="mt-1 text-xs text-gray-600">
                 Unable to load navigation. Please refresh the page.
               </p>
             </div>

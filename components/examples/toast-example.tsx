@@ -26,7 +26,8 @@ export function ToastExample() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">Toast Notifications Examples</h1>
         <p className="text-muted-foreground">
-          Interactive examples demonstrating toast notification usage throughout the Fleet Management system.
+          Interactive examples demonstrating toast notification usage throughout the Fleet
+          Management system.
         </p>
       </div>
 
@@ -34,9 +35,7 @@ export function ToastExample() {
       <Card>
         <CardHeader>
           <CardTitle>Basic Variants</CardTitle>
-          <CardDescription>
-            Standard toast variants for different types of feedback
-          </CardDescription>
+          <CardDescription>Standard toast variants for different types of feedback</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button
@@ -96,9 +95,7 @@ export function ToastExample() {
       <Card>
         <CardHeader>
           <CardTitle>Pilot Management</CardTitle>
-          <CardDescription>
-            Toast notifications for pilot CRUD operations
-          </CardDescription>
+          <CardDescription>Toast notifications for pilot CRUD operations</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button
@@ -159,9 +156,7 @@ export function ToastExample() {
       <Card>
         <CardHeader>
           <CardTitle>Certification Tracking</CardTitle>
-          <CardDescription>
-            Toast notifications for certification management
-          </CardDescription>
+          <CardDescription>Toast notifications for certification management</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button
@@ -184,11 +179,7 @@ export function ToastExample() {
                 variant: 'warning',
                 title: 'Certification Expiring',
                 description: 'Line Check expires in 15 days',
-                action: (
-                  <ToastAction altText="Schedule renewal">
-                    Schedule
-                  </ToastAction>
-                ),
+                action: <ToastAction altText="Schedule renewal">Schedule</ToastAction>,
               })
             }
           >
@@ -202,11 +193,7 @@ export function ToastExample() {
                 variant: 'destructive',
                 title: 'Certification Expired',
                 description: 'Emergency Procedures Training expired 5 days ago',
-                action: (
-                  <ToastAction altText="Renew now">
-                    Renew Now
-                  </ToastAction>
-                ),
+                action: <ToastAction altText="Renew now">Renew Now</ToastAction>,
               })
             }
           >
@@ -220,11 +207,7 @@ export function ToastExample() {
                 variant: 'warning',
                 title: 'Multiple Expiring',
                 description: '3 certifications expire within 30 days',
-                action: (
-                  <ToastAction altText="View details">
-                    View Details
-                  </ToastAction>
-                ),
+                action: <ToastAction altText="View details">View Details</ToastAction>,
               })
             }
           >
@@ -237,9 +220,7 @@ export function ToastExample() {
       <Card>
         <CardHeader>
           <CardTitle>Leave Management</CardTitle>
-          <CardDescription>
-            Toast notifications for leave request operations
-          </CardDescription>
+          <CardDescription>Toast notifications for leave request operations</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button
@@ -275,11 +256,7 @@ export function ToastExample() {
                 variant: 'warning',
                 title: 'Eligibility Alert',
                 description: 'Multiple Captains requested the same dates',
-                action: (
-                  <ToastAction altText="Review conflicts">
-                    Review
-                  </ToastAction>
-                ),
+                action: <ToastAction altText="Review conflicts">Review</ToastAction>,
               })
             }
           >
@@ -349,11 +326,7 @@ export function ToastExample() {
                 variant: 'destructive',
                 title: 'Import Failed',
                 description: 'Invalid file format. Please check your data.',
-                action: (
-                  <ToastAction altText="View errors">
-                    View Errors
-                  </ToastAction>
-                ),
+                action: <ToastAction altText="View errors">View Errors</ToastAction>,
               })
             }
           >
@@ -366,9 +339,7 @@ export function ToastExample() {
       <Card>
         <CardHeader>
           <CardTitle>Fleet Compliance</CardTitle>
-          <CardDescription>
-            Toast notifications for fleet-wide compliance alerts
-          </CardDescription>
+          <CardDescription>Toast notifications for fleet-wide compliance alerts</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button
@@ -404,11 +375,7 @@ export function ToastExample() {
                 variant: 'destructive',
                 title: 'Critical: Fleet Compliance',
                 description: 'Compliance at 85%. Immediate action required.',
-                action: (
-                  <ToastAction altText="View report">
-                    View Report
-                  </ToastAction>
-                ),
+                action: <ToastAction altText="View report">View Report</ToastAction>,
               })
             }
           >

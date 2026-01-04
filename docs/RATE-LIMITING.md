@@ -16,11 +16,11 @@ The rate limiting system consists of three main components:
 
 ### Rate Limits
 
-| Endpoint Type | Limit | Window | Use Case |
-|--------------|-------|--------|----------|
-| Login/Signin | 5 requests | 1 minute | Prevent brute force password attacks |
-| Password Reset | 3 requests | 1 hour | Prevent email flooding and abuse |
-| General Auth | 10 requests | 1 minute | Account enumeration protection |
+| Endpoint Type  | Limit       | Window   | Use Case                             |
+| -------------- | ----------- | -------- | ------------------------------------ |
+| Login/Signin   | 5 requests  | 1 minute | Prevent brute force password attacks |
+| Password Reset | 3 requests  | 1 hour   | Prevent email flooding and abuse     |
+| General Auth   | 10 requests | 1 minute | Account enumeration protection       |
 
 ### Automatic Enforcement
 
@@ -46,6 +46,7 @@ const ip = getClientIp(request)
 ```
 
 **Proxy Support**:
+
 - ✅ Vercel deployments (x-forwarded-for)
 - ✅ Cloudflare (cf-connecting-ip)
 - ✅ Nginx reverse proxy (x-real-ip)
@@ -54,12 +55,14 @@ const ip = getClientIp(request)
 ### 2. Sliding Window Algorithm
 
 The rate limiter uses a sliding window algorithm that:
+
 - Tracks individual request timestamps
 - Removes requests outside the time window
 - Allows bursts up to the limit
 - Provides smooth rate limiting without sudden resets
 
 **Example**: Login limit (5 requests per 60 seconds)
+
 ```
 Timeline:  0s    15s   30s   45s   60s   75s
 Request 1: ✅
@@ -109,8 +112,7 @@ import { loginRateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   const ip = getClientIp(request)
-  const { success, limit, remaining, reset, retryAfter } =
-    await loginRateLimit.limit(ip)
+  const { success, limit, remaining, reset, retryAfter } = await loginRateLimit.limit(ip)
 
   if (!success) {
     return new Response(
@@ -140,8 +142,8 @@ import { InMemoryRateLimiter } from '@/lib/rate-limit'
 
 // Allow 100 API calls per hour
 const apiRateLimit = new InMemoryRateLimiter(
-  100,              // Max requests
-  60 * 60 * 1000    // Per hour
+  100, // Max requests
+  60 * 60 * 1000 // Per hour
 )
 
 const result = await apiRateLimit.limit('user-id-123')
@@ -150,11 +152,13 @@ const result = await apiRateLimit.limit('user-id-123')
 ## Current Implementation: In-Memory
 
 The current implementation uses **in-memory storage** for rate limiting. This is suitable for:
+
 - ✅ Development environments
 - ✅ Single-instance deployments
 - ✅ Small to medium traffic
 
 **Limitations**:
+
 - ❌ Does not work across multiple server instances
 - ❌ Data is lost on server restart
 - ❌ Not suitable for serverless/edge deployments with cold starts
@@ -214,6 +218,7 @@ export const passwordResetRateLimit = new Ratelimit({
 ```
 
 **Benefits of Redis implementation**:
+
 - ✅ Works across multiple server instances
 - ✅ Persistent storage (survives restarts)
 - ✅ Distributed rate limiting
@@ -240,6 +245,7 @@ done
 ```
 
 Expected output:
+
 - Requests 1-5: `200 OK` or `401 Unauthorized`
 - Request 6: `429 Too Many Requests` with `Retry-After` header
 
@@ -252,6 +258,7 @@ npm test lib/__tests__/rate-limit.test.ts
 ```
 
 Tests cover:
+
 - ✅ Rate limit enforcement
 - ✅ IP address extraction
 - ✅ Response header generation
@@ -359,6 +366,7 @@ if (!rateLimitResult.success) {
 ### Upstash Analytics (with Redis)
 
 When using Upstash Redis, built-in analytics track:
+
 - Total requests per identifier
 - Success/blocked ratio
 - Request patterns over time
@@ -417,6 +425,7 @@ proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 ## Changelog
 
 ### 2025-10-17 - Initial Implementation
+
 - ✅ Created `lib/rate-limit.ts` with in-memory implementation
 - ✅ Integrated rate limiting into `lib/supabase/middleware.ts`
 - ✅ Added support for login (5/min), auth (10/min), password reset (3/hour)

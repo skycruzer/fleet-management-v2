@@ -65,9 +65,7 @@ export function applyRollback<T extends { id: string }>(
     case 'mark-error':
       // Mark item with error state
       return currentData.map((item) =>
-        item.id === failedItem.id
-          ? { ...item, ...options.errorData, _optimisticError: true }
-          : item
+        item.id === failedItem.id ? { ...item, ...options.errorData, _optimisticError: true } : item
       )
 
     default:
@@ -223,10 +221,7 @@ export function addOptimisticError<T>(
 /**
  * Clear old errors from optimistic state
  */
-export function clearOldErrors<T>(
-  state: OptimisticState<T>,
-  maxAge = 5000
-): OptimisticState<T> {
+export function clearOldErrors<T>(state: OptimisticState<T>, maxAge = 5000): OptimisticState<T> {
   const now = Date.now()
   return {
     ...state,

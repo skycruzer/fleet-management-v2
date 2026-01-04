@@ -56,7 +56,8 @@ export async function getAllFlightRequests(filters?: {
     // Build query - MIGRATED to pilot_requests table
     let query = supabase
       .from('pilot_requests')
-      .select(`
+      .select(
+        `
         *,
         pilots:pilot_id (
           id,
@@ -65,7 +66,8 @@ export async function getAllFlightRequests(filters?: {
           role,
           employee_id
         )
-      `)
+      `
+      )
       .eq('request_category', 'FLIGHT')
       .order('created_at', { ascending: false })
 
@@ -97,9 +99,7 @@ export async function getAllFlightRequests(filters?: {
     const transformedRequests = (requests || []).map((req: any) => ({
       ...req,
       description: req.reason || req.notes || 'Flight request',
-      pilot_name: req.pilots
-        ? `${req.pilots.first_name} ${req.pilots.last_name}`
-        : 'Unknown Pilot',
+      pilot_name: req.pilots ? `${req.pilots.first_name} ${req.pilots.last_name}` : 'Unknown Pilot',
       pilot_rank: req.pilots?.role || 'Unknown',
       reviewer_name: undefined, // Reviewer info not joined (no FK relationship)
     }))
@@ -145,7 +145,8 @@ export async function getFlightRequestById(
     // MIGRATED to pilot_requests table
     const { data: request, error } = await supabase
       .from('pilot_requests')
-      .select(`
+      .select(
+        `
         *,
         pilots:pilot_id (
           id,
@@ -154,7 +155,8 @@ export async function getFlightRequestById(
           role,
           employee_id
         )
-      `)
+      `
+      )
       .eq('request_category', 'FLIGHT')
       .eq('id', requestId)
       .single()
@@ -297,19 +299,21 @@ export async function reviewFlightRequest(
  *
  * MIGRATED: Uses pilot_requests table with request_category='FLIGHT'
  */
-export async function getFlightRequestStats(): Promise<ServiceResponse<{
-  total: number
-  pending: number
-  under_review: number
-  approved: number
-  denied: number
-  by_type: {
-    additional_flight: number
-    route_change: number
-    schedule_swap: number
-    other: number
-  }
-}>> {
+export async function getFlightRequestStats(): Promise<
+  ServiceResponse<{
+    total: number
+    pending: number
+    under_review: number
+    approved: number
+    denied: number
+    by_type: {
+      additional_flight: number
+      route_change: number
+      schedule_swap: number
+      other: number
+    }
+  }>
+> {
   try {
     const supabase = await createClient()
 
@@ -346,7 +350,8 @@ export async function getFlightRequestStats(): Promise<ServiceResponse<{
       approved: requests?.filter((r) => r.workflow_status === 'APPROVED').length || 0,
       denied: requests?.filter((r) => r.workflow_status === 'DENIED').length || 0,
       by_type: {
-        additional_flight: requests?.filter((r) => r.request_type === 'additional_flight').length || 0,
+        additional_flight:
+          requests?.filter((r) => r.request_type === 'additional_flight').length || 0,
         route_change: requests?.filter((r) => r.request_type === 'route_change').length || 0,
         schedule_swap: requests?.filter((r) => r.request_type === 'schedule_swap').length || 0,
         other: requests?.filter((r) => r.request_type === 'other').length || 0,

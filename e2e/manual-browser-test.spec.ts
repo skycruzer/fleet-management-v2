@@ -45,12 +45,7 @@ test.describe('Manual Browser Testing', () => {
   })
 
   test('should navigate through public pages', async ({ page }) => {
-    const publicPages = [
-      '/',
-      '/auth/login',
-      '/portal/login',
-      '/portal/register',
-    ]
+    const publicPages = ['/', '/auth/login', '/portal/login', '/portal/register']
 
     for (const pagePath of publicPages) {
       console.log(`\nNavigating to: ${pagePath}`)
@@ -67,7 +62,7 @@ test.describe('Manual Browser Testing', () => {
       const safeName = pagePath.replace(/\//g, '-') || 'root'
       await page.screenshot({
         path: `test-results/page${safeName}.png`,
-        fullPage: true
+        fullPage: true,
       })
 
       // Wait a bit before next navigation

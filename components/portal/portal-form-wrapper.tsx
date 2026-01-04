@@ -66,12 +66,12 @@ export function PortalFormWrapper({
       {children}
 
       {/* Submit Buttons */}
-      <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+      <div className="flex items-center justify-end space-x-4 border-t pt-6">
         {showCancel && (
           <button
             type="button"
             onClick={handleCancel}
-            className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isSubmitting}
           >
             {cancelText}

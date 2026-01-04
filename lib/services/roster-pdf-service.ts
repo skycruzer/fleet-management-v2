@@ -104,7 +104,9 @@ export async function generateRosterPDF(
         // doc.addImage(logoData, 'PNG', 15, 15, 30, 30)
         currentY += 35
       } catch (error) {
-        logger.warn('Failed to add logo to PDF', { error: error instanceof Error ? error : String(error) })
+        logger.warn('Failed to add logo to PDF', {
+          error: error instanceof Error ? error : String(error),
+        })
       }
     }
 
@@ -180,7 +182,11 @@ export async function generateRosterPDF(
     if (report.approvedRequests.leaveRequests.length > 0) {
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
-      doc.text(`Approved Leave Requests (${report.approvedRequests.leaveRequests.length})`, 15, currentY)
+      doc.text(
+        `Approved Leave Requests (${report.approvedRequests.leaveRequests.length})`,
+        15,
+        currentY
+      )
       currentY += 7
 
       const leaveData = report.approvedRequests.leaveRequests.map((req) => [

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuditLogs, getAuditStats } from '@/lib/services/audit-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 
 /**
@@ -26,6 +27,12 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
  */
 export async function GET(_request: NextRequest) {
   try {
+    // Authentication check - admin only
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const searchParams = _request.nextUrl.searchParams
 
     // Check if stats are requested

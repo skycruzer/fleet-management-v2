@@ -10,6 +10,7 @@
 Fleet Management V2 is a modern, production-ready pilot management system for B767 aircraft operations. The system provides comprehensive pilot certification tracking, leave management, and fleet analytics for aviation compliance (FAA standards).
 
 **Current Scale**:
+
 - **27 Active Pilots** (Captains and First Officers)
 - **607 Active Certifications** across 34 check types
 - **34 Check Types** (ICAO/FAA compliant)
@@ -18,34 +19,40 @@ Fleet Management V2 is a modern, production-ready pilot management system for B7
 ## Technology Stack
 
 ### Core Framework
+
 - **Next.js**: 15.5.4 (App Router, Server Components, Server Actions)
 - **React**: 19.1.0 (with React Server Components)
 - **TypeScript**: 5.7.3 (strict mode enabled)
 - **Build System**: Turbopack (default for dev and production)
 
 ### UI & Styling
+
 - **Tailwind CSS**: 4.1.0 (dark mode support, custom design system)
 - **shadcn/ui**: Component library (Radix UI primitives)
 - **Styling System**: Utility-first with custom aviation-specific design tokens
 
 ### Backend & Database
+
 - **Database**: Supabase PostgreSQL (with Row Level Security)
 - **Authentication**: Supabase Auth (SSR support, role-based access control)
 - **State Management**: TanStack Query 5.90.2 (server state)
 - **API Layer**: Next.js 15 App Router API routes
 
 ### Data & Forms
+
 - **Form Handling**: React Hook Form 7.63.0
 - **Validation**: Zod 4.1.11 (schema-based validation)
 - **Type Safety**: Generated Supabase types (2000+ lines)
 
 ### Testing & Quality
+
 - **E2E Testing**: Playwright 1.55.0
 - **Component Development**: Storybook 8.5.11
 - **Code Quality**: ESLint, Prettier, Husky, lint-staged
 - **Pre-commit Hooks**: Automated linting, formatting, type-checking
 
 ### Progressive Web App
+
 - **Service Worker**: Serwist (next-pwa successor)
 - **Offline Support**: Smart caching strategies
 - **Mobile**: Installable on iOS and Android
@@ -57,6 +64,7 @@ Fleet Management V2 is a modern, production-ready pilot management system for B7
 **Critical Rule**: All database operations MUST go through service functions in `lib/services/`. Direct Supabase calls from components or API routes are prohibited.
 
 **Service Files** (13 total):
+
 1. `pilot-service.ts` - Pilot CRUD, captain qualifications
 2. `certification-service.ts` - Certification tracking
 3. `leave-service.ts` - Leave request operations
@@ -152,6 +160,7 @@ Three distinct client types for different execution contexts:
 **Definition**: Leave requests operate on fixed 28-day roster periods (RP1-RP13 annually).
 
 **Key Rules**:
+
 - Known anchor: **RP12/2025 starts 2025-10-11**
 - After RP13/YYYY → auto-rolls to RP1/(YYYY+1)
 - All leave requests MUST align to roster period boundaries
@@ -163,13 +172,14 @@ Three distinct client types for different execution contexts:
 
 **Color Coding** (`lib/utils/certification-utils.ts`):
 
-| Status | Condition | Color | Meaning |
-|--------|-----------|-------|---------|
-| Expired | `days_until_expiry < 0` | 🔴 Red | Non-compliant, immediate action |
-| Expiring Soon | `days_until_expiry ≤ 30` | 🟡 Yellow | Warning, renewal required |
-| Current | `days_until_expiry > 30` | 🟢 Green | Compliant |
+| Status        | Condition                | Color     | Meaning                         |
+| ------------- | ------------------------ | --------- | ------------------------------- |
+| Expired       | `days_until_expiry < 0`  | 🔴 Red    | Non-compliant, immediate action |
+| Expiring Soon | `days_until_expiry ≤ 30` | 🟡 Yellow | Warning, renewal required       |
+| Current       | `days_until_expiry > 30` | 🟢 Green  | Compliant                       |
 
 **Alert Thresholds**:
+
 - **Critical**: Expired certifications (immediate grounding risk)
 - **Warning**: ≤60 days until expiry (renewal planning)
 - **Notice**: ≤90 days until expiry (early awareness)
@@ -179,14 +189,17 @@ Three distinct client types for different execution contexts:
 **CRITICAL RULE**: Captains and First Officers are evaluated **independently**.
 
 **Minimum Crew Requirements**:
+
 - Must maintain **≥10 Captains available** at all times
 - Must maintain **≥10 First Officers available** at all times
 
 **Approval Priority** (within same rank):
+
 1. **Seniority number** (lower = higher priority, e.g., #1 > #5)
 2. **Request submission date** (earlier > later)
 
 **Approval Algorithm** (`lib/services/leave-eligibility-service.ts`):
+
 ```
 IF single pilot requests dates THEN
   Approve IF remaining_crew_of_rank >= 10
@@ -201,6 +214,7 @@ IF multiple pilots (same rank) request overlapping dates THEN
 ```
 
 **Special Alerts**:
+
 - **Eligibility Alert**: Shows when 2+ pilots of same rank request overlapping dates
 - **Final Review Alert**: Appears 22 days before next roster period (only when `pendingCount > 0`)
 
@@ -209,6 +223,7 @@ IF multiple pilots (same rank) request overlapping dates THEN
 **JSONB Field**: `pilots.qualifications`
 
 **Qualification Types**:
+
 - **Line Captain**: Standard captain qualification
 - **Training Captain**: Authorized to conduct training flights
 - **Examiner**: Authorized to conduct check rides
@@ -221,6 +236,7 @@ IF multiple pilots (same rank) request overlapping dates THEN
 **Basis**: `pilots.commencement_date`
 
 **Rules**:
+
 - Earlier `commencement_date` → Lower seniority number → Higher priority
 - Seniority numbers: 1-27 (unique, sequential)
 - Used for leave request prioritization
@@ -298,6 +314,7 @@ fleet-management-v2/
    - Never make direct Supabase calls
 
 3. **Type Generation** (if schema changes)
+
    ```bash
    npm run db:types
    ```
@@ -322,6 +339,7 @@ fleet-management-v2/
 ### Pre-Commit Validation
 
 Husky + lint-staged automatically runs:
+
 - ESLint with auto-fix
 - Prettier with auto-format
 - TypeScript type checking
@@ -331,23 +349,27 @@ Husky + lint-staged automatically runs:
 ## Quality Standards
 
 ### Code Quality
+
 - TypeScript strict mode (no `any` types)
 - ESLint with Next.js rules
 - Prettier for consistent formatting
 - All service functions must have JSDoc comments
 
 ### Testing
+
 - E2E tests for critical user flows
 - Component tests in Storybook
 - Test coverage for service layer functions
 
 ### Security
+
 - Row Level Security (RLS) enabled on all tables
 - Role-based access control (Admin, Manager, Pilot)
 - Protected routes enforced via middleware
 - Environment variables for secrets (never committed)
 
 ### Performance
+
 - Service worker caching (PWA)
 - Smart caching strategies (TTL-based)
 - Image optimization (WebP, AVIF)
@@ -357,6 +379,7 @@ Husky + lint-staged automatically runs:
 ## Environment Configuration
 
 **Required Variables** (`.env.local`):
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://wgdmgvonqysflwdiiols.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
@@ -364,6 +387,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 **Optional Variables**:
+
 ```env
 SUPABASE_SERVICE_ROLE_KEY=<service-role-key>  # Server-only
 ```
@@ -371,22 +395,27 @@ SUPABASE_SERVICE_ROLE_KEY=<service-role-key>  # Server-only
 ## Known Constraints & Limitations
 
 ### 1. Service Layer Requirement
+
 - All database operations MUST use service functions
 - Direct Supabase calls will be rejected in code review
 
 ### 2. Roster Period Boundaries
+
 - Leave requests cannot span multiple roster periods
 - Periods are fixed 28-day cycles (cannot be customized)
 
 ### 3. Minimum Crew Requirements
+
 - Cannot approve leave if crew drops below 10 (per rank)
 - Hard-coded minimum (requires spec change to modify)
 
 ### 4. Seniority System
+
 - Based on `commencement_date` (immutable without migration)
 - Cannot handle ties (requires unique dates)
 
 ### 5. Captain Qualifications
+
 - Stored as JSONB (requires JSON parsing)
 - No database-level validation (handled in service layer)
 
@@ -395,6 +424,7 @@ SUPABASE_SERVICE_ROLE_KEY=<service-role-key>  # Server-only
 **Platform**: Vercel (recommended)
 
 **Process**:
+
 1. Connect Git repository
 2. Add environment variables in Vercel dashboard
 3. Deploy with `git push` (automatic)
@@ -406,6 +436,7 @@ SUPABASE_SERVICE_ROLE_KEY=<service-role-key>  # Server-only
 ## Common Commands Reference
 
 ### Development
+
 ```bash
 npm run dev          # Start dev server (localhost:3000)
 npm run build        # Production build
@@ -414,6 +445,7 @@ npm run validate     # Full quality check
 ```
 
 ### Database
+
 ```bash
 npm run db:types     # Generate TypeScript types
 npm run db:migration # Create migration
@@ -421,6 +453,7 @@ npm run db:deploy    # Deploy to production
 ```
 
 ### Testing
+
 ```bash
 npm test             # Run E2E tests
 npm run test:ui      # Playwright UI mode
@@ -428,6 +461,7 @@ npm run test:headed  # Visible browser
 ```
 
 ### OpenSpec
+
 ```bash
 openspec list        # Active changes
 openspec list --specs  # Existing specs
@@ -448,6 +482,7 @@ openspec archive <id> --yes  # Archive completed
 ## Specification Guidelines
 
 ### What to Spec (Create Change Proposal)
+
 - New features or capabilities
 - Breaking changes to existing features
 - Database schema changes
@@ -455,6 +490,7 @@ openspec archive <id> --yes  # Archive completed
 - Architecture changes
 
 ### What NOT to Spec (Fix Directly)
+
 - Bug fixes restoring spec behavior
 - Typos, formatting, comments
 - Performance optimizations (non-breaking)
@@ -462,6 +498,7 @@ openspec archive <id> --yes  # Archive completed
 - Documentation improvements
 
 ### Change Proposal Structure
+
 ```
 openspec/changes/<change-id>/
 ├── proposal.md      # Why, What Changes, Impact

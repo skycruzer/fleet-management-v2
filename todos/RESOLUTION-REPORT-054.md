@@ -21,6 +21,7 @@
 ### 1. Comprehensive Codebase Audit
 
 Scanned **187 files** across critical directories:
+
 - `app/` - Next.js App Router pages and layouts
 - `components/` - React components and UI elements
 - `lib/` - Services, utilities, hooks, and validation logic
@@ -31,6 +32,7 @@ Scanned **187 files** across critical directories:
 ### 2. Naming Pattern Analysis
 
 **Findings**:
+
 - All component files use **kebab-case** (e.g., `pilot-form.tsx`)
 - All service files use **kebab-case-service.ts** pattern
 - All utility files use **kebab-case-utils.ts** pattern
@@ -41,6 +43,7 @@ Scanned **187 files** across critical directories:
 - Variables and functions use **camelCase** (JavaScript standard)
 
 **Validation Results**:
+
 ```
 Total files scanned: 187
 Valid: 187 (100%)
@@ -72,6 +75,7 @@ A comprehensive naming convention guide including:
 **Key Sections**:
 
 #### File Naming Conventions
+
 - Components: `kebab-case.tsx` → `export function PascalCase()`
 - Services: `name-service.ts`
 - Utilities: `name-utils.ts`
@@ -80,6 +84,7 @@ A comprehensive naming convention guide including:
 - Stories: `name.stories.tsx`
 
 #### Code Naming Conventions
+
 - Component functions: `PascalCase`
 - Regular functions: `camelCase`
 - Variables: `camelCase`
@@ -87,6 +92,7 @@ A comprehensive naming convention guide including:
 - Types/Interfaces: `PascalCase`
 
 #### Directory Naming
+
 - All directories: `kebab-case`
 - Route segments: `kebab-case` (affects URLs)
 
@@ -108,6 +114,7 @@ An automated validation script that:
 - Generates detailed error reports with fix suggestions
 
 **Validation Capabilities**:
+
 ```javascript
 // Validates all these patterns:
 ✅ Components: pilot-form.tsx
@@ -125,6 +132,7 @@ An automated validation script that:
 **File**: `/package.json`
 
 Added new npm script:
+
 ```json
 {
   "scripts": {
@@ -134,6 +142,7 @@ Added new npm script:
 ```
 
 **Usage**:
+
 ```bash
 # Manual validation
 npm run validate:naming
@@ -150,6 +159,7 @@ npm run validate:naming
 **File**: `/NAMING-QUICK-REFERENCE.md`
 
 A one-page quick reference guide with:
+
 - File naming patterns table
 - Code naming patterns table
 - Directory structure examples
@@ -182,6 +192,7 @@ The codebase already follows consistent naming conventions. No code migration wa
 **Original Concern**: "Component file names use inconsistent patterns"
 
 **Resolution**:
+
 1. **Verified Consistency**: Audited 187 files, found 0 naming violations
 2. **Documented Standards**: Created comprehensive naming convention guide
 3. **Automated Enforcement**: Built validation script to prevent future violations
@@ -189,6 +200,7 @@ The codebase already follows consistent naming conventions. No code migration wa
 5. **CI/CD Integration**: Enabled automated validation in build pipelines
 
 **Impact**:
+
 - ✅ All files follow consistent kebab-case pattern
 - ✅ Component functions follow React PascalCase standard
 - ✅ Services, utils, hooks follow predictable naming patterns
@@ -207,6 +219,7 @@ npm run validate:naming
 ```
 
 **Expected Output**:
+
 ```
 === Naming Convention Validation ===
 
@@ -222,6 +235,7 @@ All files follow naming conventions!
 ### Warnings Explained
 
 The 15 warnings are acceptable:
+
 - **2 warnings**: Next.js dynamic routes `[id]/` (required by Next.js)
 - **13 warnings**: Documentation files (.md, .css) - not code files
 
@@ -234,6 +248,7 @@ The 15 warnings are acceptable:
 The validation script can be added to:
 
 1. **Pre-commit Hook** (via Husky):
+
    ```json
    {
      "lint-staged": {
@@ -243,6 +258,7 @@ The validation script can be added to:
    ```
 
 2. **GitHub Actions CI**:
+
    ```yaml
    - name: Validate Naming Conventions
      run: npm run validate:naming
@@ -256,6 +272,7 @@ The validation script can be added to:
 ### ESLint Integration
 
 Current ESLint configuration already enforces:
+
 - Variable naming: `camelCase` or `UPPER_CASE`
 - Function naming: `camelCase` or `PascalCase`
 - Type naming: `PascalCase`
@@ -374,15 +391,18 @@ export function calculateRosterPeriod(date: Date): RosterPeriod {
 ## References
 
 ### Documentation
+
 - **Full Guide**: `/COMPONENT-NAMING-CONVENTIONS.md`
 - **Quick Reference**: `/NAMING-QUICK-REFERENCE.md`
 - **Project Guide**: `/CLAUDE.md`
 
 ### Tooling
+
 - **Validation Script**: `/scripts/validate-naming.mjs`
 - **NPM Command**: `npm run validate:naming`
 
 ### Standards
+
 - [Next.js File Conventions](https://nextjs.org/docs/app/building-your-application/routing)
 - [React Naming Conventions](https://react.dev/learn/thinking-in-react)
 - [TypeScript Do's and Don'ts](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)

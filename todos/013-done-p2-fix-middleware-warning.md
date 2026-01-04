@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p2
-issue_id: "013"
+issue_id: '013'
 tags: [performance, middleware, edge-runtime]
 dependencies: []
 completed_date: 2025-10-17
@@ -29,7 +29,9 @@ const supabase = createServerClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   {
-    cookies: { /* ... */ },
+    cookies: {
+      /* ... */
+    },
     realtime: { enabled: false }, // ✅ Fix
   }
 )
@@ -48,17 +50,21 @@ const supabase = createServerClient<Database>(
 ## Work Log
 
 ### 2025-10-17 - Initial Discovery
+
 **By:** performance-oracle
 **Learnings:** Edge Runtime incompatibility
 
 ### 2025-10-17 - Resolution Implemented
+
 **By:** Claude Code
 **Changes Made:**
+
 - Added `realtime: { enabled: false }` to middleware Supabase client configuration
 - Added inline comment explaining Edge Runtime compatibility fix
 - Updated acceptance criteria to completed status
 
 **Impact:**
+
 - Eliminates Edge Runtime incompatibility warning during build
 - Middleware does not require realtime features (auth-only)
 - No impact on auth flow or session management

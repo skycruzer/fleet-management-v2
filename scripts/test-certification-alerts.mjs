@@ -38,16 +38,13 @@ async function testCronJob() {
     console.log('⏳ Sending request...')
     const startTime = Date.now()
 
-    const response = await fetch(
-      `${APP_URL}/api/cron/certification-expiry-alerts`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${CRON_SECRET}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    const response = await fetch(`${APP_URL}/api/cron/certification-expiry-alerts`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${CRON_SECRET}`,
+        'Content-Type': 'application/json',
+      },
+    })
 
     const duration = Date.now() - startTime
     const data = await response.json()
@@ -80,8 +77,11 @@ async function testCronJob() {
       data.results.forEach((result, index) => {
         const statusIcon = result.success ? '✅' : '❌'
         const urgencyIcon =
-          result.urgencyLevel === 'critical' ? '🔴' :
-          result.urgencyLevel === 'warning' ? '🟡' : '🔵'
+          result.urgencyLevel === 'critical'
+            ? '🔴'
+            : result.urgencyLevel === 'warning'
+              ? '🟡'
+              : '🔵'
 
         console.log(`${index + 1}. ${statusIcon} ${urgencyIcon} ${result.pilotName}`)
         console.log(`   Email: ${result.email}`)
@@ -107,7 +107,6 @@ async function testCronJob() {
     console.log('3. Confirm links work correctly')
     console.log('4. Deploy to Vercel for production cron scheduling')
     console.log('')
-
   } catch (error) {
     console.error('')
     console.error('❌ Test Failed')

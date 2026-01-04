@@ -32,11 +32,7 @@ function MyComponent() {
 
   return (
     <div>
-      <NetworkStatusIndicator
-        isOnline={isOnline}
-        variant="banner"
-        showOnlyWhenOffline={true}
-      />
+      <NetworkStatusIndicator isOnline={isOnline} variant="banner" showOnlyWhenOffline={true} />
       <button disabled={isOffline}>Submit</button>
     </div>
   )
@@ -90,14 +86,14 @@ The application monitors network connectivity using the **Navigator.onLine** API
 
 Errors are categorized for appropriate handling:
 
-| Category | Description | User Message |
-|----------|-------------|--------------|
-| **Offline** | Browser is offline | "You are currently offline" |
-| **Network** | Connection failure | "Network connection error" |
-| **Timeout** | Request took too long | "Request timed out" |
-| **Server** | 5xx server errors | "Server error" |
-| **Auth** | 401/403 errors | "Authentication error" |
-| **Validation** | Input validation | "Validation error" |
+| Category       | Description           | User Message                |
+| -------------- | --------------------- | --------------------------- |
+| **Offline**    | Browser is offline    | "You are currently offline" |
+| **Network**    | Connection failure    | "Network connection error"  |
+| **Timeout**    | Request took too long | "Request timed out"         |
+| **Server**     | 5xx server errors     | "Server error"              |
+| **Auth**       | 401/403 errors        | "Authentication error"      |
+| **Validation** | Input validation      | "Validation error"          |
 
 ### 3. Retry Strategy
 
@@ -140,6 +136,7 @@ const { isOnline, isOffline, lastChanged, checkStatus } = useOnlineStatus({
 ```
 
 **Returns:**
+
 - `isOnline: boolean` - Online status
 - `isOffline: boolean` - Offline status (inverse)
 - `lastChanged: string | null` - ISO timestamp of last status change
@@ -150,17 +147,12 @@ const { isOnline, isOffline, lastChanged, checkStatus } = useOnlineStatus({
 Execute functions with automatic retry and state tracking.
 
 ```tsx
-const {
-  executeWithRetry,
-  isRetrying,
-  statusMessage,
-  progress,
-  retryState,
-  reset
-} = useRetryState(3)
+const { executeWithRetry, isRetrying, statusMessage, progress, retryState, reset } =
+  useRetryState(3)
 ```
 
 **Returns:**
+
 - `executeWithRetry: (fn, config?) => Promise<T>` - Execute with retry
 - `isRetrying: boolean` - Whether retry is in progress
 - `statusMessage: string` - User-friendly status message
@@ -190,7 +182,7 @@ Visual indicator of network connectivity status.
 ```tsx
 <NetworkStatusIndicator
   isOnline={isOnline}
-  variant="banner"           // 'banner' | 'badge' | 'inline' | 'floating'
+  variant="banner" // 'banner' | 'badge' | 'inline' | 'floating'
   showOnlyWhenOffline={true}
   showReconnectButton={true}
   onReconnect={handleReconnect}
@@ -199,6 +191,7 @@ Visual indicator of network connectivity status.
 ```
 
 **Variants:**
+
 - **banner** - Full-width alert at top/bottom
 - **badge** - Compact pill indicator
 - **inline** - Minimal text with icon
@@ -215,7 +208,7 @@ Shows retry progress and status.
   progress={progress}
   attempt={retryState.attempt}
   maxRetries={retryState.maxRetries}
-  variant="default"  // 'default' | 'compact' | 'toast'
+  variant="default" // 'default' | 'compact' | 'toast'
 />
 ```
 
@@ -224,11 +217,7 @@ Shows retry progress and status.
 Error banner with retry button.
 
 ```tsx
-<NetworkErrorBanner
-  show={hasError}
-  message="Failed to load data"
-  onRetry={handleRetry}
-/>
+<NetworkErrorBanner show={hasError} message="Failed to load data" onRetry={handleRetry} />
 ```
 
 #### `OfflineWarning`
@@ -236,10 +225,7 @@ Error banner with retry button.
 Simple yellow warning for offline state.
 
 ```tsx
-<OfflineWarning
-  show={isOffline}
-  message="You are offline. Changes may not be saved."
-/>
+<OfflineWarning show={isOffline} message="You are offline. Changes may not be saved." />
 ```
 
 ### Error Logger Functions
@@ -395,7 +381,7 @@ function ConditionalDataLoader() {
     }
 
     // Fetch fresh data when online
-    const data = await fetch('/api/data').then(r => r.json())
+    const data = await fetch('/api/data').then((r) => r.json())
     localStorage.setItem('cached-data', JSON.stringify(data))
     setCachedData(data)
   }
@@ -470,11 +456,13 @@ function ConditionalDataLoader() {
 ### Manual Testing
 
 1. **Chrome DevTools**
+
    ```
    DevTools → Network Tab → Throttling → Offline
    ```
 
 2. **Firefox DevTools**
+
    ```
    DevTools → Network → Toggle "Disable Cache" and "Offline mode"
    ```
@@ -612,9 +600,11 @@ function getErrorCategory(error: Error): string
 ## Examples
 
 See complete working examples in:
+
 - `components/examples/connection-error-handling-example.tsx`
 
 Run Storybook to view interactive examples:
+
 ```bash
 npm run storybook
 ```
@@ -624,6 +614,7 @@ npm run storybook
 ## Support
 
 For questions or issues:
+
 1. Check the examples directory
 2. Review this documentation
 3. Contact the development team

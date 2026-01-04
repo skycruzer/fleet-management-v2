@@ -7,13 +7,10 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function getSchema() {
   console.log('=== CHECKING leave_bids TABLE SCHEMA ===\n')
-  
+
   // Get the table structure
-  const { data, error } = await supabase
-    .from('leave_bids')
-    .select('*')
-    .limit(1)
-  
+  const { data, error } = await supabase.from('leave_bids').select('*').limit(1)
+
   if (error) {
     console.log('Error:', error.message)
   } else {

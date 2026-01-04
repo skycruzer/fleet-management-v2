@@ -39,18 +39,16 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
         <CardHeader className="border-b">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-              <Calendar className="h-5 w-5 text-primary" />
+              <Calendar className="text-primary h-5 w-5" />
             </div>
             <div>
               <CardTitle className="text-xl">Leave Bids</CardTitle>
-              <CardDescription>
-                Your annual leave bid submissions
-              </CardDescription>
+              <CardDescription>Your annual leave bid submissions</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          <p className="text-center text-muted-foreground">No leave bids submitted yet</p>
+          <p className="text-muted-foreground text-center">No leave bids submitted yet</p>
         </CardContent>
       </Card>
     )
@@ -107,7 +105,7 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
     <div className="space-y-4">
       {/* Approved Bids Alert */}
       {approvedBids.length > 0 && (
-        <Alert className="border-green-300 dark:border-green-800 bg-green-50 dark:bg-green-950/30">
+        <Alert className="border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-950/30">
           <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
           <AlertDescription className="ml-2">
             <span className="font-semibold text-green-900 dark:text-green-100">
@@ -126,13 +124,11 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                <Calendar className="h-5 w-5 text-primary" />
+                <Calendar className="text-primary h-5 w-5" />
               </div>
               <div>
                 <CardTitle className="text-xl">Leave Bids</CardTitle>
-                <CardDescription>
-                  Your annual leave bid submissions
-                </CardDescription>
+                <CardDescription>Your annual leave bid submissions</CardDescription>
               </div>
             </div>
             <div className="flex gap-2">
@@ -160,7 +156,8 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
                       Leave Bid for {bid.roster_period_code}
                     </h3>
                     <p className="text-xs text-gray-500">
-                      {bid.created_at && `Submitted ${format(new Date(bid.created_at), 'MMM dd, yyyy')}`}
+                      {bid.created_at &&
+                        `Submitted ${format(new Date(bid.created_at), 'MMM dd, yyyy')}`}
                     </p>
                   </div>
                   {getStatusBadge(bid.status)}
@@ -200,9 +197,7 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
 
                         {/* Status Indicator for Approved Bids */}
                         {bid.status === 'APPROVED' && option.priority === 1 && (
-                          <Badge className="bg-green-600">
-                            Selected
-                          </Badge>
+                          <Badge className="bg-green-600">Selected</Badge>
                         )}
                       </div>
                     ))}

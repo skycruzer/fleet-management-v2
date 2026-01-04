@@ -1,4 +1,5 @@
 # Fleet Management V2 - Testing Report
+
 **Test Date**: October 23, 2025
 **Application**: Fleet Management V2 - B767 Pilot Management System
 **Environment**: Development (http://localhost:3000)
@@ -9,22 +10,23 @@
 
 ## 📊 Executive Summary
 
-| Metric | Result |
-|--------|--------|
-| **Total Pages Tested** | 13 |
-| **Pages Passed** | 13 ✅ |
-| **Pages Failed** | 0 ❌ |
-| **Screenshots Captured** | 13 |
-| **Critical Errors** | 0 |
-| **Console Warnings** | 1 type (hydration mismatch, non-critical) |
-| **Broken Links/404s** | 0 |
-| **Overall Status** | ✅ **PASS** (100% success rate) |
+| Metric                   | Result                                    |
+| ------------------------ | ----------------------------------------- |
+| **Total Pages Tested**   | 13                                        |
+| **Pages Passed**         | 13 ✅                                     |
+| **Pages Failed**         | 0 ❌                                      |
+| **Screenshots Captured** | 13                                        |
+| **Critical Errors**      | 0                                         |
+| **Console Warnings**     | 1 type (hydration mismatch, non-critical) |
+| **Broken Links/404s**    | 0                                         |
+| **Overall Status**       | ✅ **PASS** (100% success rate)           |
 
 ---
 
 ## 🎯 Test Coverage
 
 ### Admin Dashboard Testing ✅ (8 pages)
+
 - ✅ Homepage navigation
 - ✅ Admin login flow
 - ✅ Main dashboard overview
@@ -35,6 +37,7 @@
 - ✅ Disciplinary matters page
 
 ### Pilot Portal Testing ✅ (5 pages)
+
 - ✅ Pilot dashboard (multiple pilot accounts)
 - ✅ Profile information page
 - ✅ Certifications listing (with color coding)
@@ -46,6 +49,7 @@
 ## 📋 Detailed Test Results
 
 ### 1. Homepage ✅ **PASS**
+
 - **URL**: `http://localhost:3000/`
 - **Screenshot**: `homepage-fleet-v2.png`
 - **Status**: Page loaded successfully
@@ -53,6 +57,7 @@
 - **Console**: No errors
 
 ### 2. Admin Login ✅ **PASS**
+
 - **URL**: `http://localhost:3000/auth/login`
 - **Screenshot**: `admin-login-page.png`
 - **Status**: Authentication successful
@@ -60,6 +65,7 @@
 - **Console**: No errors
 
 ### 3. Admin Dashboard ✅ **PASS**
+
 - **URL**: `http://localhost:3000/dashboard`
 - **Screenshot**: `admin-dashboard-main.png`
 - **Status**: Dashboard metrics displayed
@@ -67,6 +73,7 @@
 - **Console**: No errors
 
 ### 4. Pilots Management ✅ **PASS**
+
 - **URL**: `http://localhost:3000/dashboard/pilots`
 - **Screenshot**: `admin-pilots-page.png`
 - **Status**: Pilot roster displayed
@@ -74,6 +81,7 @@
 - **Console**: No errors
 
 ### 5. Leave Requests ✅ **PASS**
+
 - **URL**: `http://localhost:3000/dashboard/leave`
 - **Screenshot**: `admin-leave-requests-page.png`
 - **Status**: Leave management functional
@@ -81,6 +89,7 @@
 - **Console**: No errors
 
 ### 6. Flight Requests ✅ **PASS**
+
 - **URL**: `http://localhost:3000/dashboard/flight-requests`
 - **Screenshot**: `admin-flight-requests-page.png`
 - **Status**: Flight requests displayed
@@ -88,6 +97,7 @@
 - **Console**: No errors
 
 ### 7. Tasks/Audit Logs ✅ **PASS**
+
 - **URL**: `http://localhost:3000/dashboard/tasks`
 - **Screenshot**: `admin-tasks-page.png`
 - **Status**: Task list rendered
@@ -95,6 +105,7 @@
 - **Console**: No errors
 
 ### 8. Disciplinary Matters ✅ **PASS**
+
 - **URL**: `http://localhost:3000/dashboard/disciplinary`
 - **Screenshot**: `admin-disciplinary-page.png`
 - **Status**: Disciplinary records displayed
@@ -102,6 +113,7 @@
 - **Console**: No errors
 
 ### 9-10. Pilot Portal Dashboard ✅ **PASS**
+
 - **URLs**: `http://localhost:3000/portal/dashboard`
 - **Screenshots**:
   - `pilot-portal-dashboard.png` (Maurice Rondeau)
@@ -111,6 +123,7 @@
 - **Console**: ⚠️ Hydration warning (non-critical)
 
 ### 11. Pilot Profile ✅ **PASS**
+
 - **URL**: `http://localhost:3000/portal/profile`
 - **Screenshot**: `portal-profile-page.png`
 - **Status**: Profile details rendered
@@ -118,6 +131,7 @@
 - **Console**: ⚠️ Hydration warning (non-critical)
 
 ### 12. Pilot Certifications ✅ **PASS**
+
 - **URL**: `http://localhost:3000/portal/certifications`
 - **Screenshot**: `portal-certifications-page.png`
 - **Status**: Certification tracking functional
@@ -128,6 +142,7 @@
 - **Console**: ⚠️ Hydration warning (non-critical)
 
 ### 13. Pilot Leave Requests ✅ **PASS**
+
 - **URL**: `http://localhost:3000/portal/leave-requests`
 - **Screenshot**: `portal-leave-requests-page.png`
 - **Status**: Leave history displayed
@@ -135,6 +150,7 @@
 - **Console**: ⚠️ Hydration warning (non-critical)
 
 ### 14. Pilot Flight Requests ✅ **PASS**
+
 - **URL**: `http://localhost:3000/portal/flight-requests`
 - **Screenshot**: `portal-flight-requests-page.png`
 - **Status**: Flight request form functional
@@ -152,6 +168,7 @@
 **Affected Pages**: All Pilot Portal pages (`/portal/*`)
 
 **Error Details**:
+
 ```
 Warning: Prop `tabindex` did not match. Server: "-1" Client: null
 ```
@@ -159,6 +176,7 @@ Warning: Prop `tabindex` did not match. Server: "-1" Client: null
 **Root Cause**: Server-rendered HTML includes `tabindex="-1"` on the `<main>` element, but client-side React expects no tabindex attribute.
 
 **Recommended Fix**:
+
 ```typescript
 // Location: app/portal/layout.tsx or components/layout/portal-layout.tsx
 
@@ -176,6 +194,7 @@ useEffect(() => setMounted(true), [])
 ```
 
 **Files to Check**:
+
 - `app/portal/layout.tsx`
 - `components/layout/portal-layout.tsx`
 
@@ -187,28 +206,29 @@ useEffect(() => setMounted(true), [])
 
 All screenshots saved to: `.playwright-mcp/`
 
-| # | Page | Filename | Size | Status |
-|---|------|----------|------|--------|
-| 1 | Homepage | `homepage-fleet-v2.png` | - | ✅ |
-| 2 | Admin Login | `admin-login-page.png` | - | ✅ |
-| 3 | Admin Dashboard | `admin-dashboard-main.png` | - | ✅ |
-| 4 | Admin Pilots | `admin-pilots-page.png` | - | ✅ |
-| 5 | Admin Leave | `admin-leave-requests-page.png` | - | ✅ |
-| 6 | Admin Flight | `admin-flight-requests-page.png` | - | ✅ |
-| 7 | Admin Tasks | `admin-tasks-page.png` | - | ✅ |
-| 8 | Admin Disciplinary | `admin-disciplinary-page.png` | - | ✅ |
-| 9 | Portal Dashboard 1 | `pilot-portal-dashboard.png` | - | ✅ |
-| 10 | Portal Dashboard 2 | `portal-dashboard-neil-sexton.png` | - | ✅ |
-| 11 | Portal Profile | `portal-profile-page.png` | - | ✅ |
-| 12 | Portal Certs | `portal-certifications-page.png` | - | ✅ |
-| 13 | Portal Leave | `portal-leave-requests-page.png` | - | ✅ |
-| 14 | Portal Flight | `portal-flight-requests-page.png` | - | ✅ |
+| #   | Page               | Filename                           | Size | Status |
+| --- | ------------------ | ---------------------------------- | ---- | ------ |
+| 1   | Homepage           | `homepage-fleet-v2.png`            | -    | ✅     |
+| 2   | Admin Login        | `admin-login-page.png`             | -    | ✅     |
+| 3   | Admin Dashboard    | `admin-dashboard-main.png`         | -    | ✅     |
+| 4   | Admin Pilots       | `admin-pilots-page.png`            | -    | ✅     |
+| 5   | Admin Leave        | `admin-leave-requests-page.png`    | -    | ✅     |
+| 6   | Admin Flight       | `admin-flight-requests-page.png`   | -    | ✅     |
+| 7   | Admin Tasks        | `admin-tasks-page.png`             | -    | ✅     |
+| 8   | Admin Disciplinary | `admin-disciplinary-page.png`      | -    | ✅     |
+| 9   | Portal Dashboard 1 | `pilot-portal-dashboard.png`       | -    | ✅     |
+| 10  | Portal Dashboard 2 | `portal-dashboard-neil-sexton.png` | -    | ✅     |
+| 11  | Portal Profile     | `portal-profile-page.png`          | -    | ✅     |
+| 12  | Portal Certs       | `portal-certifications-page.png`   | -    | ✅     |
+| 13  | Portal Leave       | `portal-leave-requests-page.png`   | -    | ✅     |
+| 14  | Portal Flight      | `portal-flight-requests-page.png`  | -    | ✅     |
 
 ---
 
 ## ✅ Features Verified
 
 ### Authentication & Authorization ✅
+
 - ✅ Login flow functional
 - ✅ Session persistence working
 - ✅ Role-based access control (Admin vs Pilot)
@@ -216,6 +236,7 @@ All screenshots saved to: `.playwright-mcp/`
 - ✅ Middleware redirects working
 
 ### Admin Dashboard Features ✅
+
 - ✅ Dashboard metrics display
 - ✅ Pilot roster management (27 pilots)
 - ✅ Leave request approval workflow
@@ -224,6 +245,7 @@ All screenshots saved to: `.playwright-mcp/`
 - ✅ Disciplinary record management
 
 ### Pilot Portal Features ✅
+
 - ✅ Personal dashboard with metrics
 - ✅ Profile information display
 - ✅ Certification tracking with FAA color coding
@@ -232,6 +254,7 @@ All screenshots saved to: `.playwright-mcp/`
 - ✅ Navigation between portal pages
 
 ### UI/UX Elements ✅
+
 - ✅ Responsive navigation sidebar
 - ✅ Status badges and indicators
 - ✅ Color-coded alerts (red/yellow/green)
@@ -244,11 +267,13 @@ All screenshots saved to: `.playwright-mcp/`
 ## 🎨 Accessibility & Responsiveness
 
 ### Tested Viewport
+
 - **Desktop**: 1280x720 (tested)
 - **Mobile**: Not tested (recommended)
 - **Tablet**: Not tested (recommended)
 
 ### Accessibility Features Observed
+
 - ✅ Semantic HTML structure
 - ✅ ARIA labels present
 - ✅ Keyboard navigation functional
@@ -260,16 +285,19 @@ All screenshots saved to: `.playwright-mcp/`
 ## 🚀 Performance Observations
 
 ### Page Load Times
+
 - **Average**: < 2 seconds
 - **Fastest**: Homepage (static content)
 - **Slowest**: Admin Pilots (roster data)
 
 ### Server-Side Rendering
+
 - ✅ SSR working correctly
 - ✅ Initial paint fast
 - ⚠️ Hydration mismatch on portal pages (minor)
 
 ### Database Performance
+
 - ✅ No evident slow queries
 - ✅ Service layer functioning properly
 - ✅ Real-time data updates working
@@ -316,6 +344,7 @@ All screenshots saved to: `.playwright-mcp/`
 **Fleet Management V2** passed comprehensive testing with **100% success rate** across all 13 pages tested.
 
 ### Key Findings
+
 ✅ **Functional**: All features working as expected
 ✅ **Secure**: Authentication and authorization enforced
 ✅ **UI/UX**: Clean interface, intuitive navigation
@@ -323,6 +352,7 @@ All screenshots saved to: `.playwright-mcp/`
 ⚠️ **Minor Issue**: Hydration warning on portal pages (non-critical)
 
 ### Production Readiness
+
 **Status**: ✅ **PRODUCTION READY**
 
 The application demonstrates solid architecture, functional completeness, and production-quality UI/UX. The single minor issue (hydration warning) should be addressed for clean console output but does not impact functionality.

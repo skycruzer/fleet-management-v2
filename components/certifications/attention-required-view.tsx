@@ -44,10 +44,8 @@ export function AttentionRequiredView({
           className="mx-auto h-10 w-10 text-green-600 dark:text-green-500"
           aria-hidden="true"
         />
-        <h3 className="mt-3 text-lg font-semibold text-foreground">
-          All Certifications Current
-        </h3>
-        <p className="mt-2 text-muted-foreground">
+        <h3 className="text-foreground mt-3 text-lg font-semibold">All Certifications Current</h3>
+        <p className="text-muted-foreground mt-2">
           No certifications are expiring within 90 days or have expired. Excellent compliance!
         </p>
       </Card>
@@ -65,19 +63,14 @@ export function AttentionRequiredView({
               aria-hidden="true"
             />
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground">Priority Action Required</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <h3 className="text-foreground font-semibold">Priority Action Required</h3>
+              <p className="text-muted-foreground mt-1 text-sm">
                 {mostCritical.certifications.length}{' '}
-                {mostCritical.certifications.length === 1
-                  ? 'certification'
-                  : 'certifications'}{' '}
-                in <strong>{mostCritical.label}</strong> group. {mostCritical.description}
+                {mostCritical.certifications.length === 1 ? 'certification' : 'certifications'} in{' '}
+                <strong>{mostCritical.label}</strong> group. {mostCritical.description}
               </p>
             </div>
-            <Badge
-              variant="destructive"
-              className="shrink-0"
-            >
+            <Badge variant="destructive" className="shrink-0">
               {totalExpiring} Total
             </Badge>
           </div>
@@ -87,7 +80,7 @@ export function AttentionRequiredView({
       {/* Quick Action Cards for Critical Items (Top 5) */}
       {mostCritical && mostCritical.certifications.length > 0 && (
         <div className="space-y-1.5">
-          <h4 className="text-sm font-medium text-muted-foreground">
+          <h4 className="text-muted-foreground text-sm font-medium">
             Most Urgent ({Math.min(mostCritical.certifications.length, 5)} shown)
           </h4>
           <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -97,18 +90,20 @@ export function AttentionRequiredView({
                 className="flex items-center justify-between p-2.5 transition-all hover:shadow-md"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-foreground">
+                  <p className="text-foreground truncate font-medium">
                     {cert.pilot?.first_name} {cert.pilot?.last_name}
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="text-muted-foreground truncate text-xs">
                     {cert.check_type?.check_description}
                   </p>
                   {cert.status?.daysUntilExpiry !== undefined && (
-                    <p className={`text-xs font-medium ${
-                      cert.status.daysUntilExpiry < 0
-                        ? 'text-red-600 dark:text-red-500'
-                        : 'text-yellow-600 dark:text-yellow-500'
-                    }`}>
+                    <p
+                      className={`text-xs font-medium ${
+                        cert.status.daysUntilExpiry < 0
+                          ? 'text-red-600 dark:text-red-500'
+                          : 'text-yellow-600 dark:text-yellow-500'
+                      }`}
+                    >
                       {formatDaysUntilExpiry(cert.status.daysUntilExpiry)}
                     </p>
                   )}
@@ -131,7 +126,7 @@ export function AttentionRequiredView({
 
       {/* Full Accordion Groups */}
       <div className="pt-3">
-        <h4 className="mb-3 text-sm font-medium text-muted-foreground">
+        <h4 className="text-muted-foreground mb-3 text-sm font-medium">
           All Certifications Requiring Attention
         </h4>
         <ExpiryGroupsAccordion groups={expiryGroups} />

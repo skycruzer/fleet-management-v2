@@ -293,10 +293,10 @@ export function PilotCertificationsTab({
       <Card className="p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-bold text-foreground">
+            <h2 className="text-foreground text-xl font-bold">
               Certifications for {pilot.first_name} {pilot.last_name}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {certifications.length} total certifications across {categories.length} categories
             </p>
           </div>
@@ -304,7 +304,7 @@ export function PilotCertificationsTab({
           <div className="flex items-center gap-3">
             {/* Status Filter */}
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Filter className="text-muted-foreground h-4 w-4" />
               <Select
                 value={statusFilter}
                 onValueChange={(value) => setStatusFilter(value as StatusFilter)}
@@ -322,13 +322,8 @@ export function PilotCertificationsTab({
             </div>
 
             {/* Refresh Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchCertifications}
-              disabled={loading}
-            >
-              <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
+            <Button variant="outline" size="sm" onClick={fetchCertifications} disabled={loading}>
+              <RefreshCw className={cn('mr-2 h-4 w-4', loading && 'animate-spin')} />
               Refresh
             </Button>
           </div>
@@ -339,7 +334,7 @@ export function PilotCertificationsTab({
       {loading && certifications.length === 0 && (
         <Card className="p-12">
           <div className="flex flex-col items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <Loader2 className="text-primary mb-4 h-8 w-8 animate-spin" />
             <p className="text-muted-foreground">Loading certifications...</p>
           </div>
         </Card>
@@ -349,10 +344,8 @@ export function PilotCertificationsTab({
       {!loading && certifications.length === 0 && (
         <Card className="p-12">
           <div className="flex flex-col items-center justify-center text-center">
-            <FileText className="h-16 w-16 text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              No Certifications Found
-            </h3>
+            <FileText className="text-muted-foreground/50 mb-4 h-16 w-16" />
+            <h3 className="text-foreground mb-2 text-lg font-semibold">No Certifications Found</h3>
             <p className="text-muted-foreground">
               This pilot doesn&apos;t have any certifications recorded yet.
             </p>
@@ -364,7 +357,7 @@ export function PilotCertificationsTab({
       {categories.map((category) => (
         <Card key={category} className="overflow-hidden">
           <div className="bg-muted/50 border-b px-4 py-3">
-            <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <h3 className="text-foreground flex items-center gap-2 font-semibold">
               <FileText className="h-4 w-4" />
               {category}
               <Badge variant="secondary" className="ml-2">
@@ -388,8 +381,10 @@ export function PilotCertificationsTab({
                 <TableRow
                   key={cert.id}
                   className={cn(
-                    getCertStatus(cert.expiry_date) === 'expired' && 'bg-red-50/50 dark:bg-red-950/20',
-                    getCertStatus(cert.expiry_date) === 'expiring' && 'bg-yellow-50/50 dark:bg-yellow-950/20'
+                    getCertStatus(cert.expiry_date) === 'expired' &&
+                      'bg-red-50/50 dark:bg-red-950/20',
+                    getCertStatus(cert.expiry_date) === 'expiring' &&
+                      'bg-yellow-50/50 dark:bg-yellow-950/20'
                   )}
                 >
                   <TableCell className="font-medium">
@@ -443,7 +438,7 @@ export function PilotCertificationsTab({
                         onClick={() => handleStartEdit(cert.id, cert.expiry_date)}
                         disabled={editingId !== null}
                       >
-                        <Edit2 className="h-4 w-4 mr-1" />
+                        <Edit2 className="mr-1 h-4 w-4" />
                         Edit
                       </Button>
                     )}
@@ -456,24 +451,27 @@ export function PilotCertificationsTab({
       ))}
 
       {/* Summary Stats */}
-      <Card className="p-4 bg-muted/30">
+      <Card className="bg-muted/30 p-4">
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-green-500" />
             <span className="text-muted-foreground">
-              Current: {certifications.filter((c) => getCertStatus(c.expiry_date) === 'current').length}
+              Current:{' '}
+              {certifications.filter((c) => getCertStatus(c.expiry_date) === 'current').length}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-yellow-500" />
             <span className="text-muted-foreground">
-              Expiring: {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expiring').length}
+              Expiring:{' '}
+              {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expiring').length}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-red-500" />
             <span className="text-muted-foreground">
-              Expired: {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expired').length}
+              Expired:{' '}
+              {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expired').length}
             </span>
           </div>
         </div>

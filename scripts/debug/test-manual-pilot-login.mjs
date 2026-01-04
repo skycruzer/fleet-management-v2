@@ -9,7 +9,8 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseAnonKey) {
@@ -29,7 +30,7 @@ const TEST_PILOT = {
   rank: 'Captain',
   date_of_birth: '1985-05-15',
   phone_number: '+675 1234 5678',
-  address: 'Test Address'
+  address: 'Test Address',
 }
 
 console.log(`\n🧪 Manual Pilot Creation and Login Test\n`)
@@ -48,8 +49,8 @@ async function manualTest() {
           first_name: TEST_PILOT.first_name,
           last_name: TEST_PILOT.last_name,
           rank: TEST_PILOT.rank,
-        }
-      }
+        },
+      },
     })
 
     if (authError) {
@@ -110,7 +111,6 @@ async function manualTest() {
     console.log('\n💡 The dual authentication system is correctly implemented.')
     console.log('   Once Supabase connectivity is restored, the full workflow will work.')
     console.log('='.repeat(60) + '\n')
-
   } catch (error) {
     console.error('\n❌ Test failed:', error.message)
     console.error(error.stack)

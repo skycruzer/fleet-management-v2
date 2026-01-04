@@ -177,10 +177,7 @@ export async function getPilotLeaveStats(
  * @param approvedDays - Total approved days this year
  * @returns Priority score (higher = higher priority)
  */
-export function calculatePriorityScore(
-  seniorityNumber: number,
-  approvedDays: number
-): number {
+export function calculatePriorityScore(seniorityNumber: number, approvedDays: number): number {
   // Seniority is PRIMARY: weight it heavily (× 1000)
   const seniorityScore = (100 - seniorityNumber) * 1000
 
@@ -269,11 +266,9 @@ export async function getAllPilotLeaveStats(
     return []
   }
 
-  const stats = await Promise.all(
-    pilots.map(pilot => getPilotLeaveStats(pilot.id, year))
-  )
+  const stats = await Promise.all(pilots.map((pilot) => getPilotLeaveStats(pilot.id, year)))
 
-  return stats.filter(stat => stat !== null) as PilotLeaveStats[]
+  return stats.filter((stat) => stat !== null) as PilotLeaveStats[]
 }
 
 /**

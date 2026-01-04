@@ -51,9 +51,7 @@ if (frCount > 0) {
 
 // Check pilots table
 console.log('\n4. pilots table:')
-const { count: pCount } = await supabase
-  .from('pilots')
-  .select('*', { count: 'exact', head: true })
+const { count: pCount } = await supabase.from('pilots').select('*', { count: 'exact', head: true })
 console.log(`   Total records: ${pCount}`)
 const { data: pilotsSample } = await supabase
   .from('pilots')
@@ -66,15 +64,10 @@ console.log('\n5. Checking for tables with ~8 records...')
 const tables = ['pilot_requests', 'leave_requests', 'flight_requests', 'leave_bids', 'tasks']
 for (const table of tables) {
   try {
-    const { count } = await supabase
-      .from(table)
-      .select('*', { count: 'exact', head: true })
+    const { count } = await supabase.from(table).select('*', { count: 'exact', head: true })
     if (count >= 7 && count <= 10) {
       console.log(`   ✅ ${table} has ${count} records`)
-      const { data } = await supabase
-        .from(table)
-        .select('*')
-        .limit(2)
+      const { data } = await supabase.from(table).select('*').limit(2)
       console.log(`   Sample:`, JSON.stringify(data, null, 2))
     }
   } catch (err) {

@@ -25,10 +25,7 @@ interface TimelineVisualizationProps {
  * Client Component that displays interactive monthly retirement timeline
  * Uses Tremor AreaChart for visualization with click handling
  */
-export function TimelineVisualization({
-  timeline,
-  onMonthClick
-}: TimelineVisualizationProps) {
+export function TimelineVisualization({ timeline, onMonthClick }: TimelineVisualizationProps) {
   // Transform data for Tremor AreaChart
   const chartData = timeline.map((bucket) => ({
     month: bucket.month,
@@ -38,16 +35,16 @@ export function TimelineVisualization({
 
   return (
     <Card className="p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-4">
-        Monthly Retirement Timeline
-      </h3>
-      <p className="text-sm text-muted-foreground mb-6">
+      <h3 className="text-foreground mb-4 text-lg font-semibold">Monthly Retirement Timeline</h3>
+      <p className="text-muted-foreground mb-6 text-sm">
         Next 5 years - Click on a month to view details
       </p>
 
       {chartData.length === 0 ? (
-        <div className="flex items-center justify-center h-80 bg-muted rounded-lg">
-          <p className="text-muted-foreground">No retirement data available for the forecast period</p>
+        <div className="bg-muted flex h-80 items-center justify-center rounded-lg">
+          <p className="text-muted-foreground">
+            No retirement data available for the forecast period
+          </p>
         </div>
       ) : (
         <AreaChart

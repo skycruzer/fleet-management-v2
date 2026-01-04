@@ -12,7 +12,7 @@ import { logger } from '@/lib/services/logging-service'
 import { ErrorSeverity } from '@/lib/utils/error-messages'
 import type { Database } from '@/types/supabase'
 
-export type NotificationType = Database["public"]["Enums"]["notification_type"]
+export type NotificationType = Database['public']['Enums']['notification_type']
 
 export interface Notification {
   id: string

@@ -79,24 +79,30 @@ export function CertificationCategoryGroup({
     <Card className="overflow-hidden">
       {/* Category Header */}
       <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+        className="hover:bg-muted/50 flex cursor-pointer items-center justify-between p-4 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-4 flex-1">
+        <div className="flex flex-1 items-center gap-4">
           <span className="text-2xl">{getCategoryIcon(category)}</span>
-          <h3 className="text-lg font-semibold text-foreground">{category}</h3>
+          <h3 className="text-foreground text-lg font-semibold">{category}</h3>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
               {stats.total} Total
             </Badge>
-            <Badge variant="outline" className="text-xs border-green-500 bg-green-50 text-green-800">
+            <Badge
+              variant="outline"
+              className="border-green-500 bg-green-50 text-xs text-green-800"
+            >
               {stats.current} Current
             </Badge>
-            <Badge variant="outline" className="text-xs border-yellow-500 bg-yellow-50 text-yellow-800">
+            <Badge
+              variant="outline"
+              className="border-yellow-500 bg-yellow-50 text-xs text-yellow-800"
+            >
               {stats.expiring} Expiring
             </Badge>
             {stats.expired > 0 && (
-              <Badge variant="outline" className="text-xs border-red-500 bg-red-50 text-red-800">
+              <Badge variant="outline" className="border-red-500 bg-red-50 text-xs text-red-800">
                 {stats.expired} Expired
               </Badge>
             )}
@@ -111,33 +117,33 @@ export function CertificationCategoryGroup({
       {isExpanded && (
         <div className="border-t">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border">
+            <table className="divide-border min-w-full divide-y">
               <thead className="bg-muted/20">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Check Type
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Completion
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Expiry
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border bg-background">
+              <tbody className="divide-border bg-background divide-y">
                 {certifications.map((cert) => (
                   <tr key={cert.id} className="hover:bg-muted/50 transition-colors">
-                    <td className="px-4 py-4 text-sm font-medium text-foreground whitespace-nowrap">
+                    <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                       {cert.check_type?.check_description || 'N/A'}
                     </td>
-                    <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
+                    <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                       {cert.created_at ? format(new Date(cert.created_at), 'MMM dd, yyyy') : 'N/A'}
                     </td>
                     <td className="px-4 py-4 text-sm whitespace-nowrap">
@@ -154,7 +160,7 @@ export function CertificationCategoryGroup({
                             size="sm"
                             onClick={() => onSave(cert.id)}
                             disabled={savingCert}
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-green-600 text-white hover:bg-green-700"
                           >
                             {savingCert ? 'Saving...' : 'Save'}
                           </Button>

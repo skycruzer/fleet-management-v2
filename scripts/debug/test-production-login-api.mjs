@@ -6,7 +6,9 @@
 console.log('🔍 Testing Production Login API\n')
 
 // Get production URL from Vercel output or use default
-const productionUrl = process.env.VERCEL_URL || 'https://fleet-management-v2-lg2a5gbpg-rondeaumaurice-5086s-projects.vercel.app'
+const productionUrl =
+  process.env.VERCEL_URL ||
+  'https://fleet-management-v2-lg2a5gbpg-rondeaumaurice-5086s-projects.vercel.app'
 
 console.log('Production URL:', productionUrl)
 console.log('\n' + '='.repeat(60) + '\n')
@@ -24,8 +26,8 @@ try {
     },
     body: JSON.stringify({
       email: 'skycruzer@icloud.com',
-      password: 'mron2393'
-    })
+      password: 'mron2393',
+    }),
   })
 
   const adminData = await adminResponse.json()
@@ -57,8 +59,8 @@ try {
     },
     body: JSON.stringify({
       email: 'mrondeau@airniugini.com.pg',
-      password: 'Lemakot@1972'
-    })
+      password: 'Lemakot@1972',
+    }),
   })
 
   const pilotData = await pilotResponse.json()

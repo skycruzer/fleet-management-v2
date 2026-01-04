@@ -13,16 +13,16 @@ async function testAdminLogin() {
     // Launch browser
     console.log('🚀 Launching Chromium...')
     browser = await chromium.launch({
-      headless: false,  // Show the browser
-      slowMo: 500       // Slow down actions to see what's happening
+      headless: false, // Show the browser
+      slowMo: 500, // Slow down actions to see what's happening
     })
 
     context = await browser.newContext()
     page = await context.newPage()
 
     // Enable console logging from the browser
-    page.on('console', msg => console.log('BROWSER LOG:', msg.text()))
-    page.on('pageerror', error => console.log('BROWSER ERROR:', error))
+    page.on('console', (msg) => console.log('BROWSER LOG:', msg.text()))
+    page.on('pageerror', (error) => console.log('BROWSER ERROR:', error))
 
     // Navigate to login page
     console.log('📄 Navigating to login page...')
@@ -100,7 +100,6 @@ async function testAdminLogin() {
       console.log('⚠️  Unexpected URL:', currentUrl)
       return false
     }
-
   } catch (error) {
     console.log('❌ Test Error:', error.message)
     console.log(error.stack)
@@ -125,7 +124,7 @@ async function testAdminLogin() {
 }
 
 testAdminLogin()
-  .then(success => {
+  .then((success) => {
     console.log()
     console.log('='.repeat(80))
     if (success) {
@@ -136,7 +135,7 @@ testAdminLogin()
     console.log('='.repeat(80))
     process.exit(success ? 0 : 1)
   })
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

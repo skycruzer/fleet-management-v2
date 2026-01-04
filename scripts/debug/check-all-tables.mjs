@@ -14,19 +14,13 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function checkAllTables() {
   console.log('\n🔍 Checking All Request Tables\n')
-  console.log('=' .repeat(60))
+  console.log('='.repeat(60))
 
-  const tables = [
-    'leave_requests',
-    'flight_requests',
-    'leave_bids',
-  ]
+  const tables = ['leave_requests', 'flight_requests', 'leave_bids']
 
   for (const table of tables) {
     try {
-      const { data, error, count } = await supabase
-        .from(table)
-        .select('*', { count: 'exact' })
+      const { data, error, count } = await supabase.from(table).select('*', { count: 'exact' })
 
       if (error) {
         console.log(`\n❌ ${table}: Error - ${error.message}`)
@@ -54,7 +48,7 @@ async function checkAllTables() {
     console.log(`   Found ${leaveData.length} records`)
     if (leaveData.length > 0) {
       console.log('   Sample:')
-      leaveData.slice(0, 3).forEach(r => {
+      leaveData.slice(0, 3).forEach((r) => {
         console.log(`   - ${r.employee_number}: ${r.leave_type} (${r.status}) ${r.roster_period}`)
       })
     }

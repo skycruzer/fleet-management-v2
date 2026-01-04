@@ -121,7 +121,10 @@ test.describe('PILOT PORTAL - Complete Feature Testing', () => {
     if (await historyLink.isVisible()) {
       await historyLink.click()
       await page.waitForTimeout(1000)
-      await page.screenshot({ path: 'test-screenshots/07-pilot-feedback-history.png', fullPage: true })
+      await page.screenshot({
+        path: 'test-screenshots/07-pilot-feedback-history.png',
+        fullPage: true,
+      })
       console.log('   ✅ Feedback history working')
     }
     console.log('   ✅ Feedback page tested\n')
@@ -136,7 +139,7 @@ test.describe('PILOT PORTAL - Complete Feature Testing', () => {
       { name: /certifications/i, url: '/portal/certifications' },
       { name: /leave/i, url: '/portal/leave-requests' },
       { name: /flight/i, url: '/portal/flight-requests' },
-      { name: /feedback/i, url: '/portal/feedback' }
+      { name: /feedback/i, url: '/portal/feedback' },
     ]
 
     for (const item of navItems) {
@@ -273,14 +276,14 @@ test.describe('ERROR CHECKING - Console and Network', () => {
     const failedRequests: string[] = []
 
     // Capture console errors
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text())
       }
     })
 
     // Monitor network requests
-    page.on('response', response => {
+    page.on('response', (response) => {
       if (response.status() >= 400) {
         failedRequests.push(`${response.status()} ${response.url()}`)
       }
@@ -300,7 +303,7 @@ test.describe('ERROR CHECKING - Console and Network', () => {
       '/portal/certifications',
       '/portal/leave-requests',
       '/portal/flight-requests',
-      '/portal/feedback'
+      '/portal/feedback',
     ]
 
     for (const pagePath of pilotPages) {
@@ -335,15 +338,16 @@ test.describe('ERROR CHECKING - Console and Network', () => {
     console.log('\n')
 
     // Critical errors should not exist
-    const criticalErrors = consoleErrors.filter(error =>
-      error.includes('is not defined') ||
-      error.includes('Cannot read property') ||
-      error.includes('undefined')
+    const criticalErrors = consoleErrors.filter(
+      (error) =>
+        error.includes('is not defined') ||
+        error.includes('Cannot read property') ||
+        error.includes('undefined')
     )
 
     if (criticalErrors.length > 0) {
       console.log('❌ CRITICAL ERRORS FOUND:')
-      criticalErrors.forEach(error => console.log(`   - ${error}`))
+      criticalErrors.forEach((error) => console.log(`   - ${error}`))
       throw new Error(`Found ${criticalErrors.length} critical errors`)
     }
   })

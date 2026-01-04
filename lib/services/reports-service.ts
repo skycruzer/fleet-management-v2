@@ -133,13 +133,11 @@ export async function generateLeaveReport(
   }
 
   // Filter by rank if needed (using denormalized rank field)
-   
+
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.rank)
-    )
+    filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
   // Calculate summary statistics (before pagination)
@@ -147,15 +145,19 @@ export async function generateLeaveReport(
   const summary = {
     totalRequests: filteredData.length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED').length,
+    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW').length,
+    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
+    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN').length,
+    withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -249,28 +251,30 @@ export async function generateRdoSdoReport(
   }
 
   // Filter by rank if needed (using denormalized rank field)
-   
+
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.rank)
-    )
+    filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
   // Calculate summary statistics (before pagination)
   const summary = {
     totalRequests: filteredData.length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED').length,
+    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW').length,
+    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
+    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN').length,
+    withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN')
+      .length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rdoRequests: filteredData.filter((r: any) => r.request_type === 'RDO').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -341,7 +345,8 @@ export async function generateCertificationsReport(
 
   let query = supabase
     .from('pilot_checks')
-    .select(`
+    .select(
+      `
       *,
       pilot:pilots!pilot_checks_pilot_id_fkey (
         first_name,
@@ -354,7 +359,8 @@ export async function generateCertificationsReport(
         check_description,
         category
       )
-    `)
+    `
+    )
     .order('expiry_date', { ascending: true })
 
   // Apply filters (pilot_checks has expiry_date, not completion_date)
@@ -388,13 +394,11 @@ export async function generateCertificationsReport(
   }
 
   // Filter by rank if needed
-   
+
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filteredData = filteredData.filter((item: any) =>
-      filters.rank!.includes(item.pilot?.role)
-    )
+    filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.pilot?.role))
   }
 
   // Calculate expiry and filter by threshold
@@ -402,7 +406,9 @@ export async function generateCertificationsReport(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataWithExpiry = filteredData.map((cert: any) => {
     const expiryDate = new Date(cert.expiry_date)
-    const daysUntilExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    const daysUntilExpiry = Math.floor(
+      (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    )
 
     return {
       ...cert,
@@ -415,9 +421,8 @@ export async function generateCertificationsReport(
   // Filter by expiry threshold if provided
   let finalData = dataWithExpiry
   if (filters.expiryThreshold !== undefined) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    finalData = dataWithExpiry.filter((cert: any) =>
-      cert.daysUntilExpiry <= filters.expiryThreshold!
+    finalData = dataWithExpiry.filter(
+      (cert: any) => cert.daysUntilExpiry <= filters.expiryThreshold!
     )
   }
 
@@ -578,9 +583,7 @@ export async function generateAllRequestsReport(
   let filteredData = allRequests
   if (filters.rank && filters.rank.length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filteredData = allRequests.filter((item: any) =>
-      filters.rank!.includes(item.rank)
-    )
+    filteredData = allRequests.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
   // Calculate summary statistics (before pagination)
@@ -592,14 +595,26 @@ export async function generateAllRequestsReport(
     leaveRequests: filteredData.filter((r: any) => r.request_source === 'LEAVE').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     leaveBids: filteredData.filter((r: any) => r.request_source === 'LEAVE_BID').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED' || r.status?.toUpperCase() === 'SUBMITTED').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW' || r.status?.toUpperCase() === 'IN_REVIEW').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED' || r.status?.toUpperCase() === 'APPROVED').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED' || r.status?.toUpperCase() === 'DENIED').length,
+
+    submitted: filteredData.filter(
+      (r: any) =>
+        r.workflow_status?.toUpperCase() === 'SUBMITTED' || r.status?.toUpperCase() === 'SUBMITTED'
+    ).length,
+
+    inReview: filteredData.filter(
+      (r: any) =>
+        r.workflow_status?.toUpperCase() === 'IN_REVIEW' || r.status?.toUpperCase() === 'IN_REVIEW'
+    ).length,
+
+    approved: filteredData.filter(
+      (r: any) =>
+        r.workflow_status?.toUpperCase() === 'APPROVED' || r.status?.toUpperCase() === 'APPROVED'
+    ).length,
+
+    denied: filteredData.filter(
+      (r: any) =>
+        r.workflow_status?.toUpperCase() === 'DENIED' || r.status?.toUpperCase() === 'DENIED'
+    ).length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -610,7 +625,8 @@ export async function generateAllRequestsReport(
   if (fullExport) {
     return {
       title: 'All Requests Report',
-      description: 'Comprehensive report combining RDO/SDO requests, Leave requests, and Leave bids',
+      description:
+        'Comprehensive report combining RDO/SDO requests, Leave requests, and Leave bids',
       generatedAt: new Date().toISOString(),
       generatedBy: generatedBy || 'System',
       filters,
@@ -652,7 +668,9 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
 
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Generated: ${new Date(report.generatedAt).toLocaleString()}`, pageWidth / 2, 28, { align: 'center' })
+  doc.text(`Generated: ${new Date(report.generatedAt).toLocaleString()}`, pageWidth / 2, 28, {
+    align: 'center',
+  })
 
   // Summary section
   let yPos = 40
@@ -695,14 +713,18 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
   } else if (reportType === 'rdo-sdo') {
     autoTable(doc, {
       startY: yPos,
-      head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Days', 'Status', 'Roster Period']],
+      head: [
+        ['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Days', 'Status', 'Roster Period'],
+      ],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: report.data.map((item: any) => [
         item.name || 'N/A',
         item.rank || 'N/A',
         item.request_type || 'N/A',
         new Date(item.start_date).toLocaleDateString(),
-        item.end_date ? new Date(item.end_date).toLocaleDateString() : new Date(item.start_date).toLocaleDateString(),
+        item.end_date
+          ? new Date(item.end_date).toLocaleDateString()
+          : new Date(item.start_date).toLocaleDateString(),
         item.days_count || '1',
         item.workflow_status || 'N/A',
         item.roster_period || 'N/A',
@@ -779,11 +801,11 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
     // Use specialized leave bids PDF service
     // Extract year from report data (default to current year if not available)
     const currentYear = new Date().getFullYear()
-     
+
     const bidYear = report.data[0]?.bid_year || currentYear
 
     // Extract status filter if any (from report summary or default to 'all')
-    const statusFilter = report.summary?.statusFilter as string || 'all'
+    const statusFilter = (report.summary?.statusFilter as string) || 'all'
 
     // Generate PDF using specialized service and return directly
     return await generateLeaveBidsPDF(report.data, bidYear, statusFilter)
@@ -794,12 +816,9 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.setFontSize(8)
-    doc.text(
-      `Page ${i} of ${pageCount}`,
-      pageWidth / 2,
-      doc.internal.pageSize.getHeight() - 10,
-      { align: 'center' }
-    )
+    doc.text(`Page ${i} of ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, {
+      align: 'center',
+    })
   }
 
   return Buffer.from(doc.output('arraybuffer'))
@@ -820,7 +839,8 @@ export async function generateLeaveBidsReport(
   // Query leave_bids table with pilot information
   let query = supabase
     .from('leave_bids')
-    .select(`
+    .select(
+      `
       *,
       pilot:pilots!pilot_id (
         id,
@@ -829,7 +849,8 @@ export async function generateLeaveBidsReport(
         role,
         seniority_number
       )
-    `)
+    `
+    )
     .order('submitted_at', { ascending: false })
 
   // Apply filters
@@ -971,9 +992,13 @@ export async function generateReport(
 export function invalidateReportCache(reportType?: ReportType): void {
   if (reportType) {
     // Invalidate specific report type
-    invalidateCacheByTag(REPORT_CACHE_CONFIG.TAGS[reportType.toUpperCase().replace('-', '_') as keyof typeof REPORT_CACHE_CONFIG.TAGS])
+    invalidateCacheByTag(
+      REPORT_CACHE_CONFIG.TAGS[
+        reportType.toUpperCase().replace('-', '_') as keyof typeof REPORT_CACHE_CONFIG.TAGS
+      ]
+    )
   } else {
     // Invalidate all reports
-    Object.values(REPORT_CACHE_CONFIG.TAGS).forEach(tag => invalidateCacheByTag(tag))
+    Object.values(REPORT_CACHE_CONFIG.TAGS).forEach((tag) => invalidateCacheByTag(tag))
   }
 }

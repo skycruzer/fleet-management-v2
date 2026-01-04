@@ -13,7 +13,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PilotLeaveRequestSchema, type PilotLeaveRequestInput } from '@/lib/validations/pilot-leave-schema'
+import {
+  PilotLeaveRequestSchema,
+  type PilotLeaveRequestInput,
+} from '@/lib/validations/pilot-leave-schema'
 
 export default function LeaveRequestForm() {
   const router = useRouter()
@@ -80,13 +83,16 @@ export default function LeaveRequestForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       {/* Leave Type */}
       <div>
-        <label htmlFor="request_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="request_type"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Leave Type <span className="text-red-500">*</span>
         </label>
         <select
           id="request_type"
           {...form.register('request_type')}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         >
           <option value="ANNUAL">Annual Leave</option>
           <option value="RDO">Rostered Day Off (RDO)</option>
@@ -104,14 +110,17 @@ export default function LeaveRequestForm() {
 
       {/* Start Date */}
       <div>
-        <label htmlFor="start_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="start_date"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Start Date <span className="text-red-500">*</span>
         </label>
         <input
           type="date"
           id="start_date"
           {...form.register('start_date')}
-          className="mt-1 block w-full h-11 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.start_date && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.start_date.message}</p>
@@ -120,7 +129,10 @@ export default function LeaveRequestForm() {
 
       {/* End Date */}
       <div>
-        <label htmlFor="end_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="end_date"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           End Date <span className="text-red-500">*</span>
         </label>
         <input
@@ -128,7 +140,7 @@ export default function LeaveRequestForm() {
           id="end_date"
           {...form.register('end_date')}
           min={startDate || undefined}
-          className="mt-1 block w-full h-11 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.end_date && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.end_date.message}</p>
@@ -137,7 +149,10 @@ export default function LeaveRequestForm() {
 
       {/* Reason (Optional) */}
       <div>
-        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="reason"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Reason (Optional)
         </label>
         <textarea
@@ -145,14 +160,12 @@ export default function LeaveRequestForm() {
           {...form.register('reason')}
           rows={3}
           placeholder="Optional notes about your leave request..."
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.reason && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.reason.message}</p>
         )}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Maximum 500 characters
-        </p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Maximum 500 characters</p>
       </div>
 
       {/* Error Message */}
@@ -175,7 +188,7 @@ export default function LeaveRequestForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md bg-primary px-4 py-2 text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:hover:bg-primary"
+        className="bg-primary hover:bg-primary/90 focus:ring-primary dark:bg-primary dark:hover:bg-primary w-full rounded-md px-4 py-2 text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Leave Request'}
       </button>
@@ -183,8 +196,8 @@ export default function LeaveRequestForm() {
       {/* Help Text */}
       <div className="rounded-md bg-blue-50 p-3 dark:bg-blue-900/20">
         <p className="text-xs text-blue-800 dark:text-blue-200">
-          <strong>Note:</strong> Leave requests submitted with less than 21 days advance notice
-          will be flagged as late requests and may require special approval.
+          <strong>Note:</strong> Leave requests submitted with less than 21 days advance notice will
+          be flagged as late requests and may require special approval.
         </p>
       </div>
     </form>

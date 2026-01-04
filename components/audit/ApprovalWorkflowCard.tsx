@@ -10,14 +10,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  FileText,
-  Send,
-  AlertCircle,
-} from 'lucide-react'
+import { CheckCircle2, XCircle, Clock, FileText, Send, AlertCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import {
@@ -32,9 +25,7 @@ interface ApprovalWorkflowCardProps {
 /**
  * Server Component: Fetches and displays approval workflow history
  */
-export async function ApprovalWorkflowCard({
-  leaveRequestId,
-}: ApprovalWorkflowCardProps) {
+export async function ApprovalWorkflowCard({ leaveRequestId }: ApprovalWorkflowCardProps) {
   const history = await getLeaveRequestApprovalHistory(leaveRequestId)
 
   if (!history || history.timeline.length === 0) {
@@ -44,9 +35,7 @@ export async function ApprovalWorkflowCard({
           <CardTitle className="text-sm font-medium">Approval Workflow</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            No workflow history available
-          </p>
+          <p className="text-muted-foreground text-sm">No workflow history available</p>
         </CardContent>
       </Card>
     )
@@ -59,8 +48,8 @@ export async function ApprovalWorkflowCard({
           <CardTitle className="text-sm font-medium">Approval Workflow</CardTitle>
           <StatusBadge status={history.currentStatus} />
         </div>
-        <div className="mt-1 text-xs text-muted-foreground">
-          Submitted {format(history.submittedAt, 'MMM d, yyyy \'at\' h:mm a')}
+        <div className="text-muted-foreground mt-1 text-xs">
+          Submitted {format(history.submittedAt, "MMM d, yyyy 'at' h:mm a")}
         </div>
       </CardHeader>
       <CardContent>
@@ -77,17 +66,10 @@ function ApprovalTimeline({ timeline }: { timeline: ApprovalTimelineEntry[] }) {
   return (
     <div className="relative space-y-4">
       {/* Vertical timeline line */}
-      <div
-        className="absolute left-[19px] top-2 bottom-2 w-[2px] bg-border"
-        aria-hidden="true"
-      />
+      <div className="bg-border absolute top-2 bottom-2 left-[19px] w-[2px]" aria-hidden="true" />
 
       {timeline.map((entry, index) => (
-        <TimelineEntry
-          key={index}
-          entry={entry}
-          isLast={index === timeline.length - 1}
-        />
+        <TimelineEntry key={index} entry={entry} isLast={index === timeline.length - 1} />
       ))}
     </div>
   )
@@ -96,13 +78,7 @@ function ApprovalTimeline({ timeline }: { timeline: ApprovalTimelineEntry[] }) {
 /**
  * Individual timeline entry component
  */
-function TimelineEntry({
-  entry,
-  isLast,
-}: {
-  entry: ApprovalTimelineEntry
-  isLast: boolean
-}) {
+function TimelineEntry({ entry, isLast }: { entry: ApprovalTimelineEntry; isLast: boolean }) {
   const config = getActionConfig(entry.action)
 
   // Get user initials for avatar
@@ -121,7 +97,7 @@ function TimelineEntry({
       <div className={cn('relative z-10 flex-shrink-0', isLast ? '' : '')}>
         <div
           className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background',
+            'bg-background flex h-10 w-10 items-center justify-center rounded-full border-2',
             config.borderColor
           )}
         >
@@ -135,15 +111,15 @@ function TimelineEntry({
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm">{config.label}</span>
+              <span className="text-sm font-semibold">{config.label}</span>
               {entry.newStatus && (
                 <Badge variant="outline" className="text-xs">
                   {entry.newStatus}
                 </Badge>
               )}
             </div>
-            <div className="mt-0.5 text-xs text-muted-foreground">
-              {format(entry.timestamp, 'MMM d, yyyy \'at\' h:mm a')}
+            <div className="text-muted-foreground mt-0.5 text-xs">
+              {format(entry.timestamp, "MMM d, yyyy 'at' h:mm a")}
             </div>
           </div>
         </div>
@@ -152,9 +128,7 @@ function TimelineEntry({
         {entry.performedBy && (
           <div className="flex items-center gap-2">
             <Avatar className="h-6 w-6">
-              <AvatarFallback className="text-xs bg-muted">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="bg-muted text-xs">{initials}</AvatarFallback>
             </Avatar>
             <div className="text-xs">
               <span className="font-medium">{entry.performedBy.name}</span>
@@ -165,11 +139,11 @@ function TimelineEntry({
 
         {/* Reason (if provided) */}
         {entry.reason && (
-          <div className="rounded-lg bg-muted/50 p-3 text-sm">
+          <div className="bg-muted/50 rounded-lg p-3 text-sm">
             <div className="flex items-start gap-2">
-              <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+              <FileText className="text-muted-foreground mt-0.5 h-4 w-4 flex-shrink-0" />
               <div>
-                <div className="font-medium text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                <div className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
                   Reason
                 </div>
                 <p className="text-sm">{entry.reason}</p>
@@ -180,7 +154,7 @@ function TimelineEntry({
 
         {/* Changed Fields (if any) */}
         {entry.changedFields && entry.changedFields.length > 0 && (
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             Modified: {entry.changedFields.join(', ')}
           </div>
         )}
@@ -254,9 +228,5 @@ function StatusBadge({ status }: { status: string }) {
 
   const config = configs[status] || configs.PENDING
 
-  return (
-    <Badge className={cn('border', config.className)}>
-      {status}
-    </Badge>
-  )
+  return <Badge className={cn('border', config.className)}>{status}</Badge>
 }

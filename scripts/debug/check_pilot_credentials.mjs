@@ -11,17 +11,14 @@ import { readFileSync } from 'fs'
 // Read .env.local file
 const envFile = readFileSync('.env.local', 'utf8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const match = line.match(/^([^=:#]+)=(.*)$/)
   if (match) {
     env[match[1].trim()] = match[2].trim()
   }
 })
 
-const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
 async function checkPilotCredentials() {
   console.log('\n🔍 Checking Pilot Portal Credentials...\n')
@@ -29,10 +26,7 @@ async function checkPilotCredentials() {
   const pilotEmail = 'mrondeau@airniugini.com.pg'
 
   // Query an_users table for this email
-  const { data: users, error } = await supabase
-    .from('an_users')
-    .select('*')
-    .eq('email', pilotEmail)
+  const { data: users, error } = await supabase.from('an_users').select('*').eq('email', pilotEmail)
 
   if (error) {
     console.error('❌ Error querying an_users:', error.message)
@@ -102,7 +96,7 @@ async function checkPilotCredentials() {
 
 checkPilotCredentials()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

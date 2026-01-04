@@ -124,8 +124,10 @@ export function PilotOverviewTab({
 
     if (qualifications && typeof qualifications === 'object') {
       const quals: string[] = []
-      if ((qualifications as Record<string, boolean>).line_captain === true) quals.push('Line Captain')
-      if ((qualifications as Record<string, boolean>).training_captain === true) quals.push('Training Captain')
+      if ((qualifications as Record<string, boolean>).line_captain === true)
+        quals.push('Line Captain')
+      if ((qualifications as Record<string, boolean>).training_captain === true)
+        quals.push('Training Captain')
       if ((qualifications as Record<string, boolean>).examiner === true) quals.push('Examiner')
       return quals
     }
@@ -230,11 +232,13 @@ export function PilotOverviewTab({
         className="grid grid-cols-1 gap-4 md:grid-cols-3"
       >
         <motion.div variants={fadeIn}>
-          <Card className="group relative overflow-hidden border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 transition-all hover:shadow-lg dark:from-green-950/30 dark:to-emerald-950/30 dark:border-green-800">
+          <Card className="group relative overflow-hidden border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 transition-all hover:shadow-lg dark:border-green-800 dark:from-green-950/30 dark:to-emerald-950/30">
             <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-green-500/10" />
             <div className="relative flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-green-700 dark:text-green-400">Current</p>
+                <p className="mb-1 text-sm font-medium text-green-700 dark:text-green-400">
+                  Current
+                </p>
                 <p className="text-4xl font-bold text-green-900 dark:text-green-100">
                   {pilot.certificationStatus.current}
                 </p>
@@ -248,11 +252,13 @@ export function PilotOverviewTab({
         </motion.div>
 
         <motion.div variants={fadeIn}>
-          <Card className="group relative overflow-hidden border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50 p-6 transition-all hover:shadow-lg dark:from-yellow-950/30 dark:to-amber-950/30 dark:border-yellow-800">
+          <Card className="group relative overflow-hidden border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50 p-6 transition-all hover:shadow-lg dark:border-yellow-800 dark:from-yellow-950/30 dark:to-amber-950/30">
             <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-yellow-500/10" />
             <div className="relative flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-yellow-700 dark:text-yellow-400">Expiring Soon</p>
+                <p className="mb-1 text-sm font-medium text-yellow-700 dark:text-yellow-400">
+                  Expiring Soon
+                </p>
                 <p className="text-4xl font-bold text-yellow-900 dark:text-yellow-100">
                   {pilot.certificationStatus.expiring}
                 </p>
@@ -266,7 +272,7 @@ export function PilotOverviewTab({
         </motion.div>
 
         <motion.div variants={fadeIn}>
-          <Card className="group relative overflow-hidden border-red-200 bg-gradient-to-br from-red-50 to-rose-50 p-6 transition-all hover:shadow-lg dark:from-red-950/30 dark:to-rose-950/30 dark:border-red-800">
+          <Card className="group relative overflow-hidden border-red-200 bg-gradient-to-br from-red-50 to-rose-50 p-6 transition-all hover:shadow-lg dark:border-red-800 dark:from-red-950/30 dark:to-rose-950/30">
             <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-red-500/10" />
             <div className="relative flex items-center justify-between">
               <div>
@@ -439,8 +445,8 @@ export function PilotOverviewTab({
                 <p className="text-muted-foreground">No qualifications recorded</p>
               )}
               {pilot.qualification_notes && (
-                <div className="mt-4 rounded-lg bg-muted/50 p-3">
-                  <p className="text-sm text-muted-foreground">{pilot.qualification_notes}</p>
+                <div className="bg-muted/50 mt-4 rounded-lg p-3">
+                  <p className="text-muted-foreground text-sm">{pilot.qualification_notes}</p>
                 </div>
               )}
               {pilot.rhs_captain_expiry && (

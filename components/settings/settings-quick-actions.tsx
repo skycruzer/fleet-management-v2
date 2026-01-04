@@ -61,8 +61,8 @@ export function SettingsQuickActions({ userData, onSuccess }: SettingsQuickActio
           className="h-auto justify-start gap-3 p-4 text-left"
           onClick={() => setNotificationSettingsOpen(true)}
         >
-          <div className="rounded-lg bg-primary/10 p-2">
-            <Bell className="h-4 w-4 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2">
+            <Bell className="text-primary h-4 w-4" />
           </div>
           <div>
             <p className="font-semibold">Notifications</p>

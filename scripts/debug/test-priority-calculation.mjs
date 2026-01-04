@@ -10,7 +10,7 @@ import { readFileSync } from 'fs'
 // Load environment variables from .env.local
 const envFile = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1]] = match[2]
@@ -68,7 +68,7 @@ function calculatePriorityScore(seniorityNumber, approvedDays) {
  */
 async function testPriorityCalculation() {
   console.log('🧪 Testing Priority Calculation System')
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
   console.log()
 
   // Get all Captains
@@ -121,7 +121,7 @@ async function testPriorityCalculation() {
   })
 
   console.log()
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
   console.log()
 
   // Verify seniority is prioritized correctly
@@ -129,7 +129,7 @@ async function testPriorityCalculation() {
   console.log()
 
   // Test 1: Verify top seniority gets top priority (regardless of days)
-  const topSeniority = rankings.find(r => r.seniority === 1)
+  const topSeniority = rankings.find((r) => r.seniority === 1)
   const topPriority = rankings[0]
 
   if (topSeniority && topPriority && topSeniority.id === topPriority.id) {
@@ -137,7 +137,9 @@ async function testPriorityCalculation() {
   } else {
     console.log('❌ TEST 1 FAILED: Seniority #1 should have highest priority')
     if (topSeniority) {
-      console.log(`   Seniority #1 is at rank ${rankings.findIndex(r => r.id === topSeniority.id) + 1}`)
+      console.log(
+        `   Seniority #1 is at rank ${rankings.findIndex((r) => r.id === topSeniority.id) + 1}`
+      )
     }
   }
 
@@ -160,7 +162,9 @@ async function testPriorityCalculation() {
     console.log(`      Seniority #${pilot.seniority} = ${seniorityScore} points`)
     console.log(`      Approved days: ${pilot.approvedDays} = ${daysScore} points`)
     console.log(`      Total = ${calculatedScore} points`)
-    console.log(`      Stored = ${pilot.priorityScore} points ${calculatedScore === pilot.priorityScore ? '✅' : '❌'}`)
+    console.log(
+      `      Stored = ${pilot.priorityScore} points ${calculatedScore === pilot.priorityScore ? '✅' : '❌'}`
+    )
     console.log()
   }
 
@@ -170,13 +174,13 @@ async function testPriorityCalculation() {
   const worstSeniorityBestDays = {
     seniority: 27,
     approvedDays: 0, // Best possible days
-    score: calculatePriorityScore(27, 0)
+    score: calculatePriorityScore(27, 0),
   }
 
   const bestSeniorityWorstDays = {
     seniority: 1,
     approvedDays: 365, // Worst possible days
-    score: calculatePriorityScore(1, 365)
+    score: calculatePriorityScore(1, 365),
   }
 
   console.log(`   Seniority #27 with 0 days = ${worstSeniorityBestDays.score} points`)
@@ -189,7 +193,7 @@ async function testPriorityCalculation() {
   }
 
   console.log()
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
   console.log('✅ Priority Calculation Test Complete!')
   console.log()
 }
@@ -197,7 +201,7 @@ async function testPriorityCalculation() {
 // Run the test
 testPriorityCalculation()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Test failed:', error)
     process.exit(1)
   })

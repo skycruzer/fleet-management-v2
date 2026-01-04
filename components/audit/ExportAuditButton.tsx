@@ -73,9 +73,7 @@ export function ExportAuditButton({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null)
-        throw new Error(
-          errorData?.error || `Export failed with status ${response.status}`
-        )
+        throw new Error(errorData?.error || `Export failed with status ${response.status}`)
       }
 
       // Get CSV data
@@ -146,9 +144,7 @@ export function ExportAuditButton({
         aria-hidden="true"
       />
       {size !== 'icon' && (
-        <span>
-          {isExporting ? 'Exporting...' : exportSuccess ? 'Exported!' : label}
-        </span>
+        <span>{isExporting ? 'Exporting...' : exportSuccess ? 'Exported!' : label}</span>
       )}
     </Button>
   )
@@ -158,11 +154,5 @@ export function ExportAuditButton({
  * Compact version for use in table rows or tight spaces
  */
 export function ExportAuditIconButton(props: Omit<ExportAuditButtonProps, 'label' | 'size'>) {
-  return (
-    <ExportAuditButton
-      {...props}
-      size="icon"
-      label="Export"
-    />
-  )
+  return <ExportAuditButton {...props} size="icon" label="Export" />
 }

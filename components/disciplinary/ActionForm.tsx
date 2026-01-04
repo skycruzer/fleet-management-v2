@@ -111,13 +111,16 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Action Type */}
         <div>
-          <label htmlFor="action_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="action_type"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Action Type <span className="text-red-500">*</span>
           </label>
           <select
             id="action_type"
             {...form.register('action_type', { required: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
             <option value="VERBAL_WARNING">Verbal Warning</option>
             <option value="WRITTEN_WARNING">Written Warning</option>
@@ -136,14 +139,17 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
 
         {/* Action Date */}
         <div>
-          <label htmlFor="action_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="action_date"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Action Date <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
             id="action_date"
             {...form.register('action_date', { required: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
           {form.formState.errors.action_date && (
             <p className="mt-1 text-sm text-red-600">Action date is required</p>
@@ -155,13 +161,16 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Issued By */}
         <div>
-          <label htmlFor="issued_by" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="issued_by"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Issued By <span className="text-red-500">*</span>
           </label>
           <select
             id="issued_by"
             {...form.register('issued_by', { required: true })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
             <option value="">Select user</option>
             {users.map((user) => (
@@ -177,28 +186,34 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
 
         {/* Action Time */}
         <div>
-          <label htmlFor="action_time" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="action_time"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Time (Optional)
           </label>
           <input
             type="time"
             id="action_time"
             {...form.register('action_time')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
         </div>
       </div>
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="description"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Description <span className="text-red-500">*</span>
         </label>
         <textarea
           id="description"
           {...form.register('description', { required: true })}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           placeholder="Describe the action taken..."
         />
         {form.formState.errors.description && (
@@ -210,27 +225,33 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Location */}
         <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="location"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Location (Optional)
           </label>
           <input
             type="text"
             id="location"
             {...form.register('location')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             placeholder="e.g., Port Moresby"
           />
         </div>
 
         {/* Status */}
         <div>
-          <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="status"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Status
           </label>
           <select
             id="status"
             {...form.register('status')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           >
             <option value="PENDING">Pending</option>
             <option value="COMPLETED">Completed</option>
@@ -244,13 +265,16 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Warning Level */}
           <div>
-            <label htmlFor="warning_level" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="warning_level"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Warning Level
             </label>
             <select
               id="warning_level"
               {...form.register('warning_level')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="">Select level</option>
               <option value="FIRST">First Warning</option>
@@ -261,14 +285,17 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
 
           {/* Appeal Deadline */}
           <div>
-            <label htmlFor="appeal_deadline" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="appeal_deadline"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Appeal Deadline
             </label>
             <input
               type="date"
               id="appeal_deadline"
               {...form.register('appeal_deadline')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -278,41 +305,50 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Suspension Days */}
           <div>
-            <label htmlFor="suspension_days" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="suspension_days"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Suspension Days
             </label>
             <input
               type="number"
               id="suspension_days"
               {...form.register('suspension_days', { valueAsNumber: true })}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               placeholder="Number of days"
             />
           </div>
 
           {/* Effective Date */}
           <div>
-            <label htmlFor="effective_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="effective_date"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Effective Date
             </label>
             <input
               type="date"
               id="effective_date"
               {...form.register('effective_date')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
           {/* Expiry Date */}
           <div>
-            <label htmlFor="expiry_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="expiry_date"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Expiry Date
             </label>
             <input
               type="date"
               id="expiry_date"
               {...form.register('expiry_date')}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -325,9 +361,12 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
             type="checkbox"
             id="follow_up_required"
             {...form.register('follow_up_required')}
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700"
+            className="text-primary focus:ring-primary h-4 w-4 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700"
           />
-          <label htmlFor="follow_up_required" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="follow_up_required"
+            className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+          >
             Follow-up Required
           </label>
         </div>
@@ -336,28 +375,34 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
       {/* Follow-up Date (if checkbox checked) */}
       {form.watch('follow_up_required') && (
         <div>
-          <label htmlFor="follow_up_date" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="follow_up_date"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Follow-up Date
           </label>
           <input
             type="date"
             id="follow_up_date"
             {...form.register('follow_up_date')}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
         </div>
       )}
 
       {/* Action Notes */}
       <div>
-        <label htmlFor="action_notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="action_notes"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Additional Notes
         </label>
         <textarea
           id="action_notes"
           {...form.register('action_notes')}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           placeholder="Any additional notes or context..."
         />
       </div>
@@ -381,14 +426,14 @@ export default function ActionForm({ matterId, users = [], onSuccess }: ActionFo
         <button
           type="button"
           onClick={() => form.reset()}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="focus:ring-primary rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
         >
           Reset
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:hover:bg-primary"
+          className="bg-primary hover:bg-primary/90 focus:ring-primary dark:bg-primary dark:hover:bg-primary rounded-md px-4 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? 'Adding...' : 'Add Action'}
         </button>

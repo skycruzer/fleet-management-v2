@@ -11,15 +11,12 @@ import { readFileSync } from 'fs'
 // Read .env.local
 const envFile = readFileSync('.env.local', 'utf8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const match = line.match(/^([^=:#]+)=(.*)$/)
   if (match) env[match[1].trim()] = match[2].trim()
 })
 
-const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
 async function checkTables() {
   console.log('\n📋 Checking Database Tables...\n')
@@ -30,7 +27,7 @@ async function checkTables() {
     'pilot_sessions',
     'failed_login_attempts',
     'pilots',
-    'an_users'
+    'an_users',
   ]
 
   for (const tableName of tablesToCheck) {
@@ -66,7 +63,7 @@ async function checkTables() {
 
 checkTables()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

@@ -39,7 +39,10 @@ export function OptimisticFeedbackExample({ initialFeedback }: OptimisticFeedbac
   // Optimistic feedback state
   const [optimisticFeedback, setOptimisticFeedback] = useOptimistic(
     initialFeedback,
-    (state: FeedbackItem[], update: { id: string; action: 'upvote' | 'downvote' | 'remove-vote' }) => {
+    (
+      state: FeedbackItem[],
+      update: { id: string; action: 'upvote' | 'downvote' | 'remove-vote' }
+    ) => {
       return state.map((item) => {
         if (item.id !== update.id) return item
 
@@ -130,7 +133,7 @@ export function OptimisticFeedbackExample({ initialFeedback }: OptimisticFeedbac
           <CardTitle>Optimistic Feedback Voting Example</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Click the thumbs up or down buttons to vote. The UI updates instantly without waiting
             for the server. If the server request fails, the vote is automatically rolled back.
           </p>
@@ -168,12 +171,12 @@ export function OptimisticFeedbackExample({ initialFeedback }: OptimisticFeedbac
 
               {/* Content */}
               <div className="flex-1">
-                <h4 className="font-semibold mb-2">{item.title}</h4>
-                <p className="text-sm text-muted-foreground">{item.content}</p>
+                <h4 className="mb-2 font-semibold">{item.title}</h4>
+                <p className="text-muted-foreground text-sm">{item.content}</p>
 
                 {/* Vote Status Indicator */}
                 {item.userVote && (
-                  <div className="flex items-center gap-2 mt-3 text-sm text-green-600">
+                  <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
                     <CheckCircle2 className="h-4 w-4" />
                     You voted {item.userVote === 'up' ? 'up' : 'down'}
                   </div>

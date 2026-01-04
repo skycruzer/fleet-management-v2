@@ -116,7 +116,8 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                       {new Date(request.start_date).toLocaleDateString()}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400">
-                      <strong>Description:</strong> {request.description ? request.description.substring(0, 50) + '...' : 'N/A'}
+                      <strong>Description:</strong>{' '}
+                      {request.description ? request.description.substring(0, 50) + '...' : 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -201,7 +202,11 @@ function formatRequestType(type: string): string {
 }
 
 // Status Badge Component
-function StatusBadge({ status }: { status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN' }) {
+function StatusBadge({
+  status,
+}: {
+  status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+}) {
   const badgeStyles = {
     SUBMITTED: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
     PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',

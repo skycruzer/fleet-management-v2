@@ -21,7 +21,7 @@ const Command = React.forwardRef<HTMLDivElement, CommandProps>(
       <div
         ref={ref}
         className={cn(
-          'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
+          'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md',
           className
         )}
         {...props}
@@ -43,7 +43,7 @@ const CommandInput = React.forwardRef<HTMLInputElement, CommandInputProps>(
         <input
           ref={ref}
           className={cn(
-            'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+            'placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50',
             className
           )}
           onChange={(e) => onValueChange?.(e.target.value)}
@@ -56,51 +56,41 @@ const CommandInput = React.forwardRef<HTMLInputElement, CommandInputProps>(
 CommandInput.displayName = 'CommandInput'
 
 // Command List
-const CommandList = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn('max-h-[300px] overflow-y-auto overflow-x-hidden', className)}
-      {...props}
-    />
-  )
-})
+const CommandList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('max-h-[300px] overflow-x-hidden overflow-y-auto', className)}
+        {...props}
+      />
+    )
+  }
+)
 CommandList.displayName = 'CommandList'
 
 // Command Empty
-const CommandEmpty = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn('py-6 text-center text-sm text-muted-foreground', className)}
-      {...props}
-    />
-  )
-})
+const CommandEmpty = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('text-muted-foreground py-6 text-center text-sm', className)}
+        {...props}
+      />
+    )
+  }
+)
 CommandEmpty.displayName = 'CommandEmpty'
 
 // Command Group
-const CommandGroup = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'overflow-hidden p-1 text-foreground',
-        className
-      )}
-      {...props}
-    />
-  )
-})
+const CommandGroup = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn('text-foreground overflow-hidden p-1', className)} {...props} />
+    )
+  }
+)
 CommandGroup.displayName = 'CommandGroup'
 
 // Command Item
@@ -115,7 +105,7 @@ const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>(
       <div
         ref={ref}
         className={cn(
-          'relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+          'hover:bg-accent hover:text-accent-foreground relative flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
           className
         )}
         onClick={() => value && onSelect?.(value)}
@@ -127,31 +117,18 @@ const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>(
 CommandItem.displayName = 'CommandItem'
 
 // Command Separator
-const CommandSeparator = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn('-mx-1 h-px bg-border', className)}
-      {...props}
-    />
-  )
-})
+const CommandSeparator = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return <div ref={ref} className={cn('bg-border -mx-1 h-px', className)} {...props} />
+  }
+)
 CommandSeparator.displayName = 'CommandSeparator'
 
 // Command Shortcut
-const CommandShortcut = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
+const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
     <span
-      className={cn(
-        'ml-auto text-xs tracking-widest text-muted-foreground',
-        className
-      )}
+      className={cn('text-muted-foreground ml-auto text-xs tracking-widest', className)}
       {...props}
     />
   )

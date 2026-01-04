@@ -9,10 +9,8 @@ const supabase = createClient(
 const tables = ['leave_requests', 'flight_requests', 'pilot_leave_requests', 'leave_bids']
 
 for (const table of tables) {
-  const { count, error } = await supabase
-    .from(table)
-    .select('*', { count: 'exact', head: true })
-  
+  const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true })
+
   if (!error) {
     console.log(`${table}: ${count} records`)
   }

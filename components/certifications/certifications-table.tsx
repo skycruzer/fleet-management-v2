@@ -66,7 +66,10 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
         header: 'Expiry Date',
         accessor: (row: CertificationWithDetails) => formatDate(row.expiry_date),
       },
-      { header: 'Status', accessor: (row: CertificationWithDetails) => row.status?.label ?? 'No Date' },
+      {
+        header: 'Status',
+        accessor: (row: CertificationWithDetails) => row.status?.label ?? 'No Date',
+      },
       {
         header: 'Days Until Expiry',
         accessor: (row: CertificationWithDetails) => row.status?.daysUntilExpiry ?? '',
@@ -85,12 +88,10 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       accessorFn: (row) => `${row.pilot?.last_name}, ${row.pilot?.first_name}`,
       cell: (row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-foreground">
+          <span className="text-foreground font-medium">
             {row.pilot?.first_name} {row.pilot?.last_name}
           </span>
-          <span className="text-xs text-muted-foreground">
-            {row.pilot?.employee_id}
-          </span>
+          <span className="text-muted-foreground text-xs">{row.pilot?.employee_id}</span>
         </div>
       ),
     },
@@ -112,10 +113,8 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       accessorFn: (row) => row.check_type?.check_code || '',
       cell: (row) => (
         <div className="flex flex-col">
-          <span className="font-medium text-foreground">{row.check_type?.check_code}</span>
-          <span className="text-xs text-muted-foreground">
-            {row.check_type?.check_description}
-          </span>
+          <span className="text-foreground font-medium">{row.check_type?.check_code}</span>
+          <span className="text-muted-foreground text-xs">{row.check_type?.check_description}</span>
         </div>
       ),
     },
@@ -125,7 +124,7 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       accessorFn: (row) => row.check_type?.category || '',
       sortable: true,
       cell: (row) => (
-        <span className="text-sm text-foreground">
+        <span className="text-foreground text-sm">
           {row.check_type?.category || 'Uncategorized'}
         </span>
       ),
@@ -167,7 +166,7 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
               {row.status.label}
             </Badge>
             {row.status.daysUntilExpiry !== undefined && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 {row.status.daysUntilExpiry < 0
                   ? `${Math.abs(row.status.daysUntilExpiry)} days ago`
                   : `${row.status.daysUntilExpiry} days`}
@@ -182,7 +181,11 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       header: 'Actions',
       cell: (row) => (
         <Link href={`/dashboard/pilots/${row.pilot_id}`}>
-          <Button size="sm" variant="ghost" aria-label={`View pilot ${row.pilot?.first_name} ${row.pilot?.last_name}`}>
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-label={`View pilot ${row.pilot?.first_name} ${row.pilot?.last_name}`}
+          >
             <Eye className="h-4 w-4" aria-hidden="true" />
           </Button>
         </Link>

@@ -167,9 +167,7 @@ export async function deleteUserAccount(
     }
   } catch (error) {
     console.error('Account deletion error:', error)
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to delete account'
-    )
+    throw new Error(error instanceof Error ? error.message : 'Failed to delete account')
   }
 }
 
@@ -259,9 +257,7 @@ export async function checkDeletionSafety(userId: string): Promise<{
   }
 
   if (certifications > 0) {
-    warnings.push(
-      `This account has ${certifications} certifications that will be preserved`
-    )
+    warnings.push(`This account has ${certifications} certifications that will be preserved`)
   }
 
   if (leaveRequests > 0 || flightRequests > 0) {

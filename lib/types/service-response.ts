@@ -170,14 +170,18 @@ export class ServiceResponse {
 /**
  * Type guard to check if response is successful
  */
-export function isSuccess<T>(response: ServiceResponse<T>): response is ServiceResponse<T> & { data: T } {
+export function isSuccess<T>(
+  response: ServiceResponse<T>
+): response is ServiceResponse<T> & { data: T } {
   return response.success === true
 }
 
 /**
  * Type guard to check if response is an error
  */
-export function isError<T>(response: ServiceResponse<T>): response is ServiceResponse<T> & { error: string } {
+export function isError<T>(
+  response: ServiceResponse<T>
+): response is ServiceResponse<T> & { error: string } {
   return response.success === false
 }
 

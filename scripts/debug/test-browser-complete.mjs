@@ -13,7 +13,7 @@ console.log()
 const results = {
   adminTests: { passed: 0, failed: 0, tests: [] },
   pilotTests: { passed: 0, failed: 0, tests: [] },
-  errors: []
+  errors: [],
 }
 
 // Helper: Test endpoint and record result
@@ -28,7 +28,7 @@ async function testPage(testName, url, options = {}) {
         'User-Agent': 'Mozilla/5.0',
         ...options.headers,
       },
-      redirect: 'manual'  // Don't follow redirects automatically
+      redirect: 'manual', // Don't follow redirects automatically
     })
 
     const status = response.status
@@ -41,10 +41,9 @@ async function testPage(testName, url, options = {}) {
     }
 
     // Success conditions
-    const isSuccess = (
-      (status >= 200 && status < 300) ||  // OK responses
-      (status >= 300 && status < 400 && location)  // Redirects are OK for authenticated pages
-    )
+    const isSuccess =
+      (status >= 200 && status < 300) || // OK responses
+      (status >= 300 && status < 400 && location) // Redirects are OK for authenticated pages
 
     if (isSuccess) {
       console.log(`   ✅ SUCCESS`)
@@ -64,7 +63,7 @@ async function testPage(testName, url, options = {}) {
 
 // Test Admin Login
 async function testAdminLogin() {
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
   console.log('👤 ADMIN PORTAL TESTS')
   console.log('='.repeat(80))
   console.log()
@@ -75,7 +74,7 @@ async function testAdminLogin() {
     // Admin Login
     const { data, error } = await supabase.auth.signInWithPassword({
       email: 'skycruzer@icloud.com',
-      password: 'mron2393'
+      password: 'mron2393',
     })
 
     if (error) {
@@ -119,8 +118,8 @@ async function testPilotLogin() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email: 'mrondeau@airniugini.com.pg',
-        password: 'Lemakot@1972'
-      })
+        password: 'Lemakot@1972',
+      }),
     })
 
     const data = await response.json()
@@ -173,20 +172,16 @@ async function testAdminPages(accessToken) {
     { name: 'Certifications Page', url: `${baseUrl}/dashboard/certifications` },
     { name: 'Leave Requests Page', url: `${baseUrl}/dashboard/leave` },
     { name: 'Analytics Page', url: `${baseUrl}/dashboard/analytics` },
-    { name: 'Settings Page', url: `${baseUrl}/dashboard/settings` }
+    { name: 'Settings Page', url: `${baseUrl}/dashboard/settings` },
   ]
 
   for (const page of pages) {
-    const result = await testPage(
-      page.name,
-      page.url,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Cookie': `sb-access-token=${accessToken}`
-        }
-      }
-    )
+    const result = await testPage(page.name, page.url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Cookie: `sb-access-token=${accessToken}`,
+      },
+    })
 
     if (result.success) {
       results.adminTests.passed++
@@ -211,19 +206,15 @@ async function testPilotPages(sessionToken) {
     { name: 'Pilot Certifications', url: `${baseUrl}/portal/certifications` },
     { name: 'Leave Requests', url: `${baseUrl}/portal/leave-requests` },
     { name: 'Flight Requests', url: `${baseUrl}/portal/flight-requests` },
-    { name: 'Feedback Page', url: `${baseUrl}/portal/feedback` }
+    { name: 'Feedback Page', url: `${baseUrl}/portal/feedback` },
   ]
 
   for (const page of pages) {
-    const result = await testPage(
-      page.name,
-      page.url,
-      {
-        headers: {
-          'Cookie': `pilot_session=${sessionToken}`
-        }
-      }
-    )
+    const result = await testPage(page.name, page.url, {
+      headers: {
+        Cookie: `pilot_session=${sessionToken}`,
+      },
+    })
 
     if (result.success) {
       results.pilotTests.passed++
@@ -256,7 +247,7 @@ async function runAllTests() {
 
   // Print Summary
   console.log()
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
   console.log('📋 TEST SUMMARY')
   console.log('='.repeat(80))
   console.log()
@@ -279,12 +270,14 @@ async function runAllTests() {
   console.log(`   Total Tests: ${totalTests}`)
   console.log(`   Passed: ${totalPassed}`)
   console.log(`   Failed: ${totalFailed}`)
-  console.log(`   Success Rate: ${totalTests > 0 ? Math.round((totalPassed / totalTests) * 100) : 0}%`)
+  console.log(
+    `   Success Rate: ${totalTests > 0 ? Math.round((totalPassed / totalTests) * 100) : 0}%`
+  )
   console.log()
 
   if (results.errors.length > 0) {
     console.log('❌ ERRORS:')
-    results.errors.forEach(error => {
+    results.errors.forEach((error) => {
       console.log(`   • ${error}`)
     })
     console.log()
@@ -294,14 +287,14 @@ async function runAllTests() {
   console.log('📝 Detailed Test Results:')
   console.log()
   console.log('Admin Portal Tests:')
-  results.adminTests.tests.forEach(test => {
+  results.adminTests.tests.forEach((test) => {
     const icon = test.status === 'PASS' ? '✅' : '❌'
     console.log(`${icon} ${test.name}`)
   })
   console.log()
 
   console.log('Pilot Portal Tests:')
-  results.pilotTests.tests.forEach(test => {
+  results.pilotTests.tests.forEach((test) => {
     const icon = test.status === 'PASS' ? '✅' : '❌'
     console.log(`${icon} ${test.name}`)
   })

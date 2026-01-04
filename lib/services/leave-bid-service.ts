@@ -62,9 +62,7 @@ export interface ServiceResponse<T = void> {
  * @param bidData - Leave bid data
  * @returns Service response with created/updated bid
  */
-export async function submitLeaveBid(
-  bidData: LeaveBidInput
-): Promise<ServiceResponse<LeaveBid>> {
+export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceResponse<LeaveBid>> {
   try {
     const supabase = await createClient()
 
@@ -78,10 +76,16 @@ export async function submitLeaveBid(
     }
 
     // Validate bid data
-    if (!bidData.roster_period_code || !bidData.preferred_dates || !bidData.priority || !bidData.reason) {
+    if (
+      !bidData.roster_period_code ||
+      !bidData.preferred_dates ||
+      !bidData.priority ||
+      !bidData.reason
+    ) {
       return {
         success: false,
-        error: 'Invalid bid data: roster_period_code, preferred_dates, priority, and reason are required',
+        error:
+          'Invalid bid data: roster_period_code, preferred_dates, priority, and reason are required',
       }
     }
 

@@ -10,12 +10,12 @@ const TEST_PASSWORD = 'Lemakot@1972'
 const BASE_URL = 'http://localhost:3000'
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testPilotPortal() {
-  console.log('=€ Starting Pilot Portal Browser Testing...\n')
-  console.log('=' .repeat(80))
+  console.log('=ï¿½ Starting Pilot Portal Browser Testing...\n')
+  console.log('='.repeat(80))
 
   const browser = await puppeteer.launch({
     headless: false, // Show browser
@@ -33,7 +33,7 @@ async function testPilotPortal() {
     // ============================================================================
     // TEST 1: Navigate to Login Page
     // ============================================================================
-    console.log('\n=Ä TEST 1: Navigating to Login Page')
+    console.log('\n=ï¿½ TEST 1: Navigating to Login Page')
     await page.goto(`${BASE_URL}/portal/login`, { waitUntil: 'networkidle2' })
 
     const loginTitle = await page.title()
@@ -77,7 +77,7 @@ async function testPilotPortal() {
     // ============================================================================
     // TEST 3: Dashboard Page
     // ============================================================================
-    console.log('\n=Ê TEST 3: Testing Dashboard Page')
+    console.log('\n=ï¿½ TEST 3: Testing Dashboard Page')
 
     const dashboardTitle = await page.title()
     console.log(`   Page title: ${dashboardTitle}`)
@@ -119,7 +119,7 @@ async function testPilotPortal() {
     // ============================================================================
     // TEST 5: Certifications Page
     // ============================================================================
-    console.log('\n=Ü TEST 5: Testing Certifications Page')
+    console.log('\n=ï¿½ TEST 5: Testing Certifications Page')
 
     await page.goto(`${BASE_URL}/portal/certifications`, { waitUntil: 'networkidle2' })
     console.log('   Navigated to certifications page')
@@ -137,7 +137,7 @@ async function testPilotPortal() {
     // ============================================================================
     // TEST 6: Leave Requests Page
     // ============================================================================
-    console.log('\n<Ö  TEST 6: Testing Leave Requests Page')
+    console.log('\n<ï¿½  TEST 6: Testing Leave Requests Page')
 
     await page.goto(`${BASE_URL}/portal/leave-requests`, { waitUntil: 'networkidle2' })
     console.log('   Navigated to leave requests page')
@@ -173,18 +173,20 @@ async function testPilotPortal() {
     // ============================================================================
     // TEST 8: Navigation Menu
     // ============================================================================
-    console.log('\n>í TEST 8: Testing Navigation Menu')
+    console.log('\n>ï¿½ TEST 8: Testing Navigation Menu')
 
     const navLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('nav a, aside a'))
-      return links.map(link => ({
-        text: link.textContent.trim(),
-        href: link.getAttribute('href')
-      })).filter(link => link.href && link.href.includes('/portal/'))
+      return links
+        .map((link) => ({
+          text: link.textContent.trim(),
+          href: link.getAttribute('href'),
+        }))
+        .filter((link) => link.href && link.href.includes('/portal/'))
     })
 
     console.log(`   Found ${navLinks.length} navigation links`)
-    navLinks.forEach(link => {
+    navLinks.forEach((link) => {
       console.log(`    - ${link.text}: ${link.href}`)
     })
 
@@ -202,7 +204,7 @@ async function testPilotPortal() {
     console.log('\n= TEST 9: Checking for Console Errors')
 
     const errors = []
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.type() === 'error') {
         errors.push(msg.text())
       }
@@ -215,8 +217,8 @@ async function testPilotPortal() {
       console.log('   No console errors detected')
       testsPassed++
     } else {
-      console.log(`     Found ${errors.length} console errors:`)
-      errors.forEach(err => console.log(`    - ${err}`))
+      console.log(`  ï¿½  Found ${errors.length} console errors:`)
+      errors.forEach((err) => console.log(`    - ${err}`))
       testsPassed++ // Don't fail test for console warnings
     }
 
@@ -224,26 +226,27 @@ async function testPilotPortal() {
     // Final Summary
     // ============================================================================
     console.log('\n' + '='.repeat(80))
-    console.log('=Ê TEST SUMMARY')
+    console.log('=ï¿½ TEST SUMMARY')
     console.log('='.repeat(80))
     console.log(` Tests Passed: ${testsPassed}`)
     console.log(`L Tests Failed: ${testsFailed}`)
-    console.log(`=È Success Rate: ${((testsPassed / (testsPassed + testsFailed)) * 100).toFixed(1)}%`)
+    console.log(
+      `=ï¿½ Success Rate: ${((testsPassed / (testsPassed + testsFailed)) * 100).toFixed(1)}%`
+    )
     console.log('='.repeat(80))
 
     if (testsFailed === 0) {
-      console.log('\n<‰ ALL TESTS PASSED! The pilot portal is working perfectly!')
+      console.log('\n<ï¿½ ALL TESTS PASSED! The pilot portal is working perfectly!')
     } else {
-      console.log(`\n   ${testsFailed} test(s) failed. Please review the errors above.`)
+      console.log(`\nï¿½  ${testsFailed} test(s) failed. Please review the errors above.`)
     }
-
   } catch (error) {
     console.error('\nL Test failed with error:', error.message)
     console.error(error)
     testsFailed++
   } finally {
     // Keep browser open for 5 seconds so user can see final state
-    console.log('\nó Keeping browser open for 5 seconds...')
+    console.log('\nï¿½ Keeping browser open for 5 seconds...')
     await sleep(5000)
     await browser.close()
     console.log(' Browser closed.')

@@ -36,8 +36,8 @@ test.describe('Admin Portal - Complete Workflow', () => {
     await expect(page.getByRole('heading', { name: /pilots/i })).toBeVisible({ timeout: 60000 })
 
     // Check if pilot data is displayed (should have table or cards)
-    const hasTable = await page.locator('table').count() > 0
-    const hasCards = await page.locator('[data-testid="pilot-card"]').count() > 0
+    const hasTable = (await page.locator('table').count()) > 0
+    const hasCards = (await page.locator('[data-testid="pilot-card"]').count()) > 0
 
     expect(hasTable || hasCards).toBeTruthy()
 
@@ -55,7 +55,9 @@ test.describe('Admin Portal - Complete Workflow', () => {
     await page.waitForURL('**/dashboard/certifications', { timeout: 60000 })
 
     // Verify certifications page loads
-    await expect(page.getByRole('heading', { name: /certifications/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /certifications/i })).toBeVisible({
+      timeout: 60000,
+    })
 
     console.log('✅ Certifications page loaded')
   })
@@ -140,7 +142,9 @@ test.describe('Pilot Portal - Complete Workflow', () => {
     await page.waitForURL('**/portal/certifications', { timeout: 60000 })
 
     // Verify certifications page loads
-    await expect(page.getByRole('heading', { name: /certifications/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /certifications/i })).toBeVisible({
+      timeout: 60000,
+    })
 
     console.log('✅ Certifications page loaded')
   })

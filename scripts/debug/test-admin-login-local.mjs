@@ -12,19 +12,19 @@ console.log('='.repeat(60) + '\n')
 
 const browser = await chromium.launch({
   headless: false, // Show browser
-  slowMo: 500 // Slow down actions
+  slowMo: 500, // Slow down actions
 })
 
 const context = await browser.newContext()
 const page = await context.newPage()
 
 // Listen for console messages
-page.on('console', msg => {
+page.on('console', (msg) => {
   console.log(`[Browser Console] ${msg.type()}: ${msg.text()}`)
 })
 
 // Listen for errors
-page.on('pageerror', error => {
+page.on('pageerror', (error) => {
   console.error(`[Page Error] ${error.message}`)
 })
 
@@ -65,7 +65,7 @@ try {
     // Wait for navigation to dashboard or error message
     await Promise.race([
       page.waitForURL('**/dashboard**', { timeout: 10000 }),
-      page.waitForSelector('[role="alert"], .error', { timeout: 10000 })
+      page.waitForSelector('[role="alert"], .error', { timeout: 10000 }),
     ])
 
     const currentUrl = page.url()
@@ -79,7 +79,9 @@ try {
       await page.screenshot({ path: 'screenshots/admin-login-success.png' })
       console.log('Screenshot saved: screenshots/admin-login-success.png')
     } else {
-      const errorMessage = await page.textContent('[role="alert"], .error').catch(() => 'No error message found')
+      const errorMessage = await page
+        .textContent('[role="alert"], .error')
+        .catch(() => 'No error message found')
       console.log('\n❌ LOGIN FAILED')
       console.log('Error message:', errorMessage)
 
@@ -103,7 +105,6 @@ try {
   // Keep browser open for 5 seconds
   console.log('\nKeeping browser open for inspection...')
   await page.waitForTimeout(5000)
-
 } catch (error) {
   console.error('\n❌ Test failed:', error.message)
   console.error('Stack:', error.stack)

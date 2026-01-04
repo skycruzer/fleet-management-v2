@@ -41,7 +41,7 @@ try {
   const envFile = readFileSync(envPath, 'utf-8')
   const env: Record<string, string> = {}
 
-  envFile.split('\n').forEach(line => {
+  envFile.split('\n').forEach((line) => {
     const match = line.match(/^([^#=]+)=(.*)$/)
     if (match) {
       const key = match[1].trim()
@@ -52,7 +52,7 @@ try {
   })
 
   // Set environment variables
-  Object.keys(env).forEach(key => {
+  Object.keys(env).forEach((key) => {
     if (!process.env[key]) {
       process.env[key] = env[key]
     }
@@ -66,7 +66,7 @@ try {
 const requiredEnvVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'SUPABASE_SERVICE_ROLE_KEY',
-  'NEXT_PUBLIC_APP_URL'
+  'NEXT_PUBLIC_APP_URL',
 ]
 
 for (const envVar of requiredEnvVars) {
@@ -83,8 +83,8 @@ const supabase = createClient(
   {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   }
 )
 
@@ -118,7 +118,7 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
     success: 0,
     failed: 0,
     skipped: 0,
-    errors: []
+    errors: [],
   }
 
   console.log('🚀 Starting pilot migration to Supabase Auth...\n')
@@ -172,7 +172,7 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
       const { data: existingAuthUser } = await supabase.auth.admin.listUsers()
 
       const userExists = existingAuthUser.users?.some(
-        u => u.email?.toLowerCase() === pilot.email.toLowerCase()
+        (u) => u.email?.toLowerCase() === pilot.email.toLowerCase()
       )
 
       let authUserId: string
@@ -180,7 +180,7 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
       if (userExists) {
         console.log('   ℹ️  Auth user already exists, linking...')
         const existingUser = existingAuthUser.users.find(
-          u => u.email?.toLowerCase() === pilot.email.toLowerCase()
+          (u) => u.email?.toLowerCase() === pilot.email.toLowerCase()
         )
         authUserId = existingUser!.id
       } else {
@@ -191,7 +191,7 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
 
         const { data: authData, error: authError } = await supabase.auth.admin.createUser({
           email: pilot.email,
-          email_confirm: true,  // Auto-confirm email (pilots are pre-approved)
+          email_confirm: true, // Auto-confirm email (pilots are pre-approved)
           user_metadata: {
             first_name: pilot.first_name,
             last_name: pilot.last_name,
@@ -199,8 +199,8 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
             employee_id: pilot.employee_id,
             user_type: 'pilot',
             migrated_from_bcrypt: true,
-            migration_date: new Date().toISOString()
-          }
+            migration_date: new Date().toISOString(),
+          },
         })
 
         if (authError) {
@@ -208,7 +208,7 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
           result.failed++
           result.errors.push({
             email: pilot.email,
-            error: authError.message
+            error: authError.message,
           })
           continue
         }
@@ -226,7 +226,7 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
         .from('pilot_users')
         .update({
           auth_user_id: authUserId,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('id', pilot.id)
 
@@ -235,7 +235,7 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
         result.failed++
         result.errors.push({
           email: pilot.email,
-          error: updateError.message
+          error: updateError.message,
         })
         continue
       }
@@ -247,12 +247,9 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
       // ========================================================================
       console.log('   📧 Sending password reset email...')
 
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-        pilot.email,
-        {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/portal/reset-password`
-        }
-      )
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(pilot.email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/portal/reset-password`,
+      })
 
       if (resetError) {
         console.warn(`   ⚠️  Failed to send password reset email: ${resetError.message}`)
@@ -263,13 +260,12 @@ async function migratePilotsToSupabaseAuth(): Promise<MigrationResult> {
 
       result.success++
       console.log(`   ✅ Migration complete for ${pilot.email}`)
-
     } catch (error: any) {
       console.error(`   ❌ Unexpected error migrating ${pilot.email}:`, error.message)
       result.failed++
       result.errors.push({
         email: pilot.email,
-        error: error.message || 'Unknown error'
+        error: error.message || 'Unknown error',
       })
     }
   }
@@ -316,7 +312,6 @@ async function main() {
 
     console.log('✅ Migration complete!')
     process.exit(0)
-
   } catch (error: any) {
     console.error('\n❌ Migration failed:', error.message)
     process.exit(1)

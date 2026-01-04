@@ -147,9 +147,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
           return (
             <div key={column.status} className="flex min-h-[600px] flex-col">
               {/* Column Header */}
-              <div
-                className={`mb-4 rounded-lg p-4 ${column.color}`}
-              >
+              <div className={`mb-4 rounded-lg p-4 ${column.color}`}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {column.title}
@@ -161,7 +159,11 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
               </div>
 
               {/* Droppable Column */}
-              <SortableContext id={column.status} items={taskIds} strategy={verticalListSortingStrategy}>
+              <SortableContext
+                id={column.status}
+                items={taskIds}
+                strategy={verticalListSortingStrategy}
+              >
                 <div className="flex-1 space-y-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/50">
                   {columnTasks.length === 0 ? (
                     <div className="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-gray-500">
@@ -180,7 +182,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
       {/* Drag Overlay */}
       <DragOverlay>
         {activeTask ? (
-          <div className="rotate-3 scale-105">
+          <div className="scale-105 rotate-3">
             <TaskCard task={activeTask} isDragging />
           </div>
         ) : null}

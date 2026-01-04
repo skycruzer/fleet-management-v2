@@ -7,7 +7,7 @@ import { readFileSync } from 'fs'
 
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -43,7 +43,7 @@ async function findCraigDuffield() {
       .or('first_name.ilike.%craig%,last_name.ilike.%duff%')
 
     console.log('\nSimilar pilots found:')
-    allPilots?.forEach(p => {
+    allPilots?.forEach((p) => {
       console.log(`  - ${p.first_name} ${p.last_name} (${p.employee_id})`)
     })
 
@@ -51,7 +51,7 @@ async function findCraigDuffield() {
   }
 
   console.log(`✅ Found Craig Duffield:`)
-  pilots.forEach(pilot => {
+  pilots.forEach((pilot) => {
     console.log(`   ID: ${pilot.id}`)
     console.log(`   Name: ${pilot.first_name} ${pilot.last_name}`)
     console.log(`   Employee: ${pilot.employee_id}`)
@@ -74,8 +74,10 @@ async function findCraigDuffield() {
     console.log('   ❌ No leave requests found')
   } else {
     console.log(`   ✅ Found ${leaveRequests.length} leave request(s):`)
-    leaveRequests.forEach(req => {
-      console.log(`   - ${req.request_type}: ${req.start_date} to ${req.end_date} (Status: ${req.status})`)
+    leaveRequests.forEach((req) => {
+      console.log(
+        `   - ${req.request_type}: ${req.start_date} to ${req.end_date} (Status: ${req.status})`
+      )
     })
   }
 
@@ -93,8 +95,10 @@ async function findCraigDuffield() {
     console.log('   ❌ No requests found in pilot_requests table')
   } else {
     console.log(`   ✅ Found ${pilotRequests.length} request(s):`)
-    pilotRequests.forEach(req => {
-      console.log(`   - ${req.request_category}/${req.request_type}: ${req.start_date} to ${req.end_date || req.flight_date} (Status: ${req.workflow_status})`)
+    pilotRequests.forEach((req) => {
+      console.log(
+        `   - ${req.request_category}/${req.request_type}: ${req.start_date} to ${req.end_date || req.flight_date} (Status: ${req.workflow_status})`
+      )
     })
   }
 
@@ -109,7 +113,7 @@ async function findCraigDuffield() {
 
   // Group by created_at timestamp to see seeding pattern
   const byTimestamp = {}
-  allLeave?.forEach(req => {
+  allLeave?.forEach((req) => {
     const ts = req.created_at.substring(0, 19) // Remove milliseconds
     byTimestamp[ts] = (byTimestamp[ts] || 0) + 1
   })

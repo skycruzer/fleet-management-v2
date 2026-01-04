@@ -29,7 +29,14 @@ import {
 } from '@tanstack/react-table'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, ChevronDown } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ArrowUpDown,
+  ChevronDown,
+} from 'lucide-react'
 import type { ReportType, PaginationMeta } from '@/types/reports'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 
@@ -57,7 +64,8 @@ export function PaginatedReportTable({
     if (reportType === 'leave') {
       return [
         {
-          accessorFn: (row) => row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
+          accessorFn: (row) =>
+            row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
           id: 'pilot',
           header: ({ column }) => (
             <Button
@@ -120,7 +128,11 @@ export function PaginatedReportTable({
             return (
               <Badge
                 variant={
-                  status === 'approved' ? 'default' : status === 'rejected' || status === 'denied' ? 'destructive' : 'secondary'
+                  status === 'approved'
+                    ? 'default'
+                    : status === 'rejected' || status === 'denied'
+                      ? 'destructive'
+                      : 'secondary'
                 }
               >
                 {status}
@@ -138,7 +150,7 @@ export function PaginatedReportTable({
 
             try {
               const periods = getAffectedRosterPeriods(startDate, endDate)
-              return periods.map(p => p.code).join(', ')
+              return periods.map((p) => p.code).join(', ')
             } catch (error) {
               console.error('Error calculating roster periods:', error)
               return row.roster_period || 'N/A'
@@ -147,9 +159,7 @@ export function PaginatedReportTable({
           id: 'roster_period',
           header: 'Roster Period',
           enableGrouping: true,
-          cell: ({ getValue }) => (
-            <div className="text-sm font-mono">{getValue() as string}</div>
-          ),
+          cell: ({ getValue }) => <div className="font-mono text-sm">{getValue() as string}</div>,
         },
       ]
     }
@@ -157,7 +167,8 @@ export function PaginatedReportTable({
     if (reportType === 'flight-requests') {
       return [
         {
-          accessorFn: (row) => row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
+          accessorFn: (row) =>
+            row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
           id: 'pilot',
           header: ({ column }) => (
             <Button
@@ -207,8 +218,8 @@ export function PaginatedReportTable({
                 {startDate && endDate && startDate !== endDate
                   ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`
                   : startDate
-                  ? new Date(startDate).toLocaleDateString()
-                  : 'N/A'}
+                    ? new Date(startDate).toLocaleDateString()
+                    : 'N/A'}
               </div>
             )
           },
@@ -223,7 +234,7 @@ export function PaginatedReportTable({
 
             try {
               const periods = getAffectedRosterPeriods(startDate, endDate)
-              return periods.map(p => p.code).join(', ')
+              return periods.map((p) => p.code).join(', ')
             } catch (error) {
               console.error('Error calculating roster periods:', error)
               return row.roster_period || 'N/A'
@@ -232,9 +243,7 @@ export function PaginatedReportTable({
           id: 'roster_periods',
           header: 'Roster Period',
           enableGrouping: true,
-          cell: ({ getValue }) => (
-            <div className="text-sm font-medium">{getValue() as string}</div>
-          ),
+          cell: ({ getValue }) => <div className="text-sm font-medium">{getValue() as string}</div>,
         },
         {
           accessorFn: (row) => row.workflow_status || row.status || 'N/A',
@@ -245,7 +254,11 @@ export function PaginatedReportTable({
             return (
               <Badge
                 variant={
-                  status === 'approved' ? 'default' : status === 'rejected' || status === 'denied' ? 'destructive' : 'secondary'
+                  status === 'approved'
+                    ? 'default'
+                    : status === 'rejected' || status === 'denied'
+                      ? 'destructive'
+                      : 'secondary'
                 }
               >
                 {status}
@@ -259,7 +272,8 @@ export function PaginatedReportTable({
     if (reportType === 'leave-bids') {
       return [
         {
-          accessorFn: (row) => row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
+          accessorFn: (row) =>
+            row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
           id: 'pilot',
           header: ({ column }) => (
             <Button
@@ -286,7 +300,7 @@ export function PaginatedReportTable({
           header: 'Roster Period',
           enableGrouping: true,
           cell: ({ getValue }) => (
-            <div className="text-sm font-mono">{(getValue() as string) || 'N/A'}</div>
+            <div className="font-mono text-sm">{(getValue() as string) || 'N/A'}</div>
           ),
         },
         {
@@ -299,8 +313,8 @@ export function PaginatedReportTable({
                 getValue() === 'HIGH'
                   ? 'border-red-500 text-red-600'
                   : getValue() === 'MEDIUM'
-                  ? 'border-yellow-500 text-yellow-600'
-                  : 'border-gray-500 text-gray-600'
+                    ? 'border-yellow-500 text-yellow-600'
+                    : 'border-gray-500 text-gray-600'
               }`}
             >
               {getValue() as string}
@@ -334,10 +348,10 @@ export function PaginatedReportTable({
                   status === 'approved'
                     ? 'default'
                     : status === 'rejected'
-                    ? 'destructive'
-                    : status === 'processing'
-                    ? 'default'
-                    : 'secondary'
+                      ? 'destructive'
+                      : status === 'processing'
+                        ? 'default'
+                        : 'secondary'
                 }
               >
                 {status}
@@ -372,11 +386,12 @@ export function PaginatedReportTable({
         cell: ({ getValue }) => <div className="text-sm">{(getValue() as string) || 'N/A'}</div>,
       },
       {
-        accessorFn: (row) => row.check_type?.check_description || row.check_type?.check_code || 'N/A',
+        accessorFn: (row) =>
+          row.check_type?.check_description || row.check_type?.check_code || 'N/A',
         id: 'check_type',
         header: 'Check Type',
         cell: ({ getValue }) => (
-          <div className="text-sm max-w-xs truncate">{getValue() as string}</div>
+          <div className="max-w-xs truncate text-sm">{getValue() as string}</div>
         ),
       },
       {
@@ -431,8 +446,8 @@ export function PaginatedReportTable({
                 status === 'EXPIRED'
                   ? 'destructive'
                   : status === 'EXPIRING SOON'
-                  ? 'default'
-                  : 'secondary'
+                    ? 'default'
+                    : 'secondary'
               }
             >
               {status}
@@ -463,13 +478,18 @@ export function PaginatedReportTable({
   return (
     <div className="space-y-4">
       {/* Grouping Controls */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm font-medium text-muted-foreground">Group by:</span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-muted-foreground text-sm font-medium">Group by:</span>
         <Button
-          variant={grouping.includes('roster_period') || grouping.includes('roster_periods') ? 'default' : 'outline'}
+          variant={
+            grouping.includes('roster_period') || grouping.includes('roster_periods')
+              ? 'default'
+              : 'outline'
+          }
           size="sm"
           onClick={() => {
-            const rosterPeriodColumn = reportType === 'flight-requests' ? 'roster_periods' : 'roster_period'
+            const rosterPeriodColumn =
+              reportType === 'flight-requests' ? 'roster_periods' : 'roster_period'
             if (grouping.includes(rosterPeriodColumn)) {
               setGrouping(grouping.filter((id) => id !== rosterPeriodColumn))
             } else {
@@ -483,7 +503,8 @@ export function PaginatedReportTable({
           variant={grouping.includes('rank') ? 'default' : 'outline'}
           size="sm"
           onClick={() => {
-            const rosterPeriodColumn = reportType === 'flight-requests' ? 'roster_periods' : 'roster_period'
+            const rosterPeriodColumn =
+              reportType === 'flight-requests' ? 'roster_periods' : 'roster_period'
             if (grouping.includes('rank')) {
               setGrouping(grouping.filter((id) => id !== 'rank'))
             } else {
@@ -531,7 +552,7 @@ export function PaginatedReportTable({
                 <tr>
                   <td colSpan={columns.length} className="h-24 text-center">
                     <div className="flex items-center justify-center">
-                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                      <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
                     </div>
                   </td>
                 </tr>
@@ -540,14 +561,11 @@ export function PaginatedReportTable({
                   if (row.getIsGrouped()) {
                     // Render group header row
                     return (
-                      <tr
-                        key={row.id}
-                        className="bg-muted/30 font-medium border-b-2 border-muted"
-                      >
+                      <tr key={row.id} className="bg-muted/30 border-muted border-b-2 font-medium">
                         <td colSpan={columns.length} className="p-3">
                           <button
                             onClick={row.getToggleExpandedHandler()}
-                            className="flex items-center gap-2 hover:text-primary transition-colors"
+                            className="hover:text-primary flex items-center gap-2 transition-colors"
                           >
                             <ChevronDown
                               className={`h-4 w-4 transition-transform ${
@@ -573,21 +591,22 @@ export function PaginatedReportTable({
                   return (
                     <tr
                       key={row.id}
-                      className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                      className="hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors"
                     >
                       {row.getVisibleCells().map((cell) => (
                         <td key={cell.id} className="p-3 align-middle">
-                          {cell.getIsGrouped() ? (
-                            // Don't render grouped cells inline
-                            null
-                          ) : cell.getIsAggregated() ? (
-                            flexRender(
-                              cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
-                              cell.getContext()
-                            )
-                          ) : cell.getIsPlaceholder() ? null : (
-                            flexRender(cell.column.columnDef.cell, cell.getContext())
-                          )}
+                          {cell.getIsGrouped()
+                            ? // Don't render grouped cells inline
+                              null
+                            : cell.getIsAggregated()
+                              ? flexRender(
+                                  cell.column.columnDef.aggregatedCell ??
+                                    cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )
+                              : cell.getIsPlaceholder()
+                                ? null
+                                : flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </td>
                       ))}
                     </tr>
@@ -595,7 +614,7 @@ export function PaginatedReportTable({
                 })
               ) : (
                 <tr>
-                  <td colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+                  <td colSpan={columns.length} className="text-muted-foreground h-24 text-center">
                     No results found
                   </td>
                 </tr>
@@ -608,10 +627,10 @@ export function PaginatedReportTable({
       {/* Pagination Controls */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between px-2">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             Showing{' '}
             <span className="font-medium">
-              {((pagination.currentPage - 1) * pagination.pageSize) + 1}
+              {(pagination.currentPage - 1) * pagination.pageSize + 1}
             </span>{' '}
             to{' '}
             <span className="font-medium">

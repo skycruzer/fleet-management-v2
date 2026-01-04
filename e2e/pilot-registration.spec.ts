@@ -102,9 +102,7 @@ test.describe('Pilot Registration', () => {
         console.log('\n❌ ERROR ALERT:', errorAlert)
       }
 
-      throw new Error(
-        'Registration failed - check screenshots in e2e-screenshots/ directory'
-      )
+      throw new Error('Registration failed - check screenshots in e2e-screenshots/ directory')
     }
   })
 })

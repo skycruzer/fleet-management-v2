@@ -91,7 +91,10 @@ test.describe('Leave Approval Workflow', () => {
       const leaveType = page.getByLabel(/leave type|type/i)
       if (await leaveType.isVisible()) {
         await leaveType.click()
-        await page.getByRole('option', { name: /annual|rdo/i }).first().click()
+        await page
+          .getByRole('option', { name: /annual|rdo/i })
+          .first()
+          .click()
       }
 
       // Step 4: Select dates
@@ -181,7 +184,8 @@ test.describe('Certification Renewal Workflow', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Step 2: Find expiring certifications
-    const expiringFilter = page.getByRole('tab', { name: /expiring/i })
+    const expiringFilter = page
+      .getByRole('tab', { name: /expiring/i })
       .or(page.getByText(/expiring/i))
 
     if (await expiringFilter.first().isVisible()) {
@@ -191,7 +195,8 @@ test.describe('Certification Renewal Workflow', () => {
 
       if (rowCount > 1) {
         const firstRow = rows.nth(1)
-        const editButton = firstRow.getByRole('button', { name: /edit/i })
+        const editButton = firstRow
+          .getByRole('button', { name: /edit/i })
           .or(firstRow.getByRole('link').first())
 
         if (await editButton.isVisible()) {
@@ -307,8 +312,7 @@ test.describe('Task Management Workflow', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Step 2: Look for task management section
-    const taskSection = page.getByRole('heading', { name: /tasks?/i })
-      .or(page.getByText(/tasks?/i))
+    const taskSection = page.getByRole('heading', { name: /tasks?/i }).or(page.getByText(/tasks?/i))
 
     if (await taskSection.first().isVisible()) {
       // Step 3: Click "New Task" button
@@ -337,16 +341,21 @@ test.describe('Task Management Workflow', () => {
           await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
 
           // Step 7: Verify task appears in list
-          await expect(page.getByText('Test Task - Complete workflow')).toBeVisible({ timeout: 60000 })
+          await expect(page.getByText('Test Task - Complete workflow')).toBeVisible({
+            timeout: 60000,
+          })
 
           // Step 8: Mark task as complete
-          const completeButton = page.getByRole('button', { name: /complete|mark.*complete/i }).first()
+          const completeButton = page
+            .getByRole('button', { name: /complete|mark.*complete/i })
+            .first()
           if (await completeButton.isVisible()) {
             await completeButton.click()
             await page.waitForTimeout(1000)
 
             // Step 9: Verify task marked complete
-            const completedIndicator = page.locator('[data-status="completed"]')
+            const completedIndicator = page
+              .locator('[data-status="completed"]')
               .or(page.getByText(/completed/i))
 
             if (await completedIndicator.first().isVisible()) {
@@ -377,7 +386,10 @@ test.describe('Flight Request Workflow', () => {
       const requestType = page.getByLabel(/request type|type/i)
       if (await requestType.isVisible()) {
         await requestType.click()
-        await page.getByRole('option', { name: /rdo|sdo/i }).first().click()
+        await page
+          .getByRole('option', { name: /rdo|sdo/i })
+          .first()
+          .click()
       }
 
       // Step 4: Select dates
@@ -409,8 +421,7 @@ test.describe('Flight Request Workflow', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Step 9: Verify request appears in list
-    const requestsList = page.getByRole('table')
-      .or(page.locator('[data-testid="flight-requests"]'))
+    const requestsList = page.getByRole('table').or(page.locator('[data-testid="flight-requests"]'))
 
     if (await requestsList.isVisible()) {
       await expect(requestsList).toBeVisible({ timeout: 60000 })
@@ -443,7 +454,10 @@ test.describe('Disciplinary Action Workflow', () => {
       const actionType = page.getByLabel(/action type|type/i)
       if (await actionType.isVisible()) {
         await actionType.click()
-        await page.getByRole('option', { name: /warning|verbal/i }).first().click()
+        await page
+          .getByRole('option', { name: /warning|verbal/i })
+          .first()
+          .click()
       }
 
       const description = page.getByLabel(/description|details/i)
@@ -462,7 +476,8 @@ test.describe('Disciplinary Action Workflow', () => {
       }
 
       // Step 6: Verify action appears in list
-      const actionsList = page.getByRole('table')
+      const actionsList = page
+        .getByRole('table')
         .or(page.locator('[data-testid="disciplinary-actions"]'))
 
       if (await actionsList.isVisible()) {
@@ -492,7 +507,9 @@ test.describe('Certification Expiry Alert Workflow', () => {
         await page.waitForLoadState('networkidle', { timeout: 60000 })
 
         // Step 4: Verify navigation to certification detail
-        await expect(page.getByRole('heading', { name: /certification|check/i })).toBeVisible({ timeout: 60000 })
+        await expect(page.getByRole('heading', { name: /certification|check/i })).toBeVisible({
+          timeout: 60000,
+        })
 
         // Step 5: Edit certification to extend expiry
         const editButton = page.getByRole('button', { name: /edit/i })
@@ -541,7 +558,9 @@ test.describe('Complete User Journey - Pilot Portal', () => {
     // Step 3: Check certifications
     await page.goto('/portal/certifications')
     await page.waitForLoadState('networkidle', { timeout: 60000 })
-    await expect(page.getByRole('heading', { name: /certification/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /certification/i })).toBeVisible({
+      timeout: 60000,
+    })
 
     // Step 4: View profile
     await page.goto('/portal/profile')
@@ -551,7 +570,9 @@ test.describe('Complete User Journey - Pilot Portal', () => {
     // Step 5: Check notifications
     await page.goto('/portal/notifications')
     await page.waitForLoadState('networkidle', { timeout: 60000 })
-    await expect(page.getByRole('heading', { name: /notification/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /notification/i })).toBeVisible({
+      timeout: 60000,
+    })
 
     // Step 6: Submit feedback
     await page.goto('/portal/feedback')
@@ -575,7 +596,8 @@ test.describe('Complete User Journey - Pilot Portal', () => {
     if (await userMenu.first().isVisible()) {
       await userMenu.first().click()
 
-      const logoutButton = page.getByRole('menuitem', { name: /logout|sign out/i })
+      const logoutButton = page
+        .getByRole('menuitem', { name: /logout|sign out/i })
         .or(page.getByRole('button', { name: /logout|sign out/i }))
 
       if (await logoutButton.first().isVisible()) {

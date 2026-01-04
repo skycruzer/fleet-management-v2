@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p2
-issue_id: "015"
+issue_id: '015'
 tags: [performance, database, indexes]
 dependencies: []
 ---
@@ -50,13 +50,16 @@ CREATE INDEX IF NOT EXISTS idx_pilots_commencement_date ON pilots(commencement_d
 ## Work Log
 
 ### 2025-10-17 - Initial Discovery
+
 **By:** performance-oracle
 **Learnings:** Critical for scalability
 
 ### 2025-10-17 - Migration Created
+
 **By:** Claude Code (Comment Resolution Agent)
 **Action**: Created `supabase/migrations/add_performance_indexes.sql`
 **Details**:
+
 - Created migrations directory structure
 - Added comprehensive migration file with all 9 required indexes
 - Includes detailed comments explaining each index purpose
@@ -68,11 +71,13 @@ Migration file successfully created at:
 `/Users/skycruzer/Desktop/Fleet Office Management/supabase/migrations/add_performance_indexes.sql`
 
 The migration includes:
+
 - 4 indexes for pilot_checks table (pilot_id, check_type_id, expiry_date, composite expiry_days)
 - 3 indexes for leave_requests table (pilot_id, status, date range composite)
 - 2 indexes for pilots table (rank, commencement_date)
 
 Next steps:
+
 1. Review migration file
 2. Deploy to Supabase using MCP tools or Supabase CLI
 3. Run EXPLAIN ANALYZE queries to verify index usage

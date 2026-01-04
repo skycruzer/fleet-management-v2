@@ -1,7 +1,7 @@
 ---
 status: pending
 priority: p1
-issue_id: "059"
+issue_id: '059'
 tags: [code-review, data-integrity, database, critical]
 dependencies: []
 discovered_by: data-integrity-guardian
@@ -27,27 +27,27 @@ Critical business fields in the database allow `NULL` values, enabling invalid d
 ```typescript
 // Leave Requests Table
 leave_requests: {
-  pilot_id: string | null           // ❌ Should be NOT NULL
-  request_type: string | null       // ❌ Should be NOT NULL
-  roster_period: string | null      // ❌ Should be NOT NULL
-  status: "APPROVED" | "DENIED" | "PENDING" | null  // ❌ Should be NOT NULL
-  days_count: number | null         // ❌ Should be NOT NULL
-  start_date: string | null         // ❌ Should be NOT NULL
-  end_date: string | null           // ❌ Should be NOT NULL
+  pilot_id: string | null // ❌ Should be NOT NULL
+  request_type: string | null // ❌ Should be NOT NULL
+  roster_period: string | null // ❌ Should be NOT NULL
+  status: 'APPROVED' | 'DENIED' | 'PENDING' | null // ❌ Should be NOT NULL
+  days_count: number | null // ❌ Should be NOT NULL
+  start_date: string | null // ❌ Should be NOT NULL
+  end_date: string | null // ❌ Should be NOT NULL
 }
 
 // Pilots Table
 pilots: {
-  employee_id: string | null        // ❌ Should be NOT NULL
-  first_name: string | null         // ❌ Should be NOT NULL
-  last_name: string | null          // ❌ Should be NOT NULL
-  role: "Captain" | "First Officer" | null  // ❌ Should be NOT NULL
+  employee_id: string | null // ❌ Should be NOT NULL
+  first_name: string | null // ❌ Should be NOT NULL
+  last_name: string | null // ❌ Should be NOT NULL
+  role: 'Captain' | 'First Officer' | null // ❌ Should be NOT NULL
 }
 
 // Pilot Checks Table
 pilot_checks: {
-  pilot_id: string | null           // ❌ Should be NOT NULL
-  check_type_id: string | null      // ❌ Should be NOT NULL
+  pilot_id: string | null // ❌ Should be NOT NULL
+  check_type_id: string | null // ❌ Should be NOT NULL
 }
 ```
 
@@ -82,12 +82,14 @@ VALUES (gen_random_uuid(), now());
 ### Option 1: Add NOT NULL Constraints with Pre-Check (RECOMMENDED)
 
 **Pros**:
+
 - Database-level enforcement (cannot be bypassed)
 - Prevents future invalid data
 - Aligns type definitions with database reality
 - Minimal performance impact
 
 **Cons**:
+
 - Requires checking existing data for NULLs first
 - May reveal existing data quality issues
 
@@ -230,6 +232,7 @@ WHERE role IS NULL;
 **Pros**: No database migration needed
 
 **Cons**:
+
 - Can be bypassed with direct SQL access
 - Not enforced at database level
 - Unreliable protection
@@ -246,11 +249,13 @@ Application validation already exists (Zod schemas require these fields). Databa
 ## Technical Details
 
 **Affected Files**:
+
 - `supabase/migrations/20251027_add_not_null_constraints.sql` (new migration)
 - `types/supabase.ts` (will be updated by `npm run db:types`)
 - Database schema
 
 **Related Components**:
+
 - Leave request submission
 - Pilot creation workflow
 - Certification tracking
@@ -263,9 +268,10 @@ Application validation already exists (Zod schemas require these fields). Databa
 ## Type Safety Impact
 
 **Before Migration**:
+
 ```typescript
 interface LeaveRequest {
-  pilot_id: string | null  // ❌ TypeScript forces null checks everywhere
+  pilot_id: string | null // ❌ TypeScript forces null checks everywhere
   status: Status | null
 }
 
@@ -276,14 +282,15 @@ if (request.pilot_id !== null) {
 ```
 
 **After Migration + Type Regeneration**:
+
 ```typescript
 interface LeaveRequest {
-  pilot_id: string  // ✅ No null checks needed
+  pilot_id: string // ✅ No null checks needed
   status: Status
 }
 
 // Simpler code:
-const pilot = getPilotById(request.pilot_id)  // No null check needed!
+const pilot = getPilotById(request.pilot_id) // No null check needed!
 ```
 
 ## Testing Strategy
@@ -366,14 +373,17 @@ SELECT * FROM null_checks WHERE null_count > 0;
 ## Work Log
 
 ### 2025-10-26 - Code Review Discovery
+
 **By**: Data Integrity Guardian (Claude)
 **Actions**:
+
 - Analyzed Supabase type definitions
 - Identified 15+ fields allowing NULL that shouldn't
 - Verified application code expects NOT NULL (Zod schemas require them)
 - Designed migration with pre-check safety
 
 **Learnings**:
+
 - Type definitions reveal database schema mismatches
 - NOT NULL constraints improve type safety
 - Database constraints = defense-in-depth
@@ -386,6 +396,7 @@ SELECT * FROM null_checks WHERE null_count > 0;
 ## Notes
 
 **Priority Justification**: This is P1 HIGH because:
+
 1. Allows invalid data that breaks application logic
 2. Type safety compromised (unnecessary null checks everywhere)
 3. Easy fix with high impact
@@ -394,6 +405,7 @@ SELECT * FROM null_checks WHERE null_count > 0;
 **TypeScript Benefit**: After migration, regenerating types removes `| null` from 15+ fields, eliminating hundreds of unnecessary null checks in application code.
 
 **Deployment Strategy**:
+
 1. Run NULL detection query in production
 2. Clean any NULL values found
 3. Apply migration during maintenance window

@@ -30,7 +30,7 @@ test.describe('Progressive Web App (PWA)', () => {
 
     // Check if service worker is registered
     const swRegistered = await page.evaluate(() => {
-      return navigator.serviceWorker.getRegistration().then(reg => !!reg)
+      return navigator.serviceWorker.getRegistration().then((reg) => !!reg)
     })
 
     expect(swRegistered).toBe(true)
@@ -47,7 +47,7 @@ test.describe('Progressive Web App (PWA)', () => {
     await page.goto('/')
 
     const appleTouchIcon = page.locator('link[rel="apple-touch-icon"]')
-    if (await appleTouchIcon.count() > 0) {
+    if ((await appleTouchIcon.count()) > 0) {
       await expect(appleTouchIcon.first()).toHaveAttribute('href')
     }
   })
@@ -94,7 +94,7 @@ test.describe('Progressive Web App (PWA)', () => {
     const offlineIndicator = page.getByText(/offline|no.*connection|network.*unavailable/i)
     const cachedContent = page.getByRole('main')
 
-    const hasOfflineIndicator = await offlineIndicator.count() > 0
+    const hasOfflineIndicator = (await offlineIndicator.count()) > 0
     const hasCachedContent = await cachedContent.isVisible()
 
     expect(hasOfflineIndicator || hasCachedContent).toBe(true)
@@ -126,7 +126,7 @@ test.describe('Progressive Web App (PWA)', () => {
 
     // Check service worker registration
     const swRegistered = await page.evaluate(() => {
-      return navigator.serviceWorker.getRegistration().then(reg => !!reg)
+      return navigator.serviceWorker.getRegistration().then((reg) => !!reg)
     })
     expect(swRegistered).toBe(true)
 
@@ -150,7 +150,7 @@ test.describe('Progressive Web App (PWA)', () => {
       for (const cacheName of cacheNames) {
         const cache = await caches.open(cacheName)
         const requests = await cache.keys()
-        cached.push(...requests.map(req => req.url))
+        cached.push(...requests.map((req) => req.url))
       }
 
       return cached
@@ -160,8 +160,8 @@ test.describe('Progressive Web App (PWA)', () => {
     expect(cachedResources.length).toBeGreaterThan(0)
 
     // Should cache static assets
-    const hasStaticAssets = cachedResources.some(url =>
-      url.includes('.js') || url.includes('.css') || url.includes('.png')
+    const hasStaticAssets = cachedResources.some(
+      (url) => url.includes('.js') || url.includes('.css') || url.includes('.png')
     )
     expect(hasStaticAssets).toBe(true)
   })
@@ -244,7 +244,7 @@ test.describe('PWA - Update Handling', () => {
     const hasUpdateHandler = await page.evaluate(() => {
       return new Promise<boolean>((resolve) => {
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.ready.then(registration => {
+          navigator.serviceWorker.ready.then((registration) => {
             resolve(!!registration.update)
           })
         } else {

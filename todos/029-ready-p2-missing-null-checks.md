@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p2
-issue_id: "029"
+issue_id: '029'
 tags: [typescript, null-safety, defensive-programming, service-layer]
 dependencies: []
 ---
@@ -19,6 +19,7 @@ Service functions in `pilot-portal-service.ts` access `pilotUser.id` without nul
 - **Agent**: typescript-code-quality-reviewer
 
 **Problem Scenario:**
+
 1. User session expires mid-session
 2. User calls `submitFeedbackPost()`, `submitLeaveRequest()`, etc.
 3. `getCurrentPilotUser()` returns `null`
@@ -26,12 +27,14 @@ Service functions in `pilot-portal-service.ts` access `pilotUser.id` without nul
 5. Server returns 500 error instead of 401 Unauthorized
 
 **Affected Functions:**
+
 - `submitFeedbackPost()` - lib/services/pilot-portal-service.ts:419
 - `submitLeaveRequest()` - lib/services/pilot-portal-service.ts:447
 - `submitFlightRequest()` - lib/services/pilot-portal-service.ts:475
 - `voteFeedbackPost()` - lib/services/pilot-portal-service.ts:503
 
 **Current Code (Unsafe):**
+
 ```typescript
 export async function submitFeedbackPost(...) {
   const supabase = await createClient()
@@ -63,12 +66,14 @@ export async function submitFeedbackPost(...) {
 ```
 
 **Apply to:**
+
 1. `submitFeedbackPost()` - Add check after line 421
 2. `submitLeaveRequest()` - Add check after line 449
 3. `submitFlightRequest()` - Add check after line 477
 4. `voteFeedbackPost()` - Add check after line 505
 
 **Benefits:**
+
 - Prevents runtime TypeErrors
 - Returns proper error messages to client
 - Improves debugging (clear error vs. cryptic null access)
@@ -90,6 +95,7 @@ export async function submitFeedbackPost(...) {
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** typescript-code-quality-reviewer (compounding-engineering review)
 **Learnings:** Missing defensive null checks create runtime errors
 

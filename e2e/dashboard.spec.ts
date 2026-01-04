@@ -174,15 +174,11 @@ test.describe('Dashboard - Quick Actions', () => {
   test('should display quick action buttons', async ({ page }) => {
     await waitForLoadingComplete(page)
 
-    const quickActions = [
-      /add pilot/i,
-      /add certification/i,
-      /new.*request/i,
-      /view.*report/i,
-    ]
+    const quickActions = [/add pilot/i, /add certification/i, /new.*request/i, /view.*report/i]
 
     for (const action of quickActions) {
-      const button = page.getByRole('button', { name: action })
+      const button = page
+        .getByRole('button', { name: action })
         .or(page.getByRole('link', { name: action }))
 
       if (await button.first().isVisible()) {
@@ -194,14 +190,18 @@ test.describe('Dashboard - Quick Actions', () => {
   test('should navigate to add pilot from quick action', async ({ page }) => {
     await waitForLoadingComplete(page)
 
-    const addPilotButton = page.getByRole('button', { name: /add pilot/i })
+    const addPilotButton = page
+      .getByRole('button', { name: /add pilot/i })
       .or(page.getByRole('link', { name: /add pilot|pilots/i }))
 
     if (await addPilotButton.first().isVisible()) {
       await addPilotButton.first().click()
 
       // Should either open dialog or navigate to pilots page
-      const dialogVisible = await page.getByRole('dialog').isVisible().catch(() => false)
+      const dialogVisible = await page
+        .getByRole('dialog')
+        .isVisible()
+        .catch(() => false)
       const onPilotsPage = page.url().includes('pilots')
 
       expect(dialogVisible || onPilotsPage).toBe(true)
@@ -240,7 +240,9 @@ test.describe('Dashboard - Navigation', () => {
     if (await certsLink.first().isVisible()) {
       await certsLink.first().click()
       await expect(page).toHaveURL(/certifications/)
-      await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({ timeout: 60000 })
+      await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({
+        timeout: 60000,
+      })
     }
   })
 
@@ -286,8 +288,7 @@ test.describe('Dashboard - User Menu', () => {
       await userMenuButton.first().click()
 
       // Should show dropdown menu
-      const dropdown = page.getByRole('menu')
-        .or(page.locator('[role="menuitem"]').first())
+      const dropdown = page.getByRole('menu').or(page.locator('[role="menuitem"]').first())
 
       await expect(dropdown.first()).toBeVisible({ timeout: 60000 })
     }
@@ -299,7 +300,8 @@ test.describe('Dashboard - User Menu', () => {
     if (await userMenuButton.first().isVisible()) {
       await userMenuButton.first().click()
 
-      const logoutOption = page.getByRole('menuitem', { name: /logout|sign out/i })
+      const logoutOption = page
+        .getByRole('menuitem', { name: /logout|sign out/i })
         .or(page.getByRole('button', { name: /logout|sign out/i }))
 
       if (await logoutOption.first().isVisible()) {

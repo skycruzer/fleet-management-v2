@@ -16,7 +16,8 @@ console.log('Testing PDF Export Flow...\n')
 console.log('1. Fetching leave requests for RP01/2026 and RP02/2026...')
 const { data, error } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -25,7 +26,8 @@ const { data, error } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .in('roster_period', ['RP01/2026', 'RP02/2026'])
 

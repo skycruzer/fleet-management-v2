@@ -27,7 +27,11 @@ interface RosterReportPreviewDialogProps {
   onClose: () => void
 }
 
-export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterReportPreviewDialogProps) {
+export function RosterReportPreviewDialog({
+  report,
+  isOpen,
+  onClose,
+}: RosterReportPreviewDialogProps) {
   const hasCrewWarning =
     report.crewAvailability.captains.belowMinimum ||
     report.crewAvailability.firstOfficers.belowMinimum
@@ -45,13 +49,13 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
         <ScrollArea className="max-h-[600px] pr-4">
           <div className="space-y-6">
             {/* Report Metadata */}
-            <div className="flex items-center justify-between rounded-lg bg-muted p-4">
+            <div className="bg-muted flex items-center justify-between rounded-lg p-4">
               <div>
-                <p className="text-sm text-muted-foreground">Report Type</p>
+                <p className="text-muted-foreground text-sm">Report Type</p>
                 <p className="font-medium">{report.metadata.reportType}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Generated</p>
+                <p className="text-muted-foreground text-sm">Generated</p>
                 <p className="font-medium">
                   {new Date(report.metadata.generatedAt).toLocaleDateString()}
                 </p>
@@ -63,29 +67,27 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
               <h3 className="mb-3 font-semibold">Request Summary</h3>
               <div className="grid grid-cols-3 gap-4 md:grid-cols-5">
                 <div className="rounded-lg border p-3">
-                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-muted-foreground text-xs">Total</p>
                   <p className="text-2xl font-bold">{report.statistics.totalRequests}</p>
                 </div>
                 <div className="rounded-lg border p-3">
-                  <p className="text-xs text-muted-foreground">Approved</p>
+                  <p className="text-muted-foreground text-xs">Approved</p>
                   <p className="text-2xl font-bold text-green-600">
                     {report.statistics.approvedCount}
                   </p>
                 </div>
                 <div className="rounded-lg border p-3">
-                  <p className="text-xs text-muted-foreground">Denied</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {report.statistics.deniedCount}
-                  </p>
+                  <p className="text-muted-foreground text-xs">Denied</p>
+                  <p className="text-2xl font-bold text-red-600">{report.statistics.deniedCount}</p>
                 </div>
                 <div className="rounded-lg border p-3">
-                  <p className="text-xs text-muted-foreground">Pending</p>
+                  <p className="text-muted-foreground text-xs">Pending</p>
                   <p className="text-2xl font-bold text-yellow-600">
                     {report.statistics.pendingCount}
                   </p>
                 </div>
                 <div className="rounded-lg border p-3">
-                  <p className="text-xs text-muted-foreground">Withdrawn</p>
+                  <p className="text-muted-foreground text-xs">Withdrawn</p>
                   <p className="text-2xl font-bold text-gray-600">
                     {report.statistics.withdrawnCount}
                   </p>
@@ -103,8 +105,8 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
                   <div className="flex-1">
                     <p className="font-medium text-red-900">Minimum Crew Warning</p>
                     <p className="mt-1 text-sm text-red-700">
-                      Crew availability falls below the minimum requirement of 10 during this
-                      roster period.
+                      Crew availability falls below the minimum requirement of 10 during this roster
+                      period.
                     </p>
                     {report.crewAvailability.minimumCrewDate && (
                       <p className="mt-2 text-sm text-red-700">
@@ -163,7 +165,7 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
                         }}
                       />
                     </div>
-                    <p className="text-center text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-center text-xs">
                       {report.crewAvailability.captains.percentageAvailable.toFixed(1)}% Available
                     </p>
                   </div>
@@ -212,7 +214,7 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
                         }}
                       />
                     </div>
-                    <p className="text-center text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-center text-xs">
                       {report.crewAvailability.firstOfficers.percentageAvailable.toFixed(1)}%
                       Available
                     </p>
@@ -228,7 +230,7 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
                 <div className="flex items-center gap-3 rounded-lg border p-3">
                   <CheckCircle2 className="h-8 w-8 text-green-600" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Leave Requests</p>
+                    <p className="text-muted-foreground text-xs">Leave Requests</p>
                     <p className="text-xl font-bold">
                       {report.approvedRequests.leaveRequests.length}
                     </p>
@@ -237,7 +239,7 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
                 <div className="flex items-center gap-3 rounded-lg border p-3">
                   <CheckCircle2 className="h-8 w-8 text-purple-600" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Flight Requests</p>
+                    <p className="text-muted-foreground text-xs">Flight Requests</p>
                     <p className="text-xl font-bold">
                       {report.approvedRequests.flightRequests.length}
                     </p>
@@ -246,10 +248,8 @@ export function RosterReportPreviewDialog({ report, isOpen, onClose }: RosterRep
                 <div className="flex items-center gap-3 rounded-lg border p-3">
                   <CheckCircle2 className="h-8 w-8 text-blue-600" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Leave Bids</p>
-                    <p className="text-xl font-bold">
-                      {report.approvedRequests.leaveBids.length}
-                    </p>
+                    <p className="text-muted-foreground text-xs">Leave Bids</p>
+                    <p className="text-xl font-bold">{report.approvedRequests.leaveBids.length}</p>
                   </div>
                 </div>
               </div>

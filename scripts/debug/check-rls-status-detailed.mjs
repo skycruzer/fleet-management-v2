@@ -15,7 +15,7 @@ for (const line of lines) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { autoRefreshToken: false, persistSession: false }
+  auth: { autoRefreshToken: false, persistSession: false },
 })
 
 console.log('🔍 Checking detailed status for problematic tables...\n')
@@ -23,23 +23,26 @@ console.log('🔍 Checking detailed status for problematic tables...\n')
 // Check all tables mentioned in the scripts
 const tablesToCheck = [
   'leave_bids',
-  'leave_bid_options', 
+  'leave_bid_options',
   'disciplinary_matters',
-  'disciplinary_actions'
+  'disciplinary_actions',
 ]
 
 for (const table of tablesToCheck) {
   try {
     const { data, error } = await supabase.from(table).select('*', { count: 'exact', head: true })
-    
+
     if (!error) {
       console.log(`✅ ${table}`)
       console.log(`   - Table exists`)
       console.log(`   - Accessible via REST API`)
     } else {
-      const status = error.code === '42P01' ? 'DOES NOT EXIST' : 
-                     error.code === 'PGRST301' ? 'EXISTS (RLS blocking)' :
-                     error.code
+      const status =
+        error.code === '42P01'
+          ? 'DOES NOT EXIST'
+          : error.code === 'PGRST301'
+            ? 'EXISTS (RLS blocking)'
+            : error.code
       console.log(`⚠️  ${table}`)
       console.log(`   - Status: ${status}`)
       console.log(`   - Error: ${error.message}`)

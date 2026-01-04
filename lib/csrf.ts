@@ -113,8 +113,10 @@ export async function validateCsrfToken(token: string): Promise<boolean> {
     const tokenBuffer = Buffer.from(token, 'hex')
 
     // timingSafeEqual throws if lengths don't match, so we check above
-    return storedBuffer.length === tokenBuffer.length &&
-           require('crypto').timingSafeEqual(storedBuffer, tokenBuffer)
+    return (
+      storedBuffer.length === tokenBuffer.length &&
+      require('crypto').timingSafeEqual(storedBuffer, tokenBuffer)
+    )
   } catch (error) {
     // Invalid hex encoding or other error
     return false

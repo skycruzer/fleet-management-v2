@@ -19,14 +19,14 @@ const CONFIG = {
   TIMEOUT: 10000,
   PILOT_CREDENTIALS: {
     email: process.env.PILOT_EMAIL || 'mrondeau@airniugini.com.pg',
-    password: process.env.PILOT_PASSWORD || 'Lemakot@1972'
-  }
+    password: process.env.PILOT_PASSWORD || 'Lemakot@1972',
+  },
 }
 
 // ============================================================================
 // Utility Functions
 // ============================================================================
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const logSection = (title) => {
   console.log('\n' + '='.repeat(80))
@@ -74,15 +74,16 @@ class TestResults {
 
   getSummary() {
     const total = this.passed + this.failed + this.skipped
-    const successRate = (this.passed + this.failed) > 0
-      ? ((this.passed / (this.passed + this.failed)) * 100).toFixed(1)
-      : 0
+    const successRate =
+      this.passed + this.failed > 0
+        ? ((this.passed / (this.passed + this.failed)) * 100).toFixed(1)
+        : 0
     return {
       total,
       passed: this.passed,
       failed: this.failed,
       skipped: this.skipped,
-      successRate: `${successRate}%`
+      successRate: `${successRate}%`,
     }
   }
 
@@ -120,7 +121,7 @@ class APIMonitor {
           status: response.status(),
           ok: response.ok(),
           url,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         }
       }
     })
@@ -155,7 +156,7 @@ class APIMonitor {
 
     if (this.errors.length > 0) {
       console.log('\n⚠️  Console Errors Detected:')
-      this.errors.slice(0, 5).forEach(err => console.log(`  - ${err}`))
+      this.errors.slice(0, 5).forEach((err) => console.log(`  - ${err}`))
       if (this.errors.length > 5) {
         console.log(`  ... and ${this.errors.length - 5} more errors`)
       }
@@ -196,8 +197,8 @@ async function testPilotPortal() {
       args: [
         `--window-size=${CONFIG.VIEWPORT.width},${CONFIG.VIEWPORT.height}`,
         '--no-sandbox',
-        '--disable-setuid-sandbox'
-      ]
+        '--disable-setuid-sandbox',
+      ],
     })
 
     page = await browser.newPage()
@@ -211,7 +212,7 @@ async function testPilotPortal() {
     logTest(1, 'Navigate to Pilot Portal Login Page')
     await page.goto(`${CONFIG.BASE_URL}/portal/login`, {
       waitUntil: 'networkidle2',
-      timeout: CONFIG.TIMEOUT
+      timeout: CONFIG.TIMEOUT,
     })
 
     const loginPageTitle = await page.title()
@@ -293,7 +294,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/profile`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -302,7 +303,10 @@ async function testPilotPortal() {
         results.pass('Profile page loads with pilot data')
         logInfo(`API Status: ${profileResponse.status}`)
       } else {
-        results.fail('Profile page loads with pilot data', `API status: ${profileResponse?.status || 'N/A'}`)
+        results.fail(
+          'Profile page loads with pilot data',
+          `API status: ${profileResponse?.status || 'N/A'}`
+        )
       }
     } catch (error) {
       results.fail('Profile page loads with pilot data', error.message)
@@ -316,7 +320,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/certifications`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -339,7 +343,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/leave-requests`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -362,7 +366,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/flight-requests`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -385,7 +389,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/notifications`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -408,7 +412,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/feedback`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -428,22 +432,24 @@ async function testPilotPortal() {
 
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/dashboard`, {
-        waitUntil: 'networkidle2'
+        waitUntil: 'networkidle2',
       })
       await sleep(1000)
 
       const navLinks = await page.evaluate(() => {
         const links = Array.from(document.querySelectorAll('nav a, aside a'))
-        return links.map(link => ({
-          text: link.textContent.trim(),
-          href: link.getAttribute('href')
-        })).filter(link => link.href && link.href.includes('/portal/'))
+        return links
+          .map((link) => ({
+            text: link.textContent.trim(),
+            href: link.getAttribute('href'),
+          }))
+          .filter((link) => link.href && link.href.includes('/portal/'))
       })
 
       if (navLinks.length >= 5) {
         results.pass('Navigation menu functional')
         logInfo(`Found ${navLinks.length} navigation links`)
-        navLinks.forEach(link => {
+        navLinks.forEach((link) => {
           console.log(`    - ${link.text}: ${link.href}`)
         })
       } else {
@@ -461,7 +467,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/leave-requests/new`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(1500)
 
@@ -486,7 +492,7 @@ async function testPilotPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/portal/flight-requests/new`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(1500)
 
@@ -512,7 +518,7 @@ async function testPilotPortal() {
       // Test iPhone SE viewport
       await page.setViewport({ width: 375, height: 667 })
       await page.goto(`${CONFIG.BASE_URL}/portal/dashboard`, {
-        waitUntil: 'networkidle2'
+        waitUntil: 'networkidle2',
       })
       await sleep(1500)
 
@@ -566,9 +572,10 @@ async function testPilotPortal() {
       // Look for logout button
       const logoutButton = await page.evaluate(() => {
         const buttons = Array.from(document.querySelectorAll('button, a'))
-        const logoutBtn = buttons.find(btn =>
-          btn.textContent.toLowerCase().includes('logout') ||
-          btn.textContent.toLowerCase().includes('sign out')
+        const logoutBtn = buttons.find(
+          (btn) =>
+            btn.textContent.toLowerCase().includes('logout') ||
+            btn.textContent.toLowerCase().includes('sign out')
         )
         return logoutBtn !== undefined
       })
@@ -589,7 +596,6 @@ async function testPilotPortal() {
     console.log('\n')
     apiMonitor.printSummary()
     results.printSummary()
-
   } catch (error) {
     console.error('\n❌ CRITICAL ERROR:', error.message)
     console.error(error.stack)

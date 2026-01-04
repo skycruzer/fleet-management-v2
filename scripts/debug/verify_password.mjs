@@ -12,7 +12,7 @@ import bcrypt from 'bcryptjs'
 // Read .env.local
 const envFile = readFileSync('.env.local', 'utf8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const match = line.match(/^([^=:#]+)=(.*)$/)
   if (match) env[match[1].trim()] = match[2].trim()
 })
@@ -90,7 +90,7 @@ async function verifyPassword() {
 
 verifyPassword()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

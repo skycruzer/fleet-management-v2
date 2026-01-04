@@ -19,13 +19,21 @@ test.describe('Pilot Registrations - List View', () => {
   })
 
   test('should display pilot registrations page', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /pilot registrations?/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /pilot registrations?/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should display registration list or empty state', async ({ page }) => {
     // Either show registrations table or empty state
-    const hasTable = await page.getByRole('table').isVisible().catch(() => false)
-    const hasEmptyState = await page.getByText(/no pending|no registrations/i).isVisible().catch(() => false)
+    const hasTable = await page
+      .getByRole('table')
+      .isVisible()
+      .catch(() => false)
+    const hasEmptyState = await page
+      .getByText(/no pending|no registrations/i)
+      .isVisible()
+      .catch(() => false)
 
     expect(hasTable || hasEmptyState).toBe(true)
   })
@@ -35,9 +43,15 @@ test.describe('Pilot Registrations - List View', () => {
 
     if (await table.isVisible()) {
       // Should have key columns
-      await expect(page.getByRole('columnheader', { name: /name|pilot/i })).toBeVisible({ timeout: 60000 })
-      await expect(page.getByRole('columnheader', { name: /email/i })).toBeVisible({ timeout: 60000 })
-      await expect(page.getByRole('columnheader', { name: /status|actions/i })).toBeVisible({ timeout: 60000 })
+      await expect(page.getByRole('columnheader', { name: /name|pilot/i })).toBeVisible({
+        timeout: 60000,
+      })
+      await expect(page.getByRole('columnheader', { name: /email/i })).toBeVisible({
+        timeout: 60000,
+      })
+      await expect(page.getByRole('columnheader', { name: /status|actions/i })).toBeVisible({
+        timeout: 60000,
+      })
     }
   })
 })
@@ -90,8 +104,14 @@ test.describe('Pilot Registrations - Filter and Search', () => {
       await page.waitForTimeout(1000)
 
       // Should still show table or empty state
-      const hasTable = await page.getByRole('table').isVisible().catch(() => false)
-      const hasEmptyState = await page.getByText(/no.*registrations/i).isVisible().catch(() => false)
+      const hasTable = await page
+        .getByRole('table')
+        .isVisible()
+        .catch(() => false)
+      const hasEmptyState = await page
+        .getByText(/no.*registrations/i)
+        .isVisible()
+        .catch(() => false)
       expect(hasTable || hasEmptyState).toBe(true)
     }
   })
@@ -104,8 +124,14 @@ test.describe('Pilot Registrations - Filter and Search', () => {
       await page.waitForTimeout(1000)
 
       // Should show filtered results
-      const hasResults = await page.getByRole('table').isVisible().catch(() => false)
-      const hasNoResults = await page.getByText(/no results|no registrations/i).isVisible().catch(() => false)
+      const hasResults = await page
+        .getByRole('table')
+        .isVisible()
+        .catch(() => false)
+      const hasNoResults = await page
+        .getByText(/no results|no registrations/i)
+        .isVisible()
+        .catch(() => false)
       expect(hasResults || hasNoResults).toBe(true)
     }
   })

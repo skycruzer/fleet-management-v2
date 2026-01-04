@@ -7,7 +7,7 @@ import { readFileSync } from 'fs'
 
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -38,7 +38,7 @@ async function testLeaveReport() {
 
   // Group by pilot
   const byPilot = {}
-  data.forEach(req => {
+  data.forEach((req) => {
     const pilotName = req.name || 'Unknown'
     if (!byPilot[pilotName]) {
       byPilot[pilotName] = []
@@ -51,13 +51,17 @@ async function testLeaveReport() {
     .sort((a, b) => a[0].localeCompare(b[0]))
     .forEach(([name, requests]) => {
       console.log(`   ${name} (${requests[0].rank}): ${requests.length} request(s)`)
-      requests.forEach(req => {
-        console.log(`     - ${req.request_type}: ${req.start_date} to ${req.end_date} [${req.workflow_status}]`)
+      requests.forEach((req) => {
+        console.log(
+          `     - ${req.request_type}: ${req.start_date} to ${req.end_date} [${req.workflow_status}]`
+        )
       })
     })
 
   // Check for Craig Duffield
-  const craigRequests = data.filter(r => r.name?.toUpperCase().includes('CRAIG') && r.name?.toUpperCase().includes('DUFFIELD'))
+  const craigRequests = data.filter(
+    (r) => r.name?.toUpperCase().includes('CRAIG') && r.name?.toUpperCase().includes('DUFFIELD')
+  )
   console.log(`\n✅ Craig Duffield: Found ${craigRequests.length} leave request(s)`)
 
   if (craigRequests.length === 0) {
@@ -65,9 +69,7 @@ async function testLeaveReport() {
   }
 
   // Compare with old table
-  const { data: oldData } = await supabase
-    .from('leave_requests')
-    .select('*')
+  const { data: oldData } = await supabase.from('leave_requests').select('*')
 
   console.log(`\n📊 Comparison:`)
   console.log(`   Old table (leave_requests): ${oldData?.length || 0} records`)

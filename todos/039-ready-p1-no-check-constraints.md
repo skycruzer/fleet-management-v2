@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p1
-issue_id: "039"
+issue_id: '039'
 tags: [database, data-integrity, validation, check-constraints]
 dependencies: []
 ---
@@ -19,6 +19,7 @@ Tables lack database-level check constraints, allowing invalid data to bypass ap
 - **Agent**: data-integrity-guardian
 
 **Missing Validations:**
+
 - `leave_requests.end_date` >= `start_date` (no constraint)
 - `feedback_posts.title` length > 0 (no constraint)
 - `leave_requests.days_count` > 0 (no constraint)
@@ -57,12 +58,15 @@ ALTER TABLE leave_requests
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** data-integrity-guardian
 **Learnings:** Database needs validation layer
 
 ### 2025-10-19 - Implementation Complete
+
 **By:** Claude Code (Comment Resolution)
 **Changes:**
+
 - Verified migration file exists: `20251019110900_add_check_constraints_business_rules.sql`
 - Confirmed 19 CHECK constraints deployed across 9 tables
 - Created comprehensive test suite: `test-constraints-comprehensive.mjs`

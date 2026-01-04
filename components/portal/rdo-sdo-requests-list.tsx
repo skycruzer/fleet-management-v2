@@ -33,15 +33,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  Calendar,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  AlertCircle,
-  Ban,
-  FileText,
-} from 'lucide-react'
+import { Calendar, CheckCircle2, Clock, XCircle, AlertCircle, Ban, FileText } from 'lucide-react'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { formatRosterPeriodFromObject, parseRosterPeriodCode } from '@/lib/utils/roster-utils'
@@ -74,7 +66,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
     const config = statusMap[status] || statusMap.SUBMITTED
 
     return (
-      <Badge variant={config.variant} className="flex items-center w-fit">
+      <Badge variant={config.variant} className="flex w-fit items-center">
         {config.icon}
         {status}
       </Badge>
@@ -169,11 +161,11 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <FileText className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-xs">
               {stats.rdo} RDO, {stats.sdo} SDO
             </p>
           </CardContent>
@@ -186,7 +178,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.submitted + stats.in_review}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-xs">
               {stats.submitted} submitted, {stats.in_review} in review
             </p>
           </CardContent>
@@ -209,7 +201,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.denied + stats.withdrawn}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-xs">
               {stats.denied} denied, {stats.withdrawn} withdrawn
             </p>
           </CardContent>
@@ -231,10 +223,10 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
         </CardHeader>
         <CardContent>
           {requests.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Calendar className="mx-auto h-12 w-12 mb-4 opacity-50" />
+            <div className="text-muted-foreground py-8 text-center">
+              <Calendar className="mx-auto mb-4 h-12 w-12 opacity-50" />
               <p>No RDO/SDO requests found</p>
-              <p className="text-sm mt-2">Submit your first request to get started</p>
+              <p className="mt-2 text-sm">Submit your first request to get started</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -258,7 +250,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
                         <div className="space-y-1">
                           <div className="font-medium">{formatDate(request.start_date)}</div>
                           {request.end_date && request.end_date !== request.start_date && (
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-muted-foreground text-sm">
                               to {formatDate(request.end_date)}
                             </div>
                           )}
@@ -266,13 +258,11 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
                       </TableCell>
                       <TableCell>{calculateDaysCount(request)}</TableCell>
                       <TableCell>
-                        <div className="text-sm">
-                          {request.roster_period}
-                        </div>
+                        <div className="text-sm">{request.roster_period}</div>
                       </TableCell>
                       <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
                       <TableCell>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-muted-foreground text-sm">
                           {formatDate(request.created_at)}
                         </div>
                       </TableCell>
@@ -305,8 +295,8 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
           <DialogHeader>
             <DialogTitle>Cancel {selectedRequest?.request_type} Request</DialogTitle>
             <DialogDescription>
-              Are you sure you want to cancel this request? This action will set the request
-              status to WITHDRAWN and cannot be undone.
+              Are you sure you want to cancel this request? This action will set the request status
+              to WITHDRAWN and cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -336,11 +326,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
             <Button variant="outline" onClick={() => setShowCancelDialog(false)}>
               Keep Request
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleCancelRequest}
-              disabled={isCancelling}
-            >
+            <Button variant="destructive" onClick={handleCancelRequest} disabled={isCancelling}>
               {isCancelling ? 'Cancelling...' : 'Cancel Request'}
             </Button>
           </DialogFooter>

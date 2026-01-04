@@ -8,7 +8,7 @@ import { readFileSync } from 'fs'
 // Read .env.local file manually
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -23,14 +23,16 @@ const supabase = createClient(
 async function analyzeDuplicates() {
   const { data, error } = await supabase
     .from('leave_requests')
-    .select(`
+    .select(
+      `
       *,
       pilot:pilots!leave_requests_pilot_id_fkey(
         first_name,
         last_name,
         employee_id
       )
-    `)
+    `
+    )
     .order('pilot_id', { ascending: true })
     .order('start_date', { ascending: true })
 
@@ -43,7 +45,7 @@ async function analyzeDuplicates() {
 
   // Group by pilot + dates to find duplicates
   const groups = {}
-  data.forEach(record => {
+  data.forEach((record) => {
     const key = `${record.pilot_id}-${record.start_date}-${record.end_date}`
     if (!groups[key]) {
       groups[key] = []
@@ -61,24 +63,28 @@ async function analyzeDuplicates() {
 
   duplicateGroups.forEach(([key, records]) => {
     const first = records[0]
-    console.log(`\n🔍 ${first.pilot?.first_name} ${first.pilot?.last_name} (${first.pilot?.employee_id})`)
+    console.log(
+      `\n🔍 ${first.pilot?.first_name} ${first.pilot?.last_name} (${first.pilot?.employee_id})`
+    )
     console.log(`   Dates: ${first.start_date} to ${first.end_date}`)
     console.log(`   Duplicate count: ${records.length}`)
     console.log(`   IDs:`)
-    records.forEach(r => {
+    records.forEach((r) => {
       console.log(`     - ${r.id} (created: ${r.created_at}, updated: ${r.updated_at})`)
-      console.log(`       Status: ${r.status}, Type: ${r.request_type}, Submission: ${r.submission_type}`)
+      console.log(
+        `       Status: ${r.status}, Type: ${r.request_type}, Submission: ${r.submission_type}`
+      )
     })
   })
 
   // Check if duplicates have different IDs
-  const allUniqueIds = new Set(data.map(r => r.id))
+  const allUniqueIds = new Set(data.map((r) => r.id))
   console.log(`\n📌 All IDs are unique: ${allUniqueIds.size === data.length ? '✅ YES' : '❌ NO'}`)
 
   // Check created_at timestamps
   console.log(`\n⏰ Created timestamps analysis:`)
   const timestampGroups = {}
-  data.forEach(r => {
+  data.forEach((r) => {
     const ts = r.created_at
     timestampGroups[ts] = (timestampGroups[ts] || 0) + 1
   })

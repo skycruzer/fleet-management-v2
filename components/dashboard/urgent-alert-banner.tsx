@@ -24,12 +24,12 @@ export async function UrgentAlertBanner() {
   }
 
   // Calculate urgency breakdown
-  const critical = expiringCerts.filter(cert => cert.status.daysUntilExpiry <= 7).length
-  const warning = expiringCerts.filter(cert =>
-    cert.status.daysUntilExpiry > 7 && cert.status.daysUntilExpiry <= 14
+  const critical = expiringCerts.filter((cert) => cert.status.daysUntilExpiry <= 7).length
+  const warning = expiringCerts.filter(
+    (cert) => cert.status.daysUntilExpiry > 7 && cert.status.daysUntilExpiry <= 14
   ).length
-  const notice = expiringCerts.filter(cert =>
-    cert.status.daysUntilExpiry > 14 && cert.status.daysUntilExpiry <= 30
+  const notice = expiringCerts.filter(
+    (cert) => cert.status.daysUntilExpiry > 14 && cert.status.daysUntilExpiry <= 30
   ).length
 
   const total = expiringCerts.length

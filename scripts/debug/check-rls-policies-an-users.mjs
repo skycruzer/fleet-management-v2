@@ -4,8 +4,11 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -27,11 +30,14 @@ async function checkRLSPolicies() {
       FROM pg_policies
       WHERE tablename = 'an_users'
       ORDER BY policyname;
-    `
+    `,
   })
 
   if (error) {
-    console.error('Error fetching policies (RPC not available, trying direct query):', error.message)
+    console.error(
+      'Error fetching policies (RPC not available, trying direct query):',
+      error.message
+    )
 
     // Try direct query
     const { data: directData, error: directError } = await supabase
@@ -91,7 +97,7 @@ async function checkTableRLS() {
         rowsecurity as rls_enabled
       FROM pg_tables
       WHERE tablename = 'an_users';
-    `
+    `,
   })
 
   if (error) {

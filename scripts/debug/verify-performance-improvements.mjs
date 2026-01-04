@@ -2,7 +2,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('❌ Missing Supabase credentials')
@@ -12,7 +13,7 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 console.log('🔍 PERFORMANCE IMPROVEMENTS VERIFICATION')
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 console.log()
 
 // ============================================================================
@@ -43,8 +44,8 @@ try {
       'idx_pilot_requests_rank_period_status',
     ]
 
-    const foundIndexNames = indexes.map(i => i.indexname)
-    const allFound = expectedIndexes.every(name => foundIndexNames.includes(name))
+    const foundIndexNames = indexes.map((i) => i.indexname)
+    const allFound = expectedIndexes.every((name) => foundIndexNames.includes(name))
 
     if (allFound) {
       console.log('✅ All 7 indexes created successfully!')
@@ -52,7 +53,7 @@ try {
       console.table(indexes)
     } else {
       console.log('⚠️  Some indexes missing:')
-      expectedIndexes.forEach(name => {
+      expectedIndexes.forEach((name) => {
         if (foundIndexNames.includes(name)) {
           console.log(`  ✅ ${name}`)
         } else {
@@ -114,11 +115,7 @@ console.log('-'.repeat(60))
 
 try {
   // Get a sample pilot
-  const { data: pilots } = await supabase
-    .from('pilots')
-    .select('id')
-    .limit(1)
-    .single()
+  const { data: pilots } = await supabase.from('pilots').select('id').limit(1).single()
 
   if (pilots) {
     const startTime = Date.now()
@@ -208,11 +205,13 @@ try {
   } else {
     console.log('✅ workflow_status field accessible')
     console.log('📦 Sample records:')
-    console.table(data.map(r => ({
-      id: r.id.substring(0, 8),
-      category: r.request_category,
-      status: r.workflow_status
-    })))
+    console.table(
+      data.map((r) => ({
+        id: r.id.substring(0, 8),
+        category: r.request_category,
+        status: r.workflow_status,
+      }))
+    )
     console.log('✅ Status field migration successful - no errors')
   }
 } catch (err) {
@@ -224,9 +223,9 @@ console.log()
 // ============================================================================
 // SUMMARY
 // ============================================================================
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 console.log('📊 VERIFICATION SUMMARY')
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 console.log()
 console.log('✅ Database indexes deployed successfully')
 console.log('✅ Query performance improved significantly')

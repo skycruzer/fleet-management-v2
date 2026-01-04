@@ -185,7 +185,11 @@ export abstract class BaseService {
       return this.handleForbidden('Admin access required')
     }
 
-    if (requiredRole === 'manager' && adminUser?.role !== 'admin' && adminUser?.role !== 'manager') {
+    if (
+      requiredRole === 'manager' &&
+      adminUser?.role !== 'admin' &&
+      adminUser?.role !== 'manager'
+    ) {
       return this.handleForbidden('Manager access required')
     }
 

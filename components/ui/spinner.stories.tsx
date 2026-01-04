@@ -56,7 +56,7 @@ export const Variants: Story = {
         <Spinner size="lg" variant="primary" />
         <span className="text-xs text-gray-600">Primary</span>
       </div>
-      <div className="flex flex-col items-center gap-2 bg-blue-600 p-4 rounded">
+      <div className="flex flex-col items-center gap-2 rounded bg-blue-600 p-4">
         <Spinner size="lg" variant="white" />
         <span className="text-xs text-white">White</span>
       </div>
@@ -92,11 +92,11 @@ export const InlineExample: Story = {
 export const ButtonSpinnerExample: Story = {
   render: () => (
     <div className="flex gap-4">
-      <button className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center gap-2">
+      <button className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white">
         <ButtonSpinner variant="white" />
         Submitting...
       </button>
-      <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md flex items-center gap-2">
+      <button className="flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-gray-700">
         <ButtonSpinner variant="primary" />
         Loading...
       </button>
@@ -106,15 +106,18 @@ export const ButtonSpinnerExample: Story = {
 
 export const LoadingStates: Story = {
   render: () => (
-    <div className="space-y-6 w-96">
+    <div className="w-96 space-y-6">
       <Card className="p-6">
-        <h3 className="font-semibold mb-4">Form Loading State</h3>
+        <h3 className="mb-4 font-semibold">Form Loading State</h3>
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-            <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+            <div className="h-10 w-full animate-pulse rounded bg-gray-200" />
           </div>
-          <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md flex items-center justify-center gap-2" disabled>
+          <button
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white"
+            disabled
+          >
             <ButtonSpinner variant="white" />
             Submitting...
           </button>
@@ -122,12 +125,12 @@ export const LoadingStates: Story = {
       </Card>
 
       <Card className="p-6">
-        <h3 className="font-semibold mb-4">Data Loading State</h3>
+        <h3 className="mb-4 font-semibold">Data Loading State</h3>
         <CenteredSpinner size="md" text="Loading..." minHeight="150px" />
       </Card>
 
       <Card className="p-6">
-        <h3 className="font-semibold mb-4">Inline Loading State</h3>
+        <h3 className="mb-4 font-semibold">Inline Loading State</h3>
         <p className="text-gray-700">
           Your request is being processed <InlineSpinner className="ml-2" />
         </p>

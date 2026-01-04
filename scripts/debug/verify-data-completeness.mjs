@@ -133,11 +133,12 @@ const missingLeaveRecords = []
 
 for (const oldReq of oldLeaveRequests) {
   // Try to find matching record in pilot_requests
-  const matches = pilotRequests.filter(pr =>
-    pr.request_category === 'LEAVE' &&
-    pr.pilot_id === oldReq.pilot_id &&
-    pr.start_date === oldReq.start_date &&
-    pr.end_date === oldReq.end_date
+  const matches = pilotRequests.filter(
+    (pr) =>
+      pr.request_category === 'LEAVE' &&
+      pr.pilot_id === oldReq.pilot_id &&
+      pr.start_date === oldReq.start_date &&
+      pr.end_date === oldReq.end_date
   )
 
   if (matches.length === 0) {
@@ -149,10 +150,12 @@ for (const oldReq of oldLeaveRequests) {
       end_date: oldReq.end_date,
       leave_type: oldReq.leave_type,
       status: oldReq.status,
-      created_at: oldReq.created_at
+      created_at: oldReq.created_at,
     })
   } else if (matches.length > 1) {
-    console.log(`⚠️  WARNING: Found ${matches.length} duplicate matches for leave request ${oldReq.id}`)
+    console.log(
+      `⚠️  WARNING: Found ${matches.length} duplicate matches for leave request ${oldReq.id}`
+    )
   }
 }
 
@@ -181,10 +184,11 @@ const missingFlightRecords = []
 
 for (const oldReq of oldFlightRequests) {
   // Try to find matching record in pilot_requests
-  const matches = pilotRequests.filter(pr =>
-    pr.request_category === 'FLIGHT' &&
-    pr.pilot_id === oldReq.pilot_id &&
-    pr.flight_date === oldReq.flight_date
+  const matches = pilotRequests.filter(
+    (pr) =>
+      pr.request_category === 'FLIGHT' &&
+      pr.pilot_id === oldReq.pilot_id &&
+      pr.flight_date === oldReq.flight_date
   )
 
   if (matches.length === 0) {
@@ -196,10 +200,12 @@ for (const oldReq of oldFlightRequests) {
       request_type: oldReq.request_type,
       description: oldReq.description,
       status: oldReq.status,
-      created_at: oldReq.created_at
+      created_at: oldReq.created_at,
     })
   } else if (matches.length > 1) {
-    console.log(`⚠️  WARNING: Found ${matches.length} duplicate matches for flight request ${oldReq.id}`)
+    console.log(
+      `⚠️  WARNING: Found ${matches.length} duplicate matches for flight request ${oldReq.id}`
+    )
   }
 }
 
@@ -232,13 +238,13 @@ const { data: pilots, error: pilotsError } = await supabase
 if (pilotsError) {
   console.error('❌ Error fetching pilots:', pilotsError.message)
 } else {
-  const validPilotIds = new Set(pilots.map(p => p.id))
+  const validPilotIds = new Set(pilots.map((p) => p.id))
 
   // Check old leave_requests
-  const orphanedLeave = oldLeaveRequests.filter(req => !validPilotIds.has(req.pilot_id))
+  const orphanedLeave = oldLeaveRequests.filter((req) => !validPilotIds.has(req.pilot_id))
   if (orphanedLeave.length > 0) {
     console.log(`⚠️  Found ${orphanedLeave.length} orphaned leave_requests (invalid pilot_id):`)
-    orphanedLeave.forEach(req => {
+    orphanedLeave.forEach((req) => {
       console.log(`   - ${req.id}: pilot_id = ${req.pilot_id}`)
     })
   } else {
@@ -246,10 +252,10 @@ if (pilotsError) {
   }
 
   // Check old flight_requests
-  const orphanedFlight = oldFlightRequests.filter(req => !validPilotIds.has(req.pilot_id))
+  const orphanedFlight = oldFlightRequests.filter((req) => !validPilotIds.has(req.pilot_id))
   if (orphanedFlight.length > 0) {
     console.log(`⚠️  Found ${orphanedFlight.length} orphaned flight_requests (invalid pilot_id):`)
-    orphanedFlight.forEach(req => {
+    orphanedFlight.forEach((req) => {
       console.log(`   - ${req.id}: pilot_id = ${req.pilot_id}`)
     })
   } else {
@@ -257,10 +263,12 @@ if (pilotsError) {
   }
 
   // Check new pilot_requests
-  const orphanedPilotRequests = pilotRequests.filter(req => !validPilotIds.has(req.pilot_id))
+  const orphanedPilotRequests = pilotRequests.filter((req) => !validPilotIds.has(req.pilot_id))
   if (orphanedPilotRequests.length > 0) {
-    console.log(`⚠️  Found ${orphanedPilotRequests.length} orphaned pilot_requests (invalid pilot_id):`)
-    orphanedPilotRequests.forEach(req => {
+    console.log(
+      `⚠️  Found ${orphanedPilotRequests.length} orphaned pilot_requests (invalid pilot_id):`
+    )
+    orphanedPilotRequests.forEach((req) => {
       console.log(`   - ${req.id}: pilot_id = ${req.pilot_id}, category = ${req.request_category}`)
     })
   } else {
@@ -278,20 +286,22 @@ console.log('🔍 STEP 6: Verifying status mapping accuracy...\n')
 const statusIssues = []
 
 for (const oldReq of oldLeaveRequests) {
-  const matches = pilotRequests.filter(pr =>
-    pr.request_category === 'LEAVE' &&
-    pr.pilot_id === oldReq.pilot_id &&
-    pr.start_date === oldReq.start_date &&
-    pr.end_date === oldReq.end_date
+  const matches = pilotRequests.filter(
+    (pr) =>
+      pr.request_category === 'LEAVE' &&
+      pr.pilot_id === oldReq.pilot_id &&
+      pr.start_date === oldReq.start_date &&
+      pr.end_date === oldReq.end_date
   )
 
   if (matches.length === 1) {
     const newReq = matches[0]
-    const expectedStatus = {
-      'PENDING': 'SUBMITTED',
-      'APPROVED': 'APPROVED',
-      'REJECTED': 'DENIED'
-    }[oldReq.status] || 'SUBMITTED'
+    const expectedStatus =
+      {
+        PENDING: 'SUBMITTED',
+        APPROVED: 'APPROVED',
+        REJECTED: 'DENIED',
+      }[oldReq.status] || 'SUBMITTED'
 
     if (newReq.workflow_status !== expectedStatus) {
       statusIssues.push({
@@ -299,26 +309,28 @@ for (const oldReq of oldLeaveRequests) {
         newId: newReq.id,
         oldStatus: oldReq.status,
         newStatus: newReq.workflow_status,
-        expectedStatus
+        expectedStatus,
       })
     }
   }
 }
 
 for (const oldReq of oldFlightRequests) {
-  const matches = pilotRequests.filter(pr =>
-    pr.request_category === 'FLIGHT' &&
-    pr.pilot_id === oldReq.pilot_id &&
-    pr.flight_date === oldReq.flight_date
+  const matches = pilotRequests.filter(
+    (pr) =>
+      pr.request_category === 'FLIGHT' &&
+      pr.pilot_id === oldReq.pilot_id &&
+      pr.flight_date === oldReq.flight_date
   )
 
   if (matches.length === 1) {
     const newReq = matches[0]
-    const expectedStatus = {
-      'PENDING': 'SUBMITTED',
-      'APPROVED': 'APPROVED',
-      'REJECTED': 'DENIED'
-    }[oldReq.status] || 'SUBMITTED'
+    const expectedStatus =
+      {
+        PENDING: 'SUBMITTED',
+        APPROVED: 'APPROVED',
+        REJECTED: 'DENIED',
+      }[oldReq.status] || 'SUBMITTED'
 
     if (newReq.workflow_status !== expectedStatus) {
       statusIssues.push({
@@ -326,7 +338,7 @@ for (const oldReq of oldFlightRequests) {
         newId: newReq.id,
         oldStatus: oldReq.status,
         newStatus: newReq.workflow_status,
-        expectedStatus
+        expectedStatus,
       })
     }
   }
@@ -336,7 +348,7 @@ if (statusIssues.length === 0) {
   console.log('✅ All status values correctly mapped!')
 } else {
   console.log(`❌ Found ${statusIssues.length} status mapping issues:`)
-  statusIssues.forEach(issue => {
+  statusIssues.forEach((issue) => {
     console.log(`   - Old ID ${issue.oldId} → New ID ${issue.newId}`)
     console.log(`     Old status: ${issue.oldStatus}`)
     console.log(`     Expected: ${issue.expectedStatus}`)
@@ -348,17 +360,21 @@ console.log()
 // ============================================================================
 // STEP 7: Summary
 // ============================================================================
-console.log('=' .repeat(70))
+console.log('='.repeat(70))
 console.log('📊 VERIFICATION SUMMARY')
-console.log('=' .repeat(70))
+console.log('='.repeat(70))
 console.log()
 console.log(`Total old leave_requests:     ${oldLeaveRequests.length}`)
 console.log(`Total old flight_requests:    ${oldFlightRequests.length}`)
 console.log(`Total old records:            ${oldLeaveRequests.length + oldFlightRequests.length}`)
 console.log()
 console.log(`Total pilot_requests:         ${pilotRequests.length}`)
-console.log(`  - LEAVE category:           ${pilotRequests.filter(r => r.request_category === 'LEAVE').length}`)
-console.log(`  - FLIGHT category:          ${pilotRequests.filter(r => r.request_category === 'FLIGHT').length}`)
+console.log(
+  `  - LEAVE category:           ${pilotRequests.filter((r) => r.request_category === 'LEAVE').length}`
+)
+console.log(
+  `  - FLIGHT category:          ${pilotRequests.filter((r) => r.request_category === 'FLIGHT').length}`
+)
 console.log()
 console.log(`Missing leave records:        ${missingLeaveCount}`)
 console.log(`Missing flight records:       ${missingFlightCount}`)

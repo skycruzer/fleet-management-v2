@@ -20,7 +20,7 @@ const TEST_RESULTS = {
   certification: { passed: 0, failed: 0, tests: [] },
   leave: { passed: 0, failed: 0, tests: [] },
   operational: { passed: 0, failed: 0, tests: [] },
-  system: { passed: 0, failed: 0, tests: [] }
+  system: { passed: 0, failed: 0, tests: [] },
 }
 
 async function login(page) {
@@ -34,7 +34,7 @@ async function login(page) {
 
   await Promise.all([
     page.waitForNavigation({ waitUntil: 'networkidle0' }),
-    page.click('button[type="submit"]')
+    page.click('button[type="submit"]'),
   ])
 
   console.log('✅ Login successful')
@@ -52,7 +52,7 @@ async function testReportsPageUI(page) {
     TEST_RESULTS.ui.tests.push({
       name: 'Reports page loads',
       passed: pageTitle.includes('Reports') || pageTitle.includes('Fleet Management'),
-      details: `Page title: ${pageTitle}`
+      details: `Page title: ${pageTitle}`,
     })
     TEST_RESULTS.ui.passed++
 
@@ -62,7 +62,7 @@ async function testReportsPageUI(page) {
     TEST_RESULTS.ui.tests.push({
       name: '5 category tabs visible',
       passed: tabCount === 5,
-      details: `Found ${tabCount} tabs (expected 5)`
+      details: `Found ${tabCount} tabs (expected 5)`,
     })
     if (tabCount === 5) TEST_RESULTS.ui.passed++
     else TEST_RESULTS.ui.failed++
@@ -72,7 +72,7 @@ async function testReportsPageUI(page) {
     TEST_RESULTS.ui.tests.push({
       name: 'Search input exists',
       passed: !!searchInput,
-      details: searchInput ? 'Search input found' : 'Search input NOT found'
+      details: searchInput ? 'Search input found' : 'Search input NOT found',
     })
     if (searchInput) TEST_RESULTS.ui.passed++
     else TEST_RESULTS.ui.failed++
@@ -83,30 +83,31 @@ async function testReportsPageUI(page) {
     TEST_RESULTS.ui.tests.push({
       name: 'Report cards visible',
       passed: cardCount >= 4, // At least 4 fleet reports should be visible
-      details: `Found ${cardCount} report cards`
+      details: `Found ${cardCount} report cards`,
     })
     if (cardCount >= 4) TEST_RESULTS.ui.passed++
     else TEST_RESULTS.ui.failed++
 
     // Test 5: Generate button exists
-    const generateButtons = await page.$$('button:has-text("Generate"), button:has-text("CSV"), button:has-text("Excel")')
+    const generateButtons = await page.$$(
+      'button:has-text("Generate"), button:has-text("CSV"), button:has-text("Excel")'
+    )
     TEST_RESULTS.ui.tests.push({
       name: 'Generate buttons exist',
       passed: generateButtons.length > 0,
-      details: `Found ${generateButtons.length} generate/format buttons`
+      details: `Found ${generateButtons.length} generate/format buttons`,
     })
     if (generateButtons.length > 0) TEST_RESULTS.ui.passed++
     else TEST_RESULTS.ui.failed++
 
     console.log(`✅ UI Tests: ${TEST_RESULTS.ui.passed} passed, ${TEST_RESULTS.ui.failed} failed`)
-
   } catch (error) {
     console.error('❌ UI Test Error:', error.message)
     TEST_RESULTS.ui.failed++
     TEST_RESULTS.ui.tests.push({
       name: 'UI Test Suite',
       passed: false,
-      details: `Error: ${error.message}`
+      details: `Error: ${error.message}`,
     })
   }
 }
@@ -119,29 +120,36 @@ async function testAPIEndpoint(page, category, reportId, reportName, format = 'c
     console.log(`  Testing: ${testName}...`)
 
     // Make API request
-    const response = await page.evaluate(async (url, fmt) => {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          format: fmt,
-          parameters: fmt === 'ical' ? {
-            dateRange: {
-              start: '2025-01-01',
-              end: '2025-12-31'
-            }
-          } : {}
+    const response = await page.evaluate(
+      async (url, fmt) => {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            format: fmt,
+            parameters:
+              fmt === 'ical'
+                ? {
+                    dateRange: {
+                      start: '2025-01-01',
+                      end: '2025-12-31',
+                    },
+                  }
+                : {},
+          }),
         })
-      })
 
-      return {
-        status: res.status,
-        statusText: res.statusText,
-        contentType: res.headers.get('content-type'),
-        contentDisposition: res.headers.get('content-disposition'),
-        ok: res.ok
-      }
-    }, endpoint, format)
+        return {
+          status: res.status,
+          statusText: res.statusText,
+          contentType: res.headers.get('content-type'),
+          contentDisposition: res.headers.get('content-disposition'),
+          ok: res.ok,
+        }
+      },
+      endpoint,
+      format
+    )
 
     const passed = response.ok && response.status === 200
 
@@ -150,7 +158,7 @@ async function testAPIEndpoint(page, category, reportId, reportName, format = 'c
       passed,
       details: passed
         ? `✓ ${response.status} - ${response.contentType}`
-        : `✗ ${response.status} ${response.statusText}`
+        : `✗ ${response.status} ${response.statusText}`,
     })
 
     if (passed) {
@@ -160,13 +168,12 @@ async function testAPIEndpoint(page, category, reportId, reportName, format = 'c
       TEST_RESULTS[category].failed++
       console.log(`    ❌ ${response.status} ${response.statusText}`)
     }
-
   } catch (error) {
     TEST_RESULTS[category].failed++
     TEST_RESULTS[category].tests.push({
       name: testName,
       passed: false,
-      details: `Error: ${error.message}`
+      details: `Error: ${error.message}`,
     })
     console.log(`    ❌ Error: ${error.message}`)
   }
@@ -181,7 +188,9 @@ async function testFleetReports(page) {
   await testAPIEndpoint(page, 'fleet', 'retirement-forecast', 'Retirement Forecast', 'excel')
   await testAPIEndpoint(page, 'fleet', 'succession-pipeline', 'Succession Pipeline', 'excel')
 
-  console.log(`Fleet Reports: ${TEST_RESULTS.fleet.passed} passed, ${TEST_RESULTS.fleet.failed} failed`)
+  console.log(
+    `Fleet Reports: ${TEST_RESULTS.fleet.passed} passed, ${TEST_RESULTS.fleet.failed} failed`
+  )
 }
 
 async function testCertificationReports(page) {
@@ -194,7 +203,9 @@ async function testCertificationReports(page) {
   await testAPIEndpoint(page, 'certifications', 'compliance', 'Fleet Compliance', 'excel')
   await testAPIEndpoint(page, 'certifications', 'renewal-schedule', 'Renewal Schedule', 'ical')
 
-  console.log(`Certification Reports: ${TEST_RESULTS.certification.passed} passed, ${TEST_RESULTS.certification.failed} failed`)
+  console.log(
+    `Certification Reports: ${TEST_RESULTS.certification.passed} passed, ${TEST_RESULTS.certification.failed} failed`
+  )
 }
 
 async function testLeaveReports(page) {
@@ -206,7 +217,9 @@ async function testLeaveReports(page) {
   await testAPIEndpoint(page, 'leave', 'bid-summary', 'Bid Summary', 'excel')
   await testAPIEndpoint(page, 'leave', 'calendar-export', 'Calendar Export', 'ical')
 
-  console.log(`Leave Reports: ${TEST_RESULTS.leave.passed} passed, ${TEST_RESULTS.leave.failed} failed`)
+  console.log(
+    `Leave Reports: ${TEST_RESULTS.leave.passed} passed, ${TEST_RESULTS.leave.failed} failed`
+  )
 }
 
 async function testOperationalReports(page) {
@@ -217,7 +230,9 @@ async function testOperationalReports(page) {
   await testAPIEndpoint(page, 'operational', 'task-completion', 'Task Completion', 'excel')
   await testAPIEndpoint(page, 'operational', 'disciplinary', 'Disciplinary Actions', 'csv')
 
-  console.log(`Operational Reports: ${TEST_RESULTS.operational.passed} passed, ${TEST_RESULTS.operational.failed} failed`)
+  console.log(
+    `Operational Reports: ${TEST_RESULTS.operational.passed} passed, ${TEST_RESULTS.operational.failed} failed`
+  )
 }
 
 async function testSystemReports(page) {
@@ -232,8 +247,8 @@ async function testSystemReports(page) {
   const dateParams = {
     dateRange: {
       start: '2025-10-01',
-      end: '2025-11-03'
-    }
+      end: '2025-11-03',
+    },
   }
 
   // Test with date range parameters
@@ -243,25 +258,30 @@ async function testSystemReports(page) {
     [endpoint2, 'User Activity', 'excel'],
     [endpoint3, 'Feedback Summary', 'csv'],
     [endpoint3, 'Feedback Summary', 'excel'],
-    [endpoint4, 'System Health', 'excel']
+    [endpoint4, 'System Health', 'excel'],
   ]) {
     try {
       console.log(`  Testing: ${name} (${format.toUpperCase()})...`)
 
-      const response = await page.evaluate(async (url, fmt, params) => {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ format: fmt, parameters: params })
-        })
+      const response = await page.evaluate(
+        async (url, fmt, params) => {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ format: fmt, parameters: params }),
+          })
 
-        return {
-          status: res.status,
-          statusText: res.statusText,
-          contentType: res.headers.get('content-type'),
-          ok: res.ok
-        }
-      }, endpoint, format, dateParams)
+          return {
+            status: res.status,
+            statusText: res.statusText,
+            contentType: res.headers.get('content-type'),
+            ok: res.ok,
+          }
+        },
+        endpoint,
+        format,
+        dateParams
+      )
 
       const passed = response.ok && response.status === 200
 
@@ -270,7 +290,7 @@ async function testSystemReports(page) {
         passed,
         details: passed
           ? `✓ ${response.status} - ${response.contentType}`
-          : `✗ ${response.status} ${response.statusText}`
+          : `✗ ${response.status} ${response.statusText}`,
       })
 
       if (passed) {
@@ -280,19 +300,20 @@ async function testSystemReports(page) {
         TEST_RESULTS.system.failed++
         console.log(`    ❌ ${response.status} ${response.statusText}`)
       }
-
     } catch (error) {
       TEST_RESULTS.system.failed++
       TEST_RESULTS.system.tests.push({
         name: `${name} (${format.toUpperCase()})`,
         passed: false,
-        details: `Error: ${error.message}`
+        details: `Error: ${error.message}`,
       })
       console.log(`    ❌ Error: ${error.message}`)
     }
   }
 
-  console.log(`System Reports: ${TEST_RESULTS.system.passed} passed, ${TEST_RESULTS.system.failed} failed`)
+  console.log(
+    `System Reports: ${TEST_RESULTS.system.passed} passed, ${TEST_RESULTS.system.failed} failed`
+  )
 }
 
 function generateReport() {
@@ -307,15 +328,17 @@ function generateReport() {
   console.log('\n📈 SUMMARY')
   console.log('-'.repeat(80))
   console.log(`Total Tests Run: ${totalTests}`)
-  console.log(`✅ Passed: ${totalPassed} (${((totalPassed/totalTests)*100).toFixed(1)}%)`)
-  console.log(`❌ Failed: ${totalFailed} (${((totalFailed/totalTests)*100).toFixed(1)}%)`)
+  console.log(`✅ Passed: ${totalPassed} (${((totalPassed / totalTests) * 100).toFixed(1)}%)`)
+  console.log(`❌ Failed: ${totalFailed} (${((totalFailed / totalTests) * 100).toFixed(1)}%)`)
 
   console.log('\n📋 BY CATEGORY')
   console.log('-'.repeat(80))
   for (const [category, results] of Object.entries(TEST_RESULTS)) {
     const total = results.passed + results.failed
-    const percentage = total > 0 ? ((results.passed/total)*100).toFixed(1) : '0.0'
-    console.log(`${category.toUpperCase().padEnd(20)} - ${results.passed}/${total} passed (${percentage}%)`)
+    const percentage = total > 0 ? ((results.passed / total) * 100).toFixed(1) : '0.0'
+    console.log(
+      `${category.toUpperCase().padEnd(20)} - ${results.passed}/${total} passed (${percentage}%)`
+    )
   }
 
   console.log('\n🔍 DETAILED RESULTS')
@@ -323,7 +346,7 @@ function generateReport() {
   for (const [category, results] of Object.entries(TEST_RESULTS)) {
     if (results.tests.length > 0) {
       console.log(`\n${category.toUpperCase()}:`)
-      results.tests.forEach(test => {
+      results.tests.forEach((test) => {
         const icon = test.passed ? '✅' : '❌'
         console.log(`  ${icon} ${test.name}`)
         if (test.details) {
@@ -351,13 +374,13 @@ async function saveTestReport(reportData) {
   let markdown = `# Reports System Test Results\n\n`
   markdown += `**Date**: ${new Date().toISOString()}\n`
   markdown += `**Total Tests**: ${reportData.totalTests}\n`
-  markdown += `**Passed**: ${reportData.totalPassed} (${((reportData.totalPassed/reportData.totalTests)*100).toFixed(1)}%)\n`
-  markdown += `**Failed**: ${reportData.totalFailed} (${((reportData.totalFailed/reportData.totalTests)*100).toFixed(1)}%)\n\n`
+  markdown += `**Passed**: ${reportData.totalPassed} (${((reportData.totalPassed / reportData.totalTests) * 100).toFixed(1)}%)\n`
+  markdown += `**Failed**: ${reportData.totalFailed} (${((reportData.totalFailed / reportData.totalTests) * 100).toFixed(1)}%)\n\n`
 
   markdown += `## Summary by Category\n\n`
   for (const [category, results] of Object.entries(reportData.results)) {
     const total = results.passed + results.failed
-    const percentage = total > 0 ? ((results.passed/total)*100).toFixed(1) : '0.0'
+    const percentage = total > 0 ? ((results.passed / total) * 100).toFixed(1) : '0.0'
     markdown += `- **${category.toUpperCase()}**: ${results.passed}/${total} passed (${percentage}%)\n`
   }
 
@@ -365,7 +388,7 @@ async function saveTestReport(reportData) {
   for (const [category, results] of Object.entries(reportData.results)) {
     if (results.tests.length > 0) {
       markdown += `### ${category.toUpperCase()}\n\n`
-      results.tests.forEach(test => {
+      results.tests.forEach((test) => {
         const icon = test.passed ? '✅' : '❌'
         markdown += `${icon} **${test.name}**\n`
         if (test.details) {
@@ -391,7 +414,7 @@ async function main() {
 
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   })
 
   try {
@@ -414,7 +437,6 @@ async function main() {
     // Generate and save report
     const reportData = generateReport()
     await saveTestReport(reportData)
-
   } catch (error) {
     console.error('\n❌ Test suite failed:', error)
     process.exit(1)
@@ -423,7 +445,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Fatal error:', error)
   process.exit(1)
 })

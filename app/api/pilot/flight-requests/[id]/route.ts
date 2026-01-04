@@ -3,7 +3,6 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { verifyPilotSession } from '@/lib/services/pilot-portal-service'
 import { cancelPilotFlightRequest } from '@/lib/services/pilot-flight-service'
-import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**

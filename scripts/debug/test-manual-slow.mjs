@@ -13,7 +13,7 @@ const ADMIN_PASSWORD = 'mron2393'
 const PILOT_EMAIL = 'mrondeau@airniugini.com.pg'
 const PILOT_PASSWORD = 'Lemakot@1972'
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function testDisciplinaryFormUUID() {
   console.log('\n════════════════════════════════════════════')
@@ -84,7 +84,7 @@ async function testDisciplinaryFormUUID() {
     const errorElements = await page.$$('.text-red-600, .text-red-500, [role="alert"]')
 
     if (errorElements.length > 0) {
-      const errorText = await page.evaluate(el => el.textContent, errorElements[0])
+      const errorText = await page.evaluate((el) => el.textContent, errorElements[0])
       if (errorText.toLowerCase().includes('uuid')) {
         console.log(`❌ FAIL: UUID error still occurring: "${errorText}"`)
       } else {
@@ -145,7 +145,7 @@ async function testTasksEditPage() {
     }
 
     console.log(`→ Found ${taskLinks.length} task(s)`)
-    const firstTaskHref = await page.evaluate(el => el.href, taskLinks[0])
+    const firstTaskHref = await page.evaluate((el) => el.href, taskLinks[0])
     console.log(`→ Task URL: ${firstTaskHref}`)
 
     await delay(1000)
@@ -221,17 +221,18 @@ async function testFlightRequestTypes() {
 
     const options = await page.evaluate(() => {
       const selects = Array.from(document.querySelectorAll('select'))
-      const requestTypeSelect = selects.find(s =>
-        s.name === 'request_type' ||
-        s.id === 'request_type' ||
-        Array.from(s.options).some(opt => opt.value === 'FLIGHT_REQUEST' || opt.value === 'RDO')
+      const requestTypeSelect = selects.find(
+        (s) =>
+          s.name === 'request_type' ||
+          s.id === 'request_type' ||
+          Array.from(s.options).some((opt) => opt.value === 'FLIGHT_REQUEST' || opt.value === 'RDO')
       )
 
       if (!requestTypeSelect) return null
 
-      return Array.from(requestTypeSelect.options).map(opt => ({
+      return Array.from(requestTypeSelect.options).map((opt) => ({
         value: opt.value,
-        text: opt.textContent.trim()
+        text: opt.textContent.trim(),
       }))
     })
 
@@ -242,20 +243,21 @@ async function testFlightRequestTypes() {
     }
 
     console.log('\n→ Found dropdown options:')
-    options.forEach(opt => {
+    options.forEach((opt) => {
       console.log(`   - ${opt.value}: ${opt.text}`)
     })
 
     const expectedTypes = ['FLIGHT_REQUEST', 'RDO', 'SDO', 'OFFICE_DAY']
-    const foundValues = options.map(o => o.value).filter(v => v !== '')
+    const foundValues = options.map((o) => o.value).filter((v) => v !== '')
 
-    const hasOldTypes = foundValues.some(v =>
-      v.includes('ADDITIONAL_FLIGHT') ||
-      v.includes('ROUTE_CHANGE') ||
-      v.includes('SCHEDULE_PREFERENCE')
+    const hasOldTypes = foundValues.some(
+      (v) =>
+        v.includes('ADDITIONAL_FLIGHT') ||
+        v.includes('ROUTE_CHANGE') ||
+        v.includes('SCHEDULE_PREFERENCE')
     )
 
-    const hasNewTypes = expectedTypes.every(type => foundValues.includes(type))
+    const hasNewTypes = expectedTypes.every((type) => foundValues.includes(type))
 
     console.log('\n→ Analysis:')
     console.log(`   Expected types: ${expectedTypes.join(', ')}`)
@@ -298,7 +300,7 @@ async function runAllTests() {
   console.log('════════════════════════════════════════════\n')
 }
 
-runAllTests().catch(error => {
+runAllTests().catch((error) => {
   console.error('\n❌ Fatal error running tests:', error)
   process.exit(1)
 })

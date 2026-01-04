@@ -10,10 +10,10 @@ const supabase = createClient(
 console.log('\n🔍 Checking flight_requests table constraints\n')
 
 // Get table definition
-const { data, error } = await supabase
-  .from('flight_requests')
-  .select('request_type')
-  .limit(5)
+const { data, error } = await supabase.from('flight_requests').select('request_type').limit(5)
 
-console.log('Sample request_type values:', data?.map(r => r.request_type))
+console.log(
+  'Sample request_type values:',
+  data?.map((r) => r.request_type)
+)
 console.log('Error:', error)

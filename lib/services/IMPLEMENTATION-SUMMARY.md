@@ -1,4 +1,5 @@
 # Service Layer Implementation Summary
+
 ## Todo 002: Service Layer Architecture
 
 **Task**: Port 10 core services from air-niugini-pms v1 to fleet-management-v2
@@ -17,31 +18,37 @@
 ### ALL 10 SERVICES IMPLEMENTED (100%)
 
 #### ✅ pilot-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/pilot-service.ts`
 - **Size**: 20KB
 - **Functions Implemented**: 10+ (seniority calculations, CRUD, retirement tracking)
 
 #### ✅ cache-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/cache-service.ts`
 - **Size**: 20KB
 - **Functions Implemented**: 15+ (caching, TTL, invalidation, warmup)
 
 #### ✅ audit-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/audit-service.ts`
 - **Size**: 19KB
 - **Functions Implemented**: 12+ (audit logging, filtering, CSV export)
 
 #### ✅ expiring-certifications-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/expiring-certifications-service.ts`
 - **Size**: 5KB
 - **Functions Implemented**: 3 (expiring certifications, FAA color coding, roster periods)
 
 #### ✅ leave-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/leave-service.ts`
 - **Size**: 14KB
 - **Functions Implemented**: 11+ (leave CRUD, roster period alignment, conflict detection)
 
 #### ✅ leave-eligibility-service.ts (COMPLETE - MOST COMPLEX)
+
 - **Location**: `/lib/services/leave-eligibility-service.ts`
 - **Size**: 43KB → 35KB
 - **CRITICAL BUSINESS LOGIC** (100% Preserved):
@@ -60,18 +67,21 @@
   - `checkBulkLeaveEligibility()` - Roster period bulk validation
 
 #### ✅ dashboard-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/dashboard-service.ts`
 - **Size**: 11KB → 10KB
 - **Functions Implemented**: 2+ (dashboard metrics, recent activity)
 - **Features**: Pilot stats, certification stats, leave stats, alerts, retirement metrics, performance tracking
 
 #### ✅ analytics-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/analytics-service.ts`
 - **Size**: 11KB → 8KB
 - **Functions Implemented**: 5+ (pilot analytics, certification analytics, leave analytics, fleet analytics, risk analytics)
 - **Adaptations**: Simplified from v1, removed analytics-data-service dependency, direct calculations
 
 #### ✅ pdf-service.ts (COMPLETE)
+
 - **Location**: `/lib/services/pdf-service.ts`
 - **Size**: 35KB → 20KB
 - **Functions Implemented**: 3+ (compliance report data, pilot report data, fleet management report data)
@@ -79,6 +89,7 @@
 - **Adaptations**: Simplified data fetching, removed settingsService dependency
 
 #### ✅ certification-service.ts (NEW - CREATED FROM SCRATCH)
+
 - **Location**: `/lib/services/certification-service.ts`
 - **Size**: 12KB (NEW)
 - **Functions Implemented**: 11+ (CRUD operations, expiry tracking, FAA color coding, bulk updates)
@@ -111,9 +122,7 @@ export async function serviceFunction() {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase
-      .from('table_name')
-      .select('*')
+    const { data, error } = await supabase.from('table_name').select('*')
 
     if (error) throw error
     return data
@@ -125,6 +134,7 @@ export async function serviceFunction() {
 ```
 
 **Key Migrations Applied**:
+
 1. ✅ Imports updated: `'./supabase'` → `'@/lib/supabase/server'`
 2. ✅ Supabase client: `getSupabaseAdmin()` → `await createClient()`
 3. ✅ Removed logger dependencies → `console.error()`
@@ -178,18 +188,18 @@ export async function serviceFunction() {
 
 ## 📊 Final Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Services Ported** | 10/10 (100%) ✅ |
-| **New Services Created** | 1 (certification-service.ts) ✅ |
-| **Total Services** | 11 ✅ |
-| **Lines of Code Migrated** | ~198,000 (estimated) |
-| **Functions Migrated** | 70+ functions across all services |
-| **Business Logic Preserved** | 100% ✅ |
-| **TypeScript Errors** | 0 (all services compile cleanly) ✅ |
-| **Critical Business Rules** | 5/5 preserved (100%) ✅ |
-| **Complex Service (leave-eligibility)** | ✅ Complete with all logic intact |
-| **Migration Pattern** | ✅ Consistent across all services |
+| Metric                                  | Value                               |
+| --------------------------------------- | ----------------------------------- |
+| **Services Ported**                     | 10/10 (100%) ✅                     |
+| **New Services Created**                | 1 (certification-service.ts) ✅     |
+| **Total Services**                      | 11 ✅                               |
+| **Lines of Code Migrated**              | ~198,000 (estimated)                |
+| **Functions Migrated**                  | 70+ functions across all services   |
+| **Business Logic Preserved**            | 100% ✅                             |
+| **TypeScript Errors**                   | 0 (all services compile cleanly) ✅ |
+| **Critical Business Rules**             | 5/5 preserved (100%) ✅             |
+| **Complex Service (leave-eligibility)** | ✅ Complete with all logic intact   |
+| **Migration Pattern**                   | ✅ Consistent across all services   |
 
 ---
 
@@ -241,6 +251,7 @@ export async function serviceFunction() {
 **What was requested**: Port 10 core services from v1 to v2 with Next.js 15 patterns
 
 **What was delivered**:
+
 - ✅ 10/10 services fully implemented and tested
 - ✅ 1 new service created (certification-service.ts)
 - ✅ 100% business logic preservation
@@ -257,17 +268,20 @@ export async function serviceFunction() {
 ## 🎯 Next Steps (Outside of Todo 002 Scope)
 
 ### Integration Testing:
+
 1. Test all service functions with live database
 2. Verify API routes call services correctly
 3. Test complex workflows (leave eligibility with multiple pilots)
 
 ### Utility Files (If Needed):
+
 1. certification-utils.ts (FAA color coding - already in certification-service)
 2. roster-utils.ts (28-day periods - already in leave-service)
 3. retirement-utils.ts (65-year retirement - already in pilot-service)
 4. pagination-utils.ts (offset pagination - may be needed for API routes)
 
 ### Component Integration:
+
 1. Update existing components to use new services
 2. Create new components for certification management
 3. Test end-to-end workflows
@@ -279,6 +293,7 @@ export async function serviceFunction() {
 **Estimated Total Effort**: 4 hours actual (10 services @ ~24 minutes each)
 
 **Quality Assurance**:
+
 - ✅ All imports use @/ alias
 - ✅ All functions use `await createClient()`
 - ✅ No logger dependencies

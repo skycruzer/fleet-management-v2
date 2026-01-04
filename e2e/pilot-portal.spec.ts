@@ -24,7 +24,9 @@ async function loginAndWaitForDashboard(page: Page) {
 
   // Wait for login API call and navigation
   await Promise.all([
-    page.waitForResponse(resp => resp.url().includes('/api/portal/login') && resp.status() === 200),
+    page.waitForResponse(
+      (resp) => resp.url().includes('/api/portal/login') && resp.status() === 200
+    ),
     page.click('button[type="submit"]'),
   ])
 
@@ -57,7 +59,8 @@ test.describe('Pilot Portal', () => {
 
     // Check for dashboard content (either heading or stat cards)
     await expect(
-      page.getByRole('heading', { name: /dashboard|welcome/i })
+      page
+        .getByRole('heading', { name: /dashboard|welcome/i })
         .or(page.locator('[data-testid="dashboard-stats"]'))
         .or(page.locator('text=Total Certifications'))
     ).toBeVisible()

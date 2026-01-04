@@ -50,7 +50,9 @@ test.describe('Pilot Management - List View', () => {
     await expect(page.getByPlaceholder(/search/i)).toBeVisible({ timeout: 60000 })
 
     // Check for action buttons
-    await expect(page.getByRole('button', { name: /add|new pilot/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('button', { name: /add|new pilot/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should display pilot data in table format', async ({ page }) => {
@@ -60,7 +62,9 @@ test.describe('Pilot Management - List View', () => {
     // Check table headers
     await expect(page.getByRole('columnheader', { name: /name/i })).toBeVisible({ timeout: 60000 })
     await expect(page.getByRole('columnheader', { name: /rank/i })).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('columnheader', { name: /employee id|emp id/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('columnheader', { name: /employee id|emp id/i })).toBeVisible({
+      timeout: 60000,
+    })
 
     // Check for at least one data row (27 pilots + header = 28 rows total)
     const rows = page.getByRole('row')
@@ -152,7 +156,9 @@ test.describe('Pilot Management - Create New Pilot', () => {
 
     // Dialog should appear
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('heading', { name: /add|new pilot/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /add|new pilot/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should show validation errors for required fields', async ({ page }) => {
@@ -193,7 +199,9 @@ test.describe('Pilot Management - Create New Pilot', () => {
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 60000 })
 
     // New pilot should appear in list
-    await expect(page.getByText(`${TEST_PILOT.firstName} ${TEST_PILOT.lastName}`)).toBeVisible({ timeout: 60000 })
+    await expect(page.getByText(`${TEST_PILOT.firstName} ${TEST_PILOT.lastName}`)).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should close dialog without saving', async ({ page }) => {

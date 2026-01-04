@@ -16,7 +16,14 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormDescription,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -129,7 +136,8 @@ export function LeaveReportForm() {
     if (previewError) {
       toast({
         title: 'Preview Failed',
-        description: previewError instanceof Error ? previewError.message : 'Failed to generate preview',
+        description:
+          previewError instanceof Error ? previewError.message : 'Failed to generate preview',
         variant: 'destructive',
       })
       setShouldFetchPreview(false)
@@ -151,7 +159,9 @@ export function LeaveReportForm() {
       toast({
         title: 'Export Failed',
         description:
-          exportMutation.error instanceof Error ? exportMutation.error.message : 'Failed to export PDF',
+          exportMutation.error instanceof Error
+            ? exportMutation.error.message
+            : 'Failed to export PDF',
         variant: 'destructive',
       })
     }
@@ -262,50 +272,50 @@ export function LeaveReportForm() {
           {/* Date Range - Only show when filterMode is 'dateRange' */}
           {filterMode === 'dateRange' && (
             <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        // Clear roster periods when date is selected
-                        if (e.target.value) {
-                          form.setValue('rosterPeriods', [])
-                        }
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="endDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End Date</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        // Clear roster periods when date is selected
-                        if (e.target.value) {
-                          form.setValue('rosterPeriods', [])
-                        }
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Date</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          // Clear roster periods when date is selected
+                          if (e.target.value) {
+                            form.setValue('rosterPeriods', [])
+                          }
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>End Date</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          // Clear roster periods when date is selected
+                          if (e.target.value) {
+                            form.setValue('rosterPeriods', [])
+                          }
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
           )}
 
@@ -319,7 +329,7 @@ export function LeaveReportForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Roster Periods (Optional)</FormLabel>
-                  <FormDescription className="text-xs text-muted-foreground">
+                  <FormDescription className="text-muted-foreground text-xs">
                     Select one or more roster periods to filter by
                   </FormDescription>
                   <FormControl>
@@ -333,22 +343,24 @@ export function LeaveReportForm() {
                       placeholder="Select roster periods..."
                     />
                   </FormControl>
-                  {field.value?.length > 0 && (() => {
-                    const dateRange = rosterPeriodsToDateRange(field.value)
-                    if (dateRange) {
-                      return (
-                        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                          <p className="text-sm font-medium text-blue-900">
-                            Selected: {field.value.join(', ')}
-                          </p>
-                          <p className="text-xs text-blue-700 mt-1">
-                            Date Range: {new Date(dateRange.startDate).toLocaleDateString()} - {new Date(dateRange.endDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )
-                    }
-                    return null
-                  })()}
+                  {field.value?.length > 0 &&
+                    (() => {
+                      const dateRange = rosterPeriodsToDateRange(field.value)
+                      if (dateRange) {
+                        return (
+                          <div className="mt-2 rounded-md border border-blue-200 bg-blue-50 p-3">
+                            <p className="text-sm font-medium text-blue-900">
+                              Selected: {field.value.join(', ')}
+                            </p>
+                            <p className="mt-1 text-xs text-blue-700">
+                              Date Range: {new Date(dateRange.startDate).toLocaleDateString()} -{' '}
+                              {new Date(dateRange.endDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                        )
+                      }
+                      return null
+                    })()}
                 </FormItem>
               )}
             />
@@ -402,11 +414,11 @@ export function LeaveReportForm() {
                 control={form.control}
                 name="statusPending"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">Pending</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Pending</FormLabel>
                   </FormItem>
                 )}
               />
@@ -414,11 +426,11 @@ export function LeaveReportForm() {
                 control={form.control}
                 name="statusSubmitted"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">Submitted</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Submitted</FormLabel>
                   </FormItem>
                 )}
               />
@@ -426,11 +438,11 @@ export function LeaveReportForm() {
                 control={form.control}
                 name="statusInReview"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">In Review</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">In Review</FormLabel>
                   </FormItem>
                 )}
               />
@@ -438,11 +450,11 @@ export function LeaveReportForm() {
                 control={form.control}
                 name="statusApproved"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">Approved</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Approved</FormLabel>
                   </FormItem>
                 )}
               />
@@ -450,11 +462,11 @@ export function LeaveReportForm() {
                 control={form.control}
                 name="statusRejected"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">Rejected</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Rejected</FormLabel>
                   </FormItem>
                 )}
               />
@@ -503,11 +515,11 @@ export function LeaveReportForm() {
                 control={form.control}
                 name="rankCaptain"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">Captain</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Captain</FormLabel>
                   </FormItem>
                 )}
               />
@@ -515,11 +527,11 @@ export function LeaveReportForm() {
                 control={form.control}
                 name="rankFirstOfficer"
                 render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2 space-y-0">
+                  <FormItem className="flex items-center space-y-0 space-x-2">
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal cursor-pointer">First Officer</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">First Officer</FormLabel>
                   </FormItem>
                 )}
               />
@@ -528,9 +540,9 @@ export function LeaveReportForm() {
 
           {/* Active Filters Badge */}
           {activeFilterCount > 0 && (
-            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Active filters:</span>
+            <div className="bg-muted/50 flex items-center gap-2 rounded-md p-3">
+              <Filter className="text-muted-foreground h-4 w-4" />
+              <span className="text-muted-foreground text-sm">Active filters:</span>
               <Badge variant="secondary" className="font-normal">
                 {activeFilterCount} {activeFilterCount === 1 ? 'filter' : 'filters'}
               </Badge>
@@ -552,15 +564,32 @@ export function LeaveReportForm() {
               onClick={form.handleSubmit(handlePreview)}
               disabled={isAnyButtonLoading}
             >
-              {isPreviewButtonLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+              {isPreviewButtonLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Eye className="mr-2 h-4 w-4" />
+              )}
               Preview
             </Button>
-            <Button type="button" onClick={form.handleSubmit(handleExport)} disabled={isAnyButtonLoading}>
-              {isExportButtonLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
+            <Button
+              type="button"
+              onClick={form.handleSubmit(handleExport)}
+              disabled={isAnyButtonLoading}
+            >
+              {isExportButtonLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
               Export PDF
             </Button>
-            <Button type="button" variant="secondary" onClick={handleEmail} disabled={isAnyButtonLoading}>
-              <Mail className="h-4 w-4 mr-2" />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleEmail}
+              disabled={isAnyButtonLoading}
+            >
+              <Mail className="mr-2 h-4 w-4" />
               Email Report
             </Button>
           </div>

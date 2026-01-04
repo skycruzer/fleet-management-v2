@@ -24,13 +24,13 @@ test.describe('Portal Error Detection', () => {
     console.log('🌐 Navigating to portal...')
     await page.goto('/portal', {
       waitUntil: 'networkidle',
-      timeout: 30000
+      timeout: 30000,
     })
 
     console.log('📸 Taking screenshot...')
     await page.screenshot({
       path: 'screenshots/portal-error-check.png',
-      fullPage: true
+      fullPage: true,
     })
 
     // Wait a bit for any async errors

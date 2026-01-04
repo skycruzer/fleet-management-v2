@@ -4,14 +4,14 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   ADMIN_CREDENTIALS: {
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
-  }
+    password: 'mron2393',
+  },
 }
 
 console.log('\n' + '='.repeat(80))
@@ -21,7 +21,7 @@ console.log('='.repeat(80) + '\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: { width: 1920, height: 1080 },
-  slowMo: 150
+  slowMo: 150,
 })
 
 const page = await browser.newPage()
@@ -93,7 +93,7 @@ try {
   const buttons = await page.$$('button')
   let viewCertsButton = null
   for (const btn of buttons) {
-    const text = await page.evaluate(el => el.textContent, btn)
+    const text = await page.evaluate((el) => el.textContent, btn)
     if (text && text.includes('View & Edit Certifications')) {
       viewCertsButton = btn
       break
@@ -119,7 +119,6 @@ try {
 
   // Keep browser open
   await new Promise(() => {})
-
 } catch (error) {
   console.error('\n❌ Test Error:', error.message)
   console.error(error.stack)

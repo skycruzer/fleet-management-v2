@@ -160,7 +160,10 @@ test.describe('Cache Invalidation', () => {
     // If there are certifications, attempt to delete one
     if (initialRows > 0) {
       // Click delete on first certification
-      const deleteButton = page.locator('table tbody tr').first().getByRole('button', { name: /delete/i })
+      const deleteButton = page
+        .locator('table tbody tr')
+        .first()
+        .getByRole('button', { name: /delete/i })
 
       if (await deleteButton.isVisible()) {
         await deleteButton.click()

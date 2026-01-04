@@ -39,7 +39,7 @@ export function DataTableLoading({
       {/* Filters Skeleton */}
       {showFilters && (
         <Card className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-10 w-full rounded-lg" />
@@ -86,7 +86,7 @@ export function SimpleTableLoading() {
   return (
     <Card className="overflow-hidden">
       <div className="p-8 text-center">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+        <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
         <p className="text-gray-600">Loading data...</p>
       </div>
     </Card>
@@ -99,7 +99,7 @@ export function SimpleTableLoading() {
 export function InlineTableLoading({ message = 'Loading...' }: { message?: string }) {
   return (
     <div className="p-8 text-center">
-      <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
       <p className="mt-2 text-gray-600">{message}</p>
     </div>
   )

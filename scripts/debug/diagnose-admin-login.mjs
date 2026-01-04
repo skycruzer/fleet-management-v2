@@ -12,19 +12,19 @@ const context = await browser.newContext()
 const page = await context.newPage()
 
 // Monitor all requests
-page.on('request', request => {
+page.on('request', (request) => {
   if (request.url().includes('auth') || request.url().includes('dashboard')) {
     console.log(`→ ${request.method()} ${request.url()}`)
   }
 })
 
-page.on('response', response => {
+page.on('response', (response) => {
   if (response.url().includes('auth') || response.url().includes('dashboard')) {
     console.log(`← ${response.status()} ${response.url()}`)
   }
 })
 
-page.on('console', msg => console.log(`[Console] ${msg.text()}`))
+page.on('console', (msg) => console.log(`[Console] ${msg.text()}`))
 
 try {
   console.log('Step 1: Navigate to login page')
@@ -49,12 +49,12 @@ try {
   console.log('Cookies after login:', cookiesAfter.length)
 
   // Find Supabase session cookies
-  const supabaseCookies = cookiesAfter.filter(c =>
-    c.name.includes('supabase') || c.name.includes('sb-')
+  const supabaseCookies = cookiesAfter.filter(
+    (c) => c.name.includes('supabase') || c.name.includes('sb-')
   )
 
   console.log('\nSupabase session cookies:')
-  supabaseCookies.forEach(cookie => {
+  supabaseCookies.forEach((cookie) => {
     console.log(`  - ${cookie.name}`)
     console.log(`    Domain: ${cookie.domain}`)
     console.log(`    Path: ${cookie.path}`)
@@ -86,7 +86,6 @@ try {
   // Keep browser open
   console.log('\nBrowser staying open for manual inspection...')
   await page.waitForTimeout(10000)
-
 } catch (error) {
   console.error('Error:', error.message)
 } finally {

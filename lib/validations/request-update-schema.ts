@@ -43,16 +43,8 @@ export const RequestUpdateSchema = z
       .regex(/^\d{4}-\d{2}-\d{2}$/, 'Flight date must be in YYYY-MM-DD format')
       .optional()
       .nullable(),
-    reason: z
-      .string()
-      .max(1000, 'Reason must be less than 1000 characters')
-      .optional()
-      .nullable(),
-    notes: z
-      .string()
-      .max(2000, 'Notes must be less than 2000 characters')
-      .optional()
-      .nullable(),
+    reason: z.string().max(1000, 'Reason must be less than 1000 characters').optional().nullable(),
+    notes: z.string().max(2000, 'Notes must be less than 2000 characters').optional().nullable(),
     source_reference: z
       .string()
       .max(500, 'Source reference must be less than 500 characters')
@@ -96,10 +88,7 @@ export const RequestStatusUpdateSchema = z
     status: z.enum(['APPROVED', 'DENIED', 'IN_REVIEW', 'WITHDRAWN'], {
       message: 'Valid status is required',
     }),
-    comments: z
-      .string()
-      .max(1000, 'Comments must be less than 1000 characters')
-      .optional(),
+    comments: z.string().max(1000, 'Comments must be less than 1000 characters').optional(),
   })
   .refine(
     (data) => {

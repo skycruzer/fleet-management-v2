@@ -83,9 +83,10 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
 
               <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <p>
-                  <strong>Dates:</strong>{' '}
-                  {new Date(request.start_date).toLocaleDateString()} -{' '}
-                  {request.end_date ? new Date(request.end_date).toLocaleDateString() : new Date(request.start_date).toLocaleDateString()}
+                  <strong>Dates:</strong> {new Date(request.start_date).toLocaleDateString()} -{' '}
+                  {request.end_date
+                    ? new Date(request.end_date).toLocaleDateString()
+                    : new Date(request.start_date).toLocaleDateString()}
                 </p>
                 <p>
                   <strong>Days:</strong> {request.days_count ?? 1}
@@ -129,7 +130,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
               <button
                 onClick={() => handleCancel(request.id)}
                 disabled={cancelingId === request.id}
-                className="ml-4 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                className="ml-4 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
               >
                 {cancelingId === request.id ? 'Canceling...' : 'Cancel'}
               </button>
@@ -142,7 +143,11 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
 }
 
 // Status Badge Component
-function StatusBadge({ status }: { status: 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN' }) {
+function StatusBadge({
+  status,
+}: {
+  status: 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+}) {
   const badgeStyles: Record<string, string> = {
     DRAFT: 'bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400',
     SUBMITTED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',

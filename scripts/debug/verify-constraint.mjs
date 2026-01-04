@@ -8,7 +8,7 @@ import { readFileSync } from 'fs'
 // Read .env.local file manually
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -43,7 +43,7 @@ async function verifyConstraint() {
   }
 
   // Check for duplicates
-  const combinations = leaveRequests.map(r => `${r.pilot_id}-${r.start_date}-${r.end_date}`)
+  const combinations = leaveRequests.map((r) => `${r.pilot_id}-${r.start_date}-${r.end_date}`)
   const uniqueCombinations = new Set(combinations)
 
   console.log(`\n📊 Database State:`)
@@ -53,7 +53,9 @@ async function verifyConstraint() {
   if (combinations.length === uniqueCombinations.size) {
     console.log(`   ✅ NO DUPLICATES - Database is clean!`)
   } else {
-    console.log(`   ⚠️  DUPLICATES FOUND: ${combinations.length - uniqueCombinations.size} duplicates`)
+    console.log(
+      `   ⚠️  DUPLICATES FOUND: ${combinations.length - uniqueCombinations.size} duplicates`
+    )
   }
 
   // Test constraint by attempting to insert duplicate (should fail)
@@ -64,16 +66,14 @@ async function verifyConstraint() {
   const testEndDate = leaveRequests[0]?.end_date
 
   if (testPilotId) {
-    const { error: insertError } = await supabase
-      .from('leave_requests')
-      .insert({
-        pilot_id: testPilotId,
-        start_date: testStartDate,
-        end_date: testEndDate,
-        request_type: 'ANNUAL',
-        status: 'PENDING',
-        days_count: 1,
-      })
+    const { error: insertError } = await supabase.from('leave_requests').insert({
+      pilot_id: testPilotId,
+      start_date: testStartDate,
+      end_date: testEndDate,
+      request_type: 'ANNUAL',
+      status: 'PENDING',
+      days_count: 1,
+    })
 
     if (insertError) {
       if (insertError.message.includes('duplicate') || insertError.code === '23505') {

@@ -13,8 +13,12 @@ const mockCertifications = [
     check_type_id: 'check-1',
     expiry_date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Expired 10 days ago
     pilot: { first_name: 'John', last_name: 'Doe', employee_id: '100001', role: 'Captain' },
-    check_type: { check_code: 'PC', check_description: 'Proficiency Check', category: 'Flight Operations' },
-    status: { color: 'red', label: 'Expired', daysUntilExpiry: -10 }
+    check_type: {
+      check_code: 'PC',
+      check_description: 'Proficiency Check',
+      category: 'Flight Operations',
+    },
+    status: { color: 'red', label: 'Expired', daysUntilExpiry: -10 },
   },
   {
     id: 'cert-2',
@@ -22,8 +26,12 @@ const mockCertifications = [
     check_type_id: 'check-2',
     expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days
     pilot: { first_name: 'Jane', last_name: 'Smith', employee_id: '100002', role: 'First Officer' },
-    check_type: { check_code: 'LC', check_description: 'Line Check', category: 'Flight Operations' },
-    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 7 }
+    check_type: {
+      check_code: 'LC',
+      check_description: 'Line Check',
+      category: 'Flight Operations',
+    },
+    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 7 },
   },
   {
     id: 'cert-3',
@@ -32,16 +40,25 @@ const mockCertifications = [
     expiry_date: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 25 days
     pilot: { first_name: 'Bob', last_name: 'Johnson', employee_id: '100003', role: 'Captain' },
     check_type: { check_code: 'MC', check_description: 'Medical Certificate', category: 'Medical' },
-    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 25 }
+    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 25 },
   },
   {
     id: 'cert-4',
     pilot_id: 'pilot-4',
     check_type_id: 'check-4',
     expiry_date: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 45 days
-    pilot: { first_name: 'Alice', last_name: 'Williams', employee_id: '100004', role: 'First Officer' },
-    check_type: { check_code: 'DG', check_description: 'Dangerous Goods', category: 'Ground Training' },
-    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 45 }
+    pilot: {
+      first_name: 'Alice',
+      last_name: 'Williams',
+      employee_id: '100004',
+      role: 'First Officer',
+    },
+    check_type: {
+      check_code: 'DG',
+      check_description: 'Dangerous Goods',
+      category: 'Ground Training',
+    },
+    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 45 },
   },
   {
     id: 'cert-5',
@@ -49,17 +66,30 @@ const mockCertifications = [
     check_type_id: 'check-5',
     expiry_date: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 75 days
     pilot: { first_name: 'Charlie', last_name: 'Brown', employee_id: '100005', role: 'Captain' },
-    check_type: { check_code: 'SEP', check_description: 'Security Training', category: 'Ground Training' },
-    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 75 }
+    check_type: {
+      check_code: 'SEP',
+      check_description: 'Security Training',
+      category: 'Ground Training',
+    },
+    status: { color: 'yellow', label: 'Expiring Soon', daysUntilExpiry: 75 },
   },
   {
     id: 'cert-6',
     pilot_id: 'pilot-6',
     check_type_id: 'check-6',
     expiry_date: new Date(Date.now() + 150 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 150 days - CURRENT
-    pilot: { first_name: 'David', last_name: 'Miller', employee_id: '100006', role: 'First Officer' },
-    check_type: { check_code: 'CRM', check_description: 'Crew Resource Management', category: 'Ground Training' },
-    status: { color: 'green', label: 'Current', daysUntilExpiry: 150 }
+    pilot: {
+      first_name: 'David',
+      last_name: 'Miller',
+      employee_id: '100006',
+      role: 'First Officer',
+    },
+    check_type: {
+      check_code: 'CRM',
+      check_description: 'Crew Resource Management',
+      category: 'Ground Training',
+    },
+    status: { color: 'green', label: 'Current', daysUntilExpiry: 150 },
   },
   {
     id: 'cert-7',
@@ -67,9 +97,13 @@ const mockCertifications = [
     check_type_id: 'check-7',
     expiry_date: new Date(Date.now() + 200 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 200 days - CURRENT
     pilot: { first_name: 'Eve', last_name: 'Davis', employee_id: '100007', role: 'Captain' },
-    check_type: { check_code: 'FFS', check_description: 'Full Flight Simulator', category: 'Simulator' },
-    status: { color: 'green', label: 'Current', daysUntilExpiry: 200 }
-  }
+    check_type: {
+      check_code: 'FFS',
+      check_description: 'Full Flight Simulator',
+      category: 'Simulator',
+    },
+    status: { color: 'green', label: 'Current', daysUntilExpiry: 200 },
+  },
 ]
 
 // Filtering function (same logic as in the actual implementation)
@@ -161,13 +195,17 @@ function getMostCriticalGroup(groups) {
 
 // Run the test
 console.log('🧪 Testing Certifications Filtering Logic\n')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 
 console.log('\n📊 Mock Data:')
 console.log(`Total certifications: ${mockCertifications.length}`)
-console.log(`- Expired: ${mockCertifications.filter(c => c.status.daysUntilExpiry < 0).length}`)
-console.log(`- Expiring Soon: ${mockCertifications.filter(c => c.status.color === 'yellow').length}`)
-console.log(`- Current (should be filtered out): ${mockCertifications.filter(c => c.status.color === 'green').length}`)
+console.log(`- Expired: ${mockCertifications.filter((c) => c.status.daysUntilExpiry < 0).length}`)
+console.log(
+  `- Expiring Soon: ${mockCertifications.filter((c) => c.status.color === 'yellow').length}`
+)
+console.log(
+  `- Current (should be filtered out): ${mockCertifications.filter((c) => c.status.color === 'green').length}`
+)
 
 console.log('\n' + '='.repeat(80))
 console.log('\n🔍 Applying Filter...\n')
@@ -185,9 +223,13 @@ Object.entries(groups).forEach(([groupId, group]) => {
   console.log(`   Description: ${group.description}`)
 
   if (group.certifications.length > 0) {
-    group.certifications.forEach(cert => {
-      console.log(`   - ${cert.pilot.first_name} ${cert.pilot.last_name} (${cert.pilot.employee_id})`)
-      console.log(`     ${cert.check_type.check_description} - Expires in ${cert.status.daysUntilExpiry} days`)
+    group.certifications.forEach((cert) => {
+      console.log(
+        `   - ${cert.pilot.first_name} ${cert.pilot.last_name} (${cert.pilot.employee_id})`
+      )
+      console.log(
+        `     ${cert.check_type.check_description} - Expires in ${cert.status.daysUntilExpiry} days`
+      )
     })
   }
   console.log()
@@ -207,44 +249,44 @@ const tests = [
     name: 'Filters out current certifications',
     pass: totalExpiring === 5, // Should be 5, not 7 (2 green filtered out)
     expected: 5,
-    actual: totalExpiring
+    actual: totalExpiring,
   },
   {
     name: 'Groups expired certifications correctly',
     pass: groups.expired.certifications.length === 1,
     expected: 1,
-    actual: groups.expired.certifications.length
+    actual: groups.expired.certifications.length,
   },
   {
     name: 'Groups 14-day certifications correctly',
     pass: groups.within14Days.certifications.length === 1,
     expected: 1,
-    actual: groups.within14Days.certifications.length
+    actual: groups.within14Days.certifications.length,
   },
   {
     name: 'Groups 30-day certifications correctly',
     pass: groups.within30Days.certifications.length === 1,
     expected: 1,
-    actual: groups.within30Days.certifications.length
+    actual: groups.within30Days.certifications.length,
   },
   {
     name: 'Groups 60-day certifications correctly',
     pass: groups.within60Days.certifications.length === 1,
     expected: 1,
-    actual: groups.within60Days.certifications.length
+    actual: groups.within60Days.certifications.length,
   },
   {
     name: 'Groups 90-day certifications correctly',
     pass: groups.within90Days.certifications.length === 1,
     expected: 1,
-    actual: groups.within90Days.certifications.length
+    actual: groups.within90Days.certifications.length,
   },
   {
     name: 'Identifies most critical group',
     pass: mostCritical?.id === 'expired',
     expected: 'expired',
-    actual: mostCritical?.id
-  }
+    actual: mostCritical?.id,
+  },
 ]
 
 tests.forEach((test, index) => {
@@ -256,7 +298,7 @@ tests.forEach((test, index) => {
   console.log()
 })
 
-const passedTests = tests.filter(t => t.pass).length
+const passedTests = tests.filter((t) => t.pass).length
 const totalTests = tests.length
 
 console.log('='.repeat(80))

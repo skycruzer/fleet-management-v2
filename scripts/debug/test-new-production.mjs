@@ -3,7 +3,8 @@
  * Test new production deployment authentication
  */
 
-const productionUrl = 'https://fleet-management-v2-bap3i0oc9-rondeaumaurice-5086s-projects.vercel.app'
+const productionUrl =
+  'https://fleet-management-v2-bap3i0oc9-rondeaumaurice-5086s-projects.vercel.app'
 
 console.log('🔍 Testing New Production Deployment\n')
 console.log('URL:', productionUrl)
@@ -22,8 +23,8 @@ try {
     },
     body: JSON.stringify({
       email: 'mrondeau@airniugini.com.pg',
-      password: 'Lemakot@1972'
-    })
+      password: 'Lemakot@1972',
+    }),
   })
 
   console.log('Status:', pilotResponse.status)

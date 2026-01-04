@@ -73,7 +73,7 @@ const dashboardPages = [
   'app/dashboard/disciplinary/page.tsx',
 ]
 
-dashboardPages.forEach(page => {
+dashboardPages.forEach((page) => {
   if (fs.existsSync(page)) {
     pass(`${page} exists`)
   } else {
@@ -92,7 +92,7 @@ const apiRoutes = [
   'app/api/dashboard/flight-requests/route.ts',
 ]
 
-apiRoutes.forEach(route => {
+apiRoutes.forEach((route) => {
   if (fs.existsSync(route)) {
     pass(`${route} exists`)
   } else {
@@ -108,7 +108,7 @@ const formComponents = [
   'components/forms/certification-form.tsx',
 ]
 
-formComponents.forEach(component => {
+formComponents.forEach((component) => {
   if (fs.existsSync(component)) {
     pass(`${component} exists`)
   } else {
@@ -126,7 +126,7 @@ const services = [
   'lib/services/logging-service.ts',
 ]
 
-services.forEach(service => {
+services.forEach((service) => {
   if (fs.existsSync(service)) {
     pass(`${service} exists`)
   } else {
@@ -189,7 +189,10 @@ try {
 try {
   const pilotRoute = fs.readFileSync('app/api/pilots/[id]/route.ts', 'utf8')
 
-  if (pilotRoute.includes('export async function PATCH') || pilotRoute.includes('export async function PUT')) {
+  if (
+    pilotRoute.includes('export async function PATCH') ||
+    pilotRoute.includes('export async function PUT')
+  ) {
     pass('UPDATE endpoint exists')
   } else {
     fail('UPDATE endpoint missing')
@@ -212,7 +215,7 @@ const hooks = [
   'lib/hooks/use-optimistic-certification.ts',
 ]
 
-hooks.forEach(hook => {
+hooks.forEach((hook) => {
   if (fs.existsSync(hook)) {
     pass(`${hook} exists`)
 
@@ -244,7 +247,7 @@ const skeletons = [
   'components/skeletons/renewal-planning-skeleton.tsx',
 ]
 
-skeletons.forEach(skeleton => {
+skeletons.forEach((skeleton) => {
   if (fs.existsSync(skeleton)) {
     pass(`${skeleton} exists`)
   } else {
@@ -260,7 +263,7 @@ const pagesWithSuspense = [
   'app/dashboard/renewal-planning/page.tsx',
 ]
 
-pagesWithSuspense.forEach(page => {
+pagesWithSuspense.forEach((page) => {
   try {
     const content = fs.readFileSync(page, 'utf8')
     if (content.includes('Suspense') && content.includes('fallback')) {
@@ -299,7 +302,7 @@ const filesToCheck = [
 ]
 
 let consoleLogsFound = 0
-filesToCheck.forEach(file => {
+filesToCheck.forEach((file) => {
   try {
     const content = fs.readFileSync(file, 'utf8')
     const matches = content.match(/console\.(log|debug|info)/g) || []
@@ -378,11 +381,17 @@ console.log(`${WARNING} Warnings:   ${COLORS.yellow}${warnings.length}${COLORS.r
 console.log(`Success Rate: ${successRate}%\n`)
 
 if (failedTests === 0 && warnings.length === 0) {
-  console.log(`${SUCCESS} ${COLORS.green}${COLORS.bright}All tests passed! Ready for production.${COLORS.reset}`)
+  console.log(
+    `${SUCCESS} ${COLORS.green}${COLORS.bright}All tests passed! Ready for production.${COLORS.reset}`
+  )
 } else if (failedTests === 0) {
-  console.log(`${WARNING} ${COLORS.yellow}${COLORS.bright}All tests passed with warnings. Review before production.${COLORS.reset}`)
+  console.log(
+    `${WARNING} ${COLORS.yellow}${COLORS.bright}All tests passed with warnings. Review before production.${COLORS.reset}`
+  )
 } else {
-  console.log(`${ERROR} ${COLORS.red}${COLORS.bright}Some tests failed. Fix issues before production.${COLORS.reset}`)
+  console.log(
+    `${ERROR} ${COLORS.red}${COLORS.bright}Some tests failed. Fix issues before production.${COLORS.reset}`
+  )
 }
 
 if (errors.length > 0) {
@@ -399,7 +408,9 @@ if (warnings.length > 0 && warnings.length <= 5) {
   })
 }
 
-console.log(`\n${COLORS.bright}${COLORS.cyan}─────────────────────────────────────${COLORS.reset}\n`)
+console.log(
+  `\n${COLORS.bright}${COLORS.cyan}─────────────────────────────────────${COLORS.reset}\n`
+)
 
 // Exit with appropriate code
 process.exit(failedTests > 0 ? 1 : 0)

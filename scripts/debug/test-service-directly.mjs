@@ -10,7 +10,8 @@ console.log('\n=== TESTING LEAVE REQUESTS QUERY ===\n')
 // Exact query from reports-service.ts (lines 93-128)
 let query = supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -19,7 +20,8 @@ let query = supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .order('start_date', { ascending: false })
 
@@ -53,7 +55,8 @@ console.log('\n=== TESTING FLIGHT REQUESTS QUERY ===\n')
 
 let flightQuery = supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -62,7 +65,8 @@ let flightQuery = supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'FLIGHT')
   .order('flight_date', { ascending: false, nullsFirst: false })
 

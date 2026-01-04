@@ -11,14 +11,14 @@ console.log('='.repeat(60) + '\n')
 
 const browser = await chromium.launch({
   headless: false,
-  slowMo: 500
+  slowMo: 500,
 })
 
 const context = await browser.newContext()
 const page = await context.newPage()
 
 // Listen for console messages
-page.on('console', msg => {
+page.on('console', (msg) => {
   if (msg.text().includes('Login') || msg.text().includes('Dashboard')) {
     console.log(`[Browser] ${msg.text()}`)
   }
@@ -57,7 +57,6 @@ try {
     if (dashboardText.includes('Dashboard') || dashboardText.includes('Pilots')) {
       console.log('✅ Dashboard content loaded')
     }
-
   } else if (currentUrl.includes('error') || currentUrl.includes('/auth/login')) {
     console.log('❌ LOGIN FAILED')
     console.log('Still on login page or error page\n')
@@ -72,7 +71,6 @@ try {
 
   console.log('\nKeeping browser open for 10 seconds...')
   await page.waitForTimeout(10000)
-
 } catch (error) {
   console.error('❌ Test error:', error.message)
   await page.screenshot({ path: 'screenshots/admin-login-error.png' })

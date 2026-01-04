@@ -13,21 +13,17 @@ import { readFileSync } from 'fs'
 // Read .env.local
 const envFile = readFileSync('.env.local', 'utf8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const match = line.match(/^([^=:#]+)=(.*)$/)
   if (match) env[match[1].trim()] = match[2].trim()
 })
 
-const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+})
 
 async function fixRLSPolicy() {
   console.log('\n🔧 Fixing RLS Policy on failed_login_attempts Table...\n')
@@ -35,7 +31,7 @@ async function fixRLSPolicy() {
   try {
     // Execute SQL to disable RLS
     const { data, error } = await supabase.rpc('exec_sql', {
-      sql: 'ALTER TABLE failed_login_attempts DISABLE ROW LEVEL SECURITY;'
+      sql: 'ALTER TABLE failed_login_attempts DISABLE ROW LEVEL SECURITY;',
     })
 
     if (error) {
@@ -86,7 +82,7 @@ fixRLSPolicy()
     }
     process.exit(0)
   })
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

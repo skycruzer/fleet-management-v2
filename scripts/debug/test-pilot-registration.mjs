@@ -23,11 +23,11 @@ const TEST_DATA = {
   rank: 'Captain',
   date_of_birth: '1980-01-01',
   phone_number: '+675 9999 9999',
-  address: 'Test Address, Port Moresby'
+  address: 'Test Address, Port Moresby',
 }
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testPilotRegistration() {
@@ -40,20 +40,20 @@ async function testPilotRegistration() {
     browser = await puppeteer.launch({
       headless: false, // Show browser for debugging
       defaultViewport: { width: 1280, height: 900 },
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     })
 
     const page = await browser.newPage()
 
     // Enable console logging from the page
-    page.on('console', msg => console.log('  [Browser Console]:', msg.text()))
+    page.on('console', (msg) => console.log('  [Browser Console]:', msg.text()))
 
     // Step 1: Navigate to registration page
     console.log('\n✅ Test 1: Navigate to Registration Page')
     console.log('   Navigating to http://localhost:3000/portal/register...')
     await page.goto('http://localhost:3000/portal/register', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     console.log('   ✓ Page loaded successfully')
 
@@ -103,7 +103,7 @@ async function testPilotRegistration() {
     // Click the Captain option (use text content matching)
     await page.evaluate((rank) => {
       const options = Array.from(document.querySelectorAll('[role="option"]'))
-      const captainOption = options.find(opt => opt.textContent.trim() === rank)
+      const captainOption = options.find((opt) => opt.textContent.trim() === rank)
       if (captainOption) {
         captainOption.click()
       }
@@ -161,13 +161,15 @@ async function testPilotRegistration() {
 
     // Check for error messages
     const errorMessages = await page.evaluate(() => {
-      const errors = Array.from(document.querySelectorAll('.text-red-500, .text-destructive, [role="alert"]'))
-      return errors.map(el => el.textContent.trim()).filter(text => text.length > 0)
+      const errors = Array.from(
+        document.querySelectorAll('.text-red-500, .text-destructive, [role="alert"]')
+      )
+      return errors.map((el) => el.textContent.trim()).filter((text) => text.length > 0)
     })
 
     if (errorMessages.length > 0) {
       console.log('   ❌ VALIDATION ERRORS DETECTED:')
-      errorMessages.forEach(msg => console.log(`      - ${msg}`))
+      errorMessages.forEach((msg) => console.log(`      - ${msg}`))
     }
 
     if (currentUrl.includes('/portal/login')) {
@@ -177,10 +179,16 @@ async function testPilotRegistration() {
     } else {
       // Check for success message on same page
       const bodyText = await page.evaluate(() => document.body.textContent)
-      if (bodyText.includes('Registration Submitted') || bodyText.includes('pending') || bodyText.includes('approval')) {
+      if (
+        bodyText.includes('Registration Submitted') ||
+        bodyText.includes('pending') ||
+        bodyText.includes('approval')
+      ) {
         console.log('   ✅ SUCCESS: Success message detected')
       } else {
-        console.log('   ⚠️  WARNING: Registration may have failed - check screenshot and errors above')
+        console.log(
+          '   ⚠️  WARNING: Registration may have failed - check screenshot and errors above'
+        )
       }
     }
 
@@ -189,7 +197,7 @@ async function testPilotRegistration() {
     console.log('   Navigating to login page...')
     await page.goto('http://localhost:3000/portal/login', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     console.log('   ✓ Login page loaded')
 
@@ -213,7 +221,11 @@ async function testPilotRegistration() {
 
       // Check for error message
       const loginBodyText = await page.evaluate(() => document.body.textContent)
-      if (loginBodyText.includes('failed') || loginBodyText.includes('approval') || loginBodyText.includes('pending')) {
+      if (
+        loginBodyText.includes('failed') ||
+        loginBodyText.includes('approval') ||
+        loginBodyText.includes('pending')
+      ) {
         console.log('   ✅ SUCCESS: Login correctly blocked (unapproved registration)')
       } else {
         const loginUrl = page.url()
@@ -243,7 +255,6 @@ async function testPilotRegistration() {
     console.log('   2. Approve registration via admin dashboard')
     console.log('   3. Test login again (should succeed after approval)')
     console.log('='.repeat(60) + '\n')
-
   } catch (error) {
     console.error('\n❌ TEST FAILED:', error.message)
     console.error('\nStack trace:', error.stack)

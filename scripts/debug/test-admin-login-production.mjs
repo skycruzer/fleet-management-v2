@@ -3,7 +3,8 @@
  * Test admin login in production
  */
 
-const productionUrl = 'https://fleet-management-v2-bap3i0oc9-rondeaumaurice-5086s-projects.vercel.app'
+const productionUrl =
+  'https://fleet-management-v2-bap3i0oc9-rondeaumaurice-5086s-projects.vercel.app'
 
 console.log('🔍 Testing Admin Login\n')
 console.log('URL:', productionUrl)
@@ -22,8 +23,8 @@ try {
     },
     body: JSON.stringify({
       email: 'skycruzer@icloud.com',
-      password: 'mron2393'
-    })
+      password: 'mron2393',
+    }),
   })
 
   console.log('Status:', response.status)
@@ -66,7 +67,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 try {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
+    password: 'mron2393',
   })
 
   if (error) {

@@ -10,12 +10,14 @@
 **Problem Statement**: Fleet Management V2 currently lacks critical pilot-facing features and admin capabilities that exist in the reference air-niugini-pms system. Pilots have NO self-service portal access, preventing them from viewing their certifications, submitting leave requests, or accessing flight request systems. This forces pilots to call/email admins for basic information, creating operational bottlenecks and poor user experience.
 
 **Business Impact**:
+
 - **Pilots blocked**: Cannot view their own certification status, leave balance, or submit requests
 - **Admin overhead**: Must manually handle all pilot inquiries and data requests
 - **Compliance gaps**: No audit logging for regulatory compliance and accountability
 - **Operational inefficiency**: No task management, flight request workflow, or disciplinary tracking
 
 **User Requests**: This change implements the user requirement:
+
 > "Add missing pages and features from air-niugini-pms except documents and forms: Pilot Portal (8 pages), Flight Request System, Task Management, Disciplinary System, Feedback Community, Audit Logging, Pilot Registration Approval"
 
 ## What Changes?
@@ -23,6 +25,7 @@
 This change adds **7 major capability areas** to Fleet Management V2:
 
 ### 1. Pilot Portal (8 pages) - PRIORITY 1
+
 - **`/pilot/login`** - Pilot authentication (separate from admin)
 - **`/pilot/register`** - Self-service registration (pending admin approval)
 - **`/pilot/dashboard`** - Personal dashboard with certifications, leave balance, notifications
@@ -33,12 +36,14 @@ This change adds **7 major capability areas** to Fleet Management V2:
 - **`/pilot/feedback`** - Community feedback and discussion board
 
 ### 2. Flight Request System - PRIORITY 1
+
 - **Pilot Submission**: `/pilot/flight-requests` - Submit requests with route, dates, reason
 - **Admin Review**: `/dashboard/flight-requests` - Approve/deny with comments
 - **Workflow**: PENDING → APPROVED/DENIED with notification to pilot
 - **Database**: New `flight_requests` table with RLS policies
 
 ### 3. Audit Logging - PRIORITY 2
+
 - **Admin View**: `/dashboard/audit` - Complete audit trail of all system changes
 - **Tracking**: WHO changed WHAT, WHEN (user, timestamp, table, action, old/new values)
 - **Filtering**: By user, date range, table, action type
@@ -46,6 +51,7 @@ This change adds **7 major capability areas** to Fleet Management V2:
 - **Database**: New `audit_logs` table with automatic triggers on all tables
 
 ### 4. Task Management - PRIORITY 2
+
 - **Admin Management**: `/dashboard/tasks` - Create, assign, track tasks
 - **Views**: Kanban board (To Do/In Progress/Done) and List view
 - **Assignment**: Assign to pilots/staff with due dates and priorities
@@ -54,6 +60,7 @@ This change adds **7 major capability areas** to Fleet Management V2:
 - **Database**: New `tasks` table with status tracking
 
 ### 5. Disciplinary System - PRIORITY 2
+
 - **Admin Management**: `/dashboard/disciplinary` - Create and track disciplinary matters
 - **Severity Levels**: Low, Medium, High, Critical
 - **Actions**: Counseling, warning, suspension, other (timestamped log)
@@ -61,6 +68,7 @@ This change adds **7 major capability areas** to Fleet Management V2:
 - **Database**: New `disciplinary_actions` and `disciplinary_actions_log` tables
 
 ### 6. Feedback Community - PRIORITY 3
+
 - **Pilot Posting**: `/pilot/feedback` - Post suggestions, questions, safety concerns
 - **Categories**: Suggestions, Questions, Safety, General
 - **Comments**: Threaded comments on posts
@@ -68,6 +76,7 @@ This change adds **7 major capability areas** to Fleet Management V2:
 - **Database**: New `feedback_posts` and `feedback_comments` tables
 
 ### 7. Pilot Registration Approval - PRIORITY 3
+
 - **Pilot Registration**: `/pilot/register` - Submit registration request
 - **Admin Approval**: `/dashboard/admin/pilot-registrations` - Review and approve/deny
 - **Workflow**: PENDING → APPROVED/DENIED
@@ -77,6 +86,7 @@ This change adds **7 major capability areas** to Fleet Management V2:
 ## Impact Analysis
 
 ### Affected Capabilities
+
 This change adds **7 new capabilities** to the system:
 
 1. **`pilot-portal`** (NEW) - Self-service pilot portal with authentication
@@ -90,6 +100,7 @@ This change adds **7 new capabilities** to the system:
 ### Database Changes
 
 **New Tables** (8 total):
+
 1. `pilot_registrations` - Registration approval queue
 2. `flight_requests` - Flight request submissions
 3. `tasks` - Task management
@@ -100,6 +111,7 @@ This change adds **7 new capabilities** to the system:
 8. `audit_logs` - System-wide audit trail
 
 **RLS Policies Required**:
+
 - All new tables require Row Level Security policies
 - Role-based access (Admin, Manager, Pilot)
 - Pilots can only see their own data (except community feedback)
@@ -107,6 +119,7 @@ This change adds **7 new capabilities** to the system:
 ### Service Layer Changes
 
 **New Services** (8 total):
+
 1. `lib/services/pilot-registration-service.ts` - Registration CRUD
 2. `lib/services/flight-request-service.ts` - Flight request CRUD
 3. `lib/services/task-service.ts` - Task CRUD and assignment
@@ -117,6 +130,7 @@ This change adds **7 new capabilities** to the system:
 8. `lib/services/pilot-auth-service.ts` - Pilot-specific authentication
 
 **Modified Services**:
+
 - `lib/services/pilot-portal-service.ts` - Extend for new dashboard data
 
 ### API Routes
@@ -124,6 +138,7 @@ This change adds **7 new capabilities** to the system:
 **New Routes** (15+ endpoints):
 
 **Pilot Portal Routes**:
+
 - `app/api/pilot/auth/login/route.ts`
 - `app/api/pilot/auth/register/route.ts`
 - `app/api/pilot/certifications/route.ts`
@@ -133,6 +148,7 @@ This change adds **7 new capabilities** to the system:
 - `app/api/pilot/notifications/route.ts`
 
 **Admin Routes**:
+
 - `app/api/admin/pilot-registrations/route.ts`
 - `app/api/admin/flight-requests/route.ts`
 - `app/api/admin/tasks/route.ts`
@@ -145,6 +161,7 @@ This change adds **7 new capabilities** to the system:
 **New Pages** (20+ pages):
 
 **Pilot Portal**:
+
 - `app/pilot/login/page.tsx`
 - `app/pilot/register/page.tsx`
 - `app/pilot/dashboard/page.tsx`
@@ -155,6 +172,7 @@ This change adds **7 new capabilities** to the system:
 - `app/pilot/feedback/page.tsx`
 
 **Admin Dashboard**:
+
 - `app/dashboard/flight-requests/page.tsx`
 - `app/dashboard/tasks/page.tsx`
 - `app/dashboard/disciplinary/page.tsx`
@@ -163,6 +181,7 @@ This change adds **7 new capabilities** to the system:
 - `app/dashboard/admin/feedback-moderation/page.tsx`
 
 **New Components** (30+ components):
+
 - Pilot authentication forms
 - Leave request submission calendar
 - Flight request form and list
@@ -179,6 +198,7 @@ This change adds **7 new capabilities** to the system:
 ### Authentication & Authorization
 
 **Changes**:
+
 - **Separate Pilot Portal Auth**: Pilots log in at `/pilot/login` (not `/auth/login`)
 - **Role-Based Routing**: Middleware enforces `/pilot/*` = Pilot role, `/dashboard/*` = Admin/Manager
 - **RLS Policies**: All new tables restrict access by role and user ID
@@ -187,16 +207,19 @@ This change adds **7 new capabilities** to the system:
 ### Performance Considerations
 
 **Expected Load**:
+
 - **27 concurrent pilots** accessing portal
 - **3 admins** managing approvals and tasks
 - **Real-time updates** for notifications and presence
 
 **Caching Strategy**:
+
 - Use existing `cache-service.ts` with 5-minute TTL for dashboard metrics
 - NetworkFirst strategy for API calls (existing PWA setup)
 - Supabase Realtime for notifications (no polling)
 
 **Optimizations**:
+
 - Lazy load heavy components (Kanban board, audit log table)
 - Pagination for feedback posts, audit logs, flight requests
 - Index on `pilot_id`, `status`, `created_at` columns
@@ -204,6 +227,7 @@ This change adds **7 new capabilities** to the system:
 ### Testing Requirements
 
 **E2E Tests** (Playwright):
+
 - Pilot login and registration flow
 - Leave request submission (roster period validation)
 - Flight request submission and admin approval
@@ -234,6 +258,7 @@ This change adds **7 new capabilities** to the system:
    - Pilot registration approval
 
 **Rollback Plan**:
+
 - All new tables are isolated (no foreign keys to existing tables except `pilots`)
 - Can disable new routes via environment variable
 - RLS policies prevent data access even if routes are active
@@ -241,32 +266,39 @@ This change adds **7 new capabilities** to the system:
 ## Risks & Mitigation
 
 ### Risk 1: Complexity of Pilot Portal Authentication
+
 **Risk**: Separate pilot login may conflict with existing admin auth flow.
 **Mitigation**: Use same Supabase Auth, but different routes and role checks. Middleware enforces routing based on role.
 
 ### Risk 2: Leave Eligibility Logic Conflicts
+
 **Risk**: Pilot-submitted leave requests may not align with existing admin approval logic.
 **Mitigation**: Reuse existing `leave-eligibility-service.ts` with rank-separated minimum crew requirements. No changes to business rules.
 
 ### Risk 3: Audit Logging Performance
+
 **Risk**: Database triggers on all tables may slow down writes.
 **Mitigation**: Use async triggers, index `audit_logs` table on `created_at`, `table_name`, `user_id`. Monitor performance during rollout.
 
 ### Risk 4: Real-time Presence Scalability
+
 **Risk**: 27 concurrent pilots may overload Supabase Realtime.
 **Mitigation**: Use Supabase Realtime Presence API (designed for this). Fallback to polling if needed. Limit to 100 concurrent connections (well within limits).
 
 ### Risk 5: Feedback Moderation Abuse
+
 **Risk**: Pilots may post inappropriate content before moderation.
 **Mitigation**: Admin moderation queue, soft delete (not hard delete), email alerts to admins on new posts. Rate limiting (1 post per hour per pilot).
 
 ## Dependencies
 
 ### External Dependencies
+
 - **Supabase Realtime**: Required for notifications and presence indicators
 - **No new packages**: Reuse existing TanStack Query, React Hook Form, Zod
 
 ### Internal Dependencies
+
 - **Existing Services**: Reuse `pilot-service.ts`, `leave-eligibility-service.ts`, `roster-utils.ts`
 - **Existing Components**: Reuse shadcn/ui components (Calendar, Dialog, Table, etc.)
 - **Existing Auth**: Leverage Supabase Auth with role-based routing
@@ -310,6 +342,7 @@ This change adds **7 new capabilities** to the system:
 - **Phase 3** (Priority 3): 1 week - Feedback, Registration
 
 **Milestones**:
+
 - Week 1: Database tables, services, RLS policies
 - Week 2: Pilot Portal UI, leave/flight request forms
 - Week 3: Admin flight request approval, task management

@@ -33,12 +33,7 @@ const viewModes = [
   { value: 'calendar' as const, icon: Calendar, label: 'Calendar View' },
 ]
 
-export function ViewModeToggle({
-  currentView,
-  value,
-  onChange,
-  className,
-}: ViewModeToggleProps) {
+export function ViewModeToggle({ currentView, value, onChange, className }: ViewModeToggleProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -58,7 +53,7 @@ export function ViewModeToggle({
   }
 
   return (
-    <div className={cn('flex items-center gap-1 rounded-lg border bg-muted p-1', className)}>
+    <div className={cn('bg-muted flex items-center gap-1 rounded-lg border p-1', className)}>
       {viewModes.map(({ value: mode, icon: Icon, label }) => (
         <Button
           key={mode}

@@ -76,12 +76,7 @@ class Logger {
   /**
    * Core logging function
    */
-  private log(
-    level: LogLevel,
-    message: string,
-    error?: Error,
-    context?: LogContext
-  ): void {
+  private log(level: LogLevel, message: string, error?: Error, context?: LogContext): void {
     const logEntry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -224,7 +219,6 @@ class Logger {
     // - DataDog
     // - CloudWatch
     // - Custom logging API
-
     // Example Sentry integration:
     // if (window.Sentry) {
     //   window.Sentry.captureException(entry.error, {
@@ -239,14 +233,11 @@ class Logger {
 export const logger = new Logger()
 
 // Convenience functions
-export const logDebug = (message: string, context?: LogContext) =>
-  logger.debug(message, context)
+export const logDebug = (message: string, context?: LogContext) => logger.debug(message, context)
 
-export const logInfo = (message: string, context?: LogContext) =>
-  logger.info(message, context)
+export const logInfo = (message: string, context?: LogContext) => logger.info(message, context)
 
-export const logWarn = (message: string, context?: LogContext) =>
-  logger.warn(message, context)
+export const logWarn = (message: string, context?: LogContext) => logger.warn(message, context)
 
 export const logError = (message: string, error?: Error | unknown, context?: LogContext) =>
   logger.error(message, error, context)
@@ -257,11 +248,7 @@ export const logFatal = (message: string, error?: Error | unknown, context?: Log
 /**
  * Log API request
  */
-export function logApiRequest(
-  method: string,
-  url: string,
-  context?: LogContext
-): void {
+export function logApiRequest(method: string, url: string, context?: LogContext): void {
   logger.debug(`API Request: ${method} ${url}`, {
     ...context,
     method,
@@ -300,10 +287,7 @@ export function logApiResponse(
 /**
  * Log user action
  */
-export function logUserAction(
-  action: string,
-  context?: LogContext
-): void {
+export function logUserAction(action: string, context?: LogContext): void {
   logger.info(`User Action: ${action}`, {
     ...context,
     action,
@@ -313,10 +297,7 @@ export function logUserAction(
 /**
  * Log page view
  */
-export function logPageView(
-  route: string,
-  context?: LogContext
-): void {
+export function logPageView(route: string, context?: LogContext): void {
   logger.info(`Page View: ${route}`, {
     ...context,
     route,

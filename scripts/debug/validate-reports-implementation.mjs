@@ -12,7 +12,7 @@ import path from 'path'
 const VALIDATION_RESULTS = {
   files: { passed: 0, failed: 0, tests: [] },
   structure: { passed: 0, failed: 0, tests: [] },
-  imports: { passed: 0, failed: 0, tests: [] }
+  imports: { passed: 0, failed: 0, tests: [] },
 }
 
 async function fileExists(filePath) {
@@ -33,7 +33,7 @@ async function validateCoreFiles() {
     { path: 'lib/utils/report-generators.ts', name: 'Report generators utility' },
     { path: 'components/reports/report-card.tsx', name: 'ReportCard component' },
     { path: 'app/dashboard/reports/page.tsx', name: 'Reports page (server)' },
-    { path: 'app/dashboard/reports/reports-client.tsx', name: 'Reports page (client)' }
+    { path: 'app/dashboard/reports/reports-client.tsx', name: 'Reports page (client)' },
   ]
 
   for (const file of coreFiles) {
@@ -41,7 +41,7 @@ async function validateCoreFiles() {
     VALIDATION_RESULTS.files.tests.push({
       name: file.name,
       passed: exists,
-      details: exists ? `✓ Found at ${file.path}` : `✗ Missing: ${file.path}`
+      details: exists ? `✓ Found at ${file.path}` : `✗ Missing: ${file.path}`,
     })
     if (exists) VALIDATION_RESULTS.files.passed++
     else VALIDATION_RESULTS.files.failed++
@@ -57,14 +57,23 @@ async function validateAPIEndpoints() {
     // Fleet Reports
     { path: 'app/api/reports/fleet/active-roster/route.ts', name: 'Fleet: Active Roster' },
     { path: 'app/api/reports/fleet/demographics/route.ts', name: 'Fleet: Demographics' },
-    { path: 'app/api/reports/fleet/retirement-forecast/route.ts', name: 'Fleet: Retirement Forecast' },
-    { path: 'app/api/reports/fleet/succession-pipeline/route.ts', name: 'Fleet: Succession Pipeline' },
+    {
+      path: 'app/api/reports/fleet/retirement-forecast/route.ts',
+      name: 'Fleet: Retirement Forecast',
+    },
+    {
+      path: 'app/api/reports/fleet/succession-pipeline/route.ts',
+      name: 'Fleet: Succession Pipeline',
+    },
 
     // Certification Reports
     { path: 'app/api/reports/certifications/all/route.ts', name: 'Certs: All Certifications' },
     { path: 'app/api/reports/certifications/expiring/route.ts', name: 'Certs: Expiring' },
     { path: 'app/api/reports/certifications/compliance/route.ts', name: 'Certs: Compliance' },
-    { path: 'app/api/reports/certifications/renewal-schedule/route.ts', name: 'Certs: Renewal Schedule' },
+    {
+      path: 'app/api/reports/certifications/renewal-schedule/route.ts',
+      name: 'Certs: Renewal Schedule',
+    },
 
     // Leave Reports
     { path: 'app/api/reports/leave/request-summary/route.ts', name: 'Leave: Request Summary' },
@@ -81,7 +90,7 @@ async function validateAPIEndpoints() {
     { path: 'app/api/reports/system/audit-log/route.ts', name: 'System: Audit Log' },
     { path: 'app/api/reports/system/user-activity/route.ts', name: 'System: User Activity' },
     { path: 'app/api/reports/system/feedback/route.ts', name: 'System: Feedback' },
-    { path: 'app/api/reports/system/health/route.ts', name: 'System: Health' }
+    { path: 'app/api/reports/system/health/route.ts', name: 'System: Health' },
   ]
 
   for (const endpoint of endpoints) {
@@ -89,13 +98,15 @@ async function validateAPIEndpoints() {
     VALIDATION_RESULTS.files.tests.push({
       name: endpoint.name,
       passed: exists,
-      details: exists ? `✓ ${endpoint.path}` : `✗ Missing: ${endpoint.path}`
+      details: exists ? `✓ ${endpoint.path}` : `✗ Missing: ${endpoint.path}`,
     })
     if (exists) VALIDATION_RESULTS.files.passed++
     else VALIDATION_RESULTS.files.failed++
   }
 
-  console.log(`API Endpoints: ${endpoints.filter((_, i) => VALIDATION_RESULTS.files.tests.slice(-19)[i].passed).length}/${endpoints.length} found\n`)
+  console.log(
+    `API Endpoints: ${endpoints.filter((_, i) => VALIDATION_RESULTS.files.tests.slice(-19)[i].passed).length}/${endpoints.length} found\n`
+  )
 }
 
 async function validateFileStructure() {
@@ -111,9 +122,10 @@ async function validateFileStructure() {
     VALIDATION_RESULTS.structure.tests.push({
       name: 'Type definitions complete',
       passed: hasReportInterface && hasReportCategory && hasReportFormat,
-      details: `Report interface: ${hasReportInterface}, ReportCategory: ${hasReportCategory}, ReportFormat: ${hasReportFormat}`
+      details: `Report interface: ${hasReportInterface}, ReportCategory: ${hasReportCategory}, ReportFormat: ${hasReportFormat}`,
     })
-    if (hasReportInterface && hasReportCategory && hasReportFormat) VALIDATION_RESULTS.structure.passed++
+    if (hasReportInterface && hasReportCategory && hasReportFormat)
+      VALIDATION_RESULTS.structure.passed++
     else VALIDATION_RESULTS.structure.failed++
 
     // Validate lib/config/reports-config.ts
@@ -124,7 +136,7 @@ async function validateFileStructure() {
     VALIDATION_RESULTS.structure.tests.push({
       name: 'Reports configuration complete',
       passed: hasReportsArray && has19Reports,
-      details: `REPORTS array: ${hasReportsArray}, Report count: ${(configContent.match(/id:/g) || []).length}`
+      details: `REPORTS array: ${hasReportsArray}, Report count: ${(configContent.match(/id:/g) || []).length}`,
     })
     if (hasReportsArray && has19Reports) VALIDATION_RESULTS.structure.passed++
     else VALIDATION_RESULTS.structure.failed++
@@ -138,9 +150,10 @@ async function validateFileStructure() {
     VALIDATION_RESULTS.structure.tests.push({
       name: 'Report utilities complete',
       passed: hasGenerateCSV && hasGenerateExcel && hasGenerateICalendar,
-      details: `generateCSV: ${hasGenerateCSV}, generateExcel: ${hasGenerateExcel}, generateICalendar: ${hasGenerateICalendar}`
+      details: `generateCSV: ${hasGenerateCSV}, generateExcel: ${hasGenerateExcel}, generateICalendar: ${hasGenerateICalendar}`,
     })
-    if (hasGenerateCSV && hasGenerateExcel && hasGenerateICalendar) VALIDATION_RESULTS.structure.passed++
+    if (hasGenerateCSV && hasGenerateExcel && hasGenerateICalendar)
+      VALIDATION_RESULTS.structure.passed++
     else VALIDATION_RESULTS.structure.failed++
 
     // Validate components/reports/report-card.tsx
@@ -151,7 +164,7 @@ async function validateFileStructure() {
     VALIDATION_RESULTS.structure.tests.push({
       name: 'ReportCard component complete',
       passed: hasReportCardExport && hasGenerateHandler,
-      details: `Component export: ${hasReportCardExport}, Generate handler: ${hasGenerateHandler}`
+      details: `Component export: ${hasReportCardExport}, Generate handler: ${hasGenerateHandler}`,
     })
     if (hasReportCardExport && hasGenerateHandler) VALIDATION_RESULTS.structure.passed++
     else VALIDATION_RESULTS.structure.failed++
@@ -165,13 +178,13 @@ async function validateFileStructure() {
     VALIDATION_RESULTS.structure.tests.push({
       name: 'ReportsClient component complete',
       passed: hasReportsClientExport && hasCategoryTabs && hasSearchQuery,
-      details: `Component export: ${hasReportsClientExport}, Tabs: ${hasCategoryTabs}, Search: ${hasSearchQuery}`
+      details: `Component export: ${hasReportsClientExport}, Tabs: ${hasCategoryTabs}, Search: ${hasSearchQuery}`,
     })
-    if (hasReportsClientExport && hasCategoryTabs && hasSearchQuery) VALIDATION_RESULTS.structure.passed++
+    if (hasReportsClientExport && hasCategoryTabs && hasSearchQuery)
+      VALIDATION_RESULTS.structure.passed++
     else VALIDATION_RESULTS.structure.failed++
 
     console.log(`Structure Validation: ${VALIDATION_RESULTS.structure.passed}/5 passed\n`)
-
   } catch (error) {
     console.error(`Structure validation error: ${error.message}\n`)
     VALIDATION_RESULTS.structure.failed++
@@ -183,40 +196,45 @@ async function validateImports() {
 
   try {
     // Check sample API endpoint imports
-    const sampleEndpoint = await fs.readFile('app/api/reports/fleet/active-roster/route.ts', 'utf-8')
+    const sampleEndpoint = await fs.readFile(
+      'app/api/reports/fleet/active-roster/route.ts',
+      'utf-8'
+    )
 
-    const hasNextImports = sampleEndpoint.includes('from \'next/server\'')
-    const hasSupabaseImport = sampleEndpoint.includes('from \'@/lib/supabase/server\'')
-    const hasUtilsImport = sampleEndpoint.includes('from \'@/lib/utils/report-generators\'')
-    const hasServiceImport = sampleEndpoint.includes('from \'@/lib/services/')
+    const hasNextImports = sampleEndpoint.includes("from 'next/server'")
+    const hasSupabaseImport = sampleEndpoint.includes("from '@/lib/supabase/server'")
+    const hasUtilsImport = sampleEndpoint.includes("from '@/lib/utils/report-generators'")
+    const hasServiceImport = sampleEndpoint.includes("from '@/lib/services/")
     const hasPOSTHandler = sampleEndpoint.includes('export async function POST')
 
     VALIDATION_RESULTS.imports.tests.push({
       name: 'API endpoint imports correct',
       passed: hasNextImports && hasSupabaseImport && hasUtilsImport && hasPOSTHandler,
-      details: `Next.js: ${hasNextImports}, Supabase: ${hasSupabaseImport}, Utils: ${hasUtilsImport}, POST handler: ${hasPOSTHandler}`
+      details: `Next.js: ${hasNextImports}, Supabase: ${hasSupabaseImport}, Utils: ${hasUtilsImport}, POST handler: ${hasPOSTHandler}`,
     })
-    if (hasNextImports && hasSupabaseImport && hasUtilsImport && hasPOSTHandler) VALIDATION_RESULTS.imports.passed++
+    if (hasNextImports && hasSupabaseImport && hasUtilsImport && hasPOSTHandler)
+      VALIDATION_RESULTS.imports.passed++
     else VALIDATION_RESULTS.imports.failed++
 
     // Check ReportsClient imports
     const clientContent = await fs.readFile('app/dashboard/reports/reports-client.tsx', 'utf-8')
 
     const hasUseClientDirective = clientContent.includes("'use client'")
-    const hasReactImports = clientContent.includes('from \'react\'')
-    const hasReportsConfigImport = clientContent.includes('from \'@/lib/config/reports-config\'')
-    const hasReportCardImport = clientContent.includes('from \'@/components/reports/report-card\'')
+    const hasReactImports = clientContent.includes("from 'react'")
+    const hasReportsConfigImport = clientContent.includes("from '@/lib/config/reports-config'")
+    const hasReportCardImport = clientContent.includes("from '@/components/reports/report-card'")
 
     VALIDATION_RESULTS.imports.tests.push({
       name: 'ReportsClient imports correct',
-      passed: hasUseClientDirective && hasReactImports && hasReportsConfigImport && hasReportCardImport,
-      details: `'use client': ${hasUseClientDirective}, React: ${hasReactImports}, Config: ${hasReportsConfigImport}, ReportCard: ${hasReportCardImport}`
+      passed:
+        hasUseClientDirective && hasReactImports && hasReportsConfigImport && hasReportCardImport,
+      details: `'use client': ${hasUseClientDirective}, React: ${hasReactImports}, Config: ${hasReportsConfigImport}, ReportCard: ${hasReportCardImport}`,
     })
-    if (hasUseClientDirective && hasReactImports && hasReportsConfigImport && hasReportCardImport) VALIDATION_RESULTS.imports.passed++
+    if (hasUseClientDirective && hasReactImports && hasReportsConfigImport && hasReportCardImport)
+      VALIDATION_RESULTS.imports.passed++
     else VALIDATION_RESULTS.imports.failed++
 
     console.log(`Import Validation: ${VALIDATION_RESULTS.imports.passed}/2 passed\n`)
-
   } catch (error) {
     console.error(`Import validation error: ${error.message}\n`)
     VALIDATION_RESULTS.imports.failed++
@@ -224,7 +242,7 @@ async function validateImports() {
 }
 
 function generateReport() {
-  console.log('=' .repeat(80))
+  console.log('='.repeat(80))
   console.log('📊 REPORTS IMPLEMENTATION VALIDATION RESULTS')
   console.log('='.repeat(80))
 
@@ -235,15 +253,17 @@ function generateReport() {
   console.log('\n📈 SUMMARY')
   console.log('-'.repeat(80))
   console.log(`Total Validations: ${totalTests}`)
-  console.log(`✅ Passed: ${totalPassed} (${((totalPassed/totalTests)*100).toFixed(1)}%)`)
-  console.log(`❌ Failed: ${totalFailed} (${((totalFailed/totalTests)*100).toFixed(1)}%)`)
+  console.log(`✅ Passed: ${totalPassed} (${((totalPassed / totalTests) * 100).toFixed(1)}%)`)
+  console.log(`❌ Failed: ${totalFailed} (${((totalFailed / totalTests) * 100).toFixed(1)}%)`)
 
   console.log('\n📋 BY CATEGORY')
   console.log('-'.repeat(80))
   for (const [category, results] of Object.entries(VALIDATION_RESULTS)) {
     const total = results.passed + results.failed
-    const percentage = total > 0 ? ((results.passed/total)*100).toFixed(1) : '0.0'
-    console.log(`${category.toUpperCase().padEnd(20)} - ${results.passed}/${total} passed (${percentage}%)`)
+    const percentage = total > 0 ? ((results.passed / total) * 100).toFixed(1) : '0.0'
+    console.log(
+      `${category.toUpperCase().padEnd(20)} - ${results.passed}/${total} passed (${percentage}%)`
+    )
   }
 
   console.log('\n🔍 DETAILED RESULTS')
@@ -251,7 +271,7 @@ function generateReport() {
   for (const [category, results] of Object.entries(VALIDATION_RESULTS)) {
     if (results.tests.length > 0) {
       console.log(`\n${category.toUpperCase()}:`)
-      results.tests.forEach(test => {
+      results.tests.forEach((test) => {
         const icon = test.passed ? '✅' : '❌'
         console.log(`  ${icon} ${test.name}`)
         if (test.details && !test.passed) {
@@ -279,13 +299,13 @@ async function saveValidationReport(reportData) {
   let markdown = `# Reports Implementation Validation Results\n\n`
   markdown += `**Date**: ${new Date().toISOString()}\n`
   markdown += `**Total Validations**: ${reportData.totalTests}\n`
-  markdown += `**Passed**: ${reportData.totalPassed} (${((reportData.totalPassed/reportData.totalTests)*100).toFixed(1)}%)\n`
-  markdown += `**Failed**: ${reportData.totalFailed} (${((reportData.totalFailed/reportData.totalTests)*100).toFixed(1)}%)\n\n`
+  markdown += `**Passed**: ${reportData.totalPassed} (${((reportData.totalPassed / reportData.totalTests) * 100).toFixed(1)}%)\n`
+  markdown += `**Failed**: ${reportData.totalFailed} (${((reportData.totalFailed / reportData.totalTests) * 100).toFixed(1)}%)\n\n`
 
   markdown += `## Summary by Category\n\n`
   for (const [category, results] of Object.entries(reportData.results)) {
     const total = results.passed + results.failed
-    const percentage = total > 0 ? ((results.passed/total)*100).toFixed(1) : '0.0'
+    const percentage = total > 0 ? ((results.passed / total) * 100).toFixed(1) : '0.0'
     markdown += `- **${category.toUpperCase()}**: ${results.passed}/${total} passed (${percentage}%)\n`
   }
 
@@ -309,7 +329,7 @@ async function saveValidationReport(reportData) {
   for (const [category, results] of Object.entries(reportData.results)) {
     if (results.tests.length > 0) {
       markdown += `### ${category.toUpperCase()}\n\n`
-      results.tests.forEach(test => {
+      results.tests.forEach((test) => {
         const icon = test.passed ? '✅' : '❌'
         markdown += `${icon} **${test.name}**\n`
         if (test.details && !test.passed) {
@@ -354,14 +374,13 @@ async function main() {
 
     const reportData = generateReport()
     await saveValidationReport(reportData)
-
   } catch (error) {
     console.error('\n❌ Validation failed:', error)
     process.exit(1)
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Fatal error:', error)
   process.exit(1)
 })

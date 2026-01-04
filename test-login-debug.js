@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer'
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   PILOT_EMAIL: 'mrondeau@airniugini.com.pg',
-  PILOT_PASSWORD: 'Lemakot@1972'
+  PILOT_PASSWORD: 'Lemakot@1972',
 }
 
 async function debugLogin() {
@@ -17,26 +17,26 @@ async function debugLogin() {
   const browser = await puppeteer.launch({
     headless: false,
     slowMo: 100,
-    args: ['--window-size=1920,1080']
+    args: ['--window-size=1920,1080'],
   })
 
   const page = await browser.newPage()
   await page.setViewport({ width: 1920, height: 1080 })
 
   // Log all console messages
-  page.on('console', msg => {
+  page.on('console', (msg) => {
     console.log('BROWSER LOG:', msg.type(), msg.text())
   })
 
   // Log all network requests
-  page.on('request', request => {
+  page.on('request', (request) => {
     if (request.url().includes('portal')) {
       console.log('REQUEST:', request.method(), request.url())
     }
   })
 
   // Log all responses
-  page.on('response', response => {
+  page.on('response', (response) => {
     if (response.url().includes('portal')) {
       console.log('RESPONSE:', response.status(), response.url())
     }
@@ -47,7 +47,7 @@ async function debugLogin() {
     console.log('📍 Step 1: Navigating to login page...')
     await page.goto(`${CONFIG.BASE_URL}/portal/login`, {
       waitUntil: 'networkidle2',
-      timeout: 10000
+      timeout: 10000,
     })
 
     console.log('✅ Page loaded')
@@ -65,18 +65,20 @@ async function debugLogin() {
         hasEmailInput: !!document.querySelector('input[type="email"]'),
         hasPasswordInput: !!document.querySelector('input[type="password"]'),
         hasSubmitButton: !!document.querySelector('button[type="submit"]'),
-        allInputs: Array.from(document.querySelectorAll('input')).map(input => ({
+        allInputs: Array.from(document.querySelectorAll('input')).map((input) => ({
           type: input.type,
           name: input.name,
           id: input.id,
-          placeholder: input.placeholder
+          placeholder: input.placeholder,
         })),
-        allButtons: Array.from(document.querySelectorAll('button')).map(btn => ({
+        allButtons: Array.from(document.querySelectorAll('button')).map((btn) => ({
           type: btn.type,
-          text: btn.textContent.trim()
+          text: btn.textContent.trim(),
         })),
-        headings: Array.from(document.querySelectorAll('h1, h2, h3')).map(h => h.textContent.trim()),
-        forms: document.querySelectorAll('form').length
+        headings: Array.from(document.querySelectorAll('h1, h2, h3')).map((h) =>
+          h.textContent.trim()
+        ),
+        forms: document.querySelectorAll('form').length,
       }
     })
 
@@ -87,17 +89,23 @@ async function debugLogin() {
     console.log('Number of forms:', pageStructure.forms)
     console.log('\nAll inputs found:')
     pageStructure.allInputs.forEach((input, i) => {
-      console.log(`  ${i + 1}. Type: ${input.type}, Name: ${input.name || 'N/A'}, ID: ${input.id || 'N/A'}, Placeholder: ${input.placeholder || 'N/A'}`)
+      console.log(
+        `  ${i + 1}. Type: ${input.type}, Name: ${input.name || 'N/A'}, ID: ${input.id || 'N/A'}, Placeholder: ${input.placeholder || 'N/A'}`
+      )
     })
     console.log('\nAll buttons found:')
     pageStructure.allButtons.forEach((btn, i) => {
       console.log(`  ${i + 1}. Type: ${btn.type}, Text: "${btn.text}"`)
     })
     console.log('\nHeadings:')
-    pageStructure.headings.forEach(h => console.log(`  - ${h}`))
+    pageStructure.headings.forEach((h) => console.log(`  - ${h}`))
 
     // Step 3: Try to login if elements exist
-    if (pageStructure.hasEmailInput && pageStructure.hasPasswordInput && pageStructure.hasSubmitButton) {
+    if (
+      pageStructure.hasEmailInput &&
+      pageStructure.hasPasswordInput &&
+      pageStructure.hasSubmitButton
+    ) {
       console.log('\n📍 Step 3: Attempting login...')
 
       // Fill email
@@ -141,15 +149,17 @@ async function debugLogin() {
         const errorMessages = await page.evaluate(() => {
           const errors = []
           // Check for common error selectors
-          document.querySelectorAll('[role="alert"], .error, .text-red-500, .text-destructive').forEach(el => {
-            errors.push(el.textContent.trim())
-          })
+          document
+            .querySelectorAll('[role="alert"], .error, .text-red-500, .text-destructive')
+            .forEach((el) => {
+              errors.push(el.textContent.trim())
+            })
           return errors
         })
 
         if (errorMessages.length > 0) {
           console.log('Error messages found:')
-          errorMessages.forEach(msg => console.log(`  - ${msg}`))
+          errorMessages.forEach((msg) => console.log(`  - ${msg}`))
         }
 
         await page.screenshot({ path: 'debug-login-error.png', fullPage: true })
@@ -162,8 +172,7 @@ async function debugLogin() {
 
     // Keep browser open for inspection
     console.log('\n⏳ Keeping browser open for 10 seconds for inspection...')
-    await new Promise(resolve => setTimeout(resolve, 10000))
-
+    await new Promise((resolve) => setTimeout(resolve, 10000))
   } catch (error) {
     console.error('\n❌ Error during test:', error.message)
     console.error(error.stack)

@@ -11,7 +11,7 @@ import { readFileSync } from 'fs'
 // Load environment variables
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length > 0) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -38,10 +38,12 @@ async function verifyAllData() {
     issues.push('Failed to fetch pilots')
   } else {
     const totalPilots = pilots.length
-    const activePilots = pilots.filter(p => p.is_active).length
-    const inactivePilots = pilots.filter(p => !p.is_active).length
-    const activeCaptains = pilots.filter(p => p.is_active && p.role === 'Captain').length
-    const activeFirstOfficers = pilots.filter(p => p.is_active && p.role === 'First Officer').length
+    const activePilots = pilots.filter((p) => p.is_active).length
+    const inactivePilots = pilots.filter((p) => !p.is_active).length
+    const activeCaptains = pilots.filter((p) => p.is_active && p.role === 'Captain').length
+    const activeFirstOfficers = pilots.filter(
+      (p) => p.is_active && p.role === 'First Officer'
+    ).length
 
     console.log(`   Total Pilots: ${totalPilots}`)
     console.log(`   Active Pilots: ${activePilots}`)
@@ -70,9 +72,11 @@ async function verifyAllData() {
     const totalCerts = certs.length
     const today = new Date()
 
-    const expiredCerts = certs.filter(c => c.expiry_date && new Date(c.expiry_date) < today).length
-    const validCerts = certs.filter(c => c.expiry_date && new Date(c.expiry_date) >= today).length
-    const noCerts = certs.filter(c => !c.expiry_date).length
+    const expiredCerts = certs.filter(
+      (c) => c.expiry_date && new Date(c.expiry_date) < today
+    ).length
+    const validCerts = certs.filter((c) => c.expiry_date && new Date(c.expiry_date) >= today).length
+    const noCerts = certs.filter((c) => !c.expiry_date).length
 
     console.log(`   Total Certifications: ${totalCerts}`)
     console.log(`   Expired: ${expiredCerts}`)
@@ -101,7 +105,7 @@ async function verifyAllData() {
 
     // Get actual status breakdown
     const statusBreakdown = {}
-    leaves.forEach(l => {
+    leaves.forEach((l) => {
       statusBreakdown[l.status] = (statusBreakdown[l.status] || 0) + 1
     })
 
@@ -131,7 +135,7 @@ async function verifyAllData() {
 
     if (totalFlights > 0) {
       const statusBreakdown = {}
-      flights.forEach(f => {
+      flights.forEach((f) => {
         statusBreakdown[f.status] = (statusBreakdown[f.status] || 0) + 1
       })
 
@@ -157,8 +161,8 @@ async function verifyAllData() {
     issues.push('Failed to fetch check types')
   } else {
     const totalCheckTypes = checkTypes.length
-    const withCategory = checkTypes.filter(ct => ct.category).length
-    const withoutCategory = checkTypes.filter(ct => !ct.category).length
+    const withCategory = checkTypes.filter((ct) => ct.category).length
+    const withoutCategory = checkTypes.filter((ct) => !ct.category).length
 
     console.log(`   Total Check Types: ${totalCheckTypes}`)
     console.log(`   With Category: ${withCategory}`)
@@ -174,9 +178,7 @@ async function verifyAllData() {
   // 6. Verify Tasks
   console.log('6️⃣  Verifying Tasks...\n')
 
-  const { data: tasks, error: tasksError } = await supabase
-    .from('tasks')
-    .select('id, status')
+  const { data: tasks, error: tasksError } = await supabase.from('tasks').select('id, status')
 
   if (tasksError) {
     console.error('❌ Error fetching tasks:', tasksError.message)
@@ -188,7 +190,7 @@ async function verifyAllData() {
     if (totalTasks > 0) {
       // Group by status
       const statusBreakdown = {}
-      tasks.forEach(t => {
+      tasks.forEach((t) => {
         statusBreakdown[t.status] = (statusBreakdown[t.status] || 0) + 1
       })
 
@@ -216,8 +218,8 @@ async function verifyAllData() {
     console.log(`   Total Settings: ${settings.length}`)
 
     const requiredSettings = ['alert_thresholds', 'app_title', 'pilot_requirements']
-    const existingKeys = settings.map(s => s.key)
-    const missingSettings = requiredSettings.filter(k => !existingKeys.includes(k))
+    const existingKeys = settings.map((s) => s.key)
+    const missingSettings = requiredSettings.filter((k) => !existingKeys.includes(k))
 
     if (missingSettings.length > 0) {
       console.log(`   ⚠️  Missing settings: ${missingSettings.join(', ')}\n`)

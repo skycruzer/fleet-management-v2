@@ -36,8 +36,12 @@ const inFiveYearListBuggy = yearsToRetirementBuggy >= 0 && yearsToRetirementBugg
 
 console.log('\n--- OLD (BUGGY) Logic ---')
 console.log(`Years to Retirement (floored): ${yearsToRetirementBuggy}`)
-console.log(`In 2-year list? ${inTwoYearListBuggy} ${inTwoYearListBuggy ? '❌ WRONG' : '✓ CORRECT'}`)
-console.log(`In 5-year list? ${inFiveYearListBuggy} ${inFiveYearListBuggy ? '✓ CORRECT' : '❌ WRONG'}`)
+console.log(
+  `In 2-year list? ${inTwoYearListBuggy} ${inTwoYearListBuggy ? '❌ WRONG' : '✓ CORRECT'}`
+)
+console.log(
+  `In 5-year list? ${inFiveYearListBuggy} ${inFiveYearListBuggy ? '✓ CORRECT' : '❌ WRONG'}`
+)
 
 // Test with NEW fixed logic (precise + <)
 const inTwoYearListFixed = yearsToRetirement >= 0 && yearsToRetirement < 2.0
@@ -45,8 +49,12 @@ const inFiveYearListFixed = yearsToRetirement >= 0 && yearsToRetirement < 5.0
 
 console.log('\n--- NEW (FIXED) Logic ---')
 console.log(`Years to Retirement (precise): ${yearsToRetirement.toFixed(2)}`)
-console.log(`In 2-year list? ${inTwoYearListFixed} ${!inTwoYearListFixed ? '✓ CORRECT' : '❌ WRONG'}`)
-console.log(`In 5-year list? ${inFiveYearListFixed} ${inFiveYearListFixed ? '✓ CORRECT' : '❌ WRONG'}`)
+console.log(
+  `In 2-year list? ${inTwoYearListFixed} ${!inTwoYearListFixed ? '✓ CORRECT' : '❌ WRONG'}`
+)
+console.log(
+  `In 5-year list? ${inFiveYearListFixed} ${inFiveYearListFixed ? '✓ CORRECT' : '❌ WRONG'}`
+)
 
 // Verify expected behavior
 console.log('\n=== Test Results ===')

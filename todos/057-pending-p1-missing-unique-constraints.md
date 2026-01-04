@@ -1,7 +1,7 @@
 ---
 status: pending
 priority: p1
-issue_id: "057"
+issue_id: '057'
 tags: [code-review, data-integrity, database, critical]
 dependencies: []
 discovered_by: data-integrity-guardian
@@ -23,14 +23,12 @@ The database schema is missing unique constraints on critical business data, all
 ### Code References Non-Existent Constraint
 
 **File**: `/lib/services/leave-service.ts:267`
+
 ```typescript
 // Check if error is a unique constraint violation
-if (error.code === '23505' &&
-    error.message.includes('leave_requests_pilot_dates_unique')) {
+if (error.code === '23505' && error.message.includes('leave_requests_pilot_dates_unique')) {
   // ❌ THIS CONSTRAINT DOES NOT EXIST IN DATABASE!
-  throw new DuplicateSubmissionError(
-    ERROR_MESSAGES.LEAVE.DUPLICATE_REQUEST.message
-  )
+  throw new DuplicateSubmissionError(ERROR_MESSAGES.LEAVE.DUPLICATE_REQUEST.message)
 }
 ```
 
@@ -39,6 +37,7 @@ if (error.code === '23505' &&
 ### Impact
 
 **Pilots can submit multiple identical leave requests**, causing:
+
 1. Crew availability calculation errors (counting same pilot multiple times)
 2. Duplicate approvals consuming leave balance multiple times
 3. Data integrity violations in production
@@ -62,12 +61,14 @@ VALUES ('pilot-123', '2025-11-01', '2025-11-05', 'ANNUAL', 'PENDING');
 ### Option 1: Add All Missing Unique Constraints (RECOMMENDED)
 
 **Pros**:
+
 - Prevents all duplicate data issues
 - Database-level enforcement (cannot be bypassed)
 - Minimal performance impact
 - Aligns code with database reality
 
 **Cons**:
+
 - Requires checking existing data for duplicates first
 - Requires database migration
 
@@ -166,6 +167,7 @@ ORDER BY tc.table_name, tc.constraint_name;
 **Pros**: No database migration needed
 
 **Cons**:
+
 - Can be bypassed with direct SQL access
 - Race condition between check and insert
 - Not enforced at database level
@@ -182,11 +184,13 @@ This is the **only reliable solution**. Application-level validation can always 
 ## Technical Details
 
 **Affected Files**:
+
 - `supabase/migrations/20251027_add_missing_unique_constraints.sql` (new migration)
 - `/lib/utils/constraint-error-handler.ts` (already handles these constraints - just needs DB to match)
 - Database schema
 
 **Related Components**:
+
 - Leave request submission
 - Pilot creation workflow
 - Flight request submission
@@ -258,9 +262,9 @@ test('should prevent duplicate leave requests', async () => {
   expect(first).toBeDefined()
 
   // Duplicate request should fail with specific constraint error
-  await expect(createLeaveRequestServer(requestData))
-    .rejects
-    .toThrow(/A leave request for these dates already exists/)
+  await expect(createLeaveRequestServer(requestData)).rejects.toThrow(
+    /A leave request for these dates already exists/
+  )
 
   // Verify error handling uses correct constraint name
   try {
@@ -278,11 +282,13 @@ test('should prevent duplicate seniority numbers', async () => {
   })
 
   // Attempt to create pilot with same seniority
-  await expect(createPilot({
-    employee_id: 'EMP002',
-    seniority_number: 5, // ❌ Duplicate
-    commencement_date: '2021-01-01',
-  })).rejects.toThrow(/Seniority number already exists/)
+  await expect(
+    createPilot({
+      employee_id: 'EMP002',
+      seniority_number: 5, // ❌ Duplicate
+      commencement_date: '2021-01-01',
+    })
+  ).rejects.toThrow(/Seniority number already exists/)
 })
 ```
 
@@ -339,14 +345,17 @@ FROM (
 ## Work Log
 
 ### 2025-10-26 - Code Review Discovery
+
 **By**: Data Integrity Guardian (Claude)
 **Actions**:
+
 - Discovered constraint handler references non-existent constraints
 - Verified database schema does NOT contain expected unique constraints
 - Identified 4 missing critical unique constraints
 - Designed migration with pre-check safety
 
 **Learnings**:
+
 - Always verify code assumptions match database reality
 - Unique constraints should be database-enforced, not application-enforced
 - Pre-migration checks prevent failed deployments
@@ -359,12 +368,14 @@ FROM (
 ## Notes
 
 **Priority Justification**: This is P1 CRITICAL because:
+
 1. Application code expects these constraints to exist (error handling depends on them)
 2. Missing constraints allow data corruption
 3. Easy fix with high impact
 4. Required for data integrity guarantees
 
 **Deployment Strategy**:
+
 1. Check production for duplicates (run duplicate detection queries)
 2. Clean any duplicates found
 3. Apply migration during maintenance window

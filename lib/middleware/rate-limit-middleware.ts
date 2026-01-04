@@ -181,18 +181,14 @@ export function withRateLimit(
 /**
  * Rate limit specifically for authentication endpoints
  */
-export function withAuthRateLimit(
-  handler: (request: NextRequest) => Promise<NextResponse>
-) {
+export function withAuthRateLimit(handler: (request: NextRequest) => Promise<NextResponse>) {
   return withRateLimit(handler, authRateLimit)
 }
 
 /**
  * Rate limit for high-sensitivity mutation endpoints
  */
-export function withStrictRateLimit(
-  handler: (request: NextRequest) => Promise<NextResponse>
-) {
+export function withStrictRateLimit(handler: (request: NextRequest) => Promise<NextResponse>) {
   const strictLimit = redis
     ? new Ratelimit({
         redis,

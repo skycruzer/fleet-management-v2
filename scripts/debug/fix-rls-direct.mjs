@@ -5,7 +5,7 @@ import https from 'https'
 // Read .env.local
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -20,14 +20,14 @@ async function executeSQLDirect(sql) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
-        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`
-      }
+        apikey: env.SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
     }
 
     const req = https.request(url, options, (res) => {
       let data = ''
-      res.on('data', chunk => data += chunk)
+      res.on('data', (chunk) => (data += chunk))
       res.on('end', () => {
         if (res.statusCode === 200 || res.statusCode === 201) {
           resolve({ success: true, data })
@@ -87,7 +87,6 @@ async function fixRLS() {
     console.log()
     console.log('✅ RLS policies updated!')
     return true
-
   } catch (cliError) {
     console.log('❌ Supabase CLI not available:', cliError.message)
     console.log()
@@ -95,15 +94,15 @@ async function fixRLS() {
     console.log('📍 https://app.supabase.com/project/wgdmgvonqysflwdiiols/sql/new')
     console.log()
     console.log('='.repeat(80))
-    statements.forEach(stmt => console.log(stmt + ';'))
+    statements.forEach((stmt) => console.log(stmt + ';'))
     console.log('='.repeat(80))
     return false
   }
 }
 
 fixRLS()
-  .then(success => process.exit(success ? 0 : 1))
-  .catch(err => {
+  .then((success) => process.exit(success ? 0 : 1))
+  .catch((err) => {
     console.error('Fatal error:', err)
     process.exit(1)
   })

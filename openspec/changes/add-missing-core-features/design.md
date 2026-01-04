@@ -17,6 +17,7 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 
 **Language/Version**: TypeScript 5.7.3 (strict mode mandatory)
 **Primary Dependencies**:
+
 - Next.js 15.5.6 (App Router with Server Components)
 - React 19.1.0
 - Supabase 2.47.10 (PostgreSQL + Auth + Realtime)
@@ -27,6 +28,7 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 **Storage**: Supabase PostgreSQL (project: wgdmgvonqysflwdiiols) with Row Level Security (RLS) enabled on all tables
 
 **Testing**:
+
 - Playwright 1.55.0 (E2E tests)
 - Jest 29.7.0 (unit tests)
 - Minimum 70% test coverage on critical paths (constitution requirement)
@@ -36,12 +38,14 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 **Project Type**: Web application (Next.js App Router structure)
 
 **Performance Goals**:
+
 - Page load <2 seconds on 3G connections
 - Support 27 concurrent pilots + 3 admins
 - Real-time updates for notifications and presence indicators
 - PWA with NetworkFirst caching strategy for API calls
 
 **Constraints**:
+
 - Service-layer architecture mandatory (no direct Supabase calls from API routes/components)
 - All tables require RLS policies
 - 28-day roster period boundaries must be enforced
@@ -50,6 +54,7 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 - Audit logging required for compliance
 
 **Scale/Scope**:
+
 - 27 active pilots
 - ~22 new pages (8 pilot portal + 14 admin dashboard)
 - ~50 new components
@@ -60,17 +65,21 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ### Principle I: Service-Layer Architecture (NON-NEGOTIABLE)
+
 **Status**: ✅ **PASS**
+
 - All database operations will go through new services in `lib/services/`
 - New services: `pilot-portal-service.ts`, `pilot-leave-service.ts`, `flight-request-service.ts`, `task-service.ts`, `disciplinary-service.ts`, `feedback-service.ts`, `audit-log-service.ts`, `pilot-registration-service.ts`, `pilot-notification-service.ts`
 - API routes will act as thin HTTP adapters
 - No direct Supabase calls from components or API routes
 
 ### Principle II: Type Safety First
+
 **Status**: ✅ **PASS**
+
 - TypeScript 5.7.3 strict mode enforced
 - All 8 new database tables will have generated types via `npm run db:types`
 - Zod schemas for all user input validation (FR-048)
@@ -78,14 +87,18 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 - Form data validated with React Hook Form + Zod resolvers
 
 ### Principle III: Test-Driven Quality Gates
+
 **Status**: ✅ **PASS**
+
 - E2E tests required for all 8 user stories (SC-018)
 - Playwright tests for authentication flows, CRUD operations, workflows
 - 70% minimum test coverage on critical paths
 - Tests will cover: pilot login, leave submission, flight requests, task management, disciplinary tracking, feedback posting, registration approval, audit logging
 
 ### Principle IV: Aviation Compliance Standards
+
 **Status**: ✅ **PASS**
+
 - FAA color coding maintained (Red/Yellow/Green) for certification displays in pilot dashboard
 - Audit logging implemented for all critical operations (FR-018 through FR-022)
 - Complete audit trail with old/new values preserved
@@ -93,7 +106,9 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 - Compliance export capability (CSV audit logs)
 
 ### Principle V: Security by Design
+
 **Status**: ✅ **PASS**
+
 - RLS policies required on all 8 new tables
 - Pilot role authentication separate from admin/manager (FR-003)
 - Role-based routing (`/pilot/*` vs `/dashboard/*`)
@@ -102,7 +117,9 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 - Service role key never exposed to client
 
 ### Principle VI: Progressive Web App Standards
+
 **Status**: ✅ **PASS**
+
 - Pilot portal pages will work with existing PWA setup
 - NetworkFirst caching for API calls
 - Offline indicator shows connection status
@@ -110,7 +127,9 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 - Mutations (create/update/delete) require online connection
 
 ### Principle VII: Performance & Scalability
+
 **Status**: ✅ **PASS**
+
 - Page load <2 seconds target maintained
 - TanStack Query for server state caching with stale-while-revalidate
 - Lazy loading for heavy components (task Kanban view, feedback threads)
@@ -119,6 +138,7 @@ Migrate 7 core feature areas from air-niugini-pms to fleet-management-v2, exclud
 - Pagination for large lists (feedback posts, audit logs, tasks)
 
 ### Overall Assessment
+
 **All 7 constitution principles PASS** ✅
 
 No violations detected. This feature implementation fully complies with the Fleet Management V2 Constitution v1.0.0.
@@ -288,7 +308,9 @@ fleet-management-v2/
 ## Deliverables Summary
 
 ### Phase 0: Research (Complete)
+
 ✅ **research.md** (450+ lines)
+
 - 8 research questions answered with technical decisions
 - Technology stack research (Next.js 15, React 19, Supabase, @dnd-kit)
 - Best practices for pilot portal, real-time notifications, task Kanban, feedback community
@@ -296,7 +318,9 @@ fleet-management-v2/
 - Risk mitigation strategies
 
 ### Phase 1: Design (Complete)
+
 ✅ **data-model.md** (1000+ lines)
+
 - Complete SQL DDL for 10 new database tables
 - Foreign key relationships and constraints
 - Database indexes for performance
@@ -306,6 +330,7 @@ fleet-management-v2/
 - Validation queries and schema summary
 
 ✅ **contracts/** (API specifications)
+
 - **README.md** - Contract overview and usage guide
 - **pilot-auth.yaml** - Full OpenAPI 3.0 spec (3 endpoints)
 - **flight-requests.yaml** - Full OpenAPI 3.0 spec (4 endpoints)
@@ -314,6 +339,7 @@ fleet-management-v2/
 - Total: 30 endpoints documented
 
 ✅ **quickstart.md** (1200+ lines)
+
 - Step-by-step implementation workflow (10 weeks)
 - Development environment setup
 - Database migration guide

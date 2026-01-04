@@ -6,7 +6,7 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 console.log('\n' + '='.repeat(80))
 console.log('  🚀 FLEET MANAGEMENT V2 - INTERACTIVE PORTAL DEMO')
@@ -16,7 +16,7 @@ const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: null,
   args: ['--start-maximized'],
-  slowMo: 100 // Slow down to watch actions
+  slowMo: 100, // Slow down to watch actions
 })
 
 const page = await browser.newPage()
@@ -62,7 +62,7 @@ const pilotPages = [
   { name: 'Leave Requests', url: '/portal/leave-requests' },
   { name: 'Flight Requests', url: '/portal/flight-requests' },
   { name: 'Notifications', url: '/portal/notifications' },
-  { name: 'Feedback', url: '/portal/feedback' }
+  { name: 'Feedback', url: '/portal/feedback' },
 ]
 
 console.log('Step 4: Navigating through all pilot portal pages...\n')
@@ -74,8 +74,9 @@ for (const pageInfo of pilotPages) {
   // Check for notification bell
   if (pageInfo.name === 'Dashboard') {
     console.log('   🔔 Checking for notification bell...')
-    const bellExists = await page.$('button[aria-label*="notification" i]') ||
-                       await page.$('a[href="/portal/notifications"]')
+    const bellExists =
+      (await page.$('button[aria-label*="notification" i]')) ||
+      (await page.$('a[href="/portal/notifications"]'))
     if (bellExists) {
       console.log('   ✅ Notification bell found in sidebar!')
     }
@@ -86,7 +87,7 @@ for (const pageInfo of pilotPages) {
 }
 
 console.log('✅ PILOT PORTAL TESTING COMPLETE!\n')
-console.log('=' .repeat(80) + '\n')
+console.log('='.repeat(80) + '\n')
 
 await sleep(2000)
 
@@ -134,7 +135,7 @@ const adminPages = [
   { name: 'Analytics', url: '/dashboard/analytics' },
   { name: 'Certifications', url: '/dashboard/certifications' },
   { name: 'Leave Requests', url: '/dashboard/leave-requests' },
-  { name: 'Settings', url: '/dashboard/admin/settings' }
+  { name: 'Settings', url: '/dashboard/admin/settings' },
 ]
 
 console.log('Step 4: Navigating through admin portal pages...\n')
@@ -144,7 +145,7 @@ for (const pageInfo of adminPages) {
     console.log(`   📄 Testing: ${pageInfo.name}`)
     await page.goto(`http://localhost:3000${pageInfo.url}`, {
       waitUntil: 'networkidle2',
-      timeout: 10000
+      timeout: 10000,
     })
     await sleep(2000)
     console.log(`   ✅ ${pageInfo.name} page loaded\n`)
@@ -154,7 +155,7 @@ for (const pageInfo of adminPages) {
 }
 
 console.log('✅ ADMIN PORTAL TESTING COMPLETE!\n')
-console.log('=' .repeat(80) + '\n')
+console.log('='.repeat(80) + '\n')
 
 // ============================================================================
 // SUMMARY
@@ -168,7 +169,7 @@ console.log('   ✅ Authentication: Both portals working')
 console.log('   ✅ Notification Bell: Integrated in pilot portal\n')
 console.log('💡 The browser will stay open for you to explore manually.')
 console.log('   Close the browser window when done.\n')
-console.log('=' .repeat(80) + '\n')
+console.log('='.repeat(80) + '\n')
 
 // Keep browser open
 await new Promise(() => {})

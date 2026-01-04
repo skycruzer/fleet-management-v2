@@ -258,44 +258,51 @@ The Fleet Management V2 application includes a comprehensive reporting system wi
 ### Report Categories
 
 #### 1. Certification Reports (4 reports)
+
 - **All Certifications Export** - Complete certification database (CSV, Excel)
-- **Fleet Compliance Summary** - Compliance metrics and analysis (Excel, PDF*)
+- **Fleet Compliance Summary** - Compliance metrics and analysis (Excel, PDF\*)
 - **Expiring Certifications** - Certifications approaching expiry (CSV, Excel, customizable threshold)
 - **Renewal Schedule** - Calendar of certification renewals (iCal format)
 
 #### 2. Fleet Reports (4 reports)
+
 - **Active Roster** - Current pilot roster (CSV, Excel, filterable by rank)
-- **Demographics Analysis** - Pilot demographics breakdown (Excel, PDF*)
-- **Retirement Forecast** - Retirement projections (Excel, PDF*)
-- **Succession Pipeline** - Succession planning report (Excel, PDF*)
+- **Demographics Analysis** - Pilot demographics breakdown (Excel, PDF\*)
+- **Retirement Forecast** - Retirement projections (Excel, PDF\*)
+- **Succession Pipeline** - Succession planning report (Excel, PDF\*)
 
 #### 3. Leave Reports (4 reports)
+
 - **Annual Allocation** - Annual leave allocations by year (Excel)
 - **Bid Summary** - Leave bid analysis by year (Excel)
 - **Calendar Export** - Leave calendar in iCal format
 - **Request Summary** - Leave request history (CSV, Excel, filterable by date/status)
 
 #### 4. Operational Reports (3 reports)
+
 - **Disciplinary Summary** - Disciplinary action summary with privacy redaction (CSV)
 - **Flight Requests** - Flight request history (CSV, Excel)
 - **Task Completion** - Task completion metrics (CSV, Excel)
 
 #### 5. System Reports (4 reports)
+
 - **Audit Log** - Complete audit trail (CSV, Excel, requires date range)
 - **Feedback Summary** - User feedback analysis (CSV, Excel)
 - **System Health** - System health metrics (JSON)
 - **User Activity** - User activity report (CSV, Excel)
 
-*\*PDF format pending implementation (returns 501 status)*
+_\*PDF format pending implementation (returns 501 status)_
 
 ### Using Reports
 
 **Access Reports Dashboard**:
+
 ```
 http://localhost:3000/dashboard/reports
 ```
 
 **Generate Report via API**:
+
 ```bash
 curl -X POST http://localhost:3000/api/reports/certifications/all \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -304,6 +311,7 @@ curl -X POST http://localhost:3000/api/reports/certifications/all \
 ```
 
 **Report Parameters**:
+
 ```typescript
 {
   format: 'csv' | 'excel' | 'pdf' | 'ical',
@@ -326,11 +334,13 @@ curl -X POST http://localhost:3000/api/reports/certifications/all \
 ### Testing Reports
 
 Run E2E tests for all reports:
+
 ```bash
 npx playwright test e2e/reports.spec.ts
 ```
 
 Test specific report:
+
 ```bash
 npx playwright test e2e/reports.spec.ts --grep "certification"
 ```

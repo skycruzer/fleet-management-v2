@@ -22,9 +22,10 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
 
   // Categorize certifications by expiry status
   const expiredCerts = certifications?.filter((cert: any) => cert.days_until_expiry < 0) || []
-  const expiringSoonCerts = certifications?.filter(
-    (cert: any) => cert.days_until_expiry >= 0 && cert.days_until_expiry <= 30
-  ) || []
+  const expiringSoonCerts =
+    certifications?.filter(
+      (cert: any) => cert.days_until_expiry >= 0 && cert.days_until_expiry <= 30
+    ) || []
   const currentCerts = certifications?.filter((cert: any) => cert.days_until_expiry > 30) || []
 
   return (
@@ -37,18 +38,8 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
           icon="📋"
           color="blue"
         />
-        <StatCard
-          title="Expiring Soon"
-          value={expiringSoonCerts.length}
-          icon="⚠️"
-          color="yellow"
-        />
-        <StatCard
-          title="Expired"
-          value={expiredCerts.length}
-          icon="🔴"
-          color="red"
-        />
+        <StatCard title="Expiring Soon" value={expiringSoonCerts.length} icon="⚠️" color="yellow" />
+        <StatCard title="Expired" value={expiredCerts.length} icon="🔴" color="red" />
         <StatCard
           title="Pending Leave Requests"
           value={stats?.pending_leave_requests || 0}
@@ -109,9 +100,7 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
       {/* Recent Leave Requests */}
       <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            Recent Leave Requests
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Leave Requests</h2>
           <Link
             href="/pilot/leave"
             className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"

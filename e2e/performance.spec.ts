@@ -93,7 +93,9 @@ test.describe('Performance - Core Web Vitals', () => {
     // Note: serverTiming() is not available in Playwright's Response type
     // TTFB can be measured using performance.timing in the browser context instead
     const ttfb = await page.evaluate(() => {
-      const perfData = window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
+      const perfData = window.performance.getEntriesByType(
+        'navigation'
+      )[0] as PerformanceNavigationTiming
       return perfData.responseStart - perfData.requestStart
     })
 
@@ -107,7 +109,7 @@ test.describe('Performance - Resource Loading', () => {
   test('should not load unnecessary resources', async ({ page }) => {
     const resourceUrls: string[] = []
 
-    page.on('request', request => {
+    page.on('request', (request) => {
       resourceUrls.push(request.url())
     })
 
@@ -115,8 +117,8 @@ test.describe('Performance - Resource Loading', () => {
     await page.waitForLoadState('networkidle')
 
     // Should not load unused images
-    const unusedImages = resourceUrls.filter(url =>
-      url.includes('/unused/') || url.includes('/legacy/')
+    const unusedImages = resourceUrls.filter(
+      (url) => url.includes('/unused/') || url.includes('/legacy/')
     )
     expect(unusedImages).toHaveLength(0)
   })
@@ -142,7 +144,7 @@ test.describe('Performance - Resource Loading', () => {
   test('should use optimized image formats (WebP/AVIF)', async ({ page }) => {
     const imageUrls: string[] = []
 
-    page.on('response', response => {
+    page.on('response', (response) => {
       if (response.request().resourceType() === 'image') {
         const contentType = response.headers()['content-type']
         if (contentType) {
@@ -155,9 +157,7 @@ test.describe('Performance - Resource Loading', () => {
     await page.waitForLoadState('networkidle')
 
     // Should serve modern image formats
-    const modernFormats = imageUrls.filter(type =>
-      type.includes('webp') || type.includes('avif')
-    )
+    const modernFormats = imageUrls.filter((type) => type.includes('webp') || type.includes('avif'))
 
     // At least some images should be in modern formats
     if (imageUrls.length > 0) {
@@ -168,12 +168,12 @@ test.describe('Performance - Resource Loading', () => {
   test('should minimize JavaScript bundle size', async ({ page }) => {
     const resourceSizes: { url: string; size: number }[] = []
 
-    page.on('response', async response => {
+    page.on('response', async (response) => {
       if (response.request().resourceType() === 'script') {
         const buffer = await response.body().catch(() => Buffer.alloc(0))
         resourceSizes.push({
           url: response.url(),
-          size: buffer.length
+          size: buffer.length,
         })
       }
     })
@@ -195,7 +195,7 @@ test.describe('Performance - Caching', () => {
 
     // Second visit
     const cachedResources: string[] = []
-    page.on('response', response => {
+    page.on('response', (response) => {
       // Check if response was served from cache via status code or headers
       if (response.status() === 304 || response.fromServiceWorker()) {
         cachedResources.push(response.url())
@@ -215,7 +215,7 @@ test.describe('Performance - Caching', () => {
 
     // Check if service worker is registered
     const swRegistered = await page.evaluate(() => {
-      return navigator.serviceWorker.getRegistration().then(reg => !!reg)
+      return navigator.serviceWorker.getRegistration().then((reg) => !!reg)
     })
 
     expect(swRegistered).toBe(true)
@@ -263,7 +263,7 @@ test.describe('Performance - Database Queries', () => {
   test('should batch database requests', async ({ page }) => {
     const apiCalls: string[] = []
 
-    page.on('request', request => {
+    page.on('request', (request) => {
       if (request.url().includes('/api/')) {
         apiCalls.push(request.url())
       }
@@ -281,7 +281,7 @@ test.describe('Performance - Database Queries', () => {
     await page.waitForLoadState('networkidle')
 
     const firstLoadApiCalls: string[] = []
-    page.on('request', request => {
+    page.on('request', (request) => {
       if (request.url().includes('/api/')) {
         firstLoadApiCalls.push(request.url())
       }
@@ -293,7 +293,7 @@ test.describe('Performance - Database Queries', () => {
 
     // Navigate back
     const secondLoadApiCalls: string[] = []
-    page.on('request', request => {
+    page.on('request', (request) => {
       if (request.url().includes('/api/')) {
         secondLoadApiCalls.push(request.url())
       }

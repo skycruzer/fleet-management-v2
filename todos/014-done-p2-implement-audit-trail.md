@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p2
-issue_id: "014"
+issue_id: '014'
 tags: [compliance, security, audit]
 dependencies: [002]
 completed_date: 2025-10-17
@@ -42,7 +42,9 @@ CREATE TABLE audit_log (
 // lib/services/audit-service.ts
 export async function logAudit(params: AuditParams) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   await supabase.from('audit_log').insert({
     user_id: user?.id,
     action: params.action,
@@ -68,12 +70,15 @@ export async function logAudit(params: AuditParams) {
 ## Work Log
 
 ### 2025-10-17 - Initial Discovery
+
 **By:** data-integrity-guardian
 **Learnings:** Required for FAA compliance
 
 ### 2025-10-17 - Implementation Complete
+
 **By:** Claude Code (Sonnet 4.5)
 **Changes:**
+
 1. Created `audit_logs` table with comprehensive schema
    - Columns: user_id, user_email, user_role, action, table_name, record_id
    - old_data, new_data (JSONB), changed_fields (array)

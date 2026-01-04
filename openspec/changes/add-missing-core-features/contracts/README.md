@@ -17,17 +17,17 @@ This directory contains OpenAPI 3.0 specifications for all new API endpoints in 
 
 ## Contract Files
 
-| File | Endpoints | Purpose |
-|------|-----------|---------|
-| `pilot-auth.yaml` | 3 | Pilot authentication (login, register, logout) |
-| `pilot-leave.yaml` | 2 | Pilot leave request submission |
-| `flight-requests.yaml` | 4 | Flight request submission and admin review |
-| `tasks.yaml` | 5 | Task management CRUD + Kanban operations |
-| `disciplinary.yaml` | 6 | Disciplinary matter tracking and actions |
-| `feedback.yaml` | 8 | Feedback posts, comments, categories |
-| `notifications.yaml` | 3 | Pilot notification management |
-| `audit.yaml` | 2 | Audit log viewing (admin-only) |
-| `admin-registrations.yaml` | 3 | Pilot registration approval workflow |
+| File                       | Endpoints | Purpose                                        |
+| -------------------------- | --------- | ---------------------------------------------- |
+| `pilot-auth.yaml`          | 3         | Pilot authentication (login, register, logout) |
+| `pilot-leave.yaml`         | 2         | Pilot leave request submission                 |
+| `flight-requests.yaml`     | 4         | Flight request submission and admin review     |
+| `tasks.yaml`               | 5         | Task management CRUD + Kanban operations       |
+| `disciplinary.yaml`        | 6         | Disciplinary matter tracking and actions       |
+| `feedback.yaml`            | 8         | Feedback posts, comments, categories           |
+| `notifications.yaml`       | 3         | Pilot notification management                  |
+| `audit.yaml`               | 2         | Audit log viewing (admin-only)                 |
+| `admin-registrations.yaml` | 3         | Pilot registration approval workflow           |
 
 ---
 
@@ -38,11 +38,13 @@ All endpoints (except `/api/pilot/login` and `/api/pilot/register`) require auth
 **Method**: Supabase Auth (JWT token in cookie)
 
 **Headers**:
+
 ```
 Authorization: Bearer <jwt_token>
 ```
 
 **Roles**:
+
 - `pilot`: Access to `/api/pilot/*` endpoints
 - `admin`: Access to all endpoints including `/api/admin/*` and `/api/dashboard/*`
 - `manager`: Access to most admin endpoints except sensitive ones
@@ -68,6 +70,7 @@ All endpoints follow a standardized error format:
 ```
 
 **HTTP Status Codes**:
+
 - `200 OK`: Request successful
 - `201 Created`: Resource created successfully
 - `400 Bad Request`: Invalid request (validation errors)
@@ -95,6 +98,7 @@ All successful responses follow this format:
 ```
 
 **Paginated Responses**:
+
 ```json
 {
   "success": true,
@@ -119,6 +123,7 @@ All successful responses follow this format:
 All endpoints use Zod schemas for request validation.
 
 **Common Validation Rules**:
+
 - Email: Valid email format, max 255 characters
 - UUID: Valid UUID v4 format
 - Dates: ISO 8601 format (YYYY-MM-DD)
@@ -133,6 +138,7 @@ All endpoints use Zod schemas for request validation.
 **Admin endpoints**: 500 requests/minute per user
 
 **Headers returned**:
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -140,6 +146,7 @@ X-RateLimit-Reset: 1634567890
 ```
 
 **Rate limit exceeded response** (429 Too Many Requests):
+
 ```json
 {
   "success": false,
@@ -156,12 +163,14 @@ X-RateLimit-Reset: 1634567890
 ## Testing
 
 Use provided OpenAPI specs for:
+
 - **Postman**: Import YAML files to generate collections
 - **Swagger UI**: View interactive documentation
 - **API Mocking**: Generate mock servers for frontend development
 - **Contract Testing**: Validate API responses against schemas
 
 **Example**: Import into Postman
+
 ```bash
 # Install Postman CLI
 npm install -g postman-cli
@@ -178,6 +187,7 @@ postman import contracts/pilot-auth.yaml
 **Base Path**: `/api/v1` (future - currently `/api`)
 
 When breaking changes are introduced:
+
 - New version released as `/api/v2`
 - Old version supported for 6 months
 - Deprecation warnings added to responses
@@ -204,6 +214,7 @@ When breaking changes are introduced:
 - **Prism**: Mock API server from OpenAPI specs
 
 **Validate contracts**:
+
 ```bash
 npx @apidevtools/swagger-cli validate contracts/pilot-auth.yaml
 ```
@@ -213,6 +224,7 @@ npx @apidevtools/swagger-cli validate contracts/pilot-auth.yaml
 ## Next Steps
 
 After reviewing contracts:
+
 1. Generate TypeScript types from OpenAPI specs (optional)
 2. Implement API routes following contracts
 3. Write integration tests verifying contract compliance

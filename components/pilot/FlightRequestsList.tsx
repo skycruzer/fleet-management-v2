@@ -89,35 +89,36 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
                   </p>
                 )}
                 <p>
-                  <strong>Submitted:</strong>{' '}
-                  {new Date(request.created_at).toLocaleDateString()}
+                  <strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}
                 </p>
               </div>
 
               {/* Admin Comments */}
-              {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') && request.review_comments && (
-                <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Reviewer Comments:
-                  </p>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {request.review_comments}
-                  </p>
-                  {request.reviewed_at && (
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                      Reviewed on {new Date(request.reviewed_at).toLocaleDateString()}
+              {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') &&
+                request.review_comments && (
+                  <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      Reviewer Comments:
                     </p>
-                  )}
-                </div>
-              )}
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      {request.review_comments}
+                    </p>
+                    {request.reviewed_at && (
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                        Reviewed on {new Date(request.reviewed_at).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                )}
             </div>
 
             {/* Cancel Button */}
-            {(request.workflow_status === 'SUBMITTED' || request.workflow_status === 'UNDER_REVIEW') && (
+            {(request.workflow_status === 'SUBMITTED' ||
+              request.workflow_status === 'UNDER_REVIEW') && (
               <button
                 onClick={() => handleCancel(request.id)}
                 disabled={cancelingId === request.id}
-                className="ml-4 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                className="ml-4 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
               >
                 {cancelingId === request.id ? 'Canceling...' : 'Cancel'}
               </button>
@@ -131,11 +132,26 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
 
 // Helper function to format request type
 function formatRequestType(type: string): string {
-  return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  return type
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
 
 // Status Badge Component
-function StatusBadge({ status }: { status: 'DRAFT' | 'SUBMITTED' | 'PENDING' | 'UNDER_REVIEW' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN' }) {
+function StatusBadge({
+  status,
+}: {
+  status:
+    | 'DRAFT'
+    | 'SUBMITTED'
+    | 'PENDING'
+    | 'UNDER_REVIEW'
+    | 'IN_REVIEW'
+    | 'APPROVED'
+    | 'DENIED'
+    | 'WITHDRAWN'
+}) {
   const badgeStyles: Record<string, string> = {
     DRAFT: 'bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400',
     SUBMITTED: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',

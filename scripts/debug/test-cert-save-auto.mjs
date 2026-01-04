@@ -4,14 +4,14 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   ADMIN_CREDENTIALS: {
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
-  }
+    password: 'mron2393',
+  },
 }
 
 console.log('\n' + '='.repeat(80))
@@ -21,7 +21,7 @@ console.log('='.repeat(80) + '\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: { width: 1920, height: 1080 },
-  slowMo: 100
+  slowMo: 100,
 })
 
 const page = await browser.newPage()
@@ -66,7 +66,7 @@ try {
   const buttons = await page.$$('button')
   let viewCertsButton = null
   for (const btn of buttons) {
-    const text = await page.evaluate(el => el.textContent, btn)
+    const text = await page.evaluate((el) => el.textContent, btn)
     if (text && text.includes('View & Edit Certifications')) {
       viewCertsButton = btn
       break
@@ -82,7 +82,7 @@ try {
   const editButtons = await page.$$('button')
   let firstEditButton = null
   for (const btn of editButtons) {
-    const text = await page.evaluate(el => el.textContent, btn)
+    const text = await page.evaluate((el) => el.textContent, btn)
     if (text && text.trim() === 'Edit') {
       firstEditButton = btn
       break
@@ -106,7 +106,7 @@ try {
   const newDate = '2026-12-31'
   await page.evaluate((date) => {
     const dateInputs = Array.from(document.querySelectorAll('input[type="date"]'))
-    const visibleInput = dateInputs.find(input => input.offsetParent !== null)
+    const visibleInput = dateInputs.find((input) => input.offsetParent !== null)
     if (visibleInput) {
       visibleInput.value = date
       visibleInput.dispatchEvent(new Event('input', { bubbles: true }))
@@ -121,9 +121,9 @@ try {
   const saveButtons = await page.$$('button')
   let saveButton = null
   for (const btn of saveButtons) {
-    const text = await page.evaluate(el => el.textContent, btn)
+    const text = await page.evaluate((el) => el.textContent, btn)
     if (text && text.includes('Save')) {
-      const isVisible = await page.evaluate(el => el.offsetParent !== null, btn)
+      const isVisible = await page.evaluate((el) => el.offsetParent !== null, btn)
       if (isVisible) {
         saveButton = btn
         break
@@ -146,14 +146,14 @@ try {
   console.log('  📊 ANALYZING CONSOLE LOGS')
   console.log('='.repeat(80) + '\n')
 
-  const saveLogs = logs.filter(l => l.includes('[SAVE]'))
-  const fetchLogs = logs.filter(l => l.includes('[FETCH]'))
+  const saveLogs = logs.filter((l) => l.includes('[SAVE]'))
+  const fetchLogs = logs.filter((l) => l.includes('[FETCH]'))
 
   console.log('💾 Save Logs:')
-  saveLogs.forEach(log => console.log('  ', log))
+  saveLogs.forEach((log) => console.log('  ', log))
 
   console.log('\n🔄 Fetch Logs:')
-  fetchLogs.forEach(log => console.log('  ', log))
+  fetchLogs.forEach((log) => console.log('  ', log))
 
   // Step 9: Check if date updated in UI
   console.log('\n📝 Step 9: Checking if date updated in UI...')
@@ -178,7 +178,7 @@ try {
     console.log('💡 Analyzing logs to find root cause...\n')
 
     // Check if API returned updated data
-    const hasUpdatedApiData = logs.some(l => l.includes(newDate))
+    const hasUpdatedApiData = logs.some((l) => l.includes(newDate))
     if (hasUpdatedApiData) {
       console.log('✅ API returned correct updated date')
       console.log('❌ Problem: UI not re-rendering with new data\n')
@@ -192,7 +192,6 @@ try {
 
   console.log('💡 Browser will stay open for inspection...\n')
   await new Promise(() => {})
-
 } catch (error) {
   console.error('\n❌ Test Error:', error.message)
   console.error(error.stack)

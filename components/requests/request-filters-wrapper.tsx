@@ -91,10 +91,5 @@ export function RequestFiltersWrapper({ searchParams }: RequestFiltersWrapperPro
     router.push(`/dashboard/requests?${params.toString()}`)
   }
 
-  return (
-    <RequestFiltersClient
-      filters={filters}
-      onFiltersChange={handleFiltersChange}
-    />
-  )
+  return <RequestFiltersClient filters={filters} onFiltersChange={handleFiltersChange} />
 }

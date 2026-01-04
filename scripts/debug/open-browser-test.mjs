@@ -57,7 +57,7 @@ async function openBrowserForTesting() {
 
   await page.screenshot({
     path: 'test-results/manual-01-login-page.png',
-    fullPage: true
+    fullPage: true,
   })
 
   console.log('✅ Screenshot saved: test-results/manual-01-login-page.png')
@@ -79,13 +79,12 @@ async function openBrowserForTesting() {
 
     await page.screenshot({
       path: 'test-results/manual-02-leave-approval.png',
-      fullPage: true
+      fullPage: true,
     })
 
     console.log('✅ Screenshot saved: test-results/manual-02-leave-approval.png')
     console.log('\n👉 You can now test all the features!')
     console.log('👉 Browser will stay open - close manually when done\n')
-
   } catch (error) {
     console.log('\nℹ️  Login timeout - you can navigate manually')
     console.log('👉 Go to: Dashboard → Requests → Leave Approval\n')

@@ -5,7 +5,7 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 console.log('\n' + '='.repeat(80))
 console.log('  🔍 MOBILE OVERFLOW DEBUGGING - PILOT PORTAL')
@@ -15,7 +15,7 @@ const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: null,
   args: ['--start-maximized'],
-  slowMo: 50
+  slowMo: 50,
 })
 
 const page = await browser.newPage()
@@ -54,7 +54,7 @@ const overflowAnalysis = await page.evaluate(() => {
   const elements = document.querySelectorAll('*')
   const overflowing = []
 
-  elements.forEach(el => {
+  elements.forEach((el) => {
     const rect = el.getBoundingClientRect()
     const computedStyle = window.getComputedStyle(el)
 
@@ -70,10 +70,12 @@ const overflowAnalysis = await page.evaluate(() => {
         overflowX: computedStyle.overflowX,
         position: computedStyle.position,
         // Get parent context
-        parent: el.parentElement ? {
-          tag: el.parentElement.tagName,
-          class: el.parentElement.className
-        } : null
+        parent: el.parentElement
+          ? {
+              tag: el.parentElement.tagName,
+              class: el.parentElement.className,
+            }
+          : null,
       })
     }
   })
@@ -86,7 +88,7 @@ const overflowAnalysis = await page.evaluate(() => {
     bodyWidth,
     hasOverflow,
     overflowAmount: bodyWidth - viewportWidth,
-    overflowingElements: overflowing.slice(0, 10) // Top 10 offenders
+    overflowingElements: overflowing.slice(0, 10), // Top 10 offenders
   }
 })
 
@@ -103,11 +105,15 @@ if (overflowAnalysis.hasOverflow) {
 
   overflowAnalysis.overflowingElements.forEach((el, index) => {
     console.log(`${index + 1}. <${el.tag}> ${el.class ? `class="${el.class}"` : ''}`)
-    console.log(`   Width: ${Math.round(el.width)}px (extends ${Math.round(el.right - overflowAnalysis.viewportWidth)}px beyond viewport)`)
+    console.log(
+      `   Width: ${Math.round(el.width)}px (extends ${Math.round(el.right - overflowAnalysis.viewportWidth)}px beyond viewport)`
+    )
     console.log(`   Position: ${el.position}`)
     console.log(`   Overflow-X: ${el.overflowX}`)
     if (el.parent) {
-      console.log(`   Parent: <${el.parent.tag}> ${el.parent.class ? `class="${el.parent.class}"` : ''}`)
+      console.log(
+        `   Parent: <${el.parent.tag}> ${el.parent.class ? `class="${el.parent.class}"` : ''}`
+      )
     }
     console.log('')
   })
@@ -116,7 +122,7 @@ if (overflowAnalysis.hasOverflow) {
   const screenshotPath = './test-screenshots/mobile-overflow-debug.png'
   await page.screenshot({
     path: screenshotPath,
-    fullPage: true
+    fullPage: true,
   })
   console.log(`📸 Screenshot saved: ${screenshotPath}\n`)
 }

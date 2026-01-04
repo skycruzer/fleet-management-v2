@@ -7,7 +7,7 @@
 
 const credentials = {
   email: 'mrondeau@airniugini.com.pg',
-  password: 'mron2393'
+  password: 'mron2393',
 }
 
 console.log('🧪 Testing Pilot Portal Login')
@@ -23,7 +23,7 @@ try {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(credentials),
-    redirect: 'manual' // Don't follow redirects automatically
+    redirect: 'manual', // Don't follow redirects automatically
   })
 
   console.log('📡 Response Details:')
@@ -59,7 +59,6 @@ try {
     const text = await response.text()
     console.log('  Response body:', text)
   }
-
 } catch (error) {
   console.error('❌ TEST FAILED WITH ERROR:')
   console.error('  Error:', error.message)

@@ -7,13 +7,10 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function checkTable() {
   console.log('Checking pilot_users table...\n')
-  
+
   // Try to query the table
-  const { data, error } = await supabase
-    .from('pilot_users')
-    .select('*')
-    .limit(1)
-  
+  const { data, error } = await supabase.from('pilot_users').select('*').limit(1)
+
   if (error) {
     console.log('❌ ERROR:', error.message)
     console.log('Code:', error.code)

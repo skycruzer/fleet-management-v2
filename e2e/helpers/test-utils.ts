@@ -38,8 +38,8 @@ export const TEST_CONFIG = {
 function throwMissingEnvError(varName: string): never {
   throw new Error(
     `SECURITY: ${varName} environment variable is required. ` +
-    `Set it in .env.test.local or CI environment. ` +
-    `Never hardcode production credentials in test files.`
+      `Set it in .env.test.local or CI environment. ` +
+      `Never hardcode production credentials in test files.`
   )
 }
 

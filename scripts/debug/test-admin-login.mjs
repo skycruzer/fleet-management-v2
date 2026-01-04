@@ -97,9 +97,9 @@ async function testAdminLogin() {
       await page.screenshot({ path: 'test-screenshots/05-dashboard-loaded.png', fullPage: true })
 
       // Check for key dashboard elements
-      const hasHeader = await page.locator('header, [role="banner"]').count() > 0
-      const hasSidebar = await page.locator('aside, nav').count() > 0
-      const hasContent = await page.locator('main, [role="main"]').count() > 0
+      const hasHeader = (await page.locator('header, [role="banner"]').count()) > 0
+      const hasSidebar = (await page.locator('aside, nav').count()) > 0
+      const hasContent = (await page.locator('main, [role="main"]').count()) > 0
 
       console.log(`   ✓ Header present: ${hasHeader}`)
       console.log(`   ✓ Sidebar present: ${hasSidebar}`)
@@ -110,10 +110,11 @@ async function testAdminLogin() {
       // Keep browser open for 30 seconds for manual inspection
       console.log('🔍 Browser will remain open for 30 seconds for inspection...')
       await page.waitForTimeout(30000)
-
     } else {
       // Check for error messages
-      const errorElement = await page.locator('.error, [role="alert"], .text-red-500, .text-destructive').first()
+      const errorElement = await page
+        .locator('.error, [role="alert"], .text-red-500, .text-destructive')
+        .first()
       const errorVisible = await errorElement.isVisible().catch(() => false)
 
       if (errorVisible) {
@@ -133,7 +134,6 @@ async function testAdminLogin() {
       console.log('🔍 Browser will remain open for 30 seconds for debugging...')
       await page.waitForTimeout(30000)
     }
-
   } catch (error) {
     console.error('❌ Test failed with error:', error.message)
     await page.screenshot({ path: 'test-screenshots/error-screenshot.png', fullPage: true })

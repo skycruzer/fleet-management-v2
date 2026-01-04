@@ -80,7 +80,11 @@ export function RetirementCountdownBadge({
       className={cn('gap-1 border', config.className)}
       aria-label={`Retirement in ${formatRetirementCountdown(countdown)} - ${status.label}`}
     >
-      {config.icon && <span role="img" aria-hidden="true">{config.icon}</span>}
+      {config.icon && (
+        <span role="img" aria-hidden="true">
+          {config.icon}
+        </span>
+      )}
       <Clock className="h-3 w-3" aria-hidden="true" />
       <span>{countdownText}</span>
     </Badge>

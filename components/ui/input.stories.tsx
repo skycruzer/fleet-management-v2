@@ -63,22 +63,27 @@ export const WithIcon: Story = {
       <div className="space-y-2">
         <Label htmlFor="search">Search</Label>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input id="search" className="pl-10" placeholder="Search pilots..." />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="email-icon">Email</Label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input id="email-icon" type="email" className="pl-10" placeholder="pilot@example.com" />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="password-icon">Password</Label>
         <div className="relative">
-          <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input id="password-icon" type="password" className="pl-10" placeholder="Enter password" />
+          <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            id="password-icon"
+            type="password"
+            className="pl-10"
+            placeholder="Enter password"
+          />
         </div>
       </div>
     </div>
@@ -116,7 +121,7 @@ export const PhoneInput: Story = {
     <div className="space-y-2">
       <Label htmlFor="phone">Phone Number</Label>
       <div className="relative">
-        <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <Input id="phone" type="tel" className="pl-10" placeholder="+675 123 4567" />
       </div>
     </div>
@@ -125,11 +130,11 @@ export const PhoneInput: Story = {
 
 export const FormExample: Story = {
   render: () => (
-    <form className="space-y-4 max-w-md">
+    <form className="max-w-md space-y-4">
       <div className="space-y-2">
         <Label htmlFor="first-name">First Name</Label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <User className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input id="first-name" className="pl-10" placeholder="John" required />
         </div>
       </div>
@@ -137,7 +142,7 @@ export const FormExample: Story = {
       <div className="space-y-2">
         <Label htmlFor="last-name">Last Name</Label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <User className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input id="last-name" className="pl-10" placeholder="Doe" required />
         </div>
       </div>
@@ -145,7 +150,7 @@ export const FormExample: Story = {
       <div className="space-y-2">
         <Label htmlFor="email-form">Email</Label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
             id="email-form"
             type="email"
@@ -159,7 +164,7 @@ export const FormExample: Story = {
       <div className="space-y-2">
         <Label htmlFor="hire-date-form">Hire Date</Label>
         <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Calendar className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input id="hire-date-form" type="date" className="pl-10" required />
         </div>
       </div>
@@ -231,7 +236,7 @@ export const DarkMode: Story = {
     backgrounds: { default: 'dark' },
   },
   render: () => (
-    <div className="dark p-4 space-y-4">
+    <div className="dark space-y-4 p-4">
       <div className="space-y-2">
         <Label htmlFor="dark-name">Full Name</Label>
         <Input id="dark-name" placeholder="John Doe" />
@@ -240,7 +245,7 @@ export const DarkMode: Story = {
       <div className="space-y-2">
         <Label htmlFor="dark-email">Email</Label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input id="dark-email" type="email" className="pl-10" placeholder="pilot@example.com" />
         </div>
       </div>

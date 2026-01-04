@@ -25,7 +25,9 @@ test.describe('Password Reset - Pilot Portal', () => {
   test('should navigate to forgot password page', async ({ page }) => {
     await page.getByRole('link', { name: /forgot password/i }).click()
     await expect(page).toHaveURL(/forgot-password/)
-    await expect(page.getByRole('heading', { name: /forgot password|reset/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /forgot password|reset/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should display email input on forgot password page', async ({ page }) => {
@@ -33,7 +35,9 @@ test.describe('Password Reset - Pilot Portal', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     await expect(page.getByLabel(/email/i)).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('button', { name: /send|reset|submit/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('button', { name: /send|reset|submit/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should validate email format', async ({ page }) => {
@@ -83,7 +87,10 @@ test.describe('Password Reset - Admin Portal', () => {
       await forgotLink.click()
 
       // Should navigate to reset page or show reset form
-      const hasResetForm = await page.getByLabel(/email/i).isVisible().catch(() => false)
+      const hasResetForm = await page
+        .getByLabel(/email/i)
+        .isVisible()
+        .catch(() => false)
       const hasResetPage = page.url().includes('reset') || page.url().includes('forgot')
 
       expect(hasResetForm || hasResetPage).toBe(true)
@@ -117,7 +124,7 @@ test.describe('Password Reset - Reset Token Flow', () => {
     const newPasswordInput = page.getByLabel(/new password|password/i).first()
     const confirmPasswordInput = page.getByLabel(/confirm password/i)
 
-    if (await newPasswordInput.isVisible() && await confirmPasswordInput.isVisible()) {
+    if ((await newPasswordInput.isVisible()) && (await confirmPasswordInput.isVisible())) {
       await newPasswordInput.fill('NewPassword123!')
       await confirmPasswordInput.fill('DifferentPassword123!')
       await page.getByRole('button', { name: /reset|submit|save/i }).click()

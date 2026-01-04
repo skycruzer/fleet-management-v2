@@ -24,7 +24,7 @@ test.describe('RDO/SDO Requests - Pilot Portal', () => {
 
     // Should show summary cards
     const summaryCards = page.locator('[data-testid="summary-card"]')
-    if (await summaryCards.count() > 0) {
+    if ((await summaryCards.count()) > 0) {
       await expect(summaryCards.first()).toBeVisible()
     }
   })
@@ -174,7 +174,7 @@ test.describe('RDO/SDO Requests - Pilot Portal', () => {
 
     // Should show pending count
     const pendingText = page.getByText(/pending|submitted/i)
-    if (await pendingText.count() > 0) {
+    if ((await pendingText.count()) > 0) {
       await expect(pendingText.first()).toBeVisible()
     }
   })
@@ -200,7 +200,7 @@ test.describe('RDO/SDO Requests - Admin Dashboard', () => {
 
     // Should show requests
     const requests = page.locator('[data-testid="rdo-sdo-request"]')
-    if (await requests.count() > 0) {
+    if ((await requests.count()) > 0) {
       await expect(requests.first()).toBeVisible()
     }
   })
@@ -309,7 +309,7 @@ test.describe('RDO/SDO Requests - Admin Dashboard', () => {
   test('should display late request indicator', async ({ page }) => {
     // Look for late request badges
     const lateIndicator = page.getByText(/late request/i)
-    if (await lateIndicator.count() > 0) {
+    if ((await lateIndicator.count()) > 0) {
       await expect(lateIndicator.first()).toBeVisible()
     }
   })
@@ -342,7 +342,7 @@ test.describe('RDO/SDO Requests - Admin Dashboard', () => {
   test('should show reviewed by information', async ({ page }) => {
     // Look for reviewed requests
     const reviewInfo = page.getByText(/reviewed by:/i)
-    if (await reviewInfo.count() > 0) {
+    if ((await reviewInfo.count()) > 0) {
       await expect(reviewInfo.first()).toBeVisible()
 
       // Should also show review date
@@ -363,7 +363,7 @@ test.describe('RDO/SDO Requests - Admin Dashboard', () => {
 
       // Might show empty state
       const emptyState = page.getByText(/no.*requests/i)
-      if (await emptyState.count() > 0) {
+      if ((await emptyState.count()) > 0) {
         await expect(emptyState.first()).toBeVisible()
       }
     }
@@ -416,7 +416,7 @@ test.describe('RDO/SDO Request Validation', () => {
 
     // Should show error about duplicate
     const errorMessage = page.getByText(/duplicate|already exists/i)
-    if (await errorMessage.count() > 0) {
+    if ((await errorMessage.count()) > 0) {
       await expect(errorMessage.first()).toBeVisible()
     }
   })
@@ -441,7 +441,10 @@ test.describe('RDO/SDO Request Workflow', () => {
     const reviewButton = page.getByRole('button', { name: /review/i }).first()
     if (await reviewButton.isVisible()) {
       // Check current status
-      const statusBefore = await page.getByText(/submitted|in review/i).first().textContent()
+      const statusBefore = await page
+        .getByText(/submitted|in review/i)
+        .first()
+        .textContent()
 
       // Approve request
       await reviewButton.click()

@@ -29,7 +29,7 @@ export default function RequestsPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Quick Entry Form</h1>
+      <h1 className="mb-6 text-2xl font-bold">Quick Entry Form</h1>
       <QuickEntryForm
         pilots={pilots}
         onSuccess={() => {
@@ -54,7 +54,7 @@ import { QuickEntryForm } from '@/components/requests/quick-entry-form'
 export function QuickEntryDialog({ open, onOpenChange, pilots }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Manual Request Entry</DialogTitle>
         </DialogHeader>
@@ -71,11 +71,11 @@ export function QuickEntryDialog({ open, onOpenChange, pilots }) {
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `pilots` | `Pilot[]` | Yes | Array of pilot objects for dropdown selection |
-| `onSuccess` | `() => void` | No | Callback fired when request is successfully submitted |
-| `onCancel` | `() => void` | No | Callback fired when form is cancelled (Step 1 only) |
+| Prop        | Type         | Required | Description                                           |
+| ----------- | ------------ | -------- | ----------------------------------------------------- |
+| `pilots`    | `Pilot[]`    | Yes      | Array of pilot objects for dropdown selection         |
+| `onSuccess` | `() => void` | No       | Callback fired when request is successfully submitted |
+| `onCancel`  | `() => void` | No       | Callback fired when form is cancelled (Step 1 only)   |
 
 ## Form Steps
 
@@ -112,6 +112,7 @@ export function QuickEntryDialog({ open, onOpenChange, pilots }) {
 ## Validation Rules
 
 ### Date Validation
+
 - Start date cannot be in the past (for new requests)
 - End date must be on or after start date
 - Maximum 90 days per request
@@ -120,6 +121,7 @@ export function QuickEntryDialog({ open, onOpenChange, pilots }) {
 ### Required Fields by Category
 
 **LEAVE Requests:**
+
 - pilot_id ✓
 - leave_type ✓
 - start_date ✓
@@ -127,12 +129,14 @@ export function QuickEntryDialog({ open, onOpenChange, pilots }) {
 - submission_channel ✓
 
 **FLIGHT Requests:**
+
 - pilot_id ✓
 - flight_type ✓
 - start_date ✓
 - submission_channel ✓
 
 **LEAVE_BID Requests:**
+
 - pilot_id ✓
 - start_date ✓
 - end_date ✓
@@ -144,13 +148,13 @@ The form submits to different endpoints based on request category:
 
 ```typescript
 // Leave requests
-POST /api/leave-requests
+POST / api / leave - requests
 
 // Flight requests
-POST /api/flight-requests
+POST / api / flight - requests
 
 // Leave bids
-POST /api/leave-bids
+POST / api / leave - bids
 ```
 
 ### Request Payload
@@ -192,6 +196,7 @@ POST /api/leave-bids
 ### Conflict Detection
 
 The form automatically checks for existing requests with overlapping dates when:
+
 - Pilot is selected
 - Start date is changed
 - End date is changed
@@ -212,6 +217,7 @@ const period = getRosterPeriodFromDate(new Date('2025-11-15'))
 ### Deadline Status
 
 Requests are flagged based on advance notice:
+
 - **On-time**: ≥21 days advance notice
 - **Late**: 1-20 days advance notice
 - **Past deadline**: Start date in the past
@@ -244,6 +250,7 @@ The form handles errors at multiple levels:
 ## TypeScript Types
 
 All types are exported from:
+
 - `@/lib/validations/quick-entry-schema` - Form validation schemas
 - `@/types/quick-entry` - Request types and interfaces
 
@@ -256,6 +263,7 @@ npm run storybook
 ```
 
 Stories available:
+
 - Default (with full pilot list)
 - WithCallbacks (demonstrates callbacks)
 - SmallPilotList (edge case: few pilots)

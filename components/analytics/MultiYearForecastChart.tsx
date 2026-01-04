@@ -44,10 +44,7 @@ export function MultiYearForecastChart({ data }: MultiYearForecastChartProps) {
   const totalRetirements = data.reduce((sum, year) => sum + year.total, 0)
 
   // Find peak retirement year
-  const peakYear = data.reduce(
-    (peak, year) => (year.total > peak.total ? year : peak),
-    data[0]
-  )
+  const peakYear = data.reduce((peak, year) => (year.total > peak.total ? year : peak), data[0])
 
   return (
     <Card className="p-6">
@@ -55,18 +52,16 @@ export function MultiYearForecastChart({ data }: MultiYearForecastChartProps) {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <TrendingUp className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-foreground">
-            10-Year Retirement Forecast
-          </h3>
+          <h3 className="text-foreground text-lg font-semibold">10-Year Retirement Forecast</h3>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">Total (10 years)</p>
-            <p className="text-2xl font-bold text-foreground">{totalRetirements}</p>
+            <p className="text-muted-foreground text-xs">Total (10 years)</p>
+            <p className="text-foreground text-2xl font-bold">{totalRetirements}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">Peak Year</p>
-            <p className="text-lg font-semibold text-foreground">
+            <p className="text-muted-foreground text-xs">Peak Year</p>
+            <p className="text-foreground text-lg font-semibold">
               {peakYear.yearLabel} ({peakYear.total})
             </p>
           </div>
@@ -91,7 +86,7 @@ export function MultiYearForecastChart({ data }: MultiYearForecastChartProps) {
       />
 
       {/* Summary Stats */}
-      <div className="mt-6 grid grid-cols-3 gap-4 border-t border-border pt-4">
+      <div className="border-border mt-6 grid grid-cols-3 gap-4 border-t pt-4">
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
           <p className="text-xs font-medium text-blue-700">Avg per Year</p>
           <p className="text-xl font-bold text-blue-900">

@@ -19,14 +19,14 @@ const CONFIG = {
   TIMEOUT: 10000,
   ADMIN_CREDENTIALS: {
     email: process.env.ADMIN_EMAIL || 'skycruzer@icloud.com',
-    password: process.env.ADMIN_PASSWORD || 'mron2393'
-  }
+    password: process.env.ADMIN_PASSWORD || 'mron2393',
+  },
 }
 
 // ============================================================================
 // Utility Functions
 // ============================================================================
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const logSection = (title) => {
   console.log('\n' + '='.repeat(80))
@@ -71,7 +71,7 @@ class TestResults {
       total,
       passed: this.passed,
       failed: this.failed,
-      successRate: `${successRate}%`
+      successRate: `${successRate}%`,
     }
   }
 
@@ -107,7 +107,7 @@ class APIMonitor {
         this.responses[apiName] = {
           status: response.status(),
           ok: response.ok(),
-          url
+          url,
         }
       }
     })
@@ -137,7 +137,7 @@ class APIMonitor {
 
     if (this.errors.length > 0) {
       console.log('\n⚠️  Console Errors:')
-      this.errors.forEach(err => console.log(`  - ${err}`))
+      this.errors.forEach((err) => console.log(`  - ${err}`))
     }
   }
 }
@@ -159,7 +159,7 @@ async function testAdminPortal() {
     browser = await puppeteer.launch({
       headless: CONFIG.HEADLESS,
       slowMo: CONFIG.SLOW_MO,
-      args: [`--window-size=${CONFIG.VIEWPORT.width},${CONFIG.VIEWPORT.height}`]
+      args: [`--window-size=${CONFIG.VIEWPORT.width},${CONFIG.VIEWPORT.height}`],
     })
 
     page = await browser.newPage()
@@ -173,7 +173,7 @@ async function testAdminPortal() {
     logTest(1, 'Navigate to Admin Login Page')
     await page.goto(`${CONFIG.BASE_URL}/auth/login`, {
       waitUntil: 'networkidle2',
-      timeout: CONFIG.TIMEOUT
+      timeout: CONFIG.TIMEOUT,
     })
 
     const loginPageTitle = await page.title()
@@ -243,7 +243,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/pilots`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -265,7 +265,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/certifications`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -287,7 +287,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/leave-requests`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -309,7 +309,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/analytics`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -331,7 +331,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/flight-requests`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -353,7 +353,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/tasks`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -375,7 +375,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/admin/settings`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -396,7 +396,7 @@ async function testAdminPortal() {
     try {
       await page.goto(`${CONFIG.BASE_URL}/dashboard/audit-logs`, {
         waitUntil: 'networkidle2',
-        timeout: CONFIG.TIMEOUT
+        timeout: CONFIG.TIMEOUT,
       })
       await sleep(2000)
 
@@ -418,10 +418,12 @@ async function testAdminPortal() {
     try {
       const navLinks = await page.evaluate(() => {
         const links = Array.from(document.querySelectorAll('nav a, aside a'))
-        return links.map(link => ({
-          text: link.textContent.trim(),
-          href: link.getAttribute('href')
-        })).filter(link => link.href && link.href.includes('/dashboard/'))
+        return links
+          .map((link) => ({
+            text: link.textContent.trim(),
+            href: link.getAttribute('href'),
+          }))
+          .filter((link) => link.href && link.href.includes('/dashboard/'))
       })
 
       if (navLinks.length >= 5) {
@@ -466,7 +468,6 @@ async function testAdminPortal() {
     console.log('\n')
     apiMonitor.printSummary()
     results.printSummary()
-
   } catch (error) {
     console.error('\n❌ CRITICAL ERROR:', error.message)
     console.error(error.stack)

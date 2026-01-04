@@ -16,7 +16,8 @@ export interface PageMetadata {
 
 const SITE_NAME = 'Fleet Management V2'
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://fleet-management.example.com'
-const DEFAULT_DESCRIPTION = 'Modern fleet management system for aviation operations - comprehensive pilot certification tracking, leave management, and compliance monitoring.'
+const DEFAULT_DESCRIPTION =
+  'Modern fleet management system for aviation operations - comprehensive pilot certification tracking, leave management, and compliance monitoring.'
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`
 
 /**
@@ -110,14 +111,16 @@ export function generateMetadata({
 export const dashboardMetadata = {
   home: generateMetadata({
     title: 'Dashboard',
-    description: 'Fleet overview and key metrics for B767 pilot management - real-time compliance monitoring, expiring certifications, and fleet statistics.',
+    description:
+      'Fleet overview and key metrics for B767 pilot management - real-time compliance monitoring, expiring certifications, and fleet statistics.',
     keywords: ['dashboard', 'fleet management', 'pilot management', 'aviation', 'compliance'],
     path: '/dashboard',
   }),
 
   pilots: generateMetadata({
     title: 'Pilots',
-    description: 'Manage pilot profiles, certifications, and qualifications - comprehensive pilot database with seniority tracking and compliance monitoring.',
+    description:
+      'Manage pilot profiles, certifications, and qualifications - comprehensive pilot database with seniority tracking and compliance monitoring.',
     keywords: ['pilots', 'crew management', 'pilot database', 'aviation personnel'],
     path: '/dashboard/pilots',
   }),
@@ -133,7 +136,8 @@ export const dashboardMetadata = {
 
   pilotNew: generateMetadata({
     title: 'Add New Pilot',
-    description: 'Add a new pilot to the fleet management system - create pilot profile with certifications and qualifications.',
+    description:
+      'Add a new pilot to the fleet management system - create pilot profile with certifications and qualifications.',
     keywords: ['add pilot', 'new pilot', 'pilot onboarding'],
     path: '/dashboard/pilots/new',
     noIndex: true,
@@ -141,14 +145,16 @@ export const dashboardMetadata = {
 
   certifications: generateMetadata({
     title: 'Certifications',
-    description: 'Track and manage pilot certifications - monitor expiry dates, compliance status, and certification history across the entire fleet.',
+    description:
+      'Track and manage pilot certifications - monitor expiry dates, compliance status, and certification history across the entire fleet.',
     keywords: ['certifications', 'pilot checks', 'compliance', 'expiry tracking', 'FAA standards'],
     path: '/dashboard/certifications',
   }),
 
   certificationNew: generateMetadata({
     title: 'Add New Certification',
-    description: 'Add a new pilot certification record - track check types, expiry dates, and compliance status.',
+    description:
+      'Add a new pilot certification record - track check types, expiry dates, and compliance status.',
     keywords: ['add certification', 'new check', 'pilot certification'],
     path: '/dashboard/certifications/new',
     noIndex: true,
@@ -156,14 +162,16 @@ export const dashboardMetadata = {
 
   leave: generateMetadata({
     title: 'Leave Management',
-    description: 'Manage pilot leave requests - track annual leave, sick leave, and other leave types with roster period integration.',
+    description:
+      'Manage pilot leave requests - track annual leave, sick leave, and other leave types with roster period integration.',
     keywords: ['leave management', 'leave requests', 'roster periods', 'pilot scheduling'],
     path: '/dashboard/leave',
   }),
 
   leaveNew: generateMetadata({
     title: 'Submit Leave Request',
-    description: 'Submit a new leave request - check availability, roster periods, and leave eligibility.',
+    description:
+      'Submit a new leave request - check availability, roster periods, and leave eligibility.',
     keywords: ['leave request', 'submit leave', 'roster periods'],
     path: '/dashboard/leave/new',
     noIndex: true,
@@ -171,7 +179,8 @@ export const dashboardMetadata = {
 
   analytics: generateMetadata({
     title: 'Analytics',
-    description: 'Fleet analytics and insights - compliance statistics, expiry trends, pilot demographics, and operational metrics.',
+    description:
+      'Fleet analytics and insights - compliance statistics, expiry trends, pilot demographics, and operational metrics.',
     keywords: ['analytics', 'fleet statistics', 'compliance metrics', 'data visualization'],
     path: '/dashboard/analytics',
   }),
@@ -186,7 +195,8 @@ export const dashboardMetadata = {
 
   adminUsers: generateMetadata({
     title: 'User Management',
-    description: 'Manage system users and permissions - create users, assign roles, and control access.',
+    description:
+      'Manage system users and permissions - create users, assign roles, and control access.',
     keywords: ['user management', 'permissions', 'roles', 'access control'],
     path: '/dashboard/admin/users',
     noIndex: true,
@@ -194,7 +204,8 @@ export const dashboardMetadata = {
 
   adminCheckTypes: generateMetadata({
     title: 'Check Types',
-    description: 'Manage certification check types - configure check codes, categories, and descriptions.',
+    description:
+      'Manage certification check types - configure check codes, categories, and descriptions.',
     keywords: ['check types', 'certification types', 'check configuration'],
     path: '/dashboard/admin/check-types',
     noIndex: true,
@@ -215,7 +226,8 @@ export const dashboardMetadata = {
 export const portalMetadata = {
   home: generateMetadata({
     title: 'Pilot Portal',
-    description: 'Pilot self-service portal - view your certifications, submit leave requests, and manage flight requests.',
+    description:
+      'Pilot self-service portal - view your certifications, submit leave requests, and manage flight requests.',
     keywords: ['pilot portal', 'self service', 'pilot dashboard', 'crew portal'],
     path: '/portal',
   }),
@@ -230,7 +242,8 @@ export const portalMetadata = {
 
   certifications: generateMetadata({
     title: 'My Certifications',
-    description: 'View your certifications and expiry dates - track your compliance status and upcoming checks.',
+    description:
+      'View your certifications and expiry dates - track your compliance status and upcoming checks.',
     keywords: ['my certifications', 'pilot checks', 'expiry dates'],
     path: '/portal/certifications',
     noIndex: true,
@@ -238,7 +251,8 @@ export const portalMetadata = {
 
   leave: generateMetadata({
     title: 'My Leave',
-    description: 'Manage your leave requests - submit new requests, view leave history, and check leave balance.',
+    description:
+      'Manage your leave requests - submit new requests, view leave history, and check leave balance.',
     keywords: ['my leave', 'leave requests', 'leave history'],
     path: '/portal/leave',
     noIndex: true,
@@ -254,7 +268,8 @@ export const portalMetadata = {
 
   flights: generateMetadata({
     title: 'Flight Requests',
-    description: 'Manage flight requests - submit requests for additional flights, route changes, or schedule preferences.',
+    description:
+      'Manage flight requests - submit requests for additional flights, route changes, or schedule preferences.',
     keywords: ['flight requests', 'pilot requests', 'schedule changes'],
     path: '/portal/flights',
     noIndex: true,
@@ -270,7 +285,8 @@ export const portalMetadata = {
 
   feedback: generateMetadata({
     title: 'Feedback',
-    description: 'Provide feedback on the fleet management system - report issues or suggest improvements.',
+    description:
+      'Provide feedback on the fleet management system - report issues or suggest improvements.',
     keywords: ['feedback', 'suggestions', 'support'],
     path: '/portal/feedback/new',
     noIndex: true,

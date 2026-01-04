@@ -17,8 +17,10 @@ import type { ReportType, ReportFilters, ReportData } from '@/types/reports'
 export const reportKeys = {
   all: ['reports'] as const,
   lists: () => [...reportKeys.all, 'list'] as const,
-  list: (type: ReportType, filters: ReportFilters) => [...reportKeys.lists(), type, filters] as const,
-  preview: (type: ReportType, filters: ReportFilters) => [...reportKeys.all, 'preview', type, filters] as const,
+  list: (type: ReportType, filters: ReportFilters) =>
+    [...reportKeys.lists(), type, filters] as const,
+  preview: (type: ReportType, filters: ReportFilters) =>
+    [...reportKeys.all, 'preview', type, filters] as const,
 }
 
 /**
@@ -66,10 +68,7 @@ async function fetchReportPreview(
 /**
  * Export report as PDF
  */
-async function exportReportPDF(
-  reportType: ReportType,
-  filters: ReportFilters
-): Promise<Blob> {
+async function exportReportPDF(reportType: ReportType, filters: ReportFilters): Promise<Blob> {
   const response = await fetch('/api/reports/export', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -69,12 +69,18 @@ test.describe('Professional UI Integration Tests', () => {
 
       if (isVisible) {
         // Click on Pilots link
-        await sidebar.getByRole('link', { name: /pilots/i }).first().click()
+        await sidebar
+          .getByRole('link', { name: /pilots/i })
+          .first()
+          .click()
         await page.waitForURL('**/dashboard/pilots')
         expect(page.url()).toContain('/dashboard/pilots')
 
         // Navigate back to dashboard
-        await sidebar.getByRole('link', { name: /^dashboard$/i }).first().click()
+        await sidebar
+          .getByRole('link', { name: /^dashboard$/i })
+          .first()
+          .click()
         await page.waitForURL('**/dashboard')
       }
     })
@@ -99,7 +105,9 @@ test.describe('Professional UI Integration Tests', () => {
         await expect(notificationsBtn).toBeVisible()
 
         // Check for user menu
-        const userMenu = header.locator('[aria-label*="user menu" i], [aria-haspopup="menu"]').first()
+        const userMenu = header
+          .locator('[aria-label*="user menu" i], [aria-haspopup="menu"]')
+          .first()
         await expect(userMenu).toBeVisible()
       }
     })
@@ -172,12 +180,7 @@ test.describe('Professional UI Integration Tests', () => {
       await page.waitForTimeout(1000)
 
       // Check for common stat labels
-      const expectedStats = [
-        /total pilots/i,
-        /certification/i,
-        /compliance/i,
-        /leave/i,
-      ]
+      const expectedStats = [/total pilots/i, /certification/i, /compliance/i, /leave/i]
 
       for (const statPattern of expectedStats) {
         const statElement = page.getByText(statPattern).first()
@@ -271,8 +274,10 @@ test.describe('Professional UI Integration Tests', () => {
       const pageContent = await page.content()
 
       // Verify order of major sections
-      const heroStatsIndex = pageContent.indexOf('Total Pilots') || pageContent.indexOf('Certifications')
-      const complianceIndex = pageContent.indexOf('Compliance') || pageContent.indexOf('Overall Compliance')
+      const heroStatsIndex =
+        pageContent.indexOf('Total Pilots') || pageContent.indexOf('Certifications')
+      const complianceIndex =
+        pageContent.indexOf('Compliance') || pageContent.indexOf('Overall Compliance')
 
       // Hero stats should come before compliance
       if (heroStatsIndex > -1 && complianceIndex > -1) {
@@ -384,7 +389,7 @@ test.describe('Professional UI Integration Tests', () => {
 
         for (let i = 0; i < Math.min(count, 5); i++) {
           const link = links.nth(i)
-          const accessibleName = await link.getAttribute('aria-label') || await link.innerText()
+          const accessibleName = (await link.getAttribute('aria-label')) || (await link.innerText())
           expect(accessibleName).toBeTruthy()
         }
       }

@@ -32,9 +32,7 @@ export function getFocusableElements(container: HTMLElement): HTMLElement[] {
   return Array.from(elements).filter((el) => {
     // Check if element is visible and not disabled
     return (
-      el.offsetParent !== null &&
-      !el.hasAttribute('disabled') &&
-      !el.getAttribute('aria-hidden')
+      el.offsetParent !== null && !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden')
     )
   })
 }

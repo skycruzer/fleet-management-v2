@@ -12,7 +12,7 @@ import { readFileSync } from 'fs'
 const envContent = readFileSync('.env.local', 'utf-8')
 const envLines = envContent.split('\n')
 const env = {}
-envLines.forEach(line => {
+envLines.forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length > 0) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -45,7 +45,7 @@ function calculateRosterPeriod(periodNumber, year) {
   return {
     roster_period: `RP${periodNumber}/${year}`, // No zero-padding - must be RP1-RP13
     period_start_date: startDate.toISOString().split('T')[0],
-    period_end_date: endDate.toISOString().split('T')[0]
+    period_end_date: endDate.toISOString().split('T')[0],
   }
 }
 
@@ -63,13 +63,13 @@ async function seedRosterCapacity() {
       max_pilots_per_category: {
         'Flight Checks': 4,
         'Simulator Checks': 6,
-        'Ground Courses Refresher': 8
+        'Ground Courses Refresher': 8,
       },
       current_allocations: {
         'Flight Checks': 0,
         'Simulator Checks': 0,
-        'Ground Courses Refresher': 0
-      }
+        'Ground Courses Refresher': 0,
+      },
     })
   }
 
@@ -81,19 +81,23 @@ async function seedRosterCapacity() {
       max_pilots_per_category: {
         'Flight Checks': 4,
         'Simulator Checks': 6,
-        'Ground Courses Refresher': 8
+        'Ground Courses Refresher': 8,
       },
       current_allocations: {
         'Flight Checks': 0,
         'Simulator Checks': 0,
-        'Ground Courses Refresher': 0
-      }
+        'Ground Courses Refresher': 0,
+      },
     })
   }
 
   console.log(`\n📅 Generated ${periods.length} roster periods`)
-  console.log(`   - 2025: RP01-RP13 (${periods.filter(p => p.roster_period.includes('2025')).length} periods)`)
-  console.log(`   - 2026: RP01-RP13 (${periods.filter(p => p.roster_period.includes('2026')).length} periods)`)
+  console.log(
+    `   - 2025: RP01-RP13 (${periods.filter((p) => p.roster_period.includes('2025')).length} periods)`
+  )
+  console.log(
+    `   - 2026: RP01-RP13 (${periods.filter((p) => p.roster_period.includes('2026')).length} periods)`
+  )
 
   // Check if data already exists
   const { data: existing, error: checkError } = await supabase
@@ -114,10 +118,10 @@ async function seedRosterCapacity() {
     const readline = await import('readline')
     const rl = readline.createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: process.stdout,
     })
 
-    const answer = await new Promise(resolve => {
+    const answer = await new Promise((resolve) => {
       rl.question('\n❓ Clear existing data and re-seed? (yes/no): ', resolve)
     })
     rl.close()
@@ -144,10 +148,7 @@ async function seedRosterCapacity() {
   // Insert new data
   console.log('\n📝 Inserting roster period capacity records...')
 
-  const { data, error } = await supabase
-    .from('roster_period_capacity')
-    .insert(periods)
-    .select()
+  const { data, error } = await supabase.from('roster_period_capacity').insert(periods).select()
 
   if (error) {
     console.error('\n❌ Error inserting data:', error)
@@ -158,7 +159,7 @@ async function seedRosterCapacity() {
 
   // Show sample
   console.log('\n📋 Sample records:')
-  data.slice(0, 5).forEach(p => {
+  data.slice(0, 5).forEach((p) => {
     console.log(`   - ${p.roster_period}: ${p.period_start_date} to ${p.period_end_date}`)
   })
 

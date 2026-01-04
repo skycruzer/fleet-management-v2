@@ -7,7 +7,7 @@ import { readFileSync } from 'fs'
 // Load environment variables
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1]] = match[2]
@@ -46,7 +46,12 @@ async function getLeaveRequestCounts(rosterPeriod) {
     byType[type] = (byType[type] || 0) + 1
   })
 
-  console.log(`Leave requests for ${rosterPeriod}:`, { total: data.length, pending, approved, byType })
+  console.log(`Leave requests for ${rosterPeriod}:`, {
+    total: data.length,
+    pending,
+    approved,
+    byType,
+  })
   return { pending, approved, total: data.length, byType }
 }
 

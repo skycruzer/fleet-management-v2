@@ -12,9 +12,23 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
@@ -34,7 +48,12 @@ interface ReportEmailDialogProps {
   filters: ReportFilters
 }
 
-export function ReportEmailDialog({ open, onOpenChange, reportType, filters }: ReportEmailDialogProps) {
+export function ReportEmailDialog({
+  open,
+  onOpenChange,
+  reportType,
+  filters,
+}: ReportEmailDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
@@ -96,9 +115,7 @@ export function ReportEmailDialog({ open, onOpenChange, reportType, filters }: R
             <Mail className="h-5 w-5" />
             Email Report
           </DialogTitle>
-          <DialogDescription>
-            Send this report as a PDF attachment via email
-          </DialogDescription>
+          <DialogDescription>Send this report as a PDF attachment via email</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -110,10 +127,7 @@ export function ReportEmailDialog({ open, onOpenChange, reportType, filters }: R
                 <FormItem>
                   <FormLabel>Recipients</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="email@example.com, another@example.com"
-                      {...field}
-                    />
+                    <Input placeholder="email@example.com, another@example.com" {...field} />
                   </FormControl>
                   <FormDescription>
                     Enter one or more email addresses separated by commas
@@ -130,10 +144,7 @@ export function ReportEmailDialog({ open, onOpenChange, reportType, filters }: R
                 <FormItem>
                   <FormLabel>Subject (Optional)</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Auto-generated if left blank"
-                      {...field}
-                    />
+                    <Input placeholder="Auto-generated if left blank" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -173,12 +184,12 @@ export function ReportEmailDialog({ open, onOpenChange, reportType, filters }: R
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Mail className="h-4 w-4 mr-2" />
+                    <Mail className="mr-2 h-4 w-4" />
                     Send Email
                   </>
                 )}

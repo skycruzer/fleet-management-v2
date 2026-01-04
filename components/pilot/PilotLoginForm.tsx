@@ -72,7 +72,10 @@ export default function PilotLoginForm() {
 
       {/* Email Field */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Email Address
         </label>
         <input
@@ -80,7 +83,7 @@ export default function PilotLoginForm() {
           type="email"
           id="email"
           autoComplete="email"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           placeholder="pilot@airniugini.com"
         />
         {errors.email && (
@@ -90,7 +93,10 @@ export default function PilotLoginForm() {
 
       {/* Password Field */}
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Password
         </label>
         <input
@@ -98,7 +104,7 @@ export default function PilotLoginForm() {
           type="password"
           id="password"
           autoComplete="current-password"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           placeholder="••••••••"
         />
         {errors.password && (
@@ -112,7 +118,7 @@ export default function PilotLoginForm() {
         disabled={isSubmitting}
         whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
         whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-        className="relative w-full overflow-hidden rounded-md bg-primary px-4 py-3 text-sm font-medium text-white shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
+        className="bg-primary hover:bg-primary/90 focus:ring-primary relative w-full overflow-hidden rounded-md px-4 py-3 text-sm font-medium text-white shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
       >
         {/* Animated progress bar */}
         <AnimatePresence>
@@ -126,7 +132,7 @@ export default function PilotLoginForm() {
                 repeat: Infinity,
                 ease: 'easeInOut',
               }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+              className="via-primary/30 absolute inset-0 bg-gradient-to-r from-transparent to-transparent"
             />
           )}
         </AnimatePresence>

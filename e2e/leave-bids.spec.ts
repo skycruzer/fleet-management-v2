@@ -59,26 +59,14 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
       // Fill first leave option
       await page.locator('[name*="priority"]').first().fill('1')
-      await page
-        .locator('[name*="start_date"]')
-        .first()
-        .fill(`${bidYear}-01-15`) // Mid-January
-      await page
-        .locator('[name*="end_date"]')
-        .first()
-        .fill(`${bidYear}-02-04`) // 3 weeks
+      await page.locator('[name*="start_date"]').first().fill(`${bidYear}-01-15`) // Mid-January
+      await page.locator('[name*="end_date"]').first().fill(`${bidYear}-02-04`) // 3 weeks
 
       // Add leave option #2 (Priority 2)
       await page.getByRole('button', { name: /add.*option/i }).click()
       await page.locator('[name*="priority"]').nth(1).fill('2')
-      await page
-        .locator('[name*="start_date"]')
-        .nth(1)
-        .fill(`${bidYear}-07-01`) // July
-      await page
-        .locator('[name*="end_date"]')
-        .nth(1)
-        .fill(`${bidYear}-07-21`) // 3 weeks
+      await page.locator('[name*="start_date"]').nth(1).fill(`${bidYear}-07-01`) // July
+      await page.locator('[name*="end_date"]').nth(1).fill(`${bidYear}-07-21`) // 3 weeks
 
       // Take screenshot before submission
       await page.screenshot({

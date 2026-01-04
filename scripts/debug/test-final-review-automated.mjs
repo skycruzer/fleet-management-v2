@@ -16,7 +16,7 @@ async function testFinalReview() {
 
   const browser = await chromium.launch({
     headless: false,
-    slowMo: 500 // Slow down for visibility
+    slowMo: 500, // Slow down for visibility
   })
 
   const context = await browser.newContext()
@@ -39,7 +39,10 @@ async function testFinalReview() {
       console.log('   ❌ ERROR DETECTED\n')
 
       // Try to get error details
-      const errorDetails = await page.locator('text=Error Details').click().catch(() => null)
+      const errorDetails = await page
+        .locator('text=Error Details')
+        .click()
+        .catch(() => null)
       await page.waitForTimeout(1000)
 
       // Take screenshot
@@ -47,20 +50,19 @@ async function testFinalReview() {
       console.log('   📸 Screenshot saved: error-screenshot.png\n')
 
       // Get console errors
-      page.on('console', msg => {
+      page.on('console', (msg) => {
         if (msg.type() === 'error') {
           console.log('   🔴 Console Error:', msg.text())
         }
       })
 
       // Check page errors
-      page.on('pageerror', error => {
+      page.on('pageerror', (error) => {
         console.log('   🔴 Page Error:', error.message)
       })
 
       console.log('   ⏳ Waiting to capture errors...')
       await page.waitForTimeout(5000)
-
     } else {
       console.log('   ✅ Page loaded successfully\n')
 
@@ -91,7 +93,6 @@ async function testFinalReview() {
     // Keep browser open for inspection
     console.log('🔎 Browser will remain open for 30 seconds for inspection...\n')
     await page.waitForTimeout(30000)
-
   } catch (error) {
     console.error('\n❌ Test failed:', error.message)
 
@@ -106,7 +107,7 @@ async function testFinalReview() {
 }
 
 // Run test
-testFinalReview().catch(error => {
+testFinalReview().catch((error) => {
   console.error('Fatal error:', error)
   process.exit(1)
 })

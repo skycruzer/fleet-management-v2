@@ -13,7 +13,7 @@ import puppeteer from 'puppeteer'
 
 const ADMIN_CREDENTIALS = {
   email: 'skycruzer@icloud.com',
-  password: 'mron2393'
+  password: 'mron2393',
 }
 
 // Generate unique test data
@@ -28,14 +28,14 @@ const TEST_PILOT = {
   rank: 'Captain',
   date_of_birth: '1980-01-01',
   phone_number: '+675 9999 9999',
-  address: 'Test Address, Port Moresby'
+  address: 'Test Address, Port Moresby',
 }
 
 console.log(`\n📧 Test Pilot Email: ${TEST_PILOT.email}`)
 console.log(`🔑 Test Pilot Password: ${TEST_PILOT.password}\n`)
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function completeWorkflowTest() {
@@ -48,11 +48,11 @@ async function completeWorkflowTest() {
     browser = await puppeteer.launch({
       headless: false,
       defaultViewport: { width: 1280, height: 900 },
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     })
 
     const page = await browser.newPage()
-    page.on('console', msg => console.log('  [Browser]:', msg.text()))
+    page.on('console', (msg) => console.log('  [Browser]:', msg.text()))
 
     // ============================================
     // STEP 1: Pilot Registration
@@ -61,7 +61,7 @@ async function completeWorkflowTest() {
     console.log('   Navigating to registration page...')
     await page.goto('http://localhost:3000/portal/register', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     console.log('   ✓ Registration page loaded')
     await sleep(3000)
@@ -100,7 +100,7 @@ async function completeWorkflowTest() {
     await sleep(1500)
     await page.evaluate((rank) => {
       const options = Array.from(document.querySelectorAll('[role="option"]'))
-      const captainOption = options.find(opt => opt.textContent.trim() === rank)
+      const captainOption = options.find((opt) => opt.textContent.trim() === rank)
       if (captainOption) captainOption.click()
     }, TEST_PILOT.rank)
     await sleep(1000)
@@ -151,7 +151,7 @@ async function completeWorkflowTest() {
     console.log('   Navigating to admin login...')
     await page.goto('http://localhost:3000/auth/login', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     await sleep(3000)
 
@@ -176,7 +176,7 @@ async function completeWorkflowTest() {
     console.log('   Navigating to pilot registrations...')
     await page.goto('http://localhost:3000/dashboard/admin/pilot-registrations', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     await sleep(4000)
 
@@ -197,9 +197,10 @@ async function completeWorkflowTest() {
 
     const approveClicked = await page.evaluate(() => {
       const buttons = Array.from(document.querySelectorAll('button'))
-      const approveBtn = buttons.find(btn =>
-        btn.textContent.toLowerCase().includes('approve') ||
-        btn.getAttribute('aria-label')?.toLowerCase().includes('approve')
+      const approveBtn = buttons.find(
+        (btn) =>
+          btn.textContent.toLowerCase().includes('approve') ||
+          btn.getAttribute('aria-label')?.toLowerCase().includes('approve')
       )
       if (approveBtn) {
         approveBtn.click()
@@ -220,10 +221,11 @@ async function completeWorkflowTest() {
 
         await page.evaluate(() => {
           const buttons = Array.from(document.querySelectorAll('button'))
-          const confirmBtn = buttons.find(btn =>
-            btn.textContent.toLowerCase().includes('confirm') ||
-            btn.textContent.toLowerCase().includes('yes') ||
-            btn.textContent.toLowerCase().includes('approve')
+          const confirmBtn = buttons.find(
+            (btn) =>
+              btn.textContent.toLowerCase().includes('confirm') ||
+              btn.textContent.toLowerCase().includes('yes') ||
+              btn.textContent.toLowerCase().includes('approve')
           )
           if (confirmBtn) confirmBtn.click()
         })
@@ -246,7 +248,7 @@ async function completeWorkflowTest() {
     console.log('   Logging out admin...')
 
     await page.goto('http://localhost:3000/api/auth/logout', {
-      waitUntil: 'networkidle2'
+      waitUntil: 'networkidle2',
     })
     await sleep(2000)
 
@@ -254,7 +256,7 @@ async function completeWorkflowTest() {
     console.log('   Navigating to pilot login...')
     await page.goto('http://localhost:3000/portal/login', {
       waitUntil: 'networkidle2',
-      timeout: 30000
+      timeout: 30000,
     })
     await sleep(3000)
 
@@ -290,7 +292,11 @@ async function completeWorkflowTest() {
 
       // Check for error messages
       const errorText = await page.evaluate(() => document.body.textContent)
-      if (errorText.includes('failed') || errorText.includes('error') || errorText.includes('invalid')) {
+      if (
+        errorText.includes('failed') ||
+        errorText.includes('error') ||
+        errorText.includes('invalid')
+      ) {
         console.log('   Error message detected on page')
       }
     }
@@ -311,7 +317,6 @@ async function completeWorkflowTest() {
     console.log('   7. workflow-07-pilot-dashboard.png')
     console.log('\n🎯 Workflow Complete!')
     console.log('='.repeat(60) + '\n')
-
   } catch (error) {
     console.error('\n❌ TEST FAILED:', error.message)
     console.error('\nStack trace:', error.stack)

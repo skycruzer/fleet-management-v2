@@ -57,8 +57,20 @@ async function checkSeniority() {
   const withoutSeniority = pilots.filter((p) => p.seniority_number === null).length
 
   console.log('\nStatistics:')
-  console.log('  Pilots WITH seniority_number: ' + withSeniority + ' (' + ((withSeniority / pilots.length) * 100).toFixed(1) + '%)')
-  console.log('  Pilots WITHOUT seniority_number: ' + withoutSeniority + ' (' + ((withoutSeniority / pilots.length) * 100).toFixed(1) + '%)')
+  console.log(
+    '  Pilots WITH seniority_number: ' +
+      withSeniority +
+      ' (' +
+      ((withSeniority / pilots.length) * 100).toFixed(1) +
+      '%)'
+  )
+  console.log(
+    '  Pilots WITHOUT seniority_number: ' +
+      withoutSeniority +
+      ' (' +
+      ((withoutSeniority / pilots.length) * 100).toFixed(1) +
+      '%)'
+  )
 
   if (withoutSeniority > 0) {
     console.log(

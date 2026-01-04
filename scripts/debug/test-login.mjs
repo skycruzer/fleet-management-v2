@@ -82,7 +82,10 @@ async function testLogin() {
 
         // Look for error messages
         const errorText = await page.textContent('body').catch(() => '')
-        if (errorText.toLowerCase().includes('error') || errorText.toLowerCase().includes('invalid')) {
+        if (
+          errorText.toLowerCase().includes('error') ||
+          errorText.toLowerCase().includes('invalid')
+        ) {
           console.log('❌ Error detected on page')
         }
       }
@@ -92,7 +95,6 @@ async function testLogin() {
 
     console.log('\n✨ Test complete! Browser will stay open for 10 seconds...')
     await page.waitForTimeout(10000)
-
   } catch (error) {
     console.error('❌ Test failed:', error.message)
     await page.screenshot({ path: 'error-screenshot.png', fullPage: true })

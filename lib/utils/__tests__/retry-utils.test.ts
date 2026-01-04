@@ -194,9 +194,9 @@ describe('retryWithBackoff', () => {
   it('should not retry on client errors', async () => {
     const mockFn = vi.fn().mockRejectedValue(new Error('HTTP 400: Bad Request'))
 
-    await expect(
-      retryWithBackoff(mockFn, { maxRetries: 3, initialDelayMs: 100 })
-    ).rejects.toThrow('HTTP 400: Bad Request')
+    await expect(retryWithBackoff(mockFn, { maxRetries: 3, initialDelayMs: 100 })).rejects.toThrow(
+      'HTTP 400: Bad Request'
+    )
 
     expect(mockFn).toHaveBeenCalledTimes(1) // No retries
   })
@@ -235,12 +235,7 @@ describe('retryWithBackoff', () => {
     await promise
 
     expect(onRetry).toHaveBeenCalledTimes(1)
-    expect(onRetry).toHaveBeenCalledWith(
-      1,
-      3,
-      expect.any(Number),
-      expect.any(Error)
-    )
+    expect(onRetry).toHaveBeenCalledWith(1, 3, expect.any(Number), expect.any(Error))
   })
 
   it('should call onFinalFailure callback', async () => {

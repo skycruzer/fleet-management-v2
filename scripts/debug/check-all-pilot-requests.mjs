@@ -20,7 +20,7 @@ async function checkAllData() {
       console.log('Sample records:', allData)
       console.log('\nCategory breakdown:')
       const categories = {}
-      allData.forEach(record => {
+      allData.forEach((record) => {
         categories[record.request_category] = (categories[record.request_category] || 0) + 1
       })
       console.log(categories)

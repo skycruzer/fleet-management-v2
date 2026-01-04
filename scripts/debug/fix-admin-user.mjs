@@ -4,7 +4,7 @@ import { readFileSync } from 'fs'
 // Read .env.local manually
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -28,7 +28,7 @@ async function fixAdminUser() {
     return
   }
 
-  const authUser = authUsers.users.find(u => u.email === 'skycruzer@icloud.com')
+  const authUser = authUsers.users.find((u) => u.email === 'skycruzer@icloud.com')
 
   if (!authUser) {
     console.log('❌ User not found in Supabase Auth')
@@ -37,7 +37,7 @@ async function fixAdminUser() {
     const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
       email: 'skycruzer@icloud.com',
       password: 'mron2393',
-      email_confirm: true
+      email_confirm: true,
     })
 
     if (createError) {
@@ -75,7 +75,7 @@ async function fixAdminUser() {
         email: 'skycruzer@icloud.com',
         username: 'skycruzer',
         role: 'admin',
-        status: 'active'
+        status: 'active',
       })
       .select()
       .single()
@@ -119,7 +119,7 @@ async function fixAdminUser() {
 
 fixAdminUser()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

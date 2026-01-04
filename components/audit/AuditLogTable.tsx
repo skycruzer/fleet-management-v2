@@ -95,7 +95,9 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">No audit logs found</h3>
+        <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
+          No audit logs found
+        </h3>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           No audit logs match your current filters. Try adjusting your search criteria.
         </p>
@@ -112,7 +114,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
             <tr>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('created_at')}
               >
                 <div className="flex items-center gap-1">
@@ -136,7 +138,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('user_email')}
               >
                 <div className="flex items-center gap-1">
@@ -160,7 +162,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('action')}
               >
                 <div className="flex items-center gap-1">
@@ -184,7 +186,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                 onClick={() => handleSort('table_name')}
               >
                 <div className="flex items-center gap-1">
@@ -208,13 +210,13 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
               >
                 Record ID
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400"
+                className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
               >
                 Description
               </th>
@@ -226,13 +228,13 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
           <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
             {logs.map((log) => (
               <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
+                <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
                   {new Date(log.created_at).toLocaleString()}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                   {log.user_email || 'System'}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm">
+                <td className="px-6 py-4 text-sm whitespace-nowrap">
                   <span
                     className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getActionBadgeColor(log.action)}`}
                   >
@@ -252,7 +254,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
                 <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                   {log.description || '-'}
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                   <Link
                     href={`/dashboard/audit/${log.id}`}
                     className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
@@ -269,7 +271,8 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
       {/* Pagination */}
       <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="text-sm text-gray-700 dark:text-gray-300">
-          Showing <span className="font-medium">{(pagination.page - 1) * pagination.pageSize + 1}</span> to{' '}
+          Showing{' '}
+          <span className="font-medium">{(pagination.page - 1) * pagination.pageSize + 1}</span> to{' '}
           <span className="font-medium">
             {Math.min(pagination.page * pagination.pageSize, pagination.totalCount)}
           </span>{' '}

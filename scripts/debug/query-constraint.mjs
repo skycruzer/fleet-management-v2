@@ -14,7 +14,7 @@ const { data, error } = await supabase.rpc('exec_sql', {
     SELECT consrc
     FROM pg_constraint
     WHERE conname = 'chk_flight_requests_type_valid'
-  `
+  `,
 })
 
 console.log('Constraint definition:', data, error)

@@ -51,7 +51,7 @@ async function extractRLSPolicies() {
         FROM pg_policies
         WHERE schemaname = 'public'
         ORDER BY tablename, policyname;
-      `
+      `,
     })
 
     if (error) {
@@ -105,13 +105,13 @@ async function getTableRLSStatus() {
             FROM pg_tables
             WHERE schemaname = 'public'
               AND tablename = '${table.table_name}';
-          `
+          `,
         })
         .single()
 
       tables.push({
         name: table.table_name,
-        rlsEnabled: rlsData?.rls_enabled || false
+        rlsEnabled: rlsData?.rls_enabled || false,
       })
     }
 
@@ -200,8 +200,8 @@ function generateMarkdownReport(policies, tables) {
 |--------|-------|
 | **Total Tables** | ${tableNames.length} |
 | **Total Policies** | ${policies.length} |
-| **Tables with RLS** | ${tables.filter(t => t.rlsEnabled).length} |
-| **Tables without RLS** | ${tables.filter(t => !t.rlsEnabled).length} |
+| **Tables with RLS** | ${tables.filter((t) => t.rlsEnabled).length} |
+| **Tables without RLS** | ${tables.filter((t) => !t.rlsEnabled).length} |
 
 ---
 
@@ -214,7 +214,7 @@ function generateMarkdownReport(policies, tables) {
 
   for (const tableName of tableNames) {
     const tablePolicies = byTable[tableName]
-    const tableInfo = tables.find(t => t.name === tableName)
+    const tableInfo = tables.find((t) => t.name === tableName)
 
     markdown += `\n### Table: \`${tableName}\`\n\n`
     markdown += `**RLS Enabled**: ${tableInfo?.rlsEnabled ? '✅ Yes' : '❌ No'}\n`
@@ -234,13 +234,10 @@ function generateMarkdownReport(policies, tables) {
       totalIssues += issues.length
       totalWarnings += warnings.length
 
-      const rolesStr = Array.isArray(policy.roles)
-        ? policy.roles.join(', ')
-        : policy.roles || 'N/A'
+      const rolesStr = Array.isArray(policy.roles) ? policy.roles.join(', ') : policy.roles || 'N/A'
 
-      const issueStr = [...issues, ...warnings].length > 0
-        ? `⚠️ ${[...issues, ...warnings].join('; ')}`
-        : '✅ OK'
+      const issueStr =
+        [...issues, ...warnings].length > 0 ? `⚠️ ${[...issues, ...warnings].join('; ')}` : '✅ OK'
 
       markdown += `| ${policy.policyname} | ${policy.cmd} | ${rolesStr} | ${policy.permissive} | ${issueStr} |\n`
     }
@@ -309,13 +306,14 @@ These should be reviewed:
 
 `
 
-  const tablesWithoutRLS = tables.filter(t => !t.rlsEnabled)
+  const tablesWithoutRLS = tables.filter((t) => !t.rlsEnabled)
   if (tablesWithoutRLS.length > 0) {
     markdown += 'The following tables do not have RLS enabled:\n\n'
     for (const table of tablesWithoutRLS) {
       markdown += `- \`${table.name}\`\n`
     }
-    markdown += '\n⚠️ **Action Required**: Enable RLS on these tables if they contain sensitive data.\n'
+    markdown +=
+      '\n⚠️ **Action Required**: Enable RLS on these tables if they contain sensitive data.\n'
   } else {
     markdown += '✅ All tables have RLS enabled.\n'
   }
@@ -377,12 +375,11 @@ async function main() {
     console.log('📋 Summary:')
     console.log(`   Total Policies: ${policies.length}`)
     console.log(`   Total Tables: ${tables.length}`)
-    console.log(`   Tables with RLS: ${tables.filter(t => t.rlsEnabled).length}`)
-    console.log(`   Tables without RLS: ${tables.filter(t => !t.rlsEnabled).length}`)
+    console.log(`   Tables with RLS: ${tables.filter((t) => t.rlsEnabled).length}`)
+    console.log(`   Tables without RLS: ${tables.filter((t) => !t.rlsEnabled).length}`)
 
     console.log('\n✅ RLS policy extraction complete!')
     console.log(`📄 Review the full report in ${filename}`)
-
   } catch (error) {
     console.error('❌ Fatal error:', error)
     process.exit(1)

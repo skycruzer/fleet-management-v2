@@ -9,7 +9,7 @@ import { readFileSync } from 'fs'
 // Read .env.local file manually
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -41,7 +41,7 @@ async function fixDuplicates() {
 
   // Group by unique combination (pilot + dates)
   const groups = {}
-  data.forEach(record => {
+  data.forEach((record) => {
     const key = `${record.pilot_id}-${record.start_date}-${record.end_date}`
     if (!groups[key]) {
       groups[key] = []
@@ -58,7 +58,7 @@ async function fixDuplicates() {
       // Keep the oldest record (first in the sorted array)
       recordsToKeep.push(records[0])
       // Delete the rest
-      records.slice(1).forEach(r => recordsToDelete.push(r))
+      records.slice(1).forEach((r) => recordsToDelete.push(r))
     } else {
       recordsToKeep.push(records[0])
     }
@@ -74,18 +74,15 @@ async function fixDuplicates() {
 
   console.log(`\n⚠️  About to delete ${recordsToDelete.length} duplicate records...`)
   console.log('Duplicate IDs:')
-  recordsToDelete.forEach(r => {
+  recordsToDelete.forEach((r) => {
     console.log(`  - ${r.id} (${r.pilot_id.substring(0, 8)}... ${r.start_date} to ${r.end_date})`)
   })
 
   // Prompt for confirmation (in production)
   console.log('\n⏳ Deleting duplicates...')
 
-  const deleteIds = recordsToDelete.map(r => r.id)
-  const { error: deleteError } = await supabase
-    .from('leave_requests')
-    .delete()
-    .in('id', deleteIds)
+  const deleteIds = recordsToDelete.map((r) => r.id)
+  const { error: deleteError } = await supabase.from('leave_requests').delete().in('id', deleteIds)
 
   if (deleteError) {
     console.error('❌ Error deleting duplicates:', deleteError.message)
@@ -95,9 +92,7 @@ async function fixDuplicates() {
   console.log('✅ Successfully deleted duplicates!')
 
   // Verify final state
-  const { data: finalData, error: finalError } = await supabase
-    .from('leave_requests')
-    .select('id')
+  const { data: finalData, error: finalError } = await supabase.from('leave_requests').select('id')
 
   if (!finalError) {
     console.log(`\n📊 Current total records: ${finalData.length}`)

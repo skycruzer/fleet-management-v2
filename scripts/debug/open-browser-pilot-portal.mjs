@@ -5,17 +5,14 @@ console.log('\n🚀 Opening Fleet Management V2 - Pilot Portal in Browser...\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: null,
-  args: [
-    '--start-maximized',
-    '--disable-blink-features=AutomationControlled'
-  ]
+  args: ['--start-maximized', '--disable-blink-features=AutomationControlled'],
 })
 
 const page = await browser.newPage()
 
 console.log('📍 Navigating to Pilot Portal Login...')
-await page.goto('http://localhost:3000/portal/login', { 
-  waitUntil: 'networkidle2' 
+await page.goto('http://localhost:3000/portal/login', {
+  waitUntil: 'networkidle2',
 })
 
 console.log('✅ Browser opened!')

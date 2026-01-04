@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p0
-issue_id: "001"
+issue_id: '001'
 tags: [security, catastrophic, immediate-action]
 dependencies: []
 ---
@@ -20,11 +20,13 @@ The `.env.local` file contains an exposed Supabase service role key that bypasse
 - **Current State**: Service role key stored in local environment file
 
 **Exposed Key**:
+
 ```env
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Problem Scenario**:
+
 1. Service role key is stored in `.env.local` (gitignored but risky)
 2. Key bypasses all RLS policies (complete database access)
 3. If accidentally committed or leaked, attacker can:
@@ -38,6 +40,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### Option 1: Remove Key Immediately (RECOMMENDED)
 
 **Steps**:
+
 1. Open `.env.local`
 2. Delete the entire `SUPABASE_SERVICE_ROLE_KEY` line
 3. Save file
@@ -45,11 +48,13 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 5. RLS policies will properly protect data
 
 **Pros**:
+
 - Eliminates catastrophic security risk
 - Forces proper use of RLS policies
 - Anon key is sufficient for local development
 
 **Cons**:
+
 - None - service role key should never be in local .env
 
 **Effort**: Small (10 minutes)
@@ -61,12 +66,14 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **IMMEDIATE ACTION REQUIRED**: Delete the `SUPABASE_SERVICE_ROLE_KEY` line from `.env.local` right now.
 
 For local development, use only:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://wgdmgvonqysflwdiiols.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 Service role keys should ONLY exist in:
+
 - Production server environment variables (Vercel secrets)
 - Secure CI/CD pipelines
 - Admin-only server functions with explicit justification
@@ -97,12 +104,14 @@ Service role keys should ONLY exist in:
 **By:** Claude Triage System (security-sentinel agent)
 
 **Actions:**
+
 - Issue discovered during comprehensive security audit
 - Categorized as P0 (CATASTROPHIC)
 - Estimated effort: 10 minutes
 - Marked as READY FOR IMMEDIATE ACTION
 
 **Learnings:**
+
 - Service role key should never be in `.env.local`
 - Anon key + RLS policies are the correct pattern for local development
 - This is a common security mistake in Supabase projects
@@ -112,12 +121,14 @@ Service role keys should ONLY exist in:
 **By:** Claude Code (comment-resolution-specialist)
 
 **Actions:**
+
 - Removed lines 7-8 from `.env.local` (service role key comment and value)
 - Verified file contains only safe anon key and application configuration
 - Updated todo status from "ready" to "done"
 - Prepared file for renaming to done status
 
 **Result:**
+
 - Service role key completely removed from `.env.local`
 - File now contains only public environment variables
 - Security risk eliminated

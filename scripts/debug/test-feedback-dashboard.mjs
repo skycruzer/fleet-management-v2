@@ -77,9 +77,7 @@ async function testFeedbackDashboard() {
       console.log('✅ Stats cards rendered')
 
       // Get stats values
-      const statLabels = await page
-        .locator('.text-muted-foreground')
-        .allTextContents()
+      const statLabels = await page.locator('.text-muted-foreground').allTextContents()
       console.log('   Stats labels:', statLabels.slice(0, 4))
     } else {
       console.log('❌ Stats cards not found')

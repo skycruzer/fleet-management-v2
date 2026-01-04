@@ -82,7 +82,7 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       sortable: true,
       accessorFn: (row) => `${row.first_name} ${row.last_name}`,
       cell: (row) => (
-        <span className="font-medium text-foreground">
+        <span className="text-foreground font-medium">
           {row.first_name} {row.last_name}
         </span>
       ),

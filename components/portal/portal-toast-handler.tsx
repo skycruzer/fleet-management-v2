@@ -32,8 +32,7 @@ export function PortalToastHandler() {
         toast({
           variant: 'destructive',
           title: 'Access Denied',
-          description:
-            message || 'You need admin or fleet manager access to view the dashboard.',
+          description: message || 'You need admin or fleet manager access to view the dashboard.',
         })
         break
 

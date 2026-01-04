@@ -3,24 +3,25 @@ import { readFileSync } from 'fs'
 
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const parts = line.split('=')
   if (parts.length >= 2) {
     env[parts[0].trim()] = parts.slice(1).join('=').trim()
   }
 })
 
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+const supabase = createClient(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 console.log('🔍 Checking Roster Period Distribution\n')
 
 // Get all unique roster periods
-const { data: all } = await supabase
-  .from('leave_requests')
-  .select('roster_period')
+const { data: all } = await supabase.from('leave_requests').select('roster_period')
 
 const rosterPeriods = {}
-all.forEach(r => {
+all.forEach((r) => {
   const rp = r.roster_period || 'NULL'
   rosterPeriods[rp] = (rosterPeriods[rp] || 0) + 1
 })
@@ -37,7 +38,7 @@ Object.entries(rosterPeriods)
   })
 
 // Test query with RP13/2025
-console.log('\n🧪 Test Query: roster_period IN (\'RP13/2025\')\n')
+console.log("\n🧪 Test Query: roster_period IN ('RP13/2025')\n")
 const { data: test, error } = await supabase
   .from('leave_requests')
   .select('id, roster_period, start_date, request_type, status')
@@ -49,7 +50,7 @@ if (error) {
   console.log(`✅ Result: ${test.length} records`)
   if (test.length > 0) {
     console.log('\nSample:')
-    test.slice(0, 3).forEach(r => {
+    test.slice(0, 3).forEach((r) => {
       console.log(`  ${r.roster_period} | ${r.request_type} | ${r.status} | ${r.start_date}`)
     })
   }

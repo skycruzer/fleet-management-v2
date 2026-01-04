@@ -106,7 +106,9 @@ export interface ExpiringCertification {
  * @param daysAhead - Number of days ahead to look for expiring certifications
  * @returns Promise<ExpiringCertification[]> - Array of expiring certification objects
  */
-export async function getExpiringCertifications(daysAhead: number = 60): Promise<ExpiringCertification[]> {
+export async function getExpiringCertifications(
+  daysAhead: number = 60
+): Promise<ExpiringCertification[]> {
   const supabase = await createClient()
 
   try {

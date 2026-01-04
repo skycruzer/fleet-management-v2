@@ -73,11 +73,7 @@ export const QuickEntrySchema = z
       .nullable(),
 
     // Step 3: Additional Details
-    reason: z
-      .string()
-      .max(2000, 'Reason cannot exceed 2000 characters')
-      .optional()
-      .nullable(),
+    reason: z.string().max(2000, 'Reason cannot exceed 2000 characters').optional().nullable(),
 
     source_reference: z
       .string()
@@ -85,11 +81,7 @@ export const QuickEntrySchema = z
       .optional()
       .nullable(),
 
-    notes: z
-      .string()
-      .max(1000, 'Notes cannot exceed 1000 characters')
-      .optional()
-      .nullable(),
+    notes: z.string().max(1000, 'Notes cannot exceed 1000 characters').optional().nullable(),
   })
   .refine(
     (data) => {
@@ -194,9 +186,7 @@ export function getDeadlineStatus(startDate: string): {
   today.setHours(0, 0, 0, 0)
 
   const start = new Date(startDate)
-  const daysRemaining = Math.ceil(
-    (start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysRemaining = Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 
   if (daysRemaining < 0) {
     return {

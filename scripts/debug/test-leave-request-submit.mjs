@@ -4,14 +4,14 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   ADMIN_CREDENTIALS: {
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
-  }
+    password: 'mron2393',
+  },
 }
 
 console.log('\n' + '='.repeat(80))
@@ -21,7 +21,7 @@ console.log('='.repeat(80) + '\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: { width: 1920, height: 1080 },
-  slowMo: 150
+  slowMo: 150,
 })
 
 const page = await browser.newPage()
@@ -37,7 +37,7 @@ page.on('console', (msg) => {
   }
 })
 
-page.on('pageerror', error => {
+page.on('pageerror', (error) => {
   console.log(`❌ [PAGE ERROR] ${error.message}`)
 })
 
@@ -62,7 +62,7 @@ try {
 
   // Step 3: Click "Submit Leave Request" button
   console.log('📝 Step 3: Clicking "Submit Leave Request" button...')
-  const submitButton = await page.$$eval('button, a', elements => {
+  const submitButton = await page.$$eval('button, a', (elements) => {
     for (const el of elements) {
       if (el.textContent && el.textContent.includes('Submit Leave Request')) {
         el.click()
@@ -102,7 +102,10 @@ try {
       }
 
       // Check for submit button
-      const formSubmitButton = await page.$$eval('button[type="submit"]', buttons => buttons.length)
+      const formSubmitButton = await page.$$eval(
+        'button[type="submit"]',
+        (buttons) => buttons.length
+      )
       console.log(`✅ Found ${formSubmitButton} submit button(s)`)
     } else {
       console.log('❌ Form element NOT found')
@@ -115,12 +118,13 @@ try {
   console.log('  🎯 TEST RESULTS')
   console.log('='.repeat(80))
   console.log(`Button Click:    ✅ SUCCESS`)
-  console.log(`Page Navigation: ${currentURL.includes('/dashboard/leave/new') ? '✅ SUCCESS' : '❌ FAILED'}`)
+  console.log(
+    `Page Navigation: ${currentURL.includes('/dashboard/leave/new') ? '✅ SUCCESS' : '❌ FAILED'}`
+  )
   console.log('='.repeat(80) + '\n')
 
   console.log('💡 Browser will stay open for inspection...\n')
   await new Promise(() => {})
-
 } catch (error) {
   console.error('\n❌ Test Error:', error.message)
   console.error(error.stack)

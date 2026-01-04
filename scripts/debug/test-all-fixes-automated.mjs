@@ -37,7 +37,7 @@ async function testDisciplinaryFormUUID() {
 
     // Click first matter to edit
     await page.waitForSelector('table tbody tr', { timeout: 10000 })
-    const firstMatterLink = await page.$$eval('table tbody tr a', links => links[0]?.href)
+    const firstMatterLink = await page.$$eval('table tbody tr a', (links) => links[0]?.href)
 
     if (!firstMatterLink) {
       logResult('Disciplinary Form UUID', 'FAIL', 'No disciplinary matters found')
@@ -65,16 +65,19 @@ async function testDisciplinaryFormUUID() {
     const errorElement = await page.$('.text-red-600, .text-red-500, [role="alert"]')
 
     if (errorElement) {
-      const errorText = await page.evaluate(el => el.textContent, errorElement)
+      const errorText = await page.evaluate((el) => el.textContent, errorElement)
       if (errorText.includes('uuid') || errorText.includes('UUID')) {
         logResult('Disciplinary Form UUID', 'FAIL', `Still getting UUID error: ${errorText}`)
       } else {
         logResult('Disciplinary Form UUID', 'PASS', 'No UUID error (different error present)')
       }
     } else {
-      logResult('Disciplinary Form UUID', 'PASS', 'Form submitted successfully with empty UUID field')
+      logResult(
+        'Disciplinary Form UUID',
+        'PASS',
+        'Form submitted successfully with empty UUID field'
+      )
     }
-
   } catch (error) {
     logResult('Disciplinary Form UUID', 'FAIL', `Test error: ${error.message}`)
   } finally {
@@ -102,7 +105,7 @@ async function testTasksEditPage() {
 
     // Click first task
     await page.waitForSelector('table tbody tr', { timeout: 10000 })
-    const firstTaskLink = await page.$$eval('table tbody tr a', links => links[0]?.href)
+    const firstTaskLink = await page.$$eval('table tbody tr a', (links) => links[0]?.href)
 
     if (!firstTaskLink) {
       logResult('Tasks Edit Page', 'FAIL', 'No tasks found')
@@ -129,7 +132,6 @@ async function testTasksEditPage() {
     } else {
       logResult('Tasks Edit Page', 'UNKNOWN', `Unexpected page: ${currentUrl}`)
     }
-
   } catch (error) {
     logResult('Tasks Edit Page', 'FAIL', `Test error: ${error.message}`)
   } finally {
@@ -171,33 +173,37 @@ async function testFlightRequestTypes() {
     const options = await page.evaluate(() => {
       const select = document.querySelector('select')
       if (!select) return []
-      return Array.from(select.options).map(opt => ({
+      return Array.from(select.options).map((opt) => ({
         value: opt.value,
-        text: opt.textContent.trim()
+        text: opt.textContent.trim(),
       }))
     })
 
     console.log('Found options:', options)
 
     const expectedTypes = ['FLIGHT_REQUEST', 'RDO', 'SDO', 'OFFICE_DAY']
-    const foundValues = options.map(o => o.value)
+    const foundValues = options.map((o) => o.value)
 
-    const hasOldTypes = foundValues.some(v =>
-      v.includes('ADDITIONAL_FLIGHT') ||
-      v.includes('ROUTE_CHANGE') ||
-      v.includes('SCHEDULE_PREFERENCE')
+    const hasOldTypes = foundValues.some(
+      (v) =>
+        v.includes('ADDITIONAL_FLIGHT') ||
+        v.includes('ROUTE_CHANGE') ||
+        v.includes('SCHEDULE_PREFERENCE')
     )
 
-    const hasNewTypes = expectedTypes.every(type => foundValues.includes(type))
+    const hasNewTypes = expectedTypes.every((type) => foundValues.includes(type))
 
     if (hasOldTypes) {
-      logResult('Flight Request Types', 'FAIL', `Still showing old types: ${foundValues.join(', ')}`)
+      logResult(
+        'Flight Request Types',
+        'FAIL',
+        `Still showing old types: ${foundValues.join(', ')}`
+      )
     } else if (hasNewTypes) {
       logResult('Flight Request Types', 'PASS', 'Showing correct new types only')
     } else {
       logResult('Flight Request Types', 'UNKNOWN', `Unexpected types: ${foundValues.join(', ')}`)
     }
-
   } catch (error) {
     logResult('Flight Request Types', 'FAIL', `Test error: ${error.message}`)
   } finally {
@@ -219,16 +225,16 @@ async function runAllTests() {
   console.log('📊 TEST SUMMARY')
   console.log('═══════════════════════════════════════════\n')
 
-  const passed = TEST_RESULTS.filter(r => r.status === 'PASS').length
-  const failed = TEST_RESULTS.filter(r => r.status === 'FAIL').length
-  const unknown = TEST_RESULTS.filter(r => r.status === 'UNKNOWN').length
+  const passed = TEST_RESULTS.filter((r) => r.status === 'PASS').length
+  const failed = TEST_RESULTS.filter((r) => r.status === 'FAIL').length
+  const unknown = TEST_RESULTS.filter((r) => r.status === 'UNKNOWN').length
 
   console.log(`✅ Passed: ${passed}`)
   console.log(`❌ Failed: ${failed}`)
   console.log(`❓ Unknown: ${unknown}`)
   console.log(`📝 Total: ${TEST_RESULTS.length}\n`)
 
-  TEST_RESULTS.forEach(result => {
+  TEST_RESULTS.forEach((result) => {
     console.log(`${result.status === 'PASS' ? '✅' : '❌'} ${result.test}: ${result.message}`)
   })
 
@@ -243,7 +249,7 @@ async function runAllTests() {
   }
 }
 
-runAllTests().catch(error => {
+runAllTests().catch((error) => {
   console.error('Fatal error running tests:', error)
   process.exit(1)
 })

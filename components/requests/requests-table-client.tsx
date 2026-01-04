@@ -94,10 +94,7 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
     }
   }
 
-  const handleBulkAction = async (
-    requestIds: string[],
-    action: 'approve' | 'deny' | 'delete'
-  ) => {
+  const handleBulkAction = async (requestIds: string[], action: 'approve' | 'deny' | 'delete') => {
     setLoading(true)
     try {
       const response = await fetch('/api/requests/bulk', {

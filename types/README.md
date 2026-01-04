@@ -68,7 +68,7 @@ const pilot: PilotRow = {
     line_captain: true,
     training_captain: false,
     examiner: true,
-    rhs_captain_expiry: '2025-12-31T00:00:00.000Z'
+    rhs_captain_expiry: '2025-12-31T00:00:00.000Z',
   },
   // ...other fields
 }
@@ -111,7 +111,7 @@ import {
   isRHSCaptainValid,
   getDaysUntilRHSExpiry,
   getCaptainQualificationSummary,
-  getQualificationBadges
+  getQualificationBadges,
 } from '@/lib/utils/qualification-utils'
 
 // Check specific qualifications
@@ -141,7 +141,7 @@ console.log('Days until RHS expiry:', summary.rhsCaptainDaysUntilExpiry)
 // Get qualification badges for display
 const badges = getQualificationBadges(pilot.captain_qualifications)
 // Returns: ['Line Captain', 'Examiner', 'RHS Captain']
-badges.forEach(badge => console.log(`Badge: ${badge}`))
+badges.forEach((badge) => console.log(`Badge: ${badge}`))
 ```
 
 #### Sanitizing User Input
@@ -156,7 +156,7 @@ const sanitized = sanitizeCaptainQualifications(userInput)
 // Safe to save to database
 await updatePilot({
   id: pilotId,
-  captain_qualifications: sanitized
+  captain_qualifications: sanitized,
 })
 ```
 

@@ -63,9 +63,7 @@ export function LeaveRequestForm({
   const { csrfToken, isLoading: csrfLoading } = useCsrfToken()
 
   const form = useForm<LeaveRequestCreate | LeaveRequestUpdate>({
-    resolver: zodResolver(
-      mode === 'create' ? LeaveRequestCreateSchema : LeaveRequestUpdateSchema
-    ),
+    resolver: zodResolver(mode === 'create' ? LeaveRequestCreateSchema : LeaveRequestUpdateSchema),
     defaultValues: defaultValues ?? {
       pilot_id: '',
       request_type: undefined,
@@ -132,7 +130,7 @@ export function LeaveRequestForm({
             {/* Basic Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Request Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {showPilotSelect && (
                   <FormSelectWrapper
                     name="pilot_id"
@@ -153,7 +151,7 @@ export function LeaveRequestForm({
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormSelectWrapper
                   name="request_method"
                   label="Request Method"
@@ -174,7 +172,7 @@ export function LeaveRequestForm({
             {/* Date Range */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Leave Period</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormDatePickerWrapper
                   name="start_date"
                   label="Start Date"
@@ -190,7 +188,7 @@ export function LeaveRequestForm({
               </div>
 
               {calculateIsLate() && (
-                <div className="rounded-md bg-yellow-50 dark:bg-yellow-900/20 p-4">
+                <div className="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20">
                   <p className="text-sm text-yellow-800 dark:text-yellow-200">
                     ⚠️ This is a late request (less than 21 days advance notice)
                   </p>
@@ -220,20 +218,13 @@ export function LeaveRequestForm({
 
           <CardFooter className="flex justify-end gap-4">
             {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
+              <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
                 Cancel
               </Button>
             )}
             <Button type="submit" disabled={isLoading || csrfLoading || !csrfToken}>
               {(isLoading || csrfLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {csrfLoading
-                ? 'Loading...'
-                : mode === 'create' ? 'Submit Request' : 'Update Request'}
+              {csrfLoading ? 'Loading...' : mode === 'create' ? 'Submit Request' : 'Update Request'}
             </Button>
           </CardFooter>
         </form>

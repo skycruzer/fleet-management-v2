@@ -88,16 +88,16 @@ export function SuccessionPipelineTable({
   if (candidates.length === 0) {
     return (
       <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Users className="h-5 w-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-foreground">Succession Pipeline</h3>
+            <h3 className="text-foreground text-lg font-semibold">Succession Pipeline</h3>
           </div>
         </div>
         <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+          <AlertCircle className="mx-auto mb-2 h-12 w-12 text-gray-400" />
           <p className="text-sm text-gray-600">No promotion candidates found</p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="mt-1 text-xs text-gray-500">
             First Officers will appear here when they meet promotion criteria
           </p>
         </div>
@@ -111,7 +111,7 @@ export function SuccessionPipelineTable({
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Users className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-foreground">
+          <h3 className="text-foreground text-lg font-semibold">
             Succession Pipeline ({candidates.length})
           </h3>
         </div>
@@ -145,7 +145,7 @@ export function SuccessionPipelineTable({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-md border border-border">
+      <div className="border-border overflow-x-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -162,7 +162,7 @@ export function SuccessionPipelineTable({
             {sortedCandidates.map((candidate) => (
               <TableRow key={candidate.id}>
                 {/* Seniority Number */}
-                <TableCell className="font-mono text-xs text-muted-foreground">
+                <TableCell className="text-muted-foreground font-mono text-xs">
                   #{candidate.seniorityNumber}
                 </TableCell>
 
@@ -193,14 +193,14 @@ export function SuccessionPipelineTable({
                 {/* Qualification Gaps */}
                 <TableCell>
                   {candidate.qualificationGaps.length === 0 ? (
-                    <span className="text-xs text-green-600 font-medium">
+                    <span className="text-xs font-medium text-green-600">
                       ✓ All requirements met
                     </span>
                   ) : (
                     <ul className="space-y-1">
                       {candidate.qualificationGaps.map((gap, index) => (
-                        <li key={index} className="text-xs text-muted-foreground flex items-start">
-                          <AlertCircle className="h-3 w-3 text-orange-500 mr-1 mt-0.5 flex-shrink-0" />
+                        <li key={index} className="text-muted-foreground flex items-start text-xs">
+                          <AlertCircle className="mt-0.5 mr-1 h-3 w-3 flex-shrink-0 text-orange-500" />
                           {gap}
                         </li>
                       ))}
@@ -212,12 +212,15 @@ export function SuccessionPipelineTable({
                 {showSensitiveData && (
                   <TableCell>
                     {candidate.recommendedActions.length === 0 ? (
-                      <span className="text-xs text-muted-foreground italic">None</span>
+                      <span className="text-muted-foreground text-xs italic">None</span>
                     ) : (
                       <ul className="space-y-1">
                         {candidate.recommendedActions.map((action, index) => (
-                          <li key={index} className="text-xs text-muted-foreground flex items-start">
-                            <TrendingUp className="h-3 w-3 text-blue-500 mr-1 mt-0.5 flex-shrink-0" />
+                          <li
+                            key={index}
+                            className="text-muted-foreground flex items-start text-xs"
+                          >
+                            <TrendingUp className="mt-0.5 mr-1 h-3 w-3 flex-shrink-0 text-blue-500" />
                             {action}
                           </li>
                         ))}

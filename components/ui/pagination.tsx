@@ -108,8 +108,11 @@ export function Pagination({
       {/* Page Size Selector */}
       {showPageSize && onPageSizeChange && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground whitespace-nowrap">Rows per page:</span>
-          <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
+          <span className="text-muted-foreground text-sm whitespace-nowrap">Rows per page:</span>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(value) => onPageSizeChange(Number(value))}
+          >
             <SelectTrigger className="h-8 w-[70px]" aria-label="Select page size">
               <SelectValue />
             </SelectTrigger>
@@ -126,7 +129,7 @@ export function Pagination({
 
       {/* Page Info */}
       {showPageInfo && (
-        <div className="text-sm text-muted-foreground whitespace-nowrap">
+        <div className="text-muted-foreground text-sm whitespace-nowrap">
           {totalItems === 0 ? (
             'No items'
           ) : (
@@ -166,10 +169,10 @@ export function Pagination({
         </Button>
 
         {/* Page Numbers */}
-        <div className="hidden sm:flex items-center gap-1">
+        <div className="hidden items-center gap-1 sm:flex">
           {pageNumbers.map((page, index) =>
             page === 'ellipsis' ? (
-              <span key={`ellipsis-${index}`} className="px-2 text-muted-foreground">
+              <span key={`ellipsis-${index}`} className="text-muted-foreground px-2">
                 ...
               </span>
             ) : (
@@ -189,8 +192,8 @@ export function Pagination({
         </div>
 
         {/* Current Page Indicator (Mobile) */}
-        <div className="flex sm:hidden items-center px-3">
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center px-3 sm:hidden">
+          <span className="text-muted-foreground text-sm">
             {currentPage} / {totalPages}
           </span>
         </div>

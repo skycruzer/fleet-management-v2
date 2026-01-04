@@ -15,7 +15,7 @@ async function testFullFlow() {
 
   const browser = await chromium.launch({
     headless: false,
-    slowMo: 1000 // Slow down for visibility
+    slowMo: 1000, // Slow down for visibility
   })
 
   const context = await browser.newContext()
@@ -74,7 +74,11 @@ async function testFullFlow() {
       // Check for expected elements
       console.log('🔍 Step 6: Checking dashboard elements...')
 
-      const heading = await page.locator('h1').first().textContent().catch(() => null)
+      const heading = await page
+        .locator('h1')
+        .first()
+        .textContent()
+        .catch(() => null)
       console.log(`   📌 Heading: ${heading || 'Not found'}`)
 
       const statsCards = await page.locator('[class*="grid"]').count()
@@ -93,7 +97,6 @@ async function testFullFlow() {
 
     console.log('🔎 Browser will remain open for 60 seconds for inspection...\n')
     await page.waitForTimeout(60000)
-
   } catch (error) {
     console.error('\n❌ Test failed:', error.message)
     await page.screenshot({ path: 'test-error.png', fullPage: true })
@@ -105,7 +108,7 @@ async function testFullFlow() {
 }
 
 // Run test
-testFullFlow().catch(error => {
+testFullFlow().catch((error) => {
   console.error('Fatal error:', error)
   process.exit(1)
 })

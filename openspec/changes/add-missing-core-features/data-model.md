@@ -64,6 +64,7 @@ New Tables:
 **Purpose**: Tracks pilot registration requests pending admin approval.
 
 **Business Rules**:
+
 - New pilot registers via `/pilot/register`
 - Email verification required before admin review
 - Admin approves/denies from `/dashboard/admin/pilot-registrations`
@@ -166,6 +167,7 @@ EXECUTE FUNCTION update_updated_at_column();
 **Purpose**: Stores notifications for pilots (leave approvals, task assignments, feedback replies).
 
 **Business Rules**:
+
 - Created when events occur (leave approved, task assigned, comment on post)
 - Pilots see unread count badge in header
 - Mark as read when notification is clicked
@@ -264,6 +266,7 @@ USING (
 **Purpose**: Tracks pilot-initiated flight requests for additional flights or route changes.
 
 **Business Rules**:
+
 - Pilots submit requests via `/pilot/flight-requests`
 - Admins review via `/dashboard/flight-requests`
 - Manual approval workflow (no auto-approval)
@@ -379,6 +382,7 @@ EXECUTE FUNCTION update_updated_at_column();
 **Purpose**: Task management system for fleet operations team.
 
 **Business Rules**:
+
 - Kanban board with TODO, IN_PROGRESS, DONE statuses
 - Tasks can be assigned to specific users or unassigned
 - Priority levels (LOW, MEDIUM, HIGH, URGENT)
@@ -515,6 +519,7 @@ EXECUTE FUNCTION set_task_completed_at();
 **Purpose**: Tracks disciplinary matters for pilots (investigations, warnings, resolutions).
 
 **Business Rules**:
+
 - Each matter has a type (investigation, warning, suspension, etc.)
 - Status tracks lifecycle (OPEN, UNDER_INVESTIGATION, RESOLVED, CLOSED)
 - Timeline view shows progression via disciplinary_actions_log
@@ -617,6 +622,7 @@ EXECUTE FUNCTION update_updated_at_column();
 **Purpose**: Audit trail of actions taken on disciplinary matters (timeline entries).
 
 **Business Rules**:
+
 - Immutable log (no updates allowed, only inserts)
 - Each entry represents an action (investigation started, evidence added, warning issued, etc.)
 - Powers the timeline view in `/dashboard/disciplinary/[id]`
@@ -690,6 +696,7 @@ WITH CHECK (
 **Purpose**: Community feedback and suggestions from pilots.
 
 **Business Rules**:
+
 - Pilots create posts with title, content, category
 - Posts can be pinned by admins
 - Vote system (upvotes) for prioritization
@@ -794,6 +801,7 @@ EXECUTE FUNCTION update_updated_at_column();
 **Purpose**: Comments on feedback posts (flat thread structure).
 
 **Business Rules**:
+
 - Flat comment structure (no nesting)
 - @mentions for referencing other pilots
 - Admin can delete inappropriate comments
@@ -910,6 +918,7 @@ EXECUTE FUNCTION decrement_post_comment_count();
 **Purpose**: Predefined categories for organizing feedback posts.
 
 **Business Rules**:
+
 - Admin-managed (predefined set)
 - Categories like "Safety", "Scheduling", "Equipment", "Training", "Other"
 - Color coding for visual distinction
@@ -978,6 +987,7 @@ INSERT INTO feedback_categories (name, description, color, icon, display_order) 
 **Purpose**: Comprehensive audit trail of all system actions (data changes + business events).
 
 **Business Rules**:
+
 - Database triggers log ALL data mutations automatically
 - Application-level logs add business context
 - Immutable (no updates or deletes)
@@ -1362,18 +1372,18 @@ SELECT * FROM tasks LIMIT 1;
 
 ## Schema Summary
 
-| Table | Rows (Estimated) | Foreign Keys | Indexes | RLS | Triggers | Purpose |
-|-------|------------------|--------------|---------|-----|----------|---------|
-| `pilot_registrations` | ~50/year | 2 (an_users) | 4 | ✅ | 1 (updated_at) | Registration approval workflow |
-| `pilot_notifications` | ~500/month | 1 (pilots) | 4 | ✅ | - | Real-time pilot notifications |
-| `flight_requests` | ~100/month | 2 (pilots, an_users) | 4 | ✅ | 1 (updated_at) | Flight request submissions |
-| `tasks` | ~200 active | 2 (an_users) | 6 | ✅ | 2 (updated_at, completed_at) | Task management (Kanban) |
-| `disciplinary_actions` | ~10-20/year | 2 (pilots, an_users) | 4 | ✅ | 1 (updated_at) | Disciplinary matter tracking |
-| `disciplinary_actions_log` | ~50-100/year | 2 (disciplinary_actions, an_users) | 2 | ✅ | - | Immutable disciplinary timeline |
-| `feedback_posts` | ~50-100/month | 2 (pilots, feedback_categories) | 6 | ✅ | 1 (updated_at) | Community feedback posts |
-| `feedback_comments` | ~200-400/month | 2 (feedback_posts, pilots) | 4 | ✅ | 3 (updated_at, comment_count) | Post comments |
-| `feedback_categories` | 6 (predefined) | - | 1 | ✅ | - | Feedback categorization |
-| `audit_logs` | ~1000+/month | 1 (an_users) | 6 | ✅ | - | Complete audit trail |
+| Table                      | Rows (Estimated) | Foreign Keys                       | Indexes | RLS | Triggers                      | Purpose                         |
+| -------------------------- | ---------------- | ---------------------------------- | ------- | --- | ----------------------------- | ------------------------------- |
+| `pilot_registrations`      | ~50/year         | 2 (an_users)                       | 4       | ✅  | 1 (updated_at)                | Registration approval workflow  |
+| `pilot_notifications`      | ~500/month       | 1 (pilots)                         | 4       | ✅  | -                             | Real-time pilot notifications   |
+| `flight_requests`          | ~100/month       | 2 (pilots, an_users)               | 4       | ✅  | 1 (updated_at)                | Flight request submissions      |
+| `tasks`                    | ~200 active      | 2 (an_users)                       | 6       | ✅  | 2 (updated_at, completed_at)  | Task management (Kanban)        |
+| `disciplinary_actions`     | ~10-20/year      | 2 (pilots, an_users)               | 4       | ✅  | 1 (updated_at)                | Disciplinary matter tracking    |
+| `disciplinary_actions_log` | ~50-100/year     | 2 (disciplinary_actions, an_users) | 2       | ✅  | -                             | Immutable disciplinary timeline |
+| `feedback_posts`           | ~50-100/month    | 2 (pilots, feedback_categories)    | 6       | ✅  | 1 (updated_at)                | Community feedback posts        |
+| `feedback_comments`        | ~200-400/month   | 2 (feedback_posts, pilots)         | 4       | ✅  | 3 (updated_at, comment_count) | Post comments                   |
+| `feedback_categories`      | 6 (predefined)   | -                                  | 1       | ✅  | -                             | Feedback categorization         |
+| `audit_logs`               | ~1000+/month     | 1 (an_users)                       | 6       | ✅  | -                             | Complete audit trail            |
 
 **Total New Tables**: 10
 **Total Estimated Growth**: ~1,500-2,000 rows/month across all tables

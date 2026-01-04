@@ -38,20 +38,18 @@ export async function LeaveBidTableWrapper({ searchParams }: LeaveBidTableWrappe
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center py-12 border border-dashed rounded-lg">
-        <div className="text-center space-y-3">
+      <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
+        <div className="space-y-3 text-center">
           <p className="text-lg font-medium text-red-600">Unauthorized</p>
-          <p className="text-sm text-muted-foreground">Please log in to view leave bids</p>
+          <p className="text-muted-foreground text-sm">Please log in to view leave bids</p>
         </div>
       </div>
     )
   }
 
   // Build query (uses leave_bids table, NOT pilot_requests)
-  let query = supabase
-    .from('leave_bids')
-    .select(
-      `
+  let query = supabase.from('leave_bids').select(
+    `
       id,
       roster_period_code,
       status,
@@ -74,7 +72,7 @@ export async function LeaveBidTableWrapper({ searchParams }: LeaveBidTableWrappe
         end_date
       )
     `
-    )
+  )
 
   // Apply filters from searchParams
   if (searchParams) {
@@ -97,10 +95,10 @@ export async function LeaveBidTableWrapper({ searchParams }: LeaveBidTableWrappe
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-12 border border-dashed rounded-lg">
-        <div className="text-center space-y-3">
+      <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
+        <div className="space-y-3 text-center">
           <p className="text-lg font-medium text-red-600">Error loading leave bids</p>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
+          <p className="text-muted-foreground text-sm">{error.message}</p>
         </div>
       </div>
     )

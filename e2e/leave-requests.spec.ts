@@ -13,7 +13,7 @@ test.describe('Leave Requests - Pilot Portal', () => {
 
     // Should show leave request cards or table
     const leaveRequests = page.getByTestId('leave-request')
-    if (await leaveRequests.count() > 0) {
+    if ((await leaveRequests.count()) > 0) {
       await expect(leaveRequests.first()).toBeVisible()
     }
   })
@@ -83,7 +83,7 @@ test.describe('Leave Requests - Pilot Portal', () => {
   test('should show eligibility alerts', async ({ page }) => {
     // Look for eligibility alert indicators
     const alert = page.getByText(/eligibility alert|multiple.*requesting/i)
-    if (await alert.count() > 0) {
+    if ((await alert.count()) > 0) {
       await expect(alert.first()).toBeVisible()
     }
   })
@@ -111,7 +111,7 @@ test.describe('Leave Requests - Admin Dashboard', () => {
 
     // Should show requests table or list
     const requests = page.getByTestId('leave-request')
-    if (await requests.count() > 0) {
+    if ((await requests.count()) > 0) {
       await expect(requests.first()).toBeVisible()
     }
   })
@@ -173,7 +173,7 @@ test.describe('Leave Requests - Admin Dashboard', () => {
   test('should show competing requests warning', async ({ page }) => {
     // Look for warnings about multiple requests for same dates
     const warning = page.getByText(/multiple.*same.*dates|competing/i)
-    if (await warning.count() > 0) {
+    if ((await warning.count()) > 0) {
       await expect(warning.first()).toBeVisible()
     }
   })
@@ -206,7 +206,7 @@ test.describe('Leave Request Validation', () => {
     // This would require specific test data setup
     // For now, check that eligibility info is displayed
     const eligibilityInfo = page.getByText(/remaining.*captains|remaining.*first officers/i)
-    if (await eligibilityInfo.count() > 0) {
+    if ((await eligibilityInfo.count()) > 0) {
       await expect(eligibilityInfo.first()).toBeVisible()
     }
   })
@@ -216,7 +216,7 @@ test.describe('Leave Request Validation', () => {
 
     // Look for overlapping request indicators
     const overlap = page.getByText(/overlap|conflict/i)
-    if (await overlap.count() > 0) {
+    if ((await overlap.count()) > 0) {
       await expect(overlap.first()).toBeVisible()
     }
   })
@@ -226,7 +226,7 @@ test.describe('Leave Request Validation', () => {
 
     // Requests should be sorted or grouped by seniority
     const seniorityNumbers = page.getByText(/#\d+/)
-    if (await seniorityNumbers.count() >= 2) {
+    if ((await seniorityNumbers.count()) >= 2) {
       const first = await seniorityNumbers.nth(0).textContent()
       const second = await seniorityNumbers.nth(1).textContent()
 

@@ -29,14 +29,14 @@ const colors = {
   red: '\x1b[31m',
   yellow: '\x1b[33m',
   blue: '\x1b[34m',
-  cyan: '\x1b[36m'
+  cyan: '\x1b[36m',
 }
 
 let testResults = {
   passed: 0,
   failed: 0,
   total: 0,
-  details: []
+  details: [],
 }
 
 // Authenticate and get session
@@ -45,7 +45,7 @@ async function authenticate() {
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email: TEST_EMAIL,
-    password: TEST_PASSWORD
+    password: TEST_PASSWORD,
   })
 
   if (error) {
@@ -70,9 +70,9 @@ async function testReport(name, endpoint, payload, token) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     const status = response.status
@@ -90,9 +90,11 @@ async function testReport(name, endpoint, payload, token) {
           httpStatus: status,
           contentType,
           contentLength,
-          format: payload.format
+          format: payload.format,
         })
-        console.log(`${colors.green}✅ PASSED - Generated ${payload.format.toUpperCase()} (${contentLength} bytes)${colors.reset}`)
+        console.log(
+          `${colors.green}✅ PASSED - Generated ${payload.format.toUpperCase()} (${contentLength} bytes)${colors.reset}`
+        )
         return true
       } else {
         testResults.failed++
@@ -101,7 +103,7 @@ async function testReport(name, endpoint, payload, token) {
           status: 'FAILED',
           httpStatus: status,
           error: 'Empty response',
-          format: payload.format
+          format: payload.format,
         })
         console.log(`${colors.red}❌ FAILED - Empty response${colors.reset}`)
         return false
@@ -115,7 +117,7 @@ async function testReport(name, endpoint, payload, token) {
         status: 'PASSED',
         httpStatus: status,
         message: body.error,
-        format: payload.format
+        format: payload.format,
       })
       console.log(`${colors.yellow}⚠️  PASSED (No Data) - ${body.error}${colors.reset}`)
       return true
@@ -128,7 +130,7 @@ async function testReport(name, endpoint, payload, token) {
         status: 'PASSED',
         httpStatus: status,
         message: 'PDF not implemented (expected)',
-        format: payload.format
+        format: payload.format,
       })
       console.log(`${colors.yellow}⚠️  PASSED (Not Implemented) - ${body.error}${colors.reset}`)
       return true
@@ -141,7 +143,7 @@ async function testReport(name, endpoint, payload, token) {
         status: 'FAILED',
         httpStatus: status,
         error: body,
-        format: payload.format
+        format: payload.format,
       })
       console.log(`${colors.red}❌ FAILED - HTTP ${status}${colors.reset}`)
       console.log(`Response: ${body}`)
@@ -153,7 +155,7 @@ async function testReport(name, endpoint, payload, token) {
       name,
       status: 'FAILED',
       error: error.message,
-      format: payload.format
+      format: payload.format,
     })
     console.log(`${colors.red}❌ FAILED - ${error.message}${colors.reset}`)
     return false
@@ -164,7 +166,9 @@ async function testReport(name, endpoint, payload, token) {
 async function runTests() {
   console.log(`${colors.blue}╔════════════════════════════════════════════════════╗${colors.reset}`)
   console.log(`${colors.blue}║   Reports System Comprehensive Testing Suite      ║${colors.reset}`)
-  console.log(`${colors.blue}╚════════════════════════════════════════════════════╝${colors.reset}\n`)
+  console.log(
+    `${colors.blue}╚════════════════════════════════════════════════════╝${colors.reset}\n`
+  )
 
   // Authenticate
   const token = await authenticate()
@@ -378,10 +382,7 @@ async function runTests() {
   const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0]
   const resultsFile = `test-reports-results-${timestamp}.json`
 
-  fs.writeFileSync(
-    resultsFile,
-    JSON.stringify(testResults, null, 2)
-  )
+  fs.writeFileSync(resultsFile, JSON.stringify(testResults, null, 2))
 
   console.log(`${colors.cyan}📄 Detailed results saved to: ${resultsFile}${colors.reset}\n`)
 
@@ -393,8 +394,8 @@ async function runTests() {
     console.log(`${colors.red}❌ SOME TESTS FAILED${colors.reset}\n`)
     console.log('Failed tests:')
     testResults.details
-      .filter(d => d.status === 'FAILED')
-      .forEach(d => {
+      .filter((d) => d.status === 'FAILED')
+      .forEach((d) => {
         console.log(`  - ${d.name}: ${d.error || 'Unknown error'}`)
       })
     console.log()
@@ -403,7 +404,7 @@ async function runTests() {
 }
 
 // Run the tests
-runTests().catch(error => {
+runTests().catch((error) => {
   console.error(`${colors.red}Fatal error: ${error.message}${colors.reset}`)
   process.exit(1)
 })

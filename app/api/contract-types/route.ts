@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getContractTypes } from '@/lib/services/admin-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 
 /**
  * GET /api/contract-types
@@ -8,6 +9,12 @@ import { getContractTypes } from '@/lib/services/admin-service'
  */
 export async function GET() {
   try {
+    // Authentication check - admin only
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const contractTypes = await getContractTypes()
 
     // Filter to only active contract types

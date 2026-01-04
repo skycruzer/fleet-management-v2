@@ -1,4 +1,5 @@
 # Codebase Quality Report
+
 **Fleet Management V2 - Phase 1.2**
 **Date**: October 27, 2025
 **Auditor**: Claude Code (Comprehensive Project Review)
@@ -12,6 +13,7 @@ Fleet Management V2 demonstrates **strong architectural patterns** with a compre
 **Overall Code Quality Score**: 7.0/10
 
 ### Critical Findings Summary
+
 - **P0 Issues**: 2 (TypeScript compilation failures blocking builds)
 - **P1 Issues**: 12 (Naming violations, service layer bypasses, error handling inconsistencies)
 - **P2 Issues**: 15 (Code duplication, TODO comments, unused code)
@@ -28,6 +30,7 @@ npm run validate
 ```
 
 **Results:**
+
 - ❌ **Type Check**: FAILED (59 errors)
 - ⏸️ **Linting**: BLOCKED (cannot run until type check passes)
 - ⏸️ **Format Check**: BLOCKED (cannot run until type check passes)
@@ -41,6 +44,7 @@ npm run validate:naming
 ```
 
 **Results:**
+
 ```
 Total files scanned: 511
 Valid:               475 (93%)
@@ -54,6 +58,7 @@ Warnings:            44
 **Actual**: Many use `PascalCase.tsx`
 
 **Affected Files** (36 total):
+
 ```
 components/admin/FlightRequestReviewModal.tsx
 components/admin/FlightRequestsTable.tsx
@@ -95,6 +100,7 @@ components/tasks/TaskList.tsx
 
 **Impact**: Inconsistent codebase, harder to locate files
 **Recommendation**: Automated rename script:
+
 ```bash
 # Rename all PascalCase components to kebab-case
 for file in components/**/*.tsx; do
@@ -114,6 +120,7 @@ done
 **Total Errors**: 59
 
 **Breakdown by Category:**
+
 1. **Schema Mismatches**: 38 errors (64%)
 2. **Type Inference Failures**: 12 errors (20%)
 3. **Missing Properties**: 6 errors (10%)
@@ -126,6 +133,7 @@ done
 **Error Count**: 8 errors
 
 **Files Affected:**
+
 ```
 app/api/admin/leave-bids/review/route.ts:98-100
 app/dashboard/admin/leave-bids/page.tsx:68-70, 193, 197
@@ -133,6 +141,7 @@ app/portal/(protected)/dashboard/page.tsx:146
 ```
 
 **Error Example:**
+
 ```typescript
 // app/api/admin/leave-bids/review/route.ts:98
 Property 'bid_year' does not exist on type
@@ -141,6 +150,7 @@ Property 'bid_year' does not exist on type
 
 **Root Cause**: Database schema out of sync with TypeScript types
 **Fix Required**:
+
 1. Run `npm run db:types` to regenerate types
 2. Verify `leave_bids` table schema in Supabase
 3. Either add `bid_year` column or remove references
@@ -150,12 +160,14 @@ Property 'bid_year' does not exist on type
 **Error Count**: 18 errors
 
 **Files Affected:**
+
 ```
 lib/services/leave-service.ts:169-221 (multiple errors)
 app/dashboard/flight-requests/page.tsx:59-67
 ```
 
 **Error Example:**
+
 ```typescript
 // lib/services/leave-service.ts:172
 Property 'first_name' does not exist on type
@@ -165,10 +177,12 @@ pilots!<columnName>?">'.
 ```
 
 **Root Cause**: `leave_requests` table has multiple foreign keys to pilots:
+
 - `pilot_id` → `pilots.id`
 - `pilot_user_id` → `pilot_users.id`
 
 **Fix Required**:
+
 ```typescript
 // Current (Broken)
 .select('*, pilots(*)')
@@ -186,6 +200,7 @@ pilots!<columnName>?">'.
 **File**: `app/portal/(protected)/dashboard/page.tsx:86-90`
 
 **Error:**
+
 ```typescript
 Argument of type '"system_settings"' is not assignable to parameter of type
 'pilot_users' | 'an_users' | 'check_types' | ...
@@ -199,6 +214,7 @@ Argument of type '"system_settings"' is not assignable to parameter of type
 **Error Count**: 8 errors
 
 **Files:**
+
 ```
 app/dashboard/admin/pilot-registrations/actions.ts:66, 144
 app/dashboard/admin/pilot-registrations/page.tsx:102
@@ -206,14 +222,16 @@ app/dashboard/flight-requests/page.tsx:131
 ```
 
 **Error Example:**
+
 ```typescript
 // Type 'string | null' is not assignable to type 'string'
-rank: string | null  // Database allows NULL
-rank: string         // Code expects non-null
+rank: string | null // Database allows NULL
+rank: string // Code expects non-null
 ```
 
 **Root Cause**: Database columns allow NULL but code assumes NOT NULL
 **Fix Required**: Either:
+
 1. Add NOT NULL constraints to database (recommended)
 2. Update code to handle null values
 
@@ -222,24 +240,29 @@ rank: string         // Code expects non-null
 **Error Count**: 2 errors
 
 **Files:**
+
 ```
 app/api/portal/forgot-password/route.ts:29
 app/api/portal/reset-password/route.ts:93
 ```
 
 **Error:**
+
 ```typescript
 Property 'errors' does not exist on type 'ZodError<{ email: string }>'
 ```
 
 **Root Cause**: Incorrect Zod error handling pattern
 **Current Code:**
+
 ```typescript
-validation.error.errors  // ❌ Wrong
+validation.error.errors // ❌ Wrong
 ```
+
 **Fix:**
+
 ```typescript
-validation.error.issues  // ✅ Correct
+validation.error.issues // ✅ Correct
 ```
 
 ### 2.3 Function Parameter Type Errors
@@ -249,6 +272,7 @@ validation.error.issues  // ✅ Correct
 **File**: `lib/services/certification-service.ts:570`
 
 **Error:**
+
 ```typescript
 Object literal may only specify known properties, but 'certification_ids'
 does not exist in type '{ p_certification_ids: string[] }'.
@@ -256,12 +280,17 @@ Did you mean to write 'p_certification_ids'?
 ```
 
 **Fix:**
+
 ```typescript
 // Current
-{ certification_ids: ids }
+{
+  certification_ids: ids
+}
 
 // Fixed
-{ p_certification_ids: ids }
+{
+  p_certification_ids: ids
+}
 ```
 
 ---
@@ -281,6 +310,7 @@ Largest Service:          audit-service.ts (1,439 lines)
 ### 3.2 Service Architecture Compliance
 
 **✅ Strengths:**
+
 - Comprehensive service layer covering all database operations
 - Consistent error handling patterns
 - N+1 query prevention implemented
@@ -294,6 +324,7 @@ Largest Service:          audit-service.ts (1,439 lines)
 **Pattern**: Direct Supabase client calls in API routes
 
 **Examples:**
+
 ```typescript
 // app/api/portal/profile/route.ts:12
 const supabase = await createClient()
@@ -307,6 +338,7 @@ const supabase = await createClient()
 ```
 
 **Impact**:
+
 - Bypasses audit logging
 - Inconsistent error handling
 - Violates architectural pattern
@@ -315,6 +347,7 @@ const supabase = await createClient()
 **Recommendation**: Refactor all direct calls to use service functions
 
 **Files to Refactor** (30 instances):
+
 ```
 app/api/portal/registration-approval/route.ts:23
 app/api/portal/profile/route.ts:12
@@ -343,6 +376,7 @@ app/api/certifications/route.ts:19
 ### 3.3 Service Code Quality
 
 **Largest Services** (potential refactoring candidates):
+
 ```
 audit-service.ts:                1,439 lines  ⚠️ Consider splitting
 pilot-email-service.ts:          1,150 lines  ⚠️ Consider splitting
@@ -360,6 +394,7 @@ cache-service.ts:                  733 lines
 **Issue**: Single file handles all audit logging functionality
 **Impact**: Hard to navigate, test, and maintain
 **Recommendation**: Split into focused modules:
+
 ```
 lib/services/audit/
   ├── audit-log-creation.ts     (log creation functions)
@@ -379,6 +414,7 @@ lib/services/audit/
 **Pattern**: Similar try-catch blocks in every service function
 
 **Example** (repeated 100+ times):
+
 ```typescript
 try {
   const supabase = await createClient()
@@ -391,6 +427,7 @@ try {
 ```
 
 **Recommendation**: Create error handling wrapper:
+
 ```typescript
 // lib/utils/service-wrapper.ts
 export async function withErrorHandling<T>(
@@ -412,18 +449,19 @@ export async function withErrorHandling<T>(
 **Pattern**: Similar Zod validation in multiple API routes
 
 **Example**:
+
 ```typescript
 // Repeated in 20+ API routes
 const validation = Schema.safeParse(body)
 if (!validation.success) {
-  return NextResponse.json(
-    formatApiError(ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('data'), 400),
-    { status: 400 }
-  )
+  return NextResponse.json(formatApiError(ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('data'), 400), {
+    status: 400,
+  })
 }
 ```
 
 **Recommendation**: Create validation middleware:
+
 ```typescript
 export function withValidation<T>(schema: ZodSchema<T>) {
   return async (handler: (data: T) => Promise<NextResponse>) => {
@@ -497,7 +535,7 @@ console.log('🔍 DEBUG: Pilot user found:', {
   email: pilotUser.email,
   has_password_hash: !!pilotUser.password_hash,
   has_auth_user_id: !!pilotUser.auth_user_id,
-  registration_approved: pilotUser.registration_approved
+  registration_approved: pilotUser.registration_approved,
 })
 
 // lib/services/logging-service.ts
@@ -514,6 +552,7 @@ console.debug(`[DEBUG] ${message}`, formattedContext)
 ### 6.1 Error Handling Quality
 
 **✅ Strengths:**
+
 - Centralized error messages in `lib/utils/error-messages.ts`
 - Constraint error handler in `lib/utils/constraint-error-handler.ts`
 - Consistent API error formatting
@@ -526,6 +565,7 @@ console.debug(`[DEBUG] ${message}`, formattedContext)
 **File**: `app/api/portal/login/route.ts:20-21`
 
 **Error:**
+
 ```typescript
 Type '"validation"' is not assignable to type 'ErrorCategory'
 Type '"error"' is not assignable to type 'ErrorSeverity'
@@ -533,6 +573,7 @@ Type '"error"' is not assignable to type 'ErrorSeverity'
 
 **Issue**: Hardcoded strings instead of proper type values
 **Fix**:
+
 ```typescript
 // Current
 category: 'validation',  // ❌
@@ -548,6 +589,7 @@ severity: ERROR_MESSAGES.VALIDATION.INVALID_FORMAT('credentials').severity,
 **Pattern**: Generic error messages without context
 
 **Example:**
+
 ```typescript
 catch (error) {
   console.error('Error:', error)  // ❌ No context
@@ -556,6 +598,7 @@ catch (error) {
 ```
 
 **Better Pattern:**
+
 ```typescript
 catch (error) {
   const context = {
@@ -581,11 +624,13 @@ catch (error) {
 #### **P2-007: Potentially Unused Component Files**
 
 **Files with ".skip" Extension:**
+
 ```
 e2e/mobile-navigation.spec.ts.skip
 ```
 
 **Files with Backup Extensions:**
+
 ```
 app/dashboard/pilots/[id]/page.tsx.backup
 ```
@@ -599,6 +644,7 @@ app/dashboard/pilots/[id]/page.tsx.backup
 **Pattern**: Files with "2", "3", "4" suffixes
 
 **Examples:**
+
 ```
 scripts/generate-pwa-icons 2.mjs
 scripts/generate-pwa-icons 3.mjs
@@ -620,6 +666,7 @@ openspec/README 4.md
 ### 8.1 Project Structure Quality
 
 **✅ Well-Organized:**
+
 ```
 lib/services/           (30 services, clear separation)
 lib/validations/        (14 Zod schemas)
@@ -636,6 +683,7 @@ e2e/                    (24 test files)
 **Issue**: Some components in `components/pilot/` overlap with `components/portal/`
 
 **Example:**
+
 ```
 components/pilot/FlightRequestForm.tsx
 components/portal/flight-request-form.tsx
@@ -658,6 +706,7 @@ components/portal/flight-request-form.tsx
 **Total Test Files**: 24
 
 **Test Categories:**
+
 ```
 Authentication:         2 tests (auth.spec.ts, pilot-registration.spec.ts)
 Leave Management:       5 tests
@@ -680,6 +729,7 @@ Dashboard:              1 test
 #### **P2-009: Missing E2E Tests for Critical Features**
 
 **Untested Features:**
+
 - Certification renewal planning workflow
 - Leave bid submission and review
 - Disciplinary action tracking
@@ -695,16 +745,19 @@ Dashboard:              1 test
 
 **Issue**: Project has E2E tests but no unit tests
 **Impact**:
+
 - Hard to test individual functions
 - Slow test feedback loop
 - Difficult to achieve high coverage
 
 **Recommendation**: Add Jest/Vitest for unit testing
+
 ```bash
 npm install -D vitest @testing-library/react
 ```
 
 **Priority Test Targets:**
+
 - Service layer functions (197 functions)
 - Utility functions (error handling, validation)
 - Business logic (leave eligibility, certification expiry)
@@ -716,6 +769,7 @@ npm install -D vitest @testing-library/react
 ### 10.1 TypeScript Configuration
 
 **✅ Strict Mode Enabled:**
+
 ```json
 {
   "compilerOptions": {
@@ -736,6 +790,7 @@ npm install -D vitest @testing-library/react
 **Configuration**: `eslint.config.mjs` exists
 
 **Recommendation**: Fix TypeScript errors first, then run:
+
 ```bash
 npm run lint
 npm run lint:fix
@@ -748,6 +803,7 @@ npm run lint:fix
 **Status**: ⏸️ Cannot run (blocked by TypeScript errors)
 
 **Recommendation**: After fixing TypeScript errors:
+
 ```bash
 npm run format
 ```
@@ -761,6 +817,7 @@ npm run format
 #### **P2-010: Large Service Files May Impact Bundle Size**
 
 **Largest Services:**
+
 - `audit-service.ts`: 1,439 lines
 - `pilot-email-service.ts`: 1,150 lines
 - `leave-eligibility-service.ts`: 1,093 lines
@@ -775,6 +832,7 @@ npm run format
 **Pattern**: `index.ts` files re-exporting everything
 
 **Example:**
+
 ```typescript
 // services/index.ts
 export * from './pilot-service'
@@ -792,6 +850,7 @@ export * from './leave-service'
 ### 12.1 Input Validation
 
 **✅ Good Practices:**
+
 - Zod schemas for all API inputs (14 schemas)
 - Search sanitization (`lib/utils/search-sanitizer.ts`)
 - XSS prevention (`lib/sanitize.ts` with DOMPurify)
@@ -809,6 +868,7 @@ export * from './leave-service'
 ### 12.2 Authentication
 
 **✅ Dual Authentication System:**
+
 - Admin: Supabase Auth
 - Pilot Portal: Custom bcrypt auth
 
@@ -819,6 +879,7 @@ export * from './leave-service'
 **File**: `lib/auth/pilot-session.ts:34-45`
 
 **Current Implementation:**
+
 ```typescript
 const sessionToken = randomBytes(32).toString('hex')
 const sessionData = JSON.stringify({
@@ -833,6 +894,7 @@ const sessionData = JSON.stringify({
 **Issue**: Session data stored as unencrypted JSON
 **Impact**: Cookie tampering possible
 **Recommendation**: Sign/encrypt session data:
+
 ```typescript
 import { seal } from '@hapi/iron'
 const sealed = await seal(sessionData, SECRET, options)
@@ -918,6 +980,7 @@ const sealed = await seal(sessionData, SECRET, options)
 ## 14. Code Quality Metrics
 
 ### Current State
+
 ```
 ✅ Architecture:           90% (excellent service layer pattern)
 ❌ Type Safety:            50% (59 compilation errors)
@@ -934,12 +997,14 @@ const sealed = await seal(sessionData, SECRET, options)
 ### Overall Grade: **C+ (7.0/10)**
 
 **Strengths:**
+
 - Excellent service layer architecture
 - Comprehensive validation layer
 - Good security practices (sanitization, CSRF)
 - Strong TypeScript configuration
 
 **Critical Weaknesses:**
+
 - 59 TypeScript compilation errors (blocks builds)
 - 36 naming convention violations
 - No unit tests

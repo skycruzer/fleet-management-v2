@@ -17,16 +17,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Use service role if available, otherwise anon key
-const supabase = createClient(
-  supabaseUrl,
-  serviceRoleKey || supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+const supabase = createClient(supabaseUrl, serviceRoleKey || supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+})
 
 async function checkAuthUsers() {
   console.log('Checking Supabase Auth users...')
@@ -68,7 +64,9 @@ async function checkPilots() {
 
   console.log(`\nFound ${data.length} pilots:`)
   data.forEach((pilot, i) => {
-    console.log(`${i + 1}. ${pilot.first_name} ${pilot.last_name} (${pilot.employee_number}) - ${pilot.email || 'No email'}`)
+    console.log(
+      `${i + 1}. ${pilot.first_name} ${pilot.last_name} (${pilot.employee_number}) - ${pilot.email || 'No email'}`
+    )
   })
 }
 
@@ -87,7 +85,9 @@ async function checkAnUsers() {
 
   console.log(`\nFound ${data.length} pilot portal users:`)
   data.forEach((user, i) => {
-    console.log(`${i + 1}. Employee #${user.employee_number} - Status: ${user.status} - Created: ${user.created_at}`)
+    console.log(
+      `${i + 1}. Employee #${user.employee_number} - Status: ${user.status} - Created: ${user.created_at}`
+    )
   })
 }
 

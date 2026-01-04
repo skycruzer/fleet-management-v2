@@ -8,7 +8,7 @@ import { readFileSync } from 'fs'
 
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -54,9 +54,8 @@ async function testLeaveReportWithUIFormat() {
   })
 
   // Check Craig Duffield specifically
-  const craigRequests = data.filter(r =>
-    r.name?.toUpperCase().includes('CRAIG') &&
-    r.name?.toUpperCase().includes('DUFFIELD')
+  const craigRequests = data.filter(
+    (r) => r.name?.toUpperCase().includes('CRAIG') && r.name?.toUpperCase().includes('DUFFIELD')
   )
 
   console.log(`\n✅ Craig Duffield: Found ${craigRequests.length} request(s)\n`)
@@ -77,11 +76,11 @@ async function testLeaveReportWithUIFormat() {
   // Summary stats (what appears in report summary)
   const summary = {
     totalRequests: data.length,
-    pending: data.filter(r => r.workflow_status?.toUpperCase() === 'PENDING').length,
-    submitted: data.filter(r => r.workflow_status?.toUpperCase() === 'SUBMITTED').length,
-    approved: data.filter(r => r.workflow_status?.toUpperCase() === 'APPROVED').length,
-    captainRequests: data.filter(r => r.rank === 'Captain').length,
-    foRequests: data.filter(r => r.rank === 'First Officer').length,
+    pending: data.filter((r) => r.workflow_status?.toUpperCase() === 'PENDING').length,
+    submitted: data.filter((r) => r.workflow_status?.toUpperCase() === 'SUBMITTED').length,
+    approved: data.filter((r) => r.workflow_status?.toUpperCase() === 'APPROVED').length,
+    captainRequests: data.filter((r) => r.rank === 'Captain').length,
+    foRequests: data.filter((r) => r.rank === 'First Officer').length,
   }
 
   console.log('\n📈 Report Summary Statistics:')

@@ -11,16 +11,18 @@ const { count: leaveCount } = await supabase
 
 console.log(`leave_requests (deprecated) table has ${leaveCount} records\n`)
 
-const { data, error } = await supabase
-  .from('leave_requests')
-  .select('*, pilot:pilots(*)')
-  .limit(2)
+const { data, error } = await supabase.from('leave_requests').select('*, pilot:pilots(*)').limit(2)
 
 if (error) {
   console.error('Error:', error)
 } else if (data && data.length > 0) {
   console.log('Sample record:')
-  console.log('Fields:', Object.keys(data[0]).filter(k => k !== 'pilot').join(', '))
+  console.log(
+    'Fields:',
+    Object.keys(data[0])
+      .filter((k) => k !== 'pilot')
+      .join(', ')
+  )
   console.log('\nFirst record:')
   console.log(JSON.stringify(data[0], null, 2))
 }

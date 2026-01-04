@@ -21,20 +21,18 @@ import { Suspense } from 'react'
  */
 export const RecentActivityWidget = dynamic(
   () =>
-    import('@/components/portal/recent-activity-widget').then(
-      (mod) => mod.RecentActivityWidget
-    ),
+    import('@/components/portal/recent-activity-widget').then((mod) => mod.RecentActivityWidget),
   {
     loading: () => (
-      <div className="rounded-lg border bg-card p-6 space-y-4">
-        <div className="h-6 w-48 bg-muted animate-pulse rounded" />
+      <div className="bg-card space-y-4 rounded-lg border p-6">
+        <div className="bg-muted h-6 w-48 animate-pulse rounded" />
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+              <div className="bg-muted h-10 w-10 animate-pulse rounded-full" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 w-3/4 bg-muted animate-pulse rounded" />
-                <div className="h-3 w-1/2 bg-muted animate-pulse rounded" />
+                <div className="bg-muted h-4 w-3/4 animate-pulse rounded" />
+                <div className="bg-muted h-3 w-1/2 animate-pulse rounded" />
               </div>
             </div>
           ))}
@@ -50,18 +48,14 @@ export const RecentActivityWidget = dynamic(
  * Reduces initial bundle size by ~7KB
  */
 export const TeamStatusWidget = dynamic(
-  () =>
-    import('@/components/portal/team-status-widget').then((mod) => mod.TeamStatusWidget),
+  () => import('@/components/portal/team-status-widget').then((mod) => mod.TeamStatusWidget),
   {
     loading: () => (
-      <div className="rounded-lg border bg-card p-6 space-y-4">
-        <div className="h-6 w-32 bg-muted animate-pulse rounded" />
+      <div className="bg-card space-y-4 rounded-lg border p-6">
+        <div className="bg-muted h-6 w-32 animate-pulse rounded" />
         <div className="grid grid-cols-3 gap-3">
           {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="h-20 bg-muted animate-pulse rounded-lg"
-            />
+            <div key={i} className="bg-muted h-20 animate-pulse rounded-lg" />
           ))}
         </div>
       </div>
@@ -79,8 +73,7 @@ export const TeamStatusWidget = dynamic(
  * These are only shown during loading states, not critical for initial render
  */
 export const DashboardSkeleton = dynamic(
-  () =>
-    import('@/components/portal/loading-skeletons').then((mod) => mod.DashboardSkeleton),
+  () => import('@/components/portal/loading-skeletons').then((mod) => mod.DashboardSkeleton),
   {
     loading: () => <div className="p-6">Loading...</div>,
     ssr: false, // No need for SSR for loading states
@@ -88,8 +81,7 @@ export const DashboardSkeleton = dynamic(
 )
 
 export const ProfileSkeleton = dynamic(
-  () =>
-    import('@/components/portal/loading-skeletons').then((mod) => mod.ProfileSkeleton),
+  () => import('@/components/portal/loading-skeletons').then((mod) => mod.ProfileSkeleton),
   {
     loading: () => <div className="p-6">Loading...</div>,
     ssr: false,
@@ -105,16 +97,15 @@ export const ProfileSkeleton = dynamic(
  * Reduces initial bundle size significantly
  */
 export const LeaveRequestForm = dynamic(
-  () =>
-    import('@/components/portal/leave-request-form').then((mod) => mod.LeaveRequestForm),
+  () => import('@/components/portal/leave-request-form').then((mod) => mod.LeaveRequestForm),
   {
     loading: () => (
       <div className="space-y-4 p-6">
-        <div className="h-10 w-full bg-muted animate-pulse rounded" />
-        <div className="h-10 w-full bg-muted animate-pulse rounded" />
-        <div className="h-10 w-full bg-muted animate-pulse rounded" />
-        <div className="h-32 w-full bg-muted animate-pulse rounded" />
-        <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded" />
+        <div className="bg-muted h-32 w-full animate-pulse rounded" />
+        <div className="bg-muted h-10 w-32 animate-pulse rounded" />
       </div>
     ),
     ssr: false, // Forms don't need SSR
@@ -122,15 +113,14 @@ export const LeaveRequestForm = dynamic(
 )
 
 export const FlightRequestForm = dynamic(
-  () =>
-    import('@/components/portal/flight-request-form').then((mod) => mod.FlightRequestForm),
+  () => import('@/components/portal/flight-request-form').then((mod) => mod.FlightRequestForm),
   {
     loading: () => (
       <div className="space-y-4 p-6">
-        <div className="h-10 w-full bg-muted animate-pulse rounded" />
-        <div className="h-10 w-full bg-muted animate-pulse rounded" />
-        <div className="h-10 w-full bg-muted animate-pulse rounded" />
-        <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded" />
+        <div className="bg-muted h-10 w-full animate-pulse rounded" />
+        <div className="bg-muted h-10 w-32 animate-pulse rounded" />
       </div>
     ),
     ssr: false,

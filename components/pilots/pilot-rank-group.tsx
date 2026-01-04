@@ -86,21 +86,24 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
     <Card className="overflow-hidden">
       {/* Rank Header */}
       <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+        className="hover:bg-muted/50 flex cursor-pointer items-center justify-between p-4 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-4 flex-1">
+        <div className="flex flex-1 items-center gap-4">
           <span className="text-2xl">{getRankIcon(rank)}</span>
-          <h3 className="text-lg font-semibold text-foreground">{rank}</h3>
+          <h3 className="text-foreground text-lg font-semibold">{rank}</h3>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
               {stats.total} Total
             </Badge>
-            <Badge variant="outline" className="text-xs border-green-500 bg-green-50 text-green-800">
+            <Badge
+              variant="outline"
+              className="border-green-500 bg-green-50 text-xs text-green-800"
+            >
               {stats.active} Active
             </Badge>
             {stats.inactive > 0 && (
-              <Badge variant="outline" className="text-xs border-gray-500 bg-gray-50 text-gray-800">
+              <Badge variant="outline" className="border-gray-500 bg-gray-50 text-xs text-gray-800">
                 {stats.inactive} Inactive
               </Badge>
             )}
@@ -115,43 +118,43 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
       {isExpanded && (
         <div className="border-t">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border">
+            <table className="divide-border min-w-full divide-y">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Seniority
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Employee ID
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Name
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Contract Type
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border bg-background">
+              <tbody className="divide-border bg-background divide-y">
                 {pilots.map((pilot) => (
                   <tr key={pilot.id} className="hover:bg-muted/50 transition-colors">
-                    <td className="px-4 py-4 text-sm font-medium text-foreground whitespace-nowrap">
+                    <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                       #{pilot.seniority_number || 'N/A'}
                     </td>
-                    <td className="px-4 py-4 text-sm text-foreground whitespace-nowrap">
+                    <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
                       {pilot.employee_id}
                     </td>
-                    <td className="px-4 py-4 text-sm text-foreground whitespace-nowrap">
+                    <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
                       {pilot.first_name} {pilot.middle_name ? `${pilot.middle_name} ` : ''}
                       {pilot.last_name}
                     </td>
-                    <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
+                    <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                       {pilot.contract_type || 'N/A'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
@@ -176,7 +179,7 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-xs hover:bg-primary hover:text-primary-foreground"
+                            className="hover:bg-primary hover:text-primary-foreground text-xs"
                           >
                             Edit
                           </Button>
@@ -184,7 +187,7 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-xs hover:bg-destructive hover:text-destructive-foreground"
+                          className="hover:bg-destructive hover:text-destructive-foreground text-xs"
                           onClick={() => {
                             setPilotToDelete(pilot)
                             setDeleteDialogOpen(true)

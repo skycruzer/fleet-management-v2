@@ -34,7 +34,10 @@ export type CaptainQualifications = {
  *
  * Extends the base Supabase pilot row type with strongly-typed captain_qualifications.
  */
-export type PilotRow = Omit<Database['public']['Tables']['pilots']['Row'], 'captain_qualifications'> & {
+export type PilotRow = Omit<
+  Database['public']['Tables']['pilots']['Row'],
+  'captain_qualifications'
+> & {
   captain_qualifications: CaptainQualifications | null
 }
 
@@ -43,7 +46,10 @@ export type PilotRow = Omit<Database['public']['Tables']['pilots']['Row'], 'capt
  *
  * Used for inserting new pilot records with type-safe qualifications.
  */
-export type PilotInsert = Omit<Database['public']['Tables']['pilots']['Insert'], 'captain_qualifications'> & {
+export type PilotInsert = Omit<
+  Database['public']['Tables']['pilots']['Insert'],
+  'captain_qualifications'
+> & {
   captain_qualifications?: CaptainQualifications | null
 }
 
@@ -52,7 +58,10 @@ export type PilotInsert = Omit<Database['public']['Tables']['pilots']['Insert'],
  *
  * Used for updating existing pilot records with type-safe qualifications.
  */
-export type PilotUpdate = Omit<Database['public']['Tables']['pilots']['Update'], 'captain_qualifications'> & {
+export type PilotUpdate = Omit<
+  Database['public']['Tables']['pilots']['Update'],
+  'captain_qualifications'
+> & {
   captain_qualifications?: CaptainQualifications | null
 }
 

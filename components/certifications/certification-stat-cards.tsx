@@ -77,7 +77,7 @@ export function CertificationStatCards({
             key={card.key}
             className={`p-3 transition-all ${
               isClickable ? 'cursor-pointer hover:shadow-md' : ''
-            } ${isActive ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+            } ${isActive ? 'ring-primary ring-2 ring-offset-2' : ''}`}
             onClick={() => onStatClick?.(card.key)}
             role={isClickable ? 'button' : undefined}
             tabIndex={isClickable ? 0 : undefined}
@@ -95,8 +95,8 @@ export function CertificationStatCards({
                 <Icon className={`h-4 w-4 ${card.iconClass}`} aria-hidden="true" />
               </div>
               <div>
-                <p className="text-xl font-bold text-foreground">{card.value}</p>
-                <p className="text-xs text-muted-foreground">{card.label}</p>
+                <p className="text-foreground text-xl font-bold">{card.value}</p>
+                <p className="text-muted-foreground text-xs">{card.label}</p>
               </div>
             </div>
           </Card>

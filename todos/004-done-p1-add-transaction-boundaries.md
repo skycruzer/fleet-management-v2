@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p1
-issue_id: "004"
+issue_id: '004'
 tags: [data-integrity, transactions, database]
 dependencies: [002]
 completed_date: 2025-10-17
@@ -20,19 +20,21 @@ Multi-step database operations have no transaction boundaries, leading to partia
 - **Agent**: data-integrity-guardian
 
 **Vulnerable Operations**:
+
 - Pilot creation with certifications (2 inserts)
 - Leave approval with balance update (2 updates)
 - Certification update with audit log (2 inserts)
 
 **Example Risk**:
+
 ```typescript
 // ❌ WRONG - No transaction
 async function createPilotWithCertifications(pilotData, certifications) {
   const { data: pilot } = await supabase.from('pilots').insert(pilotData)
   // If this fails, pilot exists but has no certifications
-  await supabase.from('pilot_checks').insert(
-    certifications.map(cert => ({ pilot_id: pilot.id, ...cert }))
-  )
+  await supabase
+    .from('pilot_checks')
+    .insert(certifications.map((cert) => ({ pilot_id: pilot.id, ...cert })))
 }
 ```
 
@@ -144,12 +146,15 @@ export async function updateLeaveRequestStatus(
 ## Work Log
 
 ### 2025-10-17 - Initial Discovery
+
 **By:** data-integrity-guardian
 **Learnings:** Critical risk for data corruption
 
 ### 2025-10-17 - Implementation Complete
+
 **By:** Claude Code (comment-resolution-specialist)
 **Actions:**
+
 - Created migration file with 5 PostgreSQL functions
 - Updated pilot-service.ts with atomic delete and create functions
 - Updated certification-service.ts with batch operations
@@ -159,15 +164,18 @@ export async function updateLeaveRequestStatus(
 - Added audit logging integration
 
 **Files Created:**
+
 - `supabase/migrations/20251017_add_transaction_boundaries.sql` (482 lines)
 - `docs/TRANSACTION-BOUNDARIES.md` (comprehensive documentation)
 
 **Files Modified:**
+
 - `lib/services/pilot-service.ts` (added createPilotWithCertifications, updated deletePilot)
 - `lib/services/certification-service.ts` (updated batchUpdateCertifications, added bulkDeleteCertifications)
 - `lib/services/leave-service.ts` (updated updateLeaveRequestStatus)
 
 **Testing Recommendations:**
+
 1. Test pilot deletion with cascade (verify no orphaned records)
 2. Test batch certification updates (verify atomic behavior)
 3. Test leave approval with audit log (verify both operations succeed)
@@ -175,6 +183,7 @@ export async function updateLeaveRequestStatus(
 5. Test error handling (verify proper error messages)
 
 **Deployment Steps:**
+
 1. Review migration file: `supabase/migrations/20251017_add_transaction_boundaries.sql`
 2. Deploy to production: `npm run db:deploy` or `supabase db push`
 3. Verify functions exist: Check Supabase dashboard → Database → Functions

@@ -303,24 +303,24 @@ export function CertificationReportForm() {
           {filterMode === 'dateRange' && (
             <div className="grid grid-cols-2 gap-4">
               <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Completion Date From</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e)
-                        handleFormChange()
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Completion Date From</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                        onChange={(e) => {
+                          field.onChange(e)
+                          handleFormChange()
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="endDate"
@@ -353,7 +353,7 @@ export function CertificationReportForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Roster Periods (Optional)</FormLabel>
-                  <FormDescription className="text-xs text-muted-foreground">
+                  <FormDescription className="text-muted-foreground text-xs">
                     Select one or more roster periods to filter by
                   </FormDescription>
                   <FormControl>
@@ -591,7 +591,11 @@ export function CertificationReportForm() {
               )}
               Preview
             </Button>
-            <Button type="button" onClick={form.handleSubmit(handleExport)} disabled={isAnyButtonLoading}>
+            <Button
+              type="button"
+              onClick={form.handleSubmit(handleExport)}
+              disabled={isAnyButtonLoading}
+            >
               {isExportButtonLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -599,7 +603,12 @@ export function CertificationReportForm() {
               )}
               Export PDF
             </Button>
-            <Button type="button" variant="secondary" onClick={handleEmail} disabled={isAnyButtonLoading}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleEmail}
+              disabled={isAnyButtonLoading}
+            >
               <Mail className="mr-2 h-4 w-4" />
               Email Report
             </Button>

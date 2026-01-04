@@ -94,7 +94,7 @@ export const Sizes: Story = {
     <div className="flex flex-wrap items-center gap-2">
       <Badge className="text-xs">Small</Badge>
       <Badge>Medium (Default)</Badge>
-      <Badge className="text-base px-3 py-1">Large</Badge>
+      <Badge className="px-3 py-1 text-base">Large</Badge>
     </div>
   ),
 }
@@ -118,7 +118,9 @@ export const AllVariants: Story = {
           <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Green</Badge>
           <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Yellow</Badge>
           <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Red</Badge>
-          <Badge className="bg-primary/10 text-primary-foreground hover:bg-primary/10">Purple</Badge>
+          <Badge className="bg-primary/10 text-primary-foreground hover:bg-primary/10">
+            Purple
+          </Badge>
           <Badge className="bg-pink-100 text-pink-800 hover:bg-pink-100">Pink</Badge>
         </div>
       </div>

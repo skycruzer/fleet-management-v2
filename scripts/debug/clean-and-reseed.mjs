@@ -9,8 +9,8 @@ const supabase = createClient(
   {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   }
 )
 
@@ -114,8 +114,10 @@ if (flightError) {
   console.error('❌ Error inserting flight requests:', flightError)
 } else {
   console.log(`✅ Inserted ${insertedFlight.length} flight requests\n`)
-  insertedFlight.forEach(req => {
-    console.log(`   - ${req.name} (${req.rank}) - ${req.request_type} - ${req.flight_date} - ${req.roster_period}`)
+  insertedFlight.forEach((req) => {
+    console.log(
+      `   - ${req.name} (${req.rank}) - ${req.request_type} - ${req.flight_date} - ${req.roster_period}`
+    )
   })
 }
 

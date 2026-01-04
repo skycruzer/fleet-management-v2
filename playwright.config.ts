@@ -23,11 +23,7 @@ export default defineConfig({
   /* Sequential execution to avoid database/server overload under concurrent load */
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['html'],
-    ['json', { outputFile: 'playwright-report/test-results.json' }],
-    ['list'],
-  ],
+  reporter: [['html'], ['json', { outputFile: 'playwright-report/test-results.json' }], ['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -55,8 +51,8 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Prevent multiple tabs/windows
         launchOptions: {
-          args: ['--disable-features=TranslateUI', '--disable-extensions']
-        }
+          args: ['--disable-features=TranslateUI', '--disable-extensions'],
+        },
       },
     },
 

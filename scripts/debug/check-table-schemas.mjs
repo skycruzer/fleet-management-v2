@@ -16,7 +16,7 @@ for (const line of lines) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { autoRefreshToken: false, persistSession: false }
+  auth: { autoRefreshToken: false, persistSession: false },
 })
 
 console.log('🔍 Checking table schemas...\n')
@@ -30,12 +30,13 @@ const { data: lr_columns } = await supabase
       WHERE table_schema = 'public'
         AND table_name = 'leave_requests'
       ORDER BY ordinal_position;
-    `
-  }).select()
+    `,
+  })
+  .select()
 
 console.log('📋 leave_requests columns:')
 if (lr_columns && lr_columns.length > 0) {
-  lr_columns.forEach(col => console.log(`   - ${col.column_name} (${col.data_type})`))
+  lr_columns.forEach((col) => console.log(`   - ${col.column_name} (${col.data_type})`))
 } else {
   console.log('   ⚠️ Could not fetch columns')
 }
@@ -49,12 +50,13 @@ const { data: fr_columns } = await supabase
       WHERE table_schema = 'public'
         AND table_name = 'flight_requests'
       ORDER BY ordinal_position;
-    `
-  }).select()
+    `,
+  })
+  .select()
 
 console.log('\n📋 flight_requests columns:')
 if (fr_columns && fr_columns.length > 0) {
-  fr_columns.forEach(col => console.log(`   - ${col.column_name} (${col.data_type})`))
+  fr_columns.forEach((col) => console.log(`   - ${col.column_name} (${col.data_type})`))
 } else {
   console.log('   ⚠️ Could not fetch columns')
 }
@@ -68,12 +70,13 @@ const { data: n_columns } = await supabase
       WHERE table_schema = 'public'
         AND table_name = 'notifications'
       ORDER BY ordinal_position;
-    `
-  }).select()
+    `,
+  })
+  .select()
 
 console.log('\n📋 notifications columns:')
 if (n_columns && n_columns.length > 0) {
-  n_columns.forEach(col => console.log(`   - ${col.column_name} (${col.data_type})`))
+  n_columns.forEach((col) => console.log(`   - ${col.column_name} (${col.data_type})`))
 } else {
   console.log('   ⚠️ Could not fetch columns')
 }
@@ -87,12 +90,13 @@ const { data: p_columns } = await supabase
       WHERE table_schema = 'public'
         AND table_name = 'pilots'
       ORDER BY ordinal_position;
-    `
-  }).select()
+    `,
+  })
+  .select()
 
 console.log('\n📋 pilots columns:')
 if (p_columns && p_columns.length > 0) {
-  p_columns.forEach(col => console.log(`   - ${col.column_name} (${col.data_type})`))
+  p_columns.forEach((col) => console.log(`   - ${col.column_name} (${col.data_type})`))
 } else {
   console.log('   ⚠️ Could not fetch columns')
 }

@@ -82,7 +82,7 @@ export default function FlightRequestForm() {
       setTimeout(async () => {
         setSuccess(false)
         router.refresh()
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
       }, 2000)
     } catch {
       setError('An unexpected error occurred')
@@ -128,7 +128,7 @@ export default function FlightRequestForm() {
           type="date"
           id="start_date"
           {...form.register('start_date')}
-          className="focus:border-primary focus:ring-primary mt-1 block w-full h-11 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
         {form.formState.errors.start_date && (
           <p className="mt-1 text-sm text-red-600">{form.formState.errors.start_date.message}</p>

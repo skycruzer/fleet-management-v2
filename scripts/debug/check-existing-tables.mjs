@@ -16,14 +16,14 @@ for (const line of lines) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { autoRefreshToken: false, persistSession: false }
+  auth: { autoRefreshToken: false, persistSession: false },
 })
 
 console.log('🔍 Checking which tables exist...\n')
 
 const tablesToCheck = [
   'an_users',
-  'pilots', 
+  'pilots',
   'pilot_users',
   'leave_requests',
   'flight_requests',
@@ -36,7 +36,7 @@ const tablesToCheck = [
   'leave_bids',
   'leave_bid_options',
   'check_types',
-  'contract_types'
+  'contract_types',
 ]
 
 const existingTables = []
@@ -45,7 +45,7 @@ const missingTables = []
 for (const table of tablesToCheck) {
   try {
     const { error } = await supabase.from(table).select('id', { count: 'exact', head: true })
-    
+
     if (!error || error.code === 'PGRST301') {
       existingTables.push(table)
       console.log(`✅ ${table} - EXISTS`)
@@ -67,9 +67,9 @@ console.log(`   Existing tables: ${existingTables.length}`)
 console.log(`   Missing tables: ${missingTables.length}`)
 
 console.log(`\n✅ Tables that exist:`)
-existingTables.forEach(t => console.log(`   - ${t}`))
+existingTables.forEach((t) => console.log(`   - ${t}`))
 
 if (missingTables.length > 0) {
   console.log(`\n❌ Tables that do NOT exist:`)
-  missingTables.forEach(t => console.log(`   - ${t}`))
+  missingTables.forEach((t) => console.log(`   - ${t}`))
 }

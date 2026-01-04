@@ -46,66 +46,59 @@ const statusConfig = {
   },
 }
 
-export function TeamStatusWidget({
-  teamMembers,
-  currentPilotRank
-}: TeamStatusWidgetProps) {
+export function TeamStatusWidget({ teamMembers, currentPilotRank }: TeamStatusWidgetProps) {
   // Filter by same rank
-  const sameRankMembers = teamMembers.filter(m => m.rank === currentPilotRank)
+  const sameRankMembers = teamMembers.filter((m) => m.rank === currentPilotRank)
 
   // Calculate stats
-  const availableCount = sameRankMembers.filter(m => m.status === 'available').length
-  const onLeaveCount = sameRankMembers.filter(m => m.status === 'on_leave').length
-  const returningSoonCount = sameRankMembers.filter(m => m.status === 'returning_soon').length
+  const availableCount = sameRankMembers.filter((m) => m.status === 'available').length
+  const onLeaveCount = sameRankMembers.filter((m) => m.status === 'on_leave').length
+  const returningSoonCount = sameRankMembers.filter((m) => m.status === 'returning_soon').length
 
   // Get members on leave or returning soon (max 5)
-  const displayMembers = sameRankMembers
-    .filter(m => m.status !== 'available')
-    .slice(0, 5)
+  const displayMembers = sameRankMembers.filter((m) => m.status !== 'available').slice(0, 5)
 
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="mb-4 flex items-center gap-2">
         <Users className="h-5 w-5 text-cyan-600" />
-        <h3 className="text-lg font-semibold text-foreground">Team Status</h3>
+        <h3 className="text-foreground text-lg font-semibold">Team Status</h3>
         <Badge variant="outline" className="ml-auto">
           {currentPilotRank}s
         </Badge>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="text-center p-3 rounded-lg bg-green-50 border border-green-200">
-          <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
+      <div className="mb-6 grid grid-cols-3 gap-3">
+        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-center">
+          <div className="mb-1 flex items-center justify-center gap-1 text-green-600">
             <CheckCircle className="h-4 w-4" />
             <p className="text-2xl font-bold">{availableCount}</p>
           </div>
-          <p className="text-xs text-green-700 font-medium">Available</p>
+          <p className="text-xs font-medium text-green-700">Available</p>
         </div>
 
-        <div className="text-center p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-          <div className="flex items-center justify-center gap-1 text-yellow-600 mb-1">
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-center">
+          <div className="mb-1 flex items-center justify-center gap-1 text-yellow-600">
             <Calendar className="h-4 w-4" />
             <p className="text-2xl font-bold">{onLeaveCount}</p>
           </div>
-          <p className="text-xs text-yellow-700 font-medium">On Leave</p>
+          <p className="text-xs font-medium text-yellow-700">On Leave</p>
         </div>
 
-        <div className="text-center p-3 rounded-lg bg-blue-50 border border-blue-200">
-          <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-center">
+          <div className="mb-1 flex items-center justify-center gap-1 text-blue-600">
             <Clock className="h-4 w-4" />
             <p className="text-2xl font-bold">{returningSoonCount}</p>
           </div>
-          <p className="text-xs text-blue-700 font-medium">Returning</p>
+          <p className="text-xs font-medium text-blue-700">Returning</p>
         </div>
       </div>
 
       {/* Team Members List */}
       {displayMembers.length > 0 ? (
         <div className="space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">
-            Current Status
-          </p>
+          <p className="text-muted-foreground text-sm font-medium">Current Status</p>
           {displayMembers.map((member) => {
             const config = statusConfig[member.status]
             const StatusIcon = config.icon
@@ -113,16 +106,12 @@ export function TeamStatusWidget({
             return (
               <div
                 key={member.id}
-                className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50"
+                className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg p-3"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {member.name}
-                  </p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-foreground truncate text-sm font-medium">{member.name}</p>
                   {member.leaveType && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {member.leaveType}
-                    </p>
+                    <p className="text-muted-foreground mt-0.5 text-xs">{member.leaveType}</p>
                   )}
                 </div>
 
@@ -138,17 +127,17 @@ export function TeamStatusWidget({
           })}
         </div>
       ) : (
-        <div className="text-center py-6">
-          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-2 opacity-50" />
-          <p className="text-sm text-muted-foreground">
+        <div className="py-6 text-center">
+          <Users className="text-muted-foreground mx-auto mb-2 h-12 w-12 opacity-50" />
+          <p className="text-muted-foreground text-sm">
             All {currentPilotRank.toLowerCase()}s are currently available
           </p>
         </div>
       )}
 
       {/* Total Team Size */}
-      <div className="mt-6 pt-4 border-t">
-        <p className="text-xs text-center text-muted-foreground">
+      <div className="mt-6 border-t pt-4">
+        <p className="text-muted-foreground text-center text-xs">
           Total {currentPilotRank}s: {sameRankMembers.length}
         </p>
       </div>

@@ -11,7 +11,7 @@ import { readFileSync } from 'fs'
 // Load environment variables from .env.local
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length > 0) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -65,15 +65,15 @@ async function verifyRetirementData() {
 
   console.log(`   ✅ Total active pilots: ${pilots.length}`)
 
-  const pilotsWithDOB = pilots.filter(p => p.date_of_birth)
-  const pilotsWithoutDOB = pilots.filter(p => !p.date_of_birth)
+  const pilotsWithDOB = pilots.filter((p) => p.date_of_birth)
+  const pilotsWithoutDOB = pilots.filter((p) => !p.date_of_birth)
 
   console.log(`   ✅ Pilots with birth date: ${pilotsWithDOB.length}`)
   console.log(`   ⚠️  Pilots missing birth date: ${pilotsWithoutDOB.length}\n`)
 
   if (pilotsWithoutDOB.length > 0) {
     console.log('   Pilots missing birth dates:')
-    pilotsWithoutDOB.forEach(p => {
+    pilotsWithoutDOB.forEach((p) => {
       console.log(`   • ${p.first_name} ${p.last_name} (${p.role})`)
     })
     console.log()
@@ -138,7 +138,7 @@ async function verifyRetirementData() {
 
   console.log(`🔴 Already Retired: ${alreadyRetired.length} pilots`)
   if (alreadyRetired.length > 0) {
-    alreadyRetired.forEach(p => {
+    alreadyRetired.forEach((p) => {
       console.log(`   • ${p.name} (${p.rank})`)
       console.log(`     Birth: ${p.birthDate}, Should have retired: ${p.retirementDate}`)
       console.log(`     Current age: ${p.currentAge} years\n`)
@@ -148,17 +148,17 @@ async function verifyRetirementData() {
   console.log(`🟡 Retiring in 2 Years: ${twoYearRetirements.length} pilots`)
   if (twoYearRetirements.length > 0) {
     // Separate by rank
-    const captains = twoYearRetirements.filter(p => p.rank === 'Captain')
-    const fos = twoYearRetirements.filter(p => p.rank === 'First Officer')
+    const captains = twoYearRetirements.filter((p) => p.rank === 'Captain')
+    const fos = twoYearRetirements.filter((p) => p.rank === 'First Officer')
 
     console.log(`   Captains: ${captains.length}`)
-    captains.forEach(p => {
+    captains.forEach((p) => {
       console.log(`   • ${p.name}`)
       console.log(`     Retirement: ${p.retirementDate} (${p.monthsUntilRetirement} months)`)
     })
 
     console.log(`\n   First Officers: ${fos.length}`)
-    fos.forEach(p => {
+    fos.forEach((p) => {
       console.log(`   • ${p.name}`)
       console.log(`     Retirement: ${p.retirementDate} (${p.monthsUntilRetirement} months)`)
     })
@@ -168,8 +168,8 @@ async function verifyRetirementData() {
   console.log(`🟢 Retiring in 5 Years: ${fiveYearRetirements.length} pilots`)
   if (fiveYearRetirements.length > 0) {
     // Separate by rank
-    const captains = fiveYearRetirements.filter(p => p.rank === 'Captain')
-    const fos = fiveYearRetirements.filter(p => p.rank === 'First Officer')
+    const captains = fiveYearRetirements.filter((p) => p.rank === 'Captain')
+    const fos = fiveYearRetirements.filter((p) => p.rank === 'First Officer')
 
     console.log(`   Captains: ${captains.length}`)
     console.log(`   First Officers: ${fos.length}\n`)

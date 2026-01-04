@@ -4,17 +4,14 @@ import { readFileSync } from 'fs'
 // Read .env.local manually
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     env[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
 async function fixRLSPolicies() {
   console.log('🔧 Fixing RLS Policies on an_users table')
@@ -100,7 +97,7 @@ fixRLSPolicies()
       process.exit(1)
     }
   })
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

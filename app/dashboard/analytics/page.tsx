@@ -193,7 +193,9 @@ export default function AnalyticsPage() {
             <span className="text-4xl">❌</span>
             <div>
               <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
-              <p className="text-muted-foreground text-sm">{error || 'Analytics data not available'}</p>
+              <p className="text-muted-foreground text-sm">
+                {error || 'Analytics data not available'}
+              </p>
             </div>
             <Button onClick={handleRefresh}>Try Again</Button>
           </div>
@@ -207,9 +209,7 @@ export default function AnalyticsPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-foreground text-xl font-bold">
-            Fleet Analytics Dashboard
-          </h2>
+          <h2 className="text-foreground text-xl font-bold">Fleet Analytics Dashboard</h2>
           <p className="text-muted-foreground mt-0.5 text-sm">
             Comprehensive analytics and key performance indicators
           </p>

@@ -170,11 +170,7 @@ class RedisCacheService {
    * @param ttlSeconds - TTL in seconds
    * @returns Cached or computed value
    */
-  async getOrSet<T>(
-    key: string,
-    computeFn: () => Promise<T>,
-    ttlSeconds: number
-  ): Promise<T> {
+  async getOrSet<T>(key: string, computeFn: () => Promise<T>, ttlSeconds: number): Promise<T> {
     const cached = await this.get<T>(key)
     if (cached !== null) {
       return cached

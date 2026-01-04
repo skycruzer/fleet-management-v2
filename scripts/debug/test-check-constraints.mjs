@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wgdmgvonqysflwdiiols.supabase.co'
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseKey) {
@@ -20,7 +21,7 @@ const test1 = await supabase.from('leave_requests').insert({
   days_count: 1,
   status: 'PENDING',
   leave_type: 'Annual',
-  notes: 'Test constraint'
+  notes: 'Test constraint',
 })
 
 if (test1.error) {
@@ -37,7 +38,7 @@ const test2 = await supabase.from('leave_requests').insert({
   days_count: 0,
   status: 'PENDING',
   leave_type: 'Annual',
-  notes: 'Test constraint'
+  notes: 'Test constraint',
 })
 
 if (test2.error) {
@@ -54,7 +55,7 @@ const test3 = await supabase.from('leave_requests').insert({
   days_count: 2,
   status: 'INVALID_STATUS',
   leave_type: 'Annual',
-  notes: 'Test constraint'
+  notes: 'Test constraint',
 })
 
 if (test3.error) {
@@ -68,7 +69,7 @@ console.log('\nTest 4: Feedback post with whitespace-only title (should FAIL)')
 const test4 = await supabase.from('feedback_posts').insert({
   title: '   ',
   content: 'Test content',
-  category: 'General'
+  category: 'General',
 })
 
 if (test4.error) {

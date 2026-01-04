@@ -30,7 +30,9 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.waitForURL('/auth/login')
 
       // Verify we're on admin login page (no 404!)
-      await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({
+        timeout: 10000,
+      })
 
       // Should NOT see 404 text
       await expect(page.getByText('404')).not.toBeVisible()
@@ -46,7 +48,9 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.waitForURL('/portal/login')
 
       // Verify we're on pilot login page (no 404!)
-      await expect(page.getByRole('heading', { name: /pilot portal|crew login/i })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole('heading', { name: /pilot portal|crew login/i })).toBeVisible({
+        timeout: 10000,
+      })
 
       // Should NOT see 404 text
       await expect(page.getByText('404')).not.toBeVisible()
@@ -74,7 +78,9 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.goto('/auth/login')
 
       // Should show login form, not 404
-      await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({
+        timeout: 10000,
+      })
       await expect(page.getByLabel(/email/i)).toBeVisible()
       await expect(page.getByLabel(/password/i)).toBeVisible()
 
@@ -87,7 +93,9 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.goto('/auth/login')
 
       // Wait for page to load
-      await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({
+        timeout: 10000,
+      })
 
       // Should have back to home link
       const backLink = page.getByRole('link', { name: /back to home/i })
@@ -107,7 +115,9 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.goto('/portal/login')
 
       // Should show login form, not 404
-      await expect(page.getByRole('heading', { name: /pilot portal|crew login/i })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole('heading', { name: /pilot portal|crew login/i })).toBeVisible({
+        timeout: 10000,
+      })
       await expect(page.getByLabel(/employee number|username/i)).toBeVisible()
       await expect(page.getByLabel(/password/i)).toBeVisible()
 
@@ -120,7 +130,9 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.goto('/portal/login')
 
       // Wait for page to load
-      await expect(page.getByRole('heading', { name: /pilot portal|crew login/i })).toBeVisible({ timeout: 10000 })
+      await expect(page.getByRole('heading', { name: /pilot portal|crew login/i })).toBeVisible({
+        timeout: 10000,
+      })
 
       // Should have back to home link
       const backLink = page.getByRole('link', { name: /back to home/i })
@@ -165,7 +177,10 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.waitForTimeout(2000)
 
       const url = page.url()
-      const hasLoginOrError = url.includes('/auth/login') || url.includes('/login') || await page.getByText(/unauthorized|access denied|sign in/i).isVisible()
+      const hasLoginOrError =
+        url.includes('/auth/login') ||
+        url.includes('/login') ||
+        (await page.getByText(/unauthorized|access denied|sign in/i).isVisible())
 
       expect(hasLoginOrError).toBeTruthy()
     })
@@ -177,7 +192,9 @@ test.describe('Comprehensive Navigation Tests', () => {
       await page.waitForTimeout(2000)
 
       const url = page.url()
-      const hasLoginOrError = url.includes('/portal/login') || await page.getByText(/unauthorized|access denied|sign in/i).isVisible()
+      const hasLoginOrError =
+        url.includes('/portal/login') ||
+        (await page.getByText(/unauthorized|access denied|sign in/i).isVisible())
 
       expect(hasLoginOrError).toBeTruthy()
     })
@@ -199,7 +216,9 @@ test.describe('Comprehensive Navigation Tests', () => {
         await expect(page.getByText('404')).not.toBeVisible()
 
         // Should show expected content
-        await expect(page.getByRole('heading', { name: route.expectedHeading })).toBeVisible({ timeout: 10000 })
+        await expect(page.getByRole('heading', { name: route.expectedHeading })).toBeVisible({
+          timeout: 10000,
+        })
       })
     }
   })

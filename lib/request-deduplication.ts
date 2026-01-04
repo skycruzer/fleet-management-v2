@@ -51,10 +51,7 @@ class RequestDeduplicationManager {
    * )
    * ```
    */
-  async deduplicate<T>(
-    key: string,
-    requestFn: () => Promise<T>
-  ): Promise<T> {
+  async deduplicate<T>(key: string, requestFn: () => Promise<T>): Promise<T> {
     // Check if request is already in-flight
     const existing = this.pendingRequests.get(key)
 
@@ -157,7 +154,7 @@ export function generateRequestKey(
   if (params && Object.keys(params).length > 0) {
     const sortedParams = Object.keys(params)
       .sort()
-      .map(k => `${k}=${JSON.stringify(params[k])}`)
+      .map((k) => `${k}=${JSON.stringify(params[k])}`)
       .join('&')
     key += `?${sortedParams}`
   }
@@ -181,12 +178,13 @@ export function generateRequestKey(
  * const data = await response.json()
  * ```
  */
-export async function deduplicatedFetch(
-  url: string,
-  options?: RequestInit
-): Promise<Response> {
+export async function deduplicatedFetch(url: string, options?: RequestInit): Promise<Response> {
   const method = options?.method || 'GET'
-  const key = generateRequestKey(method, url, options?.body ? JSON.parse(options.body as string) : undefined)
+  const key = generateRequestKey(
+    method,
+    url,
+    options?.body ? JSON.parse(options.body as string) : undefined
+  )
 
   return requestDeduplicator.deduplicate(key, () => fetch(url, options))
 }
@@ -217,10 +215,7 @@ export function createDeduplicatedSubmitHandler<T>(
   key: string
 ): (data: T) => Promise<void> {
   return async (data: T) => {
-    return requestDeduplicator.deduplicate(
-      `submit:${key}`,
-      () => submitFn(data)
-    )
+    return requestDeduplicator.deduplicate(`submit:${key}`, () => submitFn(data))
   }
 }
 

@@ -177,17 +177,11 @@ export function Modal({
           {/* Header */}
           <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
             <div className="flex-1">
-              <h2
-                id={titleId}
-                className="text-xl font-semibold text-gray-900"
-              >
+              <h2 id={titleId} className="text-xl font-semibold text-gray-900">
                 {title}
               </h2>
               {description && (
-                <p
-                  id={descriptionId}
-                  className="mt-1 text-sm text-gray-600"
-                >
+                <p id={descriptionId} className="mt-1 text-sm text-gray-600">
                   {description}
                 </p>
               )}
@@ -208,9 +202,7 @@ export function Modal({
           </div>
 
           {/* Body */}
-          <div className="px-6 py-4">
-            {children}
-          </div>
+          <div className="px-6 py-4">{children}</div>
         </div>
       </div>
     </div>

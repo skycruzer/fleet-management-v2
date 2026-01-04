@@ -157,7 +157,9 @@ test.describe('Button Interactions - CRUD Operations', () => {
 
       // Should show loading state or reload data
       await page.waitForTimeout(1000)
-      await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({ timeout: 60000 })
+      await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible({
+        timeout: 60000,
+      })
     }
   })
 })
@@ -355,7 +357,7 @@ test.describe('Filter Interactions', () => {
     const startDateFilter = page.getByLabel(/start date|from/i)
     const endDateFilter = page.getByLabel(/end date|to/i)
 
-    if (await startDateFilter.isVisible() && await endDateFilter.isVisible()) {
+    if ((await startDateFilter.isVisible()) && (await endDateFilter.isVisible())) {
       await startDateFilter.fill('2025-01-01')
       await endDateFilter.fill('2025-12-31')
 
@@ -474,7 +476,8 @@ test.describe('Pagination Controls', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Look for pagination controls
-    const nextButton = page.getByRole('button', { name: /next/i })
+    const nextButton = page
+      .getByRole('button', { name: /next/i })
       .or(page.locator('[aria-label*="next" i]'))
 
     if (await nextButton.isVisible()) {
@@ -490,7 +493,8 @@ test.describe('Pagination Controls', () => {
         await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
         // Test previous button
-        const prevButton = page.getByRole('button', { name: /previous|prev/i })
+        const prevButton = page
+          .getByRole('button', { name: /previous|prev/i })
           .or(page.locator('[aria-label*="previous" i]'))
 
         if (await prevButton.isVisible()) {
@@ -506,7 +510,8 @@ test.describe('Pagination Controls', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Look for items per page selector
-    const perPageSelect = page.getByLabel(/items per page|rows per page/i)
+    const perPageSelect = page
+      .getByLabel(/items per page|rows per page/i)
       .or(page.locator('select[name*="pageSize" i]'))
 
     if (await perPageSelect.isVisible()) {
@@ -515,7 +520,10 @@ test.describe('Pagination Controls', () => {
 
       // Change items per page
       await perPageSelect.click()
-      await page.getByRole('option', { name: /50|100/i }).first().click()
+      await page
+        .getByRole('option', { name: /50|100/i })
+        .first()
+        .click()
       await page.waitForTimeout(1000)
 
       // Row count should change
@@ -529,7 +537,8 @@ test.describe('Pagination Controls', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Look for page number buttons
-    const pageButton = page.getByRole('button', { name: /^2$/i })
+    const pageButton = page
+      .getByRole('button', { name: /^2$/i })
       .or(page.locator('[data-page="2"]'))
 
     if (await pageButton.isVisible()) {
@@ -702,11 +711,7 @@ test.describe('Tab Navigation', () => {
     await page.goto('/dashboard/leave')
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
-    const tabs = [
-      /all|pending/i,
-      /approved/i,
-      /denied|rejected/i,
-    ]
+    const tabs = [/all|pending/i, /approved/i, /denied|rejected/i]
 
     for (const tabName of tabs) {
       const tab = page.getByRole('tab', { name: tabName })
@@ -725,12 +730,7 @@ test.describe('Tab Navigation', () => {
     await page.goto('/dashboard/certifications')
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
-    const tabs = [
-      /all/i,
-      /expiring/i,
-      /expired/i,
-      /current/i,
-    ]
+    const tabs = [/all/i, /expiring/i, /expired/i, /current/i]
 
     for (const tabName of tabs) {
       const tab = page.getByRole('tab', { name: tabName })

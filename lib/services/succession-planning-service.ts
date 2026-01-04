@@ -74,9 +74,7 @@ export async function getCaptainPromotionCandidates(
       // If materialized view doesn't exist yet, fall back to direct query
       if (error.code === '42P01') {
         // Table doesn't exist
-        console.warn(
-          'Succession pipeline materialized view not found. Using fallback query.'
-        )
+        console.warn('Succession pipeline materialized view not found. Using fallback query.')
         return await getFallbackPromotionCandidates(readinessFilter)
       }
       throw error
@@ -94,7 +92,8 @@ export async function getCaptainPromotionCandidates(
         seniorityNumber: candidate.seniority_number,
         yearsOfService: candidate.years_of_service,
         age: candidate.age,
-        promotionReadiness: candidate.promotion_readiness as SuccessionCandidate['promotionReadiness'],
+        promotionReadiness:
+          candidate.promotion_readiness as SuccessionCandidate['promotionReadiness'],
         qualificationGaps: candidate.qualification_gaps || [],
         recommendedActions: candidate.recommended_actions || [],
       }
@@ -113,7 +112,7 @@ export async function getCaptainPromotionCandidates(
       potential,
       developing,
       summary: {
-        totalCandidates: (candidates?.length || 0),
+        totalCandidates: candidates?.length || 0,
         readyCount: ready.length,
         potentialCount: potential.length,
         developingCount: developing.length,
@@ -156,7 +155,9 @@ async function getFallbackPromotionCandidates(
 
   const { data: pilots, error } = await supabase
     .from('pilots')
-    .select('id, first_name, last_name, rank, seniority_number, commencement_date, date_of_birth, status')
+    .select(
+      'id, first_name, last_name, rank, seniority_number, commencement_date, date_of_birth, status'
+    )
     .eq('rank', 'First Officer')
     .eq('status', 'active')
     .order('seniority_number', { ascending: true })
@@ -178,9 +179,7 @@ async function getFallbackPromotionCandidates(
       (now.getTime() - commencementDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
     )
 
-    const age = Math.floor(
-      (now.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
-    )
+    const age = Math.floor((now.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25))
 
     // Calculate readiness
     let promotionReadiness: SuccessionCandidate['promotionReadiness']
@@ -322,9 +321,7 @@ export async function getSuccessionReadinessScore(): Promise<{
     // Retirement coverage score (0-20 points)
     // Perfect coverage = ready candidates >= upcoming retirements
     const coverageRatio =
-      upcomingCaptainRetirements > 0
-        ? candidates.ready.length / upcomingCaptainRetirements
-        : 1
+      upcomingCaptainRetirements > 0 ? candidates.ready.length / upcomingCaptainRetirements : 1
 
     const retirementCoveragePoints = Math.min(Math.round(coverageRatio * 20), 20)
 
@@ -369,9 +366,7 @@ export async function getSuccessionReadinessScore(): Promise<{
     }
 
     if (candidates.ready.length < upcomingCaptainRetirements) {
-      recommendations.push(
-        'Accelerate promotion training to match upcoming retirement rate'
-      )
+      recommendations.push('Accelerate promotion training to match upcoming retirement rate')
       gaps.push({
         issue: `Insufficient ready candidates (${candidates.ready.length}) for upcoming retirements (${upcomingCaptainRetirements})`,
         severity: 'high',

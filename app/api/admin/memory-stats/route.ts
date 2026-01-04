@@ -10,6 +10,7 @@
 import { NextResponse } from 'next/server'
 import { unifiedCacheService } from '@/lib/services/unified-cache-service'
 import { redisCacheService } from '@/lib/services/redis-cache-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 
 /**
  * GET /api/admin/memory-stats
@@ -21,6 +22,11 @@ import { redisCacheService } from '@/lib/services/redis-cache-service'
  */
 export async function GET() {
   try {
+    // Authentication check - admin only
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
     // Node.js memory usage
     const memoryUsage = process.memoryUsage()
 

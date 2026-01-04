@@ -92,11 +92,7 @@ export async function invalidateAfterMutation(
  */
 export async function invalidateRequestCaches(): Promise<void> {
   await invalidateAfterMutation({
-    paths: [
-      '/dashboard/requests',
-      '/dashboard/leave/approve',
-      '/dashboard/leave/calendar',
-    ],
+    paths: ['/dashboard/requests', '/dashboard/leave/approve', '/dashboard/leave/calendar'],
     tags: ['requests', 'leave-requests', 'pilot-requests'],
   })
 }

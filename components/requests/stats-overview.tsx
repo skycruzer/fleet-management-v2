@@ -58,9 +58,7 @@ function StatCard({ label, value, icon, description, variant }: StatCardProps) {
         </div>
         <div className={textStyles[variant]}>{icon}</div>
       </div>
-      {description && (
-        <p className={cn('mt-1.5 text-xs', labelStyles[variant])}>{description}</p>
-      )}
+      {description && <p className={cn('mt-1.5 text-xs', labelStyles[variant])}>{description}</p>}
     </Card>
   )
 }

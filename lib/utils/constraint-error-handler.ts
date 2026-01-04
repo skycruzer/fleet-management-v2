@@ -125,11 +125,7 @@ export function handleUniqueConstraintViolation(error: unknown): DuplicateSubmis
   const constraintName = extractConstraintName(error)
 
   if (!constraintName) {
-    return new DuplicateSubmissionError(
-      'This record already exists.',
-      'unknown',
-      'unknown'
-    )
+    return new DuplicateSubmissionError('This record already exists.', 'unknown', 'unknown')
   }
 
   const message = getConstraintErrorMessage(constraintName)
@@ -178,9 +174,7 @@ export function formatConstraintErrorResponse(error: DuplicateSubmissionError) {
  *   async () => supabase.from('leave_requests').insert(data)
  * )
  */
-export async function withConstraintErrorHandling<T>(
-  operation: () => Promise<T>
-): Promise<T> {
+export async function withConstraintErrorHandling<T>(operation: () => Promise<T>): Promise<T> {
   try {
     return await operation()
   } catch (error) {

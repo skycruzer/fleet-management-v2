@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getFlightRequestById, reviewFlightRequest } from '@/lib/services/flight-request-service'
 import { FlightRequestReviewSchema } from '@/lib/validations/flight-request-schema'
-import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
@@ -29,6 +29,12 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  */
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Authentication check - admin only
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { id: requestId } = await params
 
     // Validate UUID format

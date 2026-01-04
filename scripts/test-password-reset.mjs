@@ -32,7 +32,7 @@ function loadEnv() {
     const envFile = readFileSync(envPath, 'utf-8')
     const env = {}
 
-    envFile.split('\n').forEach(line => {
+    envFile.split('\n').forEach((line) => {
       const match = line.match(/^([^#=]+)=(.*)$/)
       if (match) {
         const key = match[1].trim()
@@ -92,7 +92,7 @@ async function testPasswordResetFlow() {
     console.log('')
 
     // Wait a moment for database write
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     // ============================================
     // STEP 2: Check Database for Token (Manual)
@@ -201,7 +201,6 @@ async function testPasswordResetFlow() {
     console.log('4. 🌐 Test UI pages (/portal/forgot-password and /portal/reset-password)')
     console.log('5. 🔒 Test complete flow with actual password change')
     console.log('')
-
   } catch (error) {
     console.error('')
     console.error('❌ Test Failed')

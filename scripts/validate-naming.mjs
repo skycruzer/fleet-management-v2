@@ -79,8 +79,14 @@ function validateFileName(filePath, fileName) {
 
   // Special Next.js files (always lowercase)
   const nextJsSpecialFiles = [
-    'page.tsx', 'layout.tsx', 'loading.tsx', 'error.tsx',
-    'not-found.tsx', 'route.ts', 'middleware.ts', 'providers.tsx'
+    'page.tsx',
+    'layout.tsx',
+    'loading.tsx',
+    'error.tsx',
+    'not-found.tsx',
+    'route.ts',
+    'middleware.ts',
+    'providers.tsx',
   ]
 
   if (nextJsSpecialFiles.includes(fileName)) {
@@ -89,8 +95,12 @@ function validateFileName(filePath, fileName) {
 
   // Configuration files
   const configFiles = [
-    'next.config.js', 'tailwind.config.ts', 'tsconfig.json',
-    'eslint.config.mjs', 'playwright.config.ts', 'package.json'
+    'next.config.js',
+    'tailwind.config.ts',
+    'tsconfig.json',
+    'eslint.config.mjs',
+    'playwright.config.ts',
+    'package.json',
   ]
 
   if (configFiles.includes(fileName)) {
@@ -105,7 +115,7 @@ function validateFileName(filePath, fileName) {
     }
     return {
       valid: false,
-      message: `Storybook story should use kebab-case: ${baseName}.stories.tsx`
+      message: `Storybook story should use kebab-case: ${baseName}.stories.tsx`,
     }
   }
 
@@ -118,7 +128,7 @@ function validateFileName(filePath, fileName) {
     }
     return {
       valid: false,
-      message: `Test file should use kebab-case: ${baseName}${suffix}`
+      message: `Test file should use kebab-case: ${baseName}${suffix}`,
     }
   }
 
@@ -130,7 +140,7 @@ function validateFileName(filePath, fileName) {
     }
     return {
       valid: false,
-      message: `Hook should use kebab-case: use-${hookName}${ext}`
+      message: `Hook should use kebab-case: use-${hookName}${ext}`,
     }
   }
 
@@ -142,12 +152,12 @@ function validateFileName(filePath, fileName) {
     if (isPascalCase(nameWithoutExt)) {
       return {
         valid: false,
-        message: `Component file should use kebab-case, not PascalCase: ${nameWithoutExt}.tsx`
+        message: `Component file should use kebab-case, not PascalCase: ${nameWithoutExt}.tsx`,
       }
     }
     return {
       valid: false,
-      message: `Component file should use kebab-case: ${nameWithoutExt}.tsx`
+      message: `Component file should use kebab-case: ${nameWithoutExt}.tsx`,
     }
   }
 
@@ -185,7 +195,7 @@ function validateFileName(filePath, fileName) {
     if (isPascalCase(nameWithoutExt) || isCamelCase(nameWithoutExt)) {
       return {
         valid: false,
-        message: `File should use kebab-case: ${nameWithoutExt}${ext}`
+        message: `File should use kebab-case: ${nameWithoutExt}${ext}`,
       }
     }
   }
@@ -199,7 +209,7 @@ function validateFileName(filePath, fileName) {
   return {
     valid: true,
     message: 'Unknown file pattern (allowed but review recommended)',
-    warning: true
+    warning: true,
   }
 }
 
@@ -214,11 +224,13 @@ async function scanDirectory(dirPath, relativePath = '') {
     const relPath = join(relativePath, entry.name)
 
     // Skip node_modules, .next, .git, etc.
-    if (entry.name.startsWith('.') ||
-        entry.name === 'node_modules' ||
-        entry.name === '.next' ||
-        entry.name === 'dist' ||
-        entry.name === 'build') {
+    if (
+      entry.name.startsWith('.') ||
+      entry.name === 'node_modules' ||
+      entry.name === '.next' ||
+      entry.name === 'dist' ||
+      entry.name === 'build'
+    ) {
       continue
     }
 
@@ -228,7 +240,7 @@ async function scanDirectory(dirPath, relativePath = '') {
         results.errors.push({
           path: relPath,
           message: `Directory should use kebab-case: ${entry.name}/`,
-          severity: 'warning'
+          severity: 'warning',
         })
         results.warnings++
       }
@@ -247,7 +259,7 @@ async function scanDirectory(dirPath, relativePath = '') {
           results.errors.push({
             path: relPath,
             message: validation.message,
-            severity: 'warning'
+            severity: 'warning',
           })
         }
       } else {
@@ -255,7 +267,7 @@ async function scanDirectory(dirPath, relativePath = '') {
         results.errors.push({
           path: relPath,
           message: validation.message,
-          severity: 'error'
+          severity: 'error',
         })
       }
     }
@@ -277,8 +289,8 @@ function printResults() {
     console.log(`${colors.yellow}Issues Found:${colors.reset}\n`)
 
     // Group by severity
-    const errors = results.errors.filter(e => e.severity === 'error')
-    const warnings = results.errors.filter(e => e.severity === 'warning')
+    const errors = results.errors.filter((e) => e.severity === 'error')
+    const warnings = results.errors.filter((e) => e.severity === 'warning')
 
     if (errors.length > 0) {
       console.log(`${colors.red}Errors (${errors.length}):${colors.reset}`)
@@ -325,14 +337,7 @@ async function main() {
     console.log(`Project root: ${PROJECT_ROOT}\n`)
 
     // Scan key directories
-    const directoriesToScan = [
-      'app',
-      'components',
-      'lib',
-      'types',
-      'e2e',
-      'scripts'
-    ]
+    const directoriesToScan = ['app', 'components', 'lib', 'types', 'e2e', 'scripts']
 
     for (const dir of directoriesToScan) {
       const dirPath = join(PROJECT_ROOT, dir)

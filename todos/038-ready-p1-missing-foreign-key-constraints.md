@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p1
-issue_id: "038"
+issue_id: '038'
 tags: [database, data-integrity, foreign-keys, referential-integrity]
 dependencies: []
 completed_date: 2025-10-19
@@ -20,6 +20,7 @@ Tables have foreign key references but lack proper ON DELETE/ON UPDATE cascade r
 - **Agent**: data-integrity-guardian
 
 **Problem Scenario:**
+
 ```sql
 -- Delete pilot_user
 DELETE FROM pilot_users WHERE id = 'xxx';
@@ -74,6 +75,7 @@ ALTER TABLE feedback_votes
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** data-integrity-guardian
 **Learnings:** Missing cascade rules create orphaned records
 

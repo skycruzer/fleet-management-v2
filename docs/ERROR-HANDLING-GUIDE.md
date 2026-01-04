@@ -23,9 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ErrorBoundary>{children}</ErrorBoundary>
       </body>
     </html>
   )
@@ -47,7 +45,7 @@ async function fetchPilots() {
       source: 'PilotService.fetchPilots',
       severity: ErrorSeverity.HIGH,
       metadata: { endpoint: '/api/pilots' },
-      tags: ['api', 'pilots', 'fetch']
+      tags: ['api', 'pilots', 'fetch'],
     })
     throw error
   }
@@ -123,7 +121,7 @@ const SafePilotCard = withErrorBoundary(PilotCard)
 export function PilotList() {
   return (
     <div>
-      {pilots.map(pilot => (
+      {pilots.map((pilot) => (
         <SafePilotCard key={pilot.id} pilot={pilot} />
       ))}
     </div>
@@ -162,9 +160,9 @@ try {
     metadata: {
       pilotId,
       action: 'update',
-      fields: Object.keys(data)
+      fields: Object.keys(data),
     },
-    tags: ['pilot', 'update', 'mutation']
+    tags: ['pilot', 'update', 'mutation'],
   })
   throw error
 }
@@ -179,7 +177,7 @@ if (pilotAge > retirementAge) {
   logWarning('Pilot exceeds retirement age', {
     source: 'PilotValidation',
     metadata: { pilotId, age: pilotAge, retirementAge },
-    tags: ['validation', 'retirement']
+    tags: ['validation', 'retirement'],
   })
 }
 ```
@@ -191,7 +189,7 @@ import { logInfo } from '@/lib/error-logger'
 
 logInfo('Pilot certification updated successfully', {
   source: 'CertificationService',
-  metadata: { pilotId, certificationType }
+  metadata: { pilotId, certificationType },
 })
 ```
 
@@ -207,14 +205,11 @@ async function fetchPilots() {
 }
 
 // Wrapped with automatic error logging
-const safeFetchPilots = withErrorLogging(
-  fetchPilots,
-  {
-    source: 'PilotService.fetchPilots',
-    severity: ErrorSeverity.HIGH,
-    tags: ['api', 'pilots']
-  }
-)
+const safeFetchPilots = withErrorLogging(fetchPilots, {
+  source: 'PilotService.fetchPilots',
+  severity: ErrorSeverity.HIGH,
+  tags: ['api', 'pilots'],
+})
 
 // Use it - errors are automatically logged
 const pilots = await safeFetchPilots()
@@ -225,10 +220,10 @@ const pilots = await safeFetchPilots()
 ```tsx
 import { ErrorSeverity } from '@/lib/error-logger'
 
-ErrorSeverity.LOW       // Minor issues, warnings
-ErrorSeverity.MEDIUM    // Non-critical errors
-ErrorSeverity.HIGH      // Critical errors affecting functionality
-ErrorSeverity.CRITICAL  // System-breaking errors
+ErrorSeverity.LOW // Minor issues, warnings
+ErrorSeverity.MEDIUM // Non-critical errors
+ErrorSeverity.HIGH // Critical errors affecting functionality
+ErrorSeverity.CRITICAL // System-breaking errors
 ```
 
 ## Error Type Helpers
@@ -238,7 +233,7 @@ import {
   isNetworkError,
   isAuthError,
   isValidationError,
-  getUserFriendlyMessage
+  getUserFriendlyMessage,
 } from '@/lib/error-logger'
 
 try {
@@ -270,10 +265,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function getPilots() {
   try {
     const supabase = await createClient()
-    const { data, error } = await supabase
-      .from('pilots')
-      .select('*')
-      .order('name')
+    const { data, error } = await supabase.from('pilots').select('*').order('name')
 
     if (error) {
       throw error
@@ -284,7 +276,7 @@ export async function getPilots() {
     logError(error as Error, {
       source: 'PilotService.getPilots',
       severity: ErrorSeverity.HIGH,
-      tags: ['service', 'pilots', 'database']
+      tags: ['service', 'pilots', 'database'],
     })
     return { success: false, error: (error as Error).message }
   }
@@ -314,13 +306,10 @@ export async function GET() {
     logError(error as Error, {
       source: 'API.GET /api/pilots',
       severity: ErrorSeverity.HIGH,
-      tags: ['api', 'pilots', 'route']
+      tags: ['api', 'pilots', 'route'],
     })
 
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch pilots' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Failed to fetch pilots' }, { status: 500 })
   }
 }
 ```
@@ -328,11 +317,13 @@ export async function GET() {
 ## Development vs Production
 
 ### Development Mode
+
 - Detailed error messages shown in UI
 - Rich console logging with stack traces
 - Error details visible in ErrorBoundary
 
 ### Production Mode
+
 - Generic user-friendly messages in UI
 - Errors stored in localStorage (last 50)
 - Ready for Sentry integration
@@ -380,6 +371,7 @@ grep -r "console\.(log|error|warn)" --include="*.ts" --include="*.tsx" .
 ```
 
 Replace with appropriate logging:
+
 - `console.error()` → `logError()`
 - `console.warn()` → `logWarning()`
 - `console.log()` → `logInfo()` (or remove if not needed)
@@ -387,11 +379,13 @@ Replace with appropriate logging:
 ### 3. Integrate Sentry (Future)
 
 Add environment variable:
+
 ```env
 NEXT_PUBLIC_SENTRY_DSN=your-sentry-dsn
 ```
 
 Update `lib/error-logger.ts`:
+
 ```tsx
 import * as Sentry from '@sentry/nextjs'
 
@@ -429,11 +423,7 @@ import { logError, ErrorSeverity, withErrorLogging } from '@/lib/error-logger'
 export const getPilotById = withErrorLogging(
   async (id: string) => {
     const supabase = await createClient()
-    const { data, error } = await supabase
-      .from('pilots')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const { data, error } = await supabase.from('pilots').select('*').eq('id', id).single()
 
     if (error) throw error
     return data
@@ -441,7 +431,7 @@ export const getPilotById = withErrorLogging(
   {
     source: 'PilotService.getPilotById',
     severity: ErrorSeverity.HIGH,
-    tags: ['service', 'pilot', 'read']
+    tags: ['service', 'pilot', 'read'],
   }
 )
 ```
@@ -465,9 +455,9 @@ async function onSubmit(data: PilotFormData) {
       userId: user?.id,
       metadata: {
         pilotId: pilot.id,
-        action: 'update'
+        action: 'update',
       },
-      tags: ['form', 'pilot', 'update']
+      tags: ['form', 'pilot', 'update'],
     })
     toast.error('Failed to update pilot')
   } finally {
@@ -490,7 +480,7 @@ export default function PilotsPage() {
           source: 'PilotsPage',
           severity: ErrorSeverity.CRITICAL,
           componentStack: errorInfo.componentStack,
-          tags: ['page', 'pilots', 'render-error']
+          tags: ['page', 'pilots', 'render-error'],
         })
       }}
     >

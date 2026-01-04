@@ -10,7 +10,7 @@ import { readFileSync } from 'fs'
 // Load environment variables from .env.local
 const envFile = readFileSync('.env.local', 'utf-8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     env[key.trim()] = valueParts.join('=').trim()
@@ -33,7 +33,7 @@ const { data, error } = await supabase.rpc('exec_sql', {
       ELSE 'EMAIL'
     END
     WHERE request_method IS NULL;
-  `
+  `,
 })
 
 if (error) {
@@ -93,12 +93,10 @@ const { count: remainingNulls } = await supabase
 console.log(`\n📊 Remaining NULL request_method records: ${remainingNulls}`)
 
 // Show distribution
-const { data: distribution } = await supabase
-  .from('leave_requests')
-  .select('request_method')
+const { data: distribution } = await supabase.from('leave_requests').select('request_method')
 
 const counts = {}
-distribution?.forEach(r => {
+distribution?.forEach((r) => {
   const method = r.request_method || 'NULL'
   counts[method] = (counts[method] || 0) + 1
 })

@@ -11,9 +11,16 @@
 import { predictCrewShortages } from '@/lib/services/analytics-service'
 import { NextRequest, NextResponse } from 'next/server'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 
 export async function GET(request: NextRequest) {
   try {
+    // Authentication check - admin only
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
     const retirementAge = parseInt(searchParams.get('retirementAge') || '65')
     const minimumCaptains = parseInt(searchParams.get('minimumCaptains') || '10')

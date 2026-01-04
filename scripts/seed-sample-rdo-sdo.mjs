@@ -13,22 +13,19 @@ import { readFileSync } from 'fs'
 // Read .env.local manually
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 async function seedSampleRDOSDO() {
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
   console.log('🌱 Seeding Sample RDO/SDO Requests')
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
 
   // Fetch pilots
   const { data: pilots, error: pilotsError } = await supabase
@@ -48,7 +45,7 @@ async function seedSampleRDOSDO() {
     .from('roster_periods')
     .select('code, start_date, end_date, publish_date, request_deadline_date')
 
-  const periodMap = new Map(rosterPeriods?.map(p => [p.code, p]) || [])
+  const periodMap = new Map(rosterPeriods?.map((p) => [p.code, p]) || [])
 
   console.log(`✅ Found ${rosterPeriods?.length || 0} roster periods\n`)
 
@@ -59,21 +56,21 @@ async function seedSampleRDOSDO() {
       start_date: '2026-01-15',
       end_date: '2026-01-15',
       roster_period: 'RP02/2026',
-      reason: 'Personal appointment'
+      reason: 'Personal appointment',
     },
     {
       request_type: 'RDO',
       start_date: '2026-02-10',
       end_date: '2026-02-10',
       roster_period: 'RP03/2026',
-      reason: 'Family commitment'
+      reason: 'Family commitment',
     },
     {
       request_type: 'RDO',
       start_date: '2026-03-20',
       end_date: '2026-03-20',
       roster_period: 'RP05/2026',
-      reason: 'Medical appointment'
+      reason: 'Medical appointment',
     },
     // SDO Requests (Scheduled Day Off)
     {
@@ -81,21 +78,21 @@ async function seedSampleRDOSDO() {
       start_date: '2026-01-22',
       end_date: '2026-01-22',
       roster_period: 'RP02/2026',
-      reason: 'Pre-scheduled personal day'
+      reason: 'Pre-scheduled personal day',
     },
     {
       request_type: 'SDO',
       start_date: '2026-02-18',
       end_date: '2026-02-18',
       roster_period: 'RP03/2026',
-      reason: 'Scheduled time off'
+      reason: 'Scheduled time off',
     },
     {
       request_type: 'SDO',
       start_date: '2026-04-05',
       end_date: '2026-04-05',
       roster_period: 'RP06/2026',
-      reason: 'Personal commitments'
+      reason: 'Personal commitments',
     },
     // Mix with ANNUAL for variety
     {
@@ -103,8 +100,8 @@ async function seedSampleRDOSDO() {
       start_date: '2026-05-10',
       end_date: '2026-05-17',
       roster_period: 'RP08/2026',
-      reason: 'Annual leave - family vacation'
-    }
+      reason: 'Annual leave - family vacation',
+    },
   ]
 
   let insertedCount = 0
@@ -116,7 +113,9 @@ async function seedSampleRDOSDO() {
     const period = periodMap.get(template.roster_period)
 
     if (!period) {
-      console.log(`   ⚠️  Skipping ${template.request_type} - roster period ${template.roster_period} not found`)
+      console.log(
+        `   ⚠️  Skipping ${template.request_type} - roster period ${template.roster_period} not found`
+      )
       failedCount++
       continue
     }
@@ -141,18 +140,21 @@ async function seedSampleRDOSDO() {
       reason: template.reason,
       notes: `Sample ${template.request_type} request for testing`,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
-    const { error: insertError } = await supabase
-      .from('pilot_requests')
-      .insert(request)
+    const { error: insertError } = await supabase.from('pilot_requests').insert(request)
 
     if (insertError) {
-      console.log(`   ❌ Failed to insert ${template.request_type} for ${pilot.first_name} ${pilot.last_name}:`, insertError.message)
+      console.log(
+        `   ❌ Failed to insert ${template.request_type} for ${pilot.first_name} ${pilot.last_name}:`,
+        insertError.message
+      )
       failedCount++
     } else {
-      console.log(`   ✅ Inserted ${template.request_type} for ${pilot.first_name} ${pilot.last_name} (${template.roster_period})`)
+      console.log(
+        `   ✅ Inserted ${template.request_type} for ${pilot.first_name} ${pilot.last_name} (${template.roster_period})`
+      )
       insertedCount++
     }
   }

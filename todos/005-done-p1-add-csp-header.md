@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p1
-issue_id: "005"
+issue_id: '005'
 tags: [security, xss-protection, headers]
 dependencies: []
 completed_date: 2025-10-17
@@ -56,8 +56,10 @@ completed_date: 2025-10-17
 ## Work Log
 
 ### 2025-10-17 - Implementation Complete
+
 **By:** Claude Code
 **Changes Made:**
+
 - Added Content-Security-Policy header to next.config.js (lines 61-74)
 - Configured CSP with all required directives from todo specification
 - Included Supabase domain whitelisting for img-src and connect-src
@@ -65,11 +67,13 @@ completed_date: 2025-10-17
 - Updated todo status to done
 
 **Next Steps:**
+
 - Test all pages for CSP violations (check browser console)
 - Verify Supabase connections work with new CSP
 - Check for any inline script/style violations
 
 ### 2025-10-17 - Initial Discovery
+
 **By:** security-sentinel
 **Learnings:** CSP is critical XSS defense layer
 

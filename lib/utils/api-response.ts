@@ -155,9 +155,7 @@ export function errorResponse(
  * @param resource - The resource that was not found
  * @returns NextResponse with 404 status
  */
-export function notFoundResponse(
-  resource = 'Resource'
-): NextResponse<ApiErrorResponse> {
+export function notFoundResponse(resource = 'Resource'): NextResponse<ApiErrorResponse> {
   return errorResponse(`${resource} not found`, {
     message: `The requested ${resource.toLowerCase()} could not be found`,
     status: 404,
@@ -233,9 +231,7 @@ export function conflictResponse(
  * @param error - Error object or message
  * @returns NextResponse with 500 status
  */
-export function serverErrorResponse(
-  error?: Error | string
-): NextResponse<ApiErrorResponse> {
+export function serverErrorResponse(error?: Error | string): NextResponse<ApiErrorResponse> {
   const message = error instanceof Error ? error.message : error || 'Internal server error'
 
   return errorResponse('Internal Server Error', {
@@ -251,9 +247,7 @@ export function serverErrorResponse(
  * @param message - Bad request message
  * @returns NextResponse with 400 status
  */
-export function badRequestResponse(
-  message = 'Bad request'
-): NextResponse<ApiErrorResponse> {
+export function badRequestResponse(message = 'Bad request'): NextResponse<ApiErrorResponse> {
   return errorResponse('Bad Request', {
     message,
     status: 400,

@@ -11,7 +11,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('❌ Missing Supabase credentials')
@@ -73,13 +74,13 @@ function calculateRosterPeriodDates(periodNumber, year) {
     end_date: endDate.toISOString().split('T')[0],
     publish_date: publishDate.toISOString().split('T')[0],
     request_deadline_date: deadlineDate.toISOString().split('T')[0],
-    status
+    status,
   }
 }
 
 async function initializeRosterPeriods() {
   console.log('\n🚀 Initializing Roster Periods\n')
-  console.log('=' .repeat(60))
+  console.log('='.repeat(60))
 
   const currentYear = new Date().getFullYear()
   const years = [currentYear, currentYear + 1, currentYear + 2]
@@ -98,7 +99,7 @@ async function initializeRosterPeriods() {
           .from('roster_periods')
           .upsert(periodData, {
             onConflict: 'code',
-            ignoreDuplicates: false
+            ignoreDuplicates: false,
           })
           .select()
 
@@ -107,7 +108,9 @@ async function initializeRosterPeriods() {
           continue
         }
 
-        console.log(`   ✅ ${periodData.code}: ${periodData.start_date} to ${periodData.end_date} (${periodData.status})`)
+        console.log(
+          `   ✅ ${periodData.code}: ${periodData.start_date} to ${periodData.end_date} (${periodData.status})`
+        )
 
         // Check if it was an insert or update
         if (data && data.length > 0) {

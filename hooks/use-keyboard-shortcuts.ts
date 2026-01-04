@@ -119,7 +119,9 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
         return {
           ...shortcut,
           action: () => {
-            const searchInput = document.querySelector<HTMLInputElement>('input[type="search"], input[placeholder*="Search"]')
+            const searchInput = document.querySelector<HTMLInputElement>(
+              'input[type="search"], input[placeholder*="Search"]'
+            )
             searchInput?.focus()
           },
         }

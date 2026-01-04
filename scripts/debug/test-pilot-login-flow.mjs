@@ -18,7 +18,9 @@ console.log('Email: mrondeau@airniugini.com.pg\n')
 
 const { data: pilotUser, error: pilotError } = await anonClient
   .from('pilot_users')
-  .select('id, email, password_hash, auth_user_id, registration_approved, first_name, last_name, rank')
+  .select(
+    'id, email, password_hash, auth_user_id, registration_approved, first_name, last_name, rank'
+  )
   .eq('email', 'mrondeau@airniugini.com.pg')
   .single()
 
@@ -41,6 +43,6 @@ USING (true);
     email: pilotUser.email,
     name: `${pilotUser.first_name} ${pilotUser.last_name}`,
     has_password_hash: !!pilotUser.password_hash,
-    registration_approved: pilotUser.registration_approved
+    registration_approved: pilotUser.registration_approved,
   })
 }

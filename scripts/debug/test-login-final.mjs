@@ -4,17 +4,17 @@ import puppeteer from 'puppeteer'
 
 const TEST_PILOT = {
   email: 'test-pilot-1761490042775@airniugini.com.pg',
-  password: 'TempPassword123!'
+  password: 'TempPassword123!',
 }
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testLogin() {
   const browser = await puppeteer.launch({
     headless: false,
-    defaultViewport: { width: 1280, height: 800 }
+    defaultViewport: { width: 1280, height: 800 },
   })
 
   const page = await browser.newPage()
@@ -27,7 +27,7 @@ async function testLogin() {
 
   console.log('\n🌐 Navigating to login page (hard refresh)...')
   await page.goto('http://localhost:3000/portal/login', {
-    waitUntil: 'networkidle2'
+    waitUntil: 'networkidle2',
   })
 
   // Force hard refresh to get latest JavaScript

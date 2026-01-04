@@ -89,10 +89,7 @@ export function HeroStats() {
         const TrendIcon = stat.trend?.direction === 'up' ? TrendingUp : TrendingDown
 
         return (
-          <div
-            key={stat.title}
-            className="rounded-sm border border-border bg-card p-3"
-          >
+          <div key={stat.title} className="border-border bg-card rounded-sm border p-3">
             <div className="flex items-start justify-between">
               {/* Icon */}
               <div
@@ -122,26 +119,20 @@ export function HeroStats() {
 
             {/* Value */}
             <div className="mt-2">
-              <p className="font-mono text-xl font-bold text-foreground">
-                {stat.value}
-              </p>
+              <p className="text-foreground font-mono text-xl font-bold">{stat.value}</p>
             </div>
 
             {/* Title & Subtitle */}
             <div className="mt-0.5">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                 {stat.title}
               </p>
-              <p className="text-xs text-muted-foreground/70">
-                {stat.subtitle}
-              </p>
+              <p className="text-muted-foreground/70 text-xs">{stat.subtitle}</p>
             </div>
 
             {/* Trend label */}
             {stat.trend && (
-              <p className="mt-1.5 text-xs text-muted-foreground/60">
-                {stat.trend.label}
-              </p>
+              <p className="text-muted-foreground/60 mt-1.5 text-xs">{stat.trend.label}</p>
             )}
           </div>
         )

@@ -31,7 +31,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Calendar, FileText, AlertCircle, CheckCircle2, Clock, XCircle, Download } from 'lucide-react'
+import {
+  Calendar,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Download,
+} from 'lucide-react'
 import type { LeaveBid } from '@/lib/services/leave-bid-service'
 
 interface LeaveBidsClientProps {
@@ -47,7 +55,10 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
   const [error, setError] = useState<string>('')
 
   const getStatusBadge = (status: string | null) => {
-    const statusMap: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline', icon: React.ReactNode }> = {
+    const statusMap: Record<
+      string,
+      { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }
+    > = {
       PENDING: { variant: 'secondary', icon: <Clock className="mr-1 h-3 w-3" /> },
       PROCESSING: { variant: 'default', icon: <Clock className="mr-1 h-3 w-3" /> },
       APPROVED: { variant: 'default', icon: <CheckCircle2 className="mr-1 h-3 w-3" /> },
@@ -57,7 +68,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
     const config = statusMap[status || 'PENDING'] || statusMap.PENDING
 
     return (
-      <Badge variant={config.variant} className="flex items-center w-fit">
+      <Badge variant={config.variant} className="flex w-fit items-center">
         {config.icon}
         {status || 'PENDING'}
       </Badge>
@@ -105,7 +116,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
 
       // Refresh router cache
       router.refresh()
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
     } catch {
       setError('An unexpected error occurred')
     } finally {
@@ -152,7 +163,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Bids</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <FileText className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{bids.length}</div>
@@ -247,17 +258,11 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
                     <TableCell>{getPriorityBadge(bid.priority)}</TableCell>
                     <TableCell>{getStatusBadge(bid.status)}</TableCell>
                     <TableCell>
-                      {bid.submitted_at
-                        ? new Date(bid.submitted_at).toLocaleDateString()
-                        : 'N/A'}
+                      {bid.submitted_at ? new Date(bid.submitted_at).toLocaleDateString() : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleExportPDF(bid)}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => handleExportPDF(bid)}>
                           <Download className="mr-1 h-3 w-3" />
                           PDF
                         </Button>
@@ -297,11 +302,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
             <Button variant="outline" onClick={() => setShowCancelDialog(false)}>
               Keep Bid
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleCancelBid}
-              disabled={isCancelling}
-            >
+            <Button variant="destructive" onClick={handleCancelBid} disabled={isCancelling}>
               {isCancelling ? 'Cancelling...' : 'Cancel Bid'}
             </Button>
           </DialogFooter>

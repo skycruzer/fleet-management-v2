@@ -18,7 +18,13 @@ import { announceToScreenReader } from '@/lib/utils/accessibility-helpers'
 interface Notification {
   id: string
   recipient_id: string
-  type: 'leave_approved' | 'leave_denied' | 'flight_approved' | 'flight_denied' | 'certification_expiring' | 'info'
+  type:
+    | 'leave_approved'
+    | 'leave_denied'
+    | 'flight_approved'
+    | 'flight_denied'
+    | 'certification_expiring'
+    | 'info'
   title: string
   message: string
   read: boolean
@@ -48,7 +54,7 @@ interface UseRealtimeNotificationsOptions {
 export function useRealtimeNotifications({
   pilotId,
   enabled = true,
-  onNewNotification
+  onNewNotification,
 }: UseRealtimeNotificationsOptions) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
@@ -75,7 +81,7 @@ export function useRealtimeNotifications({
       if (fetchError) throw fetchError
 
       setNotifications((data as unknown as Notification[]) || [])
-      setUnreadCount((data || []).filter(n => !n.read).length)
+      setUnreadCount((data || []).filter((n) => !n.read).length)
     } catch (err) {
       console.error('Error fetching notifications:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch notifications')
@@ -85,24 +91,27 @@ export function useRealtimeNotifications({
   }, [pilotId, enabled, supabase])
 
   // Mark notification as read
-  const markAsRead = useCallback(async (notificationId: string) => {
-    try {
-      const { error: updateError } = await supabase
-        .from('notifications')
-        .update({ read: true })
-        .eq('id', notificationId)
+  const markAsRead = useCallback(
+    async (notificationId: string) => {
+      try {
+        const { error: updateError } = await supabase
+          .from('notifications')
+          .update({ read: true })
+          .eq('id', notificationId)
 
-      if (updateError) throw updateError
+        if (updateError) throw updateError
 
-      // Update local state
-      setNotifications(prev =>
-        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-      )
-      setUnreadCount(prev => Math.max(0, prev - 1))
-    } catch (err) {
-      console.error('Error marking notification as read:', err)
-    }
-  }, [supabase])
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+        )
+        setUnreadCount((prev) => Math.max(0, prev - 1))
+      } catch (err) {
+        console.error('Error marking notification as read:', err)
+      }
+    },
+    [supabase]
+  )
 
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
@@ -116,9 +125,7 @@ export function useRealtimeNotifications({
       if (updateError) throw updateError
 
       // Update local state
-      setNotifications(prev =>
-        prev.map(n => ({ ...n, read: true }))
-      )
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
       setUnreadCount(0)
 
       toast({
@@ -137,67 +144,76 @@ export function useRealtimeNotifications({
   }, [pilotId, supabase])
 
   // Delete notification
-  const deleteNotification = useCallback(async (notificationId: string) => {
-    try {
-      const { error: deleteError } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', notificationId)
+  const deleteNotification = useCallback(
+    async (notificationId: string) => {
+      try {
+        const { error: deleteError } = await supabase
+          .from('notifications')
+          .delete()
+          .eq('id', notificationId)
 
-      if (deleteError) throw deleteError
+        if (deleteError) throw deleteError
 
-      // Update local state
-      setNotifications(prev => prev.filter(n => n.id !== notificationId))
-      setUnreadCount(prev => {
-        const notification = notifications.find(n => n.id === notificationId)
-        return notification && !notification.read ? prev - 1 : prev
-      })
+        // Update local state
+        setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
+        setUnreadCount((prev) => {
+          const notification = notifications.find((n) => n.id === notificationId)
+          return notification && !notification.read ? prev - 1 : prev
+        })
 
-      toast({
-        variant: 'success',
-        title: 'Success',
-        description: 'Notification deleted',
-      })
-    } catch (err) {
-      console.error('Error deleting notification:', err)
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to delete notification',
-      })
-    }
-  }, [notifications, supabase])
+        toast({
+          variant: 'success',
+          title: 'Success',
+          description: 'Notification deleted',
+        })
+      } catch (err) {
+        console.error('Error deleting notification:', err)
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Failed to delete notification',
+        })
+      }
+    },
+    [notifications, supabase]
+  )
 
   // Handle new notification from Realtime
-  const handleNewNotification = useCallback((notification: Notification) => {
-    // Add to state
-    setNotifications(prev => [notification, ...prev])
-    setUnreadCount(prev => prev + 1)
+  const handleNewNotification = useCallback(
+    (notification: Notification) => {
+      // Add to state
+      setNotifications((prev) => [notification, ...prev])
+      setUnreadCount((prev) => prev + 1)
 
-    // Show toast notification
-    const notificationTypeMap: Record<string, { variant: 'success' | 'destructive' | 'default', title: string }> = {
-      leave_approved: { variant: 'success', title: '✅ Leave Request Approved' },
-      leave_denied: { variant: 'destructive', title: '❌ Leave Request Denied' },
-      flight_approved: { variant: 'success', title: '✅ Flight Request Approved' },
-      flight_denied: { variant: 'destructive', title: '❌ Flight Request Denied' },
-      certification_expiring: { variant: 'default', title: '⚠️ Certification Expiring' },
-      info: { variant: 'default', title: 'ℹ️ New Notification' },
-    }
+      // Show toast notification
+      const notificationTypeMap: Record<
+        string,
+        { variant: 'success' | 'destructive' | 'default'; title: string }
+      > = {
+        leave_approved: { variant: 'success', title: '✅ Leave Request Approved' },
+        leave_denied: { variant: 'destructive', title: '❌ Leave Request Denied' },
+        flight_approved: { variant: 'success', title: '✅ Flight Request Approved' },
+        flight_denied: { variant: 'destructive', title: '❌ Flight Request Denied' },
+        certification_expiring: { variant: 'default', title: '⚠️ Certification Expiring' },
+        info: { variant: 'default', title: 'ℹ️ New Notification' },
+      }
 
-    const config = notificationTypeMap[notification.type] || notificationTypeMap.info
+      const config = notificationTypeMap[notification.type] || notificationTypeMap.info
 
-    toast({
-      variant: config.variant,
-      title: config.title,
-      description: notification.message,
-    })
+      toast({
+        variant: config.variant,
+        title: config.title,
+        description: notification.message,
+      })
 
-    // Announce to screen readers
-    announceToScreenReader(`${config.title}. ${notification.message}`, 'polite')
+      // Announce to screen readers
+      announceToScreenReader(`${config.title}. ${notification.message}`, 'polite')
 
-    // Call custom handler if provided
-    onNewNotification?.(notification)
-  }, [onNewNotification])
+      // Call custom handler if provided
+      onNewNotification?.(notification)
+    },
+    [onNewNotification]
+  )
 
   // Setup Realtime subscription
   useEffect(() => {
@@ -232,8 +248,8 @@ export function useRealtimeNotifications({
         },
         (payload) => {
           const updatedNotification = payload.new as Notification
-          setNotifications(prev =>
-            prev.map(n => n.id === updatedNotification.id ? updatedNotification : n)
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === updatedNotification.id ? updatedNotification : n))
           )
         }
       )
@@ -247,7 +263,7 @@ export function useRealtimeNotifications({
         },
         (payload) => {
           const deletedId = payload.old.id as string
-          setNotifications(prev => prev.filter(n => n.id !== deletedId))
+          setNotifications((prev) => prev.filter((n) => n.id !== deletedId))
         }
       )
       .subscribe()

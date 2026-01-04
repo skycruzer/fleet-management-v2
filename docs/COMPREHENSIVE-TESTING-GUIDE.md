@@ -61,6 +61,7 @@
 **Script**: `scripts/test-all-functionality.mjs`
 
 **What It Tests**:
+
 - ✅ Dashboard pages exist (11 pages)
 - ✅ API routes exist (6 routes)
 - ✅ Form components exist (3 forms)
@@ -75,11 +76,13 @@
 - ✅ Environment variables configured
 
 **How to Run**:
+
 ```bash
 node scripts/test-all-functionality.mjs
 ```
 
 **Expected Output**:
+
 ```
 Comprehensive Functionality Test
 
@@ -119,12 +122,14 @@ Success Rate: 100%
 ### 2. TypeScript Compilation Test
 
 **What It Tests**:
+
 - Zero TypeScript errors
 - All type definitions correct
 - No `any` types in critical code
 - Proper type inference
 
 **How to Run**:
+
 ```bash
 npm run type-check
 # or
@@ -132,6 +137,7 @@ npx tsc --noEmit
 ```
 
 **Expected Output**:
+
 ```bash
 # Success (no output)
 ```
@@ -141,6 +147,7 @@ npx tsc --noEmit
 **Script**: `scripts/verify-deployment.mjs`
 
 **What It Tests**:
+
 - ✅ Git repository status
 - ✅ Production build compiles
 - ✅ TypeScript zero errors
@@ -151,11 +158,13 @@ npx tsc --noEmit
 - ✅ Error boundary exists
 
 **How to Run**:
+
 ```bash
 node scripts/verify-deployment.mjs
 ```
 
 **Expected Output**:
+
 ```
 Deployment Verification
 
@@ -181,6 +190,7 @@ All Checks Passed: Ready for Deployment
 #### Main Dashboard (`/dashboard`)
 
 **Test Cases**:
+
 ```
 □ Page loads without errors
 □ Skeleton loading shows briefly
@@ -193,6 +203,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Data Accuracy**:
+
 ```
 □ Total Pilots count matches database
 □ Active Pilots count matches database
@@ -204,6 +215,7 @@ All Checks Passed: Ready for Deployment
 #### Pilots Management
 
 **Pilots List (`/dashboard/pilots`)**:
+
 ```
 □ Page loads with skeleton
 □ All pilots display in table
@@ -216,6 +228,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Pilot Detail (`/dashboard/pilots/[id]`)**:
+
 ```
 □ Pilot details display correctly
 □ All certification cards show
@@ -228,6 +241,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **New Pilot Form (`/dashboard/pilots/new`)**:
+
 ```
 □ Form displays all required fields
 □ First name field validates (required)
@@ -244,6 +258,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Edit Pilot Form (`/dashboard/pilots/[id]/edit`)**:
+
 ```
 □ Form pre-fills with existing data
 □ All fields editable
@@ -257,6 +272,7 @@ All Checks Passed: Ready for Deployment
 #### Certifications Management
 
 **Certifications List (`/dashboard/certifications`)**:
+
 ```
 □ All certifications display
 □ Grouped by category (Medical, Flight, Simulator, Ground)
@@ -268,6 +284,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **New Certification Form**:
+
 ```
 □ Form displays all fields
 □ Pilot selector works
@@ -282,6 +299,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Edit Certification Form**:
+
 ```
 □ Form pre-fills with existing data
 □ Expiry date editable
@@ -294,6 +312,7 @@ All Checks Passed: Ready for Deployment
 #### Leave Requests Management
 
 **Leave Requests List (`/dashboard/leave`)**:
+
 ```
 □ All leave requests display
 □ Status badges show correctly (Pending, Approved, Rejected)
@@ -305,6 +324,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **New Leave Request Form**:
+
 ```
 □ Form displays all fields
 □ Pilot selector works
@@ -320,6 +340,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Approve/Reject Leave Request**:
+
 ```
 □ Approve button updates status
 □ Reject button updates status
@@ -331,6 +352,7 @@ All Checks Passed: Ready for Deployment
 #### Renewal Planning
 
 **Renewal Planning Dashboard (`/dashboard/renewal-planning`)**:
+
 ```
 □ Year selector works (current year ± 6 years)
 □ Quick stats display correctly:
@@ -347,6 +369,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Roster Period Detail**:
+
 ```
 □ Period details display
 □ Planned renewals list shows
@@ -357,6 +380,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Generate Plan Form (`/dashboard/renewal-planning/generate`)**:
+
 ```
 □ Year selector works
 □ Planning parameters display
@@ -374,6 +398,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Calendar View (`/dashboard/renewal-planning/calendar`)**:
+
 ```
 □ Monthly view displays
 □ Yearly view toggle works
@@ -387,6 +412,7 @@ All Checks Passed: Ready for Deployment
 #### Tasks Management
 
 **Tasks List (`/dashboard/tasks`)**:
+
 ```
 □ All tasks display
 □ Filter by status works (To Do, In Progress, Done)
@@ -398,6 +424,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **New Task Form**:
+
 ```
 □ Form displays all fields
 □ Title field validates (required)
@@ -414,6 +441,7 @@ All Checks Passed: Ready for Deployment
 #### Flight Requests Management
 
 **Flight Requests List (`/dashboard/flight-requests`)**:
+
 ```
 □ All flight requests display
 □ Status badges show correctly (Pending, Approved, Rejected)
@@ -424,6 +452,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Flight Request Detail**:
+
 ```
 □ Request details display
 □ Pilot information shows
@@ -437,6 +466,7 @@ All Checks Passed: Ready for Deployment
 #### Analytics Dashboard
 
 **Analytics Page (`/dashboard/analytics`)**:
+
 ```
 □ Charts display correctly
 □ Date range selector works
@@ -451,6 +481,7 @@ All Checks Passed: Ready for Deployment
 #### Disciplinary Management
 
 **Disciplinary List (`/dashboard/disciplinary`)**:
+
 ```
 □ All records display
 □ Status badges show correctly
@@ -463,6 +494,7 @@ All Checks Passed: Ready for Deployment
 #### Admin Functions
 
 **Admin Dashboard (`/dashboard/admin`)**:
+
 ```
 □ Admin access verified (403 for non-admins)
 □ System stats display
@@ -472,6 +504,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Settings Page (`/dashboard/admin/settings`)**:
+
 ```
 □ Admin access verified (403 for non-admins)
 □ System settings display
@@ -520,6 +553,7 @@ All Checks Passed: Ready for Deployment
 #### Authentication Pages
 
 **Login (`/auth/login`)**:
+
 ```
 □ Form displays
 □ Email validation works
@@ -531,6 +565,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Register (`/auth/register`)**:
+
 ```
 □ Form displays
 □ Email validation works (required, email format)
@@ -542,6 +577,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Forgot Password (`/auth/forgot-password`)**:
+
 ```
 □ Form displays
 □ Email validation works
@@ -551,6 +587,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Reset Password (`/auth/reset-password`)**:
+
 ```
 □ Form displays
 □ Password validation works
@@ -571,6 +608,7 @@ All Checks Passed: Ready for Deployment
 #### Error Pages
 
 **404 Not Found (`/404` or invalid route)**:
+
 ```
 □ Custom 404 page displays
 □ Error message shows
@@ -579,6 +617,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Error Boundary Test (`/dashboard/invalid-route-that-does-not-exist`)**:
+
 ```
 □ Error boundary catches error
 □ Error message displays
@@ -594,6 +633,7 @@ All Checks Passed: Ready for Deployment
 ### Pilots CRUD
 
 **Create**:
+
 ```
 □ POST /api/pilots works
 □ Validation works (required fields)
@@ -604,6 +644,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Read**:
+
 ```
 □ GET /api/pilots works
 □ Returns all pilots
@@ -615,6 +656,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Update**:
+
 ```
 □ PATCH /api/pilots/[id] works
 □ Validation works
@@ -625,6 +667,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Delete** (Soft Delete):
+
 ```
 □ DELETE /api/pilots/[id] works
 □ Sets is_active = false
@@ -636,6 +679,7 @@ All Checks Passed: Ready for Deployment
 ### Leave Requests CRUD
 
 **Create**:
+
 ```
 □ POST /api/leave-requests works
 □ Validation works (dates, pilot_id)
@@ -646,6 +690,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Read**:
+
 ```
 □ GET /api/leave-requests works
 □ Returns all requests
@@ -655,6 +700,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Update**:
+
 ```
 □ PATCH /api/leave-requests/[id] works
 □ Status change works (approve/reject)
@@ -663,6 +709,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Delete**:
+
 ```
 □ DELETE /api/leave-requests/[id] works (if implemented)
 □ Admin-only restriction enforced
@@ -671,6 +718,7 @@ All Checks Passed: Ready for Deployment
 ### Certifications CRUD
 
 **Create**:
+
 ```
 □ POST /api/certifications works
 □ Validation works (pilot_id, category, check_type)
@@ -680,6 +728,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Read**:
+
 ```
 □ GET /api/certifications works
 □ Returns all certifications
@@ -690,6 +739,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Update**:
+
 ```
 □ PATCH /api/certifications/[id] works
 □ Expiry date update works
@@ -698,6 +748,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Delete**:
+
 ```
 □ DELETE /api/certifications/[id] works (if implemented)
 □ Admin-only restriction enforced
@@ -706,6 +757,7 @@ All Checks Passed: Ready for Deployment
 ### Tasks CRUD
 
 **Create**:
+
 ```
 □ POST /api/tasks works
 □ Validation works
@@ -714,6 +766,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Read**:
+
 ```
 □ GET /api/tasks works
 □ Returns all tasks
@@ -721,6 +774,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Update**:
+
 ```
 □ PATCH /api/tasks/[id] works
 □ Status change works
@@ -728,6 +782,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Delete**:
+
 ```
 □ DELETE /api/tasks/[id] works (if implemented)
 ```
@@ -735,6 +790,7 @@ All Checks Passed: Ready for Deployment
 ### Flight Requests CRUD
 
 **Create**:
+
 ```
 □ POST /api/dashboard/flight-requests works
 □ Validation works
@@ -743,6 +799,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Read**:
+
 ```
 □ GET /api/dashboard/flight-requests works
 □ Returns all requests
@@ -750,6 +807,7 @@ All Checks Passed: Ready for Deployment
 ```
 
 **Update**:
+
 ```
 □ PATCH /api/dashboard/flight-requests/[id] works
 □ Status change works (approve/reject)
@@ -785,6 +843,7 @@ npx playwright show-report
 **File**: `e2e/comprehensive-functionality.spec.ts`
 
 **Test Suites**:
+
 1. Dashboard - Skeleton Loading
 2. Pilots - CRUD Operations
 3. Leave Requests - CRUD Operations
@@ -799,6 +858,7 @@ npx playwright show-report
 12. Performance
 
 **Example Test**:
+
 ```typescript
 test('should show skeleton loading then content', async ({ page }) => {
   await page.goto('/dashboard')
@@ -821,6 +881,7 @@ test('should show skeleton loading then content', async ({ page }) => {
 ### Running E2E Tests
 
 **Full Test Run**:
+
 ```bash
 npx playwright test
 
@@ -836,6 +897,7 @@ npx playwright test
 ```
 
 **Test Report**:
+
 ```bash
 npx playwright test --reporter=html
 npx playwright show-report
@@ -850,6 +912,7 @@ npx playwright show-report
 ### Page Load Performance
 
 **Target Metrics**:
+
 - **Dashboard**: <2s initial load, <1s with cache
 - **Pilots List**: <1.5s
 - **Pilot Detail**: <1s
@@ -857,6 +920,7 @@ npx playwright show-report
 - **Any Page**: <3s (worst case on slow connection)
 
 **How to Test**:
+
 ```bash
 # Manual test with Chrome DevTools
 1. Open Chrome DevTools (F12)
@@ -901,6 +965,7 @@ lighthouse http://localhost:3000/dashboard --view
 **Current**: 103 kB ✅
 
 **How to Check**:
+
 ```bash
 npm run build
 
@@ -915,6 +980,7 @@ npm run build
 ### When to Run Regression Tests
 
 Run full regression tests after:
+
 - ✅ Any database schema changes
 - ✅ API route modifications
 - ✅ Form validation changes
@@ -948,6 +1014,7 @@ Run full regression tests after:
 ### Automated Tests
 
 **Static Functionality Tests**:
+
 ```
 Tests Run:    13
 ✓ Passed:     45
@@ -959,6 +1026,7 @@ Status: ✅ ALL TESTS PASS
 ```
 
 **TypeScript Compilation**:
+
 ```
 Result: ✅ PASS
 Errors: 0
@@ -967,6 +1035,7 @@ Type Coverage: 100%
 ```
 
 **Deployment Verification**:
+
 ```
 Git Status:            ✅ PASS
 Production Build:      ✅ PASS
@@ -989,6 +1058,7 @@ Overall: ✅ READY FOR DEPLOYMENT
 **Features Tested**: 5/5 ✅
 
 **Critical Path Tests**:
+
 ```
 ✅ User Login → Dashboard
 ✅ Dashboard → Pilots List → Pilot Detail
@@ -1010,6 +1080,7 @@ Overall: ✅ READY FOR DEPLOYMENT
 **Test Cases**: 15
 
 **Expected Results** (when browsers installed):
+
 ```
 ✓ Dashboard skeleton loading
 ✓ Pilots list display
@@ -1033,6 +1104,7 @@ Overall: ✅ READY FOR DEPLOYMENT
 ### Performance Tests
 
 **Page Load Times** (production, cached):
+
 ```
 Dashboard:            1.2s ✅ (target: <2s)
 Pilots List:          0.9s ✅ (target: <1.5s)
@@ -1042,11 +1114,13 @@ Renewal Planning:     1.8s ✅ (target: <2s)
 ```
 
 **Bundle Size**:
+
 ```
 First Load JS:        103 kB ✅ (target: <110 kB)
 ```
 
 **Lighthouse Scores** (estimated):
+
 ```
 Performance:          92 ✅ (target: >90)
 Accessibility:        96 ✅ (target: >95)
@@ -1057,6 +1131,7 @@ SEO:                  92 ✅ (target: >90)
 ### Data Accuracy Tests
 
 **Dashboard Metrics**:
+
 ```
 ✅ Total Pilots: Matches database count
 ✅ Active Pilots: Matches WHERE is_active = true
@@ -1066,6 +1141,7 @@ SEO:                  92 ✅ (target: >90)
 ```
 
 **Renewal Planning Calculations**:
+
 ```
 ✅ Roster Period Dates: Feb-Nov only (correct)
 ✅ Capacity Limits: Medical=4, Flight=4, Simulator=6, Ground=8 (correct)
@@ -1074,6 +1150,7 @@ SEO:                  92 ✅ (target: >90)
 ```
 
 **Certification Expiry Calculations**:
+
 ```
 ✅ Color Coding: Green (>90 days), Yellow (30-90 days), Red (<30 days) (correct)
 ✅ Expiry Date: issue_date + validity_period (correct)
@@ -1124,6 +1201,7 @@ SEO:                  92 ✅ (target: >90)
 ### October 24, 2025 - Phase 0 Complete
 
 **Tests Executed**:
+
 1. ✅ Automated static tests (13 test categories)
 2. ✅ TypeScript compilation (0 errors)
 3. ✅ Deployment verification (8 checks)

@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = 'https://wgdmgvonqysflwdiiols.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
+const supabaseKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 console.log('🧪 Testing Database Check Constraints\n')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 
 // Get a pilot ID for testing
 const { data: pilots } = await supabase.from('pilots').select('id').limit(1)
@@ -30,7 +31,7 @@ const test1 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-19',
   days_count: 1,
-  status: 'PENDING'
+  status: 'PENDING',
 })
 
 if (test1.error) {
@@ -52,7 +53,7 @@ const test2 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-21',
   days_count: 0,
-  status: 'PENDING'
+  status: 'PENDING',
 })
 
 if (test2.error) {
@@ -74,7 +75,7 @@ const test3 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-21',
   days_count: -5,
-  status: 'PENDING'
+  status: 'PENDING',
 })
 
 if (test3.error) {
@@ -96,7 +97,7 @@ const test4 = await supabase.from('leave_requests').insert({
   start_date: '2025-10-20',
   end_date: '2025-10-21',
   days_count: 2,
-  status: 'INVALID_STATUS'
+  status: 'INVALID_STATUS',
 })
 
 if (test4.error) {
@@ -109,9 +110,9 @@ if (test4.error) {
 }
 
 console.log()
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log('\n📊 Test Summary')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log(`✅ Passed: ${passCount}`)
 console.log(`❌ Failed: ${failCount}`)
 console.log(`📈 Success Rate: ${((passCount / (passCount + failCount)) * 100).toFixed(1)}%`)

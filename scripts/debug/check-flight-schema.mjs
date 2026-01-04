@@ -5,10 +5,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-const { data } = await supabase
-  .from('pilot_requests')
-  .select('*')
-  .limit(1)
+const { data } = await supabase.from('pilot_requests').select('*').limit(1)
 
 if (data && data.length > 0) {
   console.log('Columns:', Object.keys(data[0]).sort().join(', '))

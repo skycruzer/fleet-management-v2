@@ -21,7 +21,9 @@ test.describe('Certification Management - List View', () => {
   })
 
   test('should display certifications page', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({
+      timeout: 60000,
+    })
     await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
   })
 
@@ -30,9 +32,15 @@ test.describe('Certification Management - List View', () => {
 
     // Check for key column headers
     await expect(page.getByRole('columnheader', { name: /pilot/i })).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('columnheader', { name: /check type|certification/i })).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('columnheader', { name: /expiry|expires/i })).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('columnheader', { name: /status/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('columnheader', { name: /check type|certification/i })).toBeVisible(
+      { timeout: 60000 }
+    )
+    await expect(page.getByRole('columnheader', { name: /expiry|expires/i })).toBeVisible({
+      timeout: 60000,
+    })
+    await expect(page.getByRole('columnheader', { name: /status/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should show certification count', async ({ page }) => {
@@ -50,7 +58,8 @@ test.describe('Certification Management - List View', () => {
     await expect(page.getByRole('table')).toBeVisible({ timeout: 60000 })
 
     // Look for status filter tabs or dropdown
-    const statusFilter = page.getByRole('tab', { name: /expired|expiring|current/i })
+    const statusFilter = page
+      .getByRole('tab', { name: /expired|expiring|current/i })
       .or(page.getByLabel(/status/i))
 
     if (await statusFilter.first().isVisible()) {
@@ -144,7 +153,9 @@ test.describe('Certification Management - Create Certification', () => {
     await page.getByRole('button', { name: /add|new certification/i }).click()
 
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('heading', { name: /add|new certification/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /add|new certification/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should show validation errors for required fields', async ({ page }) => {
@@ -225,7 +236,9 @@ test.describe('Certification Management - Update Certification', () => {
     await firstRow.getByRole('button', { name: /edit/i }).click()
 
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 60000 })
-    await expect(page.getByRole('heading', { name: /edit certification/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /edit certification/i })).toBeVisible({
+      timeout: 60000,
+    })
   })
 
   test('should update certification dates successfully', async ({ page }) => {
@@ -258,7 +271,8 @@ test.describe('Certification Management - Expiring Certifications', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Look for expiring certifications widget
-    const expiringWidget = page.locator('[data-widget="expiring-certifications"]')
+    const expiringWidget = page
+      .locator('[data-widget="expiring-certifications"]')
       .or(page.getByRole('heading', { name: /expiring/i }))
 
     if (await expiringWidget.first().isVisible()) {
@@ -360,7 +374,8 @@ test.describe('Certification Management - Pilot Certification History', () => {
         await expect(certificationsSection).toBeVisible({ timeout: 60000 })
 
         // Should show list of certifications
-        const certList = page.locator('[data-section="certifications"]')
+        const certList = page
+          .locator('[data-section="certifications"]')
           .or(page.getByRole('table').first())
 
         await expect(certList.first()).toBeVisible({ timeout: 60000 })
@@ -401,7 +416,9 @@ test.describe('Certification Management - Responsive Design', () => {
     await page.waitForLoadState('networkidle', { timeout: 60000 })
 
     // Page should be visible
-    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({ timeout: 60000 })
+    await expect(page.getByRole('heading', { name: /certifications?/i })).toBeVisible({
+      timeout: 60000,
+    })
 
     // Content should be accessible
     const table = page.getByRole('table')

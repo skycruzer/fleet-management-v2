@@ -1,7 +1,7 @@
 ---
 status: pending
 priority: p1
-issue_id: "056"
+issue_id: '056'
 tags: [code-review, data-integrity, concurrency, critical, leave-system]
 dependencies: []
 discovered_by: data-integrity-guardian
@@ -24,10 +24,7 @@ The leave eligibility system checks crew availability using two separate databas
 
 ```typescript
 // Step 1: Get pilots (snapshot at time T1)
-const { data: pilots } = await supabase
-  .from('pilots')
-  .select('id, role')
-  .eq('is_active', true)
+const { data: pilots } = await supabase.from('pilots').select('id, role').eq('is_active', true)
 
 // ⏰ TIME PASSES - Other transactions can modify data here
 
@@ -64,12 +61,14 @@ const availableCaptains = totalCaptains - onLeaveCaptains
 ### Option 1: Atomic PostgreSQL Function with Row Locking (RECOMMENDED)
 
 **Pros**:
+
 - Complete atomicity - no race condition possible
 - Database-level locking ensures serialization
 - Consistent snapshot across all queries
 - Performance: Minimal overhead (row locks vs table locks)
 
 **Cons**:
+
 - Requires database migration
 - More complex testing
 
@@ -158,37 +157,36 @@ export async function calculateCrewAvailability(
       p_pilot_role: 'Captain',
       p_start_date: startDate,
       p_end_date: endDate,
-      p_exclude_request_id: excludeRequestId || null
+      p_exclude_request_id: excludeRequestId || null,
     }
   )
 
   if (captainError) throw captainError
 
   // ✅ NEW: Use atomic function for First Officers
-  const { data: foCheck, error: foError } = await supabase.rpc(
-    'check_crew_availability_atomic',
-    {
-      p_pilot_role: 'First Officer',
-      p_start_date: startDate,
-      p_end_date: endDate,
-      p_exclude_request_id: excludeRequestId || null
-    }
-  )
+  const { data: foCheck, error: foError } = await supabase.rpc('check_crew_availability_atomic', {
+    p_pilot_role: 'First Officer',
+    p_start_date: startDate,
+    p_end_date: endDate,
+    p_exclude_request_id: excludeRequestId || null,
+  })
 
   if (foError) throw foError
 
-  return [{
-    date: startDate,
-    availableCaptains: captainCheck.available,
-    availableFirstOfficers: foCheck.available,
-    onLeaveCaptains: captainCheck.on_leave_count,
-    onLeaveFirstOfficers: foCheck.on_leave_count,
-    totalCaptains: captainCheck.total_pilots,
-    totalFirstOfficers: foCheck.total_pilots,
-    meetsMinimum: captainCheck.can_approve && foCheck.can_approve,
-    captainsShortfall: captainCheck.remaining_after_approval - 10,
-    firstOfficersShortfall: foCheck.remaining_after_approval - 10
-  }]
+  return [
+    {
+      date: startDate,
+      availableCaptains: captainCheck.available,
+      availableFirstOfficers: foCheck.available,
+      onLeaveCaptains: captainCheck.on_leave_count,
+      onLeaveFirstOfficers: foCheck.on_leave_count,
+      totalCaptains: captainCheck.total_pilots,
+      totalFirstOfficers: foCheck.total_pilots,
+      meetsMinimum: captainCheck.can_approve && foCheck.can_approve,
+      captainsShortfall: captainCheck.remaining_after_approval - 10,
+      firstOfficersShortfall: foCheck.remaining_after_approval - 10,
+    },
+  ]
 }
 ```
 
@@ -197,6 +195,7 @@ export async function calculateCrewAvailability(
 **Pros**: No database migration needed
 
 **Cons**:
+
 - Still vulnerable to race conditions with multiple servers
 - Requires Redis or similar distributed lock
 - More complex application code
@@ -214,11 +213,13 @@ This is the industry-standard solution for preventing race conditions in concurr
 ## Technical Details
 
 **Affected Files**:
+
 - `/lib/services/leave-eligibility-service.ts` (primary fix location)
 - `supabase/migrations/20251027_atomic_crew_availability.sql` (new migration)
 - `/lib/services/leave-service.ts` (caller updates)
 
 **Related Components**:
+
 - Leave approval workflow
 - Crew availability dashboard
 - Leave request validation
@@ -242,9 +243,9 @@ test('should prevent crew minimum violations under concurrent approvals', async 
 
   // All 3 admins approve simultaneously
   await Promise.all([
-    context1.newPage().then(p => p.click('[data-testid="approve-1"]')),
-    context2.newPage().then(p => p.click('[data-testid="approve-2"]')),
-    context3.newPage().then(p => p.click('[data-testid="approve-3"]')),
+    context1.newPage().then((p) => p.click('[data-testid="approve-1"]')),
+    context2.newPage().then((p) => p.click('[data-testid="approve-2"]')),
+    context3.newPage().then((p) => p.click('[data-testid="approve-3"]')),
   ])
 
   // Verify: Maximum 2 approvals, 1 denied
@@ -264,15 +265,15 @@ config:
   target: 'http://localhost:3000'
   phases:
     - duration: 10
-      arrivalRate: 10  # 10 concurrent approvals/second
+      arrivalRate: 10 # 10 concurrent approvals/second
 
 scenarios:
-  - name: "Concurrent Leave Approvals"
+  - name: 'Concurrent Leave Approvals'
     flow:
       - post:
-          url: "/api/leave-requests/approve"
+          url: '/api/leave-requests/approve'
           json:
-            requestId: "{{ $randomUUID() }}"
+            requestId: '{{ $randomUUID() }}'
 ```
 
 ### 3. Database Function Test
@@ -301,14 +302,17 @@ COMMIT;
 ## Work Log
 
 ### 2025-10-26 - Code Review Discovery
+
 **By**: Data Integrity Guardian (Claude)
 **Actions**:
+
 - Comprehensive code review of leave eligibility system
 - Identified race condition in crew availability checks
 - Analyzed attack scenarios and real-world impact
 - Designed atomic PostgreSQL function solution
 
 **Learnings**:
+
 - Multi-query operations need transaction boundaries
 - Row-level locking prevents phantom reads
 - PostgreSQL FOR UPDATE ensures serialization
@@ -323,6 +327,7 @@ COMMIT;
 **Priority Justification**: This is P1 CRITICAL because it directly violates FAA compliance requirements for minimum crew availability. The race condition is easily triggered during high-volume approval periods (e.g., end of roster period when multiple requests are pending).
 
 **Deployment Strategy**: Can be deployed safely with zero downtime:
+
 1. Deploy PostgreSQL function
 2. Deploy updated service layer code
 3. Monitor for any errors

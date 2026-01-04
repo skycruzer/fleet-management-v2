@@ -50,20 +50,17 @@ const statusIcons = {
   info: AlertCircle,
 }
 
-export function RecentActivityWidget({
-  activities,
-  maxItems = 5
-}: RecentActivityWidgetProps) {
+export function RecentActivityWidget({ activities, maxItems = 5 }: RecentActivityWidgetProps) {
   const displayActivities = activities.slice(0, maxItems)
 
   if (displayActivities.length === 0) {
     return (
       <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <Clock className="h-5 w-5 text-cyan-600" />
-          <h3 className="text-lg font-semibold text-foreground">Recent Activity</h3>
+          <h3 className="text-foreground text-lg font-semibold">Recent Activity</h3>
         </div>
-        <p className="text-sm text-muted-foreground text-center py-8">
+        <p className="text-muted-foreground py-8 text-center text-sm">
           No recent activity to display
         </p>
       </Card>
@@ -72,9 +69,9 @@ export function RecentActivityWidget({
 
   return (
     <Card className="p-6">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="mb-4 flex items-center gap-2">
         <Clock className="h-5 w-5 text-cyan-600" />
-        <h3 className="text-lg font-semibold text-foreground">Recent Activity</h3>
+        <h3 className="text-foreground text-lg font-semibold">Recent Activity</h3>
       </div>
 
       <div className="space-y-4">
@@ -85,23 +82,19 @@ export function RecentActivityWidget({
           return (
             <div
               key={activity.id}
-              className="flex items-start gap-3 pb-4 border-b last:border-0 last:pb-0"
+              className="flex items-start gap-3 border-b pb-4 last:border-0 last:pb-0"
             >
               {/* Activity Icon */}
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-100 flex-shrink-0">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-cyan-100">
                 <Icon className="h-5 w-5 text-cyan-600" />
               </div>
 
               {/* Activity Content */}
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">
-                      {activity.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {activity.description}
-                    </p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-foreground text-sm font-medium">{activity.title}</p>
+                    <p className="text-muted-foreground mt-1 text-xs">{activity.description}</p>
                   </div>
 
                   {/* Status Badge */}
@@ -115,7 +108,7 @@ export function RecentActivityWidget({
                 </div>
 
                 {/* Timestamp */}
-                <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                <p className="text-muted-foreground mt-2 flex items-center gap-1 text-xs">
                   <Clock className="h-3 w-3" />
                   {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
                 </p>
@@ -126,8 +119,8 @@ export function RecentActivityWidget({
       </div>
 
       {activities.length > maxItems && (
-        <div className="mt-4 pt-4 border-t">
-          <p className="text-xs text-center text-muted-foreground">
+        <div className="mt-4 border-t pt-4">
+          <p className="text-muted-foreground text-center text-xs">
             Showing {maxItems} of {activities.length} activities
           </p>
         </div>

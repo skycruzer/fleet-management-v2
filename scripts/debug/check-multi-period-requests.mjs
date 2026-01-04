@@ -14,17 +14,14 @@ import { readFileSync } from 'fs'
 // Read .env.local
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 // Roster period dates (from roster_periods table)
 const ROSTER_PERIODS = {
@@ -56,9 +53,9 @@ function requestSpansPeriod(request, periodCode) {
 }
 
 async function checkMultiPeriodRequests() {
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
   console.log('🔍 Check Multi-Period Requests for RP02/2026')
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
 
   try {
     // Get all requests
@@ -78,9 +75,7 @@ async function checkMultiPeriodRequests() {
     console.log('🔍 Checking requests that span RP02/2026:')
     console.log('   (RP02/2026: 2026-01-31 to 2026-02-27)\n')
 
-    const spansRP02 = allRequests.filter(req =>
-      requestSpansPeriod(req, 'RP02/2026')
-    )
+    const spansRP02 = allRequests.filter((req) => requestSpansPeriod(req, 'RP02/2026'))
 
     if (spansRP02.length === 0) {
       console.log('   ⚠️  NO requests span RP02/2026')
@@ -88,7 +83,7 @@ async function checkMultiPeriodRequests() {
     } else {
       console.log(`   ✅ Found ${spansRP02.length} requests that span RP02/2026:\n`)
 
-      spansRP02.forEach(req => {
+      spansRP02.forEach((req) => {
         console.log(`   📝 ${req.name}`)
         console.log(`      Type: ${req.request_type} (${req.request_category})`)
         console.log(`      Dates: ${req.start_date} to ${req.end_date}`)
@@ -101,17 +96,19 @@ async function checkMultiPeriodRequests() {
     // Check requests stored as RP01/2026 that might extend into RP02/2026
     console.log('🔍 Checking RP01/2026 requests that extend into RP02/2026:\n')
 
-    const rp01Requests = allRequests.filter(req => req.roster_period === 'RP01/2026')
-    const rp01SpansRP02 = rp01Requests.filter(req => {
+    const rp01Requests = allRequests.filter((req) => req.roster_period === 'RP01/2026')
+    const rp01SpansRP02 = rp01Requests.filter((req) => {
       const endDate = new Date(req.end_date)
       const rp02Start = new Date('2026-01-31')
       return endDate >= rp02Start
     })
 
     if (rp01SpansRP02.length > 0) {
-      console.log(`   ⚠️  Found ${rp01SpansRP02.length} RP01/2026 requests that extend into RP02/2026:\n`)
+      console.log(
+        `   ⚠️  Found ${rp01SpansRP02.length} RP01/2026 requests that extend into RP02/2026:\n`
+      )
 
-      rp01SpansRP02.forEach(req => {
+      rp01SpansRP02.forEach((req) => {
         console.log(`   📝 ${req.name}`)
         console.log(`      Type: ${req.request_type} (${req.request_category})`)
         console.log(`      Dates: ${req.start_date} to ${req.end_date}`)
@@ -124,9 +121,9 @@ async function checkMultiPeriodRequests() {
     }
 
     // Summary
-    console.log('=' .repeat(70))
+    console.log('='.repeat(70))
     console.log('📊 Summary')
-    console.log('=' .repeat(70))
+    console.log('='.repeat(70))
     console.log(`\n   Total requests in system: ${allRequests.length}`)
     console.log(`   Requests stored as RP01/2026: ${rp01Requests.length}`)
     console.log(`   Requests that span RP02/2026: ${spansRP02.length}`)
@@ -134,7 +131,9 @@ async function checkMultiPeriodRequests() {
 
     if (rp01SpansRP02.length > 0) {
       console.log('\n   ⚠️  ISSUE IDENTIFIED:')
-      console.log(`      Widget shows RP02/2026 = 0, but ${rp01SpansRP02.length} requests span that period`)
+      console.log(
+        `      Widget shows RP02/2026 = 0, but ${rp01SpansRP02.length} requests span that period`
+      )
       console.log('      REASON: Widget queries by roster_period field only')
       console.log('      FIX NEEDED: Widget should check start_date/end_date ranges')
     } else if (spansRP02.length === 0) {
@@ -142,7 +141,6 @@ async function checkMultiPeriodRequests() {
     }
 
     console.log('\n' + '='.repeat(70))
-
   } catch (error) {
     console.error('\n❌ Error:', error)
     console.error(error.stack)

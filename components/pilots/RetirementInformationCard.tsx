@@ -53,7 +53,7 @@ export function RetirementInformationCard({
           </h3>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground italic">
+          <p className="text-muted-foreground text-sm italic">
             Date of birth not available - retirement information cannot be calculated
           </p>
         </CardContent>
@@ -117,11 +117,7 @@ export function RetirementInformationCard({
   return (
     <Card
       className={
-        isUrgent
-          ? 'border-red-300 bg-red-50'
-          : isWarning
-          ? 'border-orange-300 bg-orange-50'
-          : ''
+        isUrgent ? 'border-red-300 bg-red-50' : isWarning ? 'border-orange-300 bg-orange-50' : ''
       }
     >
       <CardHeader>
@@ -145,9 +141,7 @@ export function RetirementInformationCard({
           <div className="mt-3 flex items-center gap-2 text-sm text-purple-600">
             <Calendar className="h-4 w-4" />
             Retirement Date:{' '}
-            <span className="font-semibold">
-              {formatRetirementDate(countdown.retirementDate)}
-            </span>
+            <span className="font-semibold">{formatRetirementDate(countdown.retirementDate)}</span>
           </div>
         </div>
 
@@ -158,7 +152,7 @@ export function RetirementInformationCard({
             <span className="text-muted-foreground">{careerProgress.toFixed(0)}% complete</span>
           </div>
           <Progress value={careerProgress} className="h-3" />
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="text-muted-foreground flex items-center justify-between text-xs">
             <span>
               {commencementDate
                 ? `Started: ${new Date(commencementDate).toLocaleDateString('en-US', {
@@ -212,7 +206,6 @@ export function RetirementInformationCard({
             </div>
           </div>
         )}
-
       </CardContent>
     </Card>
   )

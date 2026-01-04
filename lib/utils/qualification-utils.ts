@@ -226,7 +226,9 @@ export function isLineCaptain(qualifications: CaptainQualifications | null | und
  * }
  * ```
  */
-export function isTrainingCaptain(qualifications: CaptainQualifications | null | undefined): boolean {
+export function isTrainingCaptain(
+  qualifications: CaptainQualifications | null | undefined
+): boolean {
   return qualifications?.training_captain === true
 }
 
@@ -266,7 +268,9 @@ export function isExaminer(qualifications: CaptainQualifications | null | undefi
  * }
  * ```
  */
-export function isRHSCaptainValid(qualifications: CaptainQualifications | null | undefined): boolean {
+export function isRHSCaptainValid(
+  qualifications: CaptainQualifications | null | undefined
+): boolean {
   if (!qualifications?.rhs_captain_expiry) {
     return false
   }
@@ -293,7 +297,9 @@ export function isRHSCaptainValid(qualifications: CaptainQualifications | null |
  * }
  * ```
  */
-export function getDaysUntilRHSExpiry(qualifications: CaptainQualifications | null | undefined): number | null {
+export function getDaysUntilRHSExpiry(
+  qualifications: CaptainQualifications | null | undefined
+): number | null {
   if (!qualifications?.rhs_captain_expiry) {
     return null
   }
@@ -324,7 +330,9 @@ export function getDaysUntilRHSExpiry(qualifications: CaptainQualifications | nu
  * }
  * ```
  */
-export function getRHSExpiryDate(qualifications: CaptainQualifications | null | undefined): Date | null {
+export function getRHSExpiryDate(
+  qualifications: CaptainQualifications | null | undefined
+): Date | null {
   if (!qualifications?.rhs_captain_expiry) {
     return null
   }
@@ -376,7 +384,9 @@ export function getCaptainQualificationSummary(
  * console.log(`Pilot has ${count} special qualification(s)`)
  * ```
  */
-export function countSpecialQualifications(qualifications: CaptainQualifications | null | undefined): number {
+export function countSpecialQualifications(
+  qualifications: CaptainQualifications | null | undefined
+): number {
   let count = 0
 
   if (isLineCaptain(qualifications)) count++
@@ -398,7 +408,9 @@ export function countSpecialQualifications(qualifications: CaptainQualifications
  * // Returns: ['Line Captain', 'Training Captain', 'Examiner', 'RHS Captain']
  * ```
  */
-export function getQualificationBadges(qualifications: CaptainQualifications | null | undefined): string[] {
+export function getQualificationBadges(
+  qualifications: CaptainQualifications | null | undefined
+): string[] {
   const badges: string[] = []
 
   if (isLineCaptain(qualifications)) {

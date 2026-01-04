@@ -223,7 +223,7 @@ export function LeaveBidsReportForm() {
                   checked={values.statusPending}
                   onCheckedChange={(checked) => form.setValue('statusPending', Boolean(checked))}
                 />
-                <label htmlFor="statusPending" className="text-sm cursor-pointer">
+                <label htmlFor="statusPending" className="cursor-pointer text-sm">
                   Pending
                 </label>
               </div>
@@ -233,7 +233,7 @@ export function LeaveBidsReportForm() {
                   checked={values.statusProcessing}
                   onCheckedChange={(checked) => form.setValue('statusProcessing', Boolean(checked))}
                 />
-                <label htmlFor="statusProcessing" className="text-sm cursor-pointer">
+                <label htmlFor="statusProcessing" className="cursor-pointer text-sm">
                   Processing
                 </label>
               </div>
@@ -243,7 +243,7 @@ export function LeaveBidsReportForm() {
                   checked={values.statusApproved}
                   onCheckedChange={(checked) => form.setValue('statusApproved', Boolean(checked))}
                 />
-                <label htmlFor="statusApproved" className="text-sm cursor-pointer">
+                <label htmlFor="statusApproved" className="cursor-pointer text-sm">
                   Approved
                 </label>
               </div>
@@ -253,7 +253,7 @@ export function LeaveBidsReportForm() {
                   checked={values.statusRejected}
                   onCheckedChange={(checked) => form.setValue('statusRejected', Boolean(checked))}
                 />
-                <label htmlFor="statusRejected" className="text-sm cursor-pointer">
+                <label htmlFor="statusRejected" className="cursor-pointer text-sm">
                   Rejected
                 </label>
               </div>
@@ -270,7 +270,7 @@ export function LeaveBidsReportForm() {
                   checked={values.rankCaptain}
                   onCheckedChange={(checked) => form.setValue('rankCaptain', Boolean(checked))}
                 />
-                <label htmlFor="rankCaptain" className="text-sm cursor-pointer">
+                <label htmlFor="rankCaptain" className="cursor-pointer text-sm">
                   Captain
                 </label>
               </div>
@@ -280,7 +280,7 @@ export function LeaveBidsReportForm() {
                   checked={values.rankFirstOfficer}
                   onCheckedChange={(checked) => form.setValue('rankFirstOfficer', Boolean(checked))}
                 />
-                <label htmlFor="rankFirstOfficer" className="text-sm cursor-pointer">
+                <label htmlFor="rankFirstOfficer" className="cursor-pointer text-sm">
                   First Officer
                 </label>
               </div>

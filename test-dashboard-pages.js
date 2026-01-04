@@ -3,9 +3,9 @@
  * Tests all main dashboard pages for 404 errors and loading issues
  */
 
-const http = require('http');
+const http = require('http')
 
-const baseUrl = 'http://localhost:3001';
+const baseUrl = 'http://localhost:3001'
 
 // List of main dashboard pages to test
 const dashboardPages = [
@@ -32,7 +32,7 @@ const dashboardPages = [
   '/dashboard/settings',
   '/dashboard/support',
   '/dashboard/faqs',
-];
+]
 
 function testPage(path) {
   return new Promise((resolve) => {
@@ -42,98 +42,98 @@ function testPage(path) {
       path: path,
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0'
-      }
-    };
+        'User-Agent': 'Mozilla/5.0',
+      },
+    }
 
     const req = http.request(options, (res) => {
-      const status = res.statusCode;
-      const redirectLocation = res.headers.location;
+      const status = res.statusCode
+      const redirectLocation = res.headers.location
 
       let result = {
         path,
         status,
-        result: 'UNKNOWN'
-      };
-
-      if (status === 200) {
-        result.result = '✅ OK';
-      } else if (status === 302 || status === 307) {
-        if (redirectLocation && redirectLocation.includes('/auth/login')) {
-          result.result = '✅ PROTECTED (redirects to login)';
-        } else {
-          result.result = `⚠️  REDIRECT to ${redirectLocation}`;
-        }
-      } else if (status === 404) {
-        result.result = '❌ 404 NOT FOUND';
-      } else if (status === 500) {
-        result.result = '❌ 500 SERVER ERROR';
-      } else {
-        result.result = `⚠️  ${status}`;
+        result: 'UNKNOWN',
       }
 
-      resolve(result);
-    });
+      if (status === 200) {
+        result.result = '✅ OK'
+      } else if (status === 302 || status === 307) {
+        if (redirectLocation && redirectLocation.includes('/auth/login')) {
+          result.result = '✅ PROTECTED (redirects to login)'
+        } else {
+          result.result = `⚠️  REDIRECT to ${redirectLocation}`
+        }
+      } else if (status === 404) {
+        result.result = '❌ 404 NOT FOUND'
+      } else if (status === 500) {
+        result.result = '❌ 500 SERVER ERROR'
+      } else {
+        result.result = `⚠️  ${status}`
+      }
+
+      resolve(result)
+    })
 
     req.on('error', (err) => {
       resolve({
         path,
         status: 'ERROR',
-        result: `❌ ERROR: ${err.message}`
-      });
-    });
+        result: `❌ ERROR: ${err.message}`,
+      })
+    })
 
     req.setTimeout(5000, () => {
-      req.destroy();
+      req.destroy()
       resolve({
         path,
         status: 'TIMEOUT',
-        result: '❌ TIMEOUT'
-      });
-    });
+        result: '❌ TIMEOUT',
+      })
+    })
 
-    req.end();
-  });
+    req.end()
+  })
 }
 
 async function runTests() {
-  console.log('🧪 Testing Dashboard Pages...\n');
-  console.log(`Base URL: ${baseUrl}\n`);
-  console.log('━'.repeat(80));
+  console.log('🧪 Testing Dashboard Pages...\n')
+  console.log(`Base URL: ${baseUrl}\n`)
+  console.log('━'.repeat(80))
 
-  const results = [];
+  const results = []
 
   for (const page of dashboardPages) {
-    const result = await testPage(page);
-    results.push(result);
-    console.log(`${result.result.padEnd(40)} ${page}`);
+    const result = await testPage(page)
+    results.push(result)
+    console.log(`${result.result.padEnd(40)} ${page}`)
 
     // Small delay to avoid overwhelming the server
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
-  console.log('━'.repeat(80));
+  console.log('━'.repeat(80))
 
   // Summary
-  const ok = results.filter(r => r.result.includes('✅')).length;
-  const errors = results.filter(r => r.result.includes('❌')).length;
-  const warnings = results.filter(r => r.result.includes('⚠️')).length;
+  const ok = results.filter((r) => r.result.includes('✅')).length
+  const errors = results.filter((r) => r.result.includes('❌')).length
+  const warnings = results.filter((r) => r.result.includes('⚠️')).length
 
-  console.log(`\n📊 Summary:`);
-  console.log(`   ✅ Passing: ${ok}/${results.length}`);
-  console.log(`   ❌ Errors: ${errors}`);
-  console.log(`   ⚠️  Warnings: ${warnings}`);
+  console.log(`\n📊 Summary:`)
+  console.log(`   ✅ Passing: ${ok}/${results.length}`)
+  console.log(`   ❌ Errors: ${errors}`)
+  console.log(`   ⚠️  Warnings: ${warnings}`)
 
   if (errors > 0) {
-    console.log(`\n❌ Some pages have errors. Please review.`);
-    process.exit(1);
+    console.log(`\n❌ Some pages have errors. Please review.`)
+    process.exit(1)
   } else {
-    console.log(`\n✅ All dashboard pages are accessible!`);
-    process.exit(0);
+    console.log(`\n✅ All dashboard pages are accessible!`)
+    process.exit(0)
   }
 }
 
-runTests().catch(err => {
-  console.error('Fatal error:', err);
-  process.exit(1);
-});
+runTests().catch((err) => {
+  console.error('Fatal error:', err)
+  process.exit(1)
+})

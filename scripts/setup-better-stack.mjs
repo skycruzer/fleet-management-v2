@@ -25,7 +25,7 @@ const rl = readline.createInterface({
 })
 
 function question(prompt) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     rl.question(prompt, resolve)
   })
 }
@@ -75,7 +75,9 @@ console.log('1. Go to: https://betterstack.com/logs')
 console.log('2. Sign up for a free account (1 GB/month)')
 console.log('3. Verify your email\n')
 
-const hasAccount = await question(`${COLORS.cyan}Do you have a Better Stack account? (y/n):${COLORS.reset} `)
+const hasAccount = await question(
+  `${COLORS.cyan}Do you have a Better Stack account? (y/n):${COLORS.reset} `
+)
 if (hasAccount.toLowerCase() !== 'y') {
   console.log('\n📋 Action required:')
   console.log('   1. Sign up at: https://betterstack.com/logs')
@@ -119,9 +121,7 @@ success('Both sources created')
 header('Step 3: Copy Source Tokens')
 console.log('Each source has a unique token (starts with "logtail_").\n')
 
-const serverToken = await question(
-  `${COLORS.cyan}Paste SERVER source token:${COLORS.reset} `
-)
+const serverToken = await question(`${COLORS.cyan}Paste SERVER source token:${COLORS.reset} `)
 if (!serverToken || !serverToken.startsWith('logtail_')) {
   error('Invalid server token format')
   console.log('\nToken should start with "logtail_"')
@@ -129,9 +129,7 @@ if (!serverToken || !serverToken.startsWith('logtail_')) {
   process.exit(1)
 }
 
-const clientToken = await question(
-  `${COLORS.cyan}Paste CLIENT source token:${COLORS.reset} `
-)
+const clientToken = await question(`${COLORS.cyan}Paste CLIENT source token:${COLORS.reset} `)
 if (!clientToken || !clientToken.startsWith('logtail_')) {
   error('Invalid client token format')
   console.log('\nToken should start with "logtail_"')
@@ -200,13 +198,10 @@ if (method === '1') {
 
     // Add client token
     info('Adding NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN...')
-    execSync(
-      `echo "${clientToken}" | vercel env add NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN production`,
-      {
-        encoding: 'utf8',
-        stdio: 'inherit',
-      }
-    )
+    execSync(`echo "${clientToken}" | vercel env add NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN production`, {
+      encoding: 'utf8',
+      stdio: 'inherit',
+    })
     success('Client token added')
 
     console.log('\n✅ Environment variables added successfully!\n')

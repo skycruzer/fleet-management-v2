@@ -7,7 +7,7 @@
 const PRODUCTION_URL = process.env.PRODUCTION_URL || 'https://your-app.vercel.app'
 
 console.log('🔍 Fleet Management V2 - Post-Deployment Verification')
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 console.log(`Testing: ${PRODUCTION_URL}\n`)
 
 const tests = [
@@ -60,10 +60,10 @@ async function runTests() {
     }
   }
 
-  console.log('=' .repeat(60))
+  console.log('='.repeat(60))
   console.log(`Results: ${passed} passed, ${failed} failed`)
   console.log('\n📋 Next: Login as skycruzer@icloud.com and test full workflow')
-  
+
   process.exit(failed > 0 ? 1 : 0)
 }
 

@@ -22,6 +22,7 @@ This document addresses design decisions, best practices research, and technical
 **Question**: Should pilots use a separate authentication system from admins, or share the Supabase Auth system with role differentiation?
 
 **Research**:
+
 - Existing system uses Supabase Auth with `an_users` table
 - Current admin authentication via email/password
 - No pilot-facing authentication exists yet
@@ -29,6 +30,7 @@ This document addresses design decisions, best practices research, and technical
 **Decision**: ✅ **Shared Supabase Auth with role-based routing**
 
 **Rationale**:
+
 - Single source of truth for authentication (no dual user systems)
 - Leverage existing Supabase Auth infrastructure
 - Role-based routing handles separation (`/pilot/*` vs `/dashboard/*`)
@@ -36,6 +38,7 @@ This document addresses design decisions, best practices research, and technical
 - Simplifies user management for admins
 
 **Implementation**:
+
 ```typescript
 // Add role field to an_users table (or use Supabase metadata)
 // Route protection in middleware.ts:
@@ -54,6 +57,7 @@ if (user.role === 'admin' && !path.startsWith('/dashboard')) {
 **Question**: How should pilot notifications work? Real-time subscriptions or periodic polling?
 
 **Research**:
+
 - Supabase Realtime supports PostgreSQL change events (CDC)
 - Next.js 15 Server Components don't support real-time by default
 - Need Client Component for subscriptions
@@ -61,12 +65,14 @@ if (user.role === 'admin' && !path.startsWith('/dashboard')) {
 **Decision**: ✅ **Hybrid approach - Supabase Realtime for notifications + polling fallback**
 
 **Rationale**:
+
 - Real-time subscriptions for instant updates (leave approvals, task assignments)
 - Polling fallback for offline scenarios (PWA support)
 - Unread count badge updates immediately
 - Server Components for initial load, Client Component for real-time updates
 
 **Implementation**:
+
 ```typescript
 // Client Component: components/pilot/NotificationBell.tsx
 'use client'
@@ -97,6 +103,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
 **Question**: Should we use a library like `react-beautiful-dnd` or build a custom Kanban board?
 
 **Research**:
+
 - `react-beautiful-dnd` - 30K stars, but maintenance concerns (last update 2021)
 - `@dnd-kit/core` - Modern alternative, 12K stars, active maintenance
 - `@hello-pangea/dnd` - Fork of react-beautiful-dnd with TypeScript fixes
@@ -105,6 +112,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
 **Decision**: ✅ **Use `@dnd-kit/core` for Kanban implementation**
 
 **Rationale**:
+
 - Modern, actively maintained (2024 updates)
 - Excellent TypeScript support
 - Accessibility-first design (keyboard navigation, screen readers)
@@ -113,6 +121,7 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
 - Mobile touch support built-in
 
 **Implementation**:
+
 ```bash
 npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
 ```
@@ -146,6 +155,7 @@ export function TaskKanbanView({ tasks }: { tasks: Task[] }) {
 **Question**: Should feedback comments support nested replies (Reddit-style) or flat threads (Twitter-style)?
 
 **Research**:
+
 - Nested comments require recursive component rendering
 - Flat threads easier to implement, better mobile UX
 - Aviation use case: Quick feedback and suggestions (not deep discussions)
@@ -154,6 +164,7 @@ export function TaskKanbanView({ tasks }: { tasks: Task[] }) {
 **Decision**: ✅ **Flat comment threads with @mentions**
 
 **Rationale**:
+
 - Simpler database schema (`feedback_comments` with `post_id` only)
 - Better mobile experience (less scrolling)
 - Faster rendering (no recursion)
@@ -161,6 +172,7 @@ export function TaskKanbanView({ tasks }: { tasks: Task[] }) {
 - Aviation context favors quick, actionable feedback over long discussions
 
 **Implementation**:
+
 ```typescript
 // Database schema (data-model.md will detail this)
 feedback_comments:
@@ -188,6 +200,7 @@ feedback_comments:
 **Question**: Should audit logs be generated via PostgreSQL triggers or application-level code?
 
 **Research**:
+
 - **Database triggers**: Automatic, can't be bypassed, but harder to customize messages
 - **Application-level**: More control over what gets logged, can add context (user IP, session ID)
 - Supabase supports both approaches
@@ -195,12 +208,14 @@ feedback_comments:
 **Decision**: ✅ **Hybrid: Database triggers for data changes + Application-level for business events**
 
 **Rationale**:
+
 - Database triggers ensure ALL data mutations are logged (safety net)
 - Application-level logs add business context ("Leave request approved by Manager X")
 - Critical operations get double-logged (data + business event)
 - Compliance requirement satisfied with triggers alone (complete audit trail)
 
 **Implementation**:
+
 ```sql
 -- Database trigger for auto-logging (created in migration)
 CREATE OR REPLACE FUNCTION audit_log_trigger()
@@ -238,7 +253,7 @@ export async function logBusinessEvent(event: {
   await supabase.from('audit_logs').insert({
     ...event,
     user_id: (await supabase.auth.getUser()).data.user?.id,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
   })
 }
 
@@ -248,7 +263,7 @@ await logBusinessEvent({
   entity_type: 'leave_request',
   entity_id: request.id,
   description: `Leave request for ${pilot.name} approved for RP${period}/2025`,
-  metadata: { period, pilot_id: request.pilot_id, approved_by: user.id }
+  metadata: { period, pilot_id: request.pilot_id, approved_by: user.id },
 })
 ```
 
@@ -259,6 +274,7 @@ await logBusinessEvent({
 **Question**: What's the best UI pattern for displaying disciplinary matter history?
 
 **Research**:
+
 - **Timeline view**: Chronological events with visual flow (like GitHub issue history)
 - **Table view**: Sortable, filterable grid (easier for bulk review)
 - Use case: Track investigation → warning → resolution with dates and actions
@@ -266,6 +282,7 @@ await logBusinessEvent({
 **Decision**: ✅ **Primary: Timeline view | Secondary: Table view toggle**
 
 **Rationale**:
+
 - Timeline shows progression of matter (investigation → action → resolution)
 - Better storytelling for audit purposes
 - shadcn/ui has Timeline component available
@@ -273,6 +290,7 @@ await logBusinessEvent({
 - View toggle button in header (similar to Kanban/List toggle for tasks)
 
 **Implementation**:
+
 ```typescript
 // components/disciplinary/MatterTimelineView.tsx
 import { Timeline, TimelineItem } from '@/components/ui/timeline'
@@ -306,6 +324,7 @@ export function MatterTimelineView({ matter }: { matter: DisciplinaryMatter }) {
 **Question**: Should flight requests be auto-approved based on rules, or always require manual admin review?
 
 **Research**:
+
 - Auto-approval risks: Scheduling conflicts, crew availability issues
 - Manual review: Slower but safer, allows business judgment
 - Hybrid: Auto-approve simple requests, flag complex ones for review
@@ -313,6 +332,7 @@ export function MatterTimelineView({ matter }: { matter: DisciplinaryMatter }) {
 **Decision**: ✅ **Manual approval workflow with admin review dashboard**
 
 **Rationale**:
+
 - Aviation safety: Human judgment needed for flight scheduling
 - Fleet manager needs to verify crew availability, route feasibility
 - Request complexity varies (simple swap vs major schedule change)
@@ -320,6 +340,7 @@ export function MatterTimelineView({ matter }: { matter: DisciplinaryMatter }) {
 - Future enhancement: Flag "low-risk" requests for faster approval
 
 **Implementation**:
+
 ```typescript
 // Workflow states
 type FlightRequestStatus = 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
@@ -352,6 +373,7 @@ export async function reviewFlightRequest(
 **Question**: Should pilot registration require email verification before admin approval?
 
 **Research**:
+
 - Email verification prevents fake registrations
 - But adds friction to pilot signup flow
 - Admin approval already acts as verification gate
@@ -359,6 +381,7 @@ export async function reviewFlightRequest(
 **Decision**: ✅ **Email verification required + Admin approval (two-step)**
 
 **Rationale**:
+
 - Security: Ensures pilot owns the email address
 - Prevents spam registrations with fake emails
 - Admin sees verified email status when approving
@@ -366,6 +389,7 @@ export async function reviewFlightRequest(
 - Two-factor verification (email + admin) for high-security aviation context
 
 **Implementation**:
+
 ```typescript
 // 1. Pilot submits registration form
 // 2. Supabase Auth sends verification email
@@ -384,7 +408,7 @@ export async function registerPilot(data: PilotRegistrationInput) {
     password: data.password,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/pilot/verify`,
-    }
+    },
   })
 
   if (error) throw error
@@ -397,7 +421,7 @@ export async function registerPilot(data: PilotRegistrationInput) {
     employee_id: data.employee_id,
     rank: data.rank,
     status: 'PENDING', // Admin must approve
-    email_verified: false // Updated when email verified
+    email_verified: false, // Updated when email verified
   })
 }
 ```
@@ -409,16 +433,19 @@ export async function registerPilot(data: PilotRegistrationInput) {
 ### Next.js 15 + React 19 Patterns
 
 **Server Components** (default):
+
 - Use for initial page loads, SEO-critical pages
 - Pilot dashboard, feedback list, task list all use Server Components
 - Data fetching with `async/await` directly in components
 
 **Client Components** (`'use client'`):
+
 - Interactive forms (leave submission, flight requests)
 - Real-time features (notification bell, presence indicators)
 - Drag-and-drop (task Kanban)
 
 **Server Actions**:
+
 - Form submissions that mutate data
 - Progressive enhancement (works without JavaScript)
 
@@ -449,16 +476,21 @@ export default async function LeavePage() {
 // Real-time notifications
 const channel = supabase
   .channel('pilot-notifications')
-  .on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'pilot_notifications',
-    filter: `pilot_id=eq.${pilotId}`
-  }, handleNewNotification)
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'pilot_notifications',
+      filter: `pilot_id=eq.${pilotId}`,
+    },
+    handleNewNotification
+  )
   .subscribe()
 
 // Real-time presence (who's viewing task board)
-const presenceChannel = supabase.channel('task-board')
+const presenceChannel = supabase
+  .channel('task-board')
   .on('presence', { event: 'sync' }, () => {
     const state = presenceChannel.presenceState()
     setActiveUsers(Object.keys(state))
@@ -472,19 +504,21 @@ const presenceChannel = supabase.channel('task-board')
 
 ```typescript
 // lib/validations/flight-request-schema.ts
-export const FlightRequestSchema = z.object({
-  route: z.string().min(1, 'Route required'),
-  start_date: z.string().datetime(),
-  end_date: z.string().datetime(),
-  reason: z.string().min(10, 'Reason must be at least 10 characters'),
-}).refine(data => new Date(data.end_date) > new Date(data.start_date), {
-  message: 'End date must be after start date',
-  path: ['end_date']
-})
+export const FlightRequestSchema = z
+  .object({
+    route: z.string().min(1, 'Route required'),
+    start_date: z.string().datetime(),
+    end_date: z.string().datetime(),
+    reason: z.string().min(10, 'Reason must be at least 10 characters'),
+  })
+  .refine((data) => new Date(data.end_date) > new Date(data.start_date), {
+    message: 'End date must be after start date',
+    path: ['end_date'],
+  })
 
 // Client: React Hook Form
 const form = useForm({
-  resolver: zodResolver(FlightRequestSchema)
+  resolver: zodResolver(FlightRequestSchema),
 })
 
 // Server: API route validation
@@ -550,20 +584,18 @@ WITH CHECK (
 // Example: Mark notification as read
 async function markAsRead(notificationId: string) {
   // Optimistic update
-  setNotifications(prev =>
-    prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-  )
+  setNotifications((prev) => prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n)))
 
   // Server sync
   try {
     await fetch(`/api/pilot/notifications/${notificationId}`, {
       method: 'PATCH',
-      body: JSON.stringify({ read: true })
+      body: JSON.stringify({ read: true }),
     })
   } catch (error) {
     // Revert on failure
-    setNotifications(prev =>
-      prev.map(n => n.id === notificationId ? { ...n, read: false } : n)
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? { ...n, read: false } : n))
     )
     toast.error('Failed to mark as read')
   }
@@ -585,12 +617,12 @@ export async function GET(request: Request) {
     limit,
     cursor,
     orderBy: 'created_at',
-    order: 'desc'
+    order: 'desc',
   })
 
   return NextResponse.json({
     data: posts,
-    nextCursor: posts.length === limit ? posts[posts.length - 1].id : null
+    nextCursor: posts.length === limit ? posts[posts.length - 1].id : null,
   })
 }
 ```
@@ -613,10 +645,7 @@ try {
   }
 
   // Generic error
-  return NextResponse.json(
-    formatApiError(ERROR_MESSAGES.TASK.CREATE_FAILED, 500),
-    { status: 500 }
-  )
+  return NextResponse.json(formatApiError(ERROR_MESSAGES.TASK.CREATE_FAILED, 500), { status: 500 })
 }
 ```
 
@@ -625,6 +654,7 @@ try {
 ## External Resources Consulted
 
 ### Official Documentation
+
 1. **Next.js 15 Documentation**: https://nextjs.org/docs/app
    - Server Components, Server Actions, Middleware patterns
 2. **Supabase Auth Documentation**: https://supabase.com/docs/guides/auth
@@ -637,6 +667,7 @@ try {
    - Schema composition, refinements, error messages
 
 ### Community Best Practices
+
 1. **@dnd-kit/core GitHub**: https://github.com/clauderic/dnd-kit
    - Kanban board examples, accessibility patterns
 2. **shadcn/ui Components**: https://ui.shadcn.com/
@@ -648,37 +679,41 @@ try {
 
 ## Design Decisions Summary
 
-| Decision Area | Choice | Rationale |
-|--------------|--------|-----------|
-| **Pilot Authentication** | Shared Supabase Auth + role routing | Single auth system, RLS enforcement |
-| **Real-time Notifications** | Supabase Realtime + polling fallback | Instant updates with offline support |
-| **Task Kanban** | @dnd-kit/core library | Modern, accessible, TypeScript-friendly |
-| **Feedback Comments** | Flat threads with @mentions | Simpler schema, better mobile UX |
-| **Audit Logging** | Database triggers + app-level events | Complete coverage with business context |
-| **Disciplinary UI** | Timeline view (primary) + table toggle | Shows progression, audit-friendly |
-| **Flight Request Approval** | Manual admin review | Safety-critical, requires human judgment |
-| **Pilot Registration** | Email verification + admin approval | Two-factor verification for security |
+| Decision Area               | Choice                                 | Rationale                                |
+| --------------------------- | -------------------------------------- | ---------------------------------------- |
+| **Pilot Authentication**    | Shared Supabase Auth + role routing    | Single auth system, RLS enforcement      |
+| **Real-time Notifications** | Supabase Realtime + polling fallback   | Instant updates with offline support     |
+| **Task Kanban**             | @dnd-kit/core library                  | Modern, accessible, TypeScript-friendly  |
+| **Feedback Comments**       | Flat threads with @mentions            | Simpler schema, better mobile UX         |
+| **Audit Logging**           | Database triggers + app-level events   | Complete coverage with business context  |
+| **Disciplinary UI**         | Timeline view (primary) + table toggle | Shows progression, audit-friendly        |
+| **Flight Request Approval** | Manual admin review                    | Safety-critical, requires human judgment |
+| **Pilot Registration**      | Email verification + admin approval    | Two-factor verification for security     |
 
 ---
 
 ## Risks & Mitigations
 
 ### Risk 1: Real-time Subscriptions Scale
+
 **Risk**: Supabase Realtime has connection limits (default 200 concurrent)
 **Mitigation**: Use real-time only for critical features (notifications), poll for less urgent updates
 **Monitoring**: Track active connection count in Supabase dashboard
 
 ### Risk 2: Audit Log Table Growth
+
 **Risk**: audit_logs table could grow very large (every data mutation logged)
 **Mitigation**: Implement data retention policy (archive logs older than 7 years)
 **Monitoring**: Monthly table size check, automated archival script
 
 ### Risk 3: Drag-Drop Performance
+
 **Risk**: Kanban board with 100+ tasks may lag
 **Mitigation**: Virtual scrolling for large lists, lazy load task cards
 **Monitoring**: React DevTools Profiler during testing
 
 ### Risk 4: Feedback Spam
+
 **Risk**: Pilots could spam feedback posts/comments
 **Mitigation**: Rate limiting (max 10 posts/day, 50 comments/day), moderation dashboard
 **Monitoring**: Admin moderation queue alerts

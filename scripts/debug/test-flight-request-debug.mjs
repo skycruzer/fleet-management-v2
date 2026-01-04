@@ -23,10 +23,7 @@ const testData = {
 
 console.log('Attempting to insert:', testData)
 
-const { data, error } = await supabase
-  .from('flight_requests')
-  .insert(testData)
-  .select()
+const { data, error } = await supabase.from('flight_requests').insert(testData).select()
 
 console.log('\nResult:')
 console.log('Data:', data)

@@ -7,7 +7,8 @@ const supabase = createClient(
 
 const { data, error } = await supabase
   .from('leave_requests')
-  .select(`
+  .select(
+    `
     *,
     pilot:pilots!leave_requests_pilot_id_fkey(
       first_name,
@@ -15,7 +16,8 @@ const { data, error } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .limit(3)
 
 if (error) {

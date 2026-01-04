@@ -121,8 +121,8 @@ export function RequestFiltersClient({
     const currentPeriods = Array.isArray(localFilters.roster_period)
       ? localFilters.roster_period
       : localFilters.roster_period
-      ? [localFilters.roster_period]
-      : []
+        ? [localFilters.roster_period]
+        : []
 
     const newPeriods = currentPeriods.includes(period)
       ? currentPeriods.filter((p) => p !== period)
@@ -225,13 +225,13 @@ export function RequestFiltersClient({
     const selectedPeriods = Array.isArray(localFilters.roster_period)
       ? localFilters.roster_period
       : localFilters.roster_period
-      ? [localFilters.roster_period]
-      : []
+        ? [localFilters.roster_period]
+        : []
 
     return (
       <div className={`flex items-center gap-3 ${className}`}>
         {/* Roster Period Filter */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           {rosterPeriods.slice(0, 3).map((period) => (
             <Button
               key={period.code}
@@ -240,7 +240,7 @@ export function RequestFiltersClient({
               onClick={() => handleRosterPeriodToggle(period.code)}
             >
               {period.code}
-              {selectedPeriods.includes(period.code) && <X className="h-3 w-3 ml-1" />}
+              {selectedPeriods.includes(period.code) && <X className="ml-1 h-3 w-3" />}
             </Button>
           ))}
         </div>
@@ -273,7 +273,7 @@ export function RequestFiltersClient({
         {/* Clear All */}
         {activeFilterCount > 0 && (
           <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-            <X className="h-4 w-4 mr-1" />
+            <X className="mr-1 h-4 w-4" />
             Clear
           </Button>
         )}
@@ -292,15 +292,11 @@ export function RequestFiltersClient({
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
             <CardTitle className="text-lg">Filters</CardTitle>
-            {activeFilterCount > 0 && (
-              <Badge variant="secondary">
-                {activeFilterCount} active
-              </Badge>
-            )}
+            {activeFilterCount > 0 && <Badge variant="secondary">{activeFilterCount} active</Badge>}
           </div>
           {activeFilterCount > 0 && (
             <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-              <X className="h-4 w-4 mr-1" />
+              <X className="mr-1 h-4 w-4" />
               Clear All
             </Button>
           )}
@@ -319,8 +315,8 @@ export function RequestFiltersClient({
               const selectedPeriods = Array.isArray(localFilters.roster_period)
                 ? localFilters.roster_period
                 : localFilters.roster_period
-                ? [localFilters.roster_period]
-                : []
+                  ? [localFilters.roster_period]
+                  : []
 
               return (
                 <Button
@@ -331,7 +327,7 @@ export function RequestFiltersClient({
                   className="text-sm"
                 >
                   {period.code}
-                  {selectedPeriods.includes(period.code) && <X className="h-3 w-3 ml-1" />}
+                  {selectedPeriods.includes(period.code) && <X className="ml-1 h-3 w-3" />}
                 </Button>
               )
             })}
@@ -345,17 +341,13 @@ export function RequestFiltersClient({
             {WORKFLOW_STATUSES.map((status) => (
               <Button
                 key={status.value}
-                variant={
-                  localFilters.status?.includes(status.value) ? 'default' : 'outline'
-                }
+                variant={localFilters.status?.includes(status.value) ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => handleStatusToggle(status.value)}
                 className="text-sm"
               >
                 {status.label}
-                {localFilters.status?.includes(status.value) && (
-                  <X className="h-3 w-3 ml-1" />
-                )}
+                {localFilters.status?.includes(status.value) && <X className="ml-1 h-3 w-3" />}
               </Button>
             ))}
           </div>
@@ -381,16 +373,14 @@ export function RequestFiltersClient({
                 {SUBMISSION_CHANNELS.map((channel) => (
                   <Button
                     key={channel.value}
-                    variant={
-                      localFilters.channel?.includes(channel.value) ? 'default' : 'outline'
-                    }
+                    variant={localFilters.channel?.includes(channel.value) ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => handleChannelToggle(channel.value)}
                     className="text-sm"
                   >
                     {channel.label}
                     {localFilters.channel?.includes(channel.value) && (
-                      <X className="h-3 w-3 ml-1" />
+                      <X className="ml-1 h-3 w-3" />
                     )}
                   </Button>
                 ))}
@@ -402,7 +392,7 @@ export function RequestFiltersClient({
               <Label>Date Range</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label htmlFor="start-date-from" className="text-xs text-muted-foreground">
+                  <Label htmlFor="start-date-from" className="text-muted-foreground text-xs">
                     From
                   </Label>
                   <Input
@@ -413,7 +403,7 @@ export function RequestFiltersClient({
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="start-date-to" className="text-xs text-muted-foreground">
+                  <Label htmlFor="start-date-to" className="text-muted-foreground text-xs">
                     To
                   </Label>
                   <Input
@@ -438,7 +428,7 @@ export function RequestFiltersClient({
                   />
                   <label
                     htmlFor="is-late"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                    className="flex items-center gap-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     <Clock className="h-4 w-4 text-yellow-600" />
                     Late Requests (submitted &lt; 21 days before)
@@ -452,7 +442,7 @@ export function RequestFiltersClient({
                   />
                   <label
                     htmlFor="is-past-deadline"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                    className="flex items-center gap-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     Past Deadline

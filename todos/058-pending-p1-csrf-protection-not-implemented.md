@@ -1,7 +1,7 @@
 ---
 status: pending
 priority: p1
-issue_id: "058"
+issue_id: '058'
 tags: [code-review, security, critical, csrf]
 dependencies: []
 discovered_by: security-sentinel
@@ -23,13 +23,19 @@ CSRF (Cross-Site Request Forgery) utilities exist in `lib/csrf.ts` but are **NOT
 ### Evidence
 
 **CSRF utilities exist**:
+
 ```typescript
 // File: lib/csrf.ts
-export function generateCsrfToken(): string { /* ... */ }
-export function validateCsrfToken(token: string): boolean { /* ... */ }
+export function generateCsrfToken(): string {
+  /* ... */
+}
+export function validateCsrfToken(token: string): boolean {
+  /* ... */
+}
 ```
 
 **But NOT used in API routes**:
+
 ```bash
 $ grep -r "validateCsrfToken" app/api/
 # ❌ NO RESULTS - Not used anywhere!
@@ -42,14 +48,17 @@ $ grep -r "validateCsrfToken" app/api/
 ```html
 <!-- Malicious website: evil.com -->
 <form action="https://yourapp.com/api/leave-requests" method="POST">
-  <input type="hidden" name="start_date" value="2025-12-25">
-  <input type="hidden" name="end_date" value="2026-01-05">
-  <input type="hidden" name="request_type" value="ANNUAL">
+  <input type="hidden" name="start_date" value="2025-12-25" />
+  <input type="hidden" name="end_date" value="2026-01-05" />
+  <input type="hidden" name="request_type" value="ANNUAL" />
 </form>
-<script>document.forms[0].submit()</script>
+<script>
+  document.forms[0].submit()
+</script>
 ```
 
 **What happens**:
+
 1. User visits evil.com while logged into your app
 2. Browser automatically includes session cookie
 3. Form submits to your API endpoint
@@ -59,6 +68,7 @@ $ grep -r "validateCsrfToken" app/api/
 ### Real-World Impact
 
 Vulnerable endpoints include:
+
 - `/api/leave-requests` - Unwanted leave submissions
 - `/api/pilots` - Unauthorized pilot creation/modification
 - `/api/certifications` - False certification records
@@ -70,12 +80,14 @@ Vulnerable endpoints include:
 ### Option 1: Implement CSRF Token Validation (RECOMMENDED)
 
 **Pros**:
+
 - Industry-standard protection
 - Utilities already exist (just need to use them)
 - Minimal performance impact
 - Works with existing session management
 
 **Cons**:
+
 - Requires frontend changes to include tokens
 - Requires middleware wrapper implementation
 
@@ -92,27 +104,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrfToken } from '@/lib/csrf'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 
-export function withCsrfProtection(
-  handler: (req: NextRequest) => Promise<NextResponse>
-) {
+export function withCsrfProtection(handler: (req: NextRequest) => Promise<NextResponse>) {
   return async (req: NextRequest): Promise<NextResponse> => {
     // Only check CSRF for state-changing methods
     if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
       const csrfToken = req.headers.get('x-csrf-token')
 
       if (!csrfToken) {
-        return NextResponse.json(
-          formatApiError(ERROR_MESSAGES.AUTH.CSRF_MISSING, 403),
-          { status: 403 }
-        )
+        return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_MISSING, 403), {
+          status: 403,
+        })
       }
 
       const isValid = validateCsrfToken(csrfToken)
       if (!isValid) {
-        return NextResponse.json(
-          formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403),
-          { status: 403 }
-        )
+        return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), {
+          status: 403,
+        })
       }
     }
 
@@ -192,10 +200,12 @@ export function LeaveRequestForm({ csrfToken }: LeaveRequestFormProps) {
 ### Option 2: Use SameSite Cookie Attribute Only (NOT RECOMMENDED)
 
 **Pros**:
+
 - No code changes needed (cookies already set with `SameSite=Strict`)
 - Modern browser protection
 
 **Cons**:
+
 - Not supported by all browsers (especially older ones)
 - Not defense-in-depth
 - Doesn't protect against subdomain attacks
@@ -212,12 +222,14 @@ While SameSite cookies provide some protection, **defense-in-depth requires CSRF
 ## Technical Details
 
 **Affected Files**:
+
 - `lib/middleware/csrf-middleware.ts` (new wrapper)
 - `app/api/**/route.ts` (60+ API routes need wrapper)
 - Server components that render forms (pass CSRF token)
 - Form components (include token in requests)
 
 **Related Components**:
+
 - All state-changing API endpoints (POST/PUT/DELETE/PATCH)
 - All form submission workflows
 - Session management
@@ -230,6 +242,7 @@ While SameSite cookies provide some protection, **defense-in-depth requires CSRF
 
 **Phase 1**: Implement CSRF middleware (non-breaking)
 **Phase 2**: Add CSRF tokens to high-risk endpoints first:
+
 - Leave request submissions
 - Pilot management
 - Account deletion
@@ -267,7 +280,7 @@ test('should block CSRF attack without token', async ({ page }) => {
   expect(response.status).toBe(403)
   expect(await response.json()).toMatchObject({
     success: false,
-    error: expect.stringContaining('CSRF')
+    error: expect.stringContaining('CSRF'),
   })
 })
 
@@ -312,7 +325,9 @@ test('should reject expired CSRF token', async ({ page }) => {
     return fetch('/api/leave-requests', {
       method: 'POST',
       headers: { 'X-CSRF-Token': token },
-      body: JSON.stringify({ /* data */ }),
+      body: JSON.stringify({
+        /* data */
+      }),
     })
   }, csrfToken)
 
@@ -336,14 +351,17 @@ test('should reject expired CSRF token', async ({ page }) => {
 ## Work Log
 
 ### 2025-10-26 - Code Review Discovery
+
 **By**: Security Sentinel (Claude)
 **Actions**:
+
 - Discovered CSRF utilities exist but are unused
 - Verified 0 API routes implement CSRF validation
 - Analyzed attack surface (60+ vulnerable endpoints)
 - Designed CSRF middleware wrapper solution
 
 **Learnings**:
+
 - Having utilities != implementing protection
 - CSRF is critical for state-changing operations
 - Defense-in-depth requires multiple layers (SameSite + CSRF tokens)
@@ -356,6 +374,7 @@ test('should reject expired CSRF token', async ({ page }) => {
 ## Notes
 
 **Priority Justification**: This is P1 HIGH because:
+
 1. All state-changing endpoints are vulnerable
 2. Aviation safety systems require strong security
 3. Utilities already exist (just need to use them)
@@ -364,6 +383,7 @@ test('should reject expired CSRF token', async ({ page }) => {
 **OWASP Top 10**: This addresses **A01:2021 - Broken Access Control** and **A05:2021 - Security Misconfiguration**.
 
 **Deployment Strategy**:
+
 1. Deploy CSRF middleware (non-enforcing mode first)
 2. Add logging to track requests without tokens
 3. Update frontend to include tokens

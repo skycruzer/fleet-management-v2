@@ -5,18 +5,18 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   ADMIN_CREDENTIALS: {
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
+    password: 'mron2393',
   },
   PILOT_CREDENTIALS: {
     email: 'mrondeau@airniugini.com.pg',
-    password: 'Lemakot@1972'
-  }
+    password: 'Lemakot@1972',
+  },
 }
 
 console.log('\n' + '='.repeat(80))
@@ -26,7 +26,7 @@ console.log('='.repeat(80) + '\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: { width: 1920, height: 1080 },
-  slowMo: 50
+  slowMo: 50,
 })
 
 const page = await browser.newPage()
@@ -35,7 +35,7 @@ const page = await browser.newPage()
 const results = {
   passed: [],
   failed: [],
-  warnings: []
+  warnings: [],
 }
 
 function logTest(status, message) {
@@ -72,7 +72,7 @@ try {
   // Click New Leave Request button
   const leaveFormOpened = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button, a'))
-    const newButton = buttons.find(btn => btn.textContent.includes('New Leave Request'))
+    const newButton = buttons.find((btn) => btn.textContent.includes('New Leave Request'))
     if (newButton) {
       newButton.click()
       return true
@@ -111,7 +111,11 @@ try {
 
       // Check for success
       const pageText = await page.evaluate(() => document.body.textContent)
-      if (pageText.includes('success') || pageText.includes('submitted') || pageText.includes('created')) {
+      if (
+        pageText.includes('success') ||
+        pageText.includes('submitted') ||
+        pageText.includes('created')
+      ) {
         logTest('pass', 'Leave request form submitted successfully')
       } else {
         logTest('warn', 'Leave request form submitted but no success message')
@@ -132,7 +136,7 @@ try {
 
   const flightFormOpened = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button, a'))
-    const newButton = buttons.find(btn => btn.textContent.includes('New Flight Request'))
+    const newButton = buttons.find((btn) => btn.textContent.includes('New Flight Request'))
     if (newButton) {
       newButton.click()
       return true
@@ -152,7 +156,10 @@ try {
       await page.type('input[name="flight_date"], input[name="request_date"]', tomorrowStr)
       await sleep(500)
 
-      await page.type('textarea[name="description"]', 'Testing flight request form: Request for additional flight duty on upcoming roster period to gain more experience.')
+      await page.type(
+        'textarea[name="description"]',
+        'Testing flight request form: Request for additional flight duty on upcoming roster period to gain more experience.'
+      )
       await sleep(500)
 
       // Submit the form
@@ -161,7 +168,11 @@ try {
 
       // Check for success
       const pageText = await page.evaluate(() => document.body.textContent)
-      if (pageText.includes('success') || pageText.includes('submitted') || pageText.includes('created')) {
+      if (
+        pageText.includes('success') ||
+        pageText.includes('submitted') ||
+        pageText.includes('created')
+      ) {
         logTest('pass', 'Flight request form submitted successfully')
       } else {
         logTest('warn', 'Flight request form submitted but no success message')
@@ -182,7 +193,10 @@ try {
 
   const bidFormOpened = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button, a'))
-    const newButton = buttons.find(btn => btn.textContent.includes('Submit Leave Bid') || btn.textContent.includes('New Leave Bid'))
+    const newButton = buttons.find(
+      (btn) =>
+        btn.textContent.includes('Submit Leave Bid') || btn.textContent.includes('New Leave Bid')
+    )
     if (newButton) {
       newButton.click()
       return true
@@ -205,7 +219,11 @@ try {
 
       // Check for success
       const pageText = await page.evaluate(() => document.body.textContent)
-      if (pageText.includes('success') || pageText.includes('submitted') || pageText.includes('created')) {
+      if (
+        pageText.includes('success') ||
+        pageText.includes('submitted') ||
+        pageText.includes('created')
+      ) {
         logTest('pass', 'Leave bid form submitted successfully')
       } else {
         logTest('warn', 'Leave bid form submitted but no success message')
@@ -244,7 +262,7 @@ try {
 
   const addPilotOpened = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button, a'))
-    const addButton = buttons.find(btn => btn.textContent.includes('Add Pilot'))
+    const addButton = buttons.find((btn) => btn.textContent.includes('Add Pilot'))
     if (addButton) {
       addButton.click()
       return true
@@ -271,7 +289,7 @@ try {
 
   const addCertOpened = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button, a'))
-    const addButton = buttons.find(btn => btn.textContent.includes('Add Certification'))
+    const addButton = buttons.find((btn) => btn.textContent.includes('Add Certification'))
     if (addButton) {
       addButton.click()
       return true
@@ -298,7 +316,7 @@ try {
 
   const adminLeaveOpened = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button, a'))
-    const submitButton = buttons.find(btn => btn.textContent.includes('Submit Leave Request'))
+    const submitButton = buttons.find((btn) => btn.textContent.includes('Submit Leave Request'))
     if (submitButton) {
       submitButton.click()
       return true
@@ -331,12 +349,12 @@ try {
 
   if (results.failed.length > 0) {
     console.log('\n❌ Failed Tests:')
-    results.failed.forEach(msg => console.log(`   - ${msg}`))
+    results.failed.forEach((msg) => console.log(`   - ${msg}`))
   }
 
   if (results.warnings.length > 0) {
     console.log('\n⚠️  Warnings:')
-    results.warnings.forEach(msg => console.log(`   - ${msg}`))
+    results.warnings.forEach((msg) => console.log(`   - ${msg}`))
   }
 
   const total = results.passed.length + results.failed.length + results.warnings.length
@@ -346,7 +364,6 @@ try {
 
   // Keep browser open
   await new Promise(() => {})
-
 } catch (error) {
   console.error('\n❌ Test Error:', error.message)
   console.error(error.stack)

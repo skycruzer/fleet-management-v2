@@ -10,7 +10,7 @@ const BASE_URL = 'http://localhost:3000'
 let sessionCookie = ''
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testLogin() {
@@ -52,12 +52,12 @@ async function testLogin() {
 }
 
 async function testApiEndpoint(name, url) {
-  console.log(`\n=á Testing ${name}: ${url}`)
+  console.log(`\n=ï¿½ Testing ${name}: ${url}`)
 
   const response = await fetch(url, {
     method: 'GET',
     headers: {
-      'Cookie': sessionCookie,
+      Cookie: sessionCookie,
     },
   })
 
@@ -87,7 +87,7 @@ async function testApiEndpoint(name, url) {
 }
 
 async function runTests() {
-  console.log('=€ Starting Pilot Portal API Tests...\n')
+  console.log('=ï¿½ Starting Pilot Portal API Tests...\n')
   console.log('='.repeat(80))
 
   try {
@@ -124,11 +124,10 @@ async function runTests() {
     }
 
     console.log('\n' + '='.repeat(80))
-    console.log('=Ê Test Summary:')
+    console.log('=ï¿½ Test Summary:')
     console.log('   Passed: ' + (successCount + 1) + ' (including login)')
     console.log('  L Failed: ' + failCount)
     console.log('='.repeat(80))
-
   } catch (error) {
     console.error('\nL Test failed with error:', error.message)
     console.error(error)

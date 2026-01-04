@@ -16,6 +16,7 @@ The system SHALL provide secure authentication for pilots to access their self-s
 **Rationale**: Pilots need dedicated login flow at `/pilot/login` to access personal data without admin credentials.
 
 **Business Rules**:
+
 - Pilots MUST authenticate using email and password
 - Authentication MUST use existing Supabase Auth (no separate auth system)
 - Failed login attempts MUST be rate-limited (5 attempts per 15 minutes)
@@ -60,6 +61,7 @@ The system SHALL provide a personalized dashboard for pilots showing certificati
 **Rationale**: Pilots need at-a-glance view of critical information without navigating multiple pages.
 
 **Business Rules**:
+
 - Dashboard MUST display only data for authenticated pilot (no other pilots' data)
 - Certification status MUST use FAA color coding (Red/Yellow/Green)
 - Leave balance MUST reflect current roster period
@@ -101,6 +103,7 @@ The system SHALL allow new pilots to self-register for portal access with admin 
 **Rationale**: Streamlines onboarding process and reduces admin overhead for account creation.
 
 **Business Rules**:
+
 - Registration MUST require first name, last name, email, employee ID
 - Email MUST be unique (no duplicate accounts)
 - Employee ID MUST match existing pilot record in database
@@ -159,6 +162,7 @@ The system SHALL provide read-only view of pilot's certifications with FAA color
 **Rationale**: Pilots need visibility into their certification status to plan renewals.
 
 **Business Rules**:
+
 - Pilots MUST see only their own certifications (RLS enforced)
 - Certifications MUST be color-coded by expiry status:
   - Red: Expired (days_until_expiry < 0)
@@ -200,6 +204,7 @@ The system SHALL allow pilots to submit leave requests for specific roster perio
 **Rationale**: Pilots need self-service leave bidding aligned to 28-day roster periods with seniority-based priority.
 
 **Business Rules**:
+
 - Leave requests MUST align to roster period boundaries (28-day cycles)
 - Pilots MUST select leave type: RDO, WDO, ANNUAL
 - System MUST validate minimum crew requirements (10 Captains + 10 First Officers per rank)
@@ -258,6 +263,7 @@ The system SHALL allow pilots to submit flight requests for additional flying op
 **Rationale**: Pilots need a formal channel to express interest in additional flights or route changes.
 
 **Business Rules**:
+
 - Flight requests MUST include route, dates, reason
 - Requests MUST default to PENDING status
 - Pilots MUST receive notification when request is APPROVED or DENIED
@@ -310,6 +316,7 @@ The system SHALL allow pilots to view and update their personal profile informat
 **Rationale**: Pilots need ability to update contact information and preferences.
 
 **Business Rules**:
+
 - Pilots CAN update: phone number, email (requires verification), emergency contact
 - Pilots CANNOT update: name, rank, seniority number, employee ID (admin-only)
 - Email changes MUST require verification (send confirmation email)
@@ -350,6 +357,7 @@ The system SHALL provide real-time notifications for pilots regarding leave appr
 **Rationale**: Pilots need timely updates on request status and important system changes.
 
 **Business Rules**:
+
 - Notifications MUST appear in real-time (using Supabase Realtime)
 - Notifications MUST be dismissible
 - Unread count MUST appear in dashboard header
@@ -415,11 +423,13 @@ _No requirements are renamed by this change._
 ### Service Layer
 
 New services required:
+
 - `lib/services/pilot-auth-service.ts` - Authentication logic
 - `lib/services/pilot-registration-service.ts` - Registration CRUD
 - `lib/services/pilot-notification-service.ts` - Notification management
 
 Modified services:
+
 - `lib/services/pilot-portal-service.ts` - Extend dashboard data aggregation
 
 ### Reuse Existing Logic

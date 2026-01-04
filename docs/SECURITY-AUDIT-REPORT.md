@@ -1,4 +1,5 @@
 # Security Audit Report
+
 **Fleet Management V2 - Phase 1.3**
 **Date**: October 27, 2025
 **Auditor**: Claude Code (Comprehensive Project Review)
@@ -12,6 +13,7 @@ Fleet Management V2 demonstrates **strong security fundamentals** with comprehen
 **Overall Security Score**: 6.5/10
 
 ### Critical Findings Summary
+
 - **P0 Issues**: 4 (CSRF not enforced, session encryption, password exposure, SQL injection vectors)
 - **P1 Issues**: 8 (Rate limiting gaps, XSS vectors, authentication weaknesses)
 - **P2 Issues**: 10 (Security headers, logging sensitive data, session management)
@@ -26,18 +28,21 @@ Fleet Management V2 demonstrates **strong security fundamentals** with comprehen
 **System Overview:**
 
 #### **Admin Portal Authentication**
+
 - **Location**: `/dashboard/*` routes
 - **System**: Supabase Auth (email/password, JWT)
 - **Client**: `lib/supabase/server.ts` and `lib/supabase/client.ts`
 - **Session Management**: Supabase built-in (secure)
 
 **✅ Strengths:**
+
 - Industry-standard OAuth 2.0 / JWT
 - Automatic session refresh
 - Secure cookie handling
 - MFA support available (not enabled)
 
 #### **Pilot Portal Authentication**
+
 - **Location**: `/portal/*` routes
 - **System**: Custom authentication (`pilot_users` table)
 - **Password Hashing**: bcrypt (✅ Good)
@@ -53,6 +58,7 @@ Fleet Management V2 demonstrates **strong security fundamentals** with comprehen
 **File**: `lib/auth/pilot-session.ts:34-72`
 
 **Current Implementation:**
+
 ```typescript
 const sessionToken = randomBytes(32).toString('hex')
 const sessionData = JSON.stringify({
@@ -65,26 +71,29 @@ const sessionData = JSON.stringify({
 // ❌ Stored as plain JSON in cookie
 response.cookies.set({
   name: SESSION_COOKIE_NAME,
-  value: sessionData,  // Unencrypted JSON!
+  value: sessionData, // Unencrypted JSON!
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
 })
 ```
 
 **Vulnerabilities:**
+
 1. **Cookie Tampering**: Users can modify `pilot_id` or `pilot_email` in cookie
 2. **No Integrity Protection**: No signature/MAC to detect tampering
 3. **Session Hijacking**: Anyone with cookie can impersonate pilot
 
 **Attack Scenario:**
+
 ```javascript
 // Attacker decodes cookie, changes pilot_id
 const cookie = JSON.parse(decodeURIComponent(document.cookie))
-cookie.pilot_id = 'different-uuid'  // ❌ Hijack another pilot's session
+cookie.pilot_id = 'different-uuid' // ❌ Hijack another pilot's session
 document.cookie = encodeURIComponent(JSON.stringify(cookie))
 ```
 
 **Recommended Fix:**
+
 ```typescript
 import { seal, unseal } from '@hapi/iron'
 
@@ -99,7 +108,7 @@ const sealed = await seal(sessionData, SECRET, {
 
 response.cookies.set({
   name: SESSION_COOKIE_NAME,
-  value: sealed,  // ✅ Encrypted and signed
+  value: sealed, // ✅ Encrypted and signed
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
 })
@@ -118,12 +127,14 @@ response.cookies.set({
 **Issue**: `pilot_users.password_hash` column accessible if RLS misconfigured
 
 **Query Example:**
+
 ```sql
 -- If RLS allows SELECT *, password_hash is exposed
 SELECT * FROM pilot_users WHERE email = 'pilot@example.com';
 ```
 
 **Current RLS Policy** (needs verification):
+
 ```sql
 -- Migration: 20251027012419_enable_rls_on_critical_tables.sql
 CREATE POLICY "Users can view own pilot profile"
@@ -134,6 +145,7 @@ CREATE POLICY "Users can view own pilot profile"
 **Vulnerability**: If policy uses `SELECT *`, password_hash is included
 
 **Recommended Fix:**
+
 ```sql
 -- Create view without password_hash
 CREATE VIEW pilot_users_safe AS
@@ -151,6 +163,7 @@ GRANT SELECT ON pilot_users TO service_role;  -- Admin only
 ```
 
 **Verification Steps:**
+
 ```sql
 -- Test as authenticated user
 SET ROLE authenticated;
@@ -169,6 +182,7 @@ SELECT password_hash FROM pilot_users LIMIT 1;
 **File**: `lib/services/pilot-portal-service.ts:78-144`
 
 **Current Implementation:**
+
 ```typescript
 const passwordMatch = await bcrypt.compare(credentials.password, pilotUser.password_hash)
 
@@ -184,6 +198,7 @@ if (!passwordMatch) {
 **Attack Vector**: Brute force password attacks
 
 **Recommended Fix:**
+
 ```sql
 -- Add failed_login_attempts table
 CREATE TABLE failed_login_attempts (
@@ -236,25 +251,26 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 **File**: `lib/validations/pilot-portal-schema.ts`
 
 **Current Validation:**
+
 ```typescript
 password: z.string().min(8, 'Password must be at least 8 characters')
 ```
 
 **Issues:**
+
 - No complexity requirements
 - No upper/lowercase requirement
 - No special character requirement
 - Allows weak passwords like "password"
 
 **Recommended Fix:**
+
 ```typescript
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/
 
-password: z.string()
-  .min(12, 'Password must be at least 12 characters')
-  .regex(PASSWORD_REGEX, {
-    message: 'Password must contain uppercase, lowercase, number, and special character'
-  })
+password: z.string().min(12, 'Password must be at least 12 characters').regex(PASSWORD_REGEX, {
+  message: 'Password must contain uppercase, lowercase, number, and special character',
+})
 ```
 
 **Also Add**: Password strength meter on registration form
@@ -272,14 +288,15 @@ password: z.string()
 **File**: `lib/auth/pilot-session.ts:13`
 
 ```typescript
-const SESSION_DURATION_DAYS = 7  // ❌ Too long
+const SESSION_DURATION_DAYS = 7 // ❌ Too long
 ```
 
 **Issue**: Long session duration increases hijacking window
 **Recommendation**:
+
 ```typescript
-const SESSION_DURATION_HOURS = 12  // ✅ 12 hours max
-const REMEMBER_ME_DURATION_DAYS = 30  // Optional "Remember Me"
+const SESSION_DURATION_HOURS = 12 // ✅ 12 hours max
+const REMEMBER_ME_DURATION_DAYS = 30 // Optional "Remember Me"
 ```
 
 **Severity**: MEDIUM
@@ -294,6 +311,7 @@ const REMEMBER_ME_DURATION_DAYS = 30  // Optional "Remember Me"
 **✅ Strong Implementations:**
 
 #### **HTML Sanitization** (`lib/sanitize.ts`)
+
 ```typescript
 import DOMPurify from 'isomorphic-dompurify'
 
@@ -308,12 +326,13 @@ export function sanitizeHtml(dirty: string): string {
 **✅ Good Practice**: Whitelist approach, minimal allowed tags
 
 #### **Search Input Sanitization** (`lib/utils/search-sanitizer.ts`)
+
 ```typescript
 export function sanitizeSearchTerm(searchTerm: string): string {
   return searchTerm
-    .replace(/[%_\\]/g, '\\$&')     // Escape PostgREST wildcards
-    .replace(/['"`;]/g, '')         // Remove dangerous characters
-    .slice(0, 100)                  // Limit length
+    .replace(/[%_\\]/g, '\\$&') // Escape PostgREST wildcards
+    .replace(/['"`;]/g, '') // Remove dangerous characters
+    .slice(0, 100) // Limit length
 }
 ```
 
@@ -326,24 +345,25 @@ export function sanitizeSearchTerm(searchTerm: string): string {
 **Issue**: Not all user inputs are sanitized before storage
 
 **Example** (needs verification):
+
 ```typescript
 // app/api/pilots/route.ts - Direct insert without sanitization
-const { data } = await supabase
-  .from('pilots')
-  .insert({
-    first_name: body.first_name,  // ❌ Not sanitized
-    notes: body.notes,            // ❌ Could contain malicious HTML
-  })
+const { data } = await supabase.from('pilots').insert({
+  first_name: body.first_name, // ❌ Not sanitized
+  notes: body.notes, // ❌ Could contain malicious HTML
+})
 ```
 
 **Recommendation**: Create middleware to sanitize all inputs:
+
 ```typescript
 export function sanitizeRequestBody(body: Record<string, any>) {
-  return sanitizeObject(body)  // Use existing lib/sanitize.ts
+  return sanitizeObject(body) // Use existing lib/sanitize.ts
 }
 ```
 
 **Apply in API routes:**
+
 ```typescript
 const body = await request.json()
 const sanitized = sanitizeRequestBody(body)
@@ -363,6 +383,7 @@ const validated = Schema.parse(sanitized)
 **✅ CSRF Library Exists:** `lib/csrf.ts`
 
 **Features:**
+
 - Token generation with crypto.randomBytes(32)
 - Constant-time comparison (prevents timing attacks)
 - HttpOnly cookie storage
@@ -373,6 +394,7 @@ const validated = Schema.parse(sanitized)
 #### **P0-003: CSRF Validation Not Enforced on Any Endpoints**
 
 **Audit Results:**
+
 ```bash
 # Search for CSRF validation usage
 grep -r "validateCsrfToken\|validateCsrfFromRequest" app/api/
@@ -382,6 +404,7 @@ grep -r "validateCsrfToken\|validateCsrfFromRequest" app/api/
 **Impact**: **ALL mutation endpoints vulnerable to CSRF**
 
 **Vulnerable Endpoints** (examples):
+
 ```
 POST /api/pilots
 PUT /api/pilots/[id]
@@ -393,27 +416,29 @@ POST /api/portal/register
 ```
 
 **Attack Scenario:**
+
 ```html
 <!-- Attacker's malicious website -->
 <form action="https://fleet-mgmt.com/api/pilots" method="POST">
   <input type="hidden" name="first_name" value="Attacker" />
   <input type="hidden" name="role" value="Captain" />
 </form>
-<script>document.forms[0].submit()</script>
+<script>
+  document.forms[0].submit()
+</script>
 <!-- If user is logged in, this creates a pilot on their behalf -->
 ```
 
 **Recommended Fix:**
 
 **Step 1**: Add CSRF middleware
+
 ```typescript
 // lib/middleware/csrf-middleware.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrfFromRequest } from '@/lib/csrf'
 
-export async function withCsrf(
-  handler: (request: NextRequest) => Promise<NextResponse>
-) {
+export async function withCsrf(handler: (request: NextRequest) => Promise<NextResponse>) {
   return async (request: NextRequest) => {
     // Skip CSRF for GET/HEAD
     if (['GET', 'HEAD', 'OPTIONS'].includes(request.method)) {
@@ -423,10 +448,7 @@ export async function withCsrf(
     // Validate CSRF token
     const isValid = await validateCsrfFromRequest(request)
     if (!isValid) {
-      return NextResponse.json(
-        { error: 'Invalid CSRF token' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
     }
 
     return handler(request)
@@ -435,6 +457,7 @@ export async function withCsrf(
 ```
 
 **Step 2**: Apply to all mutation endpoints
+
 ```typescript
 // app/api/pilots/route.ts
 import { withCsrf } from '@/lib/middleware/csrf-middleware'
@@ -445,6 +468,7 @@ export const POST = withCsrf(async (request) => {
 ```
 
 **Step 3**: Include token in forms
+
 ```typescript
 // Server Component
 import { generateCsrfToken } from '@/lib/csrf'
@@ -475,10 +499,7 @@ export default async function PilotForm() {
 
 ```typescript
 // ✅ Safe: Supabase uses parameterized queries
-const { data } = await supabase
-  .from('pilots')
-  .select('*')
-  .eq('role', userInput)  // Automatically parameterized
+const { data } = await supabase.from('pilots').select('*').eq('role', userInput) // Automatically parameterized
 ```
 
 **⚠️ Potential Issues:**
@@ -488,6 +509,7 @@ const { data } = await supabase
 **File**: Database functions use string concatenation
 
 **Example** (needs verification in migrations):
+
 ```sql
 -- ❌ VULNERABLE to SQL injection if not using parameters
 CREATE FUNCTION search_pilots(search_term TEXT)
@@ -501,6 +523,7 @@ $$ LANGUAGE plpgsql;
 ```
 
 **Recommended Fix:**
+
 ```sql
 -- ✅ SAFE: Using parameterized query
 CREATE FUNCTION search_pilots(search_term TEXT)
@@ -528,10 +551,11 @@ $$ LANGUAGE plpgsql;
 **✅ Implementation Exists:** `lib/middleware/rate-limit-middleware.ts`
 
 **Configuration:**
+
 ```typescript
-readRateLimit = Ratelimit.slidingWindow(100, '1 m')     // 100 req/min
-mutationRateLimit = Ratelimit.slidingWindow(20, '1 m')  // 20 req/min
-authRateLimit = Ratelimit.slidingWindow(5, '1 m')       // 5 req/min
+readRateLimit = Ratelimit.slidingWindow(100, '1 m') // 100 req/min
+mutationRateLimit = Ratelimit.slidingWindow(20, '1 m') // 20 req/min
+authRateLimit = Ratelimit.slidingWindow(5, '1 m') // 5 req/min
 ```
 
 **✅ Good Limits**: Reasonable for production
@@ -541,18 +565,21 @@ authRateLimit = Ratelimit.slidingWindow(5, '1 m')       // 5 req/min
 #### **P1-005: Rate Limiting Not Applied to Most Endpoints**
 
 **Audit Results:**
+
 ```bash
 grep -r "withRateLimit\|withAuthRateLimit" app/api/
 # Result: Only 3 usages found
 ```
 
 **Vulnerable Endpoints:**
+
 - `/api/portal/login` - No rate limiting (❌ allows brute force)
 - `/api/portal/register` - No rate limiting (❌ allows spam)
 - `/api/pilots/route.ts` - No rate limiting
 - 90% of other API routes
 
 **Recommended Fix:**
+
 ```typescript
 // Apply auth rate limiting to login
 export const POST = withAuthRateLimit(async (request) => {
@@ -576,6 +603,7 @@ export const POST = withRateLimit(async (request) => {
 ### 6.1 RLS Policy Coverage
 
 **Statistics:**
+
 - Total Policies: 166
 - Tables with RLS: ~25/27 (93%)
 - RLS Enabled: ✅ Yes (migration 20251027012419)
@@ -590,6 +618,7 @@ export const POST = withRateLimit(async (request) => {
 **Impact**: Potential performance degradation
 
 **Missing Indexes for RLS:**
+
 ```sql
 -- Leave requests filtered by pilot_user_id
 CREATE INDEX idx_leave_requests_pilot_user_id_rls
@@ -618,6 +647,7 @@ CREATE INDEX idx_notifications_user_id_rls
 **Issue**: No automated tests verify RLS policies work correctly
 
 **Recommendation**: Add RLS policy tests
+
 ```sql
 -- Test script: tests/rls-policies.test.sql
 -- Set role to authenticated user
@@ -653,21 +683,23 @@ DELETE FROM leave_requests WHERE pilot_user_id != 'user-uuid';
 **File**: `lib/services/pilot-portal-service.ts:82-136`
 
 **Issues:**
+
 ```typescript
 console.log('🚀 pilotLogin called with email:', credentials.email)
 console.log('🔍 DEBUG: Pilot user found:', {
-  email: pilotUser.email,                          // ❌ PII
-  has_password_hash: !!pilotUser.password_hash,    // ✅ OK (boolean)
-  has_auth_user_id: !!pilotUser.auth_user_id,      // ✅ OK (boolean)
-  registration_approved: pilotUser.registration_approved
+  email: pilotUser.email, // ❌ PII
+  has_password_hash: !!pilotUser.password_hash, // ✅ OK (boolean)
+  has_auth_user_id: !!pilotUser.auth_user_id, // ✅ OK (boolean)
+  registration_approved: pilotUser.registration_approved,
 })
-console.log('🔐 Password match result:', passwordMatch)  // ❌ Leak attack success/fail
+console.log('🔐 Password match result:', passwordMatch) // ❌ Leak attack success/fail
 ```
 
 **Impact**: Email addresses (PII) and authentication outcomes logged
 **Risk**: Logs may be stored in plain text, accessible by attackers
 
 **Recommended Fix:**
+
 ```typescript
 // Remove in production
 if (process.env.NODE_ENV === 'development') {
@@ -677,8 +709,8 @@ if (process.env.NODE_ENV === 'development') {
 // Better: Use structured logging with PII redaction
 import { log } from '@/lib/services/logging-service'
 log.info('Pilot login attempt', {
-  email: maskEmail(credentials.email),  // mask@*****.com
-  success: passwordMatch
+  email: maskEmail(credentials.email), // mask@*****.com
+  success: passwordMatch,
 })
 ```
 
@@ -693,7 +725,12 @@ log.info('Pilot login attempt', {
 **File**: `app/api/portal/login/route.ts:111`
 
 ```typescript
-console.log('✅ Session cookie set for pilot:', pilotUser.email, 'token:', sessionToken.substring(0, 16) + '...')
+console.log(
+  '✅ Session cookie set for pilot:',
+  pilotUser.email,
+  'token:',
+  sessionToken.substring(0, 16) + '...'
+)
 ```
 
 **Issue**: Even partial token logging is risky
@@ -710,6 +747,7 @@ console.log('✅ Session cookie set for pilot:', pilotUser.email, 'token:', sess
 **Current Headers**: None configured
 
 **Recommended Headers:**
+
 ```javascript
 // next.config.js
 module.exports = {
@@ -720,15 +758,15 @@ module.exports = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'DENY',  // Prevent clickjacking
+            value: 'DENY', // Prevent clickjacking
           },
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff',  // Prevent MIME sniffing
+            value: 'nosniff', // Prevent MIME sniffing
           },
           {
             key: 'X-XSS-Protection',
-            value: '1; mode=block',  // Enable XSS filter
+            value: '1; mode=block', // Enable XSS filter
           },
           {
             key: 'Referrer-Policy',
@@ -740,7 +778,7 @@ module.exports = {
           },
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',  // HTTPS only
+            value: 'max-age=31536000; includeSubDomains', // HTTPS only
           },
         ],
       },
@@ -765,7 +803,9 @@ module.exports = {
 
 ```typescript
 const supabase = await createClient()
-const { data: { user } } = await supabase.auth.getUser()
+const {
+  data: { user },
+} = await supabase.auth.getUser()
 
 if (!user) {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -779,6 +819,7 @@ if (!user) {
 **Issue**: Some API routes check authentication, others don't
 
 **Example** (needs full audit):
+
 ```typescript
 // app/api/some-route/route.ts
 export async function GET(request: Request) {
@@ -789,12 +830,15 @@ export async function GET(request: Request) {
 ```
 
 **Recommendation**: Create authentication middleware
+
 ```typescript
 // lib/middleware/auth-middleware.ts
 export function withAuth(handler: Handler) {
   return async (request: NextRequest) => {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -820,6 +864,7 @@ export function withAuth(handler: Handler) {
 **Issue**: No npm audit or Snyk integration
 
 **Recommendation**: Add to CI/CD pipeline
+
 ```yaml
 # .github/workflows/security.yml
 name: Security Audit
@@ -830,7 +875,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm audit --audit-level=moderate
-      - run: npx snyk test  # If Snyk is configured
+      - run: npx snyk test # If Snyk is configured
 ```
 
 **Severity**: MEDIUM
@@ -857,25 +902,26 @@ if (
   process.env.NEXT_PHASE === 'phase-production-build' ||
   process.env.NEXT_PHASE === 'phase-export'
 ) {
-  return process.env as unknown as z.infer<typeof envSchema>  // ❌ No validation
+  return process.env as unknown as z.infer<typeof envSchema> // ❌ No validation
 }
 ```
 
 **Issue**: Missing env vars not detected until runtime
 
 **Recommendation**: Fail fast if required vars missing
+
 ```typescript
 const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  SESSION_SECRET: z.string().min(32),  // ✅ Enforce minimum length
+  SESSION_SECRET: z.string().min(32), // ✅ Enforce minimum length
 })
 
 const result = envSchema.safeParse(process.env)
 if (!result.success) {
   console.error('❌ Invalid environment variables:', result.error.flatten())
-  process.exit(1)  // ✅ Fail fast
+  process.exit(1) // ✅ Fail fast
 }
 ```
 
@@ -890,6 +936,7 @@ if (!result.success) {
 ### 11.1 Audit Logging
 
 **✅ Comprehensive Audit System:**
+
 - File: `lib/services/audit-service.ts` (1,439 lines)
 - Table: `audit_logs`
 - Captures: CREATE, UPDATE, DELETE, VIEW, APPROVE, REJECT, LOGIN, LOGOUT, EXPORT
@@ -904,6 +951,7 @@ if (!result.success) {
 **Risk**: Attackers could cover their tracks
 
 **Recommendation**: Make audit logs immutable
+
 ```sql
 -- Create append-only audit log
 ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS audit_logs_pkey;
@@ -947,6 +995,7 @@ details: process.env.NODE_ENV === 'development' ? message : undefined,
 **⚠️ Issue**: Some error handlers may leak details
 
 **Example** (needs verification):
+
 ```typescript
 catch (error) {
   return NextResponse.json({
@@ -956,6 +1005,7 @@ catch (error) {
 ```
 
 **Recommendation**: Use generic error messages in production
+
 ```typescript
 catch (error) {
   await logError(error, context)  // Log full error
@@ -1079,6 +1129,7 @@ catch (error) {
 ## 14. Security Metrics
 
 ### Current State
+
 ```
 ✅ Input Sanitization:       85% (DOMPurify, search sanitizer)
 ❌ CSRF Protection:           0% (not enforced)
@@ -1095,12 +1146,14 @@ catch (error) {
 ### Overall Grade: **D+ (6.5/10)**
 
 **Critical Vulnerabilities:**
+
 - CSRF protection not enforced (0% coverage)
 - Session tokens not encrypted/signed
 - Potential password hash exposure
 - No account lockout protection
 
 **Strengths:**
+
 - Excellent input sanitization library
 - Comprehensive RLS policies (166 policies)
 - Good audit logging coverage

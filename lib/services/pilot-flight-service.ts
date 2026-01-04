@@ -324,7 +324,8 @@ export async function updatePilotFlightRequest(
     if (request.workflow_status !== 'SUBMITTED') {
       return {
         success: false,
-        error: 'Can only edit submitted requests. This request has already been reviewed or is under review.',
+        error:
+          'Can only edit submitted requests. This request has already been reviewed or is under review.',
       }
     }
 
@@ -437,7 +438,9 @@ export async function cancelPilotFlightRequest(requestId: string): Promise<Servi
     // Verify request belongs to pilot and is SUBMITTED
     const { data: request, error: fetchError } = await supabase
       .from('pilot_requests')
-      .select('id, pilot_id, workflow_status, request_type, start_date, end_date, notes, request_category')
+      .select(
+        'id, pilot_id, workflow_status, request_type, start_date, end_date, notes, request_category'
+      )
       .eq('id', requestId)
       .eq('request_category', 'FLIGHT')
       .single()
@@ -462,7 +465,8 @@ export async function cancelPilotFlightRequest(requestId: string): Promise<Servi
     if (request.workflow_status !== 'SUBMITTED') {
       return {
         success: false,
-        error: 'Can only cancel submitted requests. This request has already been reviewed or is under review.',
+        error:
+          'Can only cancel submitted requests. This request has already been reviewed or is under review.',
       }
     }
 

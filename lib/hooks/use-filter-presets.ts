@@ -31,7 +31,9 @@ function getStorageKey(reportType: string): string {
 /**
  * Custom hook for managing filter presets
  */
-export function useFilterPresets(reportType: 'leave' | 'flight-requests' | 'certifications' | 'leave-bids') {
+export function useFilterPresets(
+  reportType: 'leave' | 'flight-requests' | 'certifications' | 'leave-bids'
+) {
   const [presets, setPresets] = useState<FilterPreset[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -92,18 +94,9 @@ export function useFilterPresets(reportType: 'leave' | 'flight-requests' | 'cert
   /**
    * Update an existing preset
    */
-  const updatePreset = useCallback(
-    (presetId: string, name: string, filters: ReportFilters) => {
-      setPresets((prev) =>
-        prev.map((p) =>
-          p.id === presetId
-            ? { ...p, name, filters }
-            : p
-        )
-      )
-    },
-    []
-  )
+  const updatePreset = useCallback((presetId: string, name: string, filters: ReportFilters) => {
+    setPresets((prev) => prev.map((p) => (p.id === presetId ? { ...p, name, filters } : p)))
+  }, [])
 
   /**
    * Get a specific preset by ID

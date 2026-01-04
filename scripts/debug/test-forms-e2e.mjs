@@ -11,7 +11,7 @@ import puppeteer from 'puppeteer'
 const BASE_URL = 'http://localhost:3000'
 
 console.log('\n🌐 E2E PORTAL FORMS - BROWSER RENDERING TEST\n')
-console.log('=' .repeat(60))
+console.log('='.repeat(60))
 
 const results = {
   passed: 0,
@@ -100,10 +100,10 @@ async function runTests() {
         isOK
           ? 'Page loads (would need auth)'
           : isRedirect
-          ? 'Redirects to login (correct behavior)'
-          : isUnauthorized
-          ? 'Returns 401 (auth required - correct)'
-          : `Unexpected status: ${statusCode}`
+            ? 'Redirects to login (correct behavior)'
+            : isUnauthorized
+              ? 'Returns 401 (auth required - correct)'
+              : `Unexpected status: ${statusCode}`
       )
 
       if (isOK) {
@@ -141,10 +141,10 @@ async function runTests() {
         isOK
           ? 'Page loads (would need auth)'
           : isRedirect
-          ? 'Redirects to login (correct behavior)'
-          : isUnauthorized
-          ? 'Returns 401 (auth required - correct)'
-          : `Unexpected status: ${statusCode}`
+            ? 'Redirects to login (correct behavior)'
+            : isUnauthorized
+              ? 'Returns 401 (auth required - correct)'
+              : `Unexpected status: ${statusCode}`
       )
 
       if (isOK) {
@@ -182,10 +182,10 @@ async function runTests() {
         isOK
           ? 'Page loads (would need auth)'
           : isRedirect
-          ? 'Redirects to login (correct behavior)'
-          : isUnauthorized
-          ? 'Returns 401 (auth required - correct)'
-          : `Unexpected status: ${statusCode}`
+            ? 'Redirects to login (correct behavior)'
+            : isUnauthorized
+              ? 'Returns 401 (auth required - correct)'
+              : `Unexpected status: ${statusCode}`
       )
 
       if (isOK) {
@@ -223,10 +223,10 @@ async function runTests() {
         isOK
           ? 'Page loads (would need admin auth)'
           : isRedirect
-          ? 'Redirects to login (correct behavior)'
-          : isUnauthorized
-          ? 'Returns 401 (auth required - correct)'
-          : `Unexpected status: ${statusCode}`
+            ? 'Redirects to login (correct behavior)'
+            : isUnauthorized
+              ? 'Returns 401 (auth required - correct)'
+              : `Unexpected status: ${statusCode}`
       )
 
       if (isOK) {
@@ -267,10 +267,10 @@ async function runTests() {
         isOK
           ? 'Page loads (would need admin auth)'
           : isRedirect
-          ? 'Redirects to login (correct behavior)'
-          : isUnauthorized
-          ? 'Returns 401 (auth required - correct)'
-          : `Unexpected status: ${statusCode}`
+            ? 'Redirects to login (correct behavior)'
+            : isUnauthorized
+              ? 'Returns 401 (auth required - correct)'
+              : `Unexpected status: ${statusCode}`
       )
 
       if (isOK) {
@@ -311,9 +311,7 @@ async function runTests() {
         logTest(
           endpoint.name,
           isValid,
-          isValid
-            ? `Status ${statusCode} (endpoint exists)`
-            : `Unexpected status: ${statusCode}`
+          isValid ? `Status ${statusCode} (endpoint exists)` : `Unexpected status: ${statusCode}`
         )
       } catch (error) {
         logTest(endpoint.name, false, `Error: ${error.message}`)

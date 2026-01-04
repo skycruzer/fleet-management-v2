@@ -26,13 +26,13 @@ async function testAdminLogin(browser) {
   const page = await context.newPage()
 
   // Track console errors
-  page.on('console', msg => {
+  page.on('console', (msg) => {
     if (msg.type() === 'error') {
       log('error', `Admin Console Error: ${msg.text()}`)
     }
   })
 
-  page.on('pageerror', error => {
+  page.on('pageerror', (error) => {
     log('error', `Admin Page Error: ${error.message}`)
   })
 
@@ -79,7 +79,9 @@ async function testAdminLogin(browser) {
           log('error', 'Admin login failed - still on login page')
 
           // Check for error messages
-          const errorMessages = await page.locator('[role="alert"], .error, .text-red-500').allTextContents()
+          const errorMessages = await page
+            .locator('[role="alert"], .error, .text-red-500')
+            .allTextContents()
           if (errorMessages.length > 0) {
             log('error', `Login error messages: ${errorMessages.join(', ')}`)
           }
@@ -107,13 +109,13 @@ async function testPilotPortalLogin(browser) {
   const page = await context.newPage()
 
   // Track console errors
-  page.on('console', msg => {
+  page.on('console', (msg) => {
     if (msg.type() === 'error') {
       log('error', `Pilot Console Error: ${msg.text()}`)
     }
   })
 
-  page.on('pageerror', error => {
+  page.on('pageerror', (error) => {
     log('error', `Pilot Page Error: ${error.message}`)
   })
 
@@ -151,13 +153,18 @@ async function testPilotPortalLogin(browser) {
       await page.screenshot({ path: 'screenshots/pilot-after-login.png' })
       log('info', `After pilot login URL: ${afterLoginUrl}`)
 
-      if (afterLoginUrl.includes('/portal/dashboard') || afterLoginUrl.includes('/portal/certifications')) {
+      if (
+        afterLoginUrl.includes('/portal/dashboard') ||
+        afterLoginUrl.includes('/portal/certifications')
+      ) {
         log('success', 'Pilot login successful - redirected to portal dashboard')
       } else if (afterLoginUrl.includes('/portal/login')) {
         log('error', 'Pilot login failed - still on login page')
 
         // Check for error messages
-        const errorMessages = await page.locator('[role="alert"], .error, .text-red-500').allTextContents()
+        const errorMessages = await page
+          .locator('[role="alert"], .error, .text-red-500')
+          .allTextContents()
         if (errorMessages.length > 0) {
           log('error', `Pilot login error messages: ${errorMessages.join(', ')}`)
         }
@@ -191,7 +198,7 @@ async function testCriticalPages(browser) {
       log('info', `Testing ${pageTest.name}: ${pageTest.url}`)
       const response = await page.goto(`${BASE_URL}${pageTest.url}`, {
         waitUntil: 'networkidle',
-        timeout: 10000
+        timeout: 10000,
       })
 
       if (response.ok()) {

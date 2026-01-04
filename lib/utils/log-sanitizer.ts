@@ -69,10 +69,13 @@ const PATTERNS = {
 /**
  * Sanitize a string by removing/redacting sensitive patterns
  */
-export function sanitizeString(str: string, options?: {
-  preserveEmails?: boolean
-  preserveUUIDs?: boolean
-}): string {
+export function sanitizeString(
+  str: string,
+  options?: {
+    preserveEmails?: boolean
+    preserveUUIDs?: boolean
+  }
+): string {
   if (typeof str !== 'string') return str
 
   let sanitized = str
@@ -110,12 +113,15 @@ export function sanitizeString(str: string, options?: {
 /**
  * Sanitize an object by redacting sensitive fields and patterns
  */
-export function sanitizeObject<T = any>(obj: T, options?: {
-  preserveEmails?: boolean
-  preserveUUIDs?: boolean
-  maxDepth?: number
-  currentDepth?: number
-}): T {
+export function sanitizeObject<T = any>(
+  obj: T,
+  options?: {
+    preserveEmails?: boolean
+    preserveUUIDs?: boolean
+    maxDepth?: number
+    currentDepth?: number
+  }
+): T {
   if (obj === null || obj === undefined) return obj
 
   const maxDepth = options?.maxDepth ?? 10
@@ -157,7 +163,7 @@ export function sanitizeObject<T = any>(obj: T, options?: {
     const lowerKey = key.toLowerCase()
 
     // Check if field is sensitive
-    if (SENSITIVE_FIELDS.some(field => lowerKey.includes(field))) {
+    if (SENSITIVE_FIELDS.some((field) => lowerKey.includes(field))) {
       sanitized[key] = '[REDACTED]'
       continue
     }
@@ -182,7 +188,7 @@ export function sanitizeObject<T = any>(obj: T, options?: {
  * console.log(...sanitizeLogArgs('User login:', user, error))
  */
 export function sanitizeLogArgs(...args: any[]): any[] {
-  return args.map(arg => {
+  return args.map((arg) => {
     if (typeof arg === 'string') {
       return sanitizeString(arg)
     }
@@ -229,7 +235,7 @@ export function sanitizeRequest(request: Request): Record<string, any> {
 
   request.headers.forEach((value, key) => {
     const lowerKey = key.toLowerCase()
-    if (SENSITIVE_FIELDS.some(field => lowerKey.includes(field))) {
+    if (SENSITIVE_FIELDS.some((field) => lowerKey.includes(field))) {
       headers[key] = '[REDACTED]'
     } else {
       headers[key] = sanitizeString(value)

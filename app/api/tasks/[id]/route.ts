@@ -5,7 +5,6 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { getTaskById, updateTask, deleteTask } from '@/lib/services/task-service'
 import { TaskUpdateSchema } from '@/lib/validations/task-schema'
-import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 

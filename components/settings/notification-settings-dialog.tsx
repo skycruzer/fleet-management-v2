@@ -102,9 +102,7 @@ export function NotificationSettingsDialog({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="email-notifications">Email Notifications</Label>
-                <p className="text-muted-foreground text-xs">
-                  Receive notifications via email
-                </p>
+                <p className="text-muted-foreground text-xs">Receive notifications via email</p>
               </div>
               <Switch
                 id="email-notifications"
@@ -134,9 +132,7 @@ export function NotificationSettingsDialog({
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label htmlFor="sms-alerts">SMS Alerts</Label>
-                <p className="text-muted-foreground text-xs">
-                  Receive urgent alerts via SMS
-                </p>
+                <p className="text-muted-foreground text-xs">Receive urgent alerts via SMS</p>
               </div>
               <Switch
                 id="sms-alerts"

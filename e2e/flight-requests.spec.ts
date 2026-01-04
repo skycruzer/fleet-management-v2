@@ -85,7 +85,7 @@ test.describe('Flight Requests - Pilot Portal', () => {
   test('should display request history', async ({ page }) => {
     // Check for existing requests
     const requests = page.getByTestId('flight-request')
-    if (await requests.count() > 0) {
+    if ((await requests.count()) > 0) {
       await expect(requests.first()).toBeVisible()
 
       // Should show request details
@@ -125,7 +125,7 @@ test.describe('Flight Requests - Admin Dashboard', () => {
     await expect(page.getByRole('heading', { name: /flight requests/i })).toBeVisible()
 
     const requests = page.getByTestId('flight-request')
-    if (await requests.count() > 0) {
+    if ((await requests.count()) > 0) {
       await expect(requests.first()).toBeVisible()
     }
   })

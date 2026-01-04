@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p1
-issue_id: "032"
+issue_id: '032'
 tags: [security, database, rls, authorization, supabase]
 dependencies: []
 completed_date: 2025-10-19
@@ -22,18 +22,17 @@ The `feedback_posts`, `leave_requests`, and `flight_requests` tables have no Row
 **Attack Scenarios:**
 
 **1. Data Theft:**
+
 ```javascript
 // Malicious pilot opens DevTools console
-const { data } = await supabase
-  .from('feedback_posts')
-  .select('*')
-  .eq('is_anonymous', true)
+const { data } = await supabase.from('feedback_posts').select('*').eq('is_anonymous', true)
 
 // ❌ Returns ALL anonymous feedback posts (should be hidden)
 // Can identify authors by matching timestamps, pilot_user_id
 ```
 
 **2. Data Manipulation:**
+
 ```javascript
 // Modify competitor's leave request dates
 await supabase
@@ -45,17 +44,16 @@ await supabase
 ```
 
 **3. Data Deletion:**
+
 ```javascript
 // Delete flight requests from other pilots
-await supabase
-  .from('flight_requests')
-  .delete()
-  .neq('pilot_user_id', auth.uid())
+await supabase.from('flight_requests').delete().neq('pilot_user_id', auth.uid())
 
 // ❌ Deletes all other pilots' requests
 ```
 
 **4. Privacy Violation:**
+
 ```javascript
 // Read sensitive leave request reasons
 const { data } = await supabase
@@ -66,6 +64,7 @@ const { data } = await supabase
 ```
 
 **Vulnerable Tables:**
+
 - `feedback_posts` - No RLS enabled
 - `leave_requests` - No RLS enabled
 - `flight_requests` - No RLS enabled
@@ -272,25 +271,18 @@ After migration, test each policy:
 
 ```typescript
 // Test 1: User can only see own leave requests
-const { data: ownRequests } = await supabase
-  .from('leave_requests')
-  .select('*')
+const { data: ownRequests } = await supabase.from('leave_requests').select('*')
 
 // ✅ Should only return current user's requests
 
 // Test 2: User cannot delete other users' feedback
-const { error } = await supabase
-  .from('feedback_posts')
-  .delete()
-  .eq('id', 'other-user-post-id')
+const { error } = await supabase.from('feedback_posts').delete().eq('id', 'other-user-post-id')
 
 // ✅ Should return RLS policy violation error
 
 // Test 3: Fleet manager can see all requests
 // (Test with fleet manager account)
-const { data: allRequests } = await supabase
-  .from('leave_requests')
-  .select('*')
+const { data: allRequests } = await supabase.from('leave_requests').select('*')
 
 // ✅ Should return all requests for managers
 ```
@@ -343,6 +335,7 @@ const { data: allRequests } = await supabase
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** security-sentinel, data-integrity-guardian (compounding-engineering review)
 **Learnings:** Critical security gap - no RLS on new portal tables
 

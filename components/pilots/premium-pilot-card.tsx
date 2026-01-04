@@ -66,10 +66,10 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4, scale: 1.02 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-all hover:border-primary-300 hover:shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:hover:border-primary-600"
+      className="group hover:border-primary-300 dark:hover:border-primary-600 relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
     >
       {/* Background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-50/0 to-primary-100/0 opacity-0 transition-opacity group-hover:opacity-100 dark:from-primary-900/0 dark:to-primary-800/0" />
+      <div className="from-primary-50/0 to-primary-100/0 dark:from-primary-900/0 dark:to-primary-800/0 absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity group-hover:opacity-100" />
 
       <div className="relative">
         {/* Header */}
@@ -77,7 +77,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
           <div className="flex items-center gap-3">
             {/* Avatar with status ring */}
             <div className={cn('rounded-full p-0.5 ring-2', getStatusRingColor())}>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-700">
+              <div className="from-primary-500 to-primary-700 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br">
                 <User className="h-6 w-6 text-white" />
               </div>
             </div>
@@ -86,9 +86,9 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-slate-900 dark:text-white">{fullName}</h3>
                 {isCaptain && (
-                  <div className="flex items-center gap-1 rounded-full bg-accent-100 px-2 py-0.5 dark:bg-accent-900/30">
-                    <Star className="h-3 w-3 text-accent-600 dark:text-accent-400" />
-                    <span className="text-xs font-semibold text-accent-700 dark:text-accent-400">
+                  <div className="bg-accent-100 dark:bg-accent-900/30 flex items-center gap-1 rounded-full px-2 py-0.5">
+                    <Star className="text-accent-600 dark:text-accent-400 h-3 w-3" />
+                    <span className="text-accent-700 dark:text-accent-400 text-xs font-semibold">
                       CPT
                     </span>
                   </div>
@@ -115,17 +115,17 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
         {isCaptain && qualifications && (
           <div className="mb-4 flex flex-wrap gap-2">
             {qualifications.lineCaptain && (
-              <span className="rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-400">
+              <span className="bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 rounded-full px-2 py-1 text-xs font-medium">
                 Line Captain
               </span>
             )}
             {qualifications.trainingCaptain && (
-              <span className="rounded-full bg-success-100 px-2 py-1 text-xs font-medium text-success-700 dark:bg-success-900/30 dark:text-success-400">
+              <span className="bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400 rounded-full px-2 py-1 text-xs font-medium">
                 Training
               </span>
             )}
             {qualifications.examiner && (
-              <span className="rounded-full bg-accent-100 px-2 py-1 text-xs font-medium text-accent-700 dark:bg-accent-900/30 dark:text-accent-400">
+              <span className="bg-accent-100 text-accent-700 dark:bg-accent-900/30 dark:text-accent-400 rounded-full px-2 py-1 text-xs font-medium">
                 Examiner
               </span>
             )}
@@ -216,12 +216,16 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
         {/* Footer */}
         <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-700">
           <div className="text-xs text-slate-500 dark:text-slate-500">
-            Since {new Date(commencementDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+            Since{' '}
+            {new Date(commencementDate).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+            })}
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+            className="bg-primary-600 hover:bg-primary-700 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
           >
             View Profile
           </motion.button>
@@ -230,7 +234,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
         {/* Bottom accent border */}
         <div
           className={cn(
-            'absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-primary-500 to-primary-700 transition-all duration-300 group-hover:w-full'
+            'from-primary-500 to-primary-700 absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r transition-all duration-300 group-hover:w-full'
           )}
         />
       </div>

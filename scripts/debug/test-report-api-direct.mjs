@@ -6,7 +6,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = 'https://wgdmgvonqysflwdiiols.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY2OTM5NzEsImV4cCI6MjA0MjI2OTk3MX0.4Rw3PmsCGGf_GdJO7JUfCxbXrFvN8mCRNd2SfEYPJXE'
+const supabaseAnonKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY2OTM5NzEsImV4cCI6MjA0MjI2OTk3MX0.4Rw3PmsCGGf_GdJO7JUfCxbXrFvN8mCRNd2SfEYPJXE'
 
 console.log('🔐 Testing Reports API...\n')
 
@@ -34,12 +35,12 @@ async function testReportAPI() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Cookie': `sb-access-token=${accessToken}; sb-refresh-token=${authData.session.refresh_token}`
+        Cookie: `sb-access-token=${accessToken}; sb-refresh-token=${authData.session.refresh_token}`,
       },
       body: JSON.stringify({
         format: 'csv',
-        parameters: {}
-      })
+        parameters: {},
+      }),
     })
 
     console.log('Response status:', response.status)
@@ -58,7 +59,6 @@ async function testReportAPI() {
       const errorText = await response.text()
       console.log('❌ Error response:', errorText)
     }
-
   } catch (error) {
     console.error('❌ Test failed:', error.message)
   }

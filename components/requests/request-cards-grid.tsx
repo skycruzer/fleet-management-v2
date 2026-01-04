@@ -42,7 +42,13 @@ import { toast } from 'sonner'
 import type { PilotRequest } from '@/lib/services/unified-request-service'
 import { isCriticalRequest, hasWarningFlags } from '@/lib/utils/request-stats-utils'
 
-type SortOption = 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc' | 'seniority-asc' | 'seniority-desc'
+type SortOption =
+  | 'date-desc'
+  | 'date-asc'
+  | 'name-asc'
+  | 'name-desc'
+  | 'seniority-asc'
+  | 'seniority-desc'
 
 interface RequestCardsGridProps {
   requests: PilotRequest[]
@@ -185,45 +191,51 @@ export function RequestCardsGrid({
   }, [selectedIds, onDeny, clearSelection])
 
   // Edit handler - convert PilotRequest to EditableRequest format
-  const handleEdit = useCallback((request: {
-    id: string
-    pilot_id: string
-    employee_number: string
-    rank: string
-    name: string
-    request_type: string
-    request_category?: 'LEAVE' | 'FLIGHT'
-    start_date: string
-    end_date: string | null
-    reason: string | null
-    notes: string | null
-  }) => {
-    // Find the full request from our requests array to get all fields
-    const fullRequest = requests.find((r) => r.id === request.id)
-    if (fullRequest) {
-      setEditingRequest({
-        id: fullRequest.id,
-        request_category: fullRequest.request_category || 'LEAVE',
-        request_type: fullRequest.request_type || '',
-        start_date: fullRequest.start_date || '',
-        end_date: fullRequest.end_date || null,
-        flight_date: fullRequest.flight_date || null,
-        reason: fullRequest.reason || null,
-        notes: fullRequest.notes || null,
-        source_reference: fullRequest.source_reference || null,
-        name: fullRequest.name || 'Unknown',
-        employee_number: fullRequest.employee_number || '',
-      })
-    }
-  }, [requests])
+  const handleEdit = useCallback(
+    (request: {
+      id: string
+      pilot_id: string
+      employee_number: string
+      rank: string
+      name: string
+      request_type: string
+      request_category?: 'LEAVE' | 'FLIGHT'
+      start_date: string
+      end_date: string | null
+      reason: string | null
+      notes: string | null
+    }) => {
+      // Find the full request from our requests array to get all fields
+      const fullRequest = requests.find((r) => r.id === request.id)
+      if (fullRequest) {
+        setEditingRequest({
+          id: fullRequest.id,
+          request_category: fullRequest.request_category || 'LEAVE',
+          request_type: fullRequest.request_type || '',
+          start_date: fullRequest.start_date || '',
+          end_date: fullRequest.end_date || null,
+          flight_date: fullRequest.flight_date || null,
+          reason: fullRequest.reason || null,
+          notes: fullRequest.notes || null,
+          source_reference: fullRequest.source_reference || null,
+          name: fullRequest.name || 'Unknown',
+          employee_number: fullRequest.employee_number || '',
+        })
+      }
+    },
+    [requests]
+  )
 
   // Delete handler - show confirmation dialog
-  const handleDeleteClick = useCallback((requestId: string) => {
-    const request = requests.find((r) => r.id === requestId)
-    if (request) {
-      setDeletingRequest(request)
-    }
-  }, [requests])
+  const handleDeleteClick = useCallback(
+    (requestId: string) => {
+      const request = requests.find((r) => r.id === requestId)
+      if (request) {
+        setDeletingRequest(request)
+      }
+    },
+    [requests]
+  )
 
   // Confirm delete
   const handleConfirmDelete = useCallback(async () => {
@@ -295,7 +307,7 @@ export function RequestCardsGrid({
         <div className="flex items-center gap-3">
           {/* Sort Dropdown */}
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+            <ArrowUpDown className="text-muted-foreground h-4 w-4" />
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by..." />
@@ -314,7 +326,12 @@ export function RequestCardsGrid({
           {/* Select All / Clear */}
           <div className="flex items-center gap-2">
             {selectedIds.size === 0 ? (
-              <Button variant="outline" size="sm" onClick={selectAll} disabled={requests.length === 0}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={selectAll}
+                disabled={requests.length === 0}
+              >
                 Select All
               </Button>
             ) : (
@@ -328,7 +345,7 @@ export function RequestCardsGrid({
 
       {/* Bulk Action Bar (appears when items selected) */}
       {selectedIds.size > 0 && (
-        <Card className="sticky top-0 z-10 border-primary-200 bg-primary-50 p-3 dark:border-primary-800 dark:bg-primary-950/30">
+        <Card className="border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-950/30 sticky top-0 z-10 p-3">
           <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Checkbox
@@ -349,17 +366,13 @@ export function RequestCardsGrid({
               <Button
                 onClick={handleBulkApprove}
                 disabled={isPending}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-green-600 text-white hover:bg-green-700"
               >
-                <CheckCheck className="h-4 w-4 mr-2" />
+                <CheckCheck className="mr-2 h-4 w-4" />
                 {isPending ? 'Processing...' : `Approve All (${selectedIds.size})`}
               </Button>
-              <Button
-                onClick={handleBulkDeny}
-                disabled={isPending}
-                variant="destructive"
-              >
-                <XCircle className="h-4 w-4 mr-2" />
+              <Button onClick={handleBulkDeny} disabled={isPending} variant="destructive">
+                <XCircle className="mr-2 h-4 w-4" />
                 {isPending ? 'Processing...' : `Deny All (${selectedIds.size})`}
               </Button>
             </div>
@@ -461,7 +474,10 @@ export function RequestCardsGrid({
       )}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deletingRequest} onOpenChange={(open) => !open && setDeletingRequest(null)}>
+      <AlertDialog
+        open={!!deletingRequest}
+        onOpenChange={(open) => !open && setDeletingRequest(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Request</AlertDialogTitle>

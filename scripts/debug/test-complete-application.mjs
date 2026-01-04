@@ -5,24 +5,24 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   ADMIN_CREDENTIALS: {
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
+    password: 'mron2393',
   },
   PILOT_CREDENTIALS: {
     email: 'mrondeau@airniugini.com.pg',
-    password: 'Lemakot@1972'
-  }
+    password: 'Lemakot@1972',
+  },
 }
 
 const testResults = {
   passed: [],
   failed: [],
-  warnings: []
+  warnings: [],
 }
 
 function logTest(category, test, status, detail = '') {
@@ -44,7 +44,7 @@ const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: { width: 1920, height: 1080 },
   slowMo: 50,
-  args: ['--start-maximized']
+  args: ['--start-maximized'],
 })
 
 const page = await browser.newPage()
@@ -56,7 +56,7 @@ page.on('console', (msg) => {
   }
 })
 
-page.on('pageerror', error => {
+page.on('pageerror', (error) => {
   console.log(`🔴 [PAGE ERROR] ${error.message}`)
 })
 
@@ -74,13 +74,13 @@ try {
   const landingTitle = await page.$('h1')
   logTest('Landing Page', 'Title exists', landingTitle ? 'pass' : 'fail')
 
-  const adminLoginLink = await page.$$eval('a', links =>
-    links.find(a => a.textContent.includes('Admin Login') || a.href.includes('/auth/login'))
+  const adminLoginLink = await page.$$eval('a', (links) =>
+    links.find((a) => a.textContent.includes('Admin Login') || a.href.includes('/auth/login'))
   )
   logTest('Landing Page', 'Admin Login link', adminLoginLink ? 'pass' : 'fail')
 
-  const pilotPortalLink = await page.$$eval('a', links =>
-    links.find(a => a.textContent.includes('Pilot Portal') || a.href.includes('/portal'))
+  const pilotPortalLink = await page.$$eval('a', (links) =>
+    links.find((a) => a.textContent.includes('Pilot Portal') || a.href.includes('/portal'))
   )
   logTest('Landing Page', 'Pilot Portal link', pilotPortalLink ? 'pass' : 'fail')
 
@@ -123,9 +123,21 @@ try {
   const dashboardPages = [
     { name: 'Dashboard Home', url: '/dashboard', elements: ['Dashboard', 'Overview'] },
     { name: 'Pilots List', url: '/dashboard/pilots', elements: ['Pilots', 'Add Pilot'] },
-    { name: 'Certifications', url: '/dashboard/certifications', elements: ['Certifications', 'Add Certification'] },
-    { name: 'Leave Requests', url: '/dashboard/leave', elements: ['Leave Requests', 'Submit Leave Request'] },
-    { name: 'Renewal Planning', url: '/dashboard/renewal-planning', elements: ['Renewal Planning', '2025'] },
+    {
+      name: 'Certifications',
+      url: '/dashboard/certifications',
+      elements: ['Certifications', 'Add Certification'],
+    },
+    {
+      name: 'Leave Requests',
+      url: '/dashboard/leave',
+      elements: ['Leave Requests', 'Submit Leave Request'],
+    },
+    {
+      name: 'Renewal Planning',
+      url: '/dashboard/renewal-planning',
+      elements: ['Renewal Planning', '2025'],
+    },
     { name: 'Analytics', url: '/dashboard/analytics', elements: ['Analytics', 'Fleet'] },
   ]
 
@@ -160,8 +172,8 @@ try {
   await page.goto(`${CONFIG.BASE_URL}/dashboard/pilots`, { waitUntil: 'networkidle2' })
   await sleep(1500)
 
-  const addPilotButton = await page.$$eval('button, a', elements => {
-    return elements.some(el => el.textContent && el.textContent.includes('Add Pilot'))
+  const addPilotButton = await page.$$eval('button, a', (elements) => {
+    return elements.some((el) => el.textContent && el.textContent.includes('Add Pilot'))
   })
   logTest('Admin Buttons', 'Add Pilot button exists', addPilotButton ? 'pass' : 'fail')
 
@@ -169,21 +181,31 @@ try {
   await page.goto(`${CONFIG.BASE_URL}/dashboard/leave`, { waitUntil: 'networkidle2' })
   await sleep(1500)
 
-  const submitLeaveButton = await page.$$eval('button, a', elements => {
-    return elements.some(el => el.textContent && el.textContent.includes('Submit Leave Request'))
+  const submitLeaveButton = await page.$$eval('button, a', (elements) => {
+    return elements.some((el) => el.textContent && el.textContent.includes('Submit Leave Request'))
   })
-  logTest('Admin Buttons', 'Submit Leave Request button exists', submitLeaveButton ? 'pass' : 'fail')
+  logTest(
+    'Admin Buttons',
+    'Submit Leave Request button exists',
+    submitLeaveButton ? 'pass' : 'fail'
+  )
 
   if (submitLeaveButton) {
     // Click to test navigation
-    await page.$$eval('button, a', elements => {
-      const btn = elements.find(el => el.textContent && el.textContent.includes('Submit Leave Request'))
+    await page.$$eval('button, a', (elements) => {
+      const btn = elements.find(
+        (el) => el.textContent && el.textContent.includes('Submit Leave Request')
+      )
       if (btn) btn.click()
     })
     await sleep(2000)
 
     const onFormPage = page.url().includes('/dashboard/leave/new')
-    logTest('Admin Navigation', 'Submit Leave Request navigates to form', onFormPage ? 'pass' : 'fail')
+    logTest(
+      'Admin Navigation',
+      'Submit Leave Request navigates to form',
+      onFormPage ? 'pass' : 'fail'
+    )
 
     if (onFormPage) {
       const formExists = await page.$('form')
@@ -200,8 +222,8 @@ try {
   await page.goto(`${CONFIG.BASE_URL}/dashboard/certifications`, { waitUntil: 'networkidle2' })
   await sleep(1500)
 
-  const addCertButton = await page.$$eval('button, a', elements => {
-    return elements.some(el => el.textContent && el.textContent.includes('Add Certification'))
+  const addCertButton = await page.$$eval('button, a', (elements) => {
+    return elements.some((el) => el.textContent && el.textContent.includes('Add Certification'))
   })
   logTest('Admin Buttons', 'Add Certification button exists', addCertButton ? 'pass' : 'fail')
 
@@ -212,12 +234,16 @@ try {
   const yearButtons = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button'))
     return {
-      previousYear: buttons.some(btn => btn.textContent.includes('Previous Year')),
-      nextYear: buttons.some(btn => btn.textContent.includes('Next Year'))
+      previousYear: buttons.some((btn) => btn.textContent.includes('Previous Year')),
+      nextYear: buttons.some((btn) => btn.textContent.includes('Next Year')),
     }
   })
 
-  logTest('Renewal Planning', 'Previous Year button exists', yearButtons.previousYear ? 'pass' : 'warn')
+  logTest(
+    'Renewal Planning',
+    'Previous Year button exists',
+    yearButtons.previousYear ? 'pass' : 'warn'
+  )
   logTest('Renewal Planning', 'Next Year button exists', yearButtons.nextYear ? 'pass' : 'warn')
 
   // ============================================================================
@@ -262,9 +288,21 @@ try {
   const portalPages = [
     { name: 'Portal Dashboard', url: '/portal/dashboard', elements: ['Dashboard', 'Welcome'] },
     { name: 'My Profile', url: '/portal/profile', elements: ['Profile', 'Personal Information'] },
-    { name: 'My Certifications', url: '/portal/certifications', elements: ['Certifications', 'Check Type'] },
-    { name: 'Leave Requests', url: '/portal/leave-requests', elements: ['Leave Requests', 'New Request'] },
-    { name: 'Flight Requests', url: '/portal/flight-requests', elements: ['Flight Requests', 'New Request'] },
+    {
+      name: 'My Certifications',
+      url: '/portal/certifications',
+      elements: ['Certifications', 'Check Type'],
+    },
+    {
+      name: 'Leave Requests',
+      url: '/portal/leave-requests',
+      elements: ['Leave Requests', 'New Request'],
+    },
+    {
+      name: 'Flight Requests',
+      url: '/portal/flight-requests',
+      elements: ['Flight Requests', 'New Request'],
+    },
     { name: 'Notifications', url: '/portal/notifications', elements: ['Notifications'] },
   ]
 
@@ -320,20 +358,24 @@ try {
   await page.goto(`${CONFIG.BASE_URL}/portal/leave-requests`, { waitUntil: 'networkidle2' })
   await sleep(1500)
 
-  const newLeaveButton = await page.$$eval('button, a', elements => {
-    return elements.some(el => el.textContent && el.textContent.includes('New Request'))
+  const newLeaveButton = await page.$$eval('button, a', (elements) => {
+    return elements.some((el) => el.textContent && el.textContent.includes('New Request'))
   })
   logTest('Pilot Buttons', 'New Leave Request button exists', newLeaveButton ? 'pass' : 'fail')
 
   if (newLeaveButton) {
-    await page.$$eval('button, a', elements => {
-      const btn = elements.find(el => el.textContent && el.textContent.includes('New Request'))
+    await page.$$eval('button, a', (elements) => {
+      const btn = elements.find((el) => el.textContent && el.textContent.includes('New Request'))
       if (btn) btn.click()
     })
     await sleep(2000)
 
     const onLeaveForm = page.url().includes('/portal/leave-requests/new')
-    logTest('Pilot Navigation', 'New Leave Request navigates to form', onLeaveForm ? 'pass' : 'fail')
+    logTest(
+      'Pilot Navigation',
+      'New Leave Request navigates to form',
+      onLeaveForm ? 'pass' : 'fail'
+    )
 
     if (onLeaveForm) {
       const formExists = await page.$('form')
@@ -350,20 +392,24 @@ try {
   await page.goto(`${CONFIG.BASE_URL}/portal/flight-requests`, { waitUntil: 'networkidle2' })
   await sleep(1500)
 
-  const newFlightButton = await page.$$eval('button, a', elements => {
-    return elements.some(el => el.textContent && el.textContent.includes('New Request'))
+  const newFlightButton = await page.$$eval('button, a', (elements) => {
+    return elements.some((el) => el.textContent && el.textContent.includes('New Request'))
   })
   logTest('Pilot Buttons', 'New Flight Request button exists', newFlightButton ? 'pass' : 'fail')
 
   if (newFlightButton) {
-    await page.$$eval('button, a', elements => {
-      const btn = elements.find(el => el.textContent && el.textContent.includes('New Request'))
+    await page.$$eval('button, a', (elements) => {
+      const btn = elements.find((el) => el.textContent && el.textContent.includes('New Request'))
       if (btn) btn.click()
     })
     await sleep(2000)
 
     const onFlightForm = page.url().includes('/portal/flight-requests/new')
-    logTest('Pilot Navigation', 'New Flight Request navigates to form', onFlightForm ? 'pass' : 'fail')
+    logTest(
+      'Pilot Navigation',
+      'New Flight Request navigates to form',
+      onFlightForm ? 'pass' : 'fail'
+    )
 
     if (onFlightForm) {
       const formExists = await page.$('form')
@@ -372,8 +418,16 @@ try {
       const submitBtn = await page.$('button[type="submit"]')
 
       logTest('Flight Request Form', 'Form element exists', formExists ? 'pass' : 'fail')
-      logTest('Flight Request Form', 'Request type select exists', requestTypeSelect ? 'pass' : 'fail')
-      logTest('Flight Request Form', 'Description textarea exists', descriptionTextarea ? 'pass' : 'fail')
+      logTest(
+        'Flight Request Form',
+        'Request type select exists',
+        requestTypeSelect ? 'pass' : 'fail'
+      )
+      logTest(
+        'Flight Request Form',
+        'Description textarea exists',
+        descriptionTextarea ? 'pass' : 'fail'
+      )
       logTest('Flight Request Form', 'Submit button exists', submitBtn ? 'pass' : 'fail')
     }
   }
@@ -384,7 +438,7 @@ try {
 
   const markAllButton = await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button'))
-    return buttons.some(btn => btn.textContent.includes('Mark All as Read'))
+    return buttons.some((btn) => btn.textContent.includes('Mark All as Read'))
   })
   logTest('Notification Page', 'Mark All as Read button exists', markAllButton ? 'pass' : 'warn')
 
@@ -399,19 +453,20 @@ try {
   console.log(`❌ Failed: ${testResults.failed.length}`)
   console.log(`⚠️  Warnings: ${testResults.warnings.length}`)
 
-  const totalTests = testResults.passed.length + testResults.failed.length + testResults.warnings.length
+  const totalTests =
+    testResults.passed.length + testResults.failed.length + testResults.warnings.length
   const passRate = ((testResults.passed.length / totalTests) * 100).toFixed(1)
 
   console.log(`\n📈 Pass Rate: ${passRate}%`)
 
   if (testResults.failed.length > 0) {
     console.log('\n❌ FAILED TESTS:')
-    testResults.failed.forEach(test => console.log('   ' + test))
+    testResults.failed.forEach((test) => console.log('   ' + test))
   }
 
   if (testResults.warnings.length > 0) {
     console.log('\n⚠️  WARNINGS:')
-    testResults.warnings.forEach(test => console.log('   ' + test))
+    testResults.warnings.forEach((test) => console.log('   ' + test))
   }
 
   console.log('\n' + '='.repeat(100))
@@ -422,7 +477,6 @@ try {
 
   // Keep browser open for inspection
   await new Promise(() => {})
-
 } catch (error) {
   console.error('\n❌ CRITICAL TEST ERROR:', error.message)
   console.error(error.stack)

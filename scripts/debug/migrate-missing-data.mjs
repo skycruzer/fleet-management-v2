@@ -28,7 +28,9 @@ function calculateRosterPeriodDates(dateStr) {
   const date = new Date(dateStr)
 
   // Calculate days from anchor
-  const daysDiff = Math.floor((date.getTime() - ANCHOR_START_DATE.getTime()) / (1000 * 60 * 60 * 24))
+  const daysDiff = Math.floor(
+    (date.getTime() - ANCHOR_START_DATE.getTime()) / (1000 * 60 * 60 * 24)
+  )
 
   // Calculate periods from anchor
   const periodsDiff = Math.floor(daysDiff / ROSTER_PERIOD_DAYS)
@@ -48,7 +50,7 @@ function calculateRosterPeriodDates(dateStr) {
 
   // Calculate the roster period start date
   const rosterStartDate = new Date(ANCHOR_START_DATE)
-  rosterStartDate.setDate(rosterStartDate.getDate() + (periodsDiff * ROSTER_PERIOD_DAYS))
+  rosterStartDate.setDate(rosterStartDate.getDate() + periodsDiff * ROSTER_PERIOD_DAYS)
 
   // Calculate publish date (10 days before start)
   const publishDate = new Date(rosterStartDate)
@@ -66,7 +68,7 @@ function calculateRosterPeriodDates(dateStr) {
     year,
     startDate: rosterStartDate.toISOString().split('T')[0],
     publishDate: publishDate.toISOString().split('T')[0],
-    deadlineDate: deadlineDate.toISOString().split('T')[0]
+    deadlineDate: deadlineDate.toISOString().split('T')[0],
   }
 }
 
@@ -89,9 +91,9 @@ function calculateDaysCount(startDate, endDate) {
 // Helper to map old status values to new workflow_status values
 function mapStatusToWorkflowStatus(oldStatus) {
   const statusMap = {
-    'PENDING': 'SUBMITTED',    // Old pending → new submitted
-    'APPROVED': 'APPROVED',    // Same value
-    'REJECTED': 'DENIED'       // Old rejected → new denied
+    PENDING: 'SUBMITTED', // Old pending → new submitted
+    APPROVED: 'APPROVED', // Same value
+    REJECTED: 'DENIED', // Old rejected → new denied
   }
 
   return statusMap[oldStatus] || 'SUBMITTED' // Default to SUBMITTED if unknown
@@ -113,7 +115,7 @@ async function getPilotDetails(pilotId) {
   return {
     employee_number: data.employee_id,
     rank: data.role,
-    name: `${data.first_name} ${data.last_name}`
+    name: `${data.first_name} ${data.last_name}`,
   }
 }
 
@@ -164,7 +166,9 @@ for (const oldReq of oldLeaveRequests) {
   const rosterDates = calculateRosterPeriodDates(oldReq.start_date)
 
   // Calculate submission date (use created_at)
-  const submissionDate = oldReq.created_at ? new Date(oldReq.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+  const submissionDate = oldReq.created_at
+    ? new Date(oldReq.created_at).toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0]
 
   // Calculate if late request (submitted after deadline)
   const deadlineDate = new Date(rosterDates.deadlineDate)
@@ -182,8 +186,8 @@ for (const oldReq of oldLeaveRequests) {
     rank: pilotDetails.rank,
     name: pilotDetails.name,
     request_category: 'LEAVE',
-    request_type: oldReq.leave_type || 'ANNUAL',  // Default to ANNUAL if null
-    submission_channel: 'ADMIN_PORTAL',  // Migrated data
+    request_type: oldReq.leave_type || 'ANNUAL', // Default to ANNUAL if null
+    submission_channel: 'ADMIN_PORTAL', // Migrated data
     start_date: oldReq.start_date,
     end_date: oldReq.end_date,
     roster_period: rosterPeriod,
@@ -194,19 +198,17 @@ for (const oldReq of oldLeaveRequests) {
     is_late_request: isLateRequest,
     is_past_deadline: isPastDeadline,
     days_count: daysCount,
-    priority_score: 0,  // Default priority score
-    conflict_flags: [],  // Empty conflict flags initially
-    workflow_status: mapStatusToWorkflowStatus(oldReq.status || 'PENDING'),  // Map old status to new workflow_status
+    priority_score: 0, // Default priority score
+    conflict_flags: [], // Empty conflict flags initially
+    workflow_status: mapStatusToWorkflowStatus(oldReq.status || 'PENDING'), // Map old status to new workflow_status
     reason: oldReq.reason,
     notes: `Migrated from leave_requests table on ${new Date().toISOString()}`,
     created_at: oldReq.created_at,
-    updated_at: oldReq.updated_at
+    updated_at: oldReq.updated_at,
   }
 
   // Insert into pilot_requests
-  const { error: insertError } = await supabase
-    .from('pilot_requests')
-    .insert(newRequest)
+  const { error: insertError } = await supabase.from('pilot_requests').insert(newRequest)
 
   if (insertError) {
     console.error(`   ❌ Failed to migrate leave request ${oldReq.id}:`, insertError.message)
@@ -265,7 +267,9 @@ for (const oldReq of oldFlightRequests) {
   const rosterDates = calculateRosterPeriodDates(oldReq.flight_date)
 
   // Calculate submission date (use created_at)
-  const submissionDate = oldReq.created_at ? new Date(oldReq.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+  const submissionDate = oldReq.created_at
+    ? new Date(oldReq.created_at).toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0]
 
   // Calculate if late request (submitted after deadline)
   const deadlineDate = new Date(rosterDates.deadlineDate)
@@ -282,7 +286,7 @@ for (const oldReq of oldFlightRequests) {
     request_category: 'FLIGHT',
     request_type: oldReq.request_type || 'FLIGHT_REQUEST',
     submission_channel: 'ADMIN_PORTAL',
-    start_date: oldReq.flight_date,  // Use flight_date as start_date
+    start_date: oldReq.flight_date, // Use flight_date as start_date
     flight_date: oldReq.flight_date,
     roster_period: rosterPeriod,
     roster_period_start_date: rosterDates.startDate,
@@ -291,20 +295,18 @@ for (const oldReq of oldFlightRequests) {
     submission_date: submissionDate,
     is_late_request: isLateRequest,
     is_past_deadline: isPastDeadline,
-    days_count: null,  // Flight requests don't have days_count
-    priority_score: 0,  // Default priority score
-    conflict_flags: [],  // Empty conflict flags initially
-    workflow_status: mapStatusToWorkflowStatus(oldReq.status || 'PENDING'),  // Map old status to new workflow_status
+    days_count: null, // Flight requests don't have days_count
+    priority_score: 0, // Default priority score
+    conflict_flags: [], // Empty conflict flags initially
+    workflow_status: mapStatusToWorkflowStatus(oldReq.status || 'PENDING'), // Map old status to new workflow_status
     reason: oldReq.description,
     notes: `Migrated from flight_requests table on ${new Date().toISOString()}`,
     created_at: oldReq.created_at,
-    updated_at: oldReq.updated_at
+    updated_at: oldReq.updated_at,
   }
 
   // Insert into pilot_requests
-  const { error: insertError } = await supabase
-    .from('pilot_requests')
-    .insert(newRequest)
+  const { error: insertError } = await supabase.from('pilot_requests').insert(newRequest)
 
   if (insertError) {
     console.error(`   ❌ Failed to migrate flight request ${oldReq.id}:`, insertError.message)

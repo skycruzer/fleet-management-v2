@@ -65,7 +65,9 @@ export function CertificationForm({
   const { csrfToken, isLoading: csrfLoading } = useCsrfToken()
 
   const form = useForm<CertificationCreate | CertificationUpdate>({
-    resolver: zodResolver(mode === 'create' ? CertificationCreateSchema : CertificationUpdateSchema),
+    resolver: zodResolver(
+      mode === 'create' ? CertificationCreateSchema : CertificationUpdateSchema
+    ),
     defaultValues: defaultValues ?? {
       pilot_id: '',
       check_type_id: '',
@@ -84,9 +86,7 @@ export function CertificationForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          {mode === 'create' ? 'Add New Certification' : 'Edit Certification'}
-        </CardTitle>
+        <CardTitle>{mode === 'create' ? 'Add New Certification' : 'Edit Certification'}</CardTitle>
         <CardDescription>
           {mode === 'create'
             ? 'Enter the certification details to create a new record'
@@ -99,7 +99,7 @@ export function CertificationForm({
             {/* Pilot and Check Type Selection */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Certification Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {showPilotSelect && (
                   <FormSelectWrapper
                     name="pilot_id"
@@ -124,7 +124,7 @@ export function CertificationForm({
             {/* Date Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Date Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 <FormDatePickerWrapper
                   name="expiry_date"
                   label="Expiry Date"
@@ -156,12 +156,7 @@ export function CertificationForm({
 
           <CardFooter className="flex justify-end gap-4">
             {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
+              <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
                 Cancel
               </Button>
             )}
@@ -169,7 +164,9 @@ export function CertificationForm({
               {(isLoading || csrfLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {csrfLoading
                 ? 'Loading...'
-                : mode === 'create' ? 'Create Certification' : 'Update Certification'}
+                : mode === 'create'
+                  ? 'Create Certification'
+                  : 'Update Certification'}
             </Button>
           </CardFooter>
         </form>

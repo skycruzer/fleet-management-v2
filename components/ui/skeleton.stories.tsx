@@ -38,7 +38,7 @@ export const Circle: Story = {
   render: () => (
     <div className="flex items-center space-x-4">
       <Skeleton className="h-12 w-12 rounded-full" />
-      <div className="space-y-2 flex-1">
+      <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-3/4" />
       </div>
@@ -117,7 +117,7 @@ export const Chart: Story = {
 
 export const DetailPage: Story = {
   render: () => (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="mx-auto max-w-6xl p-6">
       <DetailPageSkeleton />
     </div>
   ),
@@ -148,7 +148,7 @@ export const ResponsiveGrid: Story = {
       <h2 className="text-2xl font-bold">Responsive Loading Grid</h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="rounded-lg border bg-card p-4 space-y-3">
+          <div key={i} className="bg-card space-y-3 rounded-lg border p-4">
             <Skeleton className="h-32 w-full rounded" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />

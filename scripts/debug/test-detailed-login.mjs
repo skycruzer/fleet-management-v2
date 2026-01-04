@@ -4,11 +4,11 @@ import puppeteer from 'puppeteer'
 
 const TEST_PILOT = {
   email: 'test-pilot-1761490042775@airniugini.com.pg',
-  password: 'TempPassword123!'
+  password: 'TempPassword123!',
 }
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testLogin() {
@@ -17,21 +17,21 @@ async function testLogin() {
   try {
     browser = await puppeteer.launch({
       headless: false,
-      defaultViewport: { width: 1280, height: 800 }
+      defaultViewport: { width: 1280, height: 800 },
     })
 
     const page = await browser.newPage()
-    
+
     // Capture ALL console messages
     const consoleLogs = []
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       const text = msg.text()
       consoleLogs.push(`[${msg.type()}] ${text}`)
       console.log(`  [Browser ${msg.type()}]: ${text}`)
     })
 
     // Capture network requests
-    page.on('response', async response => {
+    page.on('response', async (response) => {
       const url = response.url()
       if (url.includes('/api/portal/login')) {
         const status = response.status()
@@ -47,7 +47,7 @@ async function testLogin() {
 
     console.log('\n🌐 Navigating to login page...')
     await page.goto('http://localhost:3000/portal/login', {
-      waitUntil: 'networkidle2'
+      waitUntil: 'networkidle2',
     })
     await sleep(2000)
 
@@ -58,7 +58,7 @@ async function testLogin() {
 
     console.log('\n🔐 Submitting form...')
     await page.click('button[type="submit"]')
-    
+
     console.log('\n⏳ Waiting 5 seconds for response...')
     await sleep(5000)
 
@@ -67,25 +67,25 @@ async function testLogin() {
 
     // Check for error messages in the page
     const pageContent = await page.content()
-    const hasError = pageContent.toLowerCase().includes('error') || 
-                     pageContent.toLowerCase().includes('invalid')
-    
+    const hasError =
+      pageContent.toLowerCase().includes('error') || pageContent.toLowerCase().includes('invalid')
+
     if (hasError) {
       console.log('\n❌ Error detected in page content')
-      
+
       // Try to find the error message element
       const errorText = await page.evaluate(() => {
         const errorEl = document.querySelector('[role="alert"], .text-red-600, .text-red-700')
         return errorEl ? errorEl.textContent : null
       })
-      
+
       if (errorText) {
         console.log('Error message:', errorText)
       }
     }
 
     console.log('\n📋 Console logs:')
-    consoleLogs.forEach(log => console.log(log))
+    consoleLogs.forEach((log) => console.log(log))
 
     await page.screenshot({ path: '/tmp/detailed-login-result.png' })
     console.log('\n📸 Screenshot: /tmp/detailed-login-result.png')
@@ -98,7 +98,6 @@ async function testLogin() {
 
     console.log('\n⏰ Keeping browser open for 10 seconds...')
     await sleep(10000)
-
   } catch (error) {
     console.error('\n❌ ERROR:', error.message)
   } finally {

@@ -99,7 +99,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
         body: JSON.stringify({
           request_id: selectedRequest.id,
           status: reviewAction,
-          reviewed_by: 'Current Admin', // TODO: Get from session
+          // reviewed_by is set server-side from authenticated session
           review_comments: reviewComments || undefined,
         }),
       })
@@ -138,7 +138,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
   if (requests.length === 0) {
     return (
       <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
-        <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+        <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />
         <p className="text-gray-600 dark:text-gray-400">No RDO/SDO requests yet</p>
       </div>
     )
@@ -150,7 +150,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
       <div className="space-y-3">
         {/* Status Filters */}
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Status Filter:</p>
+          <p className="mb-2 text-sm font-medium text-gray-700">Status Filter:</p>
           <div className="flex flex-wrap gap-2">
             <FilterButton
               label="All"
@@ -193,7 +193,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
         {/* Type Filters */}
         <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">Request Type:</p>
+          <p className="mb-2 text-sm font-medium text-gray-700">Request Type:</p>
           <div className="flex flex-wrap gap-2">
             <FilterButton
               label="All Types"
@@ -225,17 +225,17 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
       {/* Requests List */}
       <div className="space-y-3">
         {filteredRequests.map((request) => (
-          <Card key={request.id} className="hover:shadow-md transition-shadow">
+          <Card key={request.id} className="transition-shadow hover:shadow-md">
             <CardContent className="p-4">
               <div className="flex items-start justify-between">
                 {/* Request Info */}
                 <div className="flex-1 space-y-3">
                   {/* Header */}
-                  <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex flex-wrap items-center gap-3">
                     <RequestTypeBadge type={request.request_type} />
                     <StatusBadge status={request.workflow_status} />
                     {request.is_late_request && (
-                      <Badge variant="outline" className="text-orange-600 border-orange-600">
+                      <Badge variant="outline" className="border-orange-600 text-orange-600">
                         <Clock className="mr-1 h-3 w-3" />
                         Late Request
                       </Badge>
@@ -276,7 +276,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
                   {/* Reason */}
                   {request.reason && (
-                    <div className="pt-2 border-t">
+                    <div className="border-t pt-2">
                       <p className="text-sm text-gray-600">
                         <strong>Reason:</strong> {request.reason}
                       </p>
@@ -285,7 +285,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
                   {/* Review Info */}
                   {request.reviewed_by && (
-                    <div className="pt-2 border-t text-sm text-gray-600">
+                    <div className="border-t pt-2 text-sm text-gray-600">
                       <p>
                         <strong>Reviewed by:</strong> {request.reviewed_by}
                       </p>
@@ -367,14 +367,14 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
               {/* Reason */}
               {selectedRequest.reason && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Reason</p>
+                  <p className="mb-1 text-sm font-medium text-gray-700">Reason</p>
                   <p className="text-sm text-gray-900">{selectedRequest.reason}</p>
                 </div>
               )}
 
               {/* Action Selection */}
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Decision</p>
+                <p className="mb-2 text-sm font-medium text-gray-700">Decision</p>
                 <div className="flex gap-3">
                   <Button
                     variant={reviewAction === 'APPROVED' ? 'default' : 'outline'}
@@ -397,7 +397,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
               {/* Review Comments */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Comments (Optional)
                 </label>
                 <Textarea
@@ -469,7 +469,10 @@ function StatusBadge({ status }: { status: string }) {
   > = {
     SUBMITTED: { variant: 'secondary', icon: <Clock className="mr-1 h-3 w-3" /> },
     IN_REVIEW: { variant: 'default', icon: <FileText className="mr-1 h-3 w-3" /> },
-    APPROVED: { variant: 'default', icon: <CheckCircle2 className="mr-1 h-3 w-3 text-green-600" /> },
+    APPROVED: {
+      variant: 'default',
+      icon: <CheckCircle2 className="mr-1 h-3 w-3 text-green-600" />,
+    },
     DENIED: { variant: 'destructive', icon: <XCircle className="mr-1 h-3 w-3" /> },
     WITHDRAWN: { variant: 'outline', icon: <Ban className="mr-1 h-3 w-3" /> },
   }
@@ -477,7 +480,7 @@ function StatusBadge({ status }: { status: string }) {
   const config = statusConfig[status] || statusConfig.SUBMITTED
 
   return (
-    <Badge variant={config.variant} className="flex items-center w-fit">
+    <Badge variant={config.variant} className="flex w-fit items-center">
       {config.icon}
       {status}
     </Badge>

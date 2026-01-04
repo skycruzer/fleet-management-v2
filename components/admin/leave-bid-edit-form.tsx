@@ -160,7 +160,7 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Edit Leave Bid</h1>
+            <h1 className="text-foreground text-3xl font-bold">Edit Leave Bid</h1>
             <p className="text-muted-foreground">
               Submitted {bid.created_at ? format(new Date(bid.created_at), 'MMMM dd, yyyy') : 'N/A'}
             </p>
@@ -195,7 +195,8 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
           <div>
             <p className="text-sm font-medium text-gray-500">Name</p>
             <p className="text-base font-semibold text-gray-900">
-              {pilot.first_name} {pilot.middle_name ? pilot.middle_name + ' ' : ''}{pilot.last_name}
+              {pilot.first_name} {pilot.middle_name ? pilot.middle_name + ' ' : ''}
+              {pilot.last_name}
             </p>
           </div>
           <div>
@@ -328,9 +329,7 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
                 placeholder="Add your review comments here..."
                 rows={4}
               />
-              <p className="text-xs text-gray-500">
-                These comments will be visible to the pilot.
-              </p>
+              <p className="text-xs text-gray-500">These comments will be visible to the pilot.</p>
             </div>
 
             {/* Submit Buttons */}

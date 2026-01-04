@@ -20,7 +20,7 @@ const ADMIN_EMAIL = 'admin@example.com'
 const ADMIN_PASSWORD = 'admin123'
 
 async function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testLeaveRequestSubmission(page) {
@@ -30,7 +30,7 @@ async function testLeaveRequestSubmission(page) {
     // Navigate to leave requests page
     await page.goto('http://localhost:3000/portal/leave-requests', {
       waitUntil: 'networkidle2',
-      timeout: 10000
+      timeout: 10000,
     })
     await delay(2000)
 
@@ -74,8 +74,10 @@ async function testLeaveRequestSubmission(page) {
     // Verify the request appears in the list
     console.log('  → Verifying request appears in list...')
     const requestExists = await page.evaluate(() => {
-      return document.body.textContent.includes('Nov 01, 2025') &&
-             document.body.textContent.includes('Nov 14, 2025')
+      return (
+        document.body.textContent.includes('Nov 01, 2025') &&
+        document.body.textContent.includes('Nov 14, 2025')
+      )
     })
 
     if (requestExists) {
@@ -98,7 +100,7 @@ async function testLeaveBidSubmission(page) {
     // Navigate to leave requests page
     await page.goto('http://localhost:3000/portal/leave-requests', {
       waitUntil: 'networkidle2',
-      timeout: 10000
+      timeout: 10000,
     })
     await delay(2000)
 
@@ -137,8 +139,10 @@ async function testLeaveBidSubmission(page) {
     // Verify the bid appears in the list
     console.log('  → Verifying bid appears in history...')
     const bidExists = await page.evaluate(() => {
-      return document.body.textContent.includes('Annual Leave Bid for 2026') &&
-             document.body.textContent.includes('Jun 01, 2026')
+      return (
+        document.body.textContent.includes('Annual Leave Bid for 2026') &&
+        document.body.textContent.includes('Jun 01, 2026')
+      )
     })
 
     if (bidExists) {
@@ -160,7 +164,7 @@ async function testPilotPortalDashboard(page) {
   try {
     await page.goto('http://localhost:3000/portal/dashboard', {
       waitUntil: 'networkidle2',
-      timeout: 10000
+      timeout: 10000,
     })
     await delay(2000)
 
@@ -180,8 +184,10 @@ async function testPilotPortalDashboard(page) {
     // Check for leave bid status
     console.log('  → Checking leave bid status...')
     const hasLeaveBidInfo = await page.evaluate(() => {
-      return document.body.textContent.includes('2026') ||
-             document.body.textContent.includes('Leave Bid')
+      return (
+        document.body.textContent.includes('2026') ||
+        document.body.textContent.includes('Leave Bid')
+      )
     })
 
     if (hasLeaveBidInfo) {
@@ -204,7 +210,7 @@ async function testAdminDashboard(page) {
     // Logout from pilot portal
     console.log('  → Logging out from pilot portal...')
     await page.goto('http://localhost:3000/auth/login', {
-      waitUntil: 'networkidle2'
+      waitUntil: 'networkidle2',
     })
     await delay(2000)
 
@@ -220,15 +226,17 @@ async function testAdminDashboard(page) {
     console.log('  → Navigating to admin leave requests...')
     await page.goto('http://localhost:3000/dashboard/leave', {
       waitUntil: 'networkidle2',
-      timeout: 10000
+      timeout: 10000,
     })
     await delay(2000)
 
     // Check for the new leave request
     console.log('  → Checking for new leave request...')
     const hasNewRequest = await page.evaluate(() => {
-      return document.body.textContent.includes('Jean Rondeau') ||
-             document.body.textContent.includes('Nov 01, 2025')
+      return (
+        document.body.textContent.includes('Jean Rondeau') ||
+        document.body.textContent.includes('Nov 01, 2025')
+      )
     })
 
     if (hasNewRequest) {
@@ -242,7 +250,7 @@ async function testAdminDashboard(page) {
     try {
       await page.goto('http://localhost:3000/dashboard/admin/leave-bids', {
         waitUntil: 'networkidle2',
-        timeout: 10000
+        timeout: 10000,
       })
       await delay(2000)
 
@@ -268,12 +276,12 @@ async function testAdminDashboard(page) {
 
 async function runTests() {
   console.log('🚀 Starting Form Submission Tests\n')
-  console.log('=' .repeat(60))
+  console.log('='.repeat(60))
 
   const browser = await puppeteer.launch({
     headless: false,
     slowMo: 100,
-    args: ['--window-size=1400,900']
+    args: ['--window-size=1400,900'],
   })
 
   const page = await browser.newPage()
@@ -315,7 +323,6 @@ async function runTests() {
     } else {
       console.log('\n⚠️  Some tests failed or were partial')
     }
-
   } catch (error) {
     console.error('\n❌ Fatal error during testing:', error)
   } finally {

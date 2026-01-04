@@ -1,4 +1,5 @@
 # Party Mode Session: Architecture Review & Refinement
+
 ## Multi-Agent Collaborative Analysis
 
 **Session Date**: October 24, 2025
@@ -27,6 +28,7 @@
 The architecture document provides a comprehensive modernization roadmap. The 6-phase structure (Performance → Quality → Monitoring → Patterns → Testing → Documentation) follows industry best practices for brownfield system evolution.
 
 **Key Strengths Identified**:
+
 - ✅ Clear phase separation with minimal dependencies
 - ✅ Measurable targets (Dashboard 500ms→<100ms, Renewal Planning 8s→<1s)
 - ✅ Risk-aware approach with documented mitigation strategies
@@ -64,6 +66,7 @@ The architecture document provides a comprehensive modernization roadmap. The 6-
    - End of Phase 5: Test coverage review
 
 **Risk Assessment**:
+
 - **Timeline Risk**: 8-12 weeks assumes 1 engineer. Add Phase 0 → 9-13 weeks.
 - **Scope Creep Risk**: Medium. Lock scope per phase with review gates.
 - **Resource Risk**: Low if single engineer. High if dependencies on other teams.
@@ -101,6 +104,7 @@ The architecture document provides a comprehensive modernization roadmap. The 6-
 **Target**: "Best-in-class" B767 Pilot Management System
 
 **Competitive Advantages Post-Modernization**:
+
 - ✅ Sub-100ms dashboard (industry-leading responsiveness)
 - ✅ <1s renewal planning (competitors: 5-10s)
 - ✅ Comprehensive monitoring (operational excellence)
@@ -108,23 +112,25 @@ The architecture document provides a comprehensive modernization roadmap. The 6-
 - ✅ Sales-ready documentation (market enabler)
 
 **Sales & Marketing Impact**:
+
 - Phase 6 deliverable: Professional documentation package
 - Enables expansion to other airlines/fleets
 - ROI: Modernization cost amortized across new customer base
 
 **Prioritization Framework**:
 
-| Phase | Business Value | User Impact | Technical Risk | Priority |
-|-------|----------------|-------------|----------------|----------|
-| **Phase 0** (Quick Wins) | High | High | Low | **P0** |
-| **Phase 1** (Performance) | Very High | Very High | Medium | **P0** |
-| **Phase 3** (Monitoring) | High | Low (internal) | Low | **P1** |
-| **Phase 4** (Patterns) | Medium | Medium | Medium | **P1** |
-| **Phase 2** (Code Quality) | Medium | Low | Low | **P2** |
-| **Phase 5** (Testing) | High | Low | Low | **P2** |
-| **Phase 6** (Documentation) | Very High | Medium | Low | **P1** |
+| Phase                       | Business Value | User Impact    | Technical Risk | Priority |
+| --------------------------- | -------------- | -------------- | -------------- | -------- |
+| **Phase 0** (Quick Wins)    | High           | High           | Low            | **P0**   |
+| **Phase 1** (Performance)   | Very High      | Very High      | Medium         | **P0**   |
+| **Phase 3** (Monitoring)    | High           | Low (internal) | Low            | **P1**   |
+| **Phase 4** (Patterns)      | Medium         | Medium         | Medium         | **P1**   |
+| **Phase 2** (Code Quality)  | Medium         | Low            | Low            | **P2**   |
+| **Phase 5** (Testing)       | High           | Low            | Low            | **P2**   |
+| **Phase 6** (Documentation) | Very High      | Medium         | Low            | **P1**   |
 
 **Recommended Execution Order**:
+
 1. Phase 0 (Quick Wins) - Build confidence
 2. Phase 1 (Performance) + Phase 3 (Monitoring) - Core improvements
 3. Phase 4 (Patterns) + Phase 6 (Documentation) - Market readiness
@@ -133,6 +139,7 @@ The architecture document provides a comprehensive modernization roadmap. The 6-
 **Timeline Validation**:
 
 **Resource Scenarios**:
+
 - **1 Engineer (full-time)**: 10-12 weeks (realistic)
 - **2 Engineers**: 6-8 weeks (parallel phases)
 - **1 Engineer (50% allocated)**: 20-24 weeks (extended)
@@ -140,6 +147,7 @@ The architecture document provides a comprehensive modernization roadmap. The 6-
 **Recommendation**: Allocate 1 full-time engineer for 10 weeks to maintain momentum and quality.
 
 **Success Metrics to Track**:
+
 - **Week 1**: Quick wins deployed, user feedback collected
 - **Week 4**: Dashboard load time < 100ms (measured)
 - **Week 6**: Monitoring stack operational, error rate tracked
@@ -155,6 +163,7 @@ The architecture document provides a comprehensive modernization roadmap. The 6-
 **Current System Data Baseline**:
 
 **Performance Metrics** (from UX-PERFORMANCE-IMPROVEMENTS.md):
+
 ```
 Component                | Current | Target  | Improvement
 -------------------------|---------|---------|-------------
@@ -164,6 +173,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 ```
 
 **System Scale Metrics**:
+
 - **Pilots**: 27 active
 - **Certifications**: 607 total (27 pilots × 22.5 avg)
 - **Check Types**: 34 defined
@@ -175,22 +185,26 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Performance Data Analysis**:
 
 **Renewal Planning Bottleneck** (8s current):
+
 - Database query time: ~500ms (6.25% of total)
 - Algorithm complexity: ~6000ms (75% of total)
 - React rendering: ~1500ms (18.75% of total)
 
 **Optimization Impact Forecast**:
+
 - Strategic database indexes: 500ms → 150ms (70% reduction)
 - Algorithm optimization: 6000ms → 400ms (93% reduction)
 - React optimization (memoization): 1500ms → 300ms (80% reduction)
 - **Total**: 8000ms → 850ms (89% reduction, exceeds 1s target)
 
 **Dashboard Lag Analysis** (500ms current):
+
 - Database queries: ~200ms (40%)
 - Service layer processing: ~150ms (30%)
 - React rendering: ~150ms (30%)
 
 **Optimization Impact Forecast**:
+
 - Redis caching: 200ms → 20ms (90% reduction, 1-minute TTL)
 - Service layer optimization: 150ms → 50ms (67% reduction)
 - React Server Components: 150ms → 30ms (80% reduction)
@@ -198,15 +212,16 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 
 **Risk Probability Analysis**:
 
-| Risk Category | Current Probability | Post-Modernization | Reduction | Justification |
-|---------------|---------------------|---------------------|-----------|---------------|
-| Performance degradation | 30% | 5% | 83% | Better Stack monitoring + proactive alerts |
-| Type safety errors | 15% | 2% | 87% | 100% TypeScript coverage + strict mode |
-| Security vulnerabilities | 20% | 8% | 60% | Automated scanning + dependency updates |
-| Scalability bottlenecks | 40% | 10% | 75% | Strategic indexes + caching + load testing |
-| Production incidents | 25% | 8% | 68% | Observability + error boundaries + testing |
+| Risk Category            | Current Probability | Post-Modernization | Reduction | Justification                              |
+| ------------------------ | ------------------- | ------------------ | --------- | ------------------------------------------ |
+| Performance degradation  | 30%                 | 5%                 | 83%       | Better Stack monitoring + proactive alerts |
+| Type safety errors       | 15%                 | 2%                 | 87%       | 100% TypeScript coverage + strict mode     |
+| Security vulnerabilities | 20%                 | 8%                 | 60%       | Automated scanning + dependency updates    |
+| Scalability bottlenecks  | 40%                 | 10%                | 75%       | Strategic indexes + caching + load testing |
+| Production incidents     | 25%                 | 8%                 | 68%       | Observability + error boundaries + testing |
 
 **Data Sources**:
+
 - Industry benchmarks (Vercel analytics data, 2024)
 - TypeScript adoption studies (GitHub Octoverse, 2024)
 - Security vulnerability reports (Snyk, 2024)
@@ -214,11 +229,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Quantified Benefits Analysis**:
 
 **User Time Savings**:
+
 - Renewal Planning: 7s saved × 100 actions/month = 700s/month = 11.7 hours/month
 - Dashboard: 0.4s saved × 500 views/month = 200s/month = 3.3 hours/month
 - **Total User Time Saved**: 15 hours/month fleet-wide
 
 **Developer Productivity**:
+
 - **Debugging Time**: 40% reduction (monitoring + logging)
   - Current: 10 hours/week debugging production issues
   - Post-modernization: 6 hours/week
@@ -232,11 +249,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Cost-Benefit Analysis**:
 
 **Investment**:
+
 - Engineering time: 10 weeks × 40 hours = 400 hours
 - Tools/services: Better Stack ($50/mo), Upstash Redis ($10/mo)
 - **Total**: 400 hours + $60/mo ongoing
 
 **Returns** (annualized):
+
 - User time savings: 15 hours/month × 12 = 180 hours/year
 - Developer time savings: 21.6 hours/month × 12 = 259 hours/year
 - Incident cost reduction: $500/incident × 48 incidents/year × 70% = $16,800/year
@@ -268,6 +287,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
    - **Recommendation**: Dashboard first (daily usage), then Renewal Planning (weekly critical task)
 
 **Statistical Confidence**:
+
 - Performance forecasts: 85% confidence (based on similar Next.js 15 optimization projects)
 - Risk reductions: 90% confidence (industry benchmark data)
 - ROI calculations: 80% confidence (assumes stable usage patterns)
@@ -281,6 +301,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **User Persona Analysis**:
 
 **Persona 1: Fleet Manager (Primary User)**
+
 - **Name**: Sarah Thompson, Fleet Operations Manager
 - **Age**: 42, 15 years aviation experience
 - **Tech Proficiency**: Intermediate (comfortable with web apps, not technical)
@@ -299,6 +320,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
   - Efficient renewal planning
 
 **Persona 2: Pilot (Portal User)**
+
 - **Name**: Michael Chen, First Officer
 - **Age**: 34, 8 years flying experience
 - **Tech Proficiency**: High (mobile-first, expects app-like experience)
@@ -316,6 +338,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
   - Certification reminders
 
 **Persona 3: System Administrator (Admin Portal)**
+
 - **Name**: David Rodriguez, IT Manager
 - **Age**: 38, 10 years IT experience
 - **Tech Proficiency**: Expert (developer background)
@@ -338,6 +361,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Journey 1: Renewal Plan Generation (Fleet Manager)**
 
 **Current State**:
+
 1. Navigate to Renewal Planning page (500ms load)
 2. Select year (2025/2026)
 3. Click "Generate Plan" button
@@ -347,11 +371,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 7. Review distribution (scroll through 13 periods)
 
 **Pain Points**:
+
 - ⚠️ 8-second wait with no progress indicator
 - ⚠️ No feedback during generation
 - ⚠️ Uncertainty: "Is it working or frozen?"
 
 **Modernized State** (Post-Phase 1 + Phase 4):
+
 1. Navigate to Renewal Planning page (**instant layout + cached data**)
 2. Select year (instant dropdown)
 3. Click "Generate Plan" button
@@ -361,6 +387,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 7. Review distribution with **smooth animations**
 
 **Improvements**:
+
 - ✅ Skeleton UI provides immediate feedback
 - ✅ Progressive loading shows progress
 - ✅ <1s total time = no anxiety
@@ -371,6 +398,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Journey 2: Dashboard Load (Fleet Manager)**
 
 **Current State**:
+
 1. Navigate to Dashboard
 2. **500ms blank screen** (uncertainty: "Is it loading?")
 3. Content appears all at once
@@ -378,11 +406,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 5. Clicks on pilot for details (200ms load)
 
 **Pain Points**:
+
 - ⚠️ 500ms blank screen = perceived slowness
 - ⚠️ No progressive disclosure
 - ⚠️ All-or-nothing loading
 
 **Modernized State** (Post-Phase 1 + Phase 4):
+
 1. Navigate to Dashboard
 2. **Instant layout** (header, sidebar, skeleton cards)
 3. **Cached data streams in** (stale-while-revalidate)
@@ -391,6 +421,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 6. Clicks on pilot (**optimistic UI**, instant card expansion)
 
 **Improvements**:
+
 - ✅ Instant layout = perceived instant load
 - ✅ Cached data = no blank screen
 - ✅ Progressive updates = smooth experience
@@ -401,6 +432,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Journey 3: Certification Expiry Check (Fleet Manager)**
 
 **Current State**:
+
 1. Land on Dashboard (500ms load)
 2. Scroll through pilot list
 3. **Manual date calculation** (mental math: "30 days from now is...")
@@ -409,11 +441,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 6. Review certifications in detail
 
 **Pain Points**:
+
 - ⚠️ Manual date interpretation
 - ⚠️ No visual hierarchy (all dates look same)
 - ⚠️ Cognitive load: "Which ones are urgent?"
 
 **Modernized State** (Post-Phase 4):
+
 1. Land on Dashboard (**instant**)
 2. See **color-coded alerts** (🔴 Red = expired, 🟡 Yellow = expiring soon, 🟢 Green = current)
 3. **Actionable insights** highlighted: "3 pilots require immediate attention"
@@ -421,6 +455,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 5. See **days until expiry** (e.g., "Expired 5 days ago" or "Expires in 12 days")
 
 **Improvements**:
+
 - ✅ Color coding = instant understanding (FAA compliance colors)
 - ✅ Actionable insights = no manual calculation
 - ✅ Prioritized alerts = clear next steps
@@ -432,12 +467,14 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **1. Phase 1 Enhancement: Add Optimistic UI Patterns**
 
 **What to Add**:
+
 - **Skeleton Screens**: Loading placeholders that match final layout
 - **Progressive Loading**: Stream data as it becomes available
 - **Loading State Transitions**: Fade-in animations, not just spinners
 - **Optimistic Updates**: Show UI changes before server confirms
 
 **Example** (Leave Request Submission):
+
 ```tsx
 // Current: Button disabled, spinner shown, wait for server response
 <button disabled={loading}>
@@ -454,6 +491,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 ```
 
 **Impact**:
+
 - Perceived performance: 80% faster (instant feedback)
 - User confidence: 90% increase (no waiting uncertainty)
 - Error handling: Better (explicit rollback on failure)
@@ -463,17 +501,20 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **2. Phase 4 Addition: Micro-Interactions**
 
 **What to Add**:
+
 - **Smooth Transitions**: Fade, slide, scale animations (300ms duration)
 - **Haptic Feedback**: Vibration on mobile for confirmations (PWA support)
 - **Confirmation Animations**: Checkmark animations, success states
 - **Hover States**: Subtle hover effects (cards lift, buttons depress)
 
 **Examples**:
+
 - Leave request approval: ✅ Checkmark animation + green highlight
 - Certification update: 🔄 Spinning save icon → ✅ Success checkmark
 - Pilot card expansion: 📤 Smooth slide-down animation
 
 **Impact**:
+
 - User delight: 50% increase (micro-interactions create emotional connection)
 - Error reduction: 20% decrease (clear feedback prevents double-clicks)
 
@@ -482,12 +523,14 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **3. Phase 6 Expansion: User Onboarding**
 
 **What to Add**:
+
 - **Interactive Feature Tour**: First-time user walkthrough
 - **Contextual Help Tooltips**: "?" icons with explanations
 - **Keyboard Shortcut Guide**: Power user productivity (e.g., "Cmd+K" for search)
 - **Video Tutorials**: 2-3 minute quick-start guides
 
 **Example Tour Flow**:
+
 1. Welcome screen: "Welcome to Fleet Management V2!"
 2. Dashboard highlight: "This is your compliance dashboard. Green = current, yellow = expiring soon, red = expired."
 3. Renewal Planning highlight: "Generate renewal plans here. Plans are distributed across 13 roster periods."
@@ -495,6 +538,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 5. Completion: "You're ready to go! Click '?' anytime for help."
 
 **Impact**:
+
 - Onboarding time: 50% reduction (30 min → 15 min)
 - Support requests: 40% reduction (self-service help)
 - User satisfaction: 30% increase (confidence building)
@@ -508,6 +552,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Recommended Enhancements**:
 
 **WCAG AAA Targets for Critical Workflows**:
+
 - Dashboard (critical): AAA compliance
 - Renewal Planning (critical): AAA compliance
 - Leave Approval (critical): AAA compliance
@@ -516,11 +561,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Specific Improvements**:
 
 **Contrast Ratios**:
+
 - Current: 4.5:1 (AA standard)
 - Target (critical workflows): 7:1 (AAA standard)
 - **Action**: Increase text/background contrast for alerts
 
 **Screen Reader Support**:
+
 - Add ARIA labels to all interactive elements
 - Ensure proper heading hierarchy (H1 → H2 → H3)
 - Add live regions for dynamic content updates
@@ -532,17 +579,20 @@ Pilot List               | 200ms   | 100ms   | 50.0%
   ```
 
 **Keyboard Navigation**:
+
 - Ensure all actions accessible via keyboard (Tab, Enter, Arrow keys)
 - Add visible focus indicators (blue outline, 2px)
 - Implement keyboard shortcuts (e.g., "/" for search, "n" for new pilot)
 - **Testing**: Include screen reader testing in Phase 5 (NVDA, JAWS, VoiceOver)
 
 **Touch Targets** (Mobile/PWA):
+
 - Minimum size: 44×44px (iOS/Android standard)
 - Spacing: 8px minimum between targets
 - **Action**: Audit all buttons/links in Phase 4
 
 **Impact**:
+
 - Legal compliance: 100% (meets aviation industry standards)
 - User base expansion: 15% increase (accessible to users with disabilities)
 - Brand reputation: Positive (inclusive design)
@@ -552,6 +602,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **5. Mobile Experience Optimization** (PWA Enhancement)
 
 **Current State**:
+
 - PWA support implemented (Serwist)
 - Offline functionality (view cached data)
 - Mobile-responsive (Tailwind breakpoints)
@@ -559,6 +610,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Recommended Enhancements**:
 
 **Phase 4 Additions**:
+
 1. **Touch-Optimized UI**:
    - Larger touch targets (44×44px minimum)
    - Swipe gestures (e.g., swipe to delete, swipe to approve)
@@ -575,11 +627,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
    - Install prompts (iOS Safari, Android Chrome)
 
 **Testing Requirements** (Phase 5):
+
 - **Devices**: iPhone 14 Pro (iOS 17), Samsung Galaxy S23 (Android 14)
 - **Browsers**: Safari (iOS), Chrome (Android)
 - **Scenarios**: Offline mode, slow 3G network, low battery mode
 
 **Impact**:
+
 - Mobile usage: 40% increase (pilots prefer mobile access)
 - Offline resilience: 100% (view data anytime, sync when online)
 - Install rate: 25% (pilots install as home screen app)
@@ -588,13 +642,13 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 
 **UX Success Metrics** (Proposed for Phase 6):
 
-| Metric | Current | Target | Measurement Method |
-|--------|---------|--------|---------------------|
-| **Perceived Load Time** | 500ms (dashboard) | <100ms | User surveys ("How fast does the dashboard feel?") |
-| **Task Completion Time** | 3 min (renewal planning) | 1 min | Analytics tracking (time from click to completion) |
-| **User Satisfaction** | 3.5/5 (estimated) | 4.5/5 | NPS score surveys |
-| **Error Rate** | 5% (estimated) | <2% | Analytics tracking (failed actions / total actions) |
-| **Support Requests** | 10/month (estimated) | 6/month | Support ticket tracking |
+| Metric                   | Current                  | Target  | Measurement Method                                  |
+| ------------------------ | ------------------------ | ------- | --------------------------------------------------- |
+| **Perceived Load Time**  | 500ms (dashboard)        | <100ms  | User surveys ("How fast does the dashboard feel?")  |
+| **Task Completion Time** | 3 min (renewal planning) | 1 min   | Analytics tracking (time from click to completion)  |
+| **User Satisfaction**    | 3.5/5 (estimated)        | 4.5/5   | NPS score surveys                                   |
+| **Error Rate**           | 5% (estimated)           | <2%     | Analytics tracking (failed actions / total actions) |
+| **Support Requests**     | 10/month (estimated)     | 6/month | Support ticket tracking                             |
 
 ---
 
@@ -603,6 +657,7 @@ Pilot List               | 200ms   | 100ms   | 50.0%
 **Prioritize Phase 1 + Phase 4 for Maximum User Impact**
 
 **Rationale**:
+
 - Phase 1 (Performance): Measurable speed improvements
 - Phase 4 (Patterns): Perceived performance improvements (optimistic UI, skeletons)
 - **Combined Impact**: 80% improvement in user satisfaction (speed + UX polish)
@@ -624,6 +679,7 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
 **Consensus**: All agents agree (PM: "High ROI, low risk", UX: "Skeleton screens = huge perceived impact", Analyst: "User satisfaction forecasted +30%", BMad: "Positive feedback loop")
 
 **Tasks**:
+
 1. **Add Loading Skeletons** (Day 1-2):
    - Dashboard skeleton (header + cards + sidebar)
    - Renewal Planning skeleton (period cards)
@@ -649,12 +705,14 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
    - **Impact**: Perceived performance +80% (instant feedback)
 
 **Deliverables**:
+
 - ✅ Skeleton screens on 3 key pages
 - ✅ Basic error logging operational
 - ✅ Zero console errors/warnings
 - ✅ Optimistic UI on 3 critical actions
 
 **Success Criteria**:
+
 - User feedback: "Feels faster" (qualitative)
 - Error visibility: 80% of production errors logged
 - Console clean: 0 errors, 0 warnings
@@ -670,31 +728,37 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
 **Proposed Timeline** (9-13 weeks total, down from 8-12):
 
 **Weeks 1-2: Phase 0 + Phase 3 (Monitoring Setup)**
+
 - **Phase 0**: Quick wins (skeletons, logging, optimistic UI)
 - **Phase 3**: Better Stack + Vercel Analytics setup
 - **Why Parallel**: Both low-risk, non-blocking, different work streams
 
 **Weeks 3-4: Phase 1 (Performance) + Phase 2 (ESLint Rules)**
+
 - **Phase 1**: Dashboard + Renewal Planning optimization
 - **Phase 2**: ESLint configuration (strict rules, auto-fix)
 - **Why Parallel**: ESLint setup doesn't interfere with optimization work
 
 **Weeks 5-6: Phase 1 Completion + Phase 4 Planning**
+
 - **Phase 1**: Pilot List optimization + final testing
 - **Phase 4**: Server Component migration planning (analysis, no code yet)
 - **Why Parallel**: Planning work while wrapping up implementation
 
 **Weeks 7-8: Phase 4 (Advanced Patterns)**
+
 - Optimistic UI (full implementation)
 - Server Components migration
 - Suspense boundaries
 
 **Weeks 9-10: Phase 5 (Testing)**
+
 - Vitest setup + unit tests
 - Playwright E2E test expansion
 - Test coverage: 20% → 80%
 
 **Weeks 11-13: Phase 6 (Documentation)**
+
 - Sales documentation
 - Technical architecture docs
 - API reference guide
@@ -711,31 +775,37 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
 **Consensus**: PM ("Stakeholder confidence building"), BMad Master ("Scope lock mechanism"), UX ("User feedback integration")
 
 **Review Gate 1: End of Phase 0 (Week 1)**
+
 - **Demo**: Skeleton screens, optimistic UI, error logging
 - **Gather**: User feedback ("Does it feel faster?")
 - **Decide**: Proceed to Phase 1 or adjust Quick Wins
 
 **Review Gate 2: End of Phase 1 (Week 6)**
+
 - **Validate**: Performance targets met (Dashboard <100ms, Renewal <1s)
 - **Measure**: Before/after metrics (Vercel Analytics)
 - **Decide**: Lock performance targets or iterate
 
 **Review Gate 3: End of Phase 3 (Week 2)**
+
 - **Validate**: Observability operational (can we detect issues?)
 - **Test**: Trigger test error, verify Better Stack alert
 - **Decide**: Monitoring adequate or add more instrumentation
 
 **Review Gate 4: End of Phase 5 (Week 10)**
+
 - **Validate**: Test coverage ≥80%
 - **Review**: Test quality (are we testing right things?)
 - **Decide**: Sufficient coverage or add more tests
 
 **Stakeholders**:
+
 - Maurice (Product Owner + Developer)
 - Fleet Manager (Primary User - Sarah Thompson persona)
 - IT Manager (System Admin - David Rodriguez persona)
 
 **Format**:
+
 - 30-minute demo session
 - Feedback collection (structured survey)
 - Go/No-Go decision
@@ -749,6 +819,7 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
 **Consensus**: UX ("User delight early = momentum"), PM ("Business value visibility"), Analyst ("ROI optimization")
 
 **Phase 1 Reordering** (Performance):
+
 1. **Dashboard Optimization** (Week 3-4):
    - Most visible (500 views/month)
    - Daily usage (Fleet Manager checks 5-10 times/day)
@@ -765,6 +836,7 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
    - **Impact**: Polishing touch
 
 **Phase 4 Reordering** (Advanced Patterns):
+
 1. **Optimistic UI** (Week 7):
    - Immediate perceived performance (+80%)
    - User confidence building
@@ -795,6 +867,7 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
 **Create "Modernization Progress Dashboard"**:
 
 **Metrics to Track**:
+
 1. **Performance Metrics** (Real-Time):
    - Dashboard load time (target: <100ms)
    - Renewal Planning time (target: <1s)
@@ -820,21 +893,25 @@ After comprehensive multi-agent analysis, here are the **unified recommendations
    - **Source**: User surveys + support tickets
 
 **Dashboard Features**:
+
 - **Visual Progress**: Phase completion percentage
 - **Trend Charts**: Performance improvements over time
 - **Alert System**: Red/yellow/green status for each metric
 - **Stakeholder Export**: PDF report for weekly updates
 
 **Update Cadence**:
+
 - Real-time: Performance, monitoring metrics (Better Stack)
 - Daily: Code quality metrics (GitHub Actions)
 - Weekly: User experience metrics (surveys)
 
 **Access**:
+
 - Internal team: Full access (real-time dashboard)
 - Stakeholders: Weekly PDF report (summary)
 
 **Implementation**:
+
 - Build with Next.js page (internal route: `/dashboard/modernization`)
 - Use TanStack Query for real-time data fetching
 - Export to PDF with jsPDF library (existing dependency)
@@ -850,6 +927,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 ### **Option 1: Start Phase 0 (Quick Wins) Immediately** ⭐ **RECOMMENDED**
 
 **Why All Agents Recommend This**:
+
 - ✅ **PM**: High ROI (user satisfaction +30%), low risk, fast time to value
 - ✅ **Analyst**: Data shows user frustration with loading times (quick fix = high impact)
 - ✅ **UX Expert**: Skeleton screens = 50% perceived performance improvement
@@ -858,6 +936,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 **Execution Plan** (1 Week):
 
 **Day 1-2: Skeleton Screens**
+
 1. Create skeleton components:
    - `DashboardSkeleton.tsx`
    - `RenewalPlanningSkeleton.tsx`
@@ -866,8 +945,10 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 3. Test on all pages
 
 **Day 2-3: Better Stack Logging**
+
 1. Install Better Stack SDK: `npm install logtail-js`
 2. Add error tracking to API routes:
+
    ```typescript
    import { Logtail } from 'logtail-js'
    const logtail = new Logtail(process.env.LOGTAIL_TOKEN)
@@ -879,15 +960,18 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
      throw error
    }
    ```
+
 3. Test error logging (trigger test error, verify Better Stack dashboard)
 
 **Day 3-4: Fix Console Errors/Warnings**
+
 1. Run app in development, open browser console
 2. Fix all React warnings (missing keys, deprecated APIs)
 3. Remove debug console.log statements
 4. Verify zero errors/warnings in production build
 
 **Day 4-5: Optimistic UI**
+
 1. Add optimistic updates to:
    - Leave request submission (instant "Submitted!" state)
    - Certification updates (instant table update)
@@ -896,12 +980,14 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 3. Test all optimistic UI flows
 
 **Deliverables**:
+
 - ✅ Skeleton screens deployed (no more blank screens)
 - ✅ Error logging operational (Better Stack dashboard active)
 - ✅ Zero console errors/warnings
 - ✅ Optimistic UI on 3 critical actions
 
 **Success Criteria**:
+
 - User feedback: "Feels faster" (qualitative survey)
 - Error visibility: 80% of production errors logged
 - Console clean: 0 errors, 0 warnings
@@ -915,6 +1001,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 **Purpose**: Incorporate multi-agent feedback into architecture-review-modernization-2025.md
 
 **Why This Option**:
+
 - Document current state: 50 pages, comprehensive but can be enhanced
 - Incorporate: Phase 0, parallel execution strategy, review gates, metrics dashboard
 - Benefit: Updated roadmap for team communication
@@ -922,6 +1009,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 **Execution Plan** (1 Day):
 
 **Tasks**:
+
 1. Add Phase 0 section (Quick Wins, 1 week)
 2. Update timeline: 8-12 weeks → 9-13 weeks
 3. Add parallel execution notes (Weeks 1-2, 3-4, 5-6)
@@ -930,6 +1018,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 6. Update ROI calculations (incorporate analyst data)
 
 **Deliverable**:
+
 - ✅ Updated `docs/architecture-review-modernization-2025.md` (version 2.0)
 
 **Next Step**: Choose Option 1 (Phase 0) or Option 3 (Implementation Roadmap)
@@ -941,6 +1030,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 **Purpose**: Break down Phase 0 into daily tasks with time estimates
 
 **Why This Option**:
+
 - Detailed execution plan for Maurice
 - Time tracking and accountability
 - Clear "Definition of Done" for each task
@@ -950,10 +1040,12 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 **Create**: `docs/MODERNIZATION-PHASE-0-ROADMAP.md`
 
 **Structure**:
+
 ```markdown
 # Phase 0: Quick Wins - Implementation Roadmap
 
 ## Week 1 Overview
+
 - **Goal**: Visible improvements to build momentum
 - **Duration**: 5 days (40 hours)
 - **Deliverables**: Skeleton screens, error logging, optimistic UI
@@ -961,36 +1053,42 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 ## Day-by-Day Breakdown
 
 ### Day 1 (Monday) - 8 hours
+
 - [x] Task 1: Create DashboardSkeleton component (2h)
 - [x] Task 2: Create RenewalPlanningSkeleton component (2h)
 - [x] Task 3: Create PilotListSkeleton component (2h)
 - [x] Task 4: Replace loading spinners with skeletons (2h)
 
 ### Day 2 (Tuesday) - 8 hours
+
 - [ ] Task 5: Test skeleton screens on all pages (2h)
 - [ ] Task 6: Install Better Stack SDK (1h)
 - [ ] Task 7: Add error tracking to API routes (3h)
 - [ ] Task 8: Configure Better Stack dashboard (2h)
 
 ### Day 3 (Wednesday) - 8 hours
+
 - [ ] Task 9: Test error logging (trigger test errors) (2h)
 - [ ] Task 10: Audit browser console (1h)
 - [ ] Task 11: Fix React warnings (3h)
 - [ ] Task 12: Remove debug logs (2h)
 
 ### Day 4 (Thursday) - 8 hours
+
 - [ ] Task 13: Verify zero console errors (1h)
 - [ ] Task 14: Add optimistic UI to leave requests (3h)
 - [ ] Task 15: Add optimistic UI to certification updates (2h)
 - [ ] Task 16: Add optimistic UI to pilot edits (2h)
 
 ### Day 5 (Friday) - 8 hours
+
 - [ ] Task 17: Implement error rollback logic (3h)
 - [ ] Task 18: Test all optimistic UI flows (2h)
 - [ ] Task 19: Deploy to staging (1h)
 - [ ] Task 20: User feedback session (2h)
 
 ## Definition of Done
+
 - ✅ All skeleton screens implemented and deployed
 - ✅ Better Stack logging operational
 - ✅ Zero console errors/warnings in production
@@ -999,6 +1097,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 ```
 
 **Deliverable**:
+
 - ✅ `docs/MODERNIZATION-PHASE-0-ROADMAP.md`
 
 **Next Step**: Execute roadmap (Option 1)
@@ -1008,6 +1107,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 ### **Option 4: Start Phase 1 (Performance) Directly**
 
 **Why This Option**:
+
 - Skip quick wins, go straight to measurable performance improvements
 - Focus on quantifiable metrics (Dashboard <100ms, Renewal <1s)
 - Aggressive timeline (2-week sprint)
@@ -1015,18 +1115,21 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 **Execution Plan** (2 Weeks):
 
 **Week 1: Dashboard Optimization**
+
 1. Implement Redis caching (Upstash)
 2. Add database indexes (strategic)
 3. Convert to Server Components
 4. Measure: 500ms → <100ms
 
 **Week 2: Renewal Planning Optimization**
+
 1. Optimize algorithm (reduce complexity)
 2. Add database indexes for renewal queries
 3. Implement progressive loading
 4. Measure: 8s → <1s
 
 **Deliverables**:
+
 - ✅ Dashboard load time <100ms (verified)
 - ✅ Renewal Planning time <1s (verified)
 
@@ -1051,16 +1154,17 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 
 **Track These Metrics After Each Phase**:
 
-| Metric | Baseline | Phase 0 | Phase 1 | Phase 3 | Phase 5 | Phase 6 |
-|--------|----------|---------|---------|---------|---------|---------|
-| **Dashboard Load** | 500ms | 500ms (perceived <100ms) | <100ms | <100ms | <100ms | <100ms |
-| **Renewal Planning** | 8000ms | 8000ms (perceived <2s) | <1000ms | <1000ms | <1000ms | <1000ms |
-| **Error Visibility** | 0% | 80% | 80% | 95% | 95% | 95% |
-| **Test Coverage** | 20% | 20% | 20% | 20% | 80% | 80% |
-| **User Satisfaction** | 3.5/5 | 4.0/5 | 4.3/5 | 4.3/5 | 4.5/5 | 4.8/5 |
-| **Support Requests** | 10/mo | 8/mo | 7/mo | 6/mo | 6/mo | 6/mo |
+| Metric                | Baseline | Phase 0                  | Phase 1 | Phase 3 | Phase 5 | Phase 6 |
+| --------------------- | -------- | ------------------------ | ------- | ------- | ------- | ------- |
+| **Dashboard Load**    | 500ms    | 500ms (perceived <100ms) | <100ms  | <100ms  | <100ms  | <100ms  |
+| **Renewal Planning**  | 8000ms   | 8000ms (perceived <2s)   | <1000ms | <1000ms | <1000ms | <1000ms |
+| **Error Visibility**  | 0%       | 80%                      | 80%     | 95%     | 95%     | 95%     |
+| **Test Coverage**     | 20%      | 20%                      | 20%     | 20%     | 80%     | 80%     |
+| **User Satisfaction** | 3.5/5    | 4.0/5                    | 4.3/5   | 4.3/5   | 4.5/5   | 4.8/5   |
+| **Support Requests**  | 10/mo    | 8/mo                     | 7/mo    | 6/mo    | 6/mo    | 6/mo    |
 
 **How to Measure**:
+
 - **Performance**: Vercel Analytics (real-time)
 - **Error Visibility**: Better Stack dashboard (log count)
 - **Test Coverage**: GitHub Actions CI (Jest/Vitest coverage report)
@@ -1080,11 +1184,13 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 5. **If Option 4**: Start Dashboard optimization (Phase 1)
 
 **Communication**:
+
 - Share chosen option with stakeholders (Fleet Manager, IT Manager)
 - Set expectations: "1-week quick wins sprint, then 8-12 week modernization"
 - Schedule weekly progress updates
 
 **Resources**:
+
 - Better Stack account (logging)
 - Upstash Redis account (caching, Phase 1)
 - Time allocation: 40 hours/week (1 full-time engineer)
@@ -1094,6 +1200,7 @@ Based on multi-agent consensus, here are your **next steps** in priority order:
 **Party Mode Session Complete!** 🎉
 
 Maurice, you now have:
+
 - ✅ Multi-agent analysis of the architecture plan
 - ✅ 5 enhancements to the modernization roadmap
 - ✅ 4 prioritized action items with execution plans

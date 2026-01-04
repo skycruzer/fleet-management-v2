@@ -22,7 +22,7 @@ interface CertificationsViewToggleProps {
 
 export function CertificationsViewToggle({
   groupedCertifications,
-  allCertifications
+  allCertifications,
 }: CertificationsViewToggleProps) {
   const router = useRouter()
   const [viewMode, setViewMode] = useState<'grouped' | 'table'>('grouped')
@@ -79,7 +79,7 @@ export function CertificationsViewToggle({
   return (
     <>
       {/* View Toggle */}
-      <div className="flex items-center rounded-lg border border-input bg-background p-1">
+      <div className="border-input bg-background flex items-center rounded-lg border p-1">
         <Button
           variant={viewMode === 'table' ? 'default' : 'ghost'}
           size="sm"

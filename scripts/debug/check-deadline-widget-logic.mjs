@@ -8,17 +8,14 @@ import { readFileSync } from 'fs'
 // Read .env.local
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 async function checkWidgetLogic() {
   console.log('🔍 Checking deadline widget logic...\n')
@@ -35,7 +32,7 @@ async function checkWidgetLogic() {
 
   // Group by roster period
   const byPeriod = {}
-  requests.forEach(req => {
+  requests.forEach((req) => {
     if (!byPeriod[req.roster_period]) {
       byPeriod[req.roster_period] = {
         SUBMITTED: 0,
@@ -43,7 +40,7 @@ async function checkWidgetLogic() {
         APPROVED: 0,
         DENIED: 0,
         DRAFT: 0,
-        WITHDRAWN: 0
+        WITHDRAWN: 0,
       }
     }
     byPeriod[req.roster_period][req.workflow_status] =

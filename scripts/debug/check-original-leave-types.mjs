@@ -8,17 +8,14 @@ import { readFileSync } from 'fs'
 // Read .env.local
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 async function checkOriginalData() {
   console.log('🔍 Checking ORIGINAL leave_requests table...\n')
@@ -37,7 +34,7 @@ async function checkOriginalData() {
 
   // Group by request_type
   const byType = {}
-  leaveReqs.forEach(req => {
+  leaveReqs.forEach((req) => {
     const type = req.request_type || 'NULL'
     byType[type] = (byType[type] || 0) + 1
   })
@@ -57,7 +54,13 @@ async function checkOriginalData() {
   // Check if there's a separate table for RDO/SDO
   console.log('\n\n🔍 Checking for other request tables...\n')
 
-  const tables = ['flight_requests', 'roster_requests', 'schedule_requests', 'rdo_requests', 'sdo_requests']
+  const tables = [
+    'flight_requests',
+    'roster_requests',
+    'schedule_requests',
+    'rdo_requests',
+    'sdo_requests',
+  ]
 
   for (const table of tables) {
     try {

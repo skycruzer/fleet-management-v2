@@ -20,10 +20,20 @@ const TESTS = [
   { name: 'Landing Page', path: '/', expectedStatus: 200, critical: true },
   { name: 'Login Page', path: '/auth/login', expectedStatus: 200, critical: true },
   { name: 'Admin Dashboard', path: '/dashboard', expectedStatus: 200, critical: true },
-  { name: 'Leave Approval Page', path: '/dashboard/leave/approve', expectedStatus: 200, critical: true },
+  {
+    name: 'Leave Approval Page',
+    path: '/dashboard/leave/approve',
+    expectedStatus: 200,
+    critical: true,
+  },
   { name: 'Pilot Portal Login', path: '/portal/login', expectedStatus: 200, critical: true },
   { name: 'Pilot Dashboard', path: '/portal/dashboard', expectedStatus: 200, critical: false },
-  { name: 'Leave Requests Page', path: '/portal/leave-requests', expectedStatus: 200, critical: false },
+  {
+    name: 'Leave Requests Page',
+    path: '/portal/leave-requests',
+    expectedStatus: 200,
+    critical: false,
+  },
   { name: 'API Health Check', path: '/api', expectedStatus: 404, critical: false }, // 404 is expected, means routing works
 ]
 
@@ -76,9 +86,9 @@ async function runTests() {
   console.log('📝 Test Configuration')
   console.log(`   Base URL: ${BASE_URL}`)
   console.log(`   Total Tests: ${TESTS.length}`)
-  console.log(`   Critical Tests: ${TESTS.filter(t => t.critical).length}`)
+  console.log(`   Critical Tests: ${TESTS.filter((t) => t.critical).length}`)
   console.log()
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
   console.log('🚀 RUNNING TESTS')
   console.log('='.repeat(70))
   console.log()
@@ -103,24 +113,26 @@ async function runTests() {
   console.log('='.repeat(70))
   console.log()
 
-  const passed = results.filter(r => r.passed).length
-  const failed = results.filter(r => !r.passed).length
-  const criticalPassed = results.filter(r => r.critical && r.passed).length
-  const criticalFailed = results.filter(r => r.critical && !r.passed).length
+  const passed = results.filter((r) => r.passed).length
+  const failed = results.filter((r) => !r.passed).length
+  const criticalPassed = results.filter((r) => r.critical && r.passed).length
+  const criticalFailed = results.filter((r) => r.critical && !r.passed).length
 
   console.log(`Total Tests:      ${TESTS.length}`)
   console.log(`Passed:           ${passed} ✅`)
   console.log(`Failed:           ${failed} ${failed > 0 ? '❌' : '✅'}`)
   console.log()
-  console.log(`Critical Tests:   ${TESTS.filter(t => t.critical).length}`)
-  console.log(`Critical Passed:  ${criticalPassed} ${criticalPassed === TESTS.filter(t => t.critical).length ? '✅' : '❌'}`)
+  console.log(`Critical Tests:   ${TESTS.filter((t) => t.critical).length}`)
+  console.log(
+    `Critical Passed:  ${criticalPassed} ${criticalPassed === TESTS.filter((t) => t.critical).length ? '✅' : '❌'}`
+  )
   console.log(`Critical Failed:  ${criticalFailed} ${criticalFailed === 0 ? '✅' : '❌'}`)
   console.log()
 
   // Performance metrics
   const avgLoadTime = results.reduce((sum, r) => sum + r.loadTime, 0) / results.length
-  const maxLoadTime = Math.max(...results.map(r => r.loadTime))
-  const minLoadTime = Math.min(...results.map(r => r.loadTime))
+  const maxLoadTime = Math.max(...results.map((r) => r.loadTime))
+  const minLoadTime = Math.min(...results.map((r) => r.loadTime))
 
   console.log('⚡ Performance Metrics')
   console.log(`   Average Load Time: ${avgLoadTime.toFixed(0)}ms`)
@@ -135,16 +147,18 @@ async function runTests() {
     console.log('='.repeat(70))
     console.log()
 
-    results.filter(r => !r.passed).forEach(result => {
-      console.log(`Test: ${result.name}`)
-      console.log(`  Path: ${result.path}`)
-      console.log(`  Expected Status: ${result.expectedStatus}`)
-      console.log(`  Actual Status: ${result.status}`)
-      if (result.error) {
-        console.log(`  Error: ${result.error}`)
-      }
-      console.log()
-    })
+    results
+      .filter((r) => !r.passed)
+      .forEach((result) => {
+        console.log(`Test: ${result.name}`)
+        console.log(`  Path: ${result.path}`)
+        console.log(`  Expected Status: ${result.expectedStatus}`)
+        console.log(`  Actual Status: ${result.status}`)
+        if (result.error) {
+          console.log(`  Error: ${result.error}`)
+        }
+        console.log()
+      })
   }
 
   // Overall status
@@ -196,15 +210,17 @@ async function runTests() {
 console.log('🔍 Checking if dev server is running...')
 console.log()
 
-http.get(BASE_URL, () => {
-  console.log('✅ Dev server is running')
-  console.log()
-  runTests()
-}).on('error', (error) => {
-  console.log('❌ Dev server is not running!')
-  console.log()
-  console.log('Please start the dev server first:')
-  console.log('  npm run dev')
-  console.log()
-  process.exit(1)
-})
+http
+  .get(BASE_URL, () => {
+    console.log('✅ Dev server is running')
+    console.log()
+    runTests()
+  })
+  .on('error', (error) => {
+    console.log('❌ Dev server is not running!')
+    console.log()
+    console.log('Please start the dev server first:')
+    console.log('  npm run dev')
+    console.log()
+    process.exit(1)
+  })

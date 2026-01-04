@@ -43,8 +43,8 @@ test.describe('ADMIN PORTAL - Comprehensive Testing', () => {
     console.log('✅ Pilots page loaded')
 
     // Check for table or list
-    const hasTable = await page.locator('table').count() > 0
-    const hasCards = await page.locator('[class*="card"]').count() > 0
+    const hasTable = (await page.locator('table').count()) > 0
+    const hasCards = (await page.locator('[class*="card"]').count()) > 0
     console.log(`✅ Found ${hasTable ? 'table' : hasCards ? 'cards' : 'list'} view`)
 
     // Check for action buttons
@@ -81,7 +81,7 @@ test.describe('ADMIN PORTAL - Comprehensive Testing', () => {
     await page.waitForLoadState('networkidle')
 
     // Check page loaded
-    const pageLoaded = await page.locator('h1, h2, body').count() > 0
+    const pageLoaded = (await page.locator('h1, h2, body').count()) > 0
     expect(pageLoaded).toBeTruthy()
     console.log('✅ Leave requests page loaded')
 
@@ -100,7 +100,12 @@ test.describe('ADMIN PORTAL - Comprehensive Testing', () => {
     await page.goto('/dashboard/flight-requests')
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('h1, h2').filter({ hasText: /flight/i }).first()).toBeVisible()
+    await expect(
+      page
+        .locator('h1, h2')
+        .filter({ hasText: /flight/i })
+        .first()
+    ).toBeVisible()
     console.log('✅ Flight requests page loaded')
 
     await page.screenshot({ path: 'test-results/admin-flight-requests.png', fullPage: true })
@@ -146,7 +151,7 @@ test.describe('ADMIN PORTAL - Comprehensive Testing', () => {
     await page.goto('/dashboard/admin')
     await page.waitForLoadState('networkidle')
 
-    const pageLoaded = await page.locator('h1, h2, body').count() > 0
+    const pageLoaded = (await page.locator('h1, h2, body').count()) > 0
     expect(pageLoaded).toBeTruthy()
     console.log('✅ Settings page loaded')
 
@@ -163,8 +168,11 @@ test.describe('ADMIN PORTAL - Comprehensive Testing', () => {
     console.log(`✅ Found ${linkCount} navigation links`)
 
     // Try clicking a few links
-    const pilotLink = page.locator('a').filter({ hasText: /pilots/i }).first()
-    if (await pilotLink.count() > 0) {
+    const pilotLink = page
+      .locator('a')
+      .filter({ hasText: /pilots/i })
+      .first()
+    if ((await pilotLink.count()) > 0) {
       await pilotLink.click()
       await page.waitForLoadState('networkidle')
       console.log('✅ Navigation to pilots worked')
@@ -191,7 +199,7 @@ test.describe('PILOT PORTAL - Comprehensive Testing', () => {
 
     // Check for navigation
     const nav = page.locator('nav, aside')
-    const hasNav = await nav.count() > 0
+    const hasNav = (await nav.count()) > 0
     console.log(`✅ Navigation ${hasNav ? 'found' : 'not found'}`)
 
     await page.screenshot({ path: 'test-results/pilot-dashboard.png', fullPage: true })
@@ -224,7 +232,7 @@ test.describe('PILOT PORTAL - Comprehensive Testing', () => {
 
     // Check for submit button
     const submitButton = page.locator('button, a').filter({ hasText: /submit|request|new/i })
-    const hasSubmitButton = await submitButton.count() > 0
+    const hasSubmitButton = (await submitButton.count()) > 0
     console.log(`✅ Submit button ${hasSubmitButton ? 'found' : 'not found'}`)
 
     await page.screenshot({ path: 'test-results/pilot-leave-requests.png', fullPage: true })
@@ -250,12 +258,17 @@ test.describe('PILOT PORTAL - Comprehensive Testing', () => {
     await page.goto('/portal/feedback')
     await page.waitForLoadState('networkidle')
 
-    await expect(page.locator('h1, h2, h3').filter({ hasText: /feedback/i }).first()).toBeVisible()
+    await expect(
+      page
+        .locator('h1, h2, h3')
+        .filter({ hasText: /feedback/i })
+        .first()
+    ).toBeVisible()
     console.log('✅ Feedback page loaded')
 
     // Check for feedback form
     const form = page.locator('form')
-    const hasForm = await form.count() > 0
+    const hasForm = (await form.count()) > 0
     console.log(`✅ Feedback form ${hasForm ? 'found' : 'not found'}`)
 
     await page.screenshot({ path: 'test-results/pilot-feedback.png', fullPage: true })
@@ -289,8 +302,11 @@ test.describe('WORKFLOWS - End-to-End Testing', () => {
     console.log('Step 1: Pilot logged in ✅')
 
     // Look for submit/new button
-    const submitButton = page.locator('button, a').filter({ hasText: /submit|new|create/i }).first()
-    if (await submitButton.count() > 0) {
+    const submitButton = page
+      .locator('button, a')
+      .filter({ hasText: /submit|new|create/i })
+      .first()
+    if ((await submitButton.count()) > 0) {
       console.log('Step 2: Submit button found ✅')
     } else {
       console.log('Step 2: Submit button not found ⚠️')

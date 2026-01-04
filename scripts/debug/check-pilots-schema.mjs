@@ -6,10 +6,7 @@ const supabase = createClient(
 )
 
 // Get one pilot to see available fields
-const { data, error } = await supabase
-  .from('pilots')
-  .select('*')
-  .limit(1)
+const { data, error } = await supabase.from('pilots').select('*').limit(1)
 
 if (error) {
   console.error('Error:', error)

@@ -121,21 +121,11 @@ export async function updateSession(request: NextRequest) {
     // Note: Full validation happens in protected routes via validatePilotSession()
     const pilotSessionCookie = request.cookies.get('pilot-session')
 
-    console.log('🔍 Middleware Portal Check:', {
-      path: request.nextUrl.pathname,
-      hasCookie: !!pilotSessionCookie,
-      cookieValueLength: pilotSessionCookie?.value?.length,
-      hasSupabaseUser: !!user,
-    })
-
     // If no Supabase user AND no pilot session cookie, redirect to login
     if (!user && !pilotSessionCookie) {
-      console.log('❌ No valid auth - redirecting to login')
       const url = request.nextUrl.clone()
       url.pathname = '/portal/login'
       return NextResponse.redirect(url)
-    } else {
-      console.log('✅ Auth cookie present - allowing access (full validation in route)')
     }
   }
 

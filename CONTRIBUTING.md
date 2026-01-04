@@ -48,6 +48,7 @@ git checkout -b fix/your-bug-fix
 ```
 
 Branch naming conventions:
+
 - `feature/` - New features
 - `fix/` - Bug fixes
 - `docs/` - Documentation updates
@@ -102,6 +103,7 @@ git commit -m "docs: update API documentation"
 ```
 
 Commit types:
+
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation
@@ -163,11 +165,7 @@ interface PilotCardProps {
 export function PilotCard({ pilot }: PilotCardProps) {
   const [expanded, setExpanded] = useState(false)
   // Component logic
-  return (
-    <Card>
-      {/* Component JSX */}
-    </Card>
-  )
+  return <Card>{/* Component JSX */}</Card>
 }
 ```
 
@@ -224,24 +222,29 @@ Example:
 
 ```markdown
 ## What
+
 Adds a new pilot certification dashboard with expiry alerts.
 
 ## Why
+
 Pilots need a centralized view of all their certifications and upcoming renewals.
 
 ## How
+
 - Created new dashboard component
 - Added Supabase queries for certification data
 - Implemented filtering and sorting
 - Added E2E tests
 
 ## Testing
+
 - ✅ Manual testing on Chrome, Firefox, Safari
 - ✅ E2E tests passing
 - ✅ Type checks passing
 - ✅ Responsive design verified
 
 ## Screenshots
+
 [Attach screenshots]
 ```
 
@@ -370,6 +373,7 @@ export function getDaysUntilExpiry(expiryDate: Date): number {
 ### README Updates
 
 Update relevant sections when:
+
 - Adding new features
 - Changing configuration
 - Updating dependencies
@@ -385,6 +389,7 @@ Update relevant sections when:
 ## Recognition
 
 Contributors will be recognized in:
+
 - CONTRIBUTORS.md file
 - Release notes
 - Project documentation

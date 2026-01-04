@@ -9,17 +9,20 @@
 ## Completed Contracts
 
 ✅ **pilot-auth.yaml** (3 endpoints)
+
 - POST `/api/pilot/login` - Pilot authentication
 - POST `/api/pilot/register` - Pilot registration with email verification
 - POST `/api/pilot/logout` - End session
 
 ✅ **flight-requests.yaml** (4 endpoints)
+
 - GET `/api/pilot/flight-requests` - Get pilot's requests
 - POST `/api/pilot/flight-requests` - Submit new request
 - GET `/api/dashboard/flight-requests` - Admin view all requests
 - PATCH `/api/dashboard/flight-requests/{id}` - Approve/deny request
 
 ✅ **tasks.yaml** (5 endpoints)
+
 - GET `/api/tasks` - List tasks with filters
 - POST `/api/tasks` - Create new task
 - GET `/api/tasks/{id}` - Get task details
@@ -35,6 +38,7 @@
 **Purpose**: Pilot leave request submission
 
 **Endpoints**:
+
 - `GET /api/pilot/leave` - Get pilot's leave requests
   - Query params: `status`, `roster_period`, `page`, `pageSize`
   - Returns: List of leave requests with eligibility status
@@ -45,6 +49,7 @@
   - Returns: Created request with eligibility alerts
 
 **Key Schemas**:
+
 - `LeaveRequest`: id, pilot_id, roster_period, dates, status, eligibility_status, submitted_at
 - `LeaveEligibility`: eligible, remaining_crew_count, rank_conflicts, alerts
 
@@ -55,6 +60,7 @@
 **Purpose**: Disciplinary matter tracking and action logging
 
 **Endpoints**:
+
 - `GET /api/disciplinary-matters` - List all matters (admin only)
   - Query params: `pilot_id`, `status`, `severity`, `page`
 
@@ -73,6 +79,7 @@
 - `DELETE /api/disciplinary-matters/{id}` - Soft delete matter (admin only)
 
 **Key Schemas**:
+
 - `DisciplinaryMatter`: id, pilot_id, matter_type, title, status, severity, resolution
 - `DisciplinaryAction`: id, matter_id, action_type, description, attachments, created_at
 - `MatterTimeline`: matter + actions[] (for timeline view)
@@ -84,6 +91,7 @@
 **Purpose**: Community feedback posts, comments, and moderation
 
 **Endpoints**:
+
 - `GET /api/pilot/feedback/posts` - List feedback posts
   - Query params: `category_id`, `sort_by` (upvotes/recent), `page`
   - Returns: Posts with upvote counts, comment counts, pinned status
@@ -110,6 +118,7 @@
   - Returns: All feedback categories (public)
 
 **Key Schemas**:
+
 - `FeedbackPost`: id, author_id, title, content, category_id, upvotes, comment_count, pinned, hidden
 - `FeedbackComment`: id, post_id, author_id, content, mentions[], created_at
 - `FeedbackCategory`: id, name, description, color, icon
@@ -121,6 +130,7 @@
 **Purpose**: Pilot notification management
 
 **Endpoints**:
+
 - `GET /api/pilot/notifications` - Get pilot's notifications
   - Query params: `unread_only`, `type`, `page`
   - Returns: Notifications with unread count
@@ -132,6 +142,7 @@
   - Soft delete (not visible to pilot, but retained for audit)
 
 **Key Schemas**:
+
 - `PilotNotification`: id, pilot_id, type, title, message, link, read, created_at
 - `NotificationTypes`: leave_approved, leave_denied, task_assigned, feedback_reply, etc.
 
@@ -142,6 +153,7 @@
 **Purpose**: Audit log viewing (admin only)
 
 **Endpoints**:
+
 - `GET /api/audit` - List audit logs
   - Query params: `table_name`, `operation`, `user_id`, `entity_type`, `entity_id`, `date_from`, `date_to`, `page`
   - Returns: Audit logs with pagination, filterable by multiple criteria
@@ -150,10 +162,12 @@
   - Returns: Full audit record with old_values, new_values, metadata
 
 **Key Schemas**:
+
 - `AuditLog`: id, table_name, operation, old_values, new_values, action, entity_type, entity_id, description, metadata, user_id, created_at
 - `AuditLogFilters`: table_name, operation, user_id, entity_type, date_range
 
 **Export Feature**:
+
 - `GET /api/audit/export?format=csv` - Export audit logs to CSV (compliance requirement)
 
 ---
@@ -163,6 +177,7 @@
 **Purpose**: Pilot registration approval workflow
 
 **Endpoints**:
+
 - `GET /api/admin/pilot-registrations` - List pending registrations
   - Query params: `status` (PENDING/APPROVED/DENIED), `page`
   - Returns: Registration requests with email verification status
@@ -176,10 +191,12 @@
   - On DENIED: Send denial email with reason, keep record for audit
 
 **Key Schemas**:
+
 - `PilotRegistration`: id, user_id, first_name, last_name, email, rank, employee_id, email_verified, status, reviewed_by, reviewed_at, admin_notes
 - `RegistrationApproval`: status, admin_notes, denial_reason (required if denied)
 
 **Post-Approval Actions**:
+
 - Create `pilots` record
 - Link `pilots.user_id` to `an_users.id`
 - Create welcome notification in `pilot_notifications`
@@ -192,6 +209,7 @@
 ### Standard Request/Response Format
 
 **All requests** should follow this structure:
+
 ```json
 // Request Body
 {
@@ -237,16 +255,19 @@
 ### Common Query Parameters
 
 **Pagination**:
+
 - `page` (integer, default: 1)
 - `pageSize` (integer, default: 20, max: 100)
 
 **Filtering**:
+
 - `status` - Filter by status enum
 - `{entity}_id` - Filter by related entity UUID
 - `date_from`, `date_to` - Date range filters
 - `search` - Full-text search (where applicable)
 
 **Sorting**:
+
 - `sort_by` - Field to sort by
 - `order` - 'asc' or 'desc' (default: desc for created_at)
 
@@ -259,6 +280,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Role-Based Access**:
+
 - `pilot`: Access to `/api/pilot/*` endpoints only
 - `admin`: Access to all endpoints
 - `manager`: Access to most endpoints except sensitive admin operations
@@ -266,23 +288,28 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ### Validation Rules
 
 **UUID Fields**:
+
 - Must be valid UUID v4 format
 - Example: `550e8400-e29b-41d4-a716-446655440000`
 
 **Date Fields**:
+
 - Format: ISO 8601 date (`YYYY-MM-DD`)
 - Example: `2025-10-22`
 
 **DateTime Fields**:
+
 - Format: ISO 8601 datetime with timezone
 - Example: `2025-10-22T10:30:00Z`
 
 **Email Fields**:
+
 - Valid email format
 - Max length: 255 characters
 - Example: `pilot@airniugini.com`
 
 **Enum Fields**:
+
 - Exact match required (case-sensitive)
 - Examples: `Captain` (not `captain`), `PENDING` (not `pending`)
 

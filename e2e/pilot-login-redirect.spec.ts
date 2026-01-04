@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Pilot Portal Login Redirect', () => {
   test('should redirect to dashboard after successful login', async ({ page }) => {
     // Enable console logging to see debug messages
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       if (msg.text().includes('[LOGIN]')) {
         console.log('Browser console:', msg.text())
       }
@@ -41,7 +41,7 @@ test.describe('Pilot Portal Login Redirect', () => {
     // because dashboard makes ongoing API calls
     await page.waitForURL('/portal/dashboard', {
       timeout: 15000,
-      waitUntil: 'domcontentloaded'
+      waitUntil: 'domcontentloaded',
     })
 
     // Verify we're on the dashboard
@@ -49,7 +49,12 @@ test.describe('Pilot Portal Login Redirect', () => {
 
     // Verify dashboard content loads (wait for any dashboard-specific content)
     // The dashboard might show "Dashboard", "Pilot Dashboard", "My Dashboard", etc.
-    await expect(page.locator('h1, h2').filter({ hasText: /dashboard|welcome/i }).first()).toBeVisible({ timeout: 10000 })
+    await expect(
+      page
+        .locator('h1, h2')
+        .filter({ hasText: /dashboard|welcome/i })
+        .first()
+    ).toBeVisible({ timeout: 10000 })
   })
 
   test('should show error for invalid credentials', async ({ page }) => {

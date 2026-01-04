@@ -67,7 +67,7 @@ export function LeaveRequestGroup({
     const affectedPeriods = getAffectedRosterPeriods(startDate, endDate)
 
     if (affectedPeriods.length > 1) {
-      const periodCodes = affectedPeriods.map(p => p.code).join(' → ')
+      const periodCodes = affectedPeriods.map((p) => p.code).join(' → ')
       return {
         isMultiPeriod: true,
         count: affectedPeriods.length,
@@ -86,28 +86,34 @@ export function LeaveRequestGroup({
     <Card className="overflow-hidden">
       {/* Type Header */}
       <div
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+        className="hover:bg-muted/50 flex cursor-pointer items-center justify-between p-4 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-4 flex-1">
+        <div className="flex flex-1 items-center gap-4">
           <span className="text-2xl">{getTypeIcon(type)}</span>
-          <h3 className="text-lg font-semibold text-foreground">{type}</h3>
+          <h3 className="text-foreground text-lg font-semibold">{type}</h3>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
               {stats.total} Total
             </Badge>
-            <Badge variant="outline" className="text-xs border-blue-500 bg-blue-50 text-blue-800">
+            <Badge variant="outline" className="border-blue-500 bg-blue-50 text-xs text-blue-800">
               {stats.pending} Pending
             </Badge>
-            <Badge variant="outline" className="text-xs border-green-500 bg-green-50 text-green-800">
+            <Badge
+              variant="outline"
+              className="border-green-500 bg-green-50 text-xs text-green-800"
+            >
               {stats.approved} Approved
             </Badge>
             {stats.denied > 0 && (
-              <Badge variant="outline" className="text-xs border-red-500 bg-red-50 text-red-800">
+              <Badge variant="outline" className="border-red-500 bg-red-50 text-xs text-red-800">
                 {stats.denied} Denied
               </Badge>
             )}
-            <Badge variant="outline" className="text-xs border-purple-500 bg-primary/5 text-primary-foreground">
+            <Badge
+              variant="outline"
+              className="bg-primary/5 text-primary-foreground border-purple-500 text-xs"
+            >
               {stats.totalDays} Days
             </Badge>
           </div>
@@ -133,9 +139,9 @@ export function LeaveRequestGroup({
             .map((role) => (
               <div key={role} className="border-t first:border-t-0">
                 {/* Role Header */}
-                <div className="bg-muted/30 px-4 py-2 flex items-center gap-2">
+                <div className="bg-muted/30 flex items-center gap-2 px-4 py-2">
                   <span className="text-xl">{getRoleIcon(role)}</span>
-                  <h4 className="text-sm font-semibold text-foreground">{role}</h4>
+                  <h4 className="text-foreground text-sm font-semibold">{role}</h4>
                   <Badge variant="secondary" className="text-xs">
                     {roleGroups[role].length}
                   </Badge>
@@ -143,126 +149,127 @@ export function LeaveRequestGroup({
 
                 {/* Requests Table */}
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-border">
+                  <table className="divide-border min-w-full divide-y">
                     <thead className="bg-muted/20">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                           Pilot
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                           Employee ID
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                           Start Date
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                           End Date
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                           Days
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                           Roster Period
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
                           Status
                         </th>
                         {onReview && (
-                          <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          <th className="text-muted-foreground px-4 py-3 text-right text-xs font-medium tracking-wider uppercase">
                             Actions
                           </th>
                         )}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-border bg-background">
+                    <tbody className="divide-border bg-background divide-y">
                       {roleGroups[role].map((req) => {
                         const multiPeriodInfo = getMultiPeriodInfo(req)
                         return (
                           <tr key={req.id} className="hover:bg-muted/50 transition-colors">
-                            <td className="px-4 py-4 text-sm font-medium text-foreground whitespace-nowrap">
+                            <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
                               {req.name || 'N/A'}
                             </td>
-                            <td className="px-4 py-4 text-sm text-foreground whitespace-nowrap">
+                            <td className="text-foreground px-4 py-4 text-sm whitespace-nowrap">
                               {req.employee_number || 'N/A'}
                             </td>
-                            <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
+                            <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                               {format(new Date(req.start_date), 'MMM dd, yyyy')}
                             </td>
-                            <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
-                              {req.end_date ? format(new Date(req.end_date), 'MMM dd, yyyy') : format(new Date(req.start_date), 'MMM dd, yyyy')}
+                            <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
+                              {req.end_date
+                                ? format(new Date(req.end_date), 'MMM dd, yyyy')
+                                : format(new Date(req.start_date), 'MMM dd, yyyy')}
                             </td>
-                            <td className="px-4 py-4 text-sm text-muted-foreground whitespace-nowrap">
+                            <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
                               {req.days_count ?? 1}
                             </td>
                             <td className="px-4 py-4 text-sm whitespace-nowrap">
                               <div className="flex flex-col gap-1">
-                                <span className="text-muted-foreground">{multiPeriodInfo.periodCodes}</span>
+                                <span className="text-muted-foreground">
+                                  {multiPeriodInfo.periodCodes}
+                                </span>
                                 {multiPeriodInfo.isMultiPeriod && (
                                   <Badge
                                     variant="outline"
-                                    className="text-xs border-orange-500 bg-orange-50 text-orange-800 w-fit"
+                                    className="w-fit border-orange-500 bg-orange-50 text-xs text-orange-800"
                                   >
                                     🔄 Spans {multiPeriodInfo.count} periods
                                   </Badge>
                                 )}
                               </div>
                             </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                                req.workflow_status === 'SUBMITTED'
-                                  ? 'bg-blue-100 text-blue-800'
-                                  : req.workflow_status === 'APPROVED'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
-                              }`}
-                            >
-                              {req.workflow_status}
-                            </span>
-                          </td>
-                          {onReview && (
-                            <td className="px-4 py-4 whitespace-nowrap text-right">
-                              <div className="flex items-center justify-end gap-2">
-                                {/* View Details Button - Always visible */}
-                                <Link href={`/dashboard/leave/${req.id}`}>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-xs"
-                                  >
-                                    <Eye className="h-3 w-3 mr-1" />
-                                    View
-                                  </Button>
-                                </Link>
-
-                                {/* Review Button - Only for pending requests */}
-                                {req.workflow_status === 'SUBMITTED' && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => onReview(req)}
-                                    className="text-xs"
-                                  >
-                                    Review
-                                  </Button>
-                                )}
-
-                                {/* Reviewed Status - For non-pending requests */}
-                                {req.workflow_status !== 'SUBMITTED' && req.reviewed_by && (
-                                  <div className="text-xs text-muted-foreground">
-                                    Reviewed
-                                    {req.reviewed_at && (
-                                      <div className="text-xs">
-                                        {format(new Date(req.reviewed_at), 'MMM dd, yyyy')}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              <span
+                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                  req.workflow_status === 'SUBMITTED'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : req.workflow_status === 'APPROVED'
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-red-100 text-red-800'
+                                }`}
+                              >
+                                {req.workflow_status}
+                              </span>
                             </td>
-                          )}
-                        </tr>
-                      )})}
+                            {onReview && (
+                              <td className="px-4 py-4 text-right whitespace-nowrap">
+                                <div className="flex items-center justify-end gap-2">
+                                  {/* View Details Button - Always visible */}
+                                  <Link href={`/dashboard/leave/${req.id}`}>
+                                    <Button size="sm" variant="ghost" className="text-xs">
+                                      <Eye className="mr-1 h-3 w-3" />
+                                      View
+                                    </Button>
+                                  </Link>
+
+                                  {/* Review Button - Only for pending requests */}
+                                  {req.workflow_status === 'SUBMITTED' && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => onReview(req)}
+                                      className="text-xs"
+                                    >
+                                      Review
+                                    </Button>
+                                  )}
+
+                                  {/* Reviewed Status - For non-pending requests */}
+                                  {req.workflow_status !== 'SUBMITTED' && req.reviewed_by && (
+                                    <div className="text-muted-foreground text-xs">
+                                      Reviewed
+                                      {req.reviewed_at && (
+                                        <div className="text-xs">
+                                          {format(new Date(req.reviewed_at), 'MMM dd, yyyy')}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                            )}
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>

@@ -23,11 +23,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Badge } from '@/components/ui/badge'
 
 interface RosterPeriodMultiSelectProps {
@@ -83,12 +79,12 @@ export function RosterPeriodMultiSelect({
             role="combobox"
             aria-expanded={open}
             className={cn(
-              'w-full justify-between h-auto min-h-10',
+              'h-auto min-h-10 w-full justify-between',
               selectedPeriods.length === 0 && 'text-muted-foreground'
             )}
             disabled={disabled}
           >
-            <span className="flex-1 text-left truncate">
+            <span className="flex-1 truncate text-left">
               {selectedPeriods.length === 0
                 ? placeholder
                 : `${selectedPeriods.length} period${selectedPeriods.length === 1 ? '' : 's'} selected`}
@@ -107,13 +103,13 @@ export function RosterPeriodMultiSelect({
               <CommandEmpty>No period found.</CommandEmpty>
               <CommandGroup>
                 {/* Select All / Clear All Actions */}
-                <div className="flex gap-2 p-2 border-b">
+                <div className="flex gap-2 border-b p-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={handleSelectAll}
-                    className="flex-1 h-7 text-xs"
+                    className="h-7 flex-1 text-xs"
                   >
                     Select All
                   </Button>
@@ -122,7 +118,7 @@ export function RosterPeriodMultiSelect({
                     variant="outline"
                     size="sm"
                     onClick={handleClearAll}
-                    className="flex-1 h-7 text-xs"
+                    className="h-7 flex-1 text-xs"
                     disabled={selectedPeriods.length === 0}
                   >
                     Clear All
@@ -141,10 +137,7 @@ export function RosterPeriodMultiSelect({
                         className="cursor-pointer"
                       >
                         <Check
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            isSelected ? 'opacity-100' : 'opacity-0'
-                          )}
+                          className={cn('mr-2 h-4 w-4', isSelected ? 'opacity-100' : 'opacity-0')}
                         />
                         <span className="flex-1">{period}</span>
                       </CommandItem>
@@ -159,18 +152,14 @@ export function RosterPeriodMultiSelect({
 
       {/* Selected Badges */}
       {selectedPeriods.length > 0 && (
-        <div className="flex flex-wrap gap-2 p-3 border rounded-md bg-muted/30">
+        <div className="bg-muted/30 flex flex-wrap gap-2 rounded-md border p-3">
           {selectedPeriods.map((period) => (
-            <Badge
-              key={period}
-              variant="secondary"
-              className="gap-1 pr-1 hover:bg-secondary/80"
-            >
+            <Badge key={period} variant="secondary" className="hover:bg-secondary/80 gap-1 pr-1">
               <span>{period}</span>
               <button
                 type="button"
                 onClick={(e) => handleRemove(period, e)}
-                className="ml-1 rounded-sm hover:bg-secondary-foreground/20 p-0.5"
+                className="hover:bg-secondary-foreground/20 ml-1 rounded-sm p-0.5"
                 disabled={disabled}
               >
                 <X className="h-3 w-3" />

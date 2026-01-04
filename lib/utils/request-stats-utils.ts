@@ -100,10 +100,8 @@ export function calculateRequestStats(requests: PilotRequest[]): RequestStats {
     // Count critical, warning, and clean for pending requests
     if (request.workflow_status === 'SUBMITTED' || request.workflow_status === 'IN_REVIEW') {
       const hasCriticalIssue =
-        request.is_past_deadline ||
-        (request.conflict_flags && request.conflict_flags.length > 0)
-      const hasWarningIssue =
-        request.is_late_request || request.is_past_deadline
+        request.is_past_deadline || (request.conflict_flags && request.conflict_flags.length > 0)
+      const hasWarningIssue = request.is_late_request || request.is_past_deadline
 
       if (hasCriticalIssue) {
         stats.critical++
@@ -143,7 +141,9 @@ export function hasWarningFlags(request: PilotRequest): boolean {
 /**
  * Get priority color for a request based on its status and flags
  */
-export function getRequestPriorityColor(request: PilotRequest): 'red' | 'yellow' | 'green' | 'gray' {
+export function getRequestPriorityColor(
+  request: PilotRequest
+): 'red' | 'yellow' | 'green' | 'gray' {
   if (isCriticalRequest(request)) {
     return 'red'
   }

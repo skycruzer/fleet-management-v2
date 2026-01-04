@@ -9,7 +9,7 @@ import { readFileSync } from 'fs'
 // Load .env.local
 const envFile = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
@@ -27,10 +27,7 @@ console.log('🔍 Checking RLS policies on an_users table\n')
 
 try {
   // Query pg_policies view
-  const { data, error } = await supabase
-    .from('pg_policies')
-    .select('*')
-    .eq('tablename', 'an_users')
+  const { data, error } = await supabase.from('pg_policies').select('*').eq('tablename', 'an_users')
 
   if (error) {
     console.error('❌ Error querying policies:', error.message)
@@ -55,7 +52,6 @@ try {
     console.log(`   WITH CHECK: ${policy.with_check}`)
     console.log()
   })
-
 } catch (error) {
   console.error('❌ Unexpected error:', error.message)
 }

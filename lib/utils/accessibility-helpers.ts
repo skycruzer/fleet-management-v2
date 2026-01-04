@@ -321,7 +321,9 @@ export function announceFormErrors(errors: Record<string, string>): void {
 
   if (errorCount === 0) return
 
-  const message = `Form has ${errorCount} error${errorCount === 1 ? '' : 's'}. ${Object.entries(errors)
+  const message = `Form has ${errorCount} error${errorCount === 1 ? '' : 's'}. ${Object.entries(
+    errors
+  )
     .map(([field, error]) => `${field.replace(/_/g, ' ')}: ${error}`)
     .join('. ')}`
 
@@ -344,11 +346,7 @@ export const SR_ONLY_CLASS =
  * (Not hidden, not display: none, not visibility: hidden)
  */
 export function isVisible(element: HTMLElement): boolean {
-  return !!(
-    element.offsetWidth ||
-    element.offsetHeight ||
-    element.getClientRects().length
-  )
+  return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length)
 }
 
 // ============================================================================

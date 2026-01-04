@@ -28,10 +28,9 @@ export async function exampleApiRoute(request: NextRequest) {
 
     if (!user) {
       // ✅ Use standardized auth error
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401),
-        { status: 401 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
+        status: 401,
+      })
     }
 
     // Validate request body
@@ -53,17 +52,15 @@ export async function exampleApiRoute(request: NextRequest) {
     if (error) {
       if (error.code === 'PGRST116') {
         // ✅ Resource not found
-        return NextResponse.json(
-          formatApiError(ERROR_MESSAGES.PILOT.NOT_FOUND, 404),
-          { status: 404 }
-        )
+        return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.NOT_FOUND, 404), {
+          status: 404,
+        })
       }
 
       // ✅ Generic database error
-      return NextResponse.json(
-        formatApiError(ERROR_MESSAGES.PILOT.FETCH_FAILED, 500),
-        { status: 500 }
-      )
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.PILOT.FETCH_FAILED, 500), {
+        status: 500,
+      })
     }
 
     return NextResponse.json({
@@ -72,10 +69,9 @@ export async function exampleApiRoute(request: NextRequest) {
     })
   } catch (error) {
     console.error('API Error:', error)
-    return NextResponse.json(
-      formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500),
-      { status: 500 }
-    )
+    return NextResponse.json(formatApiError(ERROR_MESSAGES.NETWORK.SERVER_ERROR, 500), {
+      status: 500,
+    })
   }
 }
 
@@ -90,11 +86,7 @@ export async function exampleServiceFunction(pilotId: string) {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase
-      .from('pilots')
-      .select('*')
-      .eq('id', pilotId)
-      .single()
+    const { data, error } = await supabase.from('pilots').select('*').eq('id', pilotId).single()
 
     if (error) {
       // ✅ Log error with context
@@ -426,9 +418,9 @@ export function ErrorDisplay({ error }: { error: Error | null }) {
   )
 
   return (
-    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
       <h4 className="text-sm font-medium text-red-800">Error</h4>
-      <p className="text-sm text-red-700 mt-1">{userMessage}</p>
+      <p className="mt-1 text-sm text-red-700">{userMessage}</p>
     </div>
   )
 }

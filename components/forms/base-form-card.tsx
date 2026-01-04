@@ -68,16 +68,11 @@ export function BaseFormCard({
       </CardHeader>
       <form onSubmit={onSubmit}>
         <CardContent className="space-y-6">{children}</CardContent>
-        <CardFooter className="flex justify-between items-center">
+        <CardFooter className="flex items-center justify-between">
           <div className="flex-1">{footerExtra}</div>
           <div className="flex gap-4">
             {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isLoading}
-              >
+              <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
                 {cancelText}
               </Button>
             )}
@@ -106,20 +101,13 @@ export interface FormSectionProps {
   className?: string
 }
 
-export function FormSection({
-  title,
-  description,
-  children,
-  className = '',
-}: FormSectionProps) {
+export function FormSection({ title, description, children, className = '' }: FormSectionProps) {
   return (
     <div className={`space-y-4 ${className}`}>
       <div>
         <h3 className="text-lg font-semibold">{title}</h3>
         {description && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {description}
-          </p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{description}</p>
         )}
       </div>
       {children}

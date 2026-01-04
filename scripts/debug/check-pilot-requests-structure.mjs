@@ -21,10 +21,7 @@ const { count: leaveCount } = await supabase
 console.log(`Leave requests: ${leaveCount}`)
 
 // Get one sample record
-const { data, error } = await supabase
-  .from('pilot_requests')
-  .select('*')
-  .limit(1)
+const { data, error } = await supabase.from('pilot_requests').select('*').limit(1)
 
 if (error) {
   console.error('Error:', error)

@@ -5,14 +5,14 @@
 
 import puppeteer from 'puppeteer'
 
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const CONFIG = {
   BASE_URL: 'http://localhost:3000',
   ADMIN_CREDENTIALS: {
     email: 'skycruzer@icloud.com',
-    password: 'mron2393'
-  }
+    password: 'mron2393',
+  },
 }
 
 const adminPages = [
@@ -34,7 +34,7 @@ console.log('='.repeat(80) + '\n')
 const browser = await puppeteer.launch({
   headless: false,
   defaultViewport: { width: 1920, height: 1080 },
-  slowMo: 50
+  slowMo: 50,
 })
 
 const page = await browser.newPage()
@@ -51,7 +51,7 @@ page.on('response', async (response) => {
     apiCalls.set(apiPath, {
       status: response.status(),
       ok: response.ok(),
-      url: url
+      url: url,
     })
   }
 })
@@ -81,7 +81,7 @@ await page.waitForNavigation({ waitUntil: 'networkidle2' })
 await sleep(2000)
 
 console.log('✅ Login successful\n')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log('  📊 TESTING EACH PAGE INDIVIDUALLY')
 console.log('='.repeat(80) + '\n')
 
@@ -100,7 +100,7 @@ for (const pageInfo of adminPages) {
     // Navigate to page
     await page.goto(`${CONFIG.BASE_URL}${pageInfo.url}`, {
       waitUntil: 'networkidle2',
-      timeout: 10000
+      timeout: 10000,
     })
 
     await sleep(3000) // Wait for any async operations
@@ -120,7 +120,7 @@ for (const pageInfo of adminPages) {
         url: pageInfo.url,
         redirectedTo: currentUrl,
         apiCalls: [],
-        errors: []
+        errors: [],
       })
       continue
     }
@@ -133,12 +133,12 @@ for (const pageInfo of adminPages) {
     const pageCalls = Array.from(apiCalls.entries()).map(([path, info]) => ({
       path,
       status: info.status,
-      ok: info.ok
+      ok: info.ok,
     }))
 
     if (pageCalls.length > 0) {
       console.log(`   📡 API Calls:`)
-      pageCalls.forEach(call => {
+      pageCalls.forEach((call) => {
         const icon = call.ok ? '✅' : '❌'
         console.log(`      ${icon} /api/${call.path}: ${call.status}`)
       })
@@ -149,14 +149,14 @@ for (const pageInfo of adminPages) {
     // Check for errors
     if (consoleErrors.length > 0) {
       console.log(`   ❌ Console Errors:`)
-      consoleErrors.slice(0, 3).forEach(err => {
+      consoleErrors.slice(0, 3).forEach((err) => {
         console.log(`      - ${err.substring(0, 100)}`)
       })
     }
 
     if (pageErrors.length > 0) {
       console.log(`   ❌ Page Errors:`)
-      pageErrors.slice(0, 3).forEach(err => {
+      pageErrors.slice(0, 3).forEach((err) => {
         console.log(`      - ${err.substring(0, 100)}`)
       })
     }
@@ -177,7 +177,7 @@ for (const pageInfo of adminPages) {
     if (pageInfo.expectApi && pageCalls.length === 0) status = 'NO_API'
 
     // Check if API calls failed
-    const failedCalls = pageCalls.filter(c => !c.ok)
+    const failedCalls = pageCalls.filter((c) => !c.ok)
     if (failedCalls.length > 0) status = 'API_ERROR'
 
     const icon = status === 'PASSED' ? '✅' : '❌'
@@ -191,9 +191,8 @@ for (const pageInfo of adminPages) {
       apiCalls: pageCalls,
       consoleErrors: consoleErrors.slice(0, 3),
       pageErrors: pageErrors.slice(0, 3),
-      hasContent
+      hasContent,
     })
-
   } catch (error) {
     console.log(`   ❌ ERROR: ${error.message}`)
     results.push({
@@ -202,7 +201,7 @@ for (const pageInfo of adminPages) {
       url: pageInfo.url,
       error: error.message,
       apiCalls: [],
-      errors: [error.message]
+      errors: [error.message],
     })
   }
 
@@ -214,8 +213,8 @@ console.log('\n' + '='.repeat(80))
 console.log('  📊 DETAILED TEST SUMMARY')
 console.log('='.repeat(80) + '\n')
 
-const passed = results.filter(r => r.status === 'PASSED')
-const failed = results.filter(r => r.status !== 'PASSED')
+const passed = results.filter((r) => r.status === 'PASSED')
+const failed = results.filter((r) => r.status !== 'PASSED')
 
 console.log(`Total Pages Tested: ${results.length}`)
 console.log(`✅ Fully Working: ${passed.length}`)
@@ -236,10 +235,10 @@ if (failed.length > 0) {
     }
 
     if (result.apiCalls && result.apiCalls.length > 0) {
-      const failed = result.apiCalls.filter(c => !c.ok)
+      const failed = result.apiCalls.filter((c) => !c.ok)
       if (failed.length > 0) {
         console.log(`   Failed API Calls:`)
-        failed.forEach(call => {
+        failed.forEach((call) => {
           console.log(`      - /api/${call.path}: ${call.status}`)
         })
       }
@@ -247,7 +246,7 @@ if (failed.length > 0) {
 
     if (result.pageErrors && result.pageErrors.length > 0) {
       console.log(`   Page Errors:`)
-      result.pageErrors.forEach(err => {
+      result.pageErrors.forEach((err) => {
         console.log(`      - ${err.substring(0, 80)}`)
       })
     }

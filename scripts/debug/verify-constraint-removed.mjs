@@ -34,7 +34,7 @@ if (error) {
 } else {
   console.log('✅ CONSTRAINT REMOVED SUCCESSFULLY')
   console.log('Flight request created:', data.id)
-  
+
   // Clean up test data
   await supabase.from('flight_requests').delete().eq('id', data.id)
   console.log('Test data cleaned up')

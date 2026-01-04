@@ -16,9 +16,7 @@ export function DashboardNavLink({ href, icon, children, className }: DashboardN
 
   // Check if current route is active
   // Exact match for '/dashboard', prefix match for sub-routes
-  const isActive = href === '/dashboard'
-    ? pathname === '/dashboard'
-    : pathname.startsWith(href)
+  const isActive = href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href)
 
   return (
     <Link

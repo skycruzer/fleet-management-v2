@@ -7,12 +7,15 @@
 ## Changes Made
 
 ### Created New Directory
+
 - **`lib/validations/`** - Central location for all Zod validation schemas
 
 ### Created 6 Validation Schema Files
 
 #### 1. pilot-validation.ts (8.7 KB)
+
 **Schemas Created:**
+
 - `PilotCreateSchema` - Full validation for pilot creation
 - `PilotUpdateSchema` - Partial validation for pilot updates
 - `PilotSearchSchema` - Search term and filter validation
@@ -22,6 +25,7 @@
 - `CaptainQualificationsSchema` - Captain qualifications validation
 
 **Key Validation Rules:**
+
 - Employee ID: Exactly 6 digits (`^\d{6}$`)
 - Names: 1-50 characters, letters/spaces/hyphens/apostrophes only
 - Age: Must be at least 18 years old
@@ -30,7 +34,9 @@
 - Business Rules: Multiple `.refine()` checks for complex logic
 
 #### 2. certification-validation.ts (5.8 KB)
+
 **Schemas Created:**
+
 - `CertificationCreateSchema` - Full validation for certification creation
 - `CertificationUpdateSchema` - Partial validation for certification updates
 - `BatchCertificationUpdateSchema` - Batch update validation (1-100 items)
@@ -39,6 +45,7 @@
 - `CertificationFilterSchema` - Advanced filtering with status/category
 
 **Key Validation Rules:**
+
 - Completion Date: Cannot be in the future
 - Expiry Date: Must be after completion date
 - Roster Period: Format "RP1/2025" through "RP13/2025"
@@ -46,7 +53,9 @@
 - Batch Operations: 1-100 certifications per batch
 
 #### 3. leave-validation.ts (7.7 KB)
+
 **Schemas Created:**
+
 - `LeaveRequestCreateSchema` - Full validation for leave request creation
 - `LeaveRequestUpdateSchema` - Partial validation for leave request updates
 - `LeaveRequestStatusUpdateSchema` - Approval/denial validation
@@ -55,6 +64,7 @@
 - `LeaveRequestFilterSchema` - Advanced filtering
 
 **Key Validation Rules:**
+
 - Date Range: End date >= start date, max 90 days
 - Request Date: Must be before or equal to start date
 - Late Request: Flag required if < 21 days notice
@@ -62,7 +72,9 @@
 - Status: PENDING, APPROVED, DENIED
 
 #### 4. dashboard-validation.ts (6.4 KB)
+
 **Schemas Created:**
+
 - `DashboardDateRangeSchema` - Date range or preset time range
 - `DashboardMetricsFilterSchema` - Metrics selection
 - `DashboardPilotFilterSchema` - Pilot filtering
@@ -74,6 +86,7 @@
 - `ActivityFeedFilterSchema` - Activity feed limits
 
 **Key Validation Rules:**
+
 - Time Range: 7d, 30d, 90d, 365d, or "all"
 - Cannot mix custom dates and preset time range
 - Days Ahead: 1-365 days for expiring certifications
@@ -81,7 +94,9 @@
 - Alert Type: expired_cert, expiring_cert, retirement, missing_cert, leave_conflict, all
 
 #### 5. analytics-validation.ts (9.1 KB)
+
 **Schemas Created:**
+
 - `AnalyticsDateRangeSchema` - Date range validation (max 2 years)
 - `PilotAnalyticsFilterSchema` - Pilot analytics filters
 - `CertificationAnalyticsFilterSchema` - Certification analytics filters
@@ -96,6 +111,7 @@
 - `CustomReportSchema` - Custom report configuration
 
 **Key Validation Rules:**
+
 - Date Range: Max 2 years (730 days)
 - Period: daily, weekly, monthly, quarterly, yearly
 - KPI Targets: Non-negative numbers
@@ -103,11 +119,13 @@
 - Months Ahead: 1-24 months for trend analysis
 
 #### 6. index.ts (1.7 KB)
+
 - Central export point for all validation schemas
 - Usage documentation with examples
 - TypeScript type exports
 
 ### Created Documentation
+
 - **`lib/validations/README.md`** (comprehensive guide)
   - Overview and file structure
   - Usage examples (basic validation, service integration, React Hook Form)
@@ -165,6 +183,7 @@
 **Type Safety**: 100% (all schemas provide TypeScript types)
 
 **Validation Coverage:**
+
 - ✅ Pilot operations (create, update, search)
 - ✅ Certification operations (create, update, batch, filters)
 - ✅ Leave request operations (create, update, status, conflicts)
@@ -176,6 +195,7 @@
 **To Do**: Integrate validation schemas into service layer functions
 
 Services requiring integration:
+
 1. `lib/services/pilot-service.ts` - 10 functions
 2. `lib/services/certification-service.ts` - 12 functions
 3. `lib/services/leave-service.ts` - 11 functions
@@ -185,6 +205,7 @@ Services requiring integration:
 7. `lib/services/expiring-certifications-service.ts` - 2 functions
 
 **Integration Pattern:**
+
 ```typescript
 import { PilotCreateSchema } from '@/lib/validations'
 

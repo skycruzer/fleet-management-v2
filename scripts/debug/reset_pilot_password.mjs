@@ -11,17 +11,14 @@ import { readFileSync } from 'fs'
 // Read .env.local file
 const envFile = readFileSync('.env.local', 'utf8')
 const env = {}
-envFile.split('\n').forEach(line => {
+envFile.split('\n').forEach((line) => {
   const match = line.match(/^([^=:#]+)=(.*)$/)
   if (match) {
     env[match[1].trim()] = match[2].trim()
   }
 })
 
-const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
 async function resetPilotPassword() {
   console.log('\n🔐 Resetting Pilot Password...\n')
@@ -31,10 +28,9 @@ async function resetPilotPassword() {
   const userId = 'a1418a40-bde1-4482-ae4b-20905ffba49c'
 
   // Update user password using Admin API
-  const { data, error } = await supabase.auth.admin.updateUserById(
-    userId,
-    { password: newPassword }
-  )
+  const { data, error } = await supabase.auth.admin.updateUserById(userId, {
+    password: newPassword,
+  })
 
   if (error) {
     console.error('❌ Error resetting password:', error.message)
@@ -51,7 +47,7 @@ async function resetPilotPassword() {
 
 resetPilotPassword()
   .then(() => process.exit(0))
-  .catch(error => {
+  .catch((error) => {
     console.error('Fatal error:', error)
     process.exit(1)
   })

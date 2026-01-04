@@ -7,7 +7,13 @@
  * Phase 3.0: Updated for 3-table architecture
  */
 
-export type ReportType = 'rdo-sdo' | 'leave' | 'all-requests' | 'flight-requests' | 'certifications' | 'leave-bids'
+export type ReportType =
+  | 'rdo-sdo'
+  | 'leave'
+  | 'all-requests'
+  | 'flight-requests'
+  | 'certifications'
+  | 'leave-bids'
 
 export interface ReportFilters {
   dateRange?: {

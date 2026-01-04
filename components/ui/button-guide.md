@@ -5,7 +5,9 @@
 ## Button Variants
 
 ### Primary (Default)
+
 **Use for**: Main actions, form submissions, primary CTAs
+
 ```tsx
 <Button>Save Changes</Button>
 <Button>Create Pilot</Button>
@@ -13,7 +15,9 @@
 ```
 
 ### Outline
+
 **Use for**: Secondary actions, cancel buttons, navigation back
+
 ```tsx
 <Button variant="outline">Cancel</Button>
 <Button variant="outline">← Back</Button>
@@ -21,7 +25,9 @@
 ```
 
 ### Ghost
+
 **Use for**: Tertiary actions, icon-only buttons, minimal emphasis
+
 ```tsx
 <Button variant="ghost" size="icon" aria-label="Close">
   <X className="h-4 w-4" />
@@ -29,14 +35,18 @@
 ```
 
 ### Destructive
+
 **Use for**: Delete actions, dangerous operations
+
 ```tsx
 <Button variant="destructive">Delete Pilot</Button>
 <Button variant="destructive">Remove Certification</Button>
 ```
 
 ### Link
+
 **Use for**: Text-only links that look like buttons
+
 ```tsx
 <Button variant="link">Learn More</Button>
 ```
@@ -44,25 +54,33 @@
 ## Button Sizes
 
 ### Default
+
 Standard button size for most use cases
+
 ```tsx
 <Button>Standard Size</Button>
 ```
 
 ### Small (sm)
+
 Compact buttons for tables, cards
+
 ```tsx
 <Button size="sm">Edit</Button>
 ```
 
 ### Large (lg)
+
 Prominent CTAs, landing pages
+
 ```tsx
 <Button size="lg">Get Started</Button>
 ```
 
 ### Icon
+
 Icon-only buttons (must include aria-label)
+
 ```tsx
 <Button size="icon" aria-label="Delete">
   <Trash className="h-4 w-4" />
@@ -72,14 +90,18 @@ Icon-only buttons (must include aria-label)
 ## Common Patterns
 
 ### Form Actions
+
 ```tsx
 <div className="flex justify-end gap-2">
-  <Button variant="outline" type="button">Cancel</Button>
+  <Button variant="outline" type="button">
+    Cancel
+  </Button>
   <Button type="submit">Save</Button>
 </div>
 ```
 
 ### Loading State
+
 ```tsx
 <Button disabled={isLoading}>
   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -88,6 +110,7 @@ Icon-only buttons (must include aria-label)
 ```
 
 ### Icon with Text
+
 ```tsx
 <Button>
   <Plus className="mr-2 h-4 w-4" />
@@ -96,15 +119,15 @@ Icon-only buttons (must include aria-label)
 ```
 
 ### Navigation
+
 ```tsx
 <Link href="/dashboard/pilots">
-  <Button variant="outline">
-    ← Back to Pilots
-  </Button>
+  <Button variant="outline">← Back to Pilots</Button>
 </Link>
 ```
 
 ### Delete Confirmation
+
 ```tsx
 <Button variant="destructive" onClick={handleDelete}>
   <Trash2 className="mr-2 h-4 w-4" />
@@ -122,6 +145,7 @@ Icon-only buttons (must include aria-label)
 ## Standard Button Combinations
 
 ### Page Header Actions
+
 ```tsx
 <div className="flex items-center justify-between">
   <div>
@@ -132,6 +156,7 @@ Icon-only buttons (must include aria-label)
 ```
 
 ### Table Row Actions
+
 ```tsx
 <div className="flex items-center gap-2">
   <Button size="sm" variant="ghost">
@@ -147,6 +172,7 @@ Icon-only buttons (must include aria-label)
 ```
 
 ### Card Footer Actions
+
 ```tsx
 <CardFooter className="flex justify-between">
   <Button variant="outline">Cancel</Button>

@@ -61,24 +61,24 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Key Services (50 total in `lib/services/`)
 
-| Category | Services |
-|----------|----------|
+| Category    | Services                                                                                                       |
+| ----------- | -------------------------------------------------------------------------------------------------------------- |
 | Core Domain | `pilot-service`, `certification-service`, `leave-service`, `flight-request-service`, `unified-request-service` |
-| Dashboard | `dashboard-service-v4` (production, Redis-cached), `analytics-service` |
-| Auth | `pilot-portal-service`, `session-service`, `account-lockout-service` |
-| Reports | `pdf-service`, `reports-service` (19 reports), `export-service` |
+| Dashboard   | `dashboard-service-v4` (production, Redis-cached), `analytics-service`                                         |
+| Auth        | `pilot-portal-service`, `session-service`, `account-lockout-service`                                           |
+| Reports     | `pdf-service`, `reports-service` (19 reports), `export-service`                                                |
 
 ### Dual Authentication Architecture
 
 **Two completely separate auth systems - never mix them:**
 
-| | Admin Portal | Pilot Portal |
-|-|--------------|--------------|
-| Routes | `/dashboard/*` | `/portal/*` |
-| API | `/api/*` (non-portal) | `/api/portal/*` |
-| Auth System | Supabase Auth | Custom (`an_users` table) |
-| Client | `lib/supabase/server.ts` | `pilot-portal-service.ts` |
-| Users | Admin staff, managers | Pilots |
+|             | Admin Portal             | Pilot Portal              |
+| ----------- | ------------------------ | ------------------------- |
+| Routes      | `/dashboard/*`           | `/portal/*`               |
+| API         | `/api/*` (non-portal)    | `/api/portal/*`           |
+| Auth System | Supabase Auth            | Custom (`an_users` table) |
+| Client      | `lib/supabase/server.ts` | `pilot-portal-service.ts` |
+| Users       | Admin staff, managers    | Pilots                    |
 
 ### Supabase Clients
 
@@ -94,14 +94,14 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Primary Tables
 
-| Table | Purpose |
-|-------|---------|
-| `pilots` | Pilot profiles, qualifications, seniority |
-| `pilot_checks` | Certification records |
-| `check_types` | Check type definitions |
+| Table               | Purpose                                     |
+| ------------------- | ------------------------------------------- |
+| `pilots`            | Pilot profiles, qualifications, seniority   |
+| `pilot_checks`      | Certification records                       |
+| `check_types`       | Check type definitions                      |
 | `pilot_requests` ⭐ | **UNIFIED** - ALL leave and flight requests |
-| `leave_bids` | Annual leave bidding (separate system) |
-| `an_users` | Pilot portal authentication |
+| `leave_bids`        | Annual leave bidding (separate system)      |
+| `an_users`          | Pilot portal authentication                 |
 
 ### Unified Requests Table (`pilot_requests`)
 
@@ -147,11 +147,11 @@ WHERE request_category = 'FLIGHT'
 
 ### 4. Leave Requests vs Leave Bids
 
-| Leave Requests | Leave Bids |
-|----------------|------------|
-| Immediate time-off needs | Annual preference planning |
+| Leave Requests            | Leave Bids                   |
+| ------------------------- | ---------------------------- |
+| Immediate time-off needs  | Annual preference planning   |
 | Submit → Review → Approve | Batch processed by seniority |
-| `pilot_requests` table | `leave_bids` table |
+| `pilot_requests` table    | `leave_bids` table           |
 
 ---
 
@@ -189,7 +189,7 @@ router.refresh()
 
 // ✅ CORRECT - refresh first
 router.refresh()
-await new Promise(resolve => setTimeout(resolve, 100))
+await new Promise((resolve) => setTimeout(resolve, 100))
 router.push('/dashboard/certifications')
 ```
 
@@ -212,26 +212,26 @@ export async function POST(request: Request) {
 
 Enforced by `npm run validate:naming`:
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| Components | `kebab-case.tsx` | `pilot-card.tsx` |
-| Services | `{feature}-service.ts` | `pilot-service.ts` |
-| Validations | `{feature}-schema.ts` | `flight-request-schema.ts` |
-| E2E Tests | `{feature}.spec.ts` | `pilots.spec.ts` |
+| Type        | Pattern                | Example                    |
+| ----------- | ---------------------- | -------------------------- |
+| Components  | `kebab-case.tsx`       | `pilot-card.tsx`           |
+| Services    | `{feature}-service.ts` | `pilot-service.ts`         |
+| Validations | `{feature}-schema.ts`  | `flight-request-schema.ts` |
+| E2E Tests   | `{feature}.spec.ts`    | `pilots.spec.ts`           |
 
 ---
 
 ## Technology Stack
 
-| Tech | Version | Purpose |
-|------|---------|---------|
-| Next.js | 16.0.7 | App framework |
-| React | 19.2.0 | UI library |
-| TypeScript | 5.7.3 | Type safety (strict) |
-| Tailwind CSS | 4.1.0 | Styling |
-| Supabase | 2.75.1 | PostgreSQL + Auth |
-| TanStack Query | 5.90.2 | Server state |
-| Playwright | 1.56.1 | E2E testing |
+| Tech           | Version | Purpose              |
+| -------------- | ------- | -------------------- |
+| Next.js        | 16.0.7  | App framework        |
+| React          | 19.2.0  | UI library           |
+| TypeScript     | 5.7.3   | Type safety (strict) |
+| Tailwind CSS   | 4.1.0   | Styling              |
+| Supabase       | 2.75.1  | PostgreSQL + Auth    |
+| TanStack Query | 5.90.2  | Server state         |
+| Playwright     | 1.56.1  | E2E testing          |
 
 ---
 

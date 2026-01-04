@@ -571,7 +571,11 @@ export async function predictCrewShortages(
 
     if (error) throw error
     if (!pilots) {
-      return { criticalPeriods: [], recommendations: [], summary: { totalCriticalMonths: 0, worstCaseShortage: 0, timeToFirstShortage: null } }
+      return {
+        criticalPeriods: [],
+        recommendations: [],
+        summary: { totalCriticalMonths: 0, worstCaseShortage: 0, timeToFirstShortage: null },
+      }
     }
 
     const now = new Date()

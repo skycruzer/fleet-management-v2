@@ -216,7 +216,7 @@ export function RosterEmailReportDialog({
                 {recipients.map((email) => (
                   <div
                     key={email}
-                    className="flex items-center justify-between rounded-md border bg-muted px-3 py-2"
+                    className="bg-muted flex items-center justify-between rounded-md border px-3 py-2"
                   >
                     <span className="text-sm">{email}</span>
                     <Button
@@ -268,7 +268,7 @@ export function RosterEmailReportDialog({
               <Checkbox id="includeDenied" {...register('includeDenied')} defaultChecked />
               <label
                 htmlFor="includeDenied"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Denied Requests
               </label>
@@ -282,7 +282,7 @@ export function RosterEmailReportDialog({
               />
               <label
                 htmlFor="includeAvailability"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 Crew Availability Analysis
               </label>

@@ -51,11 +51,9 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
-  const canApprove =
-    request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
+  const canApprove = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
   const canDeny = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
-  const canEdit =
-    request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
+  const canEdit = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
 
   const handleApprove = async () => {
     setLoading(true)
@@ -158,8 +156,12 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
     <>
       <div className="flex gap-2">
         {canApprove && (
-          <Button onClick={handleApprove} disabled={loading} className="bg-green-600 hover:bg-green-700">
-            <CheckCircle className="h-4 w-4 mr-2" />
+          <Button
+            onClick={handleApprove}
+            disabled={loading}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <CheckCircle className="mr-2 h-4 w-4" />
             Approve
           </Button>
         )}
@@ -170,36 +172,24 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
             variant="secondary"
             className="bg-yellow-100 text-yellow-900 hover:bg-yellow-200"
           >
-            <XCircle className="h-4 w-4 mr-2" />
+            <XCircle className="mr-2 h-4 w-4" />
             Deny
           </Button>
         )}
         {canEdit && (
-          <Button
-            onClick={() => setEditDialogOpen(true)}
-            disabled={loading}
-            variant="outline"
-          >
-            <Pencil className="h-4 w-4 mr-2" />
+          <Button onClick={() => setEditDialogOpen(true)} disabled={loading} variant="outline">
+            <Pencil className="mr-2 h-4 w-4" />
             Edit
           </Button>
         )}
-        <Button
-          onClick={() => setDeleteDialogOpen(true)}
-          disabled={loading}
-          variant="destructive"
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
+        <Button onClick={() => setDeleteDialogOpen(true)} disabled={loading} variant="destructive">
+          <Trash2 className="mr-2 h-4 w-4" />
           Delete
         </Button>
       </div>
 
       {/* Edit Request Dialog */}
-      <RequestEditDialog
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        request={request}
-      />
+      <RequestEditDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} request={request} />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -212,10 +202,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

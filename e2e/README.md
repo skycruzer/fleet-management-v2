@@ -5,6 +5,7 @@ This directory contains Playwright end-to-end tests for the Fleet Management V2 
 ## Overview
 
 The E2E test suite covers critical user flows including:
+
 - **Authentication** - Login, logout, session management
 - **Pilot Management** - CRUD operations for pilot records
 - **Certification Management** - Certification tracking and expiry alerts
@@ -93,6 +94,7 @@ npx playwright test --project="Mobile Safari"
 ### CI/CD
 
 Tests run automatically on:
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop`
 - Manual workflow dispatch
@@ -155,6 +157,7 @@ test.describe('Feature Name', () => {
 ### Best Practices
 
 1. **Use Semantic Selectors**
+
    ```typescript
    // ✅ Good - role-based selectors
    page.getByRole('button', { name: /submit/i })
@@ -165,6 +168,7 @@ test.describe('Feature Name', () => {
    ```
 
 2. **Wait for Elements**
+
    ```typescript
    // ✅ Good - explicit wait
    await expect(page.getByRole('table')).toBeVisible()
@@ -174,6 +178,7 @@ test.describe('Feature Name', () => {
    ```
 
 3. **Use Helper Functions**
+
    ```typescript
    // ✅ Good - reusable helper
    await login(page)
@@ -186,16 +191,18 @@ test.describe('Feature Name', () => {
    ```
 
 4. **Test User Interactions, Not Implementation**
+
    ```typescript
    // ✅ Good - tests user behavior
    await page.getByRole('button', { name: /add pilot/i }).click()
    await expect(page.getByRole('dialog')).toBeVisible()
 
    // ❌ Avoid - tests implementation details
-   await page.locator('#add-pilot-modal').evaluate(el => el.style.display = 'block')
+   await page.locator('#add-pilot-modal').evaluate((el) => (el.style.display = 'block'))
    ```
 
 5. **Handle Optional Elements**
+
    ```typescript
    // ✅ Good - check if element exists
    const searchInput = page.getByPlaceholder(/search/i)
@@ -286,6 +293,7 @@ npx playwright show-trace trace.zip
 ### GitHub Actions
 
 Tests run automatically on CI with:
+
 - Multiple browser engines (Chromium, Firefox, WebKit)
 - Mobile viewports (iPhone, Android)
 - Parallel execution for faster results
@@ -300,6 +308,7 @@ Tests run automatically on CI with:
 ### Required Secrets
 
 Add these secrets to your GitHub repository:
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `TEST_USER_EMAIL`

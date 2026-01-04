@@ -299,7 +299,9 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => router.push(`/dashboard/admin/leave-bids/${bid.id}/edit`)}
+                            onClick={() =>
+                              router.push(`/dashboard/admin/leave-bids/${bid.id}/edit`)
+                            }
                             className="border-gray-300 text-gray-700 hover:bg-gray-50"
                           >
                             <Edit className="mr-1 h-3 w-3" />

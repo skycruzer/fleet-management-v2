@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p2
-issue_id: "034"
+issue_id: '034'
 tags: [performance, pagination, scalability, ux]
 dependencies: []
 ---
@@ -21,6 +21,7 @@ The `getAllFeedbackPosts()` service function loads ALL feedback posts in a singl
 **Performance Problem:**
 
 **Current Behavior (No Pagination):**
+
 - Loads ALL posts in one query
 - 100 posts = 500ms load time
 - 1,000 posts = 5 seconds load time
@@ -30,6 +31,7 @@ The `getAllFeedbackPosts()` service function loads ALL feedback posts in a singl
 - User sees blank screen for 5-50 seconds
 
 **With Pagination:**
+
 - Loads 20 posts per page
 - 50ms load time (regardless of total posts)
 - Browser memory: 5MB
@@ -38,6 +40,7 @@ The `getAllFeedbackPosts()` service function loads ALL feedback posts in a singl
 - Smooth pagination between pages
 
 **Current Code (No Pagination):**
+
 ```typescript
 // lib/services/pilot-portal-service.ts:261
 export async function getAllFeedbackPosts(): Promise<FeedbackPost[]> {
@@ -46,19 +49,22 @@ export async function getAllFeedbackPosts(): Promise<FeedbackPost[]> {
   // ❌ Loads ALL posts - no LIMIT, no pagination
   const { data, error } = await supabase
     .from('feedback_posts')
-    .select(`
+    .select(
+      `
       *,
       category:feedback_categories(id, name, slug, icon),
       vote_count:feedback_votes(count)
-    `)
+    `
+    )
     .order('created_at', { ascending: false })
 
   if (error) throw error
-  return data || []  // ❌ Returns ALL posts
+  return data || [] // ❌ Returns ALL posts
 }
 ```
 
 **Problem at Scale:**
+
 - 10,000 posts × 500 bytes = 5MB JSON response
 - Parse time: 2-5 seconds
 - Render time: 10-30 seconds
@@ -107,11 +113,13 @@ export async function getAllFeedbackPosts(
   // ✅ Get paginated posts with range
   const { data, error } = await supabase
     .from('feedback_posts')
-    .select(`
+    .select(
+      `
       *,
       category:feedback_categories(id, name, slug, icon),
       vote_count:feedback_votes(count)
-    `)
+    `
+    )
     .order('created_at', { ascending: false })
     .range(offset, offset + validLimit - 1)
 
@@ -138,10 +146,7 @@ export async function getAllFeedbackPosts(
 
 ```typescript
 // app/portal/feedback/actions.ts (if exists)
-export async function getFeedbackPostsAction(
-  page: number = 1,
-  limit: number = 20
-) {
+export async function getFeedbackPostsAction(page: number = 1, limit: number = 20) {
   try {
     const result = await getAllFeedbackPosts(page, limit)
     return { success: true, data: result }
@@ -258,27 +263,27 @@ export default function FeedbackPage() {
 
 **Query Performance:**
 
-| Posts | Without Pagination | With Pagination | Improvement |
-|-------|-------------------|-----------------|-------------|
-| 100 | 500ms | 50ms | 10x faster |
-| 1,000 | 5,000ms (5s) | 50ms | 100x faster |
-| 10,000 | 50,000ms (50s) | 50ms | 1000x faster |
+| Posts  | Without Pagination | With Pagination | Improvement  |
+| ------ | ------------------ | --------------- | ------------ |
+| 100    | 500ms              | 50ms            | 10x faster   |
+| 1,000  | 5,000ms (5s)       | 50ms            | 100x faster  |
+| 10,000 | 50,000ms (50s)     | 50ms            | 1000x faster |
 
 **Memory Usage:**
 
-| Posts | Without Pagination | With Pagination | Savings |
-|-------|-------------------|-----------------|---------|
-| 100 | 50MB | 5MB | 90% |
-| 1,000 | 500MB | 5MB | 99% |
-| 10,000 | 5GB | 5MB | 99.9% |
+| Posts  | Without Pagination | With Pagination | Savings |
+| ------ | ------------------ | --------------- | ------- |
+| 100    | 50MB               | 5MB             | 90%     |
+| 1,000  | 500MB              | 5MB             | 99%     |
+| 10,000 | 5GB                | 5MB             | 99.9%   |
 
 **Network Transfer:**
 
-| Posts | Without Pagination | With Pagination | Savings |
-|-------|-------------------|-----------------|---------|
-| 100 | 500KB | 50KB | 90% |
-| 1,000 | 5MB | 50KB | 99% |
-| 10,000 | 50MB | 50KB | 99.9% |
+| Posts  | Without Pagination | With Pagination | Savings |
+| ------ | ------------------ | --------------- | ------- |
+| 100    | 500KB              | 50KB            | 90%     |
+| 1,000  | 5MB                | 50KB            | 99%     |
+| 10,000 | 50MB               | 50KB            | 99.9%   |
 
 ## Implementation Steps
 
@@ -328,6 +333,7 @@ export default function FeedbackPage() {
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** performance-oracle (compounding-engineering review)
 **Learnings:** Loading all posts causes severe performance degradation at scale
 

@@ -4,42 +4,42 @@ import puppeteer from 'puppeteer'
 
 const TEST_PILOT = {
   email: 'test-pilot-1761490042775@airniugini.com.pg',
-  password: 'TempPassword123!'
+  password: 'TempPassword123!',
 }
 
 async function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function testLogin() {
   const browser = await puppeteer.launch({
     headless: false,
-    defaultViewport: { width: 1280, height: 800 }
+    defaultViewport: { width: 1280, height: 800 },
   })
 
   const page = await browser.newPage()
-  
+
   // Capture page errors
-  page.on('pageerror', error => {
+  page.on('pageerror', (error) => {
     console.log(`\n🔴 PAGE ERROR: ${error.message}`)
   })
 
   // Capture failed requests
-  page.on('requestfailed', request => {
+  page.on('requestfailed', (request) => {
     console.log(`\n❌ REQUEST FAILED: ${request.url()}`)
     console.log(`   Failure: ${request.failure().errorText}`)
   })
 
   // Capture network activity
   const requests = []
-  page.on('request', request => {
+  page.on('request', (request) => {
     if (request.url().includes('/api/portal/login')) {
       console.log(`\n📤 REQUEST: POST /api/portal/login`)
       requests.push(request)
     }
   })
 
-  page.on('response', async response => {
+  page.on('response', async (response) => {
     if (response.url().includes('/api/portal/login')) {
       console.log(`\n📥 RESPONSE: ${response.status()} ${response.statusText()}`)
       try {
@@ -58,7 +58,7 @@ async function testLogin() {
 
   console.log('\n🔐 Clicking submit...')
   await page.click('button[type="submit"]')
-  
+
   console.log('\n⏳ Waiting for network activity...')
   await sleep(5000)
 
@@ -70,19 +70,20 @@ async function testLogin() {
     console.log('\n✅ SUCCESS - Redirected to dashboard!')
   } else {
     console.log('\n❌ FAILED - Still on login page')
-    
+
     // Check for visible error
     const errorVisible = await page.evaluate(() => {
-      const errors = Array.from(document.querySelectorAll('*')).filter(el => 
-        el.textContent.toLowerCase().includes('error') || 
-        el.textContent.toLowerCase().includes('invalid')
+      const errors = Array.from(document.querySelectorAll('*')).filter(
+        (el) =>
+          el.textContent.toLowerCase().includes('error') ||
+          el.textContent.toLowerCase().includes('invalid')
       )
-      return errors.map(el => el.textContent.trim()).filter(t => t.length < 200)
+      return errors.map((el) => el.textContent.trim()).filter((t) => t.length < 200)
     })
-    
+
     if (errorVisible.length > 0) {
       console.log('\n🔴 Error messages found:')
-      errorVisible.forEach(msg => console.log(`   - ${msg}`))
+      errorVisible.forEach((msg) => console.log(`   - ${msg}`))
     }
   }
 

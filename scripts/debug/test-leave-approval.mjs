@@ -62,7 +62,8 @@ async function testLeaveApprovalDashboard() {
     console.log('3️⃣ Fetching pending leave requests...')
     const { data: pendingRequests, error: requestsError } = await supabase
       .from('leave_requests')
-      .select(`
+      .select(
+        `
         id,
         status,
         request_type,
@@ -75,7 +76,8 @@ async function testLeaveApprovalDashboard() {
           role,
           seniority_number
         )
-      `)
+      `
+      )
       .eq('status', 'PENDING')
       .order('created_at', { ascending: false })
 
@@ -89,7 +91,9 @@ async function testLeaveApprovalDashboard() {
     if (pendingRequests.length > 0) {
       console.log('📋 Sample Pending Requests:\n')
       pendingRequests.slice(0, 5).forEach((req, idx) => {
-        console.log(`   ${idx + 1}. ${req.pilots.first_name} ${req.pilots.last_name} (${req.pilots.role})`)
+        console.log(
+          `   ${idx + 1}. ${req.pilots.first_name} ${req.pilots.last_name} (${req.pilots.role})`
+        )
         console.log(`      Type: ${req.request_type}`)
         console.log(`      Period: ${req.roster_period}`)
         console.log(`      Dates: ${req.start_date} to ${req.end_date}`)
@@ -113,14 +117,16 @@ async function testLeaveApprovalDashboard() {
 
     const { data: upcomingLeave, error: leaveError } = await supabase
       .from('leave_requests')
-      .select(`
+      .select(
+        `
         id,
         start_date,
         end_date,
         pilots:pilot_id (
           role
         )
-      `)
+      `
+      )
       .in('status', ['PENDING', 'APPROVED'])
       .lte('start_date', endDate)
       .gte('end_date', today)
@@ -157,15 +163,15 @@ async function testLeaveApprovalDashboard() {
     console.log(`   Minimum Required: 10 per rank\n`)
 
     // Calculate currently on leave
-    const onLeaveToday = upcomingLeave.filter(req => {
+    const onLeaveToday = upcomingLeave.filter((req) => {
       const start = new Date(req.start_date)
       const end = new Date(req.end_date)
       const now = new Date()
       return start <= now && end >= now
     })
 
-    const captainsOnLeave = onLeaveToday.filter(req => req.pilots.role === 'Captain').length
-    const fosOnLeave = onLeaveToday.filter(req => req.pilots.role === 'First Officer').length
+    const captainsOnLeave = onLeaveToday.filter((req) => req.pilots.role === 'Captain').length
+    const fosOnLeave = onLeaveToday.filter((req) => req.pilots.role === 'First Officer').length
 
     const captainsAvailable = captainsCount - captainsOnLeave
     const fosAvailable = fosCount - fosOnLeave
@@ -174,8 +180,10 @@ async function testLeaveApprovalDashboard() {
     console.log(`   Captains Available: ${captainsAvailable}/${captainsCount}`)
     console.log(`   First Officers Available: ${fosAvailable}/${fosCount}`)
 
-    const captainsStatus = captainsAvailable >= 10 ? '✅ Safe' : captainsAvailable >= 8 ? '⚠️  Warning' : '🚨 Critical'
-    const fosStatus = fosAvailable >= 10 ? '✅ Safe' : fosAvailable >= 8 ? '⚠️  Warning' : '🚨 Critical'
+    const captainsStatus =
+      captainsAvailable >= 10 ? '✅ Safe' : captainsAvailable >= 8 ? '⚠️  Warning' : '🚨 Critical'
+    const fosStatus =
+      fosAvailable >= 10 ? '✅ Safe' : fosAvailable >= 8 ? '⚠️  Warning' : '🚨 Critical'
 
     console.log(`   Captains Status: ${captainsStatus}`)
     console.log(`   First Officers Status: ${fosStatus}\n`)
@@ -196,7 +204,6 @@ async function testLeaveApprovalDashboard() {
     console.log('      - View conflict warnings and crew minimum alerts')
     console.log('      - Test bulk approve/deny operations')
     console.log('      - Check crew availability widget\n')
-
   } catch (error) {
     console.error('❌ Test failed:', error.message)
     console.error(error)

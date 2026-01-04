@@ -33,26 +33,24 @@ interface AdminDashboardClientProps {
   contracts: ContractType[]
 }
 
-export function AdminDashboardClient({
-  users,
-  checkTypes,
-  contracts
-}: AdminDashboardClientProps) {
+export function AdminDashboardClient({ users, checkTypes, contracts }: AdminDashboardClientProps) {
   const [userSearch, setUserSearch] = useState('')
   const [checkTypeSearch, setCheckTypeSearch] = useState('')
   const [contractSearch, setContractSearch] = useState('')
 
-  const filteredUsers = users.filter(user =>
-    user.email.toLowerCase().includes(userSearch.toLowerCase()) ||
-    user.role.toLowerCase().includes(userSearch.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+      user.role.toLowerCase().includes(userSearch.toLowerCase())
   )
 
-  const filteredCheckTypes = checkTypes.filter(ct =>
-    ct.name.toLowerCase().includes(checkTypeSearch.toLowerCase()) ||
-    ct.category.toLowerCase().includes(checkTypeSearch.toLowerCase())
+  const filteredCheckTypes = checkTypes.filter(
+    (ct) =>
+      ct.name.toLowerCase().includes(checkTypeSearch.toLowerCase()) ||
+      ct.category.toLowerCase().includes(checkTypeSearch.toLowerCase())
   )
 
-  const filteredContracts = contracts.filter(c =>
+  const filteredContracts = contracts.filter((c) =>
     c.type.toLowerCase().includes(contractSearch.toLowerCase())
   )
 
@@ -65,7 +63,7 @@ export function AdminDashboardClient({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               type="text"
               placeholder="Search users by email or role..."
@@ -92,7 +90,7 @@ export function AdminDashboardClient({
                         {user.role}
                       </Badge>
                     </td>
-                    <td className="py-3 text-sm text-muted-foreground">
+                    <td className="text-muted-foreground py-3 text-sm">
                       {format(new Date(user.created_at), 'MMM d, yyyy')}
                     </td>
                   </tr>
@@ -110,7 +108,7 @@ export function AdminDashboardClient({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               type="text"
               placeholder="Search check types by name or category..."
@@ -135,7 +133,7 @@ export function AdminDashboardClient({
                     <td className="py-3">
                       <Badge variant="outline">{ct.category}</Badge>
                     </td>
-                    <td className="py-3 text-sm text-muted-foreground">
+                    <td className="text-muted-foreground py-3 text-sm">
                       {ct.frequency_months} months
                     </td>
                   </tr>
@@ -153,7 +151,7 @@ export function AdminDashboardClient({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               type="text"
               placeholder="Search contracts..."
@@ -174,7 +172,7 @@ export function AdminDashboardClient({
                 {filteredContracts.map((contract) => (
                   <tr key={contract.id} className="border-b last:border-0">
                     <td className="py-3 font-medium">{contract.type}</td>
-                    <td className="py-3 text-sm text-muted-foreground">
+                    <td className="text-muted-foreground py-3 text-sm">
                       {contract.description || 'No description'}
                     </td>
                   </tr>

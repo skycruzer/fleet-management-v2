@@ -13,22 +13,19 @@ import { readFileSync } from 'fs'
 // Read .env.local
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 async function checkRequestCategories() {
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
   console.log('🔍 Diagnostic: Request Category Distribution')
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
 
   try {
     // Fetch all pilot_requests
@@ -52,7 +49,7 @@ async function checkRequestCategories() {
     // Overall category breakdown
     console.log('📊 Overall Category Breakdown:')
     const byCategory = {}
-    allRequests.forEach(req => {
+    allRequests.forEach((req) => {
       byCategory[req.request_category] = (byCategory[req.request_category] || 0) + 1
     })
     Object.entries(byCategory).forEach(([cat, count]) => {
@@ -64,55 +61,61 @@ async function checkRequestCategories() {
     console.log('\n📊 Request Type Breakdown by Category:\n')
 
     // LEAVE category
-    const leaveRequests = allRequests.filter(r => r.request_category === 'LEAVE')
+    const leaveRequests = allRequests.filter((r) => r.request_category === 'LEAVE')
     if (leaveRequests.length > 0) {
       console.log(`   LEAVE Category (${leaveRequests.length} requests):`)
       const leaveTypes = {}
-      leaveRequests.forEach(req => {
+      leaveRequests.forEach((req) => {
         leaveTypes[req.request_type] = (leaveTypes[req.request_type] || 0) + 1
       })
-      Object.entries(leaveTypes).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
-        console.log(`      ${type}: ${count}`)
-      })
+      Object.entries(leaveTypes)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([type, count]) => {
+          console.log(`      ${type}: ${count}`)
+        })
     }
 
     // FLIGHT category
-    const flightRequests = allRequests.filter(r => r.request_category === 'FLIGHT')
+    const flightRequests = allRequests.filter((r) => r.request_category === 'FLIGHT')
     if (flightRequests.length > 0) {
       console.log(`\n   FLIGHT Category (${flightRequests.length} requests):`)
       const flightTypes = {}
-      flightRequests.forEach(req => {
+      flightRequests.forEach((req) => {
         flightTypes[req.request_type] = (flightTypes[req.request_type] || 0) + 1
       })
-      Object.entries(flightTypes).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
-        console.log(`      ${type}: ${count}`)
-      })
+      Object.entries(flightTypes)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([type, count]) => {
+          console.log(`      ${type}: ${count}`)
+        })
     } else {
       console.log('\n   FLIGHT Category: No requests found')
     }
 
     // LEAVE_BID category
-    const bidRequests = allRequests.filter(r => r.request_category === 'LEAVE_BID')
+    const bidRequests = allRequests.filter((r) => r.request_category === 'LEAVE_BID')
     if (bidRequests.length > 0) {
       console.log(`\n   LEAVE_BID Category (${bidRequests.length} requests):`)
       const bidTypes = {}
-      bidRequests.forEach(req => {
+      bidRequests.forEach((req) => {
         bidTypes[req.request_type] = (bidTypes[req.request_type] || 0) + 1
       })
-      Object.entries(bidTypes).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
-        console.log(`      ${type}: ${count}`)
-      })
+      Object.entries(bidTypes)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([type, count]) => {
+          console.log(`      ${type}: ${count}`)
+        })
     }
 
     // RDO and SDO specific analysis
     console.log('\n🔍 RDO and SDO Analysis:')
-    const rdoRequests = allRequests.filter(r => r.request_type === 'RDO')
-    const sdoRequests = allRequests.filter(r => r.request_type === 'SDO')
+    const rdoRequests = allRequests.filter((r) => r.request_type === 'RDO')
+    const sdoRequests = allRequests.filter((r) => r.request_type === 'SDO')
 
     console.log(`\n   RDO Requests (${rdoRequests.length} total):`)
     if (rdoRequests.length > 0) {
       const rdoCategories = {}
-      rdoRequests.forEach(req => {
+      rdoRequests.forEach((req) => {
         rdoCategories[req.request_category] = (rdoCategories[req.request_category] || 0) + 1
       })
       Object.entries(rdoCategories).forEach(([cat, count]) => {
@@ -125,7 +128,7 @@ async function checkRequestCategories() {
     console.log(`\n   SDO Requests (${sdoRequests.length} total):`)
     if (sdoRequests.length > 0) {
       const sdoCategories = {}
-      sdoRequests.forEach(req => {
+      sdoRequests.forEach((req) => {
         sdoCategories[req.request_category] = (sdoCategories[req.request_category] || 0) + 1
       })
       Object.entries(sdoCategories).forEach(([cat, count]) => {
@@ -138,18 +141,20 @@ async function checkRequestCategories() {
     // Workflow status breakdown
     console.log('\n📊 Workflow Status Breakdown:')
     const byStatus = {}
-    allRequests.forEach(req => {
+    allRequests.forEach((req) => {
       byStatus[req.workflow_status] = (byStatus[req.workflow_status] || 0) + 1
     })
-    Object.entries(byStatus).sort((a, b) => b[1] - a[1]).forEach(([status, count]) => {
-      const pct = ((count / allRequests.length) * 100).toFixed(1)
-      console.log(`   ${status}: ${count} (${pct}%)`)
-    })
+    Object.entries(byStatus)
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([status, count]) => {
+        const pct = ((count / allRequests.length) * 100).toFixed(1)
+        console.log(`   ${status}: ${count} (${pct}%)`)
+      })
 
     // Roster period distribution
     console.log('\n📊 Roster Period Distribution (Top 10):')
     const byPeriod = {}
-    allRequests.forEach(req => {
+    allRequests.forEach((req) => {
       byPeriod[req.roster_period] = (byPeriod[req.roster_period] || 0) + 1
     })
     Object.entries(byPeriod)
@@ -171,10 +176,10 @@ async function checkRequestCategories() {
     console.log(`   SDO Requests: ${sdoRequests.length}`)
 
     if (rdoRequests.length > 0 || sdoRequests.length > 0) {
-      const rdoInLeave = rdoRequests.filter(r => r.request_category === 'LEAVE').length
-      const sdoInLeave = sdoRequests.filter(r => r.request_category === 'LEAVE').length
-      const rdoInFlight = rdoRequests.filter(r => r.request_category === 'FLIGHT').length
-      const sdoInFlight = sdoRequests.filter(r => r.request_category === 'FLIGHT').length
+      const rdoInLeave = rdoRequests.filter((r) => r.request_category === 'LEAVE').length
+      const sdoInLeave = sdoRequests.filter((r) => r.request_category === 'LEAVE').length
+      const rdoInFlight = rdoRequests.filter((r) => r.request_category === 'FLIGHT').length
+      const sdoInFlight = sdoRequests.filter((r) => r.request_category === 'FLIGHT').length
 
       console.log('\n   📌 Current Categorization:')
       console.log(`      RDO in LEAVE: ${rdoInLeave}`)
@@ -190,7 +195,6 @@ async function checkRequestCategories() {
     }
 
     console.log('\n' + '='.repeat(70))
-
   } catch (error) {
     console.error('\n❌ Diagnostic failed:', error)
     console.error(error.stack)

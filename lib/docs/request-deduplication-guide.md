@@ -11,6 +11,7 @@ This guide explains how request deduplication is implemented in Fleet Management
 ## Problem Statement
 
 Multiple components can trigger identical requests simultaneously, causing:
+
 - Duplicate database queries
 - Wasted server resources
 - Higher database load
@@ -41,12 +42,12 @@ Located in `app/providers.tsx`:
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000,           // Cache for 1 minute
-      gcTime: 5 * 60 * 1000,          // Keep unused data for 5 minutes
-      networkMode: 'offlineFirst',    // Enhanced deduplication
+      staleTime: 60 * 1000, // Cache for 1 minute
+      gcTime: 5 * 60 * 1000, // Keep unused data for 5 minutes
+      networkMode: 'offlineFirst', // Enhanced deduplication
       placeholderData: (prev) => prev, // Smooth transitions
-    }
-  }
+    },
+  },
 })
 ```
 
@@ -58,7 +59,7 @@ const queryClient = new QueryClient({
 function PilotList() {
   const { data: pilots } = useQuery({
     queryKey: ['pilots'],
-    queryFn: () => fetch('/api/pilots').then(r => r.json())
+    queryFn: () => fetch('/api/pilots').then((r) => r.json()),
   })
 }
 
@@ -66,7 +67,7 @@ function PilotCount() {
   // Same query key = shares the same request
   const { data: pilots } = useQuery({
     queryKey: ['pilots'],
-    queryFn: () => fetch('/api/pilots').then(r => r.json())
+    queryFn: () => fetch('/api/pilots').then((r) => r.json()),
   })
 }
 ```
@@ -74,11 +75,13 @@ function PilotCount() {
 ### Best Practices
 
 ✅ **DO:**
+
 - Use consistent query keys across components
 - Leverage query key arrays for filtering: `['pilots', { role: 'Captain' }]`
 - Use `queryClient.invalidateQueries()` to refresh data
 
 ❌ **DON'T:**
+
 - Create unique query keys for the same data
 - Use timestamps or random values in query keys
 - Make direct fetch calls when useQuery would work
@@ -95,7 +98,7 @@ For scenarios where TanStack Query doesn't apply (e.g., one-off requests, Server
 import {
   requestDeduplicator,
   generateRequestKey,
-  deduplicatedFetch
+  deduplicatedFetch,
 } from '@/lib/request-deduplication'
 ```
 
@@ -116,13 +119,10 @@ const response = await deduplicatedFetch('/api/pilots')
 For complex requests or non-fetch operations:
 
 ```typescript
-const pilots = await requestDeduplicator.deduplicate(
-  'GET:/api/pilots?role=Captain',
-  async () => {
-    const response = await fetch('/api/pilots?role=Captain')
-    return response.json()
-  }
-)
+const pilots = await requestDeduplicator.deduplicate('GET:/api/pilots?role=Captain', async () => {
+  const response = await fetch('/api/pilots?role=Captain')
+  return response.json()
+})
 ```
 
 ### Method 3: Custom Keys with `generateRequestKey`
@@ -264,23 +264,25 @@ function CaptainListWidget() {
 **Problem**: User double-clicks "Create Pilot" button, creating duplicate records.
 
 **Before**:
+
 ```typescript
 const onSubmit = async (data: PilotCreate) => {
   await fetch('/api/pilots', {
     method: 'POST',
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
 }
 // Problem: Rapid clicks = 2 pilots created
 ```
 
 **After**:
+
 ```typescript
 const { handleSubmit, isSubmitting } = useDeduplicatedSubmit(
   async (data: PilotCreate) => {
     await fetch('/api/pilots', {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
   },
   { key: 'pilot-form' }
@@ -295,6 +297,7 @@ const { handleSubmit, isSubmitting } = useDeduplicatedSubmit(
 **Problem**: Manager clicks "Approve" multiple times, triggering duplicate approvals.
 
 **Solution**:
+
 ```typescript
 function ApproveButton({ requestId }: { requestId: string }) {
   const { handleAction, isProcessing } = useDeduplicatedAction(
@@ -326,11 +329,13 @@ function ApproveButton({ requestId }: { requestId: string }) {
 ### Migrating Existing Forms
 
 **Step 1**: Import the hook
+
 ```typescript
 import { useDeduplicatedSubmit } from '@/lib/hooks/use-deduplicated-submit'
 ```
 
 **Step 2**: Wrap your submit handler
+
 ```typescript
 // Before
 const onSubmit = async (data: FormData) => {
@@ -347,6 +352,7 @@ const { handleSubmit, isSubmitting } = useDeduplicatedSubmit(
 ```
 
 **Step 3**: Update your form
+
 ```typescript
 <form onSubmit={form.handleSubmit(handleSubmit)}>
   <button type="submit" disabled={isSubmitting}>
@@ -358,15 +364,17 @@ const { handleSubmit, isSubmitting } = useDeduplicatedSubmit(
 ### Migrating Direct API Calls
 
 **Before**:
+
 ```typescript
-const pilots = await fetch('/api/pilots').then(r => r.json())
+const pilots = await fetch('/api/pilots').then((r) => r.json())
 ```
 
 **After**:
+
 ```typescript
 import { deduplicatedFetch } from '@/lib/request-deduplication'
 
-const pilots = await deduplicatedFetch('/api/pilots').then(r => r.json())
+const pilots = await deduplicatedFetch('/api/pilots').then((r) => r.json())
 ```
 
 ---
@@ -400,16 +408,19 @@ requestDeduplicator.clear()
 ## Performance Impact
 
 ### Before Implementation
+
 - Dashboard: **15 database queries** (3 widgets × 5 requests each)
 - Form submissions: **Duplicate records** on rapid clicks
 - Network overhead: **High** (identical requests sent repeatedly)
 
 ### After Implementation
+
 - Dashboard: **5 database queries** (deduplicated across widgets)
 - Form submissions: **1 record** guaranteed (duplicates prevented)
 - Network overhead: **Low** (only unique requests sent)
 
 **Estimated Savings**:
+
 - 67% reduction in duplicate queries
 - 100% elimination of duplicate form submissions
 - ~40% reduction in database load
@@ -421,6 +432,7 @@ requestDeduplicator.clear()
 ### Issue: Deduplication Not Working
 
 **Check 1**: Are query keys identical?
+
 ```typescript
 // ❌ Different keys = different requests
 useQuery({ queryKey: ['pilots'] })
@@ -432,12 +444,14 @@ useQuery({ queryKey: ['pilots'] })
 ```
 
 **Check 2**: Is `staleTime` too low?
+
 ```typescript
 // If staleTime is 0, every useQuery triggers a new fetch
 // Make sure staleTime > 0 in providers.tsx
 ```
 
 **Check 3**: Are you using `deduplicatedFetch`?
+
 ```typescript
 // ❌ Regular fetch bypasses deduplication
 fetch('/api/pilots')
@@ -449,11 +463,13 @@ deduplicatedFetch('/api/pilots')
 ### Issue: Forms Still Submitting Twice
 
 **Check 1**: Is `isSubmitting` used in disabled prop?
+
 ```typescript
 <button disabled={isSubmitting}>Submit</button>
 ```
 
 **Check 2**: Is the key unique per form?
+
 ```typescript
 // ❌ All forms share same key
 useDeduplicatedSubmit(fn, { key: 'form' })

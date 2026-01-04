@@ -12,36 +12,52 @@ import { z } from 'zod'
  * Report Type Enum
  * Updated: November 19, 2025 - Added leave-bids, rdo-sdo, and all-requests
  */
-export const ReportTypeSchema = z.enum(['rdo-sdo', 'leave', 'all-requests', 'flight-requests', 'certifications', 'leave-bids'])
+export const ReportTypeSchema = z.enum([
+  'rdo-sdo',
+  'leave',
+  'all-requests',
+  'flight-requests',
+  'certifications',
+  'leave-bids',
+])
 
 /**
  * Date Range Schema
  */
-export const DateRangeSchema = z.object({
-  startDate: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  endDate: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-}).refine(
-  (data) => {
-    const start = new Date(data.startDate)
-    const end = new Date(data.endDate)
-    return start <= end
-  },
-  {
-    message: 'Start date must be before or equal to end date',
-    path: ['startDate'],
-  }
-).refine(
-  (data) => {
-    const start = new Date(data.startDate)
-    const end = new Date(data.endDate)
-    const daysDiff = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-    return daysDiff <= 365 * 2 // Max 2 years
-  },
-  {
-    message: 'Date range cannot exceed 2 years',
-    path: ['dateRange'],
-  }
-)
+export const DateRangeSchema = z
+  .object({
+    startDate: z
+      .string()
+      .datetime()
+      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    endDate: z
+      .string()
+      .datetime()
+      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate)
+      const end = new Date(data.endDate)
+      return start <= end
+    },
+    {
+      message: 'Start date must be before or equal to end date',
+      path: ['startDate'],
+    }
+  )
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate)
+      const end = new Date(data.endDate)
+      const daysDiff = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+      return daysDiff <= 365 * 2 // Max 2 years
+    },
+    {
+      message: 'Date range cannot exceed 2 years',
+      path: ['dateRange'],
+    }
+  )
 
 /**
  * Report Filters Schema
@@ -82,9 +98,10 @@ export const ReportExportRequestSchema = z.object({
 /**
  * Email Recipients Schema
  */
-export const EmailRecipientsSchema = z.array(
-  z.string().email({ message: 'Invalid email address format' })
-).min(1, 'At least one recipient is required').max(20, 'Maximum 20 recipients allowed')
+export const EmailRecipientsSchema = z
+  .array(z.string().email({ message: 'Invalid email address format' }))
+  .min(1, 'At least one recipient is required')
+  .max(20, 'Maximum 20 recipients allowed')
 
 /**
  * Report Email Request Schema

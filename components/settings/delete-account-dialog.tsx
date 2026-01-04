@@ -139,7 +139,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="permanent"
-                  className="cursor-pointer text-sm font-normal leading-tight text-red-900"
+                  className="cursor-pointer text-sm leading-tight font-normal text-red-900"
                 >
                   I understand this action is permanent and cannot be reversed
                 </Label>
@@ -154,7 +154,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="dataLoss"
-                  className="cursor-pointer text-sm font-normal leading-tight text-red-900"
+                  className="cursor-pointer text-sm leading-tight font-normal text-red-900"
                 >
                   I understand all my data will be permanently deleted
                 </Label>
@@ -169,7 +169,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="noRecovery"
-                  className="cursor-pointer text-sm font-normal leading-tight text-red-900"
+                  className="cursor-pointer text-sm leading-tight font-normal text-red-900"
                 >
                   I understand there is no way to recover my account after deletion
                 </Label>

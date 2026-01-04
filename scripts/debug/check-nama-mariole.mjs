@@ -26,7 +26,7 @@ if (pilotError) {
     .select('id, employee_id, first_name, last_name, role')
     .order('first_name')
 
-  allPilots.forEach(p => {
+  allPilots.forEach((p) => {
     console.log(`   ${p.first_name} ${p.last_name} - ${p.role} (ID: ${p.id})`)
   })
 } else {
@@ -50,10 +50,10 @@ if (pilotError) {
   } else {
     console.log(`   Found ${requests.length} requests in pilot_requests table\n`)
 
-    const flightRequests = requests.filter(r => r.request_category === 'FLIGHT')
-    const leaveRequests = requests.filter(r => r.request_category === 'LEAVE')
-    const rdoRequests = flightRequests.filter(r => r.request_type === 'RDO')
-    const sdoRequests = flightRequests.filter(r => r.request_type === 'SDO')
+    const flightRequests = requests.filter((r) => r.request_category === 'FLIGHT')
+    const leaveRequests = requests.filter((r) => r.request_category === 'LEAVE')
+    const rdoRequests = flightRequests.filter((r) => r.request_type === 'RDO')
+    const sdoRequests = flightRequests.filter((r) => r.request_type === 'SDO')
 
     console.log(`   LEAVE requests: ${leaveRequests.length}`)
     console.log(`   FLIGHT requests: ${flightRequests.length}`)
@@ -86,8 +86,8 @@ if (pilotError) {
     console.log(`   Found ${oldFlightReqs.length} requests in old flight_requests table\n`)
 
     if (oldFlightReqs.length > 0) {
-      const oldRdo = oldFlightReqs.filter(r => r.request_type === 'RDO')
-      const oldSdo = oldFlightReqs.filter(r => r.request_type === 'SDO')
+      const oldRdo = oldFlightReqs.filter((r) => r.request_type === 'RDO')
+      const oldSdo = oldFlightReqs.filter((r) => r.request_type === 'SDO')
 
       console.log(`     - RDO: ${oldRdo.length}`)
       console.log(`     - SDO: ${oldSdo.length}\n`)

@@ -61,7 +61,7 @@ async function checkPilotLinkage() {
         console.log('\n💡 This pilot SHOULD be linked. pilot_id should be:', matchingPilot.id)
       } else {
         console.log('❌ No matching pilot found in pilots table by employee_id')
-        
+
         // Check all pilots with similar name
         const { data: allPilots } = await supabase
           .from('pilots')

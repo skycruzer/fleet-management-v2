@@ -93,11 +93,7 @@ export async function createPilot(data: unknown): Promise<Pilot> {
 
   // 2. Now safely use validated data
   const supabase = await createClient()
-  const { data: pilot, error } = await supabase
-    .from('pilots')
-    .insert(validated)
-    .select()
-    .single()
+  const { data: pilot, error } = await supabase.from('pilots').insert(validated).select().single()
 
   if (error) throw new Error(`Failed to create pilot: ${error.message}`)
   return pilot

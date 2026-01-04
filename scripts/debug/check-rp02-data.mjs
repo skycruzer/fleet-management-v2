@@ -13,22 +13,19 @@ import { readFileSync } from 'fs'
 // Read .env.local
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 async function checkRP02Data() {
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
   console.log('🔍 Diagnostic: RP02/2026 Data Audit')
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
 
   try {
     // Check if RP02/2026 exists in roster_periods
@@ -70,7 +67,7 @@ async function checkRP02Data() {
 
       // Breakdown by category
       const byCategory = {}
-      requests.forEach(req => {
+      requests.forEach((req) => {
         byCategory[req.request_category] = (byCategory[req.request_category] || 0) + 1
       })
 
@@ -81,7 +78,7 @@ async function checkRP02Data() {
 
       // Breakdown by request type
       const byType = {}
-      requests.forEach(req => {
+      requests.forEach((req) => {
         byType[req.request_type] = (byType[req.request_type] || 0) + 1
       })
 
@@ -92,7 +89,7 @@ async function checkRP02Data() {
 
       // Breakdown by workflow status
       const byStatus = {}
-      requests.forEach(req => {
+      requests.forEach((req) => {
         byStatus[req.workflow_status] = (byStatus[req.workflow_status] || 0) + 1
       })
 
@@ -103,7 +100,7 @@ async function checkRP02Data() {
 
       // Breakdown by submission channel
       const byChannel = {}
-      requests.forEach(req => {
+      requests.forEach((req) => {
         byChannel[req.submission_channel] = (byChannel[req.submission_channel] || 0) + 1
       })
 
@@ -158,7 +155,6 @@ async function checkRP02Data() {
     }
 
     console.log('\n' + '='.repeat(70))
-
   } catch (error) {
     console.error('\n❌ Diagnostic failed:', error)
     console.error(error.stack)

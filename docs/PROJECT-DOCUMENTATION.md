@@ -31,6 +31,7 @@
 Fleet Management V2 is a modern, production-ready B767 Pilot Management System built with Next.js 16, React 19, and TypeScript 5.7. The system manages 27 pilots, 607 certifications, and 34 check types through a comprehensive service-layer architecture with dual authentication systems.
 
 **Key Metrics:**
+
 - 30+ service layer functions
 - 67 API routes
 - 24 E2E test suites
@@ -44,7 +45,9 @@ Fleet Management V2 is a modern, production-ready B767 Pilot Management System b
 ## Project Overview
 
 ### Purpose
+
 Fleet Management V2 provides comprehensive pilot management capabilities including:
+
 - Pilot certification tracking with FAA compliance
 - Leave request management with intelligent eligibility checking
 - Flight request submissions
@@ -54,11 +57,13 @@ Fleet Management V2 provides comprehensive pilot management capabilities includi
 - Pilot portal for self-service operations
 
 ### Key Stakeholders
+
 - **Fleet Managers**: Admin dashboard for complete fleet oversight
 - **Pilots**: Self-service portal for personal data, requests, and notifications
 - **System Administrators**: User management, settings, and security controls
 
 ### Project Structure
+
 ```
 fleet-management-v2/
 ├── app/                      # Next.js 16 App Router
@@ -95,28 +100,31 @@ fleet-management-v2/
 
 ### Core Technologies
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Next.js** | 16.0.0 | Full-stack React framework with App Router |
-| **React** | 19.1.0 | UI library with Server Components |
-| **TypeScript** | 5.7.3 | Type-safe development (strict mode) |
-| **Tailwind CSS** | 4.1.0 | Utility-first styling framework |
-| **Supabase** | 2.75.1 | PostgreSQL database + Auth + Storage |
+| Technology       | Version | Purpose                                    |
+| ---------------- | ------- | ------------------------------------------ |
+| **Next.js**      | 16.0.0  | Full-stack React framework with App Router |
+| **React**        | 19.1.0  | UI library with Server Components          |
+| **TypeScript**   | 5.7.3   | Type-safe development (strict mode)        |
+| **Tailwind CSS** | 4.1.0   | Utility-first styling framework            |
+| **Supabase**     | 2.75.1  | PostgreSQL database + Auth + Storage       |
 
 ### Key Libraries
 
 #### State Management & Data Fetching
+
 - **TanStack Query** (5.90.2) - Server state management, caching, and synchronization
 - **React Hook Form** (7.65.0) - Form state management with performance optimization
 - **Zod** (4.1.12) - Schema validation for forms and API
 
 #### UI Components
+
 - **shadcn/ui** - 40+ Radix UI components with Tailwind styling
 - **Lucide React** (0.546.0) - Icon library (3,000+ icons)
 - **Framer Motion** (12.23.24) - Animation library
 - **Tremor React** (3.18.7) - Dashboard charts and analytics components
 
 #### Development & Testing
+
 - **Playwright** (1.56.1) - End-to-end testing (24 test suites)
 - **Storybook** (8.5.11) - Component development and documentation
 - **ESLint** (9.38.0) - Code linting with TypeScript support
@@ -124,6 +132,7 @@ fleet-management-v2/
 - **Husky** (9.1.7) - Git hooks for pre-commit validation
 
 #### Production Features
+
 - **@serwist/next** (9.2.1) - PWA service worker with intelligent caching
 - **@logtail/node** & **@logtail/browser** (0.5.6) - Better Stack error logging
 - **@upstash/ratelimit** (2.0.6) - Redis-based rate limiting
@@ -131,12 +140,14 @@ fleet-management-v2/
 - **jsPDF** (3.0.3) - PDF report generation
 
 #### Utilities
+
 - **date-fns** (4.1.0) - Date manipulation and roster period calculations
 - **bcrypt** (6.0.0) - Password hashing for pilot portal
 - **clsx** + **tailwind-merge** - Conditional CSS class management
 - **isomorphic-dompurify** (2.29.0) - XSS protection for user inputs
 
 ### Build System
+
 - **Turbopack** - Built-in Next.js 16 bundler (faster than Webpack)
 - **PostCSS** (8.5.1) - CSS processing for Tailwind
 - **esbuild** - Fast JavaScript bundling
@@ -148,6 +159,7 @@ fleet-management-v2/
 ### System Architecture
 
 Fleet Management V2 follows a **service-layer architecture** pattern where all database operations flow through dedicated service functions. This ensures:
+
 - Consistent data access patterns
 - Centralized business logic
 - Type safety across the stack
@@ -184,6 +196,7 @@ Fleet Management V2 follows a **service-layer architecture** pattern where all d
 ### Design Patterns
 
 #### 1. Service Layer Pattern (MANDATORY)
+
 All database operations MUST use service functions:
 
 ```typescript
@@ -200,6 +213,7 @@ const { data } = await supabase.from('pilots').select('*')
 ```
 
 #### 2. Async Server Components (Next.js 16)
+
 All server components use async/await for data fetching:
 
 ```typescript
@@ -212,6 +226,7 @@ export default async function PilotsPage() {
 ```
 
 #### 3. Validation Schema Pattern
+
 All forms and API routes use Zod schemas for validation:
 
 ```typescript
@@ -219,12 +234,12 @@ All forms and API routes use Zod schemas for validation:
 export const PilotCreateSchema = z.object({
   first_name: z.string().min(1, 'Required'),
   last_name: z.string().min(1, 'Required'),
-  rank: z.enum(['Captain', 'First Officer'])
+  rank: z.enum(['Captain', 'First Officer']),
 })
 
 // Use in form
 const form = useForm({
-  resolver: zodResolver(PilotCreateSchema)
+  resolver: zodResolver(PilotCreateSchema),
 })
 
 // Use in API
@@ -232,15 +247,26 @@ const validated = PilotCreateSchema.parse(body)
 ```
 
 #### 4. Repository Pattern (Service Layer)
+
 Each service module encapsulates database operations:
 
 ```typescript
 // lib/services/pilot-service.ts
-export async function getPilots() { /* implementation */ }
-export async function getPilotById(id: string) { /* implementation */ }
-export async function createPilot(data) { /* implementation */ }
-export async function updatePilot(id, data) { /* implementation */ }
-export async function deletePilot(id) { /* implementation */ }
+export async function getPilots() {
+  /* implementation */
+}
+export async function getPilotById(id: string) {
+  /* implementation */
+}
+export async function createPilot(data) {
+  /* implementation */
+}
+export async function updatePilot(id, data) {
+  /* implementation */
+}
+export async function deletePilot(id) {
+  /* implementation */
+}
 ```
 
 ---
@@ -258,18 +284,21 @@ The service layer is the **core architectural component** that encapsulates all 
 ### Core Services
 
 #### 1. Pilot Management (4 services)
+
 - **pilot-service.ts** - Pilot CRUD, seniority calculations, captain qualifications
 - **pilot-portal-service.ts** - Pilot authentication and portal operations
 - **pilot-registration-service.ts** - Pilot registration approval workflow
 - **pilot-email-service.ts** - Email notifications for pilots
 
 #### 2. Certification Management (4 services)
+
 - **certification-service.ts** - Certification CRUD and tracking
 - **certification-renewal-planning-service.ts** - Renewal planning and scheduling
 - **expiring-certifications-service.ts** - FAA color coding and expiry calculations
 - **check-types-service.ts** - Check type definitions and management
 
 #### 3. Leave Management (5 services)
+
 - **leave-service.ts** - Leave request CRUD and roster period alignment
 - **leave-eligibility-service.ts** - Complex eligibility logic (43KB, most critical)
 - **leave-bid-service.ts** - Annual leave bid submissions
@@ -277,11 +306,13 @@ The service layer is the **core architectural component** that encapsulates all 
 - **pilot-leave-service.ts** - Pilot-specific leave operations
 
 #### 4. Flight & Task Management (3 services)
+
 - **flight-request-service.ts** - Flight request submissions
 - **pilot-flight-service.ts** - Pilot-specific flight operations
 - **task-service.ts** - Task management operations
 
 #### 5. Analytics & Reporting (5 services)
+
 - **dashboard-service.ts** - Dashboard metrics aggregation
 - **analytics-service.ts** - Analytics data processing
 - **pdf-service.ts** - PDF report generation
@@ -289,6 +320,7 @@ The service layer is the **core architectural component** that encapsulates all 
 - **retirement-forecast-service.ts** - Retirement planning
 
 #### 6. System Services (9 services)
+
 - **admin-service.ts** - System settings and admin operations
 - **user-service.ts** - User management and role assignment
 - **audit-service.ts** - Audit logging for all CRUD operations
@@ -311,9 +343,7 @@ export async function serviceFunction() {
   const supabase = await createClient()
 
   try {
-    const { data, error } = await supabase
-      .from('table_name')
-      .select('*')
+    const { data, error } = await supabase.from('table_name').select('*')
 
     if (error) throw error
     return data
@@ -325,6 +355,7 @@ export async function serviceFunction() {
 ```
 
 **Key Characteristics**:
+
 - Server-only execution (`'use server'` implicit via Next.js 16)
 - Async Supabase client creation
 - Type-safe with generated database types
@@ -336,6 +367,7 @@ export async function serviceFunction() {
 The most complex service (43KB) handles rank-separated leave eligibility logic:
 
 **Key Features**:
+
 - Evaluates Captains and First Officers independently
 - Maintains minimum crew requirements (10 per rank)
 - Seniority-based approval priority
@@ -343,6 +375,7 @@ The most complex service (43KB) handles rank-separated leave eligibility logic:
 - Conflict detection and alternative recommendations
 
 **Functions**:
+
 - `getCrewRequirements()` - Crew minimums from settings
 - `calculateCrewAvailability()` - Day-by-day availability
 - `getConflictingPendingRequests()` - Seniority-based conflicts
@@ -358,10 +391,10 @@ Fleet Management V2 implements **dual authentication systems** for different use
 
 ### System Overview
 
-| System | Users | Auth Method | Session | Routes |
-|--------|-------|-------------|---------|--------|
-| **Admin Portal** | Managers, Staff | Supabase Auth | Cookie-based | `/dashboard/*` |
-| **Pilot Portal** | Pilots | Custom (bcrypt) | Custom session | `/portal/*` |
+| System           | Users           | Auth Method     | Session        | Routes         |
+| ---------------- | --------------- | --------------- | -------------- | -------------- |
+| **Admin Portal** | Managers, Staff | Supabase Auth   | Cookie-based   | `/dashboard/*` |
+| **Pilot Portal** | Pilots          | Custom (bcrypt) | Custom session | `/portal/*`    |
 
 ### 1. Admin Portal Authentication
 
@@ -370,6 +403,7 @@ Fleet Management V2 implements **dual authentication systems** for different use
 **Users**: Admin staff, managers, system administrators
 
 #### Admin Auth Flow
+
 ```
 1. User visits /auth/login
 2. Submits email + password
@@ -380,13 +414,16 @@ Fleet Management V2 implements **dual authentication systems** for different use
 ```
 
 #### Implementation
+
 ```typescript
 // Server-side (Server Components, API Routes)
 import { createClient } from '@/lib/supabase/server'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) redirect('/auth/login')
   // Render dashboard
@@ -408,17 +445,20 @@ function LogoutButton() {
 #### Supabase Client Types
 
 **1. Server Client** (`lib/supabase/server.ts`):
+
 - Use in Server Components, Server Actions, Route Handlers
 - SSR-compatible with Next.js 16 async cookies
 - Automatic session refresh
 - Custom 30-second timeout for reliability
 
 **2. Browser Client** (`lib/supabase/client.ts`):
+
 - Use in Client Components (`'use client'`)
 - Cookie-based session management
 - Real-time subscriptions support
 
 **3. Middleware Client** (`lib/supabase/middleware.ts`):
+
 - Handles authentication state across requests
 - Session refresh and cookie management
 - Protected route enforcement
@@ -430,6 +470,7 @@ function LogoutButton() {
 **Users**: Pilots (linked to `pilots` table via `employee_number`)
 
 #### Pilot Auth Flow
+
 ```
 1. Pilot visits /portal/login
 2. Submits email + password
@@ -440,6 +481,7 @@ function LogoutButton() {
 ```
 
 #### Implementation
+
 ```typescript
 // lib/services/pilot-portal-service.ts
 export async function pilotLogin(credentials: PilotLoginInput) {
@@ -463,21 +505,27 @@ export async function pilotLogin(credentials: PilotLoginInput) {
   }
 
   // Verify password
-  const isValidPassword = await bcrypt.compare(
-    credentials.password,
-    pilotUser.password_hash
-  )
+  const isValidPassword = await bcrypt.compare(credentials.password, pilotUser.password_hash)
 
   if (!isValidPassword) {
     return { success: false, error: 'Invalid credentials' }
   }
 
   // Create session
-  return { success: true, data: { user: pilotUser, session: { /* ... */ } } }
+  return {
+    success: true,
+    data: {
+      user: pilotUser,
+      session: {
+        /* ... */
+      },
+    },
+  }
 }
 ```
 
 #### Pilot Registration Flow
+
 ```
 1. Pilot visits /portal/register
 2. Fills registration form (validated with Zod)
@@ -489,6 +537,7 @@ export async function pilotLogin(credentials: PilotLoginInput) {
 ```
 
 #### Key Features
+
 - **Aviation-themed UI**: Friendly crew terminology and airline-style design
 - **Approval workflow**: All registrations require admin approval
 - **Secure password storage**: bcrypt hashing with salt rounds
@@ -502,7 +551,9 @@ export async function pilotLogin(credentials: PilotLoginInput) {
 // File: app/api/portal/something/route.ts
 import { createClient } from '@/lib/supabase/server'
 const supabase = await createClient()
-const { data: { user } } = await supabase.auth.getUser() // Wrong!
+const {
+  data: { user },
+} = await supabase.auth.getUser() // Wrong!
 
 // ✅ CORRECT - Using pilot auth for pilot portal
 // File: app/api/portal/something/route.ts
@@ -513,7 +564,9 @@ const session = await verifyPilotSession(request) // Correct!
 // File: app/api/pilots/route.ts
 import { createClient } from '@/lib/supabase/server'
 const supabase = await createClient()
-const { data: { user } } = await supabase.auth.getUser() // Correct!
+const {
+  data: { user },
+} = await supabase.auth.getUser() // Correct!
 ```
 
 ---
@@ -529,20 +582,24 @@ const { data: { user } } = await supabase.auth.getUser() // Correct!
 #### Core Tables
 
 **pilots** (27 records)
+
 - Pilot profiles, qualifications, seniority
 - Columns: `id`, `employee_number`, `first_name`, `last_name`, `rank`, `commencement_date`, `qualifications` (JSONB), `status`, `retirement_date`
 - Relationships: Has many `pilot_checks`, `leave_requests`, `flight_requests`
 
 **pilot_checks** (607 records)
+
 - Certification records (historical tracking)
 - Columns: `id`, `pilot_id`, `check_type_id`, `check_date`, `expiry_date`, `issue_date`, `status`
 - Relationships: Belongs to `pilots`, `check_types`
 
 **check_types** (34 records)
+
 - Check type definitions (Line Check, Sim Check, Medical, etc.)
 - Columns: `id`, `check_code`, `description`, `validity_period`, `category`
 
 **pilot_users** (Authentication table for pilot portal)
+
 - Custom authentication for pilots
 - Columns: `id`, `email`, `password_hash`, `employee_number`, `registration_approved`, `first_name`, `last_name`, `rank`
 - Relationships: Linked to `pilots` via `employee_number`
@@ -550,20 +607,24 @@ const { data: { user } } = await supabase.auth.getUser() // Correct!
 #### Request Tables
 
 **leave_requests**
+
 - Leave request submissions and approvals
 - Columns: `id`, `pilot_id`, `leave_type`, `start_date`, `end_date`, `status`, `roster_period`, `submitted_at`, `approved_by`
 - Leave types: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
 
 **leave_bids**
+
 - Annual leave preference bidding
 - Columns: `id`, `pilot_id`, `year`, `status`, `submitted_at`
 - Relationships: Has many `leave_bid_options`
 
 **leave_bid_options**
+
 - Individual leave bid preferences (up to 10 per pilot)
 - Columns: `id`, `leave_bid_id`, `start_date`, `end_date`, `priority`, `roster_period`
 
 **flight_requests**
+
 - Flight request submissions
 - Columns: `id`, `pilot_id`, `request_type`, `start_date`, `end_date`, `status`, `notes`
 - Types: RDO (Rostered Day Off), SDO (Special Day Off), Training, Other
@@ -571,82 +632,100 @@ const { data: { user } } = await supabase.auth.getUser() // Correct!
 #### System Tables
 
 **contract_types** (3 records)
+
 - Contract type definitions
 - Types: Full-time, Part-time, Casual
 
 **disciplinary_actions**
+
 - Disciplinary record tracking
 - Columns: `id`, `pilot_id`, `action_type`, `description`, `date`, `resolved`, `resolved_date`
 
 **tasks**
+
 - Task management system
 - Columns: `id`, `title`, `description`, `assigned_to`, `due_date`, `status`, `priority`
 
 **notifications**
+
 - In-app notification system
 - Columns: `id`, `user_id`, `title`, `message`, `type`, `read`, `created_at`
 
 **audit_logs**
+
 - Comprehensive audit trail
 - Columns: `id`, `user_id`, `action`, `table_name`, `record_id`, `old_values` (JSONB), `new_values` (JSONB), `timestamp`
 
 ### Database Views (Read-Only)
 
 **expiring_checks**
+
 - Simplified expiring certifications
 - Aggregates pilots with upcoming expiries
 
 **detailed_expiring_checks**
+
 - Detailed certification expiry data with FAA color coding
 - Used by dashboard and alerts
 
 **compliance_dashboard**
+
 - Fleet-wide compliance metrics
 - Real-time compliance percentage calculations
 
 **pilot_report_summary**
+
 - Comprehensive pilot summaries
 - Used for PDF report generation
 
 **captain_qualifications_summary**
+
 - Captain qualification tracking
 - Line Captain, Training Captain, Examiner, RHS Captain
 
 **dashboard_metrics**
+
 - Real-time dashboard statistics
 - Cached for performance
 
 ### Database Functions
 
 **calculate_years_to_retirement(pilot_id UUID)**
+
 - Returns: INTEGER (years until retirement)
 - Calculation: 65 - current age
 
 **calculate_years_in_service(pilot_id UUID)**
+
 - Returns: INTEGER (years in service)
 - Calculation: Current date - commencement_date
 
 **get_fleet_compliance_summary()**
+
 - Returns: JSON (compliance percentage, expired count, expiring count)
 - Used by dashboard for real-time metrics
 
 **get_fleet_expiry_statistics()**
+
 - Returns: JSON (expiry distribution by month)
 - Used by analytics dashboard
 
 **get_pilot_dashboard_metrics(pilot_id UUID)**
+
 - Returns: JSON (pilot-specific metrics)
 - Used by pilot portal dashboard
 
 ### Row Level Security (RLS)
 
 **All tables have RLS enabled** with policies enforcing:
+
 - Authenticated users can read data
 - Admins can insert/update/delete
 - Managers have elevated permissions
 - Pilots have read-only access to their own data
 
 **Example RLS Policy**:
+
 ```sql
 -- Pilots can only view their own leave requests
 CREATE POLICY "pilots_read_own_leave_requests"
@@ -688,6 +767,7 @@ This generates `types/supabase.ts` (3,837 lines) with complete type definitions 
 ### API Categories
 
 #### 1. Pilot Management (3 routes)
+
 - `POST /api/pilots` - Create pilot
 - `GET /api/pilots` - List pilots
 - `GET /api/pilots/[id]` - Get pilot by ID
@@ -695,6 +775,7 @@ This generates `types/supabase.ts` (3,837 lines) with complete type definitions 
 - `DELETE /api/pilots/[id]` - Delete pilot
 
 #### 2. Certification Management (3 routes)
+
 - `POST /api/certifications` - Create certification
 - `GET /api/certifications` - List certifications
 - `GET /api/certifications/[id]` - Get certification
@@ -702,6 +783,7 @@ This generates `types/supabase.ts` (3,837 lines) with complete type definitions 
 - `DELETE /api/certifications/[id]` - Delete certification
 
 #### 3. Leave Management (4 routes)
+
 - `POST /api/leave-requests` - Create leave request
 - `GET /api/leave-requests` - List leave requests
 - `GET /api/leave-requests/[id]` - Get leave request
@@ -709,6 +791,7 @@ This generates `types/supabase.ts` (3,837 lines) with complete type definitions 
 - `GET /api/leave-stats` - Leave statistics
 
 #### 4. Portal API (10 routes - Pilot Portal)
+
 - `POST /api/portal/login` - Pilot login
 - `POST /api/portal/logout` - Pilot logout
 - `POST /api/portal/register` - Pilot registration
@@ -721,6 +804,7 @@ This generates `types/supabase.ts` (3,837 lines) with complete type definitions 
 - `POST /api/portal/leave-bids` - Submit leave bid
 
 #### 5. Analytics & Reporting (5 routes)
+
 - `GET /api/analytics/crew-shortage-predictions` - Crew shortage forecasts
 - `GET /api/analytics/multi-year-forecast` - Multi-year forecasting
 - `GET /api/analytics/succession-pipeline` - Succession planning data
@@ -728,6 +812,7 @@ This generates `types/supabase.ts` (3,837 lines) with complete type definitions 
 - `GET /api/dashboard` - Dashboard metrics
 
 #### 6. System Management (8+ routes)
+
 - `GET /api/admin` - Admin operations
 - `GET /api/audit` - Audit logs
 - `GET /api/settings` - System settings
@@ -753,13 +838,12 @@ import { revalidatePath } from 'next/cache'
 export async function GET(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     const pilots = await getPilots() // Use service layer
@@ -767,10 +851,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, data: pilots })
   } catch (error) {
     console.error('Error fetching pilots:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -778,13 +859,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -801,10 +881,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: pilot }, { status: 201 })
   } catch (error) {
     console.error('Error creating pilot:', error)
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
 ```
@@ -812,27 +889,34 @@ export async function POST(request: Request) {
 ### API Best Practices
 
 **1. Authentication Check First**
+
 ```typescript
-const { data: { user } } = await supabase.auth.getUser()
+const {
+  data: { user },
+} = await supabase.auth.getUser()
 if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 ```
 
 **2. Validate Input with Zod**
+
 ```typescript
 const validated = PilotCreateSchema.parse(body) // Throws if invalid
 ```
 
 **3. Use Service Layer**
+
 ```typescript
 const pilots = await getPilots() // Never call Supabase directly
 ```
 
 **4. Cache Invalidation After Mutations**
+
 ```typescript
 revalidatePath('/dashboard/pilots') // Refresh cache after POST/PUT/DELETE
 ```
 
 **5. Consistent Error Handling**
+
 ```typescript
 try {
   // Operation
@@ -1009,6 +1093,7 @@ components/
 #### 1. Server vs Client Components
 
 **Server Components** (default, fetch data server-side):
+
 ```typescript
 // app/dashboard/pilots/page.tsx
 export default async function PilotsPage() {
@@ -1019,6 +1104,7 @@ export default async function PilotsPage() {
 ```
 
 **Client Components** (interactive, use hooks):
+
 ```typescript
 'use client'
 
@@ -1106,12 +1192,12 @@ export default {
         foreground: 'hsl(var(--foreground))',
         primary: {
           DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))'
+          foreground: 'hsl(var(--primary-foreground))',
         },
         // ... (20+ color tokens)
-      }
-    }
-  }
+      },
+    },
+  },
 }
 ```
 
@@ -1145,6 +1231,7 @@ Fleet Management V2 implements complex business rules for aviation fleet managem
 **Overview**: Leave requests operate on 28-day roster periods (RP1-RP13 annual cycle).
 
 **Key Rules**:
+
 - Each roster period is exactly 28 days
 - Annual cycle: RP1 through RP13 (13 periods per year)
 - Known anchor: **RP12/2025 starts October 11, 2025**
@@ -1171,16 +1258,19 @@ export function getRosterPeriodDates(year: number, period: number): { start: Dat
 **Overview**: All certifications tracked with FAA color-coding system.
 
 **Color Coding** (`lib/utils/certification-utils.ts`):
+
 - 🔴 **Red**: Expired (days_until_expiry < 0)
 - 🟡 **Yellow**: Expiring soon (days_until_expiry ≤ 30)
 - 🟢 **Green**: Current (days_until_expiry > 30)
 
 **Alert Thresholds**:
+
 - **Critical**: Expired certifications (immediate action required)
 - **Warning**: ≤ 60 days until expiry (plan renewal)
 - **Notice**: ≤ 90 days until expiry (awareness)
 
 **Implementation**:
+
 ```typescript
 export function getCertificationStatus(expiryDate: string): {
   status: 'expired' | 'expiring' | 'current'
@@ -1202,31 +1292,37 @@ export function getCertificationStatus(expiryDate: string): {
 **CRITICAL**: Captains and First Officers are evaluated **independently**.
 
 **Minimum Crew Requirements**:
+
 - Must maintain **10 Captains available** (per rank)
 - Must maintain **10 First Officers available** (per rank)
 
 **Approval Priority** (within same rank):
+
 1. Seniority number (lower = higher priority, e.g., #1 beats #5)
 2. Request submission date (earlier beats later)
 
 **Approval Scenarios**:
 
 **Scenario 1: Solo Request**
+
 - Single pilot requests dates
 - Approve if remaining crew ≥ 10
 - Result: Green (approved) or Red (denied)
 
 **Scenario 2a: Multiple Requests, Sufficient Crew**
+
 - Multiple pilots of same rank request overlapping dates
 - Total remaining crew ≥ 10
 - Result: Green (approve all requests)
 
 **Scenario 2b: Multiple Requests, Crew Shortage**
+
 - Multiple pilots request overlapping dates
 - Remaining crew < 10 if all approved
 - Result: Yellow (approve by seniority until minimum reached, deny rest)
 
 **Scenario 2c: At/Below Minimum**
+
 - Already at or below minimum crew
 - Result: Red (deny, show alternative recommendations)
 
@@ -1245,19 +1341,10 @@ export async function checkLeaveEligibility(
   const pilot = await getPilotById(pilotId)
 
   // 3. Calculate day-by-day crew availability (rank-separated)
-  const availability = await calculateCrewAvailability(
-    startDate,
-    endDate,
-    pilot.rank
-  )
+  const availability = await calculateCrewAvailability(startDate, endDate, pilot.rank)
 
   // 4. Check for conflicting pending requests (same rank, same dates)
-  const conflicts = await getConflictingPendingRequests(
-    pilotId,
-    startDate,
-    endDate,
-    pilot.rank
-  )
+  const conflicts = await getConflictingPendingRequests(pilotId, startDate, endDate, pilot.rank)
 
   // 5. Apply eligibility logic based on scenario
   if (conflicts.length === 0) {
@@ -1265,17 +1352,13 @@ export async function checkLeaveEligibility(
     return checkSoloRequest(availability, requirements)
   } else {
     // Scenario 2a/2b/2c: Multiple requests
-    return checkMultipleRequests(
-      availability,
-      requirements,
-      conflicts,
-      pilot.seniority_number
-    )
+    return checkMultipleRequests(availability, requirements, conflicts, pilot.seniority_number)
   }
 }
 ```
 
 **Special Alerts**:
+
 - **Eligibility Alert**: Shows when 2+ pilots of same rank request overlapping dates
 - **Final Review Alert**: Appears 22 days before next roster period starts (only when pendingCount > 0)
 
@@ -1284,6 +1367,7 @@ export async function checkLeaveEligibility(
 **Overview**: Captains have additional qualifications stored in JSONB column.
 
 **Qualification Types**:
+
 - **Line Captain**: Standard captain qualification
 - **Training Captain**: Authorized to conduct training
 - **Examiner**: Authorized to conduct check rides
@@ -1320,6 +1404,7 @@ export function getRHSExpiryDate(pilot: Pilot): string | null {
 **Overview**: Seniority determines leave approval priority and bid allocation.
 
 **Calculation**:
+
 - Based on `commencement_date` field
 - Earlier date = lower seniority number = higher priority
 - Seniority numbers: 1-27 (unique)
@@ -1340,7 +1425,7 @@ export async function recalculateSeniority() {
   // Assign seniority numbers (1 = most senior)
   const updates = pilots.map((pilot, index) => ({
     id: pilot.id,
-    seniority_number: index + 1
+    seniority_number: index + 1,
   }))
 
   // Batch update
@@ -1355,6 +1440,7 @@ export async function recalculateSeniority() {
 **Overview**: Track pilots approaching retirement age.
 
 **Rules**:
+
 - **Retirement age**: 65 years
 - **Warning threshold**: < 5 years to retirement
 - **Due soon**: ≤ 2 years to retirement
@@ -1394,6 +1480,7 @@ export async function getRetiringPilots(yearsThreshold: number = 5) {
 **IMPORTANT**: These are two DIFFERENT features with different purposes.
 
 #### Leave Requests
+
 - **Purpose**: Individual time-off requests (sick leave, RDO, SDO, annual leave, etc.)
 - **Workflow**: Submit → Manager Review → Approve/Deny
 - **Timing**: Submitted as needed, ideally 21+ days in advance
@@ -1403,6 +1490,7 @@ export async function getRetiringPilots(yearsThreshold: number = 5) {
 - **Types**: RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE
 
 #### Leave Bids
+
 - **Purpose**: Annual leave preference submissions (bidding on preferred leave dates for the year)
 - **Workflow**: Submit annual preferences → Admin processes → Approve/Reject based on seniority/availability
 - **Timing**: Submitted once per year, typically for planning next year's roster
@@ -1429,18 +1517,21 @@ export async function getRetiringPilots(yearsThreshold: number = 5) {
 ### Test Suites
 
 #### 1. Authentication Tests (`e2e/auth.spec.ts`)
+
 - Admin login/logout flow
 - Session persistence
 - Protected route access
 - Unauthorized redirect
 
 #### 2. Dashboard Tests (`e2e/dashboard.spec.ts`)
+
 - Dashboard metrics display
 - Compliance cards
 - Urgent alerts
 - Navigation
 
 #### 3. Pilot Management Tests (`e2e/pilots.spec.ts`)
+
 - Pilot list display
 - Create new pilot
 - Edit pilot details
@@ -1448,40 +1539,47 @@ export async function getRetiringPilots(yearsThreshold: number = 5) {
 - Seniority calculations
 
 #### 4. Certification Tests (`e2e/certifications.spec.ts`)
+
 - Certification list
 - FAA color coding
 - Expiry warnings
 - Create/edit certifications
 
 #### 5. Leave Request Tests (`e2e/leave-requests.spec.ts`)
+
 - Submit leave request
 - Leave eligibility checking
 - Approval workflow
 - Calendar view
 
 #### 6. Flight Request Tests (`e2e/flight-requests.spec.ts`)
+
 - Submit flight request (RDO, SDO)
 - Status tracking
 - Approval workflow
 
 #### 7. Pilot Portal Tests (`e2e/pilot-portal.spec.ts`)
+
 - Pilot login
 - Dashboard display
 - Profile viewing
 - Request submissions
 
 #### 8. Leave Bid Tests (`e2e/leave-bids.spec.ts`)
+
 - Submit annual leave bids
 - Priority ranking
 - Admin review workflow
 
 #### 9. Accessibility Tests (`e2e/accessibility.spec.ts`)
+
 - ARIA labels
 - Keyboard navigation
 - Screen reader compatibility
 - Color contrast
 
 #### 10. Comprehensive Tests (`e2e/comprehensive-functionality.spec.ts`)
+
 - End-to-end workflows
 - Integration scenarios
 - Cross-feature testing
@@ -1489,6 +1587,7 @@ export async function getRetiringPilots(yearsThreshold: number = 5) {
 ### Test Configuration
 
 **playwright.config.ts**:
+
 ```typescript
 export default defineConfig({
   testDir: './e2e',
@@ -1500,37 +1599,37 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
-    screenshot: 'only-on-failure'
+    screenshot: 'only-on-failure',
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] }
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] }
+      use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] }
+      use: { ...devices['Desktop Safari'] },
     },
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] }
+      use: { ...devices['Pixel 5'] },
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] }
-    }
+      use: { ...devices['iPhone 12'] },
+    },
   ],
 
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI
-  }
+    reuseExistingServer: !process.env.CI,
+  },
 })
 ```
 
@@ -1654,6 +1753,7 @@ RESEND_FROM_EMAIL=no-reply@your-domain.com
 ### Deployment Checklist
 
 **Code Quality**:
+
 - [ ] Run full validation: `npm run validate`
 - [ ] Run naming validation: `npm run validate:naming`
 - [ ] All tests pass: `npm test`
@@ -1662,39 +1762,46 @@ RESEND_FROM_EMAIL=no-reply@your-domain.com
 - [ ] No linting errors: `npm run lint`
 
 **Environment & Configuration**:
+
 - [ ] All environment variables set in Vercel dashboard
 - [ ] Database types up to date: `npm run db:types`
 - [ ] No `.env.local` or secrets committed to Git
 
 **Database & Migrations**:
+
 - [ ] Database migrations tested (if any)
 - [ ] Row Level Security (RLS) policies verified
 - [ ] Database indexes optimized for queries
 
 **Testing & Quality**:
+
 - [ ] Manual testing completed on staging
 - [ ] Cross-browser testing (Chrome, Safari, Firefox)
 - [ ] Mobile responsive testing (iOS/Android)
 - [ ] Accessibility checks pass
 
 **Monitoring & Logging**:
+
 - [ ] Better Stack (Logtail) logging configured and working
 - [ ] Error tracking tested in production environment
 - [ ] Security audit logs reviewed
 
 **PWA & Performance**:
+
 - [ ] PWA manifest and service worker verified
 - [ ] Service worker caching strategies tested
 - [ ] Image optimization configured
 - [ ] Performance metrics acceptable (Lighthouse score)
 
 **Security**:
+
 - [ ] Security headers configured in `next.config.js`
 - [ ] Rate limiting tested on public endpoints
 - [ ] Authentication flows tested (admin + pilot portal)
 - [ ] No exposed API keys or secrets
 
 **Documentation**:
+
 - [ ] README updated (if needed)
 - [ ] CLAUDE.md updated (if architecture changed)
 - [ ] API documentation updated
@@ -1796,6 +1903,7 @@ git push origin feature/my-feature
 ### Daily Development Workflow
 
 #### Morning Routine
+
 ```bash
 # Pull latest changes
 git checkout main
@@ -1812,6 +1920,7 @@ npm run storybook
 ```
 
 #### During Development
+
 ```bash
 # Run type check (catches errors early)
 npm run type-check
@@ -1824,6 +1933,7 @@ npx playwright test --ui
 ```
 
 #### Before Commit
+
 ```bash
 # Run all quality checks
 npm run validate
@@ -1842,6 +1952,7 @@ npm run format
 ```
 
 #### Git Workflow
+
 ```bash
 # Stage changes
 git add .
@@ -2003,6 +2114,7 @@ ls -la .husky
 ## Key Features
 
 ### 1. Dual Authentication System
+
 - **Admin Portal**: Supabase Auth for managers and staff
 - **Pilot Portal**: Custom authentication via `pilot_users` table
 - Completely isolated authentication flows
@@ -2010,6 +2122,7 @@ ls -la .husky
 - Registration approval workflow for pilots
 
 ### 2. Comprehensive Service Layer
+
 - 30+ service modules for all database operations
 - Consistent patterns across all services
 - Type-safe with generated Supabase types
@@ -2017,6 +2130,7 @@ ls -la .husky
 - Centralized error handling
 
 ### 3. Intelligent Leave Management
+
 - Rank-separated eligibility checking (Captains vs First Officers)
 - Seniority-based approval priority
 - 28-day roster period alignment
@@ -2024,6 +2138,7 @@ ls -la .husky
 - Annual leave bid system with priority ranking
 
 ### 4. FAA-Compliant Certification Tracking
+
 - Color-coded certification status (Red/Yellow/Green)
 - Expiry alerts at 90, 60, 30 days
 - Automatic compliance calculations
@@ -2031,6 +2146,7 @@ ls -la .husky
 - Captain qualification tracking (Line, Training, Examiner, RHS)
 
 ### 5. Real-Time Dashboard Metrics
+
 - Fleet compliance percentages
 - Expiring certification alerts
 - Crew availability tracking
@@ -2038,6 +2154,7 @@ ls -la .husky
 - Recent activity timeline
 
 ### 6. Progressive Web App (PWA)
+
 - Offline support with intelligent caching
 - Install on mobile devices (iOS/Android)
 - Service worker with Serwist
@@ -2045,6 +2162,7 @@ ls -la .husky
 - Network-first API caching
 
 ### 7. Comprehensive Audit Trail
+
 - All CRUD operations logged
 - User actions tracked with timestamps
 - Old/new value comparison
@@ -2052,6 +2170,7 @@ ls -la .husky
 - CSV export for compliance
 
 ### 8. Analytics & Reporting
+
 - Crew shortage predictions
 - Multi-year forecasting
 - Succession pipeline analysis
@@ -2059,6 +2178,7 @@ ls -la .husky
 - Excel export capabilities
 
 ### 9. Pilot Self-Service Portal
+
 - View personal certifications
 - Submit leave requests
 - Submit flight requests
@@ -2067,6 +2187,7 @@ ls -la .husky
 - Aviation-themed UI
 
 ### 10. Enterprise-Grade Quality
+
 - 24 E2E test suites with Playwright
 - Type-safe development (TypeScript strict mode)
 - Code quality enforcement (ESLint, Prettier, Husky)
@@ -2081,6 +2202,7 @@ ls -la .husky
 Fleet Management V2 is a production-ready B767 Pilot Management System built with modern technologies and best practices. The system implements complex aviation business logic through a comprehensive service-layer architecture with dual authentication systems.
 
 **Key Strengths**:
+
 - ✅ Service layer architecture for maintainability
 - ✅ Dual authentication for admin and pilot users
 - ✅ Complex leave eligibility logic (rank-separated)
@@ -2093,6 +2215,7 @@ Fleet Management V2 is a production-ready B767 Pilot Management System built wit
 - ✅ Real-time dashboard metrics
 
 **Production Metrics**:
+
 - 27 pilots managed
 - 607 certifications tracked
 - 34 check types defined

@@ -20,108 +20,111 @@ import { useToast } from '@/hooks/use-toast'
 function MyComponent() {
   const { toast } = useToast()
 
-  return (
-    <button onClick={() => toast({ title: "Success!" })}>
-      Show Toast
-    </button>
-  )
+  return <button onClick={() => toast({ title: 'Success!' })}>Show Toast</button>
 }
 ```
 
 ## Toast Variants
 
 ### Success Toast
+
 ```tsx
 toast({
-  variant: "success",
-  title: "Pilot Created",
-  description: "John Doe has been added successfully",
+  variant: 'success',
+  title: 'Pilot Created',
+  description: 'John Doe has been added successfully',
 })
 ```
 
 ### Error Toast (Destructive)
+
 ```tsx
 toast({
-  variant: "destructive",
-  title: "Error",
-  description: "Failed to save changes. Please try again.",
+  variant: 'destructive',
+  title: 'Error',
+  description: 'Failed to save changes. Please try again.',
 })
 ```
 
 ### Warning Toast
+
 ```tsx
 toast({
-  variant: "warning",
-  title: "Warning",
-  description: "Certification expires in 30 days",
+  variant: 'warning',
+  title: 'Warning',
+  description: 'Certification expires in 30 days',
 })
 ```
 
 ### Info Toast (Default)
+
 ```tsx
 toast({
-  title: "Information",
-  description: "Your changes have been saved",
+  title: 'Information',
+  description: 'Your changes have been saved',
 })
 ```
 
 ## Common Use Cases
 
 ### Form Submission Success
+
 ```tsx
 async function handleSubmit(data) {
   try {
     await createPilot(data)
     toast({
-      variant: "success",
-      title: "Pilot Created",
+      variant: 'success',
+      title: 'Pilot Created',
       description: `${data.first_name} ${data.last_name} has been added to the system.`,
     })
     router.push('/dashboard/pilots')
   } catch (error) {
     toast({
-      variant: "destructive",
-      title: "Error",
-      description: error.message || "Failed to create pilot",
+      variant: 'destructive',
+      title: 'Error',
+      description: error.message || 'Failed to create pilot',
     })
   }
 }
 ```
 
 ### Delete Confirmation
+
 ```tsx
 async function handleDelete(pilotId: string) {
   try {
     await deletePilot(pilotId)
     toast({
-      variant: "success",
-      title: "Pilot Deleted",
-      description: "The pilot has been removed from the system.",
+      variant: 'success',
+      title: 'Pilot Deleted',
+      description: 'The pilot has been removed from the system.',
     })
   } catch (error) {
     toast({
-      variant: "destructive",
-      title: "Delete Failed",
-      description: "Could not delete pilot. Please try again.",
+      variant: 'destructive',
+      title: 'Delete Failed',
+      description: 'Could not delete pilot. Please try again.',
     })
   }
 }
 ```
 
 ### Update Success
+
 ```tsx
 async function handleUpdate(data) {
   try {
     await updatePilot(data)
     toast({
-      variant: "success",
-      title: "Changes Saved",
-      description: "Pilot information has been updated successfully.",
+      variant: 'success',
+      title: 'Changes Saved',
+      description: 'Pilot information has been updated successfully.',
     })
   } catch (error) {
     toast({
-      variant: "destructive",
-      title: "Update Failed",
+      variant: 'destructive',
+      title: 'Update Failed',
       description: error.message,
     })
   }
@@ -129,37 +132,39 @@ async function handleUpdate(data) {
 ```
 
 ### Leave Request Submission
+
 ```tsx
 async function submitLeaveRequest(request) {
   try {
     const result = await createLeaveRequest(request)
     toast({
-      variant: "success",
-      title: "Leave Request Submitted",
+      variant: 'success',
+      title: 'Leave Request Submitted',
       description: `Your request for ${request.days_count} days has been submitted for approval.`,
     })
     router.push('/portal/leave')
   } catch (error) {
     toast({
-      variant: "destructive",
-      title: "Submission Failed",
-      description: "Could not submit leave request. Please check your dates and try again.",
+      variant: 'destructive',
+      title: 'Submission Failed',
+      description: 'Could not submit leave request. Please check your dates and try again.',
     })
   }
 }
 ```
 
 ### Certification Expiry Warning
+
 ```tsx
 function checkExpiringCertifications(certifications) {
-  const expiringSoon = certifications.filter(c =>
-    c.status.color === 'yellow' && c.status.daysUntilExpiry <= 30
+  const expiringSoon = certifications.filter(
+    (c) => c.status.color === 'yellow' && c.status.daysUntilExpiry <= 30
   )
 
   if (expiringSoon.length > 0) {
     toast({
-      variant: "warning",
-      title: "Certifications Expiring Soon",
+      variant: 'warning',
+      title: 'Certifications Expiring Soon',
       description: `You have ${expiringSoon.length} certification(s) expiring in the next 30 days.`,
     })
   }
@@ -169,12 +174,13 @@ function checkExpiringCertifications(certifications) {
 ## Advanced Features
 
 ### Toast with Action Button
+
 ```tsx
 import { ToastAction } from '@/components/ui/toast'
 
 toast({
-  title: "Pilot Deleted",
-  description: "John Doe has been removed",
+  title: 'Pilot Deleted',
+  description: 'John Doe has been removed',
   action: (
     <ToastAction altText="Undo" onClick={() => undoDelete()}>
       Undo
@@ -184,6 +190,7 @@ toast({
 ```
 
 ### Standalone Toast (Outside Components)
+
 ```tsx
 // In a service file or utility function
 import { toast } from '@/hooks/use-toast'
@@ -192,15 +199,15 @@ export async function createPilot(data) {
   try {
     const result = await api.post('/pilots', data)
     toast({
-      variant: "success",
-      title: "Success",
-      description: "Pilot created successfully",
+      variant: 'success',
+      title: 'Success',
+      description: 'Pilot created successfully',
     })
     return result
   } catch (error) {
     toast({
-      variant: "destructive",
-      title: "Error",
+      variant: 'destructive',
+      title: 'Error',
       description: error.message,
     })
     throw error
@@ -209,11 +216,12 @@ export async function createPilot(data) {
 ```
 
 ### Dismiss Toast Programmatically
+
 ```tsx
 const { toast, dismiss } = useToast()
 
 // Show a toast
-const { id } = toast({ title: "Loading..." })
+const { id } = toast({ title: 'Loading...' })
 
 // Later, dismiss it
 dismiss(id)
@@ -239,6 +247,7 @@ dismiss()
 ## Accessibility
 
 The toast system includes:
+
 - ✅ Proper ARIA labels and roles
 - ✅ Keyboard navigation support
 - ✅ Swipe-to-dismiss on mobile
@@ -255,6 +264,7 @@ Animation: **Slide-in with fade**
 ## Examples in the Codebase
 
 Look for these files for real-world examples:
+
 - `/app/dashboard/pilots/new/page.tsx` - Pilot creation
 - `/app/dashboard/leave/new/page.tsx` - Leave request submission
 - `/app/portal/flights/new/page.tsx` - Flight request submission

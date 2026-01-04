@@ -7,10 +7,7 @@ const supabase = createClient(
 
 console.log('=== Checking pilots table schema ===\n')
 
-const { data, error } = await supabase
-  .from('pilots')
-  .select('*')
-  .limit(1)
+const { data, error } = await supabase.from('pilots').select('*').limit(1)
 
 if (error) {
   console.error('Error:', error)

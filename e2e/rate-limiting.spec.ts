@@ -9,9 +9,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Rate Limiting', () => {
   test.describe('Login Endpoint', () => {
-    test('should allow up to 5 login attempts per minute', async ({
-      request,
-    }) => {
+    test('should allow up to 5 login attempts per minute', async ({ request }) => {
       const loginEndpoint = '/api/auth/login'
 
       // Make 5 login attempts (should all be allowed, though may fail authentication)
@@ -37,9 +35,7 @@ test.describe('Rate Limiting', () => {
       }
     })
 
-    test('should block 6th login attempt within a minute', async ({
-      request,
-    }) => {
+    test('should block 6th login attempt within a minute', async ({ request }) => {
       const loginEndpoint = '/api/auth/login'
 
       // Make 5 allowed attempts
@@ -82,9 +78,7 @@ test.describe('Rate Limiting', () => {
   })
 
   test.describe('General Auth Endpoints', () => {
-    test('should allow up to 10 auth requests per minute', async ({
-      request,
-    }) => {
+    test('should allow up to 10 auth requests per minute', async ({ request }) => {
       const signupEndpoint = '/api/auth/signup'
 
       // Make 10 signup attempts (should all be allowed)
@@ -101,9 +95,7 @@ test.describe('Rate Limiting', () => {
       }
     })
 
-    test('should block 11th auth request within a minute', async ({
-      request,
-    }) => {
+    test('should block 11th auth request within a minute', async ({ request }) => {
       const signupEndpoint = '/api/auth/signup'
 
       // Make 10 allowed attempts
@@ -129,9 +121,7 @@ test.describe('Rate Limiting', () => {
   })
 
   test.describe('Password Reset Endpoint', () => {
-    test('should allow up to 3 password reset requests per hour', async ({
-      request,
-    }) => {
+    test('should allow up to 3 password reset requests per hour', async ({ request }) => {
       const resetEndpoint = '/api/auth/password-reset'
 
       // Make 3 password reset attempts (should all be allowed)
@@ -147,9 +137,7 @@ test.describe('Rate Limiting', () => {
       }
     })
 
-    test('should block 4th password reset request within an hour', async ({
-      request,
-    }) => {
+    test('should block 4th password reset request within an hour', async ({ request }) => {
       const resetEndpoint = '/api/auth/password-reset'
 
       // Make 3 allowed attempts
@@ -179,9 +167,7 @@ test.describe('Rate Limiting', () => {
   })
 
   test.describe('Rate Limit Headers', () => {
-    test('should include rate limit information in response headers', async ({
-      request,
-    }) => {
+    test('should include rate limit information in response headers', async ({ request }) => {
       const loginEndpoint = '/api/auth/login'
 
       const response = await request.post(loginEndpoint, {
@@ -213,9 +199,7 @@ test.describe('Rate Limiting', () => {
         },
       })
 
-      const remaining1 = parseInt(
-        response1.headers()['x-ratelimit-remaining'] || '0'
-      )
+      const remaining1 = parseInt(response1.headers()['x-ratelimit-remaining'] || '0')
 
       // Second request
       const response2 = await request.post(loginEndpoint, {
@@ -225,9 +209,7 @@ test.describe('Rate Limiting', () => {
         },
       })
 
-      const remaining2 = parseInt(
-        response2.headers()['x-ratelimit-remaining'] || '0'
-      )
+      const remaining2 = parseInt(response2.headers()['x-ratelimit-remaining'] || '0')
 
       // Remaining count should decrease
       if (remaining1 > 0 && remaining2 >= 0) {
@@ -237,10 +219,7 @@ test.describe('Rate Limiting', () => {
   })
 
   test.describe('IP-based Tracking', () => {
-    test('should track rate limits per IP address', async ({
-      request,
-      context,
-    }) => {
+    test('should track rate limits per IP address', async ({ request, context }) => {
       // Note: This test demonstrates the concept, but may not work
       // perfectly in all Playwright configurations since changing
       // IP addresses programmatically is complex

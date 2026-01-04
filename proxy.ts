@@ -16,9 +16,6 @@ import type { CookieOptions } from '@supabase/ssr'
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Debug log to confirm proxy is running
-  console.log('🚀 PROXY CALLED:', pathname)
-
   // Create response that can be modified
   let response = NextResponse.next({
     request: {
@@ -96,32 +93,16 @@ export async function proxy(request: NextRequest) {
   // Check if pathname exactly matches public routes or is root
   const isPublicRoute = pathname === '/' || publicRoutes.some((route) => pathname === route)
 
-  console.log('📍 Checking public routes for:', pathname, 'isPublic:', isPublicRoute)
-
   if (isPublicRoute) {
-    console.log('✅ Public route - allowing')
     return response
   }
 
   // ============================================================================
   // PILOT PORTAL ROUTES - /portal/*
   // ============================================================================
-  console.log(
-    '🔍 Checking if portal route:',
-    pathname,
-    'startsWithPortal:',
-    pathname.startsWith('/portal')
-  )
   if (pathname.startsWith('/portal')) {
     // Check for custom pilot session first (bcrypt authentication)
     const pilotSessionToken = request.cookies.get('pilot-session')?.value
-
-    console.log('🔍 Proxy Portal Check:', {
-      path: pathname,
-      hasCookie: !!pilotSessionToken,
-      cookieLength: pilotSessionToken?.length,
-      tokenPreview: pilotSessionToken?.substring(0, 20) + '...',
-    })
 
     if (pilotSessionToken) {
       try {
@@ -133,16 +114,8 @@ export async function proxy(request: NextRequest) {
           .eq('is_active', true)
           .single()
 
-        if (error || !session) {
-          console.log('❌ Session not found or invalid:', error?.message)
-        } else {
+        if (!error && session) {
           const expiresAt = new Date(session.expires_at)
-
-          console.log('✅ Pilot session found:', {
-            pilot_user_id: session.pilot_user_id,
-            expires_at: session.expires_at,
-            isExpired: expiresAt <= new Date(),
-          })
 
           // Check if session is still valid
           if (expiresAt > new Date()) {
@@ -153,25 +126,14 @@ export async function proxy(request: NextRequest) {
               .eq('id', session.pilot_user_id)
               .single()
 
-            console.log('👤 Pilot user check:', {
-              found: !!pilotUser,
-              approved: pilotUser?.registration_approved,
-            })
-
             if (pilotUser && pilotUser.registration_approved === true) {
               // Valid custom session - allow access
-              console.log('✅ Valid pilot session - allowing access')
               return response
-            } else {
-              console.log('❌ Pilot not found or not approved')
             }
-          } else {
-            console.log('❌ Session expired')
           }
         }
-      } catch (error) {
+      } catch {
         // Invalid session cookie - continue to check Supabase Auth
-        console.error('❌ Invalid pilot session cookie:', error)
       }
     }
 
@@ -222,14 +184,6 @@ export async function proxy(request: NextRequest) {
     // Check for custom admin session first (bcrypt authentication)
     const adminSessionToken = request.cookies.get('admin-session')?.value
 
-    console.log('🔍 Dashboard access check:', {
-      pathname,
-      hasUser: !!user,
-      userId: user?.id,
-      userEmail: user?.email,
-      hasAdminSessionCookie: !!adminSessionToken,
-    })
-
     // Check custom admin session cookie first
     if (adminSessionToken) {
       try {
@@ -241,16 +195,8 @@ export async function proxy(request: NextRequest) {
           .eq('is_active', true)
           .single()
 
-        if (error || !session) {
-          console.log('❌ Admin session not found or invalid:', error?.message)
-        } else {
+        if (!error && session) {
           const expiresAt = new Date(session.expires_at)
-
-          console.log('✅ Admin session found:', {
-            admin_user_id: session.admin_user_id,
-            expires_at: session.expires_at,
-            isExpired: expiresAt <= new Date(),
-          })
 
           // Check if session is still valid
           if (expiresAt > new Date()) {
@@ -261,54 +207,30 @@ export async function proxy(request: NextRequest) {
               .eq('id', session.admin_user_id)
               .single()
 
-            console.log('👤 Admin user check:', {
-              found: !!adminUser,
-              email: adminUser?.email,
-              role: adminUser?.role,
-            })
-
             if (adminUser) {
               // Valid custom session - allow access
-              console.log('✅ Valid admin session - allowing access')
               return response
-            } else {
-              console.log('❌ Admin user not found')
             }
-          } else {
-            console.log('❌ Admin session expired')
           }
         }
-      } catch (error) {
+      } catch {
         // Invalid session cookie - continue to check Supabase Auth
-        console.error('❌ Invalid admin session cookie:', error)
       }
     }
 
     // Fall back to Supabase Auth check
     if (!user) {
-      console.log('❌ No user authenticated - redirecting to login')
       const loginUrl = new URL('/auth/login', request.url)
       loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
     }
 
-    console.log('👤 User authenticated via Supabase, checking an_users table for:', user.id)
-
     // Check if user is admin or manager
-    const { data: adminUser, error: adminError } = await supabase
+    const { data: adminUser } = await supabase
       .from('an_users')
       .select('id, role')
       .eq('id', user.id)
       .single()
-
-    console.log('📊 an_users query result:', {
-      hasAdminUser: !!adminUser,
-      adminUserId: adminUser?.id,
-      adminUserRole: adminUser?.role,
-      hasError: !!adminError,
-      errorMessage: adminError?.message,
-      errorCode: adminError?.code,
-    })
 
     if (!adminUser) {
       // Not an admin/manager - check if they're a pilot
@@ -350,7 +272,6 @@ export async function proxy(request: NextRequest) {
     // Allow public portal API routes (login, register)
     const publicPortalApiRoutes = ['/api/portal/login', '/api/portal/register']
     if (publicPortalApiRoutes.includes(pathname)) {
-      console.log('✅ Public portal API route - allowing:', pathname)
       return response
     }
 
@@ -381,20 +302,17 @@ export async function proxy(request: NextRequest) {
 
             if (pilotUser && pilotUser.registration_approved === true) {
               // Valid custom session - allow access
-              console.log('✅ Valid pilot session for API:', pathname)
               return response
             }
           }
         }
-      } catch (error) {
-        console.error('❌ Invalid pilot session cookie for API:', error)
+      } catch {
         // Fall through to Supabase Auth check
       }
     }
 
     // Fall back to Supabase Auth (for legacy pilots with auth_user_id)
     if (!user) {
-      console.log('❌ No auth for portal API:', pathname)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -440,20 +358,17 @@ export async function proxy(request: NextRequest) {
 
             if (adminUser) {
               // Valid custom session - allow access
-              console.log('✅ Valid admin session for API:', pathname)
               return response
             }
           }
         }
-      } catch (error) {
-        console.error('❌ Invalid admin session cookie for API:', error)
+      } catch {
         // Fall through to Supabase Auth check
       }
     }
 
     // Fall back to Supabase Auth check
     if (!user) {
-      console.log('❌ No auth for admin API:', pathname)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

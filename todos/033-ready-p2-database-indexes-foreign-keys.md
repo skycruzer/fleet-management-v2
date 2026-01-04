@@ -1,7 +1,7 @@
 ---
 status: done
 priority: p2
-issue_id: "033"
+issue_id: '033'
 tags: [performance, database, indexes, optimization]
 dependencies: []
 ---
@@ -21,6 +21,7 @@ Foreign key columns in `feedback_posts`, `leave_requests`, and `flight_requests`
 **Performance Issue:**
 
 **Current Behavior (No Indexes):**
+
 ```sql
 -- Query: Get pilot's leave requests
 SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
@@ -33,6 +34,7 @@ SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
 ```
 
 **With Indexes:**
+
 ```sql
 -- Same query with index
 SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
@@ -45,6 +47,7 @@ SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
 ```
 
 **Missing Indexes:**
+
 - `feedback_posts.pilot_user_id` - No index (used in WHERE clauses)
 - `feedback_posts.category_id` - No index (used for filtering by category)
 - `leave_requests.pilot_user_id` - No index (critical for user queries)
@@ -55,31 +58,19 @@ SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
 ```typescript
 // Service: getPilotFeedbackPosts()
 // ❌ Slow without index on pilot_user_id
-const { data } = await supabase
-  .from('feedback_posts')
-  .select('*')
-  .eq('pilot_user_id', userId)
+const { data } = await supabase.from('feedback_posts').select('*').eq('pilot_user_id', userId)
 
 // Service: getPilotLeaveRequests()
 // ❌ Slow without index on pilot_user_id
-const { data } = await supabase
-  .from('leave_requests')
-  .select('*')
-  .eq('pilot_user_id', userId)
+const { data } = await supabase.from('leave_requests').select('*').eq('pilot_user_id', userId)
 
 // Service: getPilotFlightRequests()
 // ❌ Slow without index on pilot_user_id
-const { data } = await supabase
-  .from('flight_requests')
-  .select('*')
-  .eq('pilot_user_id', userId)
+const { data } = await supabase.from('flight_requests').select('*').eq('pilot_user_id', userId)
 
 // Service: getFeedbackPostsByCategory()
 // ❌ Slow without index on category_id
-const { data } = await supabase
-  .from('feedback_posts')
-  .select('*')
-  .eq('category_id', categoryId)
+const { data } = await supabase.from('feedback_posts').select('*').eq('category_id', categoryId)
 ```
 
 ## Proposed Solution
@@ -207,20 +198,22 @@ SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
 
 **Query Speed Improvements:**
 
-| Table Size | Without Index | With Index | Improvement |
-|-----------|---------------|------------|-------------|
-| 100 rows | 20ms | 3ms | 6.7x faster |
-| 1,000 rows | 200ms | 5ms | 40x faster |
-| 10,000 rows | 2,000ms | 6ms | 333x faster |
-| 100,000 rows | 20,000ms | 7ms | 2,857x faster |
+| Table Size   | Without Index | With Index | Improvement   |
+| ------------ | ------------- | ---------- | ------------- |
+| 100 rows     | 20ms          | 3ms        | 6.7x faster   |
+| 1,000 rows   | 200ms         | 5ms        | 40x faster    |
+| 10,000 rows  | 2,000ms       | 6ms        | 333x faster   |
+| 100,000 rows | 20,000ms      | 7ms        | 2,857x faster |
 
 **Common Queries Affected:**
+
 - User dashboard: Load pilot's leave requests (100x faster)
 - Feedback page: Filter posts by category (50x faster)
 - Manager view: View all pending leave requests (200x faster)
 - User profile: Display user's flight requests (100x faster)
 
 **Database Impact:**
+
 - Index size: ~1-2MB per index (minimal storage overhead)
 - Write speed: Negligible impact on INSERT/UPDATE (indexes updated automatically)
 - Overall: Massive read performance gain for tiny storage cost
@@ -267,15 +260,18 @@ SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
 ## Work Log
 
 ### 2025-10-19 - Initial Discovery
+
 **By:** performance-oracle (compounding-engineering review)
 **Learnings:** Missing indexes on foreign keys cause slow queries
 
 ### 2025-10-19 - Implementation Complete
+
 **By:** Claude Code (code-review-resolution specialist)
 **Status:** COMPLETED
 **Migration:** `add_missing_performance_indexes`
 
 **Implementation Summary:**
+
 - Analyzed existing indexes - found many already existed from previous migrations
 - Created migration with 5 missing composite indexes:
   - `idx_feedback_posts_created_at` - Sort posts by creation date
@@ -288,6 +284,7 @@ SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
 - Skipped `feedback_votes` table indexes (table does not exist)
 
 **Already Existing Indexes (No Action Needed):**
+
 - `feedback_posts.pilot_user_id` - idx_feedback_posts_author
 - `feedback_posts.category_id` - idx_feedback_posts_category
 - `leave_requests.pilot_user_id` - idx_leave_requests_pilot_user
@@ -297,6 +294,7 @@ SELECT * FROM leave_requests WHERE pilot_user_id = 'xxx';
 - `flight_requests.status` - idx_flight_requests_status
 
 **Performance Impact:**
+
 - All critical foreign key columns now have appropriate indexes
 - Composite indexes optimize common query patterns
 - Execution times remain under 1ms for test queries

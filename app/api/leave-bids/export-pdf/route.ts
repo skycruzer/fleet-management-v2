@@ -6,11 +6,18 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateLeaveBidsPDF } from '@/lib/services/leave-bids-pdf-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
+    // Authentication check - admin only
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
     const statusFilter = searchParams.get('status') || 'all'

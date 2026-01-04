@@ -59,7 +59,9 @@ test.describe('Leave Approval Dashboard - Full UI Test', () => {
       // Check login form elements
       console.log('\nStep 4: Verifying login form...')
       const hasEmailField = await page.locator('input[type="email"], input[name="email"]').count()
-      const hasPasswordField = await page.locator('input[type="password"], input[name="password"]').count()
+      const hasPasswordField = await page
+        .locator('input[type="password"], input[name="password"]')
+        .count()
 
       expect(hasEmailField).toBeGreaterThan(0)
       expect(hasPasswordField).toBeGreaterThan(0)
@@ -207,7 +209,9 @@ async function testDashboardUI(page: Page) {
 
   // Test 6: Check for request cards or table
   console.log('\nTest 6: Checking for leave requests display...')
-  const requestElements = await page.locator('[class*="card"], [class*="Card"], table, [role="table"]').count()
+  const requestElements = await page
+    .locator('[class*="card"], [class*="Card"], table, [role="table"]')
+    .count()
   console.log(`  Found ${requestElements} potential request display elements`)
 
   // Test 7: Check for action buttons

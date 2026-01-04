@@ -14,7 +14,7 @@ const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function checkSchema() {
   console.log('\n🔍 Checking Table Schemas\n')
-  console.log('=' .repeat(60))
+  console.log('='.repeat(60))
 
   // Try to get structure by querying with limit 0
   console.log('\n📋 leave_requests table:')

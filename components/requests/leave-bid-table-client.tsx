@@ -55,8 +55,8 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
           <div>
             <h3 className="text-xl font-semibold text-gray-900">No Leave Bids Yet</h3>
             <p className="mt-2 text-gray-600">
-              Pilots haven&apos;t submitted any leave bids for review. Leave bids will appear here once
-              pilots submit their annual leave preferences.
+              Pilots haven&apos;t submitted any leave bids for review. Leave bids will appear here
+              once pilots submit their annual leave preferences.
             </p>
           </div>
         </div>
@@ -131,11 +131,11 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
         <Tabs value={view} onValueChange={(v) => setView(v as 'table' | 'calendar')}>
           <TabsList>
             <TabsTrigger value="table">
-              <Table className="h-4 w-4 mr-2" />
+              <Table className="mr-2 h-4 w-4" />
               Table View
             </TabsTrigger>
             <TabsTrigger value="calendar">
-              <Calendar className="h-4 w-4 mr-2" />
+              <Calendar className="mr-2 h-4 w-4" />
               Calendar View
             </TabsTrigger>
           </TabsList>
@@ -143,7 +143,7 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
 
         <Link href={`/api/leave-bids/export-pdf?year=${bidYear}`} target="_blank">
           <Button variant="outline" size="sm">
-            <FileText className="h-4 w-4 mr-2" />
+            <FileText className="mr-2 h-4 w-4" />
             Export PDF
           </Button>
         </Link>

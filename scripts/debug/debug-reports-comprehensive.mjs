@@ -26,34 +26,39 @@ if (allLeaveError) {
 
   // Group by roster period
   const byPeriod = {}
-  allLeave?.forEach(req => {
+  allLeave?.forEach((req) => {
     const period = req.roster_period || 'NO_PERIOD'
     byPeriod[period] = (byPeriod[period] || 0) + 1
   })
 
   console.log('\n   By roster period:')
-  Object.entries(byPeriod).sort().forEach(([period, count]) => {
-    console.log(`   - ${period}: ${count} requests`)
-  })
+  Object.entries(byPeriod)
+    .sort()
+    .forEach(([period, count]) => {
+      console.log(`   - ${period}: ${count} requests`)
+    })
 
   // Group by workflow_status
   const byStatus = {}
-  allLeave?.forEach(req => {
+  allLeave?.forEach((req) => {
     const status = req.workflow_status || 'NO_STATUS'
     byStatus[status] = (byStatus[status] || 0) + 1
   })
 
   console.log('\n   By workflow_status:')
-  Object.entries(byStatus).sort().forEach(([status, count]) => {
-    console.log(`   - ${status}: ${count} requests`)
-  })
+  Object.entries(byStatus)
+    .sort()
+    .forEach(([status, count]) => {
+      console.log(`   - ${status}: ${count} requests`)
+    })
 }
 
 // 2. Test exact UI filter scenario
 console.log('\n\n2. Testing UI filter scenario (RP01/2026, RP02/2026):')
 const { data: filtered, error: filterError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -62,7 +67,8 @@ const { data: filtered, error: filterError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .in('roster_period', ['RP01/2026', 'RP02/2026'])
   .order('start_date', { ascending: false })
@@ -74,10 +80,12 @@ if (filterError) {
 
   if (filtered && filtered.length > 0) {
     console.log('\n   Details:')
-    filtered.forEach(req => {
+    filtered.forEach((req) => {
       const pilotName = req.pilots ? `${req.pilots.first_name} ${req.pilots.last_name}` : 'NO PILOT'
       const rank = req.pilots?.role || 'NO RANK'
-      console.log(`   - ${req.roster_period} | ${pilotName} (${rank}) | ${req.workflow_status} | ${req.start_date} to ${req.end_date}`)
+      console.log(
+        `   - ${req.roster_period} | ${pilotName} (${rank}) | ${req.workflow_status} | ${req.start_date} to ${req.end_date}`
+      )
     })
   }
 }
@@ -108,7 +116,7 @@ const { data: statusCheck } = await supabase
   .in('roster_period', ['RP01/2026', 'RP02/2026'])
 
 if (statusCheck) {
-  const uniqueStatuses = [...new Set(statusCheck.map(r => r.workflow_status))].sort()
+  const uniqueStatuses = [...new Set(statusCheck.map((r) => r.workflow_status))].sort()
   console.log('   Unique statuses found:', uniqueStatuses.join(', '))
 }
 
@@ -116,7 +124,8 @@ if (statusCheck) {
 console.log('\n\n5. Testing WITHOUT status filter (All statuses):')
 const { data: noStatusFilter, error: noStatusError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -125,7 +134,8 @@ const { data: noStatusFilter, error: noStatusError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'LEAVE')
   .in('roster_period', ['RP01/2026', 'RP02/2026'])
   .order('start_date', { ascending: false })
@@ -140,7 +150,8 @@ if (noStatusError) {
 console.log('\n\n6. Testing flight requests for RP01/2026, RP02/2026:')
 const { data: flightData, error: flightError } = await supabase
   .from('pilot_requests')
-  .select(`
+  .select(
+    `
     *,
     pilots!pilot_id (
       id,
@@ -149,7 +160,8 @@ const { data: flightData, error: flightError } = await supabase
       role,
       employee_id
     )
-  `)
+  `
+  )
   .eq('request_category', 'FLIGHT')
   .in('roster_period', ['RP01/2026', 'RP02/2026'])
 
@@ -160,10 +172,12 @@ if (flightError) {
 
   if (flightData && flightData.length > 0) {
     console.log('\n   Details:')
-    flightData.forEach(req => {
+    flightData.forEach((req) => {
       const pilotName = req.pilots ? `${req.pilots.first_name} ${req.pilots.last_name}` : 'NO PILOT'
       const rank = req.pilots?.role || 'NO RANK'
-      console.log(`   - ${req.roster_period} | ${pilotName} (${rank}) | ${req.request_type} | ${req.flight_date || req.start_date}`)
+      console.log(
+        `   - ${req.roster_period} | ${pilotName} (${rank}) | ${req.request_type} | ${req.flight_date || req.start_date}`
+      )
     })
   }
 }

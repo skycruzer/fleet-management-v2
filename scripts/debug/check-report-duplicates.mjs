@@ -8,7 +8,7 @@ import { readFileSync } from 'fs'
 // Read .env.local file manually
 const envContent = readFileSync('.env.local', 'utf-8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const match = line.match(/^([^=]+)=(.*)$/)
   if (match) {
     envVars[match[1].trim()] = match[2].trim()
@@ -41,23 +41,29 @@ async function checkFlightRequests() {
   }
 
   // Check for duplicates by ID
-  const ids = data.map(r => r.id)
+  const ids = data.map((r) => r.id)
   const uniqueIds = new Set(ids)
   if (ids.length !== uniqueIds.size) {
-    console.log(`\n⚠️  DUPLICATES FOUND: ${ids.length} records but only ${uniqueIds.size} unique IDs`)
+    console.log(
+      `\n⚠️  DUPLICATES FOUND: ${ids.length} records but only ${uniqueIds.size} unique IDs`
+    )
   } else {
     console.log(`\n✅ No ID duplicates found`)
   }
 
   // Check for duplicate combinations of pilot + date
-  const combinations = data.map(r => `${r.pilot_id || r.employee_number}-${r.start_date}-${r.end_date}`)
+  const combinations = data.map(
+    (r) => `${r.pilot_id || r.employee_number}-${r.start_date}-${r.end_date}`
+  )
   const uniqueCombinations = new Set(combinations)
   if (combinations.length !== uniqueCombinations.size) {
-    console.log(`\n⚠️  DUPLICATE PILOT+DATE COMBINATIONS: ${combinations.length} records but only ${uniqueCombinations.size} unique combinations`)
+    console.log(
+      `\n⚠️  DUPLICATE PILOT+DATE COMBINATIONS: ${combinations.length} records but only ${uniqueCombinations.size} unique combinations`
+    )
 
     // Find the duplicates
     const countMap = {}
-    combinations.forEach(combo => {
+    combinations.forEach((combo) => {
       countMap[combo] = (countMap[combo] || 0) + 1
     })
     const dupes = Object.entries(countMap).filter(([_, count]) => count > 1)
@@ -75,7 +81,8 @@ async function checkLeaveRequests() {
 
   const { data, error } = await supabase
     .from('leave_requests')
-    .select(`
+    .select(
+      `
       *,
       pilot:pilots!leave_requests_pilot_id_fkey(
         first_name,
@@ -83,7 +90,8 @@ async function checkLeaveRequests() {
         role,
         employee_id
       )
-    `)
+    `
+    )
     .order('start_date', { ascending: false })
 
   if (error) {
@@ -98,23 +106,27 @@ async function checkLeaveRequests() {
   }
 
   // Check for duplicates by ID
-  const ids = data.map(r => r.id)
+  const ids = data.map((r) => r.id)
   const uniqueIds = new Set(ids)
   if (ids.length !== uniqueIds.size) {
-    console.log(`\n⚠️  DUPLICATES FOUND: ${ids.length} records but only ${uniqueIds.size} unique IDs`)
+    console.log(
+      `\n⚠️  DUPLICATES FOUND: ${ids.length} records but only ${uniqueIds.size} unique IDs`
+    )
   } else {
     console.log(`\n✅ No ID duplicates found`)
   }
 
   // Check for duplicate combinations of pilot + date
-  const combinations = data.map(r => `${r.pilot_id}-${r.start_date}-${r.end_date}`)
+  const combinations = data.map((r) => `${r.pilot_id}-${r.start_date}-${r.end_date}`)
   const uniqueCombinations = new Set(combinations)
   if (combinations.length !== uniqueCombinations.size) {
-    console.log(`\n⚠️  DUPLICATE PILOT+DATE COMBINATIONS: ${combinations.length} records but only ${uniqueCombinations.size} unique combinations`)
+    console.log(
+      `\n⚠️  DUPLICATE PILOT+DATE COMBINATIONS: ${combinations.length} records but only ${uniqueCombinations.size} unique combinations`
+    )
 
     // Find the duplicates
     const countMap = {}
-    combinations.forEach(combo => {
+    combinations.forEach((combo) => {
       countMap[combo] = (countMap[combo] || 0) + 1
     })
     const dupes = Object.entries(countMap).filter(([_, count]) => count > 1)

@@ -301,7 +301,11 @@ function addYearlyCalendar(doc: jsPDF, data: RenewalPlanPDFData) {
 /**
  * Roster Period Detail Page
  */
-function addRosterPeriodDetail(doc: jsPDF, summary: RosterPeriodSummary, allRenewals: RenewalItem[]) {
+function addRosterPeriodDetail(
+  doc: jsPDF,
+  summary: RosterPeriodSummary,
+  allRenewals: RenewalItem[]
+) {
   doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
   doc.text(`${summary.rosterPeriod} - Detailed Schedule`, 15, 20)

@@ -102,58 +102,58 @@ export default function EditPilotPage() {
   }, [])
 
   useEffect(() => {
+    async function fetchPilotData() {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/pilots/${pilotId}`)
+        const data = await response.json()
+
+        if (data.success) {
+          setPilot(data.data)
+
+          // Parse captain qualifications
+          let captainQuals: ('line_captain' | 'training_captain' | 'examiner')[] = []
+          if (data.data.captain_qualifications) {
+            const quals = data.data.captain_qualifications
+            if (Array.isArray(quals)) {
+              captainQuals = quals as ('line_captain' | 'training_captain' | 'examiner')[]
+            } else if (typeof quals === 'object') {
+              if (quals.line_captain) captainQuals.push('line_captain')
+              if (quals.training_captain) captainQuals.push('training_captain')
+              if (quals.examiner) captainQuals.push('examiner')
+            }
+          }
+
+          // Reset form with pilot data
+          reset({
+            employee_id: data.data.employee_id,
+            first_name: data.data.first_name,
+            middle_name: data.data.middle_name || '',
+            last_name: data.data.last_name,
+            role: data.data.role,
+            contract_type: data.data.contract_type || '',
+            nationality: data.data.nationality || '',
+            passport_number: data.data.passport_number || '',
+            passport_expiry: formatDateForInput(data.data.passport_expiry),
+            date_of_birth: formatDateForInput(data.data.date_of_birth),
+            commencement_date: formatDateForInput(data.data.commencement_date),
+            is_active: String(data.data.is_active) as any, // Convert boolean to string for radio buttons
+            captain_qualifications: captainQuals,
+          })
+        } else {
+          setError(data.error || 'Failed to fetch pilot data')
+        }
+      } catch {
+        setError('Failed to fetch pilot data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
     if (pilotId) {
       fetchPilotData()
     }
-  }, [pilotId])
-
-  async function fetchPilotData() {
-    try {
-      setLoading(true)
-      const response = await fetch(`/api/pilots/${pilotId}`)
-      const data = await response.json()
-
-      if (data.success) {
-        setPilot(data.data)
-
-        // Parse captain qualifications
-        let captainQuals: ('line_captain' | 'training_captain' | 'examiner')[] = []
-        if (data.data.captain_qualifications) {
-          const quals = data.data.captain_qualifications
-          if (Array.isArray(quals)) {
-            captainQuals = quals as ('line_captain' | 'training_captain' | 'examiner')[]
-          } else if (typeof quals === 'object') {
-            if (quals.line_captain) captainQuals.push('line_captain')
-            if (quals.training_captain) captainQuals.push('training_captain')
-            if (quals.examiner) captainQuals.push('examiner')
-          }
-        }
-
-        // Reset form with pilot data
-        reset({
-          employee_id: data.data.employee_id,
-          first_name: data.data.first_name,
-          middle_name: data.data.middle_name || '',
-          last_name: data.data.last_name,
-          role: data.data.role,
-          contract_type: data.data.contract_type || '',
-          nationality: data.data.nationality || '',
-          passport_number: data.data.passport_number || '',
-          passport_expiry: formatDateForInput(data.data.passport_expiry),
-          date_of_birth: formatDateForInput(data.data.date_of_birth),
-          commencement_date: formatDateForInput(data.data.commencement_date),
-          is_active: String(data.data.is_active) as any, // Convert boolean to string for radio buttons
-          captain_qualifications: captainQuals,
-        })
-      } else {
-        setError(data.error || 'Failed to fetch pilot data')
-      }
-    } catch (err) {
-      setError('Failed to fetch pilot data')
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [pilotId, reset])
 
   const onSubmit = async (data: PilotFormData) => {
     setIsSubmitting(true)

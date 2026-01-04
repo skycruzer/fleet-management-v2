@@ -14,17 +14,14 @@ import { readFileSync } from 'fs'
 // Read .env.local manually
 const envContent = readFileSync('.env.local', 'utf8')
 const envVars = {}
-envContent.split('\n').forEach(line => {
+envContent.split('\n').forEach((line) => {
   const [key, ...valueParts] = line.split('=')
   if (key && valueParts.length) {
     envVars[key.trim()] = valueParts.join('=').trim()
   }
 })
 
-const supabase = createClient(
-  envVars.NEXT_PUBLIC_SUPABASE_URL,
-  envVars.SUPABASE_SERVICE_ROLE_KEY
-)
+const supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY)
 
 // Helper function to calculate days between dates
 function calculateDaysCount(startDate, endDate) {
@@ -48,12 +45,12 @@ function isLateRequest(startDate, requestDate) {
 // Map legacy status to unified status
 function mapStatus(legacyStatus) {
   const statusMap = {
-    'PENDING': 'SUBMITTED',
-    'APPROVED': 'APPROVED',
-    'DENIED': 'DENIED',
-    'REJECTED': 'DENIED',
-    'WITHDRAWN': 'WITHDRAWN',
-    'CANCELLED': 'WITHDRAWN'
+    PENDING: 'SUBMITTED',
+    APPROVED: 'APPROVED',
+    DENIED: 'DENIED',
+    REJECTED: 'DENIED',
+    WITHDRAWN: 'WITHDRAWN',
+    CANCELLED: 'WITHDRAWN',
   }
   return statusMap[legacyStatus] || 'SUBMITTED'
 }
@@ -61,11 +58,11 @@ function mapStatus(legacyStatus) {
 // Map legacy request method to submission channel
 function mapSubmissionChannel(requestMethod) {
   const channelMap = {
-    'EMAIL': 'EMAIL',
-    'PHONE': 'PHONE',
-    'ORACLE': 'ORACLE',
-    'SYSTEM': 'ADMIN_PORTAL',
-    'PORTAL': 'PILOT_PORTAL'
+    EMAIL: 'EMAIL',
+    PHONE: 'PHONE',
+    ORACLE: 'ORACLE',
+    SYSTEM: 'ADMIN_PORTAL',
+    PORTAL: 'PILOT_PORTAL',
   }
   return channelMap[requestMethod] || 'EMAIL'
 }
@@ -84,7 +81,7 @@ async function migrateLeaveRequests() {
     .from('pilots')
     .select('id, first_name, last_name, employee_id, role')
 
-  const pilotsMap = new Map(pilots?.map(p => [p.id, p]) || [])
+  const pilotsMap = new Map(pilots?.map((p) => [p.id, p]) || [])
 
   if (fetchError) {
     console.error('❌ Error fetching leave requests:', fetchError.message)
@@ -122,19 +119,18 @@ async function migrateLeaveRequests() {
         roster_period: request.roster_period,
         workflow_status: mapStatus(request.status),
         days_count: request.days_count || calculateDaysCount(request.start_date, request.end_date),
-        is_late_request: request.is_late_request || isLateRequest(request.start_date, request.request_date),
+        is_late_request:
+          request.is_late_request || isLateRequest(request.start_date, request.request_date),
         reason: request.reason,
         notes: request.notes || request.review_comments,
         legacy_id: request.id,
         legacy_table: 'leave_requests',
         created_at: request.created_at,
-        updated_at: request.updated_at
+        updated_at: request.updated_at,
       }
 
       // Insert into pilot_requests
-      const { error: insertError } = await supabase
-        .from('pilot_requests')
-        .insert(unifiedRequest)
+      const { error: insertError } = await supabase.from('pilot_requests').insert(unifiedRequest)
 
       if (insertError) {
         console.log(`   ❌ Failed to migrate request ${request.id}:`, insertError.message)
@@ -142,7 +138,9 @@ async function migrateLeaveRequests() {
         failures.push({ id: request.id, reason: insertError.message })
       } else {
         migratedCount++
-        console.log(`   ✅ Migrated ${request.request_type} request for ${pilot.first_name} ${pilot.last_name} (${request.roster_period})`)
+        console.log(
+          `   ✅ Migrated ${request.request_type} request for ${pilot.first_name} ${pilot.last_name} (${request.roster_period})`
+        )
       }
     } catch (error) {
       console.log(`   ❌ Error processing request ${request.id}:`, error.message)
@@ -168,7 +166,7 @@ async function migrateFlightRequests() {
     .from('pilots')
     .select('id, first_name, last_name, employee_id, role')
 
-  const pilotsMap = new Map(pilots?.map(p => [p.id, p]) || [])
+  const pilotsMap = new Map(pilots?.map((p) => [p.id, p]) || [])
 
   if (fetchError) {
     console.error('❌ Error fetching flight requests:', fetchError.message)
@@ -218,13 +216,11 @@ async function migrateFlightRequests() {
         legacy_id: request.id,
         legacy_table: 'flight_requests',
         created_at: request.created_at,
-        updated_at: request.updated_at
+        updated_at: request.updated_at,
       }
 
       // Insert into pilot_requests
-      const { error: insertError } = await supabase
-        .from('pilot_requests')
-        .insert(unifiedRequest)
+      const { error: insertError } = await supabase.from('pilot_requests').insert(unifiedRequest)
 
       if (insertError) {
         console.log(`   ❌ Failed to migrate request ${request.id}:`, insertError.message)
@@ -232,7 +228,9 @@ async function migrateFlightRequests() {
         failures.push({ id: request.id, reason: insertError.message })
       } else {
         migratedCount++
-        console.log(`   ✅ Migrated ${request.request_type} request for ${pilot.first_name} ${pilot.last_name}`)
+        console.log(
+          `   ✅ Migrated ${request.request_type} request for ${pilot.first_name} ${pilot.last_name}`
+        )
       }
     } catch (error) {
       console.log(`   ❌ Error processing request ${request.id}:`, error.message)
@@ -255,9 +253,7 @@ async function verifyMigration() {
   console.log(`   Total requests in pilot_requests: ${unifiedCount}`)
 
   // Count by category
-  const { data: byCategory } = await supabase
-    .from('pilot_requests')
-    .select('request_category')
+  const { data: byCategory } = await supabase.from('pilot_requests').select('request_category')
 
   const categoryCounts = byCategory.reduce((acc, r) => {
     acc[r.request_category] = (acc[r.request_category] || 0) + 1
@@ -270,9 +266,7 @@ async function verifyMigration() {
   })
 
   // Count by type
-  const { data: byType } = await supabase
-    .from('pilot_requests')
-    .select('request_type')
+  const { data: byType } = await supabase.from('pilot_requests').select('request_type')
 
   const typeCounts = byType.reduce((acc, r) => {
     acc[r.request_type] = (acc[r.request_type] || 0) + 1
@@ -294,9 +288,9 @@ async function verifyMigration() {
 }
 
 async function main() {
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
   console.log('🚀 Legacy Request Migration to Unified System')
-  console.log('=' .repeat(70))
+  console.log('='.repeat(70))
 
   try {
     // Check if pilot_requests already has data
@@ -308,7 +302,7 @@ async function main() {
       console.log(`\n⚠️  Warning: pilot_requests table already has ${existingCount} records`)
       console.log('   This script will add to existing records (duplicates possible)')
       console.log('   Continue? (Ctrl+C to cancel, or wait 5 seconds to proceed)\n')
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      await new Promise((resolve) => setTimeout(resolve, 5000))
     }
 
     // Migrate leave requests
@@ -335,7 +329,7 @@ async function main() {
 
     if (leaveResults.failures.length > 0 || flightResults.failures.length > 0) {
       console.log('\n⚠️  Failed Migrations:')
-      ;[...leaveResults.failures, ...flightResults.failures].forEach(f => {
+      ;[...leaveResults.failures, ...flightResults.failures].forEach((f) => {
         console.log(`   - ${f.id}: ${f.reason}`)
       })
     }
@@ -348,7 +342,6 @@ async function main() {
     console.log('   2. Test filtering by RDO/SDO request types')
     console.log('   3. Optionally archive legacy tables after verification')
     console.log('')
-
   } catch (error) {
     console.error('\n❌ Migration failed:', error)
     process.exit(1)

@@ -46,7 +46,6 @@ announce('Error: Failed to save', 'assertive')
 
 ```tsx
 import { FocusTrap } from '@/components/accessibility/focus-trap'
-
 ;<FocusTrap enabled={isOpen}>
   <Dialog>...</Dialog>
 </FocusTrap>

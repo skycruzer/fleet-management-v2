@@ -31,33 +31,33 @@ import { ComponentType } from 'react'
  */
 export const LoadingSpinner = () => (
   <div className="flex items-center justify-center p-8">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
   </div>
 )
 
 export const LoadingSkeleton = () => (
   <div className="space-y-4 p-6">
-    <div className="h-8 w-48 animate-pulse rounded bg-muted" />
-    <div className="h-64 animate-pulse rounded bg-muted" />
+    <div className="bg-muted h-8 w-48 animate-pulse rounded" />
+    <div className="bg-muted h-64 animate-pulse rounded" />
     <div className="grid grid-cols-3 gap-4">
-      <div className="h-32 animate-pulse rounded bg-muted" />
-      <div className="h-32 animate-pulse rounded bg-muted" />
-      <div className="h-32 animate-pulse rounded bg-muted" />
+      <div className="bg-muted h-32 animate-pulse rounded" />
+      <div className="bg-muted h-32 animate-pulse rounded" />
+      <div className="bg-muted h-32 animate-pulse rounded" />
     </div>
   </div>
 )
 
 export const CardSkeleton = () => (
   <div className="space-y-4">
-    <div className="h-6 w-32 animate-pulse rounded bg-muted" />
-    <div className="h-48 animate-pulse rounded bg-muted" />
+    <div className="bg-muted h-6 w-32 animate-pulse rounded" />
+    <div className="bg-muted h-48 animate-pulse rounded" />
   </div>
 )
 
 export const ChartSkeleton = () => (
   <div className="flex h-64 items-center justify-center rounded border border-dashed">
-    <div className="text-center text-muted-foreground">
-      <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    <div className="text-muted-foreground text-center">
+      <div className="border-primary mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
       <p className="text-sm">Loading chart...</p>
     </div>
   </div>
@@ -65,9 +65,9 @@ export const ChartSkeleton = () => (
 
 export const TableSkeleton = () => (
   <div className="space-y-2">
-    <div className="h-10 w-full animate-pulse rounded bg-muted" />
+    <div className="bg-muted h-10 w-full animate-pulse rounded" />
     {Array.from({ length: 5 }).map((_, i) => (
-      <div key={i} className="h-16 w-full animate-pulse rounded bg-muted/50" />
+      <div key={i} className="bg-muted/50 h-16 w-full animate-pulse rounded" />
     ))}
   </div>
 )

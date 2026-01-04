@@ -14,7 +14,9 @@ const PILOT_EMAIL = 'mrondeau@airniugini.com.pg'
 const PILOT_PASSWORD = 'mron2393'
 
 test.describe('Complete Login Flow Tests', () => {
-  test('should navigate from landing page to admin login and login successfully', async ({ page }) => {
+  test('should navigate from landing page to admin login and login successfully', async ({
+    page,
+  }) => {
     // Step 1: Go to landing page
     await page.goto('/')
     await expect(page.getByRole('heading', { name: 'Fleet Management', exact: true })).toBeVisible()
@@ -26,7 +28,9 @@ test.describe('Complete Login Flow Tests', () => {
     console.log('✓ Navigated to /auth/login')
 
     // Step 3: Wait for login form to appear (NOT stuck on loading)
-    await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({ timeout: 15000 })
+    await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({
+      timeout: 15000,
+    })
     console.log('✓ Login form displayed (no stuck loading)')
 
     // Step 4: Verify no 404 page
@@ -47,11 +51,15 @@ test.describe('Complete Login Flow Tests', () => {
     console.log('✓ Redirected to dashboard')
 
     // Step 8: Verify dashboard loaded successfully
-    await expect(page.getByRole('heading', { name: /dashboard|overview/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('heading', { name: /dashboard|overview/i })).toBeVisible({
+      timeout: 10000,
+    })
     console.log('✓ Dashboard loaded successfully')
   })
 
-  test('should navigate from landing page to pilot portal and login successfully', async ({ page }) => {
+  test('should navigate from landing page to pilot portal and login successfully', async ({
+    page,
+  }) => {
     // Step 1: Go to landing page
     await page.goto('/')
     await expect(page.getByRole('heading', { name: 'Fleet Management', exact: true })).toBeVisible()
@@ -63,7 +71,9 @@ test.describe('Complete Login Flow Tests', () => {
     console.log('✓ Navigated to /portal/login')
 
     // Step 3: Wait for login form to appear (NOT stuck on loading)
-    await expect(page.getByRole('heading', { name: /pilot portal|crew login|welcome/i })).toBeVisible({ timeout: 15000 })
+    await expect(
+      page.getByRole('heading', { name: /pilot portal|crew login|welcome/i })
+    ).toBeVisible({ timeout: 15000 })
     console.log('✓ Login form displayed (no stuck loading)')
 
     // Step 4: Verify no 404 page
@@ -95,7 +105,9 @@ test.describe('Complete Login Flow Tests', () => {
     await page.goto('/auth/login')
 
     // Should show form, not 404, not stuck on loading
-    await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({ timeout: 15000 })
+    await expect(page.getByRole('heading', { name: /administration|sign in/i })).toBeVisible({
+      timeout: 15000,
+    })
     await expect(page.getByLabel(/email/i)).toBeVisible()
     await expect(page.getByLabel(/password/i)).toBeVisible()
     await expect(page.getByText(/404/i)).not.toBeVisible()
@@ -108,7 +120,9 @@ test.describe('Complete Login Flow Tests', () => {
     await page.goto('/portal/login')
 
     // Should show form, not 404, not stuck on loading
-    await expect(page.getByRole('heading', { name: /pilot portal|crew login|welcome/i })).toBeVisible({ timeout: 15000 })
+    await expect(
+      page.getByRole('heading', { name: /pilot portal|crew login|welcome/i })
+    ).toBeVisible({ timeout: 15000 })
     await expect(page.getByLabel(/email|employee number|username/i)).toBeVisible()
     await expect(page.getByLabel(/password/i)).toBeVisible()
     await expect(page.getByText(/404/i)).not.toBeVisible()

@@ -43,9 +43,7 @@ export const OfflineSimulation: Story = {
       <OfflineIndicator />
       <div className="p-8">
         <h1 className="text-2xl font-bold">Offline Indicator Demo</h1>
-        <p className="mt-4 text-muted-foreground">
-          To see the offline indicator:
-        </p>
+        <p className="text-muted-foreground mt-4">To see the offline indicator:</p>
         <ol className="mt-2 list-decimal space-y-1 pl-6 text-sm">
           <li>Open Browser DevTools (F12)</li>
           <li>Go to the Network tab</li>
@@ -70,14 +68,9 @@ export const DesignSpecs: Story = {
     <div className="space-y-8 p-8">
       <div>
         <h3 className="mb-4 text-lg font-semibold">Offline State (Yellow)</h3>
-        <div className="fixed left-0 right-0 top-0 bg-yellow-500 px-4 py-2 text-center text-sm font-medium text-black">
+        <div className="fixed top-0 right-0 left-0 bg-yellow-500 px-4 py-2 text-center text-sm font-medium text-black">
           <div className="flex items-center justify-center gap-2">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -94,12 +87,7 @@ export const DesignSpecs: Story = {
         <h3 className="mb-4 text-lg font-semibold">Online State (Green)</h3>
         <div className="bg-green-500 px-4 py-2 text-center text-sm font-medium text-white">
           <div className="flex items-center justify-center gap-2">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

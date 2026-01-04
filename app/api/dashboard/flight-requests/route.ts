@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllFlightRequests, getFlightRequestStats } from '@/lib/services/flight-request-service'
-import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**

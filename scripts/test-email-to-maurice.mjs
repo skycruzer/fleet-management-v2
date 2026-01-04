@@ -30,7 +30,7 @@ function loadEnv() {
     const envFile = readFileSync(envPath, 'utf-8')
     const env = {}
 
-    envFile.split('\n').forEach(line => {
+    envFile.split('\n').forEach((line) => {
       const match = line.match(/^([^#=]+)=(.*)$/)
       if (match) {
         const key = match[1].trim()
@@ -50,7 +50,8 @@ function loadEnv() {
 
 const env = loadEnv()
 const CRON_SECRET = env.CRON_SECRET || process.env.CRON_SECRET
-const APP_URL = env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const APP_URL =
+  env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 const TEST_EMAIL = 'mrondeau@airniugini.com.pg'
 
 if (!CRON_SECRET) {
@@ -65,7 +66,7 @@ console.log(`📧 Test Email: ${TEST_EMAIL}`)
 console.log(`📍 Endpoint: ${APP_URL}/api/cron/certification-expiry-alerts-test`)
 console.log(`🔐 Using CRON_SECRET from environment`)
 console.log('')
-console.log('⚠️  This will ONLY send emails to Maurice\'s email address')
+console.log("⚠️  This will ONLY send emails to Maurice's email address")
 console.log('   All other pilots will be skipped')
 console.log('')
 
@@ -74,16 +75,13 @@ async function testCronJob() {
     console.log('⏳ Sending request...')
     const startTime = Date.now()
 
-    const response = await fetch(
-      `${APP_URL}/api/cron/certification-expiry-alerts-test`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${CRON_SECRET}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    const response = await fetch(`${APP_URL}/api/cron/certification-expiry-alerts-test`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${CRON_SECRET}`,
+        'Content-Type': 'application/json',
+      },
+    })
 
     const duration = Date.now() - startTime
     const data = await response.json()
@@ -119,8 +117,11 @@ async function testCronJob() {
       data.results.forEach((result, index) => {
         const statusIcon = result.success ? '✅' : '❌'
         const urgencyIcon =
-          result.urgencyLevel === 'critical' ? '🔴' :
-          result.urgencyLevel === 'warning' ? '🟡' : '🔵'
+          result.urgencyLevel === 'critical'
+            ? '🔴'
+            : result.urgencyLevel === 'warning'
+              ? '🟡'
+              : '🔵'
 
         console.log(`${statusIcon} ${urgencyIcon} ${result.pilotName}`)
         console.log(`   Email: ${result.email}`)
@@ -152,7 +153,6 @@ async function testCronJob() {
       console.log('4. Restore the original expiry date after testing')
     }
     console.log('')
-
   } catch (error) {
     console.error('')
     console.error('❌ Test Failed')

@@ -8,9 +8,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatters, createMatter, getMatterStats } from '@/lib/services/disciplinary-service'
+import { CreateDisciplinarySchema } from '@/lib/validations/disciplinary-schema'
 
 /**
  * GET /api/disciplinary
@@ -168,31 +168,24 @@ export async function POST(_request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Parse and validate request body with Zod
     const body = await _request.json()
+    const validation = CreateDisciplinarySchema.safeParse(body)
 
-    // Validate required fields
-    if (
-      !body.title ||
-      !body.description ||
-      !body.pilot_id ||
-      !body.incident_date ||
-      !body.incident_type_id ||
-      !body.severity ||
-      !body.status
-    ) {
+    if (!validation.success) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            'Missing required fields: title, description, pilot_id, incident_date, incident_type_id, severity, status',
+          error: 'Validation failed',
+          details: validation.error.flatten().fieldErrors,
         },
         { status: 400 }
       )
     }
 
-    // Create matter
+    // Create matter with validated data
     const result = await createMatter({
-      ...body,
+      ...validation.data,
       reported_by: auth.userId!, // Auto-set reported_by to current user
     })
 

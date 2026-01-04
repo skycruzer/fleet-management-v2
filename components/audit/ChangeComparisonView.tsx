@@ -41,7 +41,7 @@ export function ChangeComparisonView({
           <CardTitle className="text-sm font-medium">Field Changes</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">No changes recorded</p>
+          <p className="text-muted-foreground text-sm">No changes recorded</p>
         </CardContent>
       </Card>
     )
@@ -75,7 +75,7 @@ export function ChangeComparisonView({
           <>
             <div className="border-t pt-3">
               <div className="mb-2 flex items-center gap-2">
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                   Unchanged Fields
                 </h4>
                 <Badge variant="outline" className="text-xs">
@@ -150,10 +150,7 @@ function ChangeFieldRow({
 
   return (
     <div
-      className={cn(
-        'rounded-lg border p-3 transition-colors',
-        config.bgColor
-      )}
+      className={cn('rounded-lg border p-3 transition-colors', config.bgColor)}
       role="article"
       aria-label={`${config.label} field: ${formattedFieldName}. Before: ${change.displayOldValue}, After: ${change.displayNewValue}`}
     >
@@ -161,50 +158,39 @@ function ChangeFieldRow({
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon className={cn('h-4 w-4', config.iconColor)} aria-hidden="true" />
-          <span className="font-medium text-sm">{formattedFieldName}</span>
+          <span className="text-sm font-medium">{formattedFieldName}</span>
         </div>
-        <Badge className={cn('border', config.badgeClassName)}>
-          {config.label}
-        </Badge>
+        <Badge className={cn('border', config.badgeClassName)}>{config.label}</Badge>
       </div>
 
       {/* Before/After Comparison */}
       {compactMode ? (
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground truncate max-w-[40%]">
+          <span className="text-muted-foreground max-w-[40%] truncate">
             {change.displayOldValue}
           </span>
           <ArrowRight className="h-3 w-3 flex-shrink-0" aria-label="changed to" />
-          <span className="font-medium truncate max-w-[40%]">
-            {change.displayNewValue}
-          </span>
+          <span className="max-w-[40%] truncate font-medium">{change.displayNewValue}</span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-2 items-center">
+        <div className="grid grid-cols-1 items-center gap-2 md:grid-cols-[1fr_auto_1fr]">
           {/* Before Value */}
           <div className="space-y-1">
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">
-              Before
-            </div>
-            <div className="rounded bg-background/50 p-2 text-sm font-mono border">
+            <div className="text-muted-foreground text-xs tracking-wide uppercase">Before</div>
+            <div className="bg-background/50 rounded border p-2 font-mono text-sm">
               {change.displayOldValue}
             </div>
           </div>
 
           {/* Arrow Separator */}
           <div className="flex justify-center">
-            <ArrowRight
-              className="h-5 w-5 text-muted-foreground"
-              aria-label="changed to"
-            />
+            <ArrowRight className="text-muted-foreground h-5 w-5" aria-label="changed to" />
           </div>
 
           {/* After Value */}
           <div className="space-y-1">
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">
-              After
-            </div>
-            <div className="rounded bg-background/50 p-2 text-sm font-mono border">
+            <div className="text-muted-foreground text-xs tracking-wide uppercase">After</div>
+            <div className="bg-background/50 rounded border p-2 font-mono text-sm">
               {change.displayNewValue}
             </div>
           </div>
@@ -232,17 +218,14 @@ function UnchangedFieldRow({
 
   return (
     <div
-      className="rounded-lg border bg-muted/30 p-2 text-sm"
+      className="bg-muted/30 rounded-lg border p-2 text-sm"
       role="article"
       aria-label={`Unchanged field: ${formattedFieldName}. Value: ${field.displayValue}`}
     >
       <div className="flex items-center gap-2">
-        <Circle className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+        <Circle className="text-muted-foreground h-3 w-3" aria-hidden="true" />
         <span className="text-muted-foreground">{formattedFieldName}:</span>
-        <span className={cn(
-          'font-mono',
-          compactMode ? 'truncate max-w-[60%]' : ''
-        )}>
+        <span className={cn('font-mono', compactMode ? 'max-w-[60%] truncate' : '')}>
           {field.displayValue}
         </span>
       </div>

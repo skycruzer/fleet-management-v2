@@ -100,20 +100,20 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       // Default fallback UI
       return (
         <div className="flex min-h-screen items-center justify-center p-4">
-          <div className="w-full max-w-md space-y-6 rounded-lg border border-destructive/50 bg-destructive/10 p-6">
+          <div className="border-destructive/50 bg-destructive/10 w-full max-w-md space-y-6 rounded-lg border p-6">
             {/* Error Icon */}
             <div className="flex justify-center">
-              <div className="rounded-full bg-destructive/20 p-3">
-                <AlertTriangle className="h-8 w-8 text-destructive" />
+              <div className="bg-destructive/20 rounded-full p-3">
+                <AlertTriangle className="text-destructive h-8 w-8" />
               </div>
             </div>
 
             {/* Error Title */}
             <div className="space-y-2 text-center">
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+              <h2 className="text-foreground text-2xl font-semibold tracking-tight">
                 Something went wrong
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {process.env.NODE_ENV === 'development'
                   ? 'An error occurred in the application. Check the console for more details.'
                   : 'An unexpected error occurred. Please try again or contact support if the problem persists.'}
@@ -123,29 +123,31 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             {/* Error Details (Development Only) */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <div className="space-y-2">
-                <details className="rounded-md border border-destructive/30 bg-destructive/5 p-3">
-                  <summary className="cursor-pointer text-sm font-medium text-destructive">
+                <details className="border-destructive/30 bg-destructive/5 rounded-md border p-3">
+                  <summary className="text-destructive cursor-pointer text-sm font-medium">
                     Error Details
                   </summary>
                   <div className="mt-3 space-y-2">
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground">Message:</p>
-                      <p className="text-xs font-mono text-foreground break-words">
+                      <p className="text-muted-foreground text-xs font-semibold">Message:</p>
+                      <p className="text-foreground font-mono text-xs break-words">
                         {this.state.error.message}
                       </p>
                     </div>
                     {this.state.error.stack && (
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground">Stack Trace:</p>
-                        <pre className="mt-1 max-h-40 overflow-auto text-[10px] leading-tight text-foreground/80">
+                        <p className="text-muted-foreground text-xs font-semibold">Stack Trace:</p>
+                        <pre className="text-foreground/80 mt-1 max-h-40 overflow-auto text-[10px] leading-tight">
                           {this.state.error.stack}
                         </pre>
                       </div>
                     )}
                     {this.state.errorInfo?.componentStack && (
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground">Component Stack:</p>
-                        <pre className="mt-1 max-h-40 overflow-auto text-[10px] leading-tight text-foreground/80">
+                        <p className="text-muted-foreground text-xs font-semibold">
+                          Component Stack:
+                        </p>
+                        <pre className="text-foreground/80 mt-1 max-h-40 overflow-auto text-[10px] leading-tight">
                           {this.state.errorInfo.componentStack}
                         </pre>
                       </div>
@@ -157,19 +159,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                onClick={this.handleReset}
-                className="flex-1"
-                variant="default"
-              >
+              <Button onClick={this.handleReset} className="flex-1" variant="default">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Try Again
               </Button>
-              <Button
-                onClick={this.handleGoHome}
-                className="flex-1"
-                variant="outline"
-              >
+              <Button onClick={this.handleGoHome} className="flex-1" variant="outline">
                 <Home className="mr-2 h-4 w-4" />
                 Go Home
               </Button>
@@ -177,12 +171,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             {/* Support Information */}
             {process.env.NODE_ENV === 'production' && (
-              <div className="rounded-md bg-muted/50 p-3 text-center">
-                <p className="text-xs text-muted-foreground">
+              <div className="bg-muted/50 rounded-md p-3 text-center">
+                <p className="text-muted-foreground text-xs">
                   If this error persists, please contact{' '}
                   <a
                     href="mailto:support@fleetmanagement.com"
-                    className="font-medium text-primary hover:underline"
+                    className="text-primary font-medium hover:underline"
                   >
                     support@fleetmanagement.com
                   </a>

@@ -18,6 +18,8 @@ if (error) {
 } else {
   console.log(`Found ${pilots.length} pilots:\n`)
   pilots.forEach((p, i) => {
-    console.log(`${i+1}. ${p.first_name} ${p.last_name} (${p.rank}) - Employee ID: ${p.employee_id} - Pilot ID: ${p.id}`)
+    console.log(
+      `${i + 1}. ${p.first_name} ${p.last_name} (${p.rank}) - Employee ID: ${p.employee_id} - Pilot ID: ${p.id}`
+    )
   })
 }

@@ -55,7 +55,7 @@ async function testReportGeneration() {
       try {
         const report = {
           id: reportId,
-          apiEndpoint: '/api/reports/certifications/all'
+          apiEndpoint: '/api/reports/certifications/all',
         }
 
         const res = await fetch(report.apiEndpoint, {
@@ -65,8 +65,8 @@ async function testReportGeneration() {
           },
           body: JSON.stringify({
             format: 'csv',
-            parameters: {}
-          })
+            parameters: {},
+          }),
         })
 
         const contentType = res.headers.get('content-type')
@@ -78,12 +78,12 @@ async function testReportGeneration() {
           contentType,
           body: contentType?.includes('application/json')
             ? await res.json()
-            : await res.text().then(t => t.substring(0, 200))
+            : await res.text().then((t) => t.substring(0, 200)),
         }
       } catch (error) {
         return {
           ok: false,
-          error: error.message
+          error: error.message,
         }
       }
     }, firstReportId)
@@ -100,7 +100,6 @@ async function testReportGeneration() {
       console.log('❌ FAILED - Report generation failed')
       console.log('   Error:', response.body)
     }
-
   } catch (error) {
     console.error('❌ Test failed:', error.message)
     await page.screenshot({ path: 'test-screenshots/error.png', fullPage: true })

@@ -5,18 +5,22 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseServiceKey) {
   console.error('❌ SUPABASE_SERVICE_ROLE_KEY not found in environment')
-  console.log('ℹ️  Using anon key instead (RLS will block inserts, but constraints can still be tested)')
+  console.log(
+    'ℹ️  Using anon key instead (RLS will block inserts, but constraints can still be tested)'
+  )
   console.log()
 }
 
-const supabaseKey = supabaseServiceKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
+const supabaseKey =
+  supabaseServiceKey ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnZG1ndm9ucXlzZmx3ZGlpb2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1ODIzMjAsImV4cCI6MjA3MTE1ODMyMH0.MJrbK8qtJLJXz_mSHF9Le_DebGCXfZ4eXFd7h5JCKyk'
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 console.log('🧪 COMPREHENSIVE CHECK CONSTRAINT VERIFICATION')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log('📋 TODO #039: Add Database Check Constraints for Data Validation')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log()
 
 // Get test data
@@ -30,7 +34,9 @@ if (!pilotId || !userId) {
   console.log('⚠️  Missing test data (pilot or user), some tests will be skipped')
 }
 
-console.log(`Test Data: pilot_id=${pilotId?.substring(0, 8)}..., user_id=${userId?.substring(0, 8)}...`)
+console.log(
+  `Test Data: pilot_id=${pilotId?.substring(0, 8)}..., user_id=${userId?.substring(0, 8)}...`
+)
 console.log()
 
 let totalTests = 0
@@ -46,8 +52,8 @@ const runTest = async (testName, tableName, data, expectedConstraint) => {
 
   if (result.error) {
     const errorMsg = result.error.message.toLowerCase()
-    const isConstraintError = errorMsg.includes('check constraint') ||
-                             errorMsg.includes(expectedConstraint.toLowerCase())
+    const isConstraintError =
+      errorMsg.includes('check constraint') || errorMsg.includes(expectedConstraint.toLowerCase())
     const isRLSError = errorMsg.includes('row-level security')
 
     if (isConstraintError || isRLSError) {
@@ -70,7 +76,7 @@ const runTest = async (testName, tableName, data, expectedConstraint) => {
 }
 
 console.log('SECTION 1: LEAVE REQUESTS CONSTRAINTS')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log()
 
 if (pilotId) {
@@ -85,7 +91,7 @@ if (pilotId) {
       status: 'PENDING',
       request_type: 'RDO',
       request_method: 'EMAIL',
-      submission_type: 'admin'
+      submission_type: 'admin',
     },
     'leave_requests_dates_valid'
   )
@@ -101,7 +107,7 @@ if (pilotId) {
       status: 'PENDING',
       request_type: 'RDO',
       request_method: 'EMAIL',
-      submission_type: 'admin'
+      submission_type: 'admin',
     },
     'leave_requests_days_positive'
   )
@@ -117,7 +123,7 @@ if (pilotId) {
       status: 'PENDING',
       request_type: 'RDO',
       request_method: 'EMAIL',
-      submission_type: 'admin'
+      submission_type: 'admin',
     },
     'leave_requests_days_positive'
   )
@@ -133,7 +139,7 @@ if (pilotId) {
       status: 'PENDING',
       request_type: 'RDO',
       request_method: 'EMAIL',
-      submission_type: 'admin'
+      submission_type: 'admin',
     },
     'leave_requests_start_date_reasonable'
   )
@@ -149,14 +155,14 @@ if (pilotId) {
       status: 'PENDING',
       request_type: 'ANNUAL',
       request_method: 'EMAIL',
-      submission_type: 'admin'
+      submission_type: 'admin',
     },
     'leave_requests_duration_reasonable'
   )
 }
 
 console.log('SECTION 2: FLIGHT REQUESTS CONSTRAINTS')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log()
 
 if (pilotId) {
@@ -168,14 +174,14 @@ if (pilotId) {
       request_type: 'ADDITIONAL_FLIGHT',
       flight_date: '2020-01-01',
       description: 'Test past date',
-      status: 'PENDING'
+      status: 'PENDING',
     },
     'flight_requests_date_not_past'
   )
 }
 
 console.log('SECTION 3: FEEDBACK POSTS CONSTRAINTS')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log()
 
 if (userId) {
@@ -186,7 +192,7 @@ if (userId) {
       pilot_user_id: userId,
       title: '   ',
       content: 'Valid content here that is long enough',
-      status: 'active'
+      status: 'active',
     },
     'feedback_posts_title_not_whitespace'
   )
@@ -198,14 +204,14 @@ if (userId) {
       pilot_user_id: userId,
       title: '  AB  ',
       content: 'Valid content here that is long enough',
-      status: 'active'
+      status: 'active',
     },
     'feedback_posts_title_not_whitespace'
   )
 }
 
 console.log('SECTION 4: NOTIFICATIONS CONSTRAINTS')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log()
 
 if (userId) {
@@ -217,7 +223,7 @@ if (userId) {
       title: '   ',
       message: 'Valid message',
       type: 'system_announcement',
-      recipient_type: 'admin'
+      recipient_type: 'admin',
     },
     'notifications_title_not_empty'
   )
@@ -230,14 +236,14 @@ if (userId) {
       title: 'Valid title',
       message: '   ',
       type: 'system_announcement',
-      recipient_type: 'admin'
+      recipient_type: 'admin',
     },
     'notifications_message_not_empty'
   )
 }
 
 console.log('SECTION 5: PILOT DATA CONSTRAINTS')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log()
 
 await runTest(
@@ -247,7 +253,7 @@ await runTest(
     name: 'Test Pilot',
     employee_number: 'TEST999',
     date_of_birth: '2030-01-01',
-    rank: 'Captain'
+    rank: 'Captain',
   },
   'pilots_dob_reasonable'
 )
@@ -259,7 +265,7 @@ await runTest(
     name: 'Test Pilot',
     employee_number: 'TEST998',
     date_of_birth: '1900-01-01',
-    rank: 'Captain'
+    rank: 'Captain',
   },
   'pilots_dob_reasonable'
 )
@@ -271,7 +277,7 @@ await runTest(
     name: 'Test Pilot',
     employee_number: 'TEST997',
     commencement_date: '2030-01-01',
-    rank: 'First Officer'
+    rank: 'First Officer',
   },
   'pilots_commencement_date_not_future'
 )
@@ -283,7 +289,7 @@ await runTest(
     name: 'Test Pilot',
     employee_number: 'TEST996',
     seniority_number: -5,
-    rank: 'Captain'
+    rank: 'Captain',
   },
   'pilots_seniority_number_positive'
 )
@@ -295,14 +301,14 @@ await runTest(
     name: 'Test Pilot',
     employee_number: 'TEST995',
     seniority_number: 0,
-    rank: 'Captain'
+    rank: 'Captain',
   },
   'pilots_seniority_number_positive'
 )
 
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log('📊 FINAL TEST SUMMARY')
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 console.log()
 console.log(`Total Tests:  ${totalTests}`)
 console.log(`✅ Passed:     ${passedTests}`)
@@ -337,5 +343,5 @@ if (failedTests === 0) {
   console.log()
 }
 
-console.log('=' .repeat(80))
+console.log('='.repeat(80))
 process.exit(failedTests > 0 ? 1 : 0)

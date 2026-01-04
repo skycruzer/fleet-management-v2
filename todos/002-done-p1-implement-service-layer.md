@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p1
-issue_id: "002"
+issue_id: '002'
 tags: [architecture, data-integrity, critical, blocking]
 dependencies: []
 ---
@@ -20,6 +20,7 @@ CLAUDE.md mandates service layer as Rule #1: "All database operations MUST use s
 - **Identified By**: All 6 review agents
 
 **Current State**:
+
 ```
 lib/
 ├── hooks/
@@ -29,6 +30,7 @@ lib/
 ```
 
 **Problem Scenario**:
+
 1. Without service layer, developers will make direct Supabase calls
 2. No centralized validation or business logic
 3. N+1 query patterns will emerge (fetch 27 pilots, then 27 individual certification queries)
@@ -38,6 +40,7 @@ lib/
 7. Data corruption inevitable as complexity grows
 
 **System Impact**:
+
 - Cannot implement seniority calculation (commencement_date sorting)
 - Cannot validate certification expiry dates
 - Cannot enforce leave eligibility rules (10 Captains/10 First Officers minimum)
@@ -52,6 +55,7 @@ lib/
 **Source**: `/Users/skycruzer/Desktop/Fleet Office Management/air-niugini-pms/src/lib/`
 
 **Required Services** (from CLAUDE.md lines 73-86):
+
 1. `pilot-service.ts` - Pilot CRUD with seniority calculation
 2. `certification-service.ts` - Certification tracking with expiry validation
 3. `leave-service.ts` - Leave request management
@@ -64,6 +68,7 @@ lib/
 10. `audit-service.ts` - Audit logging
 
 **Migration Steps**:
+
 1. Create `lib/services/` directory
 2. Copy service files from v1: `cp air-niugini-pms/src/lib/*-service.ts lib/services/`
 3. Update for Next.js 15 async patterns (`await cookies()`)
@@ -73,6 +78,7 @@ lib/
 7. Add comprehensive tests for each service
 
 **Example Service** (pilot-service.ts):
+
 ```typescript
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
@@ -99,30 +105,28 @@ export async function getPilotWithSeniority(id: string) {
     .select('id, commencement_date')
     .order('commencement_date', { ascending: true })
 
-  const seniorityNumber = allPilots?.findIndex(p => p.id === id) + 1
+  const seniorityNumber = allPilots?.findIndex((p) => p.id === id) + 1
 
-  const { data: pilot, error } = await supabase
-    .from('pilots')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const { data: pilot, error } = await supabase.from('pilots').select('*').eq('id', id).single()
 
   if (error) throw new Error(`Failed to fetch pilot: ${error.message}`)
 
   return {
     ...pilot,
-    seniority_number: seniorityNumber
+    seniority_number: seniorityNumber,
   }
 }
 ```
 
 **Pros**:
+
 - Proven implementation from production system
 - All business logic already implemented
 - Comprehensive coverage of requirements
 - Well-tested in v1
 
 **Cons**:
+
 - Requires migration effort
 - Need to update for Next.js 15 patterns
 
@@ -175,6 +179,7 @@ Port service layer from air-niugini-pms v1 as top priority. This is a **blocking
 **By:** Claude Triage System (all 6 agents)
 
 **Actions:**
+
 - Issue discovered during comprehensive code review
 - All 6 agents independently identified this as #1 critical issue
 - Categorized as P1 (CRITICAL) - blocks feature development
@@ -182,6 +187,7 @@ Port service layer from air-niugini-pms v1 as top priority. This is a **blocking
 - Marked as READY FOR IMPLEMENTATION
 
 **Learnings:**
+
 - Service layer is non-negotiable for data integrity
 - Direct database calls lead to N+1 queries and data corruption
 - Porting from v1 is faster than building from scratch

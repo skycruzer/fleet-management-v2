@@ -12,7 +12,11 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDeduplicatedSubmit, useDeduplicatedAction } from '@/lib/hooks/use-deduplicated-submit'
-import { deduplicatedFetch, requestDeduplicator, generateRequestKey } from '@/lib/request-deduplication'
+import {
+  deduplicatedFetch,
+  requestDeduplicator,
+  generateRequestKey,
+} from '@/lib/request-deduplication'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 
@@ -36,7 +40,7 @@ function PilotCountWidget() {
   if (isLoading) return <div>Loading...</div>
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white p-4 shadow">
       <h3 className="font-semibold">Active Pilots</h3>
       <p className="text-3xl font-bold">{data?.count || 0}</p>
     </div>
@@ -54,11 +58,13 @@ function PilotListWidget() {
   })
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white p-4 shadow">
       <h3 className="font-semibold">Pilot List</h3>
       <ul>
         {data?.data?.slice(0, 5).map((pilot: any) => (
-          <li key={pilot.id}>{pilot.first_name} {pilot.last_name}</li>
+          <li key={pilot.id}>
+            {pilot.first_name} {pilot.last_name}
+          </li>
         ))}
       </ul>
     </div>
@@ -213,11 +219,7 @@ export function DeletePilotButton({ pilotId }: { pilotId: string }) {
   )
 
   return (
-    <Button
-      onClick={handleAction}
-      disabled={isProcessing}
-      variant="destructive"
-    >
+    <Button onClick={handleAction} disabled={isProcessing} variant="destructive">
       {isProcessing ? 'Deleting...' : 'Delete'}
     </Button>
   )
@@ -235,54 +237,44 @@ export function LeaveRequestActions({ requestId }: { requestId: string }) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
-  const { handleAction: handleApprove, isProcessing: isApproving } =
-    useDeduplicatedAction(
-      async () => {
-        const response = await fetch(`/api/leave-requests/${requestId}/approve`, {
-          method: 'POST',
-        })
-        if (!response.ok) throw new Error('Approval failed')
+  const { handleAction: handleApprove, isProcessing: isApproving } = useDeduplicatedAction(
+    async () => {
+      const response = await fetch(`/api/leave-requests/${requestId}/approve`, {
+        method: 'POST',
+      })
+      if (!response.ok) throw new Error('Approval failed')
+    },
+    {
+      key: `approve-leave-${requestId}`,
+      onSuccess: () => {
+        toast({ title: 'Leave request approved' })
+        queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
       },
-      {
-        key: `approve-leave-${requestId}`,
-        onSuccess: () => {
-          toast({ title: 'Leave request approved' })
-          queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
-        },
-      }
-    )
+    }
+  )
 
-  const { handleAction: handleReject, isProcessing: isRejecting } =
-    useDeduplicatedAction(
-      async () => {
-        const response = await fetch(`/api/leave-requests/${requestId}/reject`, {
-          method: 'POST',
-        })
-        if (!response.ok) throw new Error('Rejection failed')
+  const { handleAction: handleReject, isProcessing: isRejecting } = useDeduplicatedAction(
+    async () => {
+      const response = await fetch(`/api/leave-requests/${requestId}/reject`, {
+        method: 'POST',
+      })
+      if (!response.ok) throw new Error('Rejection failed')
+    },
+    {
+      key: `reject-leave-${requestId}`,
+      onSuccess: () => {
+        toast({ title: 'Leave request rejected' })
+        queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
       },
-      {
-        key: `reject-leave-${requestId}`,
-        onSuccess: () => {
-          toast({ title: 'Leave request rejected' })
-          queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
-        },
-      }
-    )
+    }
+  )
 
   return (
     <div className="flex gap-2">
-      <Button
-        onClick={handleApprove}
-        disabled={isApproving || isRejecting}
-        variant="default"
-      >
+      <Button onClick={handleApprove} disabled={isApproving || isRejecting} variant="default">
         {isApproving ? 'Approving...' : 'Approve'}
       </Button>
-      <Button
-        onClick={handleReject}
-        disabled={isApproving || isRejecting}
-        variant="destructive"
-      >
+      <Button onClick={handleReject} disabled={isApproving || isRejecting} variant="destructive">
         {isRejecting ? 'Rejecting...' : 'Reject'}
       </Button>
     </div>
@@ -316,10 +308,7 @@ export function PilotUpdateButton({ pilotId }: { pilotId: string }) {
   })
 
   return (
-    <Button
-      onClick={() => mutation.mutate({ is_active: false })}
-      disabled={mutation.isPending}
-    >
+    <Button onClick={() => mutation.mutate({ is_active: false })} disabled={mutation.isPending}>
       {mutation.isPending ? 'Deactivating...' : 'Deactivate Pilot'}
     </Button>
   )
@@ -348,7 +337,7 @@ export function RequestMonitor() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-black text-white p-2 rounded text-sm">
+    <div className="fixed right-4 bottom-4 rounded bg-black p-2 text-sm text-white">
       Pending Requests: {pendingCount}
     </div>
   )
@@ -361,14 +350,11 @@ export function RequestMonitor() {
 /**
  * Server Action wrapper with deduplication
  */
-'use server'
+;('use server')
 
 import { createClient } from '@/lib/supabase/server'
 
-export async function updatePilotStatusAction(
-  pilotId: string,
-  isActive: boolean
-) {
+export async function updatePilotStatusAction(pilotId: string, isActive: boolean) {
   const key = generateRequestKey('UPDATE', `/pilots/${pilotId}`, { isActive })
 
   return requestDeduplicator.deduplicate(key, async () => {
@@ -389,7 +375,10 @@ export async function updatePilotStatusAction(
 /**
  * Component using the deduplicated server action
  */
-export function PilotStatusToggle({ pilotId, currentStatus }: {
+export function PilotStatusToggle({
+  pilotId,
+  currentStatus,
+}: {
   pilotId: string
   currentStatus: boolean
 }) {
@@ -404,11 +393,7 @@ export function PilotStatusToggle({ pilotId, currentStatus }: {
 
   return (
     <Button onClick={handleAction} disabled={isProcessing}>
-      {isProcessing
-        ? 'Updating...'
-        : currentStatus
-        ? 'Deactivate'
-        : 'Activate'}
+      {isProcessing ? 'Updating...' : currentStatus ? 'Deactivate' : 'Activate'}
     </Button>
   )
 }

@@ -6,31 +6,40 @@
 import { z } from 'zod'
 
 // Copy of validation schema
-const DateRangeSchema = z.object({
-  startDate: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  endDate: z.string().datetime().or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-}).refine(
-  (data) => {
-    const start = new Date(data.startDate)
-    const end = new Date(data.endDate)
-    return start <= end
-  },
-  {
-    message: 'Start date must be before or equal to end date',
-    path: ['startDate'],
-  }
-).refine(
-  (data) => {
-    const start = new Date(data.startDate)
-    const end = new Date(data.endDate)
-    const daysDiff = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
-    return daysDiff <= 365 * 2
-  },
-  {
-    message: 'Date range cannot exceed 2 years',
-    path: ['dateRange'],
-  }
-)
+const DateRangeSchema = z
+  .object({
+    startDate: z
+      .string()
+      .datetime()
+      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    endDate: z
+      .string()
+      .datetime()
+      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate)
+      const end = new Date(data.endDate)
+      return start <= end
+    },
+    {
+      message: 'Start date must be before or equal to end date',
+      path: ['startDate'],
+    }
+  )
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate)
+      const end = new Date(data.endDate)
+      const daysDiff = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+      return daysDiff <= 365 * 2
+    },
+    {
+      message: 'Date range cannot exceed 2 years',
+      path: ['dateRange'],
+    }
+  )
 
 const ReportFiltersSchema = z.object({
   dateRange: DateRangeSchema.optional(),
@@ -58,11 +67,11 @@ const testCases = [
       filters: {
         dateRange: {
           startDate: '2025-01-01',
-          endDate: '2025-01-31'
+          endDate: '2025-01-31',
         },
-        status: ['PENDING', 'APPROVED']
-      }
-    }
+        status: ['PENDING', 'APPROVED'],
+      },
+    },
   },
   {
     name: 'Flight report with roster periods',
@@ -70,23 +79,23 @@ const testCases = [
       reportType: 'flight-requests',
       filters: {
         rosterPeriods: ['RP1/2025', 'RP2/2025'],
-        status: ['SUBMITTED']
-      }
-    }
+        status: ['SUBMITTED'],
+      },
+    },
   },
   {
     name: 'Certification report with no filters',
     payload: {
       reportType: 'certifications',
-      filters: {}
-    }
+      filters: {},
+    },
   },
   {
     name: 'Report with empty filters (undefined)',
     payload: {
-      reportType: 'leave'
-    }
-  }
+      reportType: 'leave',
+    },
+  },
 ]
 
 console.log('🧪 Testing Report Validation\n')
@@ -100,10 +109,13 @@ for (const testCase of testCases) {
     console.log('Validated data:', JSON.stringify(result.data, null, 2))
   } else {
     console.log('❌ FAILED')
-    console.log('Errors:', result.error.issues.map(err => ({
-      path: err.path.join('.'),
-      message: err.message
-    })))
+    console.log(
+      'Errors:',
+      result.error.issues.map((err) => ({
+        path: err.path.join('.'),
+        message: err.message,
+      }))
+    )
   }
   console.log('')
 }

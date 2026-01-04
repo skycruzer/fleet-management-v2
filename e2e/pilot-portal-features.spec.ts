@@ -113,7 +113,10 @@ test.describe('Pilot Portal - New Features', () => {
     const timestamp = Date.now()
     await page.selectOption('select[name="category"]', 'System')
     await page.fill('input[name="subject"]', `Test Feedback ${timestamp}`)
-    await page.fill('textarea[name="message"]', `This is an automated test feedback submission at ${new Date().toISOString()}`)
+    await page.fill(
+      'textarea[name="message"]',
+      `This is an automated test feedback submission at ${new Date().toISOString()}`
+    )
 
     // Submit feedback
     await page.click('button[type="submit"]')
@@ -158,7 +161,10 @@ test.describe('Pilot Portal - New Features', () => {
     await page.waitForTimeout(2000)
 
     // Check if any feedback exists
-    const hasFeedback = await page.getByText('No Feedback Submitted Yet').isVisible().catch(() => false)
+    const hasFeedback = await page
+      .getByText('No Feedback Submitted Yet')
+      .isVisible()
+      .catch(() => false)
 
     if (!hasFeedback) {
       // Verify feedback cards show status badges
@@ -213,7 +219,10 @@ test.describe('Admin Portal - Feedback Response', () => {
 })
 
 test.describe('Integration Tests', () => {
-  test('10 - End-to-End: Feedback Submission → Admin Response → Pilot Notification', async ({ page, context }) => {
+  test('10 - End-to-End: Feedback Submission → Admin Response → Pilot Notification', async ({
+    page,
+    context,
+  }) => {
     // Step 1: Pilot submits feedback
     await page.goto('/portal/login')
     await page.fill('input[type="email"]', PILOT_EMAIL)
@@ -262,7 +271,9 @@ test.describe('Integration Tests', () => {
         await adminPage.waitForTimeout(1000)
 
         // Add response (if response form exists)
-        const responseField = adminPage.locator('textarea[name="adminResponse"], textarea[name="response"]')
+        const responseField = adminPage.locator(
+          'textarea[name="adminResponse"], textarea[name="response"]'
+        )
         if (await responseField.isVisible().catch(() => false)) {
           await responseField.fill('Thank you for your feedback. This has been resolved.')
 
@@ -288,7 +299,9 @@ test.describe('Integration Tests', () => {
     await page.waitForTimeout(2000)
 
     // Try to open notifications
-    const notificationBell = page.locator('[aria-label*="notification"], [role="button"]').filter({ hasText: /notification/i })
+    const notificationBell = page
+      .locator('[aria-label*="notification"], [role="button"]')
+      .filter({ hasText: /notification/i })
     if (await notificationBell.isVisible().catch(() => false)) {
       await notificationBell.click()
       await page.waitForTimeout(1000)

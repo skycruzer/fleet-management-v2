@@ -52,7 +52,9 @@ test.describe('Feedback System - Pilot Portal', () => {
 
     // Fill subject and message
     await page.getByLabel(/subject/i).fill('System Performance Feedback')
-    await page.getByLabel(/message|feedback/i).fill('The system has been performing very well. Great work!')
+    await page
+      .getByLabel(/message|feedback/i)
+      .fill('The system has been performing very well. Great work!')
 
     // Submit
     const formSubmitButton = page.getByRole('button', { name: /submit|send/i }).last()
@@ -70,7 +72,9 @@ test.describe('Feedback System - Pilot Portal', () => {
     await page.getByRole('option', { name: /operations/i }).click()
 
     await page.getByLabel(/subject/i).fill('Flight Scheduling Optimization')
-    await page.getByLabel(/message|feedback/i).fill('Suggest implementing automated roster optimization')
+    await page
+      .getByLabel(/message|feedback/i)
+      .fill('Suggest implementing automated roster optimization')
 
     const formSubmitButton = page.getByRole('button', { name: /submit|send/i }).last()
     await formSubmitButton.click()
@@ -86,7 +90,9 @@ test.describe('Feedback System - Pilot Portal', () => {
     await page.getByRole('option', { name: /safety/i }).click()
 
     await page.getByLabel(/subject/i).fill('Safety Procedure Update Needed')
-    await page.getByLabel(/message|feedback/i).fill('Emergency evacuation procedures should be reviewed')
+    await page
+      .getByLabel(/message|feedback/i)
+      .fill('Emergency evacuation procedures should be reviewed')
 
     const formSubmitButton = page.getByRole('button', { name: /submit|send/i }).last()
     await formSubmitButton.click()
@@ -120,7 +126,7 @@ test.describe('Feedback System - Pilot Portal', () => {
   test('should display feedback history', async ({ page }) => {
     // Check for submitted feedback
     const feedbackItems = page.getByTestId('feedback-item')
-    if (await feedbackItems.count() > 0) {
+    if ((await feedbackItems.count()) > 0) {
       await expect(feedbackItems.first()).toBeVisible()
     }
   })
@@ -191,7 +197,7 @@ test.describe('Feedback System - Admin Dashboard', () => {
     await expect(page.getByRole('heading', { name: /feedback/i })).toBeVisible()
 
     const feedbackItems = page.getByTestId('feedback-item')
-    if (await feedbackItems.count() > 0) {
+    if ((await feedbackItems.count()) > 0) {
       await expect(feedbackItems.first()).toBeVisible()
     }
   })
@@ -258,7 +264,7 @@ test.describe('Feedback System - Admin Dashboard', () => {
   test('should show anonymous submissions differently', async ({ page }) => {
     // Anonymous feedback should be indicated
     const anonymousIndicator = page.getByText(/anonymous/i)
-    if (await anonymousIndicator.count() > 0) {
+    if ((await anonymousIndicator.count()) > 0) {
       await expect(anonymousIndicator.first()).toBeVisible()
     }
   })

@@ -22,16 +22,12 @@ export default function SimpleAdminLogin() {
     setLoading(true)
 
     try {
-      console.log('Creating Supabase client...')
       const supabase = createClient()
 
-      console.log('Attempting login with:', email)
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
-
-      console.log('Login response:', { data, error })
 
       if (error) {
         setError(error.message)
@@ -40,7 +36,6 @@ export default function SimpleAdminLogin() {
       }
 
       if (data.session) {
-        console.log('Login successful, redirecting...')
         router.refresh()
         await new Promise((resolve) => setTimeout(resolve, 100))
         router.push('/dashboard')

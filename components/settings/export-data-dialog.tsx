@@ -205,7 +205,10 @@ export function ExportDataDialog({ open, onOpenChange }: ExportDataDialogProps) 
             <RadioGroup value={format} onValueChange={(value: any) => setFormat(value)}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="json" id="json" />
-                <Label htmlFor="json" className="flex cursor-pointer items-center gap-2 font-normal">
+                <Label
+                  htmlFor="json"
+                  className="flex cursor-pointer items-center gap-2 font-normal"
+                >
                   <FileJson className="h-4 w-4" />
                   JSON (Detailed, machine-readable)
                 </Label>
@@ -232,7 +235,7 @@ export function ExportDataDialog({ open, onOpenChange }: ExportDataDialogProps) 
                 />
                 <Label
                   htmlFor="profile"
-                  className="cursor-pointer font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="cursor-pointer leading-none font-normal peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Profile Information
                 </Label>

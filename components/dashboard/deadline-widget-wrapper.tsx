@@ -26,22 +26,21 @@ export function DeadlineWidgetWrapper({
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const handleReviewClick = useCallback((rosterPeriodCode: string) => {
-    // Create new URLSearchParams with roster period filter
-    const params = new URLSearchParams()
-    params.set('roster_period', rosterPeriodCode)
-    params.set('status', 'pending') // Show only pending requests
-    params.set('tab', 'leave') // Default to leave tab
+  const handleReviewClick = useCallback(
+    (rosterPeriodCode: string) => {
+      // Create new URLSearchParams with roster period filter
+      const params = new URLSearchParams()
+      params.set('roster_period', rosterPeriodCode)
+      params.set('status', 'pending') // Show only pending requests
+      params.set('tab', 'leave') // Default to leave tab
 
-    // Navigate to requests page with filters
-    router.push(`/dashboard/requests?${params.toString()}`)
-  }, [router])
+      // Navigate to requests page with filters
+      router.push(`/dashboard/requests?${params.toString()}`)
+    },
+    [router]
+  )
 
   return (
-    <DeadlineWidget
-      maxPeriods={maxPeriods}
-      compact={compact}
-      onReviewClick={handleReviewClick}
-    />
+    <DeadlineWidget maxPeriods={maxPeriods} compact={compact} onReviewClick={handleReviewClick} />
   )
 }

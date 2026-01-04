@@ -5,6 +5,7 @@ This directory contains reusable form components that eliminate duplication and 
 ## Overview
 
 All forms are built with:
+
 - **React Hook Form** - Form state management
 - **Zod** - Schema validation
 - **shadcn/ui** - UI components
@@ -20,8 +21,7 @@ Text input wrapper with label, validation, and error display.
 
 ```tsx
 import { FormFieldWrapper } from '@/components/forms'
-
-<FormFieldWrapper
+;<FormFieldWrapper
   name="first_name"
   label="First Name"
   placeholder="John"
@@ -31,13 +31,14 @@ import { FormFieldWrapper } from '@/components/forms'
 ```
 
 **Props:**
+
 - `name` (required): Field name in form data
 - `label` (required): Display label
 - `description`: Optional help text
 - `placeholder`: Placeholder text
 - `type`: Input type (text, email, password, number, tel, url)
 - `disabled`: Disable the field
-- `required`: Show required indicator (*)
+- `required`: Show required indicator (\*)
 - `className`: Additional CSS classes
 
 ### FormSelectWrapper
@@ -46,13 +47,12 @@ Dropdown select wrapper with options.
 
 ```tsx
 import { FormSelectWrapper } from '@/components/forms'
-
-<FormSelectWrapper
+;<FormSelectWrapper
   name="role"
   label="Rank"
   options={[
     { label: 'Captain', value: 'Captain' },
-    { label: 'First Officer', value: 'First Officer' }
+    { label: 'First Officer', value: 'First Officer' },
   ]}
   placeholder="Select rank"
   required
@@ -60,13 +60,14 @@ import { FormSelectWrapper } from '@/components/forms'
 ```
 
 **Props:**
+
 - `name` (required): Field name in form data
 - `label` (required): Display label
 - `options` (required): Array of `{ label, value }` objects
 - `description`: Optional help text
 - `placeholder`: Placeholder text
 - `disabled`: Disable the field
-- `required`: Show required indicator (*)
+- `required`: Show required indicator (\*)
 - `className`: Additional CSS classes
 
 ### FormTextareaWrapper
@@ -75,8 +76,7 @@ Multi-line text input with character count.
 
 ```tsx
 import { FormTextareaWrapper } from '@/components/forms'
-
-<FormTextareaWrapper
+;<FormTextareaWrapper
   name="notes"
   label="Notes"
   placeholder="Add notes..."
@@ -87,6 +87,7 @@ import { FormTextareaWrapper } from '@/components/forms'
 ```
 
 **Props:**
+
 - `name` (required): Field name in form data
 - `label` (required): Display label
 - `description`: Optional help text
@@ -94,7 +95,7 @@ import { FormTextareaWrapper } from '@/components/forms'
 - `rows`: Number of visible text rows (default: 4)
 - `maxLength`: Maximum character count
 - `disabled`: Disable the field
-- `required`: Show required indicator (*)
+- `required`: Show required indicator (\*)
 - `className`: Additional CSS classes
 
 ### FormCheckboxWrapper
@@ -103,8 +104,7 @@ Checkbox input with label.
 
 ```tsx
 import { FormCheckboxWrapper } from '@/components/forms'
-
-<FormCheckboxWrapper
+;<FormCheckboxWrapper
   name="is_active"
   label="Active Status"
   description="Is this pilot currently active?"
@@ -112,6 +112,7 @@ import { FormCheckboxWrapper } from '@/components/forms'
 ```
 
 **Props:**
+
 - `name` (required): Field name in form data
 - `label` (required): Display label
 - `description`: Optional help text
@@ -124,8 +125,7 @@ Date picker with calendar popup.
 
 ```tsx
 import { FormDatePickerWrapper } from '@/components/forms'
-
-<FormDatePickerWrapper
+;<FormDatePickerWrapper
   name="date_of_birth"
   label="Date of Birth"
   disableFuture
@@ -135,12 +135,13 @@ import { FormDatePickerWrapper } from '@/components/forms'
 ```
 
 **Props:**
+
 - `name` (required): Field name in form data
 - `label` (required): Display label
 - `description`: Optional help text
 - `placeholder`: Placeholder text (default: "Pick a date")
 - `disabled`: Disable the field
-- `required`: Show required indicator (*)
+- `required`: Show required indicator (\*)
 - `disableFuture`: Disable future dates
 - `disablePast`: Disable past dates
 - `className`: Additional CSS classes
@@ -155,8 +156,7 @@ Unified form for creating and editing pilots.
 
 ```tsx
 import { PilotForm } from '@/components/forms'
-
-<PilotForm
+;<PilotForm
   mode="create"
   onSubmit={async (data) => {
     await createPilot(data)
@@ -167,6 +167,7 @@ import { PilotForm } from '@/components/forms'
 ```
 
 **Props:**
+
 - `mode` (required): 'create' or 'edit'
 - `defaultValues`: Pre-populate form data (for edit mode)
 - `onSubmit` (required): Async function to handle form submission
@@ -174,6 +175,7 @@ import { PilotForm } from '@/components/forms'
 - `isLoading`: Show loading state
 
 **Features:**
+
 - Employee ID validation (6 digits)
 - Name validation (letters only)
 - Rank selection (Captain/First Officer)
@@ -189,8 +191,7 @@ Unified form for creating and editing certifications.
 
 ```tsx
 import { CertificationForm } from '@/components/forms'
-
-<CertificationForm
+;<CertificationForm
   mode="create"
   pilots={pilotOptions}
   checkTypes={checkTypeOptions}
@@ -203,6 +204,7 @@ import { CertificationForm } from '@/components/forms'
 ```
 
 **Props:**
+
 - `mode` (required): 'create' or 'edit'
 - `defaultValues`: Pre-populate form data (for edit mode)
 - `onSubmit` (required): Async function to handle form submission
@@ -213,6 +215,7 @@ import { CertificationForm } from '@/components/forms'
 - `showPilotSelect`: Show/hide pilot selection (default: true)
 
 **Features:**
+
 - Pilot selection (if showPilotSelect is true)
 - Check type selection
 - Completion date (cannot be in future)
@@ -226,8 +229,7 @@ Unified form for creating and editing leave requests.
 
 ```tsx
 import { LeaveRequestForm } from '@/components/forms'
-
-<LeaveRequestForm
+;<LeaveRequestForm
   mode="create"
   pilots={pilotOptions}
   showPilotSelect={true}
@@ -239,6 +241,7 @@ import { LeaveRequestForm } from '@/components/forms'
 ```
 
 **Props:**
+
 - `mode` (required): 'create' or 'edit'
 - `defaultValues`: Pre-populate form data (for edit mode)
 - `onSubmit` (required): Async function to handle form submission
@@ -248,6 +251,7 @@ import { LeaveRequestForm } from '@/components/forms'
 - `showPilotSelect`: Show/hide pilot selection (default: true)
 
 **Features:**
+
 - Pilot selection (if showPilotSelect is true)
 - Leave type selection (RDO, SDO, ANNUAL, SICK, LSL, LWOP, MATERNITY, COMPASSIONATE)
 - Request method (EMAIL, ORACLE, LEAVE_BIDS, SYSTEM)
@@ -324,8 +328,8 @@ export default function EditPilotPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     // Fetch pilot data
     fetch(`/api/pilots/${params.id}`)
-      .then(res => res.json())
-      .then(data => setPilot(data))
+      .then((res) => res.json())
+      .then((data) => setPilot(data))
   }, [params.id])
 
   const handleSubmit = async (data: PilotUpdate) => {
@@ -367,21 +371,25 @@ export default function EditPilotPage({ params }: { params: { id: string } }) {
 ## Benefits
 
 ### Code Reduction
+
 - **Before**: ~1,900 lines of duplicated form code
 - **After**: ~900 lines of reusable components
 - **Savings**: 52% reduction in code duplication
 
 ### Consistency
+
 - Single source of truth for validation rules
 - Consistent error messages across all forms
 - Unified styling and user experience
 
 ### Maintainability
+
 - Change validation logic in one place
 - Update UI components globally
 - Easier to add new features
 
 ### Type Safety
+
 - Full TypeScript integration
 - Zod schema validation
 - Compile-time type checking

@@ -12,6 +12,7 @@ This document describes the implementation of PostgreSQL transaction boundaries 
 ## Problem Statement
 
 Previously, multi-step database operations had no transaction boundaries, leading to:
+
 - **Data corruption**: Partial failures left database in inconsistent state
 - **Orphaned records**: Related records remained after parent deletion
 - **Race conditions**: Concurrent operations could interfere with each other
@@ -19,13 +20,14 @@ Previously, multi-step database operations had no transaction boundaries, leadin
 ### Examples of Vulnerable Operations
 
 **Before (❌ WRONG)**:
+
 ```typescript
 // If certification insert fails, pilot exists without certifications
 async function createPilotWithCertifications(pilotData, certifications) {
   const { data: pilot } = await supabase.from('pilots').insert(pilotData)
-  await supabase.from('pilot_checks').insert(
-    certifications.map(cert => ({ pilot_id: pilot.id, ...cert }))
-  )
+  await supabase
+    .from('pilot_checks')
+    .insert(certifications.map((cert) => ({ pilot_id: pilot.id, ...cert })))
 }
 ```
 
@@ -38,6 +40,7 @@ We implemented 5 PostgreSQL functions that provide atomic operations:
 **Purpose**: Atomically delete a pilot and all related records
 
 **Operations**:
+
 1. Delete all leave requests for pilot
 2. Delete all certifications for pilot
 3. Delete pilot record
@@ -46,6 +49,7 @@ We implemented 5 PostgreSQL functions that provide atomic operations:
 **Rollback**: If any step fails, all changes are rolled back
 
 **Service Integration**:
+
 ```typescript
 export async function deletePilot(pilotId: string): Promise<void> {
   const { data, error } = await supabase.rpc('delete_pilot_with_cascade', {
@@ -56,6 +60,7 @@ export async function deletePilot(pilotId: string): Promise<void> {
 ```
 
 **Benefits**:
+
 - No orphaned leave requests
 - No orphaned certifications
 - Guaranteed consistency
@@ -67,6 +72,7 @@ export async function deletePilot(pilotId: string): Promise<void> {
 **Purpose**: Atomically update multiple certifications
 
 **Operations**:
+
 1. Process each certification update
 2. Update only non-null fields
 3. Track success/failure counts
@@ -75,6 +81,7 @@ export async function deletePilot(pilotId: string): Promise<void> {
 **Rollback**: If any single update fails, all updates are rolled back
 
 **Service Integration**:
+
 ```typescript
 export async function batchUpdateCertifications(
   certifications: Array<{ id: string; updates: Partial<CertificationFormData> }>
@@ -96,6 +103,7 @@ export async function batchUpdateCertifications(
 ```
 
 **Benefits**:
+
 - All certifications update together or none update
 - No partial updates
 - Consistent expiry dates across batch
@@ -107,6 +115,7 @@ export async function batchUpdateCertifications(
 **Purpose**: Atomically approve/deny leave request and create audit log
 
 **Operations**:
+
 1. Validate status (APPROVED or DENIED)
 2. Capture request info before update
 3. Update leave request status
@@ -116,6 +125,7 @@ export async function batchUpdateCertifications(
 **Rollback**: If audit log creation fails, status update is rolled back
 
 **Service Integration**:
+
 ```typescript
 export async function updateLeaveRequestStatus(
   requestId: string,
@@ -139,6 +149,7 @@ export async function updateLeaveRequestStatus(
 ```
 
 **Benefits**:
+
 - Every status change is audited
 - No "silent" approvals
 - Complete audit trail
@@ -150,6 +161,7 @@ export async function updateLeaveRequestStatus(
 **Purpose**: Atomically create pilot and initial certifications
 
 **Operations**:
+
 1. Calculate seniority number
 2. Insert pilot record
 3. Insert all certifications
@@ -158,6 +170,7 @@ export async function updateLeaveRequestStatus(
 **Rollback**: If any certification insert fails, pilot creation is rolled back
 
 **Service Integration**:
+
 ```typescript
 export async function createPilotWithCertifications(
   pilotData: PilotFormData,
@@ -184,6 +197,7 @@ export async function createPilotWithCertifications(
 ```
 
 **Benefits**:
+
 - No pilots without certifications
 - Initial setup is atomic
 - Guaranteed data integrity
@@ -195,6 +209,7 @@ export async function createPilotWithCertifications(
 **Purpose**: Atomically delete multiple certifications
 
 **Operations**:
+
 1. Delete all certifications in one operation
 2. Track deleted count
 3. Return summary
@@ -202,6 +217,7 @@ export async function createPilotWithCertifications(
 **Rollback**: If any deletion fails, all deletions are rolled back
 
 **Service Integration**:
+
 ```typescript
 export async function bulkDeleteCertifications(
   certificationIds: string[]
@@ -218,6 +234,7 @@ export async function bulkDeleteCertifications(
 ```
 
 **Benefits**:
+
 - All deletions succeed together
 - No partial cleanup
 - Clean bulk operations
@@ -229,6 +246,7 @@ export async function bulkDeleteCertifications(
 **Location**: `supabase/migrations/20251017_add_transaction_boundaries.sql`
 
 **Contents**:
+
 - 5 PostgreSQL functions with transaction safety
 - Error handling and rollback logic
 - Audit trail generation
@@ -236,6 +254,7 @@ export async function bulkDeleteCertifications(
 - Function documentation
 
 **Deployment**:
+
 ```bash
 # Deploy to production
 npm run db:deploy
@@ -281,6 +300,7 @@ try {
 ```
 
 **Error Flow**:
+
 1. PostgreSQL function validates inputs
 2. Function performs operations
 3. On error, automatic rollback occurs
@@ -359,12 +379,14 @@ describe('Pilot Creation with Certifications', () => {
 ## Performance Considerations
 
 **Database Functions vs. Service Layer**:
+
 - ✅ **Fewer round trips**: Single RPC call vs. multiple queries
 - ✅ **Atomic operations**: Built-in transaction management
 - ✅ **Better performance**: Database-side processing
 - ✅ **Reduced network latency**: Less data over wire
 
 **Benchmarks**:
+
 - Pilot deletion: 3 queries → 1 RPC call (~60% faster)
 - Batch updates: N queries → 1 RPC call (~80% faster for N=10)
 - Leave approval: 2 queries + audit → 1 RPC call (~50% faster)
@@ -374,6 +396,7 @@ describe('Pilot Creation with Certifications', () => {
 ### Row Level Security (RLS)
 
 Database functions respect RLS policies:
+
 - Only authenticated users can execute functions
 - RLS policies apply to all underlying operations
 - No privilege escalation possible
@@ -381,6 +404,7 @@ Database functions respect RLS policies:
 ### Input Validation
 
 All functions validate inputs:
+
 - UUID format validation
 - Status enum validation
 - Required field checks
@@ -389,6 +413,7 @@ All functions validate inputs:
 ### Audit Trail
 
 Critical operations generate audit logs:
+
 - Leave approvals logged automatically
 - Pilot deletions logged with summary
 - All changes attributed to user

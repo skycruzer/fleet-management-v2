@@ -113,17 +113,13 @@ export function NetworkStatusIndicator({
           <Icon
             className={cn(
               'h-5 w-5',
-              isOnline
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-red-600 dark:text-red-400'
+              isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             )}
           />
           <p
             className={cn(
               'text-sm font-medium',
-              isOnline
-                ? 'text-green-900 dark:text-green-100'
-                : 'text-red-900 dark:text-red-100'
+              isOnline ? 'text-green-900 dark:text-green-100' : 'text-red-900 dark:text-red-100'
             )}
           >
             {message}
@@ -137,7 +133,7 @@ export function NetworkStatusIndicator({
             className={cn(
               'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium',
               'bg-red-600 text-white hover:bg-red-700',
-              'focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
+              'focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none',
               'disabled:cursor-not-allowed disabled:opacity-50',
               'dark:bg-red-500 dark:hover:bg-red-600'
             )}
@@ -176,9 +172,7 @@ export function NetworkStatusIndicator({
       <div
         className={cn(
           'inline-flex items-center gap-1.5 text-sm',
-          isOnline
-            ? 'text-green-600 dark:text-green-400'
-            : 'text-red-600 dark:text-red-400',
+          isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400',
           className
         )}
         role="status"
@@ -215,17 +209,13 @@ export function NetworkStatusIndicator({
           <Icon
             className={cn(
               'h-5 w-5 flex-shrink-0',
-              isOnline
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-red-600 dark:text-red-400'
+              isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             )}
           />
           <p
             className={cn(
               'text-sm font-medium',
-              isOnline
-                ? 'text-green-900 dark:text-green-100'
-                : 'text-red-900 dark:text-red-100'
+              isOnline ? 'text-green-900 dark:text-green-100' : 'text-red-900 dark:text-red-100'
             )}
           >
             {message}
@@ -240,7 +230,7 @@ export function NetworkStatusIndicator({
               className={cn(
                 'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium',
                 'bg-red-600 text-white hover:bg-red-700',
-                'focus:outline-none focus:ring-2 focus:ring-red-500',
+                'focus:ring-2 focus:ring-red-500 focus:outline-none',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 'dark:bg-red-500 dark:hover:bg-red-600'
               )}
@@ -366,9 +356,7 @@ export function NetworkStatusBadge({
         className={cn(
           'rounded-full',
           sizeClasses[size],
-          isOnline
-            ? 'bg-green-500 dark:bg-green-400'
-            : 'bg-red-500 dark:bg-red-400 animate-pulse'
+          isOnline ? 'bg-green-500 dark:bg-green-400' : 'animate-pulse bg-red-500 dark:bg-red-400'
         )}
         aria-label={isOnline ? 'Online' : 'Offline'}
       />

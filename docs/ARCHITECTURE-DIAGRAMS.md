@@ -1252,6 +1252,7 @@ These diagrams provide a visual representation of Fleet Management V2's architec
 - ✅ **PWA caching** - Intelligent caching strategies and offline support
 
 These Mermaid diagrams can be rendered in:
+
 - GitHub (native support)
 - GitLab (native support)
 - VS Code (with Mermaid extension)

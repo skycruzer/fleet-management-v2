@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
@@ -48,7 +49,7 @@ async function createTestRequests() {
   for (let i = 0; i < 8; i++) {
     const pilot = pilots[i % pilots.length]
     const startDate = new Date()
-    startDate.setDate(startDate.getDate() + (i * 7))
+    startDate.setDate(startDate.getDate() + i * 7)
     const endDate = new Date(startDate)
     endDate.setDate(endDate.getDate() + 3)
 
@@ -92,7 +93,7 @@ async function createTestRequests() {
   for (let i = 0; i < 8; i++) {
     const pilot = pilots[(i + 3) % pilots.length]
     const flightDate = new Date()
-    flightDate.setDate(flightDate.getDate() + (i * 5))
+    flightDate.setDate(flightDate.getDate() + i * 5)
 
     flightRequests.push({
       pilot_id: pilot.id,

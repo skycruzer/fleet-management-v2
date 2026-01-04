@@ -1,4 +1,5 @@
 # Database Audit Report
+
 **Fleet Management V2 - Phase 1.1**
 **Date**: October 27, 2025
 **Auditor**: Claude Code (Comprehensive Project Review)
@@ -13,6 +14,7 @@ The database audit of Fleet Management V2 reveals a **mature schema with 27 tabl
 **Overall Database Health Score**: 7.5/10
 
 ### Critical Findings Summary
+
 - **P0 Issues**: 3 (Schema-code mismatches causing TypeScript errors)
 - **P1 Issues**: 8 (Missing indexes, foreign key issues, function parameter mismatches)
 - **P2 Issues**: 12 (Performance optimizations, view dependencies)
@@ -36,6 +38,7 @@ Schema Type Lines:   3,837 lines (types/supabase.ts)
 ### 1.2 Core Tables (27 Total)
 
 #### Primary Tables
+
 1. **pilots** (27 records) - Pilot profiles, qualifications, seniority
 2. **pilot_checks** (607 records) - Certification tracking
 3. **check_types** (34 records) - Check type definitions
@@ -48,6 +51,7 @@ Schema Type Lines:   3,837 lines (types/supabase.ts)
 10. **notifications** - In-app notification system
 
 #### Supporting Tables
+
 11. **audit_logs** - Complete audit trail for all CRUD operations
 12. **contract_types** (3 records)
 13. **feedback_posts** - Pilot feedback system
@@ -60,6 +64,7 @@ Schema Type Lines:   3,837 lines (types/supabase.ts)
 ### 1.3 Database Views (18 Total)
 
 **Performance-Optimized Views:**
+
 - `expiring_checks` - Simplified expiring certifications
 - `detailed_expiring_checks` - Detailed certification expiry data
 - `compliance_dashboard` - Fleet-wide compliance metrics
@@ -78,6 +83,7 @@ Schema Type Lines:   3,837 lines (types/supabase.ts)
 ### 1.4 Database Functions (212 Total)
 
 **Critical Functions:**
+
 - `approve_leave_request(uuid, uuid, text)` - Leave approval with notifications
 - `submit_leave_request_tx(uuid, text, date, date, integer, text, text)` - Transaction-safe leave submission
 - `calculate_years_to_retirement(pilot_id)` - Retirement calculations
@@ -88,6 +94,7 @@ Schema Type Lines:   3,837 lines (types/supabase.ts)
 - `create_notification(uuid, notification_type, text, text, text)` - Notification system
 
 **Recent Fixes (Oct 27, 2025):**
+
 - Fixed notification_type enum values (was breaking notifications)
 - Fixed column name mismatches (check_types.name → check_description)
 - Dropped non-existent table references (crew_checks, crew_members, fleet_assignments)
@@ -121,12 +128,14 @@ All 11 migrations were applied on **October 27, 2025**:
 ### 2.2 Migration Issues Found
 
 #### **P0-001: Empty Migration File**
+
 - **File**: `20251027013738_drop_remaining_broken_functions.sql`
 - **Issue**: Migration file exists but contains 0 lines
 - **Impact**: May cause confusion in migration history
 - **Recommendation**: Remove file or add comment explaining why it's empty
 
 #### **P1-002: Duplicate Migration Logic**
+
 - **Files**:
   - `20251027013738_drop_remaining_broken_functions.sql` (0 lines)
   - `20251027013810_drop_all_remaining_broken_functions.sql` (92 lines)
@@ -135,6 +144,7 @@ All 11 migrations were applied on **October 27, 2025**:
 - **Recommendation**: Consolidate or clearly document purpose of each
 
 #### **P1-003: Massive Base Schema Migration**
+
 - **File**: `20251026234829_remote_schema.sql` (12,625 lines)
 - **Issue**: Single migration contains entire schema dump
 - **Impact**:
@@ -158,6 +168,7 @@ RLS Enabled:        Yes (via migration 20251027012419)
 ### 3.2 RLS Policy Coverage
 
 **✅ Properly Secured Tables:**
+
 - `pilots` - RLS enabled with read/write policies
 - `pilot_checks` - RLS enabled
 - `leave_requests` - RLS enabled
@@ -169,6 +180,7 @@ RLS Enabled:        Yes (via migration 20251027012419)
 **⚠️ Tables Requiring Review:**
 
 #### **P1-004: pilot_users Table RLS**
+
 - **Issue**: `pilot_users` table contains password_hash column
 - **Current State**: RLS enabled but policies need verification
 - **Risk**: Password hashes could be exposed if policies are misconfigured
@@ -176,6 +188,7 @@ RLS Enabled:        Yes (via migration 20251027012419)
 - **Location**: Migration `20251027012419_enable_rls_on_critical_tables.sql:214`
 
 #### **P1-005: an_users Table Security**
+
 - **Issue**: Admin user table with sensitive data
 - **Current State**: RLS policies exist but need verification
 - **Risk**: Unauthorized access to admin credentials
@@ -184,6 +197,7 @@ RLS Enabled:        Yes (via migration 20251027012419)
 ### 3.3 RLS Best Practices Compliance
 
 **✅ Following Best Practices:**
+
 - Using `auth.uid()` for user identification
 - Separate policies for SELECT, INSERT, UPDATE, DELETE
 - Role-based access control (admin, manager, pilot)
@@ -191,6 +205,7 @@ RLS Enabled:        Yes (via migration 20251027012419)
 **❌ Areas for Improvement:**
 
 #### **P2-006: Missing RLS Performance Indexes**
+
 - **Issue**: RLS policies use `auth.uid() = user_id` pattern without indexes
 - **Impact**: Slow query performance as policies filter rows
 - **Recommendation**: Add indexes on columns used in RLS policies:
@@ -232,6 +247,7 @@ notifications.user_id → auth.users.id
 ### 4.2 Foreign Key Issues
 
 #### **P0-007: Ambiguous Foreign Key in leave_requests**
+
 - **File**: `lib/services/leave-service.ts:169-221`
 - **Error**: `Could not embed because more than one relationship was found for 'pilots' and 'leave_requests'`
 - **Issue**: Table has both `pilot_id` and `pilot_user_id` referencing pilots
@@ -248,6 +264,7 @@ notifications.user_id → auth.users.id
   - Update service layer to use explicit hints
 
 #### **P1-008: Missing Foreign Key Constraints**
+
 - **Issue**: Some relationships may lack explicit FK constraints
 - **Tables to Review**:
   - `leave_bids.pilot_user_id`
@@ -257,6 +274,7 @@ notifications.user_id → auth.users.id
 - **Recommendation**: Add explicit FK constraints with appropriate ON DELETE behavior
 
 #### **P2-009: Cascading Delete Concerns**
+
 - **Issue**: No clear documentation of cascading delete behavior
 - **Risk**: Deleting a pilot could orphan leave requests, certifications, etc.
 - **Recommendation**: Document cascading delete strategy:
@@ -276,6 +294,7 @@ notifications.user_id → auth.users.id
 ### 5.1 Missing Indexes
 
 #### **P1-010: Missing Index on pilot_checks.expiry_date**
+
 - **Query**: Frequently queried for expiring certifications
 - **Impact**: Full table scans on 607 records (will grow)
 - **Recommendation**:
@@ -286,6 +305,7 @@ notifications.user_id → auth.users.id
   ```
 
 #### **P1-011: Missing Index on leave_requests.status**
+
 - **Query**: Filtered by status (PENDING, APPROVED, DENIED) in multiple views
 - **Impact**: Slow dashboard loading
 - **Recommendation**:
@@ -294,6 +314,7 @@ notifications.user_id → auth.users.id
   ```
 
 #### **P1-012: Missing Composite Index on leave_requests (pilot_id, status)**
+
 - **Query**: Pilot-specific leave request filtering
 - **Impact**: Inefficient queries in pilot portal
 - **Recommendation**:
@@ -303,6 +324,7 @@ notifications.user_id → auth.users.id
   ```
 
 #### **P2-013: Missing Index on pilots.role**
+
 - **Query**: Frequent filtering by Captain/First Officer
 - **Impact**: Leave eligibility calculations slower than necessary
 - **Recommendation**:
@@ -311,6 +333,7 @@ notifications.user_id → auth.users.id
   ```
 
 #### **P2-014: Missing Index on notifications.read_at**
+
 - **Query**: Unread notifications filtered by `read_at IS NULL`
 - **Impact**: Slow notification badge counts
 - **Recommendation**:
@@ -323,6 +346,7 @@ notifications.user_id → auth.users.id
 ### 5.2 Index Maintenance
 
 #### **P3-015: No Index Monitoring**
+
 - **Issue**: No automated index usage monitoring
 - **Impact**: Cannot identify unused indexes or missing indexes
 - **Recommendation**: Add Supabase index monitoring queries to admin dashboard
@@ -334,21 +358,25 @@ notifications.user_id → auth.users.id
 ### 6.1 Check Constraints
 
 **✅ Existing Constraints:**
+
 - `pilots.role IN ('Captain', 'First Officer')`
 - `leave_requests.status IN ('PENDING', 'APPROVED', 'DENIED')`
 - `pilot_checks.expiry_date > issue_date`
 
 #### **P1-013: Missing NOT NULL Constraints**
+
 - **Issue**: Several critical columns allow NULL when they shouldn't
 - **Examples from TypeScript errors**:
+
   ```typescript
   // app/dashboard/admin/pilot-registrations/page.tsx:102
   // Type 'string | null' is not assignable to type 'string'
-  rank: string | null  // Should be NOT NULL
+  rank: string | null // Should be NOT NULL
 
   // app/dashboard/flight-requests/page.tsx:131
-  pilot_id: string | null  // Should be NOT NULL
+  pilot_id: string | null // Should be NOT NULL
   ```
+
 - **Impact**: Type safety issues, potential runtime errors
 - **Recommendation**: Add NOT NULL constraints to required fields:
   ```sql
@@ -358,6 +386,7 @@ notifications.user_id → auth.users.id
   ```
 
 #### **P2-016: Missing leave_bids.bid_year Column**
+
 - **File**: `app/api/admin/leave-bids/review/route.ts:100`
 - **Error**: `Property 'bid_year' does not exist on 'leave_bids'`
 - **Issue**: TypeScript types expect `bid_year` column that doesn't exist in database
@@ -370,6 +399,7 @@ notifications.user_id → auth.users.id
 ### 6.2 Enum Type Consistency
 
 **✅ Properly Defined Enums:**
+
 ```typescript
 notification_type: [
   'leave_request_approved',
@@ -384,6 +414,7 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ```
 
 #### **P0-008: notification_type Enum Mismatch (FIXED)**
+
 - **Status**: ✅ Fixed in migration `20251027020000_final_database_cleanup.sql:68`
 - **Previous Issue**: Functions used incorrect enum values
 - **Fix Applied**: Corrected to use `'leave_request_approved'::notification_type`
@@ -409,12 +440,14 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ### 7.2 View Performance
 
 #### **P2-017: Complex View Dependencies**
+
 - **Issue**: Multiple views depend on other views (view chaining)
 - **Example**: `compliance_dashboard` → `expiring_checks` → `pilot_checks`
 - **Impact**: Query performance degradation, harder to optimize
 - **Recommendation**: Consider materializing frequently-accessed views
 
 #### **P2-018: Missing View Indexes**
+
 - **Issue**: Views don't have indexes (PostgreSQL limitation)
 - **Impact**: Queries on views can be slow
 - **Recommendation**: Create indexes on underlying tables to benefit view queries
@@ -426,6 +459,7 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ### 8.1 Function Parameter Issues
 
 #### **P1-014: Parameter Name Mismatch in certification-service**
+
 - **File**: `lib/services/certification-service.ts:570`
 - **Error**: `certification_ids does not exist, did you mean p_certification_ids?`
 - **Issue**: Function expects `p_certification_ids` but service passes `certification_ids`
@@ -433,6 +467,7 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 - **Recommendation**: Update service to use correct parameter name
 
 #### **P1-015: Parameter Mismatch in leave-service**
+
 - **File**: `lib/services/leave-service.ts:355`
 - **Error**: `p_reviewer_id does not exist in function signature`
 - **Issue**: Function signature doesn't include `p_reviewer_id` parameter
@@ -444,12 +479,14 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ### 8.2 Function Security
 
 **✅ Proper Use of SECURITY DEFINER:**
+
 - Functions that modify RLS-protected tables use `SECURITY DEFINER`
 - Functions properly set `search_path` to prevent injection
 
 **⚠️ Potential Issue:**
 
 #### **P2-019: SECURITY DEFINER View Concerns**
+
 - **Migration**: `20251027014334_fix_security_definer_view.sql`
 - **Issue**: Views using `SECURITY DEFINER` were identified as problematic
 - **Impact**: Potential privilege escalation
@@ -463,11 +500,13 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ### 9.1 TypeScript Type Generation
 
 **Current State:**
+
 - Types generated in `types/supabase.ts` (3,837 lines)
 - Last generation: Unknown (should be tracked)
 - **59 TypeScript compilation errors** due to schema mismatches
 
 #### **P0-009: Schema-TypeScript Type Mismatches**
+
 - **Severity**: CRITICAL - Blocks production build
 - **Errors**: 59 TypeScript compilation errors
 - **Root Causes**:
@@ -476,6 +515,7 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
   3. `system_settings` table referenced but doesn't exist in types
   4. Column name mismatches (e.g., `reviewer_comments` vs `review_comments`)
 - **Immediate Actions Required**:
+
   ```bash
   # 1. Regenerate types from current schema
   npm run db:types
@@ -487,6 +527,7 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ### 9.2 Service Layer Issues
 
 #### **P1-016: Direct Supabase Calls in API Routes**
+
 - **Pattern**: Some API routes bypass service layer
 - **Files**: 30+ instances found (see grep output)
 - **Examples**:
@@ -509,11 +550,13 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ### 10.1 Migration Rollback Strategy
 
 #### **P2-020: No Rollback Scripts**
+
 - **Issue**: Migrations lack corresponding rollback scripts
 - **Impact**: Cannot easily revert problematic migrations
 - **Recommendation**: Create `down` migrations for each `up` migration
 
 #### **P2-021: No Migration Testing**
+
 - **Issue**: No automated testing of migrations before production
 - **Recommendation**: Add migration testing to CI/CD:
   ```bash
@@ -601,6 +644,7 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ## 12. Database Health Metrics
 
 ### Current State
+
 ```
 ✅ Schema Completeness:      95% (27/27 tables have proper structure)
 ⚠️  Type Synchronization:    70% (59 TypeScript errors)
@@ -615,12 +659,14 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ### Overall Grade: **B- (7.5/10)**
 
 **Strengths:**
+
 - Comprehensive RLS policy coverage
 - Excellent service layer architecture
 - N+1 query prevention implemented
 - Recent migration cleanup efforts
 
 **Weaknesses:**
+
 - 59 TypeScript compilation errors (critical)
 - Missing performance indexes
 - Schema-code drift
@@ -631,6 +677,7 @@ leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID']
 ## Appendix A: Schema Statistics
 
 ### Table Row Counts
+
 ```
 pilots:                27 records
 pilot_checks:          607 records
@@ -642,6 +689,7 @@ notifications:         Unknown (active table)
 ```
 
 ### Function Categories
+
 ```
 Leave Management:      15 functions
 Certification:         22 functions
@@ -652,6 +700,7 @@ Utility:               137 functions
 ```
 
 ### View Categories
+
 ```
 Performance Views:     8 views
 Compliance Views:      4 views
@@ -663,32 +712,35 @@ Reporting Views:       6 views
 ## Appendix B: Critical Queries to Review
 
 ### Query 1: Leave Request Fetching
+
 ```typescript
 // lib/services/leave-service.ts:169
 // Issue: Ambiguous foreign key relationship
 const { data } = await supabase
   .from('leave_requests')
-  .select('*, pilots(*)')  // ❌ Ambiguous
+  .select('*, pilots(*)') // ❌ Ambiguous
 
-// Fix:
-.select('*, pilots!pilot_id(*)')  // ✅ Explicit
+  // Fix:
+  .select('*, pilots!pilot_id(*)') // ✅ Explicit
 ```
 
 ### Query 2: Certification Batch Update
+
 ```typescript
 // lib/services/certification-service.ts:570
 // Issue: Wrong parameter name
 const result = await supabase.rpc('batch_update_certifications', {
-  certification_ids: ids  // ❌ Should be p_certification_ids
+  certification_ids: ids, // ❌ Should be p_certification_ids
 })
 ```
 
 ### Query 3: System Settings Query
+
 ```typescript
 // app/portal/(protected)/dashboard/page.tsx:86
 // Issue: Table doesn't exist in types
 const { data } = await supabase
-  .from('system_settings')  // ❌ Not in Database type
+  .from('system_settings') // ❌ Not in Database type
   .select('pilot_retirement_age')
 ```
 

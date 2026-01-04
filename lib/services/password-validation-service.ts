@@ -88,9 +88,7 @@ export async function validatePassword(
 
   // Check minimum length
   if (password.length < PASSWORD_CONFIG.MIN_LENGTH) {
-    errors.push(
-      `Password must be at least ${PASSWORD_CONFIG.MIN_LENGTH} characters long`
-    )
+    errors.push(`Password must be at least ${PASSWORD_CONFIG.MIN_LENGTH} characters long`)
     suggestions.push('Use a longer passphrase with multiple words')
   } else {
     strength.length = true
@@ -121,10 +119,7 @@ export async function validatePassword(
   }
 
   // Check special characters
-  if (
-    PASSWORD_CONFIG.REQUIRE_SPECIAL &&
-    !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
-  ) {
+  if (PASSWORD_CONFIG.REQUIRE_SPECIAL && !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
     errors.push('Password must contain at least one special character')
     suggestions.push('Add special characters (!@#$%^&*)')
   } else {
@@ -328,36 +323,39 @@ function checkCommonPassword(password: string): boolean {
  * @param userId - User ID
  * @returns True if password was previously used
  */
-async function checkPasswordHistory(
-  password: string,
-  userId: string
-): Promise<boolean> {
+async function checkPasswordHistory(password: string, userId: string): Promise<boolean> {
   try {
     const supabase = await createClient()
 
     // Get user's password history
-    const { data: history, error } = await supabase
-      .from('password_history' as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: history, error } = await (supabase.from('password_history') as any)
       .select('password_hash')
-      .eq('user_id', userId)
+      .eq('pilot_user_id', userId)
       .order('created_at', { ascending: false })
       .limit(5) // Check last 5 passwords
 
     if (error) {
-      console.error('Error checking password history:', error)
-      return false // Don't block on error
+      // Table may not exist yet, don't block
+      return false
     }
 
     if (!history || history.length === 0) {
       return false
     }
 
-    // Simple comparison using bcrypt (in production)
-    // For now, we'll just return false as password_history table may not exist yet
-    // This will be implemented when the table is created
+    // Check if password matches any previous passwords using bcrypt
+    const bcrypt = require('bcryptjs')
+    for (const entry of history) {
+      const isMatch = await bcrypt.compare(password, entry.password_hash)
+      if (isMatch) {
+        return true // Password was used before
+      }
+    }
+
     return false
-  } catch (error) {
-    console.error('Error in checkPasswordHistory:', error)
+  } catch {
+    // Don't block password change on history check errors
     return false
   }
 }
@@ -382,10 +380,7 @@ export async function hashPassword(password: string): Promise<string> {
  * @param hash - Password hash
  * @returns True if password matches
  */
-export async function verifyPassword(
-  password: string,
-  hash: string
-): Promise<boolean> {
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   const bcrypt = require('bcryptjs')
   return await bcrypt.compare(password, hash)
 }
@@ -405,10 +400,11 @@ export async function savePasswordHistory(
     const supabase = await createClient()
 
     // Insert password hash into history
-    const { error } = await supabase.from('password_history' as any).insert({
-      user_id: userId,
+    // TODO: Regenerate types after password_history migration is applied (npm run db:types)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase.from('password_history') as any).insert({
+      pilot_user_id: userId,
       password_hash: passwordHash,
-      created_at: new Date().toISOString(),
     })
 
     if (error) {
@@ -445,20 +441,22 @@ async function cleanupPasswordHistory(userId: string): Promise<void> {
     const supabase = await createClient()
 
     // Get all password history for user
-    const { data: history } = await supabase
-      .from('password_history' as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: history } = await (supabase.from('password_history') as any)
       .select('id, created_at')
-      .eq('user_id', userId)
+      .eq('pilot_user_id', userId)
       .order('created_at', { ascending: false })
 
     if (history && history.length > 5) {
       // Delete all except the 5 most recent
-      const idsToDelete = (history as any).slice(5).map((h: any) => h.id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const idsToDelete = history.slice(5).map((h: any) => h.id)
 
-      await supabase.from('password_history' as any).delete().in('id', idsToDelete)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (supabase.from('password_history') as any).delete().in('id', idsToDelete)
     }
-  } catch (error) {
-    console.error('Error cleaning up password history:', error)
+  } catch {
+    // Silently fail - cleanup is not critical
   }
 }
 

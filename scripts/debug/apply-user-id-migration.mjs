@@ -13,14 +13,17 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
-    persistSession: false
-  }
+    persistSession: false,
+  },
 })
 
 console.log('=== Applying user_id Migration to pilots Table ===\n')
 
 // Read migration SQL
-const migrationSQL = readFileSync('./supabase/migrations/20251026_add_user_id_to_pilots.sql', 'utf-8')
+const migrationSQL = readFileSync(
+  './supabase/migrations/20251026_add_user_id_to_pilots.sql',
+  'utf-8'
+)
 
 console.log('Migration SQL:')
 console.log(migrationSQL)
@@ -39,7 +42,7 @@ if (error) {
   const statements = [
     'ALTER TABLE pilots ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL;',
     'CREATE INDEX IF NOT EXISTS idx_pilots_user_id ON pilots(user_id);',
-    "COMMENT ON COLUMN pilots.user_id IS 'Links pilot record to Supabase Auth user for portal access';"
+    "COMMENT ON COLUMN pilots.user_id IS 'Links pilot record to Supabase Auth user for portal access';",
   ]
 
   for (const [index, stmt] of statements.entries()) {

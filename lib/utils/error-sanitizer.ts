@@ -53,10 +53,7 @@ const isProduction = process.env.NODE_ENV === 'production'
  * @param context - Additional context for logging
  * @returns Sanitized error response
  */
-export function sanitizeError(
-  error: unknown,
-  context?: Record<string, unknown>
-): SanitizedError {
+export function sanitizeError(error: unknown, context?: Record<string, unknown>): SanitizedError {
   const errorId = nanoid(10)
 
   // Parse error details
@@ -203,10 +200,7 @@ function detectErrorType(error: Error): ErrorType {
   }
 
   // Rate limiting errors
-  if (
-    message.includes('rate limit') ||
-    message.includes('too many requests')
-  ) {
+  if (message.includes('rate limit') || message.includes('too many requests')) {
     return ErrorType.RATE_LIMIT
   }
 
@@ -258,16 +252,12 @@ function getStatusCodeForType(type: ErrorType): number {
 function getGenericErrorMessage(type: ErrorType): string {
   const genericMessages: Record<ErrorType, string> = {
     [ErrorType.DATABASE]: 'A database error occurred. Please try again later.',
-    [ErrorType.VALIDATION]:
-      'Invalid input. Please check your data and try again.',
-    [ErrorType.AUTHENTICATION]:
-      'Authentication failed. Please log in and try again.',
-    [ErrorType.AUTHORIZATION]:
-      'You do not have permission to perform this action.',
+    [ErrorType.VALIDATION]: 'Invalid input. Please check your data and try again.',
+    [ErrorType.AUTHENTICATION]: 'Authentication failed. Please log in and try again.',
+    [ErrorType.AUTHORIZATION]: 'You do not have permission to perform this action.',
     [ErrorType.RATE_LIMIT]: 'Too many requests. Please try again later.',
     [ErrorType.NOT_FOUND]: 'The requested resource was not found.',
-    [ErrorType.CONFLICT]:
-      'A conflict occurred. The resource may already exist.',
+    [ErrorType.CONFLICT]: 'A conflict occurred. The resource may already exist.',
     [ErrorType.UNKNOWN]: 'An unexpected error occurred. Please try again later.',
   }
 
@@ -296,11 +286,7 @@ function extractErrorDetails(error: Error): unknown {
 /**
  * Log error to monitoring service (Better Stack / Logtail)
  */
-function logError(
-  error: unknown,
-  errorId: string,
-  context?: Record<string, unknown>
-): void {
+function logError(error: unknown, errorId: string, context?: Record<string, unknown>): void {
   try {
     const errorDetails = parseError(error)
     const logger = getLogtail()
@@ -385,9 +371,7 @@ export function sanitizeDatabaseError(error: unknown): SanitizedError {
  *
  * Ensures validation errors don't leak internal structure
  */
-export function sanitizeValidationError(
-  errors: Record<string, string[]>
-): SanitizedError {
+export function sanitizeValidationError(errors: Record<string, string[]>): SanitizedError {
   const errorId = nanoid(10)
 
   // In development, return full validation errors
@@ -428,10 +412,7 @@ export function sanitizeValidationError(
  * }
  * ```
  */
-export function createErrorResponse(
-  error: unknown,
-  context?: Record<string, unknown>
-): Response {
+export function createErrorResponse(error: unknown, context?: Record<string, unknown>): Response {
   const sanitized = sanitizeError(error, context)
 
   return new Response(JSON.stringify(sanitized), {

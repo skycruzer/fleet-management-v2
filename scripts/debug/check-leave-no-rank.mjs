@@ -8,7 +8,9 @@ const supabase = createClient(
 // Check without rank field
 const { data, error } = await supabase
   .from('leave_requests')
-  .select('*, pilot:pilots!leave_requests_pilot_id_fkey(first_name, last_name, employee_number, role)')
+  .select(
+    '*, pilot:pilots!leave_requests_pilot_id_fkey(first_name, last_name, employee_number, role)'
+  )
   .limit(1)
 
 if (error) {

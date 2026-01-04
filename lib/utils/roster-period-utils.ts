@@ -40,9 +40,7 @@ export function getRosterPeriodForDate(date: Date): string {
   const { date: anchor, rosterPeriod: anchorRP, year: anchorYear } = ROSTER_PERIOD_ANCHOR
 
   // Calculate days since anchor
-  const daysSinceAnchor = Math.floor(
-    (date.getTime() - anchor.getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysSinceAnchor = Math.floor((date.getTime() - anchor.getTime()) / (1000 * 60 * 60 * 24))
 
   // Calculate roster period offset (each period is 28 days)
   const rosterPeriodOffset = Math.floor(daysSinceAnchor / ROSTER_PERIOD_DAYS)
@@ -188,10 +186,7 @@ export function getPreviousRosterPeriod(rosterPeriod: string): string | null {
  * @param endRP - End roster period "RPXX/YYYY"
  * @returns Number of days, or null if invalid
  */
-export function getDaysBetweenRosterPeriods(
-  startRP: string,
-  endRP: string
-): number | null {
+export function getDaysBetweenRosterPeriods(startRP: string, endRP: string): number | null {
   const startDate = getRosterPeriodStartDate(startRP)
   const endDate = getRosterPeriodEndDate(endRP)
 

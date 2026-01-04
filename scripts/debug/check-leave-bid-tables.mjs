@@ -15,7 +15,7 @@ for (const line of lines) {
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: { autoRefreshToken: false, persistSession: false }
+  auth: { autoRefreshToken: false, persistSession: false },
 })
 
 console.log('🔍 Checking leave bid related tables...\n')
@@ -25,7 +25,7 @@ const tablesToCheck = ['leave_bids', 'leave_bid_options']
 for (const table of tablesToCheck) {
   try {
     const { error } = await supabase.from(table).select('*', { count: 'exact', head: true })
-    
+
     if (!error) {
       console.log(`✅ ${table} - EXISTS`)
     } else if (error.code === '42P01') {

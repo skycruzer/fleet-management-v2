@@ -32,7 +32,8 @@ export function SupportContactButtons() {
   const [liveChatOpen, setLiveChatOpen] = useState(false)
 
   const handleEmailSupport = () => {
-    window.location.href = 'mailto:support@fleetmanagement.com?subject=Fleet Management Support Request'
+    window.location.href =
+      'mailto:support@fleetmanagement.com?subject=Fleet Management Support Request'
   }
 
   const handlePhoneSupport = () => {
@@ -119,13 +120,11 @@ export function SupportContactButtons() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Live Chat Support</DialogTitle>
-            <DialogDescription>
-              Connect with our support team in real-time
-            </DialogDescription>
+            <DialogDescription>Connect with our support team in real-time</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="rounded-lg border border-dashed p-8 text-center">
-              <MessageSquare className="mx-auto mb-4 h-12 w-12 text-primary" />
+              <MessageSquare className="text-primary mx-auto mb-4 h-12 w-12" />
               <h3 className="mb-2 text-lg font-semibold">Live Chat Coming Soon</h3>
               <p className="text-muted-foreground mb-4 text-sm">
                 Our live chat feature is currently under development. In the meantime, please use
