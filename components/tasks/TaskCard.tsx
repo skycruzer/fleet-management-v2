@@ -50,7 +50,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
   }
 
   const isOverdue = () => {
-    if (!task.due_date || task.status === 'DONE' || task.status === 'CANCELLED') {
+    if (!task.due_date || task.status === 'COMPLETED' || task.status === 'CANCELLED') {
       return false
     }
     const today = new Date()

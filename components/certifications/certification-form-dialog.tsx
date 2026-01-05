@@ -269,7 +269,7 @@ export function CertificationFormDialog({
                   <FormLabel>Pilot</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                     disabled={mode === 'edit'} // Can't change pilot after creation
                   >
                     <FormControl>
@@ -297,7 +297,7 @@ export function CertificationFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Check Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a check type" />

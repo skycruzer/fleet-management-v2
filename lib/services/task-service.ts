@@ -565,14 +565,14 @@ export async function getTaskStats(filters?: TaskFilters): Promise<ServiceRespon
     // Count by status
     const todoCount = tasks.filter((t) => t.status === 'TODO').length
     const inProgressCount = tasks.filter((t) => t.status === 'IN_PROGRESS').length
-    const doneCount = tasks.filter((t) => t.status === 'DONE').length
+    const doneCount = tasks.filter((t) => t.status === 'COMPLETED').length
     const cancelledCount = tasks.filter((t) => t.status === 'CANCELLED').length
 
     // Count overdue tasks (due_date < today AND status !== DONE)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const overdueCount = tasks.filter((t) => {
-      if (!t.due_date || t.status === 'DONE') return false
+      if (!t.due_date || t.status === 'COMPLETED') return false
       const dueDate = new Date(t.due_date)
       return dueDate < today
     }).length
