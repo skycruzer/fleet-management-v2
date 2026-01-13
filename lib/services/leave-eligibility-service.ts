@@ -197,8 +197,133 @@ export async function getCrewRequirements(): Promise<CrewRequirements> {
 // ===================================
 
 /**
+ * Result from atomic crew availability check
+ * Uses database-level row locking to prevent race conditions
+ */
+export interface AtomicCrewCheck {
+  totalPilots: number
+  onLeaveCount: number
+  available: number
+  minimumRequired: number
+  remainingAfterApproval: number
+  canApprove: boolean
+  reason: string
+}
+
+/**
+ * Atomically check crew availability with row-level locking
+ *
+ * CRITICAL: This function uses a PostgreSQL function with FOR UPDATE
+ * to prevent race conditions during concurrent leave approvals.
+ *
+ * Use this for approval decisions, not for display purposes.
+ *
+ * @param startDate - Start date of leave request (YYYY-MM-DD)
+ * @param endDate - End date of leave request (YYYY-MM-DD)
+ * @param excludeRequestId - Request ID to exclude from count (for updates)
+ * @returns Object with canApprove boolean and availability details for both roles
+ */
+export async function checkCrewAvailabilityAtomic(
+  startDate: string,
+  endDate: string,
+  excludeRequestId?: string
+): Promise<{
+  captains: AtomicCrewCheck
+  firstOfficers: AtomicCrewCheck
+  canApprove: boolean
+  reason: string
+}> {
+  const supabase = await createClient()
+
+  // Type for the atomic check result from PostgreSQL
+  type AtomicCheckResult = {
+    total_pilots: number
+    on_leave_count: number
+    available: number
+    minimum_required: number
+    remaining_after_approval: number
+    can_approve: boolean
+    reason: string
+  }
+
+  // Check Captains atomically with row locking
+  // Note: Using type assertion because TypeScript types are regenerated after migration
+  const { data: captainCheckData, error: captainError } = await supabase.rpc(
+    'check_crew_availability_atomic' as never,
+    {
+      p_pilot_role: 'Captain',
+      p_start_date: startDate,
+      p_end_date: endDate,
+      p_exclude_request_id: excludeRequestId || null,
+    } as never
+  )
+
+  if (captainError) {
+    console.error('Atomic crew check failed for Captains:', captainError)
+    throw new Error(`Failed to check Captain availability: ${captainError.message}`)
+  }
+
+  const captainCheck = captainCheckData as unknown as AtomicCheckResult
+
+  // Check First Officers atomically with row locking
+  const { data: foCheckData, error: foError } = await supabase.rpc(
+    'check_crew_availability_atomic' as never,
+    {
+      p_pilot_role: 'First Officer',
+      p_start_date: startDate,
+      p_end_date: endDate,
+      p_exclude_request_id: excludeRequestId || null,
+    } as never
+  )
+
+  if (foError) {
+    console.error('Atomic crew check failed for First Officers:', foError)
+    throw new Error(`Failed to check First Officer availability: ${foError.message}`)
+  }
+
+  const foCheck = foCheckData as unknown as AtomicCheckResult
+
+  const captains: AtomicCrewCheck = {
+    totalPilots: captainCheck.total_pilots,
+    onLeaveCount: captainCheck.on_leave_count,
+    available: captainCheck.available,
+    minimumRequired: captainCheck.minimum_required,
+    remainingAfterApproval: captainCheck.remaining_after_approval,
+    canApprove: captainCheck.can_approve,
+    reason: captainCheck.reason,
+  }
+
+  const firstOfficers: AtomicCrewCheck = {
+    totalPilots: foCheck.total_pilots,
+    onLeaveCount: foCheck.on_leave_count,
+    available: foCheck.available,
+    minimumRequired: foCheck.minimum_required,
+    remainingAfterApproval: foCheck.remaining_after_approval,
+    canApprove: foCheck.can_approve,
+    reason: foCheck.reason,
+  }
+
+  const canApprove = captains.canApprove && firstOfficers.canApprove
+  let reason = ''
+  if (!canApprove) {
+    const issues: string[] = []
+    if (!captains.canApprove) issues.push(`Captains: ${captains.reason}`)
+    if (!firstOfficers.canApprove) issues.push(`First Officers: ${firstOfficers.reason}`)
+    reason = issues.join('; ')
+  } else {
+    reason = 'Sufficient crew available for both roles'
+  }
+
+  return { captains, firstOfficers, canApprove, reason }
+}
+
+/**
  * Calculate crew availability for a specific date range
  * Considers approved and pending leave requests
+ *
+ * NOTE: This function is for DISPLAY purposes (calendar, reports).
+ * For approval decisions, use checkCrewAvailabilityAtomic() instead
+ * to prevent race conditions.
  */
 export async function calculateCrewAvailability(
   startDate: string,

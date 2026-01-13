@@ -74,6 +74,8 @@ export interface PilotFormData {
   nationality?: string | null
   passport_number?: string | null
   passport_expiry?: string | null
+  licence_type?: 'ATPL' | 'CPL' | null
+  licence_number?: string | null
   date_of_birth?: string | null
   commencement_date?: string | null
   seniority_number?: number | null
@@ -527,6 +529,8 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
           nationality: toNullIfEmpty(pilotData.nationality),
           passport_number: toNullIfEmpty(pilotData.passport_number),
           passport_expiry: toNullIfEmpty(pilotData.passport_expiry),
+          licence_type: toNullIfEmpty(pilotData.licence_type) as any,
+          licence_number: toNullIfEmpty(pilotData.licence_number),
           date_of_birth: toNullIfEmpty(pilotData.date_of_birth),
           commencement_date: commencementDate,
           seniority_number: seniorityNumber,
@@ -597,6 +601,8 @@ export async function createPilotWithCertifications(
       nationality: pilotData.nationality || null,
       passport_number: pilotData.passport_number || null,
       passport_expiry: pilotData.passport_expiry || null,
+      licence_type: pilotData.licence_type || null,
+      licence_number: pilotData.licence_number || null,
       date_of_birth: pilotData.date_of_birth || null,
       commencement_date: pilotData.commencement_date || null,
       is_active: pilotData.is_active,

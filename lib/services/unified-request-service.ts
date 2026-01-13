@@ -22,6 +22,7 @@ import {
   ensureRosterPeriodsExist,
 } from '@/lib/services/roster-period-service'
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
+import { checkCrewAvailabilityAtomic } from '@/lib/services/leave-eligibility-service'
 import { invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { logger } from '@/lib/services/logging-service'
@@ -633,6 +634,62 @@ export async function updateRequestStatus(
       return {
         success: false,
         error: 'Comments are required when denying a request',
+      }
+    }
+
+    // For LEAVE request approvals, check crew availability atomically
+    // This prevents race conditions where concurrent approvals could violate minimum crew requirements
+    if (status === 'APPROVED') {
+      // First, get the request details to check if it's a leave request
+      const { data: request, error: fetchError } = await supabase
+        .from('pilot_requests')
+        .select('id, request_category, start_date, end_date')
+        .eq('id', id)
+        .single()
+
+      if (fetchError || !request) {
+        return {
+          success: false,
+          error: 'Request not found',
+        }
+      }
+
+      // Check crew availability for LEAVE requests
+      if (request.request_category === 'LEAVE' && request.start_date && request.end_date) {
+        try {
+          const crewCheck = await checkCrewAvailabilityAtomic(
+            request.start_date,
+            request.end_date,
+            id // Exclude this request from the count
+          )
+
+          if (!crewCheck.canApprove) {
+            await logger.warn('Leave approval blocked - insufficient crew', {
+              source: 'unified-request-service:updateRequestStatus',
+              requestId: id,
+              reason: crewCheck.reason,
+              captainsAvailable: crewCheck.captains.available,
+              firstOfficersAvailable: crewCheck.firstOfficers.available,
+            })
+
+            return {
+              success: false,
+              error: `Cannot approve: ${crewCheck.reason}`,
+            }
+          }
+        } catch (crewCheckError) {
+          await logger.error('Crew availability check failed', {
+            source: 'unified-request-service:updateRequestStatus',
+            requestId: id,
+            error:
+              crewCheckError instanceof Error ? crewCheckError.message : String(crewCheckError),
+          })
+
+          return {
+            success: false,
+            error: 'Unable to verify crew availability. Please try again.',
+          }
+        }
       }
     }
 

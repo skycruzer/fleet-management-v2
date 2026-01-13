@@ -414,6 +414,34 @@ export function PilotOverviewTab({
         </Card>
       </motion.div>
 
+      {/* Licence Information */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.42 }}
+      >
+        <Card className="p-6 transition-all hover:shadow-md">
+          <div className="mb-4 flex items-center gap-3 border-b pb-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
+              <Plane className="h-5 w-5 text-purple-600" />
+            </div>
+            <h3 className="text-foreground text-lg font-semibold">Licence Information</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <InfoRow
+              icon={Award}
+              label="Licence Type"
+              value={pilot.licence_type || 'Not specified'}
+            />
+            <InfoRow
+              icon={FileText}
+              label="Licence Number"
+              value={pilot.licence_number || 'Not specified'}
+            />
+          </div>
+        </Card>
+      </motion.div>
+
       {/* Captain Qualifications (only for Captains) */}
       {pilot.role === 'Captain' && (
         <motion.div

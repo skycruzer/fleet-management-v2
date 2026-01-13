@@ -37,6 +37,8 @@ interface Pilot {
   nationality: string | null
   passport_number: string | null
   passport_expiry: string | null
+  licence_type: 'ATPL' | 'CPL' | null
+  licence_number: string | null
   contract_type: string | null
   captain_qualifications: any
 }
@@ -135,6 +137,8 @@ export default function EditPilotPage() {
             nationality: data.data.nationality || '',
             passport_number: data.data.passport_number || '',
             passport_expiry: formatDateForInput(data.data.passport_expiry),
+            licence_type: data.data.licence_type || undefined,
+            licence_number: data.data.licence_number || '',
             date_of_birth: formatDateForInput(data.data.date_of_birth),
             commencement_date: formatDateForInput(data.data.commencement_date),
             is_active: String(data.data.is_active) as any, // Convert boolean to string for radio buttons
@@ -530,6 +534,54 @@ export default function EditPilotPage() {
                 )}
                 <p className="text-muted-foreground text-xs">
                   Required if passport number is provided
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Licence Information Section */}
+          <div className="space-y-4">
+            <h3 className="text-foreground border-b pb-2 text-lg font-semibold">
+              Licence Information
+            </h3>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Licence Type */}
+              <div className="space-y-2">
+                <Label htmlFor="licence_type">Licence Type</Label>
+                <select
+                  id="licence_type"
+                  {...register('licence_type', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? v : null),
+                  })}
+                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">Select licence type...</option>
+                  <option value="ATPL">ATPL - Airline Transport Pilot</option>
+                  <option value="CPL">CPL - Commercial Pilot</option>
+                </select>
+                {errors.licence_type && (
+                  <p className="text-sm text-red-600">{errors.licence_type.message}</p>
+                )}
+              </div>
+
+              {/* Licence Number */}
+              <div className="space-y-2">
+                <Label htmlFor="licence_number">Licence Number</Label>
+                <Input
+                  id="licence_number"
+                  type="text"
+                  placeholder="e.g., ABC123456"
+                  {...register('licence_number', {
+                    setValueAs: (v) => (v && v.trim() !== '' ? v.toUpperCase() : null),
+                  })}
+                  className={errors.licence_number ? 'border-red-500' : ''}
+                />
+                {errors.licence_number && (
+                  <p className="text-sm text-red-600">{errors.licence_number.message}</p>
+                )}
+                <p className="text-muted-foreground text-xs">
+                  5-20 uppercase letters, numbers, or hyphens
                 </p>
               </div>
             </div>

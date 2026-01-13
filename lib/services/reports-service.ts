@@ -136,7 +136,6 @@ export async function generateLeaveReport(
 
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
@@ -144,23 +143,23 @@ export async function generateLeaveReport(
   // Note: workflow_status values are UPPERCASE in database (3-table architecture)
   const summary = {
     totalRequests: filteredData.length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
   }
 
@@ -254,34 +253,33 @@ export async function generateRdoSdoReport(
 
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
   // Calculate summary statistics (before pagination)
   const summary = {
     totalRequests: filteredData.length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     submitted: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'SUBMITTED')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     inReview: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'IN_REVIEW')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     approved: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'APPROVED')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     denied: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'DENIED').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     withdrawn: filteredData.filter((r: any) => r.workflow_status?.toUpperCase() === 'WITHDRAWN')
       .length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     rdoRequests: filteredData.filter((r: any) => r.request_type === 'RDO').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     sdoRequests: filteredData.filter((r: any) => r.request_type === 'SDO').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
   }
 
@@ -397,13 +395,12 @@ export async function generateCertificationsReport(
 
   let filteredData = data || []
   if (filters.rank && filters.rank.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = filteredData.filter((item: any) => filters.rank!.includes(item.pilot?.role))
   }
 
   // Calculate expiry and filter by threshold
   const today = new Date()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const dataWithExpiry = filteredData.map((cert: any) => {
     const expiryDate = new Date(cert.expiry_date)
     const daysUntilExpiry = Math.floor(
@@ -429,13 +426,13 @@ export async function generateCertificationsReport(
   // Calculate summary statistics (before pagination)
   const summary = {
     totalCertifications: finalData.length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     expired: finalData.filter((c: any) => c.isExpired).length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     expiringSoon: finalData.filter((c: any) => c.isExpiringSoon && !c.isExpired).length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     current: finalData.filter((c: any) => !c.isExpired && !c.isExpiringSoon).length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     uniquePilots: [...new Set(finalData.map((c: any) => c.pilot_id))].length,
   }
 
@@ -561,18 +558,17 @@ export async function generateAllRequestsReport(
   }
 
   // Combine all data with source tags
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const allRequests: any[] = [
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...(rdoSdoResult.data || []).map((r: any) => ({ ...r, request_source: 'RDO/SDO' })),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     ...(leaveResult.data || []).map((r: any) => ({ ...r, request_source: 'LEAVE' })),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     ...(leaveBidsResult.data || []).map((r: any) => ({ ...r, request_source: 'LEAVE_BID' })),
   ]
 
   // Sort by start_date (or created_at for leave bids)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   allRequests.sort((a: any, b: any) => {
     const dateA = new Date(a.start_date || a.created_at)
     const dateB = new Date(b.start_date || b.created_at)
@@ -582,18 +578,17 @@ export async function generateAllRequestsReport(
   // Filter by rank if needed
   let filteredData = allRequests
   if (filters.rank && filters.rank.length > 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     filteredData = allRequests.filter((item: any) => filters.rank!.includes(item.rank))
   }
 
   // Calculate summary statistics (before pagination)
   const summary = {
     totalRequests: filteredData.length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     rdoSdoRequests: filteredData.filter((r: any) => r.request_source === 'RDO/SDO').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     leaveRequests: filteredData.filter((r: any) => r.request_source === 'LEAVE').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     leaveBids: filteredData.filter((r: any) => r.request_source === 'LEAVE_BID').length,
 
     submitted: filteredData.filter(
@@ -615,9 +610,9 @@ export async function generateAllRequestsReport(
       (r: any) =>
         r.workflow_status?.toUpperCase() === 'DENIED' || r.status?.toUpperCase() === 'DENIED'
     ).length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     captainRequests: filteredData.filter((r: any) => r.rank === 'Captain').length,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     firstOfficerRequests: filteredData.filter((r: any) => r.rank === 'First Officer').length,
   }
 
@@ -697,7 +692,7 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
     autoTable(doc, {
       startY: yPos,
       head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Status', 'Roster Period']],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       body: report.data.map((item: any) => [
         item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
         item.rank || item.pilot?.role || 'N/A',
@@ -716,7 +711,7 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
       head: [
         ['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Days', 'Status', 'Roster Period'],
       ],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       body: report.data.map((item: any) => [
         item.name || 'N/A',
         item.rank || 'N/A',
@@ -736,7 +731,7 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
     autoTable(doc, {
       startY: yPos,
       head: [['Source', 'Pilot', 'Rank', 'Type', 'Start Date', 'Status', 'Roster Period']],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       body: report.data.map((item: any) => [
         item.request_source || 'N/A',
         item.name || 'N/A',
@@ -753,7 +748,7 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
     autoTable(doc, {
       startY: yPos,
       head: [['Pilot', 'Rank', 'Type', 'Flight Date', 'Description', 'Status']],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       body: report.data.map((item: any) => [
         `${item.pilot?.first_name} ${item.pilot?.last_name}`,
         item.pilot?.role || 'N/A',
@@ -769,7 +764,7 @@ export async function generatePDF(report: ReportData, reportType: ReportType): P
     autoTable(doc, {
       startY: yPos,
       head: [['Pilot', 'Rank', 'Check Type', 'Expiry', 'Days Until Expiry', 'Status']],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       body: report.data.map((item: any) => [
         `${item.pilot?.first_name} ${item.pilot?.last_name}`,
         item.pilot?.role || 'N/A',

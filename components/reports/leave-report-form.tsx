@@ -142,7 +142,6 @@ export function LeaveReportForm() {
       })
       setShouldFetchPreview(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewError])
 
   // Handle preview success
@@ -165,7 +164,6 @@ export function LeaveReportForm() {
         variant: 'destructive',
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exportMutation.isError, exportMutation.error])
 
   // Handle export mutation success
@@ -176,7 +174,6 @@ export function LeaveReportForm() {
         description: 'PDF has been downloaded successfully',
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.infer<typeof formSchema>) => {

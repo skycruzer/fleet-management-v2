@@ -170,7 +170,7 @@ export function useFocusManagement(options: UseFocusManagementOptions = {}) {
         returnFocus()
       }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   return {
     focusFirst,

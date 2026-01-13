@@ -328,7 +328,7 @@ async function checkPasswordHistory(password: string, userId: string): Promise<b
     const supabase = await createClient()
 
     // Get user's password history
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const { data: history, error } = await (supabase.from('password_history') as any)
       .select('password_hash')
       .eq('pilot_user_id', userId)
@@ -401,7 +401,7 @@ export async function savePasswordHistory(
 
     // Insert password hash into history
     // TODO: Regenerate types after password_history migration is applied (npm run db:types)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const { error } = await (supabase.from('password_history') as any).insert({
       pilot_user_id: userId,
       password_hash: passwordHash,
@@ -441,7 +441,7 @@ async function cleanupPasswordHistory(userId: string): Promise<void> {
     const supabase = await createClient()
 
     // Get all password history for user
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const { data: history } = await (supabase.from('password_history') as any)
       .select('id, created_at')
       .eq('pilot_user_id', userId)
@@ -449,10 +449,9 @@ async function cleanupPasswordHistory(userId: string): Promise<void> {
 
     if (history && history.length > 5) {
       // Delete all except the 5 most recent
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const idsToDelete = history.slice(5).map((h: any) => h.id)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('password_history') as any).delete().in('id', idsToDelete)
     }
   } catch {

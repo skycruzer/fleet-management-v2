@@ -62,8 +62,7 @@ export default function FeedbackHistoryPage() {
   // Fetch feedback on mount
   useEffect(() => {
     fetchFeedbackHistory()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchFeedbackHistory])
 
   const getStatusBadge = (status?: string | null) => {
     switch (status) {

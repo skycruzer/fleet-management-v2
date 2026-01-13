@@ -81,15 +81,17 @@ export function PilotPortalSidebar({
 }: PilotPortalSidebarProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  // Initialize isDesktop based on window if available (SSR-safe)
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth >= 768 : false
-  )
-  // Track mount status for hydration - use lazy init that always returns true on client
-  const [mounted] = useState(() => typeof window !== 'undefined')
+  // Initialize isDesktop as false to match server render, then update after hydration
+  const [isDesktop, setIsDesktop] = useState(false)
+  // Track mount status for hydration
+  const [mounted, setMounted] = useState(false)
 
-  // Track screen size for responsive sidebar positioning
+  // Track screen size for responsive sidebar positioning - update after mount
   useEffect(() => {
+    setMounted(true)
+    // Set initial desktop state after hydration
+    setIsDesktop(window.innerWidth >= 768)
+
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 768)
     window.addEventListener('resize', checkDesktop)
     return () => window.removeEventListener('resize', checkDesktop)

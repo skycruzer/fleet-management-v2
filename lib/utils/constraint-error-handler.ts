@@ -61,6 +61,8 @@ const CONSTRAINT_MESSAGES: Record<string, string> = {
 
   // Pilots
   pilots_employee_id_unique: ERROR_MESSAGES.PILOT.DUPLICATE_EMPLOYEE_ID.message,
+  uk_pilots_employee_id: ERROR_MESSAGES.PILOT.DUPLICATE_EMPLOYEE_ID.message,
+  uk_pilots_seniority_number: ERROR_MESSAGES.PILOT.INVALID_SENIORITY.message,
 
   // Users
   an_users_email_unique: ERROR_MESSAGES.USER.DUPLICATE_EMAIL.message,

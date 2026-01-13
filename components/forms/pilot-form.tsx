@@ -74,6 +74,8 @@ export function PilotForm({
       nationality: '',
       passport_number: '',
       passport_expiry: null,
+      licence_type: undefined,
+      licence_number: '',
       date_of_birth: null,
       commencement_date: null,
       seniority_number: null,
@@ -101,6 +103,11 @@ export function PilotForm({
   const rankOptions = [
     { label: 'Captain', value: 'Captain' },
     { label: 'First Officer', value: 'First Officer' },
+  ]
+
+  const licenceTypeOptions = [
+    { label: 'ATPL - Airline Transport Pilot', value: 'ATPL' },
+    { label: 'CPL - Commercial Pilot', value: 'CPL' },
   ]
 
   const selectedRole = form.watch('role')
@@ -214,6 +221,27 @@ export function PilotForm({
                   label="Passport Expiry"
                   disablePast
                   description="Must be in the future if provided"
+                />
+              </div>
+            </div>
+
+            {/* Licence Information */}
+            <div className="space-y-4">
+              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                Licence Information
+              </h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <FormSelectWrapper
+                  name="licence_type"
+                  label="Licence Type"
+                  options={licenceTypeOptions}
+                  placeholder="Select licence type"
+                />
+                <FormFieldWrapper
+                  name="licence_number"
+                  label="Licence Number"
+                  placeholder="ABC123456"
+                  description="5-20 uppercase letters, numbers, or hyphens"
                 />
               </div>
             </div>

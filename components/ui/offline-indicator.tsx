@@ -12,6 +12,7 @@
  * - Accessibility compliant (ARIA labels, role="alert")
  * - Auto-hide "Back Online" message after 5 seconds
  * - Non-intrusive top banner design
+ * - Hydration-safe (renders after mount to prevent SSR mismatch)
  */
 
 import { useState, useEffect } from 'react'
@@ -19,13 +20,16 @@ import { WifiOff, Wifi, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function OfflineIndicator() {
-  // Initialize with actual navigator state (only works client-side)
-  const [isOnline, setIsOnline] = useState(() =>
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  )
+  // Start with null to prevent hydration mismatch - we don't know online status until client mount
+  const [mounted, setMounted] = useState(false)
+  const [isOnline, setIsOnline] = useState(true)
   const [wasOffline, setWasOffline] = useState(false)
 
   useEffect(() => {
+    // Set mounted and actual online status after hydration
+    setMounted(true)
+    setIsOnline(navigator.onLine)
+
     // Handlers for online/offline events
     const handleOnline = () => {
       setIsOnline(true)
@@ -53,6 +57,11 @@ export function OfflineIndicator() {
       window.removeEventListener('offline', handleOffline)
     }
   }, [])
+
+  // Don't render anything until after hydration to prevent mismatch
+  if (!mounted) {
+    return null
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -131,12 +140,13 @@ export function OfflineIndicator() {
  * Alternative to the full banner for compact spaces.
  */
 export function OfflineBadge() {
-  // Initialize with actual navigator state (only works client-side)
-  const [isOnline, setIsOnline] = useState(() =>
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  )
+  const [mounted, setMounted] = useState(false)
+  const [isOnline, setIsOnline] = useState(true)
 
   useEffect(() => {
+    setMounted(true)
+    setIsOnline(navigator.onLine)
+
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
 
@@ -149,7 +159,8 @@ export function OfflineBadge() {
     }
   }, [])
 
-  if (isOnline) return null
+  // Don't render until after hydration or when online
+  if (!mounted || isOnline) return null
 
   return (
     <motion.div

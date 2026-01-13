@@ -53,7 +53,7 @@ interface LeaveApprovalCardProps {
   request: LeaveRequest
   onApprove: (id: string) => Promise<void>
   onDeny: (id: string) => Promise<void>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   onEdit?: (request: any) => void
   onDelete?: (id: string) => void
   isSelected?: boolean

@@ -20,6 +20,10 @@ export const CaptainQualificationEnum = z.enum(['line_captain', 'training_captai
   message: 'Invalid captain qualification. Must be line_captain, training_captain, or examiner',
 })
 
+export const PilotLicenceTypeEnum = z.enum(['ATPL', 'CPL'], {
+  message: 'Licence type must be ATPL (Airline Transport) or CPL (Commercial)',
+})
+
 // ===================================
 // BASE SCHEMAS
 // ===================================
@@ -98,6 +102,20 @@ const nationalitySchema = z
   .nullable()
 
 /**
+ * Licence number validation
+ * 5-20 uppercase alphanumeric characters and hyphens
+ * Uses refine to allow empty strings from HTML forms
+ */
+const licenceNumberSchema = z
+  .string()
+  .transform((val) => (val ? val.toUpperCase().trim() : val))
+  .refine((val) => !val || (val.length >= 5 && val.length <= 20 && /^[A-Z0-9-]+$/.test(val)), {
+    message: 'Licence number must be 5-20 uppercase letters, numbers, or hyphens',
+  })
+  .optional()
+  .nullable()
+
+/**
  * Seniority number validation: 1-999
  */
 const seniorityNumberSchema = z
@@ -136,6 +154,8 @@ export const PilotCreateSchema = z
     nationality: nationalitySchema,
     passport_number: passportNumberSchema,
     passport_expiry: dateSchema,
+    licence_type: PilotLicenceTypeEnum.optional().nullable(),
+    licence_number: licenceNumberSchema,
     date_of_birth: dateSchema,
     commencement_date: dateSchema,
     seniority_number: seniorityNumberSchema,
@@ -217,6 +237,8 @@ export const PilotUpdateSchema = z
     nationality: nationalitySchema,
     passport_number: passportNumberSchema,
     passport_expiry: dateSchema,
+    licence_type: PilotLicenceTypeEnum.optional().nullable(),
+    licence_number: licenceNumberSchema,
     date_of_birth: dateSchema,
     commencement_date: dateSchema,
     seniority_number: seniorityNumberSchema,

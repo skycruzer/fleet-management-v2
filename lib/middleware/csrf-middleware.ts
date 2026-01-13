@@ -28,7 +28,7 @@
  * ```
  */
 import { NextRequest, NextResponse } from 'next/server'
-import crypto from 'crypto'
+import { randomBytes } from 'crypto'
 
 /**
  * CSRF token cookie name
@@ -44,21 +44,65 @@ const CSRF_HEADER_NAME = 'x-csrf-token'
  * Generate a cryptographically secure CSRF token
  */
 export function generateCsrfToken(): string {
-  return crypto.randomBytes(32).toString('base64url')
+  return randomBytes(32).toString('base64url')
 }
 
 /**
  * Verify CSRF token from request
- * Implements Double Submit Cookie pattern:
- * - Token must be present in both cookie and header
- * - Both tokens must match exactly
+ * Uses the cryptographic token validation from lib/security/csrf.ts
+ * - Token must be present in header (X-CSRF-Token)
+ * - Token must be cryptographically valid against the secret in cookies
  */
-async function verifyCsrfTokenFromRequest(_req: NextRequest): Promise<boolean> {
-  // TEMPORARILY DISABLED: CSRF validation has cookie issues with Vercel deployment
-  // The Double Submit Cookie pattern doesn't work reliably across Vercel's domain structure
-  // Tracked: tasks/062 #6 - Implement session-based CSRF for Vercel
-  // Supabase Auth + RLS provides primary security layer
-  return true
+async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
+  try {
+    // Get CSRF token from header
+    const token = req.headers.get(CSRF_HEADER_NAME) || req.headers.get('X-CSRF-Token')
+
+    if (!token) {
+      // Skip CSRF for API routes that don't require it (e.g., webhooks, public endpoints)
+      // Check if this is a portal API route that requires CSRF
+      const isProtectedRoute =
+        req.nextUrl.pathname.startsWith('/api/portal/') ||
+        req.nextUrl.pathname.startsWith('/api/leave-requests') ||
+        req.nextUrl.pathname.startsWith('/api/pilots') ||
+        req.nextUrl.pathname.startsWith('/api/certifications') ||
+        req.nextUrl.pathname.startsWith('/api/requests') ||
+        req.nextUrl.pathname.startsWith('/api/feedback') ||
+        req.nextUrl.pathname.startsWith('/api/tasks') ||
+        req.nextUrl.pathname.startsWith('/api/user/')
+
+      // For protected routes, require CSRF token
+      if (isProtectedRoute) {
+        return false
+      }
+
+      // For non-protected routes (webhooks, cron jobs, etc.), allow without CSRF
+      return true
+    }
+
+    // Get the secret from cookies
+    const secret = req.cookies.get('csrf_secret')?.value
+
+    if (!secret) {
+      // No secret cookie means the user doesn't have a CSRF session yet
+      // This can happen on first request - allow but log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('CSRF: No secret cookie found, allowing request')
+      }
+      return true
+    }
+
+    // Import and use the cryptographic verification
+    const Tokens = (await import('csrf')).default
+    const tokens = new Tokens()
+
+    return tokens.verify(secret, token)
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('CSRF verification error:', error)
+    }
+    return false
+  }
 }
 
 /**

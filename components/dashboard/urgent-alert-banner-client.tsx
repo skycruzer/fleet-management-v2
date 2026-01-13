@@ -27,16 +27,21 @@ export function UrgentAlertBannerClient({
   notice,
   urgencyLevel,
 }: UrgentAlertBannerClientProps) {
-  // Initialize dismissed state using lazy initialization
-  const [isDismissed, setIsDismissed] = useState(() => {
-    // Check localStorage (only on client-side)
-    if (typeof window === 'undefined') return false
+  // Initialize as not dismissed to match server render, update after hydration
+  const [isDismissed, setIsDismissed] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // Check localStorage after hydration to prevent mismatch
+  useEffect(() => {
+    setMounted(true)
     const dismissed = localStorage.getItem('urgent-alert-dismissed')
     const dismissedTime = dismissed ? parseInt(dismissed) : 0
     const now = Date.now()
     // Auto-show after 24 hours (86400000ms)
-    return now - dismissedTime < 86400000
-  })
+    if (now - dismissedTime < 86400000) {
+      setIsDismissed(true)
+    }
+  }, [])
 
   const handleDismiss = () => {
     setIsDismissed(true)

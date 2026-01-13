@@ -153,7 +153,6 @@ export default function CertificationsPage() {
     return () => {
       isMounted = false
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Apply filters using useMemo (derived state - React Compiler friendly)
