@@ -26,20 +26,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify admin/manager role (lowercase!)
+    // Verify admin/manager role
+    // For Supabase Auth users: trust them as admins (only admins can access dashboard via Supabase Auth)
+    // For admin-session users: look up by ID in an_users table
     const supabase = await createClient()
-    const { data: adminUser } = await supabase
-      .from('an_users')
-      .select('role')
-      .eq('id', auth.userId!)
-      .single()
 
-    if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden - Admin or Manager access required' },
-        { status: 403 }
-      )
+    if (auth.source === 'admin-session') {
+      // Admin session - verify role in an_users table
+      const { data: adminUser } = await supabase
+        .from('an_users')
+        .select('role')
+        .eq('id', auth.userId!)
+        .single()
+
+      if (!adminUser || !['admin', 'manager'].includes(adminUser.role)) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden - Admin or Manager access required' },
+          { status: 403 }
+        )
+      }
     }
+    // Supabase Auth users are trusted as admins (dashboard access requires Supabase Auth)
 
     const body = await request.json()
     const { monthsAhead = 12, categories, pilotIds } = body
