@@ -95,10 +95,13 @@ export async function generateRenewalPlan(options?: {
   // Step 1a: If categories specified, first get the check_type_ids for those categories
   let checkTypeIds: string[] | undefined
   if (categories && categories.length > 0) {
+    // Categories match exactly with database values (e.g., 'Flight Checks', 'Simulator Checks')
+    const dbCategories = categories
+
     const { data: checkTypes } = await supabase
       .from('check_types')
       .select('id')
-      .in('category', categories)
+      .in('category', dbCategories)
 
     checkTypeIds = checkTypes?.map((ct) => ct.id) || []
 
@@ -240,7 +243,7 @@ export async function generateRenewalPlan(options?: {
       planned_roster_period: optimalPeriod.code,
       renewal_window_start: windowStart.toISOString().split('T')[0],
       renewal_window_end: windowEnd.toISOString().split('T')[0],
-      status: 'planned',
+      status: 'PENDING',
       priority: calculatePriority(expiryDate),
     })
 
@@ -380,19 +383,16 @@ export async function getRosterPeriodCapacity(
 
   // Group by category
   const categoryBreakdown: RosterPeriodSummary['categoryBreakdown'] = {}
-  // Map category names to capacity columns
+  // Map category names to capacity columns - uses exact database category values
   const getCategoryCapacity = (category: string) => {
-    switch (category?.toLowerCase()) {
-      case 'medical':
+    switch (category) {
+      case 'Pilot Medical':
         return capacity.medical_capacity || 4
-      case 'flight':
-      case 'flight check':
+      case 'Flight Checks':
         return capacity.flight_capacity || 4
-      case 'simulator':
-      case 'sim':
+      case 'Simulator Checks':
         return capacity.simulator_capacity || 6
-      case 'ground':
-      case 'ground school':
+      case 'Ground Courses Refresher':
         return capacity.ground_capacity || 8
       default:
         return 8 // Default capacity
@@ -613,18 +613,15 @@ function getCapacityForPeriod(
   const capacity = capacityMap.get(rosterPeriod)
   if (!capacity) return 8 // Default capacity
 
-  // Map category names to capacity columns
-  switch (category?.toLowerCase()) {
-    case 'medical':
+  // Map category names to capacity columns - uses exact database category values
+  switch (category) {
+    case 'Pilot Medical':
       return capacity.medical_capacity || 4
-    case 'flight':
-    case 'flight check':
+    case 'Flight Checks':
       return capacity.flight_capacity || 4
-    case 'simulator':
-    case 'sim':
+    case 'Simulator Checks':
       return capacity.simulator_capacity || 6
-    case 'ground':
-    case 'ground school':
+    case 'Ground Courses Refresher':
       return capacity.ground_capacity || 8
     default:
       return 8 // Default capacity
