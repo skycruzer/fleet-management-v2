@@ -243,7 +243,7 @@ export async function generateRenewalPlan(options?: {
       planned_roster_period: optimalPeriod.code,
       renewal_window_start: windowStart.toISOString().split('T')[0],
       renewal_window_end: windowEnd.toISOString().split('T')[0],
-      status: 'PENDING',
+      status: 'planned',
       priority: calculatePriority(expiryDate),
     })
 
