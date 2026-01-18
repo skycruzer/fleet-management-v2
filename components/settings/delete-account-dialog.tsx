@@ -102,13 +102,15 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
       <AlertDialogContent className="sm:max-w-[600px]">
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-red-100 p-2">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
+            <div className="rounded-full bg-red-100 p-2 dark:bg-red-900">
+              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
-            <AlertDialogTitle className="text-red-900">Delete Account</AlertDialogTitle>
+            <AlertDialogTitle className="text-red-900 dark:text-red-200">
+              Delete Account
+            </AlertDialogTitle>
           </div>
           <AlertDialogDescription className="space-y-4 pt-4">
-            <p className="font-semibold text-red-900">
+            <p className="font-semibold text-red-900 dark:text-red-200">
               This action is permanent and cannot be undone!
             </p>
             <p>When you delete your account, the following will happen:</p>
@@ -124,8 +126,8 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
 
         <div className="space-y-6 py-4">
           {/* Warning Acknowledgements */}
-          <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="text-sm font-semibold text-red-900">
+          <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
+            <p className="text-sm font-semibold text-red-900 dark:text-red-100">
               Please acknowledge the following warnings:
             </p>
             <div className="space-y-3">
@@ -139,7 +141,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="permanent"
-                  className="cursor-pointer text-sm leading-tight font-normal text-red-900"
+                  className="cursor-pointer text-sm leading-tight font-normal text-red-900 dark:text-red-200"
                 >
                   I understand this action is permanent and cannot be reversed
                 </Label>
@@ -154,7 +156,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="dataLoss"
-                  className="cursor-pointer text-sm leading-tight font-normal text-red-900"
+                  className="cursor-pointer text-sm leading-tight font-normal text-red-900 dark:text-red-200"
                 >
                   I understand all my data will be permanently deleted
                 </Label>
@@ -169,7 +171,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="noRecovery"
-                  className="cursor-pointer text-sm leading-tight font-normal text-red-900"
+                  className="cursor-pointer text-sm leading-tight font-normal text-red-900 dark:text-red-200"
                 >
                   I understand there is no way to recover my account after deletion
                 </Label>
@@ -196,9 +198,9 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
           </div>
 
           {/* User Email Confirmation */}
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-            <p className="text-xs text-gray-600">Account being deleted:</p>
-            <p className="font-mono text-sm font-semibold">{userEmail}</p>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+            <p className="text-xs text-gray-600 dark:text-gray-400">Account being deleted:</p>
+            <p className="text-foreground font-mono text-sm font-semibold">{userEmail}</p>
           </div>
         </div>
 

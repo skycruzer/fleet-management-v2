@@ -96,11 +96,11 @@ export function NotificationBell() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96 p-0" align="end">
-        <div className="bg-white">
+        <div className="bg-card">
           {/* Header */}
-          <div className="border-b p-4">
-            <h3 className="text-lg font-semibold">Notifications</h3>
-            <p className="text-sm text-gray-500">
+          <div className="border-border border-b p-4">
+            <h3 className="text-foreground text-lg font-semibold">Notifications</h3>
+            <p className="text-muted-foreground text-sm">
               You have {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
             </p>
           </div>
@@ -108,14 +108,16 @@ export function NotificationBell() {
           {/* Notification List */}
           <ScrollArea className="max-h-[400px]">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-sm text-gray-500">No notifications yet</div>
+              <div className="text-muted-foreground p-8 text-center text-sm">
+                No notifications yet
+              </div>
             ) : (
-              <div className="divide-y">
+              <div className="divide-border divide-y">
                 {notifications.slice(0, 5).map((notification) => (
                   <Link
                     key={notification.id}
                     href={notification.link || '/portal/notifications'}
-                    className="block transition-colors hover:bg-gray-50"
+                    className="hover:bg-muted block transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     <div className="p-4">
@@ -127,13 +129,13 @@ export function NotificationBell() {
 
                         {/* Content */}
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-foreground text-sm font-semibold">
                             {notification.title}
                           </p>
-                          <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+                          <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                             {notification.message}
                           </p>
-                          <p className="mt-1 text-xs text-gray-400">
+                          <p className="text-muted-foreground/70 mt-1 text-xs">
                             {formatDistanceToNow(new Date(notification.created_at), {
                               addSuffix: true,
                             })}
@@ -154,10 +156,10 @@ export function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="border-t p-3">
+            <div className="border-border border-t p-3">
               <Link
                 href="/portal/notifications"
-                className="block text-center text-sm font-medium text-cyan-600 hover:text-cyan-700"
+                className="block text-center text-sm font-medium text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300"
                 onClick={() => setIsOpen(false)}
               >
                 View All Notifications

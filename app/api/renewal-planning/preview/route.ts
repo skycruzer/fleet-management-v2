@@ -25,13 +25,6 @@ import { getRosterPeriodFromDate } from '@/lib/utils/roster-utils'
 // Focus on checks with grace periods suitable for advance planning
 const VALID_CATEGORIES = ['Flight Checks', 'Simulator Checks', 'Ground Courses Refresher']
 
-// Category mapping for database queries
-const CATEGORY_MAP: Record<string, string[]> = {
-  'Flight Checks': ['Flight Check', 'Flight'],
-  'Simulator Checks': ['Simulator', 'Sim'],
-  'Ground Courses Refresher': ['Ground School', 'Ground'],
-}
-
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -46,8 +39,8 @@ export async function POST(request: NextRequest) {
     const endDate = new Date()
     endDate.setMonth(endDate.getMonth() + monthsAhead)
 
-    // Build category filter for database
-    const dbCategories = requestedCategories.flatMap((cat) => CATEGORY_MAP[cat] || [cat])
+    // Build category filter for database - categories match exactly with database values
+    const dbCategories = requestedCategories
 
     // Fetch expiring certifications (dry run - just count them)
     // Match the main service query structure - pilots table doesn't have status column

@@ -70,19 +70,19 @@ export function RetirementInformationCard({
   // Already retired
   if (countdown.isRetired) {
     return (
-      <Card className="border-gray-300 bg-gray-50">
+      <Card className="border-border bg-muted">
         <CardHeader>
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-700">
+          <h3 className="text-muted-foreground flex items-center gap-2 text-lg font-semibold">
             <Clock className="h-5 w-5" />
             Retirement Status
           </h3>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-600">
+          <p className="text-muted-foreground text-sm">
             {pilotName} has reached the standard retirement age of {retirementAge} years.
           </p>
           {yearsOfService && (
-            <p className="mt-2 text-sm font-medium text-gray-700">
+            <p className="text-foreground mt-2 text-sm font-medium">
               Years of Service: {yearsOfService} years
             </p>
           )}
@@ -117,7 +117,11 @@ export function RetirementInformationCard({
   return (
     <Card
       className={
-        isUrgent ? 'border-red-300 bg-red-50' : isWarning ? 'border-orange-300 bg-orange-50' : ''
+        isUrgent
+          ? 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30'
+          : isWarning
+            ? 'border-orange-300 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30'
+            : ''
       }
     >
       <CardHeader>
@@ -133,12 +137,14 @@ export function RetirementInformationCard({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Countdown Display */}
-        <div className="rounded-lg border border-purple-200 bg-purple-50 p-6">
-          <div className="mb-2 text-sm font-medium text-purple-700">Time Until Retirement</div>
-          <div className="text-4xl font-bold text-purple-900">
+        <div className="rounded-lg border border-purple-200 bg-purple-50 p-6 dark:border-purple-800 dark:bg-purple-950/30">
+          <div className="mb-2 text-sm font-medium text-purple-700 dark:text-purple-300">
+            Time Until Retirement
+          </div>
+          <div className="text-4xl font-bold text-purple-900 dark:text-purple-100">
             {formatRetirementCountdown(countdown)}
           </div>
-          <div className="mt-3 flex items-center gap-2 text-sm text-purple-600">
+          <div className="mt-3 flex items-center gap-2 text-sm text-purple-600 dark:text-purple-300">
             <Calendar className="h-4 w-4" />
             Retirement Date:{' '}
             <span className="font-semibold">{formatRetirementDate(countdown.retirementDate)}</span>
@@ -169,22 +175,31 @@ export function RetirementInformationCard({
 
         {/* Years of Service */}
         {yearsOfService && (
-          <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
+          <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
+            <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             <div>
-              <div className="text-sm font-medium text-blue-900">Years of Service</div>
-              <div className="text-2xl font-bold text-blue-700">{yearsOfService} years</div>
+              <div className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                Years of Service
+              </div>
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                {yearsOfService} years
+              </div>
             </div>
           </div>
         )}
 
         {/* Warning Alerts */}
         {isUrgent && (
-          <div className="flex items-start gap-3 rounded-lg border border-red-300 bg-red-100 p-4">
-            <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600" aria-hidden="true" />
+          <div className="flex items-start gap-3 rounded-lg border border-red-300 bg-red-100 p-4 dark:border-red-800 dark:bg-red-950">
+            <AlertTriangle
+              className="mt-0.5 h-5 w-5 text-red-600 dark:text-red-400"
+              aria-hidden="true"
+            />
             <div>
-              <div className="font-semibold text-red-900">Urgent: Retirement Within 1 Year</div>
-              <p className="mt-1 text-sm text-red-700">
+              <div className="font-semibold text-red-900 dark:text-red-100">
+                Urgent: Retirement Within 1 Year
+              </div>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-200">
                 {pilotName} will retire in less than 1 year. Begin succession planning and
                 recruitment immediately to ensure smooth transition.
               </p>
@@ -193,13 +208,16 @@ export function RetirementInformationCard({
         )}
 
         {isWarning && !isUrgent && (
-          <div className="flex items-start gap-3 rounded-lg border border-orange-300 bg-orange-100 p-4">
-            <AlertTriangle className="mt-0.5 h-5 w-5 text-orange-600" aria-hidden="true" />
+          <div className="flex items-start gap-3 rounded-lg border border-orange-300 bg-orange-100 p-4 dark:border-orange-800 dark:bg-orange-950">
+            <AlertTriangle
+              className="mt-0.5 h-5 w-5 text-orange-600 dark:text-orange-400"
+              aria-hidden="true"
+            />
             <div>
-              <div className="font-semibold text-orange-900">
+              <div className="font-semibold text-orange-900 dark:text-orange-100">
                 Warning: Retirement Within 2 Years
               </div>
-              <p className="mt-1 text-sm text-orange-700">
+              <p className="mt-1 text-sm text-orange-700 dark:text-orange-200">
                 {pilotName} will retire in less than 2 years. Consider succession planning and
                 knowledge transfer initiatives.
               </p>

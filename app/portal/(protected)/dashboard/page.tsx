@@ -157,14 +157,18 @@ export default async function PilotDashboardPage() {
                             return (
                               <div
                                 key={check.id}
-                                className="flex items-start justify-between rounded border border-red-200 bg-white p-3"
+                                className="bg-card flex items-start justify-between rounded border border-red-200 p-3 dark:border-red-800"
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-red-900">{check.check_code}</p>
-                                  <p className="text-sm text-red-700">{check.check_description}</p>
+                                  <p className="font-semibold text-red-900 dark:text-red-100">
+                                    {check.check_code}
+                                  </p>
+                                  <p className="text-sm text-red-700 dark:text-red-300">
+                                    {check.check_description}
+                                  </p>
                                 </div>
                                 <div className="ml-2 text-right">
-                                  <p className="font-bold text-red-600">
+                                  <p className="font-bold text-red-600 dark:text-red-400">
                                     Expired {daysExpired} days ago
                                   </p>
                                   <p className="text-sm text-red-500 dark:text-red-400">
@@ -215,18 +219,18 @@ export default async function PilotDashboardPage() {
                             return (
                               <div
                                 key={check.id}
-                                className="flex items-start justify-between rounded border border-orange-200 bg-white p-3"
+                                className="bg-card flex items-start justify-between rounded border border-orange-200 p-3 dark:border-orange-800"
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-orange-900">
+                                  <p className="font-semibold text-orange-900 dark:text-orange-100">
                                     {check.check_code}
                                   </p>
-                                  <p className="text-sm text-orange-700">
+                                  <p className="text-sm text-orange-700 dark:text-orange-300">
                                     {check.check_description}
                                   </p>
                                 </div>
                                 <div className="ml-2 text-right">
-                                  <p className="font-bold text-orange-600">
+                                  <p className="font-bold text-orange-600 dark:text-orange-400">
                                     {daysUntil} days remaining
                                   </p>
                                   <p className="text-sm text-orange-500 dark:text-orange-400">
@@ -276,14 +280,18 @@ export default async function PilotDashboardPage() {
                           return (
                             <div
                               key={check.id}
-                              className="flex items-start justify-between rounded border border-yellow-200 bg-white p-3"
+                              className="bg-card flex items-start justify-between rounded border border-yellow-200 p-3 dark:border-yellow-800"
                             >
                               <div className="flex-1">
-                                <p className="font-semibold text-yellow-900">{check.check_code}</p>
-                                <p className="text-sm text-yellow-700">{check.check_description}</p>
+                                <p className="font-semibold text-yellow-900 dark:text-yellow-100">
+                                  {check.check_code}
+                                </p>
+                                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                                  {check.check_description}
+                                </p>
                               </div>
                               <div className="ml-2 text-right">
-                                <p className="font-bold text-yellow-600">
+                                <p className="font-bold text-yellow-600 dark:text-yellow-400">
                                   {daysUntil} days remaining
                                 </p>
                                 <p className="text-sm text-yellow-500 dark:text-yellow-400">

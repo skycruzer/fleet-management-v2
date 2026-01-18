@@ -38,9 +38,11 @@ export function RenewalCalendarYearly({ summaries, year }: RenewalCalendarYearly
   }
 
   const getUtilizationColor = (utilization: number): string => {
-    if (utilization > 80) return 'bg-red-50 border-red-300 hover:bg-red-100'
-    if (utilization > 60) return 'bg-yellow-50 border-yellow-300 hover:bg-yellow-100'
-    return 'bg-green-50 border-green-300 hover:bg-green-100'
+    if (utilization > 80)
+      return 'bg-red-50 border-red-300 hover:bg-red-100 dark:bg-red-950 dark:border-red-700 dark:hover:bg-red-900'
+    if (utilization > 60)
+      return 'bg-yellow-50 border-yellow-300 hover:bg-yellow-100 dark:bg-yellow-950 dark:border-yellow-700 dark:hover:bg-yellow-900'
+    return 'bg-green-50 border-green-300 hover:bg-green-100 dark:bg-green-950 dark:border-green-700 dark:hover:bg-green-900'
   }
 
   const getBadgeColor = (utilization: number): string => {
@@ -80,7 +82,7 @@ export function RenewalCalendarYearly({ summaries, year }: RenewalCalendarYearly
         {summaries.map((summary) => {
           const isExcluded = isExcludedPeriod(summary)
           const color = isExcluded
-            ? 'bg-gray-100 border-gray-300'
+            ? 'bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-600'
             : getUtilizationColor(summary.utilizationPercentage)
           const badgeColor = isExcluded
             ? 'bg-gray-600 text-white'
@@ -102,7 +104,9 @@ export function RenewalCalendarYearly({ summaries, year }: RenewalCalendarYearly
                 {/* Header */}
                 <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-foreground text-lg font-bold">{summary.rosterPeriod}</h3>
-                  {isExcluded && <AlertTriangle className="h-5 w-5 text-gray-600" />}
+                  {isExcluded && (
+                    <AlertTriangle className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  )}
                 </div>
 
                 {/* Date Range */}
@@ -116,7 +120,7 @@ export function RenewalCalendarYearly({ summaries, year }: RenewalCalendarYearly
                     <Badge variant="secondary" className="bg-gray-600 text-white">
                       EXCLUDED
                     </Badge>
-                    <p className="text-xs text-gray-600">Holiday Period</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Holiday Period</p>
                   </div>
                 ) : (
                   <>
@@ -145,10 +149,10 @@ export function RenewalCalendarYearly({ summaries, year }: RenewalCalendarYearly
                             data.capacity > 0 ? (data.plannedCount / data.capacity) * 100 : 0
                           const categoryColor =
                             categoryUtil > 80
-                              ? 'text-red-700'
+                              ? 'text-red-700 dark:text-red-300'
                               : categoryUtil > 60
-                                ? 'text-yellow-700'
-                                : 'text-green-700'
+                                ? 'text-yellow-700 dark:text-yellow-300'
+                                : 'text-green-700 dark:text-green-300'
 
                           return (
                             <div
@@ -188,9 +192,9 @@ export function RenewalCalendarYearly({ summaries, year }: RenewalCalendarYearly
       )}
 
       {/* Legend */}
-      <Card className="bg-blue-50 p-4">
-        <h4 className="mb-2 font-semibold text-blue-900">Calendar Guide</h4>
-        <ul className="space-y-1 text-sm text-blue-700">
+      <Card className="bg-blue-50 p-4 dark:bg-blue-950">
+        <h4 className="mb-2 font-semibold text-blue-900 dark:text-blue-100">Calendar Guide</h4>
+        <ul className="space-y-1 text-sm text-blue-700 dark:text-blue-300">
           <li>
             • <strong>Green cards</strong>: Good utilization (&lt;60%)
           </li>

@@ -13,7 +13,7 @@
  * - Audit trail for all changes
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { Database } from '@/types/supabase'
 import { calculateRenewalWindow, validateRenewalDate } from '@/lib/utils/grace-period-utils'
 import { getRosterPeriodFromDate, getRosterPeriodsInRange } from '@/lib/utils/roster-utils'
@@ -86,7 +86,7 @@ export async function generateRenewalPlan(options?: {
   categories?: string[]
   pilotIds?: string[]
 }): Promise<RenewalPlanWithDetails[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
   const { monthsAhead = 12, categories, pilotIds } = options || {}
 
   // Step 1: Fetch all certifications expiring in the next N months
@@ -285,7 +285,7 @@ export async function generateRenewalPlan(options?: {
  * Get renewal plan for a specific pilot
  */
 export async function getPilotRenewalPlan(pilotId: string): Promise<RenewalPlanWithDetails[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   const { data, error } = await supabase
     .from('certification_renewal_plans')
@@ -326,7 +326,7 @@ export async function getPilotRenewalPlan(pilotId: string): Promise<RenewalPlanW
 export async function getRenewalsByRosterPeriod(
   rosterPeriod: string
 ): Promise<RenewalPlanWithDetails[]> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   const { data, error } = await supabase
     .from('certification_renewal_plans')
@@ -367,7 +367,7 @@ export async function getRenewalsByRosterPeriod(
 export async function getRosterPeriodCapacity(
   rosterPeriod: string
 ): Promise<RosterPeriodSummary | null> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   // Get capacity data
   const { data: capacity } = await supabase
@@ -471,7 +471,7 @@ export async function updatePlannedRenewalDate(
   reason: string,
   userId?: string
 ): Promise<RenewalPlanWithDetails> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   // Fetch existing plan
   const { data: existing } = await supabase
@@ -548,7 +548,7 @@ export async function confirmRenewalPlan(
   planId: string,
   _userId?: string
 ): Promise<RenewalPlanWithDetails> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   const { data, error } = await supabase
     .from('certification_renewal_plans')
@@ -574,7 +574,7 @@ export async function completeRenewal(
   planId: string,
   _actualDate: Date
 ): Promise<RenewalPlanWithDetails> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   const { data, error } = await supabase
     .from('certification_renewal_plans')

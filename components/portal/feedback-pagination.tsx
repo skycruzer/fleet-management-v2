@@ -152,15 +152,14 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
   const pageNumbers = getPageNumbers()
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="border-border bg-card rounded-lg border p-6 shadow-sm">
       {/* Keyboard shortcuts hint */}
-      <div className="mb-4 text-center text-xs text-gray-500">
-        Keyboard: <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">←</kbd>{' '}
-        <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">→</kbd> to navigate,{' '}
-        <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">Home</kbd>{' '}
-        <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">End</kbd> for
-        first/last, <kbd className="rounded border border-gray-300 bg-gray-100 px-2 py-1">1-9</kbd>{' '}
-        for quick jump
+      <div className="text-muted-foreground mb-4 text-center text-xs">
+        Keyboard: <kbd className="border-border bg-muted rounded border px-2 py-1">←</kbd>{' '}
+        <kbd className="border-border bg-muted rounded border px-2 py-1">→</kbd> to navigate,{' '}
+        <kbd className="border-border bg-muted rounded border px-2 py-1">Home</kbd>{' '}
+        <kbd className="border-border bg-muted rounded border px-2 py-1">End</kbd> for first/last,{' '}
+        <kbd className="border-border bg-muted rounded border px-2 py-1">1-9</kbd> for quick jump
       </div>
       <div className="flex items-center justify-between">
         {/* Previous Button */}
@@ -177,7 +176,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           ) : (
             <button
               disabled
-              className="cursor-not-allowed rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-500"
+              className="bg-muted text-muted-foreground cursor-not-allowed rounded-lg px-4 py-2 font-medium"
               aria-label="Previous page (disabled)"
               aria-disabled="true"
             >
@@ -192,7 +191,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
             if (pageNum === -1) {
               // Ellipsis
               return (
-                <span key={`ellipsis-${idx}`} className="px-3 py-2 text-gray-400">
+                <span key={`ellipsis-${idx}`} className="text-muted-foreground px-3 py-2">
                   ...
                 </span>
               )
@@ -206,7 +205,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
                   className={`rounded-lg px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
                     isCurrentPage
                       ? 'focus:ring-primary bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-400'
+                      : 'bg-muted text-foreground hover:bg-muted/80 focus:ring-gray-400'
                   }`}
                   aria-label={`Go to page ${pageNum}`}
                   aria-current={isCurrentPage ? 'page' : undefined}
@@ -232,7 +231,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           ) : (
             <button
               disabled
-              className="cursor-not-allowed rounded-lg bg-gray-300 px-4 py-2 font-medium text-gray-500"
+              className="bg-muted text-muted-foreground cursor-not-allowed rounded-lg px-4 py-2 font-medium"
               aria-label="Next page (disabled)"
               aria-disabled="true"
             >
@@ -243,7 +242,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
       </div>
 
       {/* Pagination Info */}
-      <div className="mt-4 text-center text-sm text-gray-600">
+      <div className="text-muted-foreground mt-4 text-center text-sm">
         Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
         {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} posts
       </div>

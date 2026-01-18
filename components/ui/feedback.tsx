@@ -28,10 +28,13 @@ const feedbackVariants = cva(
   {
     variants: {
       type: {
-        error: 'bg-red-50 border-red-200 text-red-800',
-        warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-        info: 'bg-blue-50 border-blue-200 text-blue-800',
+        error:
+          'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200',
+        warning:
+          'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-200',
+        success:
+          'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200',
+        info: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200',
       },
       variant: {
         inline: '',
@@ -203,10 +206,10 @@ export function InlineFeedback({
 }) {
   const Icon = iconMap[type]
   const colorMap = {
-    error: 'text-red-600',
-    warning: 'text-amber-600',
-    success: 'text-emerald-600',
-    info: 'text-blue-600',
+    error: 'text-red-600 dark:text-red-400',
+    warning: 'text-amber-600 dark:text-amber-400',
+    success: 'text-emerald-600 dark:text-emerald-400',
+    info: 'text-blue-600 dark:text-blue-400',
   }
 
   return (

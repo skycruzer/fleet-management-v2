@@ -67,7 +67,7 @@ export interface FormLabelProps {
 }
 
 export function getFormLabelClasses(): string {
-  return 'block text-sm font-medium text-gray-700 mb-2'
+  return 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
 }
 
 export function formatFormLabel({
@@ -107,16 +107,16 @@ export const formSuccessClasses = {
 /**
  * Standard form field description classes
  */
-export const formDescriptionClasses = 'mt-1 text-xs text-gray-500'
+export const formDescriptionClasses = 'mt-1 text-xs text-gray-500 dark:text-gray-400'
 
 /**
  * Standard portal form select classes
  */
 export const portalSelectClasses =
-  'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+  'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
 
 /**
  * Standard portal cancel button classes
  */
 export const portalCancelButtonClasses =
-  'px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors'
+  'px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'

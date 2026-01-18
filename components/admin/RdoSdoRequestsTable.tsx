@@ -150,7 +150,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
       <div className="space-y-3">
         {/* Status Filters */}
         <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">Status Filter:</p>
+          <p className="text-muted-foreground mb-2 text-sm font-medium">Status Filter:</p>
           <div className="flex flex-wrap gap-2">
             <FilterButton
               label="All"
@@ -193,7 +193,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
         {/* Type Filters */}
         <div>
-          <p className="mb-2 text-sm font-medium text-gray-700">Request Type:</p>
+          <p className="text-muted-foreground mb-2 text-sm font-medium">Request Type:</p>
           <div className="flex flex-wrap gap-2">
             <FilterButton
               label="All Types"
@@ -245,30 +245,30 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                   {/* Details Grid */}
                   <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
                     <div className="space-y-1">
-                      <p className="flex items-center gap-2 text-gray-700">
+                      <p className="text-foreground flex items-center gap-2">
                         <User className="h-4 w-4" />
                         <strong>Pilot:</strong> {request.name}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-muted-foreground">
                         <strong>Rank:</strong> {request.rank}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-muted-foreground">
                         <strong>Employee #:</strong> {request.employee_number}
                       </p>
                     </div>
 
                     <div className="space-y-1">
-                      <p className="flex items-center gap-2 text-gray-700">
+                      <p className="text-foreground flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
                         <strong>Dates:</strong> {formatDate(request.start_date)}
                         {request.end_date && request.end_date !== request.start_date && (
                           <> - {formatDate(request.end_date)}</>
                         )}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-muted-foreground">
                         <strong>Days:</strong> {calculateDaysCount(request)}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-muted-foreground">
                         <strong>Roster Period:</strong> {request.roster_period}
                       </p>
                     </div>
@@ -276,8 +276,8 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
                   {/* Reason */}
                   {request.reason && (
-                    <div className="border-t pt-2">
-                      <p className="text-sm text-gray-600">
+                    <div className="border-border border-t pt-2">
+                      <p className="text-muted-foreground text-sm">
                         <strong>Reason:</strong> {request.reason}
                       </p>
                     </div>
@@ -285,7 +285,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
                   {/* Review Info */}
                   {request.reviewed_by && (
-                    <div className="border-t pt-2 text-sm text-gray-600">
+                    <div className="border-border text-muted-foreground border-t pt-2 text-sm">
                       <p>
                         <strong>Reviewed by:</strong> {request.reviewed_by}
                       </p>
@@ -340,18 +340,18 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
           {selectedRequest && (
             <div className="space-y-4 py-4">
               {/* Request Details */}
-              <div className="grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4">
+              <div className="bg-muted grid grid-cols-2 gap-4 rounded-lg p-4">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Pilot</p>
-                  <p className="text-sm text-gray-900">{selectedRequest.name}</p>
+                  <p className="text-muted-foreground text-sm font-medium">Pilot</p>
+                  <p className="text-foreground text-sm">{selectedRequest.name}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Type</p>
-                  <p className="text-sm text-gray-900">{selectedRequest.request_type}</p>
+                  <p className="text-muted-foreground text-sm font-medium">Type</p>
+                  <p className="text-foreground text-sm">{selectedRequest.request_type}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Dates</p>
-                  <p className="text-sm text-gray-900">
+                  <p className="text-muted-foreground text-sm font-medium">Dates</p>
+                  <p className="text-foreground text-sm">
                     {formatDate(selectedRequest.start_date)}
                     {selectedRequest.end_date &&
                       selectedRequest.end_date !== selectedRequest.start_date &&
@@ -359,22 +359,22 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Days</p>
-                  <p className="text-sm text-gray-900">{calculateDaysCount(selectedRequest)}</p>
+                  <p className="text-muted-foreground text-sm font-medium">Days</p>
+                  <p className="text-foreground text-sm">{calculateDaysCount(selectedRequest)}</p>
                 </div>
               </div>
 
               {/* Reason */}
               {selectedRequest.reason && (
                 <div>
-                  <p className="mb-1 text-sm font-medium text-gray-700">Reason</p>
-                  <p className="text-sm text-gray-900">{selectedRequest.reason}</p>
+                  <p className="text-muted-foreground mb-1 text-sm font-medium">Reason</p>
+                  <p className="text-foreground text-sm">{selectedRequest.reason}</p>
                 </div>
               )}
 
               {/* Action Selection */}
               <div>
-                <p className="mb-2 text-sm font-medium text-gray-700">Decision</p>
+                <p className="text-muted-foreground mb-2 text-sm font-medium">Decision</p>
                 <div className="flex gap-3">
                   <Button
                     variant={reviewAction === 'APPROVED' ? 'default' : 'outline'}
@@ -397,7 +397,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
               {/* Review Comments */}
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="text-muted-foreground mb-1 block text-sm font-medium">
                   Comments (Optional)
                 </label>
                 <Textarea

@@ -65,28 +65,40 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
     switch (status) {
       case 'PENDING':
         return (
-          <Badge variant="outline" className="border-yellow-300 bg-yellow-100 text-yellow-800">
+          <Badge
+            variant="outline"
+            className="border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-200"
+          >
             <Clock className="mr-1 h-3 w-3" />
             Pending Review
           </Badge>
         )
       case 'PROCESSING':
         return (
-          <Badge variant="outline" className="border-blue-300 bg-blue-100 text-blue-800">
+          <Badge
+            variant="outline"
+            className="border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200"
+          >
             <Clock className="mr-1 h-3 w-3" />
             Processing
           </Badge>
         )
       case 'APPROVED':
         return (
-          <Badge variant="outline" className="border-green-300 bg-green-100 text-green-800">
+          <Badge
+            variant="outline"
+            className="border-green-300 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-950 dark:text-green-200"
+          >
             <CheckCircle className="mr-1 h-3 w-3" />
             Approved
           </Badge>
         )
       case 'REJECTED':
         return (
-          <Badge variant="outline" className="border-red-300 bg-red-100 text-red-800">
+          <Badge
+            variant="outline"
+            className="border-red-300 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
+          >
             <XCircle className="mr-1 h-3 w-3" />
             Not Approved
           </Badge>
@@ -145,17 +157,14 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
         <CardContent className="p-6">
           <div className="space-y-6">
             {bids.map((bid) => (
-              <div
-                key={bid.id}
-                className="rounded-lg border-2 border-gray-200 bg-white p-4 shadow-sm"
-              >
+              <div key={bid.id} className="border-border bg-card rounded-lg border-2 p-4 shadow-sm">
                 {/* Bid Header */}
-                <div className="mb-4 flex items-center justify-between border-b border-gray-200 pb-3">
+                <div className="border-border mb-4 flex items-center justify-between border-b pb-3">
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">
+                    <h3 className="text-foreground text-lg font-bold">
                       Leave Bid for {bid.roster_period_code}
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-muted-foreground text-xs">
                       {bid.created_at &&
                         `Submitted ${format(new Date(bid.created_at), 'MMM dd, yyyy')}`}
                     </p>
@@ -170,21 +179,21 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
                     .map((option) => (
                       <div
                         key={option.id}
-                        className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 p-3"
+                        className="border-border bg-muted flex items-center justify-between rounded-md border p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-sm font-bold text-cyan-900">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-sm font-bold text-cyan-900 dark:bg-cyan-900 dark:text-cyan-100">
                             {option.priority}
                           </span>
                           <div>
-                            <p className="text-xs font-medium text-gray-600">
+                            <p className="text-muted-foreground text-xs font-medium">
                               {getPriorityLabel(option.priority)}
                             </p>
-                            <p className="text-sm font-semibold text-gray-900">
+                            <p className="text-foreground text-sm font-semibold">
                               {format(new Date(option.start_date), 'MMM dd')} -{' '}
                               {format(new Date(option.end_date), 'MMM dd, yyyy')}
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-muted-foreground text-xs">
                               {Math.ceil(
                                 (new Date(option.end_date).getTime() -
                                   new Date(option.start_date).getTime()) /
@@ -205,8 +214,8 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
 
                 {/* Status Message */}
                 {bid.status === 'PENDING' && (
-                  <div className="mt-4 rounded-md border border-yellow-200 bg-yellow-50 p-3">
-                    <p className="text-sm text-yellow-800">
+                  <div className="mt-4 rounded-md border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-800 dark:bg-yellow-950">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
                       <AlertTriangle className="mr-1 inline h-4 w-4" />
                       Your bid is pending review by fleet management. You will be notified when a
                       decision is made.
@@ -215,8 +224,8 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
                 )}
 
                 {bid.status === 'APPROVED' && (
-                  <div className="mt-4 rounded-md border border-green-200 bg-green-50 p-3">
-                    <p className="text-sm text-green-800">
+                  <div className="mt-4 rounded-md border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950">
+                    <p className="text-sm text-green-800 dark:text-green-200">
                       <CheckCircle className="mr-1 inline h-4 w-4" />
                       Your bid has been approved! The selected dates are now part of your leave
                       schedule.
@@ -225,8 +234,8 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
                 )}
 
                 {bid.status === 'REJECTED' && (
-                  <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3">
-                    <p className="text-sm text-red-800">
+                  <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950">
+                    <p className="text-sm text-red-800 dark:text-red-200">
                       <XCircle className="mr-1 inline h-4 w-4" />
                       Your bid could not be approved at this time. Please contact fleet management
                       for more information.

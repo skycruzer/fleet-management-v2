@@ -32,28 +32,28 @@ const IconMap = {
  */
 const colorClasses = {
   red: {
-    border: 'border-red-200',
-    bg: 'bg-red-50',
-    text: 'text-red-900',
+    border: 'border-red-200 dark:border-red-700',
+    bg: 'bg-red-50 dark:bg-red-950',
+    text: 'text-red-900 dark:text-red-100',
     badgeBg: 'bg-red-600',
     badgeText: 'text-white',
-    icon: 'text-red-600',
+    icon: 'text-red-600 dark:text-red-400',
   },
   orange: {
-    border: 'border-orange-200',
-    bg: 'bg-orange-50',
-    text: 'text-orange-900',
+    border: 'border-orange-200 dark:border-orange-700',
+    bg: 'bg-orange-50 dark:bg-orange-950',
+    text: 'text-orange-900 dark:text-orange-100',
     badgeBg: 'bg-orange-600',
     badgeText: 'text-white',
-    icon: 'text-orange-600',
+    icon: 'text-orange-600 dark:text-orange-400',
   },
   yellow: {
-    border: 'border-yellow-200',
-    bg: 'bg-yellow-50',
-    text: 'text-yellow-900',
+    border: 'border-yellow-200 dark:border-yellow-700',
+    bg: 'bg-yellow-50 dark:bg-yellow-950',
+    text: 'text-yellow-900 dark:text-yellow-100',
     badgeBg: 'bg-yellow-600',
     badgeText: 'text-white',
-    icon: 'text-yellow-600',
+    icon: 'text-yellow-600 dark:text-yellow-400',
   },
 }
 
@@ -125,7 +125,7 @@ function ExpiryGroupAccordion({ group }: { group: ExpiryGroup }) {
                       <Link
                         key={cert.id}
                         href={`/dashboard/certifications/${cert.id}/edit`}
-                        className="border-border hover:border-primary/50 block rounded-lg border bg-white p-4 transition-all hover:shadow-md"
+                        className="border-border hover:border-primary/50 block rounded-lg border bg-white p-4 transition-all hover:shadow-md dark:bg-gray-800"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">

@@ -105,10 +105,12 @@ export function DeadlineWidget({
 
   // Get urgency color
   function getUrgencyColor(daysUntilDeadline: number): string {
-    if (daysUntilDeadline <= 0) return 'text-red-600 bg-red-50'
-    if (daysUntilDeadline <= 3) return 'text-orange-600 bg-orange-50'
-    if (daysUntilDeadline <= 7) return 'text-yellow-600 bg-yellow-50'
-    return 'text-blue-600 bg-blue-50'
+    if (daysUntilDeadline <= 0) return 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950'
+    if (daysUntilDeadline <= 3)
+      return 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-950'
+    if (daysUntilDeadline <= 7)
+      return 'text-yellow-600 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-950'
+    return 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-950'
   }
 
   // Get urgency badge variant
@@ -154,7 +156,7 @@ export function DeadlineWidget({
           <CardTitle>Roster Deadlines</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2 text-red-600">
+          <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <AlertTriangle className="h-5 w-5" />
             <p>{error}</p>
           </div>
@@ -172,7 +174,7 @@ export function DeadlineWidget({
           <CardDescription>No upcoming deadlines</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2 text-gray-500">
+          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
             <CheckCircle className="h-5 w-5" />
             <p>All deadlines are up to date</p>
           </div>
@@ -232,10 +234,10 @@ export function DeadlineWidget({
             {/* Header */}
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Calendar className="h-5 w-5 text-gray-500" />
+                <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                 <div>
                   <h3 className="font-semibold">{alert.rosterPeriod.code}</h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Deadline:{' '}
                     {new Date(alert.rosterPeriod.deadlineDate).toLocaleDateString('en-AU', {
                       month: 'short',
@@ -254,19 +256,25 @@ export function DeadlineWidget({
               {/* Leave Requests */}
               <div className="border-l-4 border-blue-500 pl-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-700">Leave Requests</p>
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Leave Requests
+                  </p>
                   <Badge variant="outline" className="text-xs">
                     {alert.leaveRequestsCount} total
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded bg-blue-50 p-2 text-center">
-                    <p className="text-lg font-bold text-yellow-600">{alert.leavePendingCount}</p>
-                    <p className="text-xs text-gray-600">Pending</p>
+                  <div className="rounded bg-blue-50 p-2 text-center dark:bg-blue-950">
+                    <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                      {alert.leavePendingCount}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Pending</p>
                   </div>
-                  <div className="rounded bg-blue-50 p-2 text-center">
-                    <p className="text-lg font-bold text-green-600">{alert.leaveApprovedCount}</p>
-                    <p className="text-xs text-gray-600">Approved</p>
+                  <div className="rounded bg-blue-50 p-2 text-center dark:bg-blue-950">
+                    <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                      {alert.leaveApprovedCount}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Approved</p>
                   </div>
                 </div>
               </div>
@@ -274,19 +282,25 @@ export function DeadlineWidget({
               {/* Flight Requests */}
               <div className="border-l-4 border-purple-500 pl-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-700">Flight Requests (RDO/SDO)</p>
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Flight Requests (RDO/SDO)
+                  </p>
                   <Badge variant="outline" className="text-xs">
                     {alert.flightRequestsCount} total
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded bg-purple-50 p-2 text-center">
-                    <p className="text-lg font-bold text-yellow-600">{alert.flightPendingCount}</p>
-                    <p className="text-xs text-gray-600">Pending</p>
+                  <div className="rounded bg-purple-50 p-2 text-center dark:bg-purple-950">
+                    <p className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                      {alert.flightPendingCount}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Pending</p>
                   </div>
-                  <div className="rounded bg-purple-50 p-2 text-center">
-                    <p className="text-lg font-bold text-green-600">{alert.flightApprovedCount}</p>
-                    <p className="text-xs text-gray-600">Approved</p>
+                  <div className="rounded bg-purple-50 p-2 text-center dark:bg-purple-950">
+                    <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                      {alert.flightApprovedCount}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Approved</p>
                   </div>
                 </div>
               </div>
@@ -306,7 +320,7 @@ export function DeadlineWidget({
 
             {/* Warning for urgent deadlines */}
             {alert.daysUntilDeadline <= 1 && alert.pendingCount > 0 && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-red-600">
+              <div className="mt-2 flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
                 <AlertTriangle className="h-4 w-4" />
                 <p>Action required before deadline!</p>
               </div>

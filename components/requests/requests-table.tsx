@@ -303,9 +303,9 @@ export function RequestsTable({
 
   const getCategoryBadge = (category: PilotRequest['request_category']) => {
     const colors: Record<PilotRequest['request_category'], string> = {
-      LEAVE: 'bg-blue-100 text-blue-800',
-      FLIGHT: 'bg-purple-100 text-purple-800',
-      LEAVE_BID: 'bg-green-100 text-green-800',
+      LEAVE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      FLIGHT: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      LEAVE_BID: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     }
 
     const labels: Record<PilotRequest['request_category'], string> = {
@@ -545,7 +545,10 @@ export function RequestsTable({
                         </Badge>
                       )}
                       {request.conflict_flags && request.conflict_flags.length > 0 && (
-                        <Badge variant="outline" className="border-red-600 bg-red-50 text-red-600">
+                        <Badge
+                          variant="outline"
+                          className="border-red-600 bg-red-50 text-red-600 dark:border-red-500 dark:bg-red-950 dark:text-red-400"
+                        >
                           <AlertTriangle className="mr-1 h-3 w-3" />
                           {request.conflict_flags.length} Conflict
                           {request.conflict_flags.length > 1 ? 's' : ''}
@@ -579,14 +582,14 @@ export function RequestsTable({
                             <>
                               <DropdownMenuItem
                                 onClick={() => onUpdateStatus(request.id, 'APPROVED')}
-                                className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600"
+                                className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600 dark:text-green-400 dark:focus:bg-green-950 dark:focus:text-green-400"
                               >
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Approve
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => onUpdateStatus(request.id, 'DENIED')}
-                                className="cursor-pointer text-orange-600 focus:bg-orange-50 focus:text-orange-600"
+                                className="cursor-pointer text-orange-600 focus:bg-orange-50 focus:text-orange-600 dark:text-orange-400 dark:focus:bg-orange-950 dark:focus:text-orange-400"
                               >
                                 <XCircle className="mr-2 h-4 w-4" />
                                 Deny
@@ -598,7 +601,7 @@ export function RequestsTable({
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => handleDeleteClick(request.id)}
-                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700"
+                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950 dark:focus:text-red-300"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete
@@ -613,65 +616,92 @@ export function RequestsTable({
                 {/* Expanded Details Row */}
                 {expandedRequest === request.id && (
                   <TableRow>
-                    <TableCell colSpan={enableSelection ? 10 : 9} className="bg-gray-50">
+                    <TableCell
+                      colSpan={enableSelection ? 10 : 9}
+                      className="bg-gray-50 dark:bg-gray-800/50"
+                    >
                       <div className="space-y-4 py-4">
-                        <h4 className="font-semibold text-gray-900">Request Details</h4>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                          Request Details
+                        </h4>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                           {/* Request Information Card */}
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                            <h5 className="mb-3 text-sm font-semibold text-gray-700">
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                            <h5 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                               Request Information
                             </h5>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <span className="font-medium text-gray-600">Type:</span>{' '}
-                                <span className="text-gray-900">{request.request_type}</span>
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Type:
+                                </span>{' '}
+                                <span className="text-gray-900 dark:text-gray-100">
+                                  {request.request_type}
+                                </span>
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600">Category:</span>{' '}
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Category:
+                                </span>{' '}
                                 {getCategoryBadge(request.request_category)}
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600">Submitted:</span>{' '}
-                                <span className="text-gray-900">
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Submitted:
+                                </span>{' '}
+                                <span className="text-gray-900 dark:text-gray-100">
                                   {formatDate(request.submission_date)}
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600">Channel:</span>{' '}
-                                <span className="text-gray-900">{request.submission_channel}</span>
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Channel:
+                                </span>{' '}
+                                <span className="text-gray-900 dark:text-gray-100">
+                                  {request.submission_channel}
+                                </span>
                               </div>
                             </div>
                           </div>
 
                           {/* Date Information Card */}
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                            <h5 className="mb-3 text-sm font-semibold text-gray-700">
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                            <h5 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                               Date Information
                             </h5>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <span className="font-medium text-gray-600">Start Date:</span>{' '}
-                                <span className="text-gray-900">
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Start Date:
+                                </span>{' '}
+                                <span className="text-gray-900 dark:text-gray-100">
                                   {formatDate(request.start_date)}
                                 </span>
                               </div>
                               {request.end_date && (
                                 <div>
-                                  <span className="font-medium text-gray-600">End Date:</span>{' '}
-                                  <span className="text-gray-900">
+                                  <span className="font-medium text-gray-600 dark:text-gray-400">
+                                    End Date:
+                                  </span>{' '}
+                                  <span className="text-gray-900 dark:text-gray-100">
                                     {formatDate(request.end_date)}
                                   </span>
                                 </div>
                               )}
                               {request.days_count && (
                                 <div>
-                                  <span className="font-medium text-gray-600">Duration:</span>{' '}
-                                  <span className="text-gray-900">{request.days_count} days</span>
+                                  <span className="font-medium text-gray-600 dark:text-gray-400">
+                                    Duration:
+                                  </span>{' '}
+                                  <span className="text-gray-900 dark:text-gray-100">
+                                    {request.days_count} days
+                                  </span>
                                 </div>
                               )}
                               <div>
-                                <span className="font-medium text-gray-600">Roster Period(s):</span>{' '}
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Roster Period(s):
+                                </span>{' '}
                                 <div className="mt-1 flex flex-wrap gap-1">
                                   {(request as any).roster_periods_spanned ? (
                                     (request as any).roster_periods_spanned.map(
@@ -699,18 +729,24 @@ export function RequestsTable({
                           </div>
 
                           {/* Status & Flags Card */}
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                            <h5 className="mb-3 text-sm font-semibold text-gray-700">
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                            <h5 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                               Status & Flags
                             </h5>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <span className="font-medium text-gray-600">Status:</span>{' '}
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Status:
+                                </span>{' '}
                                 {getStatusBadge(request.workflow_status)}
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600">Priority Score:</span>{' '}
-                                <span className="text-gray-900">{request.priority_score}</span>
+                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  Priority Score:
+                                </span>{' '}
+                                <span className="text-gray-900 dark:text-gray-100">
+                                  {request.priority_score}
+                                </span>
                               </div>
                               {request.is_late_request && (
                                 <div>
@@ -737,9 +773,13 @@ export function RequestsTable({
 
                         {/* Reason (if provided) */}
                         {request.reason && (
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4">
-                            <h5 className="mb-2 text-sm font-semibold text-gray-700">Reason</h5>
-                            <p className="text-sm text-gray-900">{request.reason}</p>
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                            <h5 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                              Reason
+                            </h5>
+                            <p className="text-sm text-gray-900 dark:text-gray-100">
+                              {request.reason}
+                            </p>
                           </div>
                         )}
                       </div>

@@ -184,12 +184,14 @@ export function RenewalPlanningDashboard({
 
       {/* High Risk Alert */}
       {highRiskPeriods.length > 0 && (
-        <Card className="border-red-200 bg-red-50 p-6">
+        <Card className="border-red-200 bg-red-50 p-6 dark:border-red-700 dark:bg-red-950">
           <div className="flex items-start space-x-3">
-            <AlertTriangle className="mt-1 h-6 w-6 text-red-600" />
+            <AlertTriangle className="mt-1 h-6 w-6 text-red-600 dark:text-red-400" />
             <div className="flex-1">
-              <h3 className="font-semibold text-red-900">High Capacity Utilization</h3>
-              <p className="mt-1 text-sm text-red-700">
+              <h3 className="font-semibold text-red-900 dark:text-red-100">
+                High Capacity Utilization
+              </h3>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-300">
                 {highRiskPeriods.length} roster period{highRiskPeriods.length > 1 ? 's' : ''} have
                 utilization above 80%:
               </p>
@@ -232,10 +234,10 @@ export function RenewalPlanningDashboard({
             {summaries.map((summary) => {
               const utilizationColor =
                 summary.utilizationPercentage > 80
-                  ? 'bg-red-100 border-red-300'
+                  ? 'bg-red-100 border-red-300 dark:bg-red-950 dark:border-red-700'
                   : summary.utilizationPercentage > 60
-                    ? 'bg-yellow-100 border-yellow-300'
-                    : 'bg-green-100 border-green-300'
+                    ? 'bg-yellow-100 border-yellow-300 dark:bg-yellow-950 dark:border-yellow-700'
+                    : 'bg-green-100 border-green-300 dark:bg-green-950 dark:border-green-700'
 
               const badgeColor =
                 summary.utilizationPercentage > 80
@@ -318,9 +320,11 @@ export function RenewalPlanningDashboard({
       </div>
 
       {/* Help Text */}
-      <Card className="bg-blue-50 p-6">
-        <h3 className="font-semibold text-blue-900">How to Use Renewal Planning</h3>
-        <ul className="mt-2 space-y-1 text-sm text-blue-700">
+      <Card className="bg-blue-50 p-6 dark:bg-blue-950">
+        <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+          How to Use Renewal Planning
+        </h3>
+        <ul className="mt-2 space-y-1 text-sm text-blue-700 dark:text-blue-300">
           <li>
             • <strong>Select a year</strong> to view renewal planning for that year (February -
             November only)

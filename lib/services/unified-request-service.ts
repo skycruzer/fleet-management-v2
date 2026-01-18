@@ -678,16 +678,21 @@ export async function updateRequestStatus(
             }
           }
         } catch (crewCheckError) {
+          const errorMessage =
+            crewCheckError instanceof Error ? crewCheckError.message : String(crewCheckError)
+
           await logger.error('Crew availability check failed', {
             source: 'unified-request-service:updateRequestStatus',
             requestId: id,
-            error:
-              crewCheckError instanceof Error ? crewCheckError.message : String(crewCheckError),
+            error: errorMessage,
+            startDate: request.start_date,
+            endDate: request.end_date,
           })
 
+          // Expose actual error message for better debugging
           return {
             success: false,
-            error: 'Unable to verify crew availability. Please try again.',
+            error: `Unable to verify crew availability: ${errorMessage}`,
           }
         }
       }

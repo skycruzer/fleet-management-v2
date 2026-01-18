@@ -26,14 +26,16 @@ export function FormErrorBoundary({ children, onError }: SectionErrorBoundaryPro
   return (
     <ErrorBoundary
       fallback={
-        <Card className="border-red-200 bg-red-50 p-8">
+        <Card className="border-red-200 bg-red-50 p-8 dark:border-red-800 dark:bg-red-950">
           <div className="flex flex-col items-center space-y-4 text-center">
-            <div className="rounded-full bg-red-100 p-3">
-              <AlertTriangle className="h-8 w-8 text-red-600" />
+            <div className="rounded-full bg-red-100 p-3 dark:bg-red-900">
+              <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">Form Error</h3>
-              <p className="mb-4 text-gray-600">
+              <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Form Error
+              </h3>
+              <p className="mb-4 text-gray-600 dark:text-gray-400">
                 There was an error loading the form. Your data has not been lost. Please try
                 refreshing the page or contact support if the issue persists.
               </p>
@@ -65,10 +67,10 @@ export function WidgetErrorBoundary({ children, onError }: SectionErrorBoundaryP
   return (
     <ErrorBoundary
       fallback={
-        <Card className="border-yellow-200 bg-yellow-50 p-6">
+        <Card className="border-yellow-200 bg-yellow-50 p-6 dark:border-yellow-800 dark:bg-yellow-950">
           <div className="flex items-center space-x-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-600" />
-            <p className="text-sm text-gray-600">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Unable to load this widget. Other sections are still available.
             </p>
           </div>
@@ -89,12 +91,14 @@ export function TableErrorBoundary({ children, onError }: SectionErrorBoundaryPr
   return (
     <ErrorBoundary
       fallback={
-        <Card className="border-yellow-200 bg-yellow-50 p-8">
+        <Card className="border-yellow-200 bg-yellow-50 p-8 dark:border-yellow-800 dark:bg-yellow-950">
           <div className="flex flex-col items-center space-y-4 text-center">
-            <AlertTriangle className="h-8 w-8 text-yellow-600" />
+            <AlertTriangle className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
             <div>
-              <h3 className="mb-2 text-lg font-semibold text-gray-900">Unable to Load Data</h3>
-              <p className="mb-4 text-gray-600">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Unable to Load Data
+              </h3>
+              <p className="mb-4 text-gray-600 dark:text-gray-400">
                 There was an error loading the table data. Please try refreshing the page.
               </p>
             </div>
@@ -120,12 +124,14 @@ export function DialogErrorBoundary({ children, onError }: SectionErrorBoundaryP
   return (
     <ErrorBoundary
       fallback={
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-950">
           <div className="flex items-start space-x-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600 dark:text-red-400" />
             <div className="flex-1">
-              <h4 className="mb-1 font-semibold text-gray-900">Error Loading Dialog</h4>
-              <p className="mb-3 text-sm text-gray-600">
+              <h4 className="mb-1 font-semibold text-gray-900 dark:text-gray-100">
+                Error Loading Dialog
+              </h4>
+              <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
                 There was an error loading this dialog. Please close and try again.
               </p>
               <Button onClick={() => window.location.reload()} size="sm" variant="outline">
@@ -154,12 +160,14 @@ export function PageSectionErrorBoundary({
   return (
     <ErrorBoundary
       fallback={
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6">
+        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 dark:border-yellow-800 dark:bg-yellow-950">
           <div className="flex items-center space-x-3">
-            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
             <div>
-              <p className="text-sm font-medium text-gray-900">Unable to load {sectionName}</p>
-              <p className="mt-1 text-xs text-gray-600">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Unable to load {sectionName}
+              </p>
+              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
                 The rest of the page is still functional.
               </p>
             </div>
@@ -181,12 +189,16 @@ export function ChartErrorBoundary({ children, onError }: SectionErrorBoundaryPr
   return (
     <ErrorBoundary
       fallback={
-        <Card className="border-gray-200 p-6">
+        <Card className="border-gray-200 p-6 dark:border-gray-700">
           <div className="flex min-h-[200px] flex-col items-center justify-center space-y-3 text-center">
-            <AlertTriangle className="h-8 w-8 text-gray-400" />
+            <AlertTriangle className="h-8 w-8 text-gray-400 dark:text-gray-500" />
             <div>
-              <p className="text-sm font-medium text-gray-700">Unable to load visualization</p>
-              <p className="mt-1 text-xs text-gray-500">Chart data could not be rendered</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Unable to load visualization
+              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Chart data could not be rendered
+              </p>
             </div>
             <Button onClick={() => window.location.reload()} size="sm" variant="outline">
               <RefreshCw className="mr-2 h-3 w-3" />
@@ -210,12 +222,14 @@ export function NavigationErrorBoundary({ children, onError }: SectionErrorBound
   return (
     <ErrorBoundary
       fallback={
-        <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4">
+        <div className="m-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
           <div className="flex items-center space-x-3">
-            <AlertTriangle className="h-5 w-5 text-red-600" />
+            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
             <div>
-              <p className="text-sm font-medium text-gray-900">Navigation Error</p>
-              <p className="mt-1 text-xs text-gray-600">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Navigation Error
+              </p>
+              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
                 Unable to load navigation. Please refresh the page.
               </p>
             </div>

@@ -2,18 +2,31 @@
 
 /**
  * Generate Renewal Plan Configuration Page
- * Allows users to customize renewal plan generation
+ * Author: Maurice Rondeau
+ *
+ * Allows users to customize renewal plan generation with:
+ * - Live preview as configuration changes
+ * - Post-generation results view
+ * - User-controlled navigation
  *
  * Features:
  * - Configure time horizon (months ahead)
  * - Filter by category
- * - Filter by specific pilots
- * - Preview before generating
+ * - Preview before generating (uses GenerationPreview component)
  * - Clear existing plans option
+ * - Detailed results view after generation
  */
 
 import { useState } from 'react'
-import { ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react'
+import {
+  ArrowLeft,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle2,
+  BarChart3,
+  ArrowRight,
+  RotateCcw,
+} from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -23,23 +36,40 @@ import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { GenerationPreview } from '@/components/renewal-planning/generation-preview'
 
 // Focus on checks with grace periods suitable for advance planning
 // - Flight Checks: 90-day grace period
 // - Simulator Checks: 90-day grace period
 // - Ground Courses Refresher: 60-day grace period
-// This enables even distribution of renewals across roster periods throughout the year
 const CATEGORIES = ['Flight Checks', 'Simulator Checks', 'Ground Courses Refresher']
+
+// Page state machine
+type PageState = 'configure' | 'generating' | 'results'
+
+// Generation result data structure
+interface GenerationResult {
+  totalPlans: number
+  byCategory: Record<string, number>
+  rosterPeriodSummary: Array<{
+    rosterPeriod: string
+    totalRenewals: number
+  }>
+}
 
 export default function GeneratePlanPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const year = searchParams.get('year') || new Date().getFullYear().toString()
+
+  // Configuration state
   const [monthsAhead, setMonthsAhead] = useState(12)
-  // Pre-select both Flight and Simulator Checks by default
   const [selectedCategories, setSelectedCategories] = useState<string[]>(CATEGORIES)
   const [clearExisting, setClearExisting] = useState(false)
-  const [isGenerating, setIsGenerating] = useState(false)
+
+  // Page state machine
+  const [pageState, setPageState] = useState<PageState>('configure')
+  const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null)
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
@@ -48,7 +78,7 @@ export default function GeneratePlanPage() {
   }
 
   const handleGenerate = async () => {
-    setIsGenerating(true)
+    setPageState('generating')
 
     try {
       // Clear existing plans if requested
@@ -85,22 +115,175 @@ export default function GeneratePlanPage() {
 
       const result = await response.json()
 
-      toast.success(
-        `Successfully generated ${result.data.totalPlans} renewal plans across ${result.data.rosterPeriodSummary.length} roster periods!`
-      )
-
-      // Redirect to main planning page with year parameter preserved
-      setTimeout(() => {
-        router.push(`/dashboard/renewal-planning?year=${year}`)
-      }, 1500)
-    } catch (error: any) {
+      // Store results and transition to results view
+      setGenerationResult(result.data)
+      setPageState('results')
+      toast.success(`Successfully generated ${result.data.totalPlans} renewal plans!`)
+    } catch (error: unknown) {
       console.error('Error generating renewal plan:', error)
-      toast.error(error.message || 'Failed to generate renewal plan')
-    } finally {
-      setIsGenerating(false)
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to generate renewal plan'
+      toast.error(errorMessage)
+      setPageState('configure') // Go back to configure on error
     }
   }
 
+  const handleGenerateAnother = () => {
+    setGenerationResult(null)
+    setPageState('configure')
+  }
+
+  const handleViewDashboard = () => {
+    router.push(`/dashboard/renewal-planning?year=${year}`)
+  }
+
+  // Results View Component
+  if (pageState === 'results' && generationResult) {
+    return (
+      <div className="space-y-6 p-8">
+        {/* Header */}
+        <div className="flex items-center space-x-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+            <CheckCircle2 className="h-6 w-6 text-green-600" />
+          </div>
+          <div>
+            <h1 className="text-foreground text-3xl font-bold">Generation Complete</h1>
+            <p className="text-muted-foreground mt-1">
+              Successfully generated {generationResult.totalPlans} renewal plans
+            </p>
+          </div>
+        </div>
+
+        {/* Summary Stats */}
+        <Card className="border-green-200 bg-green-50 p-6">
+          <div className="grid grid-cols-3 gap-6 text-center">
+            <div>
+              <p className="text-4xl font-bold text-green-700">{generationResult.totalPlans}</p>
+              <p className="text-sm text-green-600">Total Plans Generated</p>
+            </div>
+            <div>
+              <p className="text-4xl font-bold text-green-700">
+                {Object.keys(generationResult.byCategory).length}
+              </p>
+              <p className="text-sm text-green-600">Categories Covered</p>
+            </div>
+            <div>
+              <p className="text-4xl font-bold text-green-700">
+                {generationResult.rosterPeriodSummary.length}
+              </p>
+              <p className="text-sm text-green-600">Roster Periods</p>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Category Breakdown */}
+          <Card className="p-6">
+            <h2 className="text-foreground mb-4 flex items-center text-xl font-semibold">
+              <BarChart3 className="mr-2 h-5 w-5" />
+              By Category
+            </h2>
+            <div className="space-y-3">
+              {Object.entries(generationResult.byCategory).map(([category, count]) => {
+                const percentage = Math.round((count / generationResult.totalPlans) * 100)
+                return (
+                  <div key={category} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-foreground font-medium">{category}</span>
+                      <span className="text-muted-foreground">
+                        {count} ({percentage}%)
+                      </span>
+                    </div>
+                    <div className="bg-secondary h-2 w-full overflow-hidden rounded-full">
+                      <div
+                        className="bg-primary h-full transition-all"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </Card>
+
+          {/* Roster Period Breakdown */}
+          <Card className="p-6">
+            <h2 className="text-foreground mb-4 flex items-center text-xl font-semibold">
+              <BarChart3 className="mr-2 h-5 w-5" />
+              By Roster Period
+            </h2>
+            <div className="space-y-3">
+              {generationResult.rosterPeriodSummary.slice(0, 8).map((period) => {
+                const maxCount = Math.max(
+                  ...generationResult.rosterPeriodSummary.map((p) => p.totalRenewals)
+                )
+                const percentage = Math.round((period.totalRenewals / maxCount) * 100)
+                return (
+                  <div key={period.rosterPeriod} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-foreground font-medium">{period.rosterPeriod}</span>
+                      <Badge variant="secondary">{period.totalRenewals} renewals</Badge>
+                    </div>
+                    <div className="bg-secondary h-2 w-full overflow-hidden rounded-full">
+                      <div
+                        className="h-full bg-blue-500 transition-all"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+              {generationResult.rosterPeriodSummary.length > 8 && (
+                <p className="text-muted-foreground text-center text-sm">
+                  +{generationResult.rosterPeriodSummary.length - 8} more periods
+                </p>
+              )}
+            </div>
+          </Card>
+        </div>
+
+        {/* Action Buttons */}
+        <Card className="p-6">
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button onClick={handleViewDashboard} size="lg">
+              <ArrowRight className="mr-2 h-4 w-4" />
+              View Dashboard
+            </Button>
+            <Button onClick={handleGenerateAnother} variant="outline" size="lg">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Generate Another Plan
+            </Button>
+            <Link href={`/dashboard/renewal-planning?year=${year}`}>
+              <Button variant="ghost" size="lg">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Planning
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  // Generating State
+  if (pageState === 'generating') {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center p-8">
+        <Card className="p-12 text-center">
+          <RefreshCw className="text-primary mx-auto mb-4 h-12 w-12 animate-spin" />
+          <h2 className="text-foreground mb-2 text-2xl font-semibold">Generating Renewal Plans</h2>
+          <p className="text-muted-foreground">
+            {clearExisting
+              ? 'Clearing existing plans and generating new ones...'
+              : 'Calculating optimal renewal schedule...'}
+          </p>
+          <p className="text-muted-foreground mt-2 text-sm">This may take a few moments</p>
+        </Card>
+      </div>
+    )
+  }
+
+  // Configure State (default)
   return (
     <div className="space-y-6 p-8">
       {/* Header */}
@@ -208,38 +391,16 @@ export default function GeneratePlanPage() {
           )}
         </div>
 
-        {/* Summary Panel */}
+        {/* Right Panel - Preview & Summary */}
         <div className="space-y-6">
-          <Card className="p-6">
-            <h2 className="text-foreground mb-4 text-xl font-semibold">Configuration Summary</h2>
-            <div className="space-y-4">
-              <div>
-                <p className="text-muted-foreground text-sm">Time Horizon</p>
-                <p className="text-foreground font-medium">{monthsAhead} months</p>
-              </div>
+          {/* Live Preview */}
+          <GenerationPreview
+            monthsAhead={monthsAhead}
+            categories={selectedCategories}
+            enabled={selectedCategories.length > 0}
+          />
 
-              <div>
-                <p className="text-muted-foreground text-sm">Categories</p>
-                {selectedCategories.length > 0 ? (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {selectedCategories.map((category) => (
-                      <Badge key={category} variant="secondary">
-                        {category}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-foreground font-medium">All categories</p>
-                )}
-              </div>
-
-              <div>
-                <p className="text-muted-foreground text-sm">Clear Existing</p>
-                <p className="text-foreground font-medium">{clearExisting ? 'Yes' : 'No'}</p>
-              </div>
-            </div>
-          </Card>
-
+          {/* How It Works */}
           <Card className="bg-blue-50 p-6">
             <h3 className="mb-2 font-semibold text-blue-900">How It Works</h3>
             <ul className="space-y-2 text-sm text-blue-700">
@@ -252,19 +413,21 @@ export default function GeneratePlanPage() {
           </Card>
 
           {/* Generate Button */}
-          <Button onClick={handleGenerate} disabled={isGenerating} size="lg" className="w-full">
-            {isGenerating ? (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Generate Renewal Plan
-              </>
-            )}
+          <Button
+            onClick={handleGenerate}
+            disabled={selectedCategories.length === 0}
+            size="lg"
+            className="w-full"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Generate Renewal Plan
           </Button>
+
+          {selectedCategories.length === 0 && (
+            <p className="text-muted-foreground text-center text-sm">
+              Select at least one category to generate
+            </p>
+          )}
         </div>
       </div>
     </div>

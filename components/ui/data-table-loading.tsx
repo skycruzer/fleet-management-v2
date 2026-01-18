@@ -86,8 +86,8 @@ export function SimpleTableLoading() {
   return (
     <Card className="overflow-hidden">
       <div className="p-8 text-center">
-        <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
-        <p className="text-gray-600">Loading data...</p>
+        <div className="border-primary mb-4 inline-block h-8 w-8 animate-spin rounded-full border-b-2"></div>
+        <p className="text-muted-foreground">Loading data...</p>
       </div>
     </Card>
   )
@@ -99,8 +99,8 @@ export function SimpleTableLoading() {
 export function InlineTableLoading({ message = 'Loading...' }: { message?: string }) {
   return (
     <div className="p-8 text-center">
-      <div className="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
-      <p className="mt-2 text-gray-600">{message}</p>
+      <div className="border-primary inline-block h-8 w-8 animate-spin rounded-full border-b-2"></div>
+      <p className="text-muted-foreground mt-2">{message}</p>
     </div>
   )
 }

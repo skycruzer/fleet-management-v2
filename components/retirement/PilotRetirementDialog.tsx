@@ -116,8 +116,8 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
+            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
           </div>
         )}
 
@@ -140,15 +140,17 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
 
             {/* Retirement Countdown */}
             {retirementCountdown && !retirementCountdown.isRetired && (
-              <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+              <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-700 dark:bg-purple-950">
                 <div className="mb-3 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-purple-600" />
-                  <span className="text-sm font-medium text-purple-900">Time Until Retirement</span>
+                  <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                    Time Until Retirement
+                  </span>
                 </div>
-                <div className="text-3xl font-bold text-purple-900">
+                <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">
                   {formatRetirementCountdown(retirementCountdown)}
                 </div>
-                <div className="mt-2 text-sm text-purple-700">
+                <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
                   {retirementCountdown.years} years, {retirementCountdown.months} months,{' '}
                   {retirementCountdown.days} days
                 </div>
@@ -156,8 +158,10 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
             )}
 
             {retirementCountdown?.isRetired && (
-              <div className="rounded-lg border border-gray-300 bg-gray-100 p-4">
-                <p className="text-sm font-medium text-gray-700">This pilot has already retired.</p>
+              <div className="rounded-lg border border-gray-300 bg-gray-100 p-4 dark:border-gray-600 dark:bg-gray-800">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  This pilot has already retired.
+                </p>
               </div>
             )}
 
@@ -217,8 +221,8 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
             )}
 
             {/* Succession Planning Note (Admin only - placeholder) */}
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <p className="text-xs text-blue-700">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-950">
+              <p className="text-xs text-blue-700 dark:text-blue-300">
                 <strong>Note:</strong> Contact HR for succession planning and retirement transition
                 support.
               </p>

@@ -56,7 +56,7 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
         {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardContent className="p-6">
-              <div className="h-16 animate-pulse rounded bg-gray-200"></div>
+              <div className="h-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
             </CardContent>
           </Card>
         ))}

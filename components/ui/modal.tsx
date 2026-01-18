@@ -169,19 +169,19 @@ export function Modal({
         <div
           ref={modalRef}
           className={cn(
-            'relative w-full rounded-lg bg-white shadow-xl transition-all',
+            'bg-card relative w-full rounded-lg shadow-xl transition-all',
             sizeClasses[size],
             className
           )}
         >
           {/* Header */}
-          <div className="flex items-start justify-between border-b border-gray-200 px-6 py-4">
+          <div className="border-border flex items-start justify-between border-b px-6 py-4">
             <div className="flex-1">
-              <h2 id={titleId} className="text-xl font-semibold text-gray-900">
+              <h2 id={titleId} className="text-foreground text-xl font-semibold">
                 {title}
               </h2>
               {description && (
-                <p id={descriptionId} className="mt-1 text-sm text-gray-600">
+                <p id={descriptionId} className="text-muted-foreground mt-1 text-sm">
                   {description}
                 </p>
               )}
@@ -194,7 +194,7 @@ export function Modal({
                 size="sm"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="ml-4 text-gray-400 hover:text-gray-600"
+                className="text-muted-foreground hover:text-foreground ml-4"
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -221,7 +221,7 @@ export function ModalFooter({ children, className }: ModalFooterProps) {
   return (
     <div
       className={cn(
-        'flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4',
+        'border-border flex items-center justify-end gap-3 border-t px-6 py-4',
         className
       )}
     >

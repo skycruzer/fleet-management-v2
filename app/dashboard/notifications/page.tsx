@@ -63,13 +63,13 @@ export default async function NotificationsPage() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'bg-green-50 border-green-200'
+        return 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-700'
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200'
+        return 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-700'
       case 'error':
-        return 'bg-red-50 border-red-200'
+        return 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-700'
       default:
-        return 'bg-blue-50 border-blue-200'
+        return 'bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-700'
     }
   }
 
@@ -80,7 +80,7 @@ export default async function NotificationsPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
@@ -101,8 +101,8 @@ export default async function NotificationsPage() {
 
       {/* Page Title */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-foreground text-3xl font-bold">Notifications</h1>
+        <p className="text-muted-foreground mt-2">
           {unreadNotifications.length} unread notification
           {unreadNotifications.length !== 1 ? 's' : ''}
         </p>
@@ -110,17 +110,17 @@ export default async function NotificationsPage() {
 
       {/* Notifications List */}
       {notifications.length === 0 ? (
-        <div className="flex min-h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-12">
-          <Bell className="h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No notifications</h3>
-          <p className="mt-2 text-gray-600">You are all caught up!</p>
+        <div className="flex min-h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-12 dark:border-gray-600 dark:bg-gray-800">
+          <Bell className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+          <h3 className="text-foreground mt-4 text-lg font-medium">No notifications</h3>
+          <p className="text-muted-foreground mt-2">You are all caught up!</p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Unread Section */}
           {unreadNotifications.length > 0 && (
             <div>
-              <h2 className="mb-3 text-lg font-semibold text-gray-900">Unread</h2>
+              <h2 className="text-foreground mb-3 text-lg font-semibold">Unread</h2>
               <div className="space-y-3">
                 {unreadNotifications.map((notification) => (
                   <div
@@ -130,10 +130,10 @@ export default async function NotificationsPage() {
                     <div className="flex items-start gap-3">
                       {getTypeIcon(notification.type)}
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{notification.title}</h3>
-                        <p className="mt-1 text-gray-700">{notification.message}</p>
+                        <h3 className="text-foreground font-semibold">{notification.title}</h3>
+                        <p className="text-foreground/80 mt-1">{notification.message}</p>
                         <div className="mt-3 flex items-center gap-4">
-                          <p className="text-sm text-gray-500">
+                          <p className="text-muted-foreground text-sm">
                             {new Date(notification.created_at || '').toLocaleString()}
                           </p>
                           {notification.link && (
@@ -156,22 +156,22 @@ export default async function NotificationsPage() {
           {/* Read Section */}
           {readNotifications.length > 0 && (
             <div>
-              <h2 className="mb-3 text-lg font-semibold text-gray-900">
+              <h2 className="text-foreground mb-3 text-lg font-semibold">
                 Earlier ({readNotifications.length})
               </h2>
               <div className="space-y-3">
                 {readNotifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className="rounded-lg border border-gray-200 bg-white p-4 opacity-60"
+                    className="rounded-lg border border-gray-200 bg-white p-4 opacity-60 dark:border-gray-700 dark:bg-gray-800"
                   >
                     <div className="flex items-start gap-3">
                       {getTypeIcon(notification.type)}
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{notification.title}</h3>
-                        <p className="mt-1 text-gray-700">{notification.message}</p>
+                        <h3 className="text-foreground font-semibold">{notification.title}</h3>
+                        <p className="text-foreground/80 mt-1">{notification.message}</p>
                         <div className="mt-3 flex items-center gap-4">
-                          <p className="text-sm text-gray-500">
+                          <p className="text-muted-foreground text-sm">
                             {new Date(notification.created_at || '').toLocaleString()}
                           </p>
                           {notification.link && (

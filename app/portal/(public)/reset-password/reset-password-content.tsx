@@ -204,7 +204,7 @@ export function ResetPasswordContent() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="border-none bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="border-none bg-white/95 p-8 shadow-2xl backdrop-blur-sm dark:bg-gray-900/95">
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div
@@ -220,8 +220,8 @@ export function ResetPasswordContent() {
               Set New Password
             </h1>
             {email && (
-              <p className="text-sm text-gray-600">
-                for <span className="font-medium text-gray-900">{email}</span>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                for <span className="font-medium text-gray-900 dark:text-gray-100">{email}</span>
               </p>
             )}
           </div>
@@ -230,18 +230,22 @@ export function ResetPasswordContent() {
           {isValidating && (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-              <p className="mt-4 text-sm text-gray-600">Validating reset link...</p>
+              <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                Validating reset link...
+              </p>
             </div>
           )}
 
           {/* Invalid Token */}
           {!isValidating && !tokenValid && (
             <div className="space-y-6">
-              <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
+              <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-red-900">Invalid Reset Link</p>
-                  <p className="mt-1 text-sm text-red-700">{error}</p>
+                  <p className="text-sm font-medium text-red-900 dark:text-red-200">
+                    Invalid Reset Link
+                  </p>
+                  <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
                 </div>
               </div>
 
@@ -266,13 +270,15 @@ export function ResetPasswordContent() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900"
                 >
                   <CheckCircle2 className="h-8 w-8 text-green-600" />
                 </motion.div>
 
-                <p className="text-lg font-semibold text-gray-900">Password Reset Successfully!</p>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Password Reset Successfully!
+                </p>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                   You'll be redirected to login in a few seconds...
                 </p>
               </div>
@@ -287,22 +293,25 @@ export function ResetPasswordContent() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4"
+                  className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950"
                 >
-                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
-                  <p className="flex-1 text-sm text-red-700">{error}</p>
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+                  <p className="flex-1 text-sm text-red-700 dark:text-red-300">{error}</p>
                 </motion.div>
               )}
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   New Password
                 </label>
                 <div className="relative">
                   <div className="absolute top-1/2 left-3 -translate-y-1/2">
                     <Lock
-                      className={`h-5 w-5 transition-colors ${passwordFocused ? 'text-blue-600' : 'text-gray-400'}`}
+                      className={`h-5 w-5 transition-colors ${passwordFocused ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}
                     />
                   </div>
                   <Input
@@ -313,12 +322,12 @@ export function ResetPasswordContent() {
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
                     disabled={isLoading}
-                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500"
+                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -328,14 +337,14 @@ export function ResetPasswordContent() {
                 {password && (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-600">Password strength:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Password strength:</span>
                       <span
                         className={`font-medium ${passwordStrength.strength === 100 ? 'text-green-600' : passwordStrength.strength === 66 ? 'text-yellow-600' : 'text-red-600'}`}
                       >
                         {passwordStrength.label}
                       </span>
                     </div>
-                    <div className="h-1.5 w-full rounded-full bg-gray-200">
+                    <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
                       <div
                         className={`h-full rounded-full transition-all ${passwordStrength.color}`}
                         style={{ width: `${passwordStrength.strength}%` }}
@@ -349,7 +358,7 @@ export function ResetPasswordContent() {
                 )}
 
                 {/* Password Requirements */}
-                <div className="space-y-1 text-xs text-gray-500">
+                <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
                   <p className="font-medium">Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
                     <li className={password.length >= 8 ? 'text-green-600' : ''}>
@@ -371,13 +380,16 @@ export function ResetPasswordContent() {
 
               {/* Confirm Password Field */}
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
                   <div className="absolute top-1/2 left-3 -translate-y-1/2">
                     <Lock
-                      className={`h-5 w-5 transition-colors ${confirmPasswordFocused ? 'text-blue-600' : 'text-gray-400'}`}
+                      className={`h-5 w-5 transition-colors ${confirmPasswordFocused ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}
                     />
                   </div>
                   <Input
@@ -388,12 +400,12 @@ export function ResetPasswordContent() {
                     onFocus={() => setConfirmPasswordFocused(true)}
                     onBlur={() => setConfirmPasswordFocused(false)}
                     disabled={isLoading}
-                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500"
+                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -434,9 +446,9 @@ export function ResetPasswordContent() {
           {!isValidating && !success && (
             <>
               <div className="my-8 flex items-center">
-                <div className="flex-1 border-t border-gray-300" />
-                <span className="px-4 text-sm text-gray-500">or</span>
-                <div className="flex-1 border-t border-gray-300" />
+                <div className="flex-1 border-t border-gray-300 dark:border-gray-700" />
+                <span className="px-4 text-sm text-gray-500 dark:text-gray-400">or</span>
+                <div className="flex-1 border-t border-gray-300 dark:border-gray-700" />
               </div>
 
               <Link

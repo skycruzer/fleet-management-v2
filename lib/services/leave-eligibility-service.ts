@@ -247,15 +247,15 @@ export async function checkCrewAvailabilityAtomic(
   }
 
   // Check Captains atomically with row locking
-  // Note: Using type assertion because TypeScript types are regenerated after migration
   const { data: captainCheckData, error: captainError } = await supabase.rpc(
-    'check_crew_availability_atomic' as never,
+    'check_crew_availability_atomic',
     {
       p_pilot_role: 'Captain',
       p_start_date: startDate,
       p_end_date: endDate,
-      p_exclude_request_id: excludeRequestId || null,
-    } as never
+      p_exclude_request_id:
+        excludeRequestId && excludeRequestId.length > 0 ? excludeRequestId : undefined,
+    }
   )
 
   if (captainError) {
@@ -267,13 +267,14 @@ export async function checkCrewAvailabilityAtomic(
 
   // Check First Officers atomically with row locking
   const { data: foCheckData, error: foError } = await supabase.rpc(
-    'check_crew_availability_atomic' as never,
+    'check_crew_availability_atomic',
     {
       p_pilot_role: 'First Officer',
       p_start_date: startDate,
       p_end_date: endDate,
-      p_exclude_request_id: excludeRequestId || null,
-    } as never
+      p_exclude_request_id:
+        excludeRequestId && excludeRequestId.length > 0 ? excludeRequestId : undefined,
+    }
   )
 
   if (foError) {

@@ -233,7 +233,7 @@ export default function AnalyticsPage() {
 
       {/* Critical Alerts Section */}
       {analytics.risk.criticalAlerts.length > 0 && (
-        <Card className="border-destructive/20 bg-red-50 p-4">
+        <Card className="border-destructive/20 bg-red-50 p-4 dark:bg-red-950">
           <div className="flex items-start space-x-2">
             <span className="text-2xl">🚨</span>
             <div className="flex-1">
@@ -267,19 +267,21 @@ export default function AnalyticsPage() {
 
       {/* Fleet Readiness Overview */}
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4 dark:border-blue-700 dark:from-blue-950 dark:to-blue-900">
           <div className="mb-2 flex items-center justify-between">
-            <BarChart3 className="h-8 w-8 text-blue-600" aria-hidden="true" />
-            <span className="text-2xl font-bold text-blue-900">{analytics.fleet.utilization}%</span>
+            <BarChart3 className="h-8 w-8 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+            <span className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+              {analytics.fleet.utilization}%
+            </span>
           </div>
           <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Utilization</h3>
           <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
         </Card>
 
-        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-4">
+        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-green-100 p-4 dark:border-green-700 dark:from-green-950 dark:to-green-900">
           <div className="mb-2 flex items-center justify-between">
-            <Plane className="h-8 w-8 text-green-600" aria-hidden="true" />
-            <span className="text-2xl font-bold text-green-900">
+            <Plane className="h-8 w-8 text-green-600 dark:text-green-400" aria-hidden="true" />
+            <span className="text-2xl font-bold text-green-900 dark:text-green-100">
               {analytics.fleet.availability}%
             </span>
           </div>
@@ -315,16 +317,20 @@ export default function AnalyticsPage() {
               <div className="text-foreground text-2xl font-bold">{analytics.pilot.total}</div>
               <div className="text-muted-foreground text-xs">Total Pilots</div>
             </div>
-            <div className="rounded-lg bg-green-50 p-3">
-              <div className="text-2xl font-bold text-green-900">{analytics.pilot.active}</div>
+            <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950">
+              <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                {analytics.pilot.active}
+              </div>
               <div className="text-muted-foreground text-xs">Active</div>
             </div>
-            <div className="bg-primary/5 rounded-lg p-3">
-              <div className="text-2xl font-bold text-blue-900">{analytics.pilot.captains}</div>
+            <div className="bg-primary/5 rounded-lg p-3 dark:bg-blue-950">
+              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                {analytics.pilot.captains}
+              </div>
               <div className="text-muted-foreground text-xs">Captains</div>
             </div>
-            <div className="rounded-lg bg-indigo-50 p-3">
-              <div className="text-2xl font-bold text-indigo-900">
+            <div className="rounded-lg bg-indigo-50 p-3 dark:bg-indigo-950">
+              <div className="text-2xl font-bold text-indigo-900 dark:text-indigo-100">
                 {analytics.pilot.firstOfficers}
               </div>
               <div className="text-muted-foreground text-xs">First Officers</div>
@@ -337,11 +343,11 @@ export default function AnalyticsPage() {
             ⏰ Retirement Planning
           </h3>
           <div className="space-y-4">
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-950">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="text-muted-foreground text-sm">Retiring in 2 Years</div>
-                  <div className="mt-1 text-2xl font-bold text-yellow-900">
+                  <div className="mt-1 text-2xl font-bold text-yellow-900 dark:text-yellow-100">
                     {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
                   </div>
                   {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.length > 0 && (
@@ -349,12 +355,12 @@ export default function AnalyticsPage() {
                       {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.map((pilot) => (
                         <div
                           key={pilot.id}
-                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm dark:bg-yellow-900/50"
                         >
-                          <span className="font-medium text-yellow-900">
+                          <span className="font-medium text-yellow-900 dark:text-yellow-100">
                             {pilot.rank} {pilot.name}
                           </span>
-                          <span className="text-xs text-yellow-700">
+                          <span className="text-xs text-yellow-700 dark:text-yellow-300">
                             {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
                               month: 'short',
                               year: 'numeric',
@@ -365,14 +371,17 @@ export default function AnalyticsPage() {
                     </div>
                   )}
                 </div>
-                <AlertTriangle className="h-8 w-8 flex-shrink-0 text-red-600" aria-hidden="true" />
+                <AlertTriangle
+                  className="h-8 w-8 flex-shrink-0 text-red-600 dark:text-red-400"
+                  aria-hidden="true"
+                />
               </div>
             </div>
-            <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+            <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-700 dark:bg-orange-950">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="text-muted-foreground text-sm">Retiring in 3-5 Years</div>
-                  <div className="mt-1 text-2xl font-bold text-orange-900">
+                  <div className="mt-1 text-2xl font-bold text-orange-900 dark:text-orange-100">
                     {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length} pilots
                   </div>
                   {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length > 0 && (
@@ -380,12 +389,12 @@ export default function AnalyticsPage() {
                       {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.map((pilot) => (
                         <div
                           key={pilot.id}
-                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm dark:bg-orange-900/50"
                         >
-                          <span className="font-medium text-orange-900">
+                          <span className="font-medium text-orange-900 dark:text-orange-100">
                             {pilot.rank} {pilot.name}
                           </span>
-                          <span className="text-xs text-orange-700">
+                          <span className="text-xs text-orange-700 dark:text-orange-300">
                             {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
                               month: 'short',
                               year: 'numeric',
@@ -396,7 +405,10 @@ export default function AnalyticsPage() {
                     </div>
                   )}
                 </div>
-                <Calendar className="h-8 w-8 flex-shrink-0 text-yellow-600" aria-hidden="true" />
+                <Calendar
+                  className="h-8 w-8 flex-shrink-0 text-yellow-600 dark:text-yellow-400"
+                  aria-hidden="true"
+                />
               </div>
             </div>
           </div>
@@ -417,29 +429,29 @@ export default function AnalyticsPage() {
               </div>
               <div className="text-muted-foreground text-sm">Total Certifications</div>
             </div>
-            <div className="rounded-lg bg-green-50 p-4">
-              <div className="text-3xl font-bold text-green-900">
+            <div className="rounded-lg bg-green-50 p-4 dark:bg-green-950">
+              <div className="text-3xl font-bold text-green-900 dark:text-green-100">
                 {analytics.certification.current}
               </div>
               <div className="text-muted-foreground text-sm">Current</div>
             </div>
-            <div className="rounded-lg bg-yellow-50 p-4">
-              <div className="text-3xl font-bold text-yellow-900">
+            <div className="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-950">
+              <div className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">
                 {analytics.certification.expiring}
               </div>
               <div className="text-muted-foreground text-sm">Expiring (≤30 days)</div>
             </div>
-            <div className="rounded-lg bg-red-50 p-4">
-              <div className="text-3xl font-bold text-red-900">
+            <div className="rounded-lg bg-red-50 p-4 dark:bg-red-950">
+              <div className="text-3xl font-bold text-red-900 dark:text-red-100">
                 {analytics.certification.expired}
               </div>
               <div className="text-muted-foreground text-sm">Expired</div>
             </div>
           </div>
-          <div className="bg-primary/5 mt-4 rounded-lg p-4">
+          <div className="bg-primary/5 mt-4 rounded-lg p-4 dark:bg-blue-950">
             <div className="flex items-center justify-between">
               <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
-              <span className="text-2xl font-bold text-blue-900">
+              <span className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                 {analytics.certification.complianceRate}%
               </span>
             </div>
@@ -485,16 +497,22 @@ export default function AnalyticsPage() {
             <div className="text-foreground text-3xl font-bold">{analytics.leave.total}</div>
             <div className="text-muted-foreground text-sm">Total Requests</div>
           </div>
-          <div className="rounded-lg bg-yellow-50 p-4">
-            <div className="text-3xl font-bold text-yellow-900">{analytics.leave.pending}</div>
+          <div className="rounded-lg bg-yellow-50 p-4 dark:bg-yellow-950">
+            <div className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">
+              {analytics.leave.pending}
+            </div>
             <div className="text-muted-foreground text-sm">Pending</div>
           </div>
-          <div className="rounded-lg bg-green-50 p-4">
-            <div className="text-3xl font-bold text-green-900">{analytics.leave.approved}</div>
+          <div className="rounded-lg bg-green-50 p-4 dark:bg-green-950">
+            <div className="text-3xl font-bold text-green-900 dark:text-green-100">
+              {analytics.leave.approved}
+            </div>
             <div className="text-muted-foreground text-sm">Approved</div>
           </div>
-          <div className="rounded-lg bg-red-50 p-4">
-            <div className="text-3xl font-bold text-red-900">{analytics.leave.denied}</div>
+          <div className="rounded-lg bg-red-50 p-4 dark:bg-red-950">
+            <div className="text-3xl font-bold text-red-900 dark:text-red-100">
+              {analytics.leave.denied}
+            </div>
             <div className="text-muted-foreground text-sm">Denied</div>
           </div>
         </div>

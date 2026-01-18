@@ -133,7 +133,7 @@ export default function ForgotPasswordPage() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="border-none bg-white/95 p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="border-none bg-white/95 p-8 shadow-2xl backdrop-blur-sm dark:bg-gray-900/95">
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div
@@ -148,7 +148,7 @@ export default function ForgotPasswordPage() {
             <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold text-transparent">
               Reset Password
             </h1>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Enter your email address and we'll send you a link to reset your password
             </p>
           </div>
@@ -158,12 +158,14 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4"
+              className="mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950"
             >
-              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
+              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-green-900">Email Sent!</p>
-                <p className="mt-1 text-sm text-green-700">
+                <p className="text-sm font-medium text-green-900 dark:text-green-200">
+                  Email Sent!
+                </p>
+                <p className="mt-1 text-sm text-green-700 dark:text-green-300">
                   If an account exists with this email, you'll receive password reset instructions
                   shortly. Please check your inbox and spam folder.
                 </p>
@@ -176,10 +178,10 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4"
+              className="mb-6 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950"
             >
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
-              <p className="flex-1 text-sm text-red-700">{error}</p>
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+              <p className="flex-1 text-sm text-red-700 dark:text-red-300">{error}</p>
             </motion.div>
           )}
 
@@ -187,13 +189,16 @@ export default function ForgotPasswordPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute top-1/2 left-3 -translate-y-1/2">
                   <Mail
-                    className={`h-5 w-5 transition-colors ${emailFocused ? 'text-blue-600' : 'text-gray-400'}`}
+                    className={`h-5 w-5 transition-colors ${emailFocused ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}
                   />
                 </div>
                 <Input
@@ -204,7 +209,7 @@ export default function ForgotPasswordPage() {
                   onFocus={() => setEmailFocused(true)}
                   onBlur={() => setEmailFocused(false)}
                   disabled={isLoading || success}
-                  className="h-12 border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500"
+                  className="h-12 border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
               {form.formState.errors.email && (
@@ -239,9 +244,9 @@ export default function ForgotPasswordPage() {
 
           {/* Divider */}
           <div className="my-8 flex items-center">
-            <div className="flex-1 border-t border-gray-300" />
-            <span className="px-4 text-sm text-gray-500">or</span>
-            <div className="flex-1 border-t border-gray-300" />
+            <div className="flex-1 border-t border-gray-300 dark:border-gray-700" />
+            <span className="px-4 text-sm text-gray-500 dark:text-gray-400">or</span>
+            <div className="flex-1 border-t border-gray-300 dark:border-gray-700" />
           </div>
 
           {/* Back to Login Link */}
@@ -254,7 +259,7 @@ export default function ForgotPasswordPage() {
           </Link>
 
           {/* Help Text */}
-          <p className="mt-6 text-center text-xs text-gray-500">
+          <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
             Need help? Contact your system administrator or IT support.
           </p>
         </Card>
