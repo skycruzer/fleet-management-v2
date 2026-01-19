@@ -17,7 +17,19 @@ import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { Database } from '@/types/supabase'
 import { calculateRenewalWindow, validateRenewalDate } from '@/lib/utils/grace-period-utils'
 import { getRosterPeriodFromDate, getRosterPeriodsInRange } from '@/lib/utils/roster-utils'
-import { addDays, parseISO } from 'date-fns'
+import { addDays, parseISO, differenceInDays, max, min } from 'date-fns'
+import { v4 as uuidv4 } from 'uuid'
+import {
+  PairingResult,
+  PairedCrew,
+  UnpairedPilot,
+  PairingStatistics,
+  PairingSuggestion,
+  PairingOptions,
+  requiresPairing,
+  PAIRING_REQUIRED_CATEGORIES,
+  PairingStatus,
+} from '@/lib/types/pairing'
 
 // Type aliases for clarity
 type RenewalPlan = Database['public']['Tables']['certification_renewal_plans']['Row']
@@ -640,4 +652,1071 @@ function calculatePriority(expiryDate: Date): number {
   if (daysUntilExpiry <= 60) return 5 // Medium
   if (daysUntilExpiry <= 90) return 3 // Normal
   return 1 // Low
+}
+
+// ============================================================================
+// Pairing Functions - Captain/First Officer Pairing for Flight/Simulator Checks
+// ============================================================================
+
+/**
+ * Generate renewal plan with Captain/FO pairing for Flight and Simulator checks.
+ * Medical and Ground checks are scheduled individually.
+ *
+ * Pairing Algorithm:
+ * 1. Separate certifications by category (pairing vs individual)
+ * 2. For pairing categories: group by role (Captain vs FO)
+ * 3. Sort each group by urgency (expiry date) then seniority
+ * 4. Match Captains with FOs based on overlapping renewal windows
+ * 5. Assign pairs to lowest-utilization roster period
+ * 6. Handle unpaired pilots based on urgency
+ */
+export async function generateRenewalPlanWithPairing(options?: {
+  monthsAhead?: number
+  categories?: string[]
+  pilotIds?: string[]
+  pairingOptions?: PairingOptions
+}): Promise<{
+  renewals: RenewalPlanWithDetails[]
+  pairing: PairingResult
+}> {
+  const supabase = createServiceRoleClient()
+  const { monthsAhead = 12, categories, pilotIds, pairingOptions } = options || {}
+  const {
+    minOverlapDays = 7,
+    autoScheduleUrgent = true,
+    urgentThresholdDays = 30,
+    excludePeriods = [],
+  } = pairingOptions || {}
+
+  // Step 1: Fetch all certifications
+  const endDate = addDays(new Date(), monthsAhead * 30)
+
+  let checkTypeIds: string[] | undefined
+  if (categories && categories.length > 0) {
+    const { data: checkTypes } = await supabase
+      .from('check_types')
+      .select('id')
+      .in('category', categories)
+
+    checkTypeIds = checkTypes?.map((ct) => ct.id) || []
+    if (checkTypeIds.length === 0) {
+      return {
+        renewals: [],
+        pairing: {
+          pairs: [],
+          unpaired: [],
+          statistics: createEmptyStatistics(),
+          warnings: [],
+        },
+      }
+    }
+  }
+
+  let query = supabase
+    .from('pilot_checks')
+    .select(
+      `
+      id,
+      pilot_id,
+      check_type_id,
+      expiry_date,
+      pilots (
+        id,
+        first_name,
+        last_name,
+        employee_id,
+        role,
+        seniority_number
+      ),
+      check_types (
+        id,
+        check_code,
+        check_description,
+        category
+      )
+    `
+    )
+    .gte('expiry_date', new Date().toISOString().split('T')[0])
+    .lte('expiry_date', endDate.toISOString().split('T')[0])
+
+  if (checkTypeIds && checkTypeIds.length > 0) {
+    query = query.in('check_type_id', checkTypeIds)
+  }
+
+  if (pilotIds && pilotIds.length > 0) {
+    query = query.in('pilot_id', pilotIds)
+  }
+
+  const { data: certifications, error } = await query
+
+  if (error) throw error
+  if (!certifications || certifications.length === 0) {
+    return {
+      renewals: [],
+      pairing: {
+        pairs: [],
+        unpaired: [],
+        statistics: createEmptyStatistics(),
+        warnings: [],
+      },
+    }
+  }
+
+  // Step 2: Get roster period capacity
+  const { data: capacityData } = await supabase
+    .from('roster_period_capacity')
+    .select('*')
+    .order('period_start_date')
+
+  const capacityMap = new Map<string, RosterCapacity>()
+  capacityData?.forEach((cap) => capacityMap.set(cap.roster_period, cap))
+
+  // Step 3: Separate certifications by pairing requirement
+  const pairingCerts: typeof certifications = []
+  const individualCerts: typeof certifications = []
+
+  for (const cert of certifications) {
+    if (!cert.expiry_date || !cert.check_types?.category) continue
+
+    if (requiresPairing(cert.check_types.category)) {
+      pairingCerts.push(cert)
+    } else {
+      individualCerts.push(cert)
+    }
+  }
+
+  // Step 4: Process individual certifications (Medical, Ground)
+  const renewalPlans: RenewalPlanInsert[] = []
+  const currentAllocations: Record<string, Record<string, number>> = {}
+
+  for (const cert of individualCerts) {
+    const plan = createIndividualRenewalPlan(cert, capacityMap, currentAllocations, excludePeriods)
+    if (plan) {
+      renewalPlans.push(plan)
+      updateAllocations(
+        currentAllocations,
+        plan.planned_roster_period,
+        cert.check_types!.category || 'Unknown'
+      )
+    }
+  }
+
+  // Step 5: Process pairing certifications (Flight, Simulator)
+  const pairingResult = await processPairingCertifications(
+    pairingCerts,
+    capacityMap,
+    currentAllocations,
+    {
+      minOverlapDays,
+      autoScheduleUrgent,
+      urgentThresholdDays,
+      excludePeriods,
+    }
+  )
+
+  // Add paired renewal plans
+  for (const pair of pairingResult.pairs) {
+    const captainCert = pairingCerts.find((c) => c.pilot_id === pair.captain.pilotId)
+    const foCert = pairingCerts.find((c) => c.pilot_id === pair.firstOfficer.pilotId)
+
+    if (!captainCert || !foCert) continue // Skip if certs not found
+
+    // Captain plan
+    renewalPlans.push({
+      pilot_id: pair.captain.pilotId,
+      check_type_id: captainCert.check_type_id,
+      original_expiry_date: pair.captain.expiryDate,
+      planned_renewal_date: pair.plannedDate,
+      planned_roster_period: pair.plannedRosterPeriod,
+      renewal_window_start: pair.renewalWindowOverlap.start,
+      renewal_window_end: pair.renewalWindowOverlap.end,
+      status: 'planned',
+      priority: calculatePriority(parseISO(pair.captain.expiryDate)),
+      pair_group_id: pair.id,
+      paired_pilot_id: pair.firstOfficer.pilotId,
+      pairing_status: 'paired' as PairingStatus,
+    })
+
+    // First Officer plan
+    renewalPlans.push({
+      pilot_id: pair.firstOfficer.pilotId,
+      check_type_id: foCert.check_type_id,
+      original_expiry_date: pair.firstOfficer.expiryDate,
+      planned_renewal_date: pair.plannedDate,
+      planned_roster_period: pair.plannedRosterPeriod,
+      renewal_window_start: pair.renewalWindowOverlap.start,
+      renewal_window_end: pair.renewalWindowOverlap.end,
+      status: 'planned',
+      priority: calculatePriority(parseISO(pair.firstOfficer.expiryDate)),
+      pair_group_id: pair.id,
+      paired_pilot_id: pair.captain.pilotId,
+      pairing_status: 'paired' as PairingStatus,
+    })
+
+    // Update allocations (pairs count as 2)
+    updateAllocations(currentAllocations, pair.plannedRosterPeriod, pair.category)
+    updateAllocations(currentAllocations, pair.plannedRosterPeriod, pair.category)
+  }
+
+  // Add unpaired solo plans
+  for (const unpaired of pairingResult.unpaired) {
+    const cert = pairingCerts.find((c) => c.pilot_id === unpaired.pilotId)
+    if (!cert) continue
+
+    renewalPlans.push({
+      pilot_id: unpaired.pilotId,
+      check_type_id: cert.check_type_id,
+      original_expiry_date: unpaired.expiryDate,
+      planned_renewal_date: unpaired.plannedDate,
+      planned_roster_period: unpaired.plannedRosterPeriod,
+      renewal_window_start: cert.expiry_date!, // Simplified, actual window calc needed
+      renewal_window_end: cert.expiry_date!,
+      status: 'planned',
+      priority: calculatePriority(parseISO(unpaired.expiryDate)),
+      pairing_status: 'unpaired_solo' as PairingStatus,
+    })
+
+    updateAllocations(currentAllocations, unpaired.plannedRosterPeriod, unpaired.category)
+  }
+
+  // Step 6: Insert all renewal plans
+  const { data: created, error: insertError } = await supabase
+    .from('certification_renewal_plans')
+    .insert(renewalPlans)
+    .select(
+      `
+      *,
+      pilot:pilots!pilot_id (
+        id,
+        first_name,
+        last_name,
+        employee_id,
+        role,
+        seniority_number
+      ),
+      check_type:check_types!check_type_id (
+        id,
+        check_code,
+        check_description,
+        category
+      ),
+      paired_pilot:pilots!paired_pilot_id (
+        id,
+        first_name,
+        last_name
+      )
+    `
+    )
+
+  if (insertError) throw insertError
+
+  return {
+    renewals: (created as any[]) || [],
+    pairing: pairingResult,
+  }
+}
+
+/**
+ * Get pairing suggestions without committing to database
+ * Useful for preview before generating plan
+ */
+export async function getPairingSuggestions(options?: {
+  monthsAhead?: number
+  categories?: string[]
+  minOverlapDays?: number
+}): Promise<PairingSuggestion[]> {
+  const supabase = createServiceRoleClient()
+  const { monthsAhead = 12, categories, minOverlapDays = 7 } = options || {}
+
+  // Only process pairing-required categories
+  const pairingCategories = categories?.filter((c) => requiresPairing(c)) || [
+    ...PAIRING_REQUIRED_CATEGORIES,
+  ]
+
+  if (pairingCategories.length === 0) {
+    return []
+  }
+
+  const endDate = addDays(new Date(), monthsAhead * 30)
+
+  const { data: checkTypes } = await supabase
+    .from('check_types')
+    .select('id, category')
+    .in('category', pairingCategories)
+
+  const checkTypeIds = checkTypes?.map((ct) => ct.id) || []
+  if (checkTypeIds.length === 0) return []
+
+  const { data: certifications } = await supabase
+    .from('pilot_checks')
+    .select(
+      `
+      id, pilot_id, check_type_id, expiry_date,
+      pilots (id, first_name, last_name, employee_id, role, seniority_number),
+      check_types (id, category)
+    `
+    )
+    .in('check_type_id', checkTypeIds)
+    .gte('expiry_date', new Date().toISOString().split('T')[0])
+    .lte('expiry_date', endDate.toISOString().split('T')[0])
+
+  if (!certifications || certifications.length === 0) return []
+
+  // Group by role
+  const captains = certifications.filter((c) => c.pilots?.role === 'Captain')
+  const firstOfficers = certifications.filter((c) => c.pilots?.role === 'First Officer')
+
+  // Sort by urgency (earliest expiry first)
+  captains.sort((a, b) => a.expiry_date!.localeCompare(b.expiry_date!))
+  firstOfficers.sort((a, b) => a.expiry_date!.localeCompare(b.expiry_date!))
+
+  const suggestions: PairingSuggestion[] = []
+  const usedFOs = new Set<string>()
+
+  for (const captain of captains) {
+    const captainExpiry = parseISO(captain.expiry_date!)
+    const captainCategory = captain.check_types!.category || 'Flight Checks'
+    const captainWindow = calculateRenewalWindow(captainExpiry, captainCategory)
+
+    let bestMatch: { fo: (typeof firstOfficers)[0]; overlap: number; score: number } | null = null
+
+    for (const fo of firstOfficers) {
+      if (usedFOs.has(fo.pilot_id)) continue
+      if (fo.check_types!.category !== captainCategory) continue
+
+      const foExpiry = parseISO(fo.expiry_date!)
+      const foWindow = calculateRenewalWindow(foExpiry, fo.check_types!.category || 'Flight Checks')
+
+      // Calculate overlap
+      const overlapStart = max([captainWindow.start, foWindow.start])
+      const overlapEnd = min([captainWindow.end, foWindow.end])
+      const overlapDays = differenceInDays(overlapEnd, overlapStart)
+
+      if (overlapDays >= minOverlapDays) {
+        // Calculate pairing score (higher = better)
+        const urgencyScore = 10 - Math.min(differenceInDays(captainExpiry, new Date()), 90) / 10
+        const overlapScore = overlapDays / 10
+        const score = urgencyScore + overlapScore
+
+        if (!bestMatch || score > bestMatch.score) {
+          bestMatch = { fo, overlap: overlapDays, score }
+        }
+      }
+    }
+
+    if (bestMatch) {
+      usedFOs.add(bestMatch.fo.pilot_id)
+
+      const foExpiry = parseISO(bestMatch.fo.expiry_date!)
+      const foWindow = calculateRenewalWindow(
+        foExpiry,
+        bestMatch.fo.check_types!.category || 'Flight Checks'
+      )
+      const overlapStart = max([captainWindow.start, foWindow.start])
+      const overlapEnd = min([captainWindow.end, foWindow.end])
+
+      // Get suggested period
+      const eligiblePeriods = getRosterPeriodsInRange(overlapStart, overlapEnd).filter(
+        (p) => p.startDate.getMonth() !== 0 && p.startDate.getMonth() !== 11
+      )
+
+      if (eligiblePeriods.length > 0) {
+        suggestions.push({
+          captain: {
+            pilotId: captain.pilot_id,
+            name: `${captain.pilots!.first_name} ${captain.pilots!.last_name}`,
+            employeeId: captain.pilots!.employee_id,
+            expiryDate: captain.expiry_date!,
+            windowStart: captainWindow.start.toISOString().split('T')[0],
+            windowEnd: captainWindow.end.toISOString().split('T')[0],
+          },
+          firstOfficer: {
+            pilotId: bestMatch.fo.pilot_id,
+            name: `${bestMatch.fo.pilots!.first_name} ${bestMatch.fo.pilots!.last_name}`,
+            employeeId: bestMatch.fo.pilots!.employee_id,
+            expiryDate: bestMatch.fo.expiry_date!,
+            windowStart: foWindow.start.toISOString().split('T')[0],
+            windowEnd: foWindow.end.toISOString().split('T')[0],
+          },
+          category: captainCategory,
+          suggestedPeriod: eligiblePeriods[0].code,
+          suggestedDate: eligiblePeriods[0].startDate.toISOString().split('T')[0],
+          overlapDays: bestMatch.overlap,
+          score: bestMatch.score,
+        })
+      }
+    }
+  }
+
+  return suggestions.sort((a, b) => b.score - a.score)
+}
+
+/**
+ * Manually pair two pilots
+ */
+export async function manuallyPairPilots(
+  captainPlanId: string,
+  foPlanId: string
+): Promise<{ captain: RenewalPlanWithDetails; firstOfficer: RenewalPlanWithDetails }> {
+  const supabase = createServiceRoleClient()
+
+  // Fetch both plans
+  const { data: plans, error } = await supabase
+    .from('certification_renewal_plans')
+    .select(
+      `
+      *,
+      pilot:pilots!pilot_id (id, first_name, last_name, employee_id, role, seniority_number),
+      check_type:check_types!check_type_id (id, check_code, check_description, category)
+    `
+    )
+    .in('id', [captainPlanId, foPlanId])
+
+  if (error) throw error
+  if (!plans || plans.length !== 2) {
+    throw new Error('Could not find both renewal plans')
+  }
+
+  const captain = plans.find((p: any) => p.pilot?.role === 'Captain')
+  const fo = plans.find((p: any) => p.pilot?.role === 'First Officer')
+
+  if (!captain || !fo) {
+    throw new Error('Must pair a Captain with a First Officer')
+  }
+
+  // Validate same category
+  if ((captain as any).check_type?.category !== (fo as any).check_type?.category) {
+    throw new Error('Both pilots must have the same certification category')
+  }
+
+  // Create pair group ID
+  const pairGroupId = uuidv4()
+
+  // Update both plans
+  const { data: updatedCaptain, error: captainError } = await supabase
+    .from('certification_renewal_plans')
+    .update({
+      pair_group_id: pairGroupId,
+      paired_pilot_id: fo.pilot_id,
+      pairing_status: 'paired',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', captainPlanId)
+    .select(
+      `
+      *,
+      pilot:pilots!pilot_id (*),
+      check_type:check_types!check_type_id (*),
+      paired_pilot:pilots!paired_pilot_id (id, first_name, last_name)
+    `
+    )
+    .single()
+
+  if (captainError) throw captainError
+
+  const { data: updatedFO, error: foError } = await supabase
+    .from('certification_renewal_plans')
+    .update({
+      pair_group_id: pairGroupId,
+      paired_pilot_id: captain.pilot_id,
+      pairing_status: 'paired',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', foPlanId)
+    .select(
+      `
+      *,
+      pilot:pilots!pilot_id (*),
+      check_type:check_types!check_type_id (*),
+      paired_pilot:pilots!paired_pilot_id (id, first_name, last_name)
+    `
+    )
+    .single()
+
+  if (foError) throw foError
+
+  return {
+    captain: updatedCaptain as any,
+    firstOfficer: updatedFO as any,
+  }
+}
+
+/**
+ * Break a pair (unpair pilots)
+ */
+export async function breakPair(planId: string): Promise<RenewalPlanWithDetails[]> {
+  const supabase = createServiceRoleClient()
+
+  // Get the plan to find pair group
+  const { data: plan, error } = await supabase
+    .from('certification_renewal_plans')
+    .select('pair_group_id')
+    .eq('id', planId)
+    .single()
+
+  if (error) throw error
+  if (!plan?.pair_group_id) {
+    throw new Error('This renewal plan is not paired')
+  }
+
+  // Update both plans in the pair
+  const { data: updated, error: updateError } = await supabase
+    .from('certification_renewal_plans')
+    .update({
+      pair_group_id: null,
+      paired_pilot_id: null,
+      pairing_status: 'unpaired_solo',
+      updated_at: new Date().toISOString(),
+    })
+    .eq('pair_group_id', plan.pair_group_id)
+    .select(
+      `
+      *,
+      pilot:pilots!pilot_id (*),
+      check_type:check_types!check_type_id (*)
+    `
+    )
+
+  if (updateError) throw updateError
+  return (updated as any[]) || []
+}
+
+/**
+ * Get paired renewals for a roster period
+ */
+export async function getPairedRenewalsByPeriod(rosterPeriod: string): Promise<{
+  pairs: PairedCrew[]
+  unpaired: UnpairedPilot[]
+}> {
+  const supabase = createServiceRoleClient()
+
+  const { data: renewals, error } = await supabase
+    .from('certification_renewal_plans')
+    .select(
+      `
+      *,
+      pilot:pilots!pilot_id (id, first_name, last_name, employee_id, role, seniority_number),
+      check_type:check_types!check_type_id (id, check_code, category),
+      paired_pilot:pilots!paired_pilot_id (id, first_name, last_name, employee_id)
+    `
+    )
+    .eq('planned_roster_period', rosterPeriod)
+    .in('check_type.category', [...PAIRING_REQUIRED_CATEGORIES])
+
+  if (error) throw error
+  if (!renewals) return { pairs: [], unpaired: [] }
+
+  // Group paired renewals
+  const pairGroups = new Map<string, any[]>()
+  const unpairedList: UnpairedPilot[] = []
+
+  for (const renewal of renewals as any[]) {
+    if (renewal.pair_group_id) {
+      const existing = pairGroups.get(renewal.pair_group_id) || []
+      existing.push(renewal)
+      pairGroups.set(renewal.pair_group_id, existing)
+    } else if (renewal.pairing_status === 'unpaired_solo') {
+      const daysUntilExpiry = differenceInDays(parseISO(renewal.original_expiry_date), new Date())
+      unpairedList.push({
+        pilotId: renewal.pilot_id,
+        renewalPlanId: renewal.id,
+        name: `${renewal.pilot.first_name} ${renewal.pilot.last_name}`,
+        employeeId: renewal.pilot.employee_id,
+        role: renewal.pilot.role,
+        expiryDate: renewal.original_expiry_date,
+        daysUntilExpiry,
+        category: renewal.check_type.category,
+        plannedRosterPeriod: renewal.planned_roster_period,
+        plannedDate: renewal.planned_renewal_date,
+        reason: 'no_matching_role',
+        status: 'unpaired_solo',
+        urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+      })
+    }
+  }
+
+  // Convert pair groups to PairedCrew objects
+  const pairs: PairedCrew[] = []
+  for (const [pairGroupId, members] of pairGroups) {
+    if (members.length !== 2) continue
+
+    const captain = members.find((m) => m.pilot.role === 'Captain')
+    const fo = members.find((m) => m.pilot.role === 'First Officer')
+
+    if (captain && fo) {
+      pairs.push({
+        id: pairGroupId,
+        captain: {
+          pilotId: captain.pilot_id,
+          renewalPlanId: captain.id,
+          name: `${captain.pilot.first_name} ${captain.pilot.last_name}`,
+          employeeId: captain.pilot.employee_id,
+          expiryDate: captain.original_expiry_date,
+          seniorityNumber: captain.pilot.seniority_number,
+        },
+        firstOfficer: {
+          pilotId: fo.pilot_id,
+          renewalPlanId: fo.id,
+          name: `${fo.pilot.first_name} ${fo.pilot.last_name}`,
+          employeeId: fo.pilot.employee_id,
+          expiryDate: fo.original_expiry_date,
+          seniorityNumber: fo.pilot.seniority_number,
+        },
+        category: captain.check_type.category,
+        plannedRosterPeriod: captain.planned_roster_period,
+        plannedDate: captain.planned_renewal_date,
+        renewalWindowOverlap: {
+          start: captain.renewal_window_start,
+          end: captain.renewal_window_end,
+          days: differenceInDays(
+            parseISO(captain.renewal_window_end),
+            parseISO(captain.renewal_window_start)
+          ),
+        },
+        status: 'paired',
+      })
+    }
+  }
+
+  return { pairs, unpaired: unpairedList }
+}
+
+/**
+ * Get all pairing data for a year (aggregated across all roster periods)
+ * This combines pairs and unpaired pilots from all periods (Feb-Nov)
+ */
+export async function getPairingDataForYear(year: number): Promise<{
+  pairs: PairedCrew[]
+  unpaired: UnpairedPilot[]
+  statistics: PairingStatistics
+}> {
+  const supabase = createServiceRoleClient()
+
+  // Get roster periods for the year (Feb-Nov only, excluding Dec/Jan)
+  const { data: periods, error } = await supabase
+    .from('roster_period_capacity')
+    .select('roster_period')
+    .gte('period_start_date', `${year}-02-01`)
+    .lte('period_start_date', `${year}-11-30`)
+    .order('period_start_date')
+
+  if (error) throw error
+  if (!periods || periods.length === 0) {
+    return {
+      pairs: [],
+      unpaired: [],
+      statistics: {
+        totalPairs: 0,
+        totalUnpaired: 0,
+        byCategory: [],
+        urgentUnpaired: 0,
+        averageOverlapDays: 0,
+      },
+    }
+  }
+
+  // Fetch pairing data for each period in parallel
+  const periodResults = await Promise.all(
+    periods.map((p) => getPairedRenewalsByPeriod(p.roster_period))
+  )
+
+  // Aggregate results
+  const allPairs: PairedCrew[] = []
+  const allUnpaired: UnpairedPilot[] = []
+
+  for (const result of periodResults) {
+    allPairs.push(...result.pairs)
+    allUnpaired.push(...result.unpaired)
+  }
+
+  // Calculate statistics
+  const byCategory: PairingStatistics['byCategory'] = []
+  const categories = new Set([
+    ...allPairs.map((p) => p.category),
+    ...allUnpaired.map((u) => u.category),
+  ])
+
+  for (const category of categories) {
+    const categoryPairs = allPairs.filter((p) => p.category === category)
+    const categoryUnpaired = allUnpaired.filter((u) => u.category === category)
+
+    byCategory.push({
+      category,
+      pairsCount: categoryPairs.length,
+      unpairedCount: categoryUnpaired.length,
+      captainsUnpaired: categoryUnpaired.filter((u) => u.role === 'Captain').length,
+      firstOfficersUnpaired: categoryUnpaired.filter((u) => u.role === 'First Officer').length,
+    })
+  }
+
+  const totalOverlapDays = allPairs.reduce((sum, p) => sum + p.renewalWindowOverlap.days, 0)
+
+  return {
+    pairs: allPairs,
+    unpaired: allUnpaired,
+    statistics: {
+      totalPairs: allPairs.length,
+      totalUnpaired: allUnpaired.length,
+      byCategory,
+      urgentUnpaired: allUnpaired.filter((u) => u.urgency === 'critical' || u.urgency === 'high')
+        .length,
+      averageOverlapDays: allPairs.length > 0 ? Math.round(totalOverlapDays / allPairs.length) : 0,
+    },
+  }
+}
+
+// ============================================================================
+// Pairing Helper Functions
+// ============================================================================
+
+function createIndividualRenewalPlan(
+  cert: any,
+  capacityMap: Map<string, RosterCapacity>,
+  currentAllocations: Record<string, Record<string, number>>,
+  excludePeriods: string[]
+): RenewalPlanInsert | null {
+  const expiryDate = parseISO(cert.expiry_date)
+  const category = cert.check_types.category
+  const { start: windowStart, end: windowEnd } = calculateRenewalWindow(expiryDate, category)
+
+  const eligiblePeriods = getRosterPeriodsInRange(windowStart, windowEnd).filter((period) => {
+    const month = period.startDate.getMonth()
+    return month !== 0 && month !== 11 && !excludePeriods.includes(period.code)
+  })
+
+  if (eligiblePeriods.length === 0) return null
+
+  // Find optimal period
+  const periodOptions = eligiblePeriods.map((period) => {
+    const load = getCurrentLoad(period.code, category, currentAllocations)
+    const capacity = getCapacityForPeriod(period.code, category, capacityMap)
+    return { period, utilization: capacity > 0 ? load / capacity : 1 }
+  })
+
+  periodOptions.sort((a, b) => a.utilization - b.utilization)
+  const optimal = periodOptions[0]
+
+  let plannedDate = optimal.period.startDate
+  if (plannedDate < windowStart) plannedDate = windowStart
+  if (plannedDate > windowEnd) plannedDate = windowEnd
+
+  return {
+    pilot_id: cert.pilot_id,
+    check_type_id: cert.check_type_id,
+    original_expiry_date: cert.expiry_date,
+    planned_renewal_date: plannedDate.toISOString().split('T')[0],
+    planned_roster_period: optimal.period.code,
+    renewal_window_start: windowStart.toISOString().split('T')[0],
+    renewal_window_end: windowEnd.toISOString().split('T')[0],
+    status: 'planned',
+    priority: calculatePriority(expiryDate),
+    pairing_status: 'not_applicable' as PairingStatus,
+  }
+}
+
+async function processPairingCertifications(
+  certifications: any[],
+  capacityMap: Map<string, RosterCapacity>,
+  currentAllocations: Record<string, Record<string, number>>,
+  options: {
+    minOverlapDays: number
+    autoScheduleUrgent: boolean
+    urgentThresholdDays: number
+    excludePeriods: string[]
+  }
+): Promise<PairingResult> {
+  const pairs: PairedCrew[] = []
+  const unpaired: UnpairedPilot[] = []
+  const warnings: string[] = []
+
+  // Group by category
+  const byCategory = new Map<string, any[]>()
+  for (const cert of certifications) {
+    const category = cert.check_types?.category
+    if (!category) continue
+    const existing = byCategory.get(category) || []
+    existing.push(cert)
+    byCategory.set(category, existing)
+  }
+
+  // Process each category
+  for (const [category, certs] of byCategory) {
+    const captains = certs
+      .filter((c) => c.pilots?.role === 'Captain')
+      .sort((a, b) => {
+        // Sort by expiry date (urgent first), then seniority
+        const expiryCompare = a.expiry_date.localeCompare(b.expiry_date)
+        if (expiryCompare !== 0) return expiryCompare
+        return (a.pilots?.seniority_number || 999) - (b.pilots?.seniority_number || 999)
+      })
+
+    const firstOfficers = certs
+      .filter((c) => c.pilots?.role === 'First Officer')
+      .sort((a, b) => {
+        const expiryCompare = a.expiry_date.localeCompare(b.expiry_date)
+        if (expiryCompare !== 0) return expiryCompare
+        return (a.pilots?.seniority_number || 999) - (b.pilots?.seniority_number || 999)
+      })
+
+    const usedFOs = new Set<string>()
+
+    // Match each captain with best available FO
+    for (const captain of captains) {
+      const captainExpiry = parseISO(captain.expiry_date)
+      const captainWindow = calculateRenewalWindow(captainExpiry, category)
+
+      let bestFO: { fo: any; overlapDays: number } | null = null
+
+      for (const fo of firstOfficers) {
+        if (usedFOs.has(fo.pilot_id)) continue
+
+        const foExpiry = parseISO(fo.expiry_date)
+        const foWindow = calculateRenewalWindow(foExpiry, category)
+
+        const overlapStart = max([captainWindow.start, foWindow.start])
+        const overlapEnd = min([captainWindow.end, foWindow.end])
+        const overlapDays = differenceInDays(overlapEnd, overlapStart)
+
+        if (overlapDays >= options.minOverlapDays) {
+          if (!bestFO || overlapDays > bestFO.overlapDays) {
+            bestFO = { fo, overlapDays }
+          }
+        }
+      }
+
+      if (bestFO) {
+        usedFOs.add(bestFO.fo.pilot_id)
+
+        const foExpiry = parseISO(bestFO.fo.expiry_date)
+        const foWindow = calculateRenewalWindow(foExpiry, category)
+        const overlapStart = max([captainWindow.start, foWindow.start])
+        const overlapEnd = min([captainWindow.end, foWindow.end])
+
+        // Find optimal period for pair
+        const eligiblePeriods = getRosterPeriodsInRange(overlapStart, overlapEnd).filter((p) => {
+          const month = p.startDate.getMonth()
+          return month !== 0 && month !== 11 && !options.excludePeriods.includes(p.code)
+        })
+
+        if (eligiblePeriods.length > 0) {
+          // Find period with lowest utilization (pairs need 2 slots)
+          const periodOptions = eligiblePeriods.map((period) => {
+            const load = getCurrentLoad(period.code, category, currentAllocations)
+            const capacity = getCapacityForPeriod(period.code, category, capacityMap)
+            return { period, available: capacity - load }
+          })
+
+          periodOptions.sort((a, b) => b.available - a.available)
+          const optimalPeriod = periodOptions.find((p) => p.available >= 2)
+
+          if (optimalPeriod) {
+            const pairId = uuidv4()
+            pairs.push({
+              id: pairId,
+              captain: {
+                pilotId: captain.pilot_id,
+                renewalPlanId: '', // Will be assigned after insert
+                name: `${captain.pilots.first_name} ${captain.pilots.last_name}`,
+                employeeId: captain.pilots.employee_id,
+                expiryDate: captain.expiry_date,
+                seniorityNumber: captain.pilots.seniority_number,
+              },
+              firstOfficer: {
+                pilotId: bestFO.fo.pilot_id,
+                renewalPlanId: '',
+                name: `${bestFO.fo.pilots.first_name} ${bestFO.fo.pilots.last_name}`,
+                employeeId: bestFO.fo.pilots.employee_id,
+                expiryDate: bestFO.fo.expiry_date,
+                seniorityNumber: bestFO.fo.pilots.seniority_number,
+              },
+              category: category as any,
+              plannedRosterPeriod: optimalPeriod.period.code,
+              plannedDate: optimalPeriod.period.startDate.toISOString().split('T')[0],
+              renewalWindowOverlap: {
+                start: overlapStart.toISOString().split('T')[0],
+                end: overlapEnd.toISOString().split('T')[0],
+                days: bestFO.overlapDays,
+              },
+              status: 'paired',
+            })
+
+            // Reserve capacity
+            updateAllocations(currentAllocations, optimalPeriod.period.code, category)
+            updateAllocations(currentAllocations, optimalPeriod.period.code, category)
+            continue
+          }
+        }
+      }
+
+      // Could not pair this captain - handle as unpaired
+      const daysUntilExpiry = differenceInDays(captainExpiry, new Date())
+      if (options.autoScheduleUrgent && daysUntilExpiry <= options.urgentThresholdDays) {
+        const eligiblePeriods = getRosterPeriodsInRange(
+          captainWindow.start,
+          captainWindow.end
+        ).filter((p) => {
+          const month = p.startDate.getMonth()
+          return month !== 0 && month !== 11
+        })
+
+        if (eligiblePeriods.length > 0) {
+          unpaired.push({
+            pilotId: captain.pilot_id,
+            renewalPlanId: '',
+            name: `${captain.pilots.first_name} ${captain.pilots.last_name}`,
+            employeeId: captain.pilots.employee_id,
+            role: 'Captain',
+            expiryDate: captain.expiry_date,
+            daysUntilExpiry,
+            category: category as any,
+            plannedRosterPeriod: eligiblePeriods[0].code,
+            plannedDate: eligiblePeriods[0].startDate.toISOString().split('T')[0],
+            reason: 'no_matching_role',
+            status: 'unpaired_solo',
+            urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+          })
+          warnings.push(
+            `Captain ${captain.pilots.first_name} ${captain.pilots.last_name} scheduled solo (urgent, no matching FO)`
+          )
+        }
+      } else {
+        unpaired.push({
+          pilotId: captain.pilot_id,
+          renewalPlanId: '',
+          name: `${captain.pilots.first_name} ${captain.pilots.last_name}`,
+          employeeId: captain.pilots.employee_id,
+          role: 'Captain',
+          expiryDate: captain.expiry_date,
+          daysUntilExpiry,
+          category: category as any,
+          plannedRosterPeriod: '',
+          plannedDate: '',
+          reason: 'no_matching_role',
+          status: 'unpaired_solo',
+          urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+        })
+        warnings.push(
+          `Captain ${captain.pilots.first_name} ${captain.pilots.last_name} needs manual review (no matching FO)`
+        )
+      }
+    }
+
+    // Handle remaining unmatched FOs
+    for (const fo of firstOfficers) {
+      if (usedFOs.has(fo.pilot_id)) continue
+
+      const foExpiry = parseISO(fo.expiry_date)
+      const daysUntilExpiry = differenceInDays(foExpiry, new Date())
+      const foWindow = calculateRenewalWindow(foExpiry, category)
+
+      if (options.autoScheduleUrgent && daysUntilExpiry <= options.urgentThresholdDays) {
+        const eligiblePeriods = getRosterPeriodsInRange(foWindow.start, foWindow.end).filter(
+          (p) => {
+            const month = p.startDate.getMonth()
+            return month !== 0 && month !== 11
+          }
+        )
+
+        if (eligiblePeriods.length > 0) {
+          unpaired.push({
+            pilotId: fo.pilot_id,
+            renewalPlanId: '',
+            name: `${fo.pilots.first_name} ${fo.pilots.last_name}`,
+            employeeId: fo.pilots.employee_id,
+            role: 'First Officer',
+            expiryDate: fo.expiry_date,
+            daysUntilExpiry,
+            category: category as any,
+            plannedRosterPeriod: eligiblePeriods[0].code,
+            plannedDate: eligiblePeriods[0].startDate.toISOString().split('T')[0],
+            reason: 'no_matching_role',
+            status: 'unpaired_solo',
+            urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+          })
+          warnings.push(
+            `FO ${fo.pilots.first_name} ${fo.pilots.last_name} scheduled solo (urgent, no matching Captain)`
+          )
+        }
+      } else {
+        unpaired.push({
+          pilotId: fo.pilot_id,
+          renewalPlanId: '',
+          name: `${fo.pilots.first_name} ${fo.pilots.last_name}`,
+          employeeId: fo.pilots.employee_id,
+          role: 'First Officer',
+          expiryDate: fo.expiry_date,
+          daysUntilExpiry,
+          category: category as any,
+          plannedRosterPeriod: '',
+          plannedDate: '',
+          reason: 'no_matching_role',
+          status: 'unpaired_solo',
+          urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+        })
+        warnings.push(
+          `FO ${fo.pilots.first_name} ${fo.pilots.last_name} needs manual review (no matching Captain)`
+        )
+      }
+    }
+  }
+
+  return {
+    pairs,
+    unpaired,
+    statistics: calculatePairingStatistics(pairs, unpaired),
+    warnings,
+  }
+}
+
+function updateAllocations(
+  allocations: Record<string, Record<string, number>>,
+  period: string,
+  category: string
+): void {
+  if (!allocations[period]) {
+    allocations[period] = {}
+  }
+  allocations[period][category] = (allocations[period][category] || 0) + 1
+}
+
+function calculatePairingStatistics(
+  pairs: PairedCrew[],
+  unpaired: UnpairedPilot[]
+): PairingStatistics {
+  const byCategory: PairingStatistics['byCategory'] = []
+
+  const categories = new Set([...pairs.map((p) => p.category), ...unpaired.map((u) => u.category)])
+
+  for (const category of categories) {
+    const categoryPairs = pairs.filter((p) => p.category === category)
+    const categoryUnpaired = unpaired.filter((u) => u.category === category)
+
+    byCategory.push({
+      category,
+      pairsCount: categoryPairs.length,
+      unpairedCount: categoryUnpaired.length,
+      captainsUnpaired: categoryUnpaired.filter((u) => u.role === 'Captain').length,
+      firstOfficersUnpaired: categoryUnpaired.filter((u) => u.role === 'First Officer').length,
+    })
+  }
+
+  const totalOverlapDays = pairs.reduce((sum, p) => sum + p.renewalWindowOverlap.days, 0)
+
+  return {
+    totalPairs: pairs.length,
+    totalUnpaired: unpaired.length,
+    byCategory,
+    urgentUnpaired: unpaired.filter((u) => u.urgency === 'critical' || u.urgency === 'high').length,
+    averageOverlapDays: pairs.length > 0 ? totalOverlapDays / pairs.length : 0,
+  }
+}
+
+function createEmptyStatistics(): PairingStatistics {
+  return {
+    totalPairs: 0,
+    totalUnpaired: 0,
+    byCategory: [],
+    urgentUnpaired: 0,
+    averageOverlapDays: 0,
+  }
 }

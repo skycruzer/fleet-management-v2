@@ -196,6 +196,7 @@ export type Database = {
           original_expiry_date: string
           pair_group_id: string | null
           paired_pilot_id: string | null
+          pairing_status: string
           pilot_id: string
           planned_renewal_date: string
           planned_roster_period: string
@@ -214,6 +215,7 @@ export type Database = {
           original_expiry_date: string
           pair_group_id?: string | null
           paired_pilot_id?: string | null
+          pairing_status?: string
           pilot_id: string
           planned_renewal_date: string
           planned_roster_period: string
@@ -232,6 +234,7 @@ export type Database = {
           original_expiry_date?: string
           pair_group_id?: string | null
           paired_pilot_id?: string | null
+          pairing_status?: string
           pilot_id?: string
           planned_renewal_date?: string
           planned_roster_period?: string

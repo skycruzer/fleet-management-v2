@@ -1,11 +1,15 @@
 /**
  * Renewal Planning PDF Generation Service
- * Creates professional PDF reports for certification renewal planning
+ * Author: Maurice Rondeau
+ *
+ * Creates professional PDF reports for certification renewal planning.
+ * Reports are organized BY CATEGORY for easy distribution to respective teams.
  */
 
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { formatDate } from '@/lib/utils/date-utils'
+import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
 
 // Type augmentation for jspdf-autotable
 declare module 'jspdf' {
@@ -36,6 +40,10 @@ interface RenewalItem {
   roster_period: string
   priority?: number
   status: string
+  // Pairing fields
+  pairing_status?: 'paired' | 'unpaired_solo' | 'not_applicable'
+  paired_pilot_name?: string
+  paired_pilot_employee_id?: string
 }
 
 interface RosterPeriodSummary {
@@ -54,15 +62,39 @@ interface RosterPeriodSummary {
   >
 }
 
+interface PairingData {
+  pairs: PairedCrew[]
+  unpaired: UnpairedPilot[]
+  statistics: PairingStatistics
+}
+
 interface RenewalPlanPDFData {
   year: number
   summaries: RosterPeriodSummary[]
   renewals: RenewalItem[]
   generatedAt: Date
+  // Optional pairing data for Flight/Simulator checks
+  pairingData?: PairingData
 }
 
+// Category configuration
+const CATEGORIES = [
+  { id: 'Pilot Medical', label: 'Pilot Medical', color: [220, 53, 69] as [number, number, number] },
+  { id: 'Flight Checks', label: 'Flight Checks', color: [0, 123, 255] as [number, number, number] },
+  {
+    id: 'Simulator Checks',
+    label: 'Simulator Checks',
+    color: [111, 66, 193] as [number, number, number],
+  },
+  {
+    id: 'Ground Courses Refresher',
+    label: 'Ground Courses',
+    color: [40, 167, 69] as [number, number, number],
+  },
+]
+
 /**
- * Generate complete renewal planning PDF
+ * Generate complete renewal planning PDF - organized BY CATEGORY
  */
 export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<Blob> {
   const doc = new jsPDF()
@@ -70,28 +102,27 @@ export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<
   // Page 1: Cover Page
   addCoverPage(doc, data)
 
-  // Page 2: Executive Summary
+  // Page 2: Executive Summary (Category-focused)
   doc.addPage()
   addExecutiveSummary(doc, data)
 
-  // Page 3: Yearly Calendar
-  doc.addPage()
-  addYearlyCalendar(doc, data)
+  // Page 3: Pairing Summary (if pairing data exists)
+  if (data.pairingData) {
+    doc.addPage()
+    addPairingSummaryPage(doc, data)
+  }
 
-  // Page 4+: Roster Period Breakdown (skip excluded periods)
-  const eligibleSummaries = data.summaries.filter((s) => {
-    const month = s.periodStartDate.getMonth()
-    return month !== 0 && month !== 11 // Exclude December and January
-  })
-
-  eligibleSummaries.forEach((summary, index) => {
-    if (index > 0 || doc.getCurrentPageInfo().pageNumber > 3) {
+  // Pages 4-7: One page per category
+  CATEGORIES.forEach((category, index) => {
+    const categoryRenewals = data.renewals.filter((r) => r.check_type.category === category.id)
+    if (categoryRenewals.length > 0 || true) {
+      // Always include category page
       doc.addPage()
+      addCategoryPage(doc, category, data, categoryRenewals)
     }
-    addRosterPeriodDetail(doc, summary, data.renewals)
   })
 
-  // Page N: Pilot Schedules
+  // Final Page: Combined Pilot Schedules (all categories)
   doc.addPage()
   addPilotSchedules(doc, data)
 
@@ -113,86 +144,31 @@ function addCoverPage(doc: jsPDF, data: RenewalPlanPDFData) {
   doc.setFont('helvetica', 'normal')
   doc.text(`${data.year} Annual Plan`, pageWidth / 2, 100, { align: 'center' })
 
+  // Subtitle
+  doc.setFontSize(14)
+  doc.setTextColor(100, 100, 100)
+  doc.text('Organized by Category', pageWidth / 2, 115, { align: 'center' })
+
   // Metadata
   doc.setFontSize(12)
-  doc.setTextColor(100, 100, 100)
-  doc.text(`Generated: ${formatDate(data.generatedAt)}`, pageWidth / 2, 130, { align: 'center' })
-  doc.text('Air Niugini - B767 Fleet', pageWidth / 2, 140, { align: 'center' })
-  doc.text('Fleet Management System', pageWidth / 2, 150, { align: 'center' })
+  doc.text(`Generated: ${formatDate(data.generatedAt)}`, pageWidth / 2, 140, { align: 'center' })
+  doc.text('Air Niugini - B767 Fleet', pageWidth / 2, 150, { align: 'center' })
+  doc.text('Fleet Management System', pageWidth / 2, 160, { align: 'center' })
 
-  // Box for summary stats
+  // Category Summary Box
   doc.setDrawColor(41, 128, 185)
   doc.setLineWidth(0.5)
-  doc.rect(40, 170, pageWidth - 80, 60)
-
-  const totalRenewals = data.summaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
-  const totalCapacity = data.summaries.reduce((sum, s) => sum + s.totalCapacity, 0)
-  const avgUtilization = totalCapacity > 0 ? (totalRenewals / totalCapacity) * 100 : 0
+  doc.rect(30, 180, pageWidth - 60, 80)
 
   doc.setFontSize(14)
   doc.setTextColor(0, 0, 0)
-  doc.text('Quick Summary', pageWidth / 2, 185, { align: 'center' })
-
-  doc.setFontSize(11)
-  const stats = [
-    `Total Renewals: ${totalRenewals}`,
-    `Overall Utilization: ${Math.round(avgUtilization)}%`,
-    `Roster Periods: 13 (11 eligible, 2 excluded)`,
-  ]
-
-  stats.forEach((stat, index) => {
-    doc.text(stat, pageWidth / 2, 200 + index * 10, { align: 'center' })
-  })
-
-  // Footer
-  doc.setFontSize(10)
-  doc.setTextColor(150, 150, 150)
-  doc.text('B767 Pilot Management System', pageWidth / 2, 280, { align: 'center' })
-
-  // Reset colors
-  doc.setTextColor(0, 0, 0)
-}
-
-/**
- * Executive Summary Page
- */
-function addExecutiveSummary(doc: jsPDF, data: RenewalPlanPDFData) {
-  doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
-  doc.text('Executive Summary', 15, 20)
-
-  const totalRenewals = data.summaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
-  const totalCapacity = data.summaries.reduce((sum, s) => sum + s.totalCapacity, 0)
-  const avgUtilization = totalCapacity > 0 ? (totalRenewals / totalCapacity) * 100 : 0
-  const highRiskPeriods = data.summaries.filter((s) => s.utilizationPercentage > 80)
-
-  // Overall Statistics
-  doc.setFontSize(14)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Overall Statistics', 15, 35)
+  doc.text('Category Summary', pageWidth / 2, 195, { align: 'center' })
 
   doc.setFontSize(11)
   doc.setFont('helvetica', 'normal')
 
-  const stats = [
-    `Total Renewals Planned: ${totalRenewals}`,
-    `Total Capacity: ${totalCapacity}`,
-    `Overall Utilization: ${Math.round(avgUtilization)}%`,
-    `Roster Periods: 13`,
-    `Eligible Periods: 11 (excluding December & January)`,
-    `Excluded Periods: 2 (RP01, RP02 - Holiday months)`,
-    `High-Risk Periods (>80%): ${highRiskPeriods.length}`,
-  ]
-
-  stats.forEach((stat, index) => {
-    doc.text(stat, 20, 45 + index * 8)
-  })
-
-  // Category Breakdown
-  doc.setFontSize(14)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Category Breakdown', 15, 110)
-
+  // Count by category
   const byCategory = data.renewals.reduce(
     (acc, r) => {
       const cat = r.check_type.category
@@ -202,55 +178,136 @@ function addExecutiveSummary(doc: jsPDF, data: RenewalPlanPDFData) {
     {} as Record<string, number>
   )
 
+  let yPos = 210
+  CATEGORIES.forEach((cat) => {
+    const count = byCategory[cat.id] || 0
+    doc.setTextColor(cat.color[0], cat.color[1], cat.color[2])
+    doc.text(`${cat.label}: ${count} renewals`, pageWidth / 2, yPos, { align: 'center' })
+    yPos += 12
+  })
+
+  // Total
+  doc.setTextColor(0, 0, 0)
+  doc.setFont('helvetica', 'bold')
+  doc.text(`Total: ${data.renewals.length} renewals`, pageWidth / 2, yPos + 5, { align: 'center' })
+
+  // Footer
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(150, 150, 150)
+  doc.text('B767 Pilot Management System', pageWidth / 2, 280, { align: 'center' })
+
+  // Reset colors
+  doc.setTextColor(0, 0, 0)
+}
+
+/**
+ * Executive Summary Page - Category Focused
+ */
+function addExecutiveSummary(doc: jsPDF, data: RenewalPlanPDFData) {
+  doc.setFontSize(20)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Executive Summary', 15, 20)
+
+  const totalRenewals = data.summaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
+  const totalCapacity = data.summaries.reduce((sum, s) => sum + s.totalCapacity, 0)
+  const avgUtilization = totalCapacity > 0 ? (totalRenewals / totalCapacity) * 100 : 0
+
+  // Category-based statistics
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('By Category', 15, 35)
+
+  // Create category summary table
+  const categoryTableData = CATEGORIES.map((cat) => {
+    const catRenewals = data.renewals.filter((r) => r.check_type.category === cat.id)
+    const catCapacity = data.summaries.reduce(
+      (sum, s) => sum + (s.categoryBreakdown[cat.id]?.capacity || 0),
+      0
+    )
+    const catUtil = catCapacity > 0 ? (catRenewals.length / catCapacity) * 100 : 0
+    const highRiskPeriods = data.summaries.filter((s) => {
+      const catBreakdown = s.categoryBreakdown[cat.id]
+      if (!catBreakdown || catBreakdown.capacity === 0) return false
+      return (catBreakdown.plannedCount / catBreakdown.capacity) * 100 > 80
+    }).length
+
+    return [
+      cat.label,
+      catRenewals.length.toString(),
+      catCapacity.toString(),
+      `${Math.round(catUtil)}%`,
+      highRiskPeriods > 0 ? `${highRiskPeriods} periods` : 'None',
+    ]
+  })
+
+  autoTable(doc, {
+    head: [['Category', 'Renewals', 'Capacity', 'Utilization', 'High Risk']],
+    body: categoryTableData,
+    startY: 42,
+    styles: { fontSize: 10, cellPadding: 4 },
+    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    didParseCell: (cellData: any) => {
+      // Color code categories
+      if (cellData.section === 'body' && cellData.column.index === 0) {
+        const catIndex = cellData.row.index
+        if (catIndex < CATEGORIES.length) {
+          cellData.cell.styles.textColor = CATEGORIES[catIndex].color
+          cellData.cell.styles.fontStyle = 'bold'
+        }
+      }
+      // Color code high risk
+      if (cellData.section === 'body' && cellData.column.index === 4) {
+        const value = cellData.cell.raw
+        if (value !== 'None') {
+          cellData.cell.styles.textColor = [220, 53, 69]
+          cellData.cell.styles.fontStyle = 'bold'
+        }
+      }
+    },
+  })
+
+  const afterTableY = doc.lastAutoTable?.finalY || 100
+
+  // Overall Statistics
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Overall Statistics', 15, afterTableY + 15)
+
   doc.setFontSize(11)
   doc.setFont('helvetica', 'normal')
 
-  let yPos = 120
-  Object.entries(byCategory).forEach(([category, count]) => {
-    const percentage = totalRenewals > 0 ? Math.round((count / totalRenewals) * 100) : 0
-    doc.text(`${category}: ${count} renewals (${percentage}%)`, 20, yPos)
+  const stats = [
+    `Total Renewals Planned: ${totalRenewals}`,
+    `Total Capacity: ${totalCapacity}`,
+    `Overall Utilization: ${Math.round(avgUtilization)}%`,
+    `Roster Periods: 13 (11 eligible, 2 excluded)`,
+    `Excluded: December & January (holiday months)`,
+  ]
+
+  let yPos = afterTableY + 25
+  stats.forEach((stat) => {
+    doc.text(stat, 20, yPos)
     yPos += 8
   })
-
-  // High-Risk Periods Alert
-  if (highRiskPeriods.length > 0) {
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(220, 53, 69) // Red
-    doc.text('⚠ High Utilization Periods', 15, yPos + 15)
-
-    doc.setFontSize(11)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(0, 0, 0)
-
-    yPos += 25
-    highRiskPeriods.forEach((period) => {
-      doc.text(
-        `${period.rosterPeriod}: ${Math.round(period.utilizationPercentage)}% utilization`,
-        20,
-        yPos
-      )
-      yPos += 8
-    })
-  }
 
   // Key Notes
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
-  doc.text('Key Notes', 15, yPos + 15)
+  doc.text('Key Notes', 15, yPos + 10)
 
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
 
   const notes = [
+    '• This report is organized BY CATEGORY for easy distribution to respective teams',
+    '• Each category section contains period distribution and pilot assignments',
     '• December and January are excluded from renewal scheduling (holiday months)',
-    '• Renewals distributed across 11 eligible roster periods (RP03-RP13)',
-    '• All renewals fall within regulatory grace periods (60-90 days)',
-    '• Capacity limits respected: Flight (4), Simulator (6), Ground (8) per period',
-    '• Load balancing algorithm minimizes congestion and optimizes distribution',
+    '• Capacity limits: Flight (4), Simulator (6), Ground (8) per period',
+    '• High-risk periods (>80% utilization) are highlighted in each category section',
   ]
 
-  yPos += 25
+  yPos += 20
   notes.forEach((note) => {
     doc.text(note, 20, yPos)
     yPos += 7
@@ -258,106 +315,150 @@ function addExecutiveSummary(doc: jsPDF, data: RenewalPlanPDFData) {
 }
 
 /**
- * Yearly Calendar Table
+ * Category Detail Page
  */
-function addYearlyCalendar(doc: jsPDF, data: RenewalPlanPDFData) {
-  doc.setFontSize(18)
+function addCategoryPage(
+  doc: jsPDF,
+  category: { id: string; label: string; color: [number, number, number] },
+  data: RenewalPlanPDFData,
+  categoryRenewals: RenewalItem[]
+) {
+  const pageWidth = doc.internal.pageSize.getWidth()
+
+  // Category Header
+  doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
-  doc.text('Yearly Calendar Overview', 15, 20)
+  doc.setTextColor(category.color[0], category.color[1], category.color[2])
+  doc.text(category.label, 15, 20)
 
-  // Create table data
-  const tableData = data.summaries.map((s) => {
-    const month = s.periodStartDate.getMonth()
-    const isExcluded = month === 0 || month === 11
+  doc.setTextColor(0, 0, 0)
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`${data.year} Renewal Schedule`, 15, 28)
 
-    return [
-      s.rosterPeriod,
-      `${formatDate(s.periodStartDate)} - ${formatDate(s.periodEndDate)}`,
-      isExcluded ? 'EXCLUDED' : `${s.totalPlannedRenewals} / ${s.totalCapacity}`,
-      isExcluded ? 'N/A' : `${Math.round(s.utilizationPercentage)}%`,
-      isExcluded ? 'Holiday Month' : getUtilizationStatus(s.utilizationPercentage),
-    ]
-  })
+  // Category Summary Stats
+  const totalCapacity = data.summaries.reduce(
+    (sum, s) => sum + (s.categoryBreakdown[category.id]?.capacity || 0),
+    0
+  )
+  const utilization = totalCapacity > 0 ? (categoryRenewals.length / totalCapacity) * 100 : 0
+
+  doc.setFontSize(11)
+  doc.text(`Total Renewals: ${categoryRenewals.length}`, 15, 40)
+  doc.text(`Total Capacity: ${totalCapacity}`, 15, 48)
+  doc.text(`Utilization: ${Math.round(utilization)}%`, 15, 56)
+
+  // Period Distribution Table
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Distribution by Roster Period', 15, 70)
+
+  const periodTableData = data.summaries
+    .filter((s) => {
+      const month = s.periodStartDate.getMonth()
+      return month !== 0 && month !== 11 // Exclude December/January
+    })
+    .map((s) => {
+      const catBreakdown = s.categoryBreakdown[category.id]
+      const planned = catBreakdown?.plannedCount || 0
+      const capacity = catBreakdown?.capacity || 0
+      const util = capacity > 0 ? (planned / capacity) * 100 : 0
+
+      return [
+        s.rosterPeriod,
+        `${formatDate(s.periodStartDate)} - ${formatDate(s.periodEndDate)}`,
+        `${planned} / ${capacity}`,
+        `${Math.round(util)}%`,
+        getUtilizationStatus(util),
+      ]
+    })
 
   autoTable(doc, {
-    head: [['Roster Period', 'Dates', 'Renewals', 'Utilization', 'Status']],
-    body: tableData,
-    startY: 30,
-    styles: { fontSize: 9, cellPadding: 3 },
-    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-    alternateRowStyles: { fillColor: [245, 245, 245] },
-    didParseCell: (data: any) => {
-      // Color code excluded rows
-      if (data.section === 'body' && data.row.index < tableData.length) {
-        if (tableData[data.row.index][2] === 'EXCLUDED') {
-          data.cell.styles.fillColor = [220, 220, 220]
-          data.cell.styles.textColor = [100, 100, 100]
+    head: [['Period', 'Dates', 'Renewals', 'Util%', 'Status']],
+    body: periodTableData,
+    startY: 76,
+    styles: { fontSize: 9, cellPadding: 2.5 },
+    headStyles: { fillColor: category.color, textColor: 255 },
+    columnStyles: {
+      0: { cellWidth: 20 },
+      1: { cellWidth: 55 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 25 },
+    },
+    didParseCell: (cellData: any) => {
+      // Color code status
+      if (cellData.section === 'body' && cellData.column.index === 4) {
+        const status = cellData.cell.raw
+        if (status === 'High Risk') {
+          cellData.cell.styles.textColor = [220, 53, 69]
+          cellData.cell.styles.fontStyle = 'bold'
+        } else if (status === 'Medium') {
+          cellData.cell.styles.textColor = [255, 193, 7]
+        } else {
+          cellData.cell.styles.textColor = [40, 167, 69]
         }
       }
     },
   })
-}
 
-/**
- * Roster Period Detail Page
- */
-function addRosterPeriodDetail(
-  doc: jsPDF,
-  summary: RosterPeriodSummary,
-  allRenewals: RenewalItem[]
-) {
-  doc.setFontSize(16)
-  doc.setFont('helvetica', 'bold')
-  doc.text(`${summary.rosterPeriod} - Detailed Schedule`, 15, 20)
+  const afterPeriodTable = doc.lastAutoTable?.finalY || 150
 
-  doc.setFontSize(11)
-  doc.setFont('helvetica', 'normal')
-  doc.text(`${formatDate(summary.periodStartDate)} - ${formatDate(summary.periodEndDate)}`, 15, 28)
-  doc.text(`Capacity: ${summary.totalPlannedRenewals} / ${summary.totalCapacity}`, 15, 35)
-  doc.text(`Utilization: ${Math.round(summary.utilizationPercentage)}%`, 15, 42)
+  // Pilot Assignments Table
+  if (categoryRenewals.length > 0) {
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Pilot Assignments', 15, afterPeriodTable + 12)
 
-  // Filter renewals for this roster period
-  const periodRenewals = allRenewals.filter((r) => r.roster_period === summary.rosterPeriod)
+    // Sort by roster period, then by pilot name
+    const sortedRenewals = [...categoryRenewals].sort((a, b) => {
+      const periodCompare = a.roster_period.localeCompare(b.roster_period)
+      if (periodCompare !== 0) return periodCompare
+      return `${a.pilot.last_name} ${a.pilot.first_name}`.localeCompare(
+        `${b.pilot.last_name} ${b.pilot.first_name}`
+      )
+    })
 
-  if (periodRenewals.length === 0) {
-    doc.setFontSize(12)
+    const pilotTableData = sortedRenewals.map((r) => [
+      r.roster_period,
+      `${r.pilot.first_name} ${r.pilot.last_name}`,
+      r.pilot.employee_id,
+      r.check_type.check_code,
+      formatDate(r.planned_renewal_date),
+    ])
+
+    autoTable(doc, {
+      head: [['Period', 'Pilot', 'Emp ID', 'Check', 'Planned Date']],
+      body: pilotTableData,
+      startY: afterPeriodTable + 18,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: category.color, textColor: 255 },
+      alternateRowStyles: { fillColor: [250, 250, 250] },
+    })
+  } else {
+    doc.setFontSize(11)
     doc.setTextColor(150, 150, 150)
-    doc.text('No renewals scheduled for this period', 15, 60)
+    doc.text('No renewals scheduled for this category', 15, afterPeriodTable + 20)
     doc.setTextColor(0, 0, 0)
-    return
   }
-
-  // Create table
-  const tableData = periodRenewals.map((r) => [
-    `${r.pilot.first_name} ${r.pilot.last_name}`,
-    r.pilot.employee_id,
-    r.check_type.check_code,
-    r.check_type.category,
-    formatDate(r.planned_renewal_date),
-  ])
-
-  autoTable(doc, {
-    head: [['Pilot', 'Emp ID', 'Check Type', 'Category', 'Planned Date']],
-    body: tableData,
-    startY: 50,
-    styles: { fontSize: 9, cellPadding: 2.5 },
-    headStyles: { fillColor: [52, 152, 219], textColor: 255 },
-    alternateRowStyles: { fillColor: [250, 250, 250] },
-  })
 }
 
 /**
- * Pilot Schedules Page
+ * Pilot Schedules Page - All categories combined
  */
 function addPilotSchedules(doc: jsPDF, data: RenewalPlanPDFData) {
   doc.setFontSize(18)
   doc.setFont('helvetica', 'bold')
-  doc.text('Pilot Renewal Schedules', 15, 20)
+  doc.text('Complete Pilot Schedules', 15, 20)
+
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  doc.text('All categories combined - grouped by pilot', 15, 28)
 
   // Group renewals by pilot
   const byPilot = data.renewals.reduce(
     (acc, r) => {
-      const key = `${r.pilot.first_name} ${r.pilot.last_name}`
+      const key = `${r.pilot.last_name}, ${r.pilot.first_name}`
       if (!acc[key]) {
         acc[key] = {
           empId: r.pilot.employee_id,
@@ -381,23 +482,38 @@ function addPilotSchedules(doc: jsPDF, data: RenewalPlanPDFData) {
 
   const tableData = pilots.flatMap((pilotName) => {
     const pilot = byPilot[pilotName]
-    return pilot.renewals.map((r, index) => [
+    // Sort renewals by roster period
+    const sortedRenewals = pilot.renewals.sort((a, b) =>
+      a.roster_period.localeCompare(b.roster_period)
+    )
+
+    return sortedRenewals.map((r, index) => [
       index === 0 ? pilotName : '', // Only show pilot name on first row
       index === 0 ? pilot.empId : '',
-      r.check_type.check_code,
       r.check_type.category,
-      formatDate(r.planned_renewal_date),
+      r.check_type.check_code,
       r.roster_period,
+      formatDate(r.planned_renewal_date),
     ])
   })
 
   autoTable(doc, {
-    head: [['Pilot', 'Emp ID', 'Check Type', 'Category', 'Planned Date', 'Roster Period']],
+    head: [['Pilot', 'Emp ID', 'Category', 'Check', 'Period', 'Date']],
     body: tableData,
-    startY: 30,
+    startY: 35,
     styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [46, 204, 113], textColor: 255 },
+    headStyles: { fillColor: [52, 73, 94], textColor: 255 },
     alternateRowStyles: { fillColor: [248, 248, 248] },
+    didParseCell: (cellData: any) => {
+      // Color code categories
+      if (cellData.section === 'body' && cellData.column.index === 2) {
+        const category = cellData.cell.raw
+        const cat = CATEGORIES.find((c) => c.id === category)
+        if (cat) {
+          cellData.cell.styles.textColor = cat.color
+        }
+      }
+    },
   })
 }
 
@@ -408,4 +524,214 @@ function getUtilizationStatus(utilization: number): string {
   if (utilization > 80) return 'High Risk'
   if (utilization > 60) return 'Medium'
   return 'Good'
+}
+
+/**
+ * Pairing Summary Page - Captain/FO Pairing for Flight and Simulator Checks
+ */
+function addPairingSummaryPage(doc: jsPDF, data: RenewalPlanPDFData) {
+  if (!data.pairingData) return
+
+  const { pairs, unpaired, statistics } = data.pairingData
+  const pageWidth = doc.internal.pageSize.getWidth()
+
+  // Page Header
+  doc.setFontSize(20)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Captain/FO Pairing Summary', 15, 20)
+
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(100, 100, 100)
+  doc.text('Flight Checks and Simulator Checks require Captain + First Officer pairing', 15, 28)
+  doc.setTextColor(0, 0, 0)
+
+  // Pairing Statistics
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Pairing Statistics', 15, 42)
+
+  const statsTableData = [
+    ['Total Paired Crews', statistics.totalPairs.toString()],
+    ['Total Unpaired (Solo)', statistics.totalUnpaired.toString()],
+    ['Urgent Solo (<30 days)', statistics.urgentUnpaired.toString()],
+    ['Average Window Overlap', `${Math.round(statistics.averageOverlapDays)} days`],
+  ]
+
+  autoTable(doc, {
+    body: statsTableData,
+    startY: 48,
+    styles: { fontSize: 10, cellPadding: 3 },
+    columnStyles: {
+      0: { fontStyle: 'bold', cellWidth: 60 },
+      1: { cellWidth: 40 },
+    },
+    theme: 'plain',
+  })
+
+  const afterStatsY = doc.lastAutoTable?.finalY || 90
+
+  // Category Breakdown
+  doc.setFontSize(14)
+  doc.setFont('helvetica', 'bold')
+  doc.text('By Category', 15, afterStatsY + 10)
+
+  const categoryBreakdownData = statistics.byCategory.map((cat) => [
+    cat.category,
+    cat.pairsCount.toString(),
+    cat.unpairedCount.toString(),
+    `${cat.captainsUnpaired} CPT / ${cat.firstOfficersUnpaired} FO`,
+  ])
+
+  autoTable(doc, {
+    head: [['Category', 'Pairs', 'Unpaired', 'Solo Breakdown']],
+    body: categoryBreakdownData,
+    startY: afterStatsY + 16,
+    styles: { fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor: [0, 139, 139], textColor: 255 }, // Cyan for pairing
+    didParseCell: (cellData: any) => {
+      // Color code categories
+      if (cellData.section === 'body' && cellData.column.index === 0) {
+        const catName = cellData.cell.raw
+        const cat = CATEGORIES.find((c) => c.id === catName)
+        if (cat) {
+          cellData.cell.styles.textColor = cat.color
+          cellData.cell.styles.fontStyle = 'bold'
+        }
+      }
+      // Highlight unpaired
+      if (cellData.section === 'body' && cellData.column.index === 2) {
+        const count = parseInt(cellData.cell.raw, 10)
+        if (count > 0) {
+          cellData.cell.styles.textColor = [255, 140, 0] // Orange
+          cellData.cell.styles.fontStyle = 'bold'
+        }
+      }
+    },
+  })
+
+  const afterCategoryY = doc.lastAutoTable?.finalY || 150
+
+  // Paired Crews List (if any)
+  if (pairs.length > 0) {
+    doc.setFontSize(14)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Paired Crews', 15, afterCategoryY + 12)
+
+    // Group pairs by roster period
+    const pairsByPeriod = pairs.reduce(
+      (acc, pair) => {
+        if (!acc[pair.plannedRosterPeriod]) {
+          acc[pair.plannedRosterPeriod] = []
+        }
+        acc[pair.plannedRosterPeriod].push(pair)
+        return acc
+      },
+      {} as Record<string, PairedCrew[]>
+    )
+
+    const pairedTableData = Object.entries(pairsByPeriod)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .flatMap(([period, periodPairs]) =>
+        periodPairs.map((pair, idx) => [
+          idx === 0 ? period : '',
+          pair.category,
+          `CPT: ${pair.captain.name}`,
+          `FO: ${pair.firstOfficer.name}`,
+          `${pair.renewalWindowOverlap.days}d`,
+        ])
+      )
+
+    autoTable(doc, {
+      head: [['Period', 'Category', 'Captain', 'First Officer', 'Overlap']],
+      body: pairedTableData,
+      startY: afterCategoryY + 18,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [40, 167, 69], textColor: 255 }, // Green for paired
+      columnStyles: {
+        0: { cellWidth: 22 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 50 },
+        3: { cellWidth: 50 },
+        4: { cellWidth: 20 },
+      },
+    })
+  }
+
+  // Unpaired Pilots Warning Section (if any)
+  if (unpaired.length > 0) {
+    const startY = pairs.length > 0 ? (doc.lastAutoTable?.finalY || 200) + 15 : afterCategoryY + 12
+
+    // Check if we need a new page
+    if (startY > 250) {
+      doc.addPage()
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Unpaired Pilots - Solo Scheduling', 15, 20)
+    } else {
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Unpaired Pilots - Solo Scheduling', 15, startY)
+    }
+
+    // Warning banner
+    const bannerY = startY > 250 ? 28 : startY + 8
+    doc.setFillColor(255, 243, 205) // Yellow background
+    doc.rect(15, bannerY, pageWidth - 30, 12, 'F')
+    doc.setFontSize(10)
+    doc.setTextColor(133, 100, 4)
+    doc.text(
+      `⚠ ${unpaired.length} pilot(s) scheduled solo due to pairing constraints. Review recommended.`,
+      20,
+      bannerY + 8
+    )
+    doc.setTextColor(0, 0, 0)
+
+    // Sort unpaired by urgency
+    const sortedUnpaired = [...unpaired].sort((a, b) => {
+      const urgencyOrder = { critical: 0, high: 1, normal: 2 }
+      return urgencyOrder[a.urgency] - urgencyOrder[b.urgency]
+    })
+
+    const unpairedTableData = sortedUnpaired.map((pilot) => [
+      pilot.name,
+      pilot.employeeId,
+      pilot.role,
+      pilot.category,
+      pilot.plannedRosterPeriod,
+      `${pilot.daysUntilExpiry}d`,
+      pilot.urgency.toUpperCase(),
+    ])
+
+    autoTable(doc, {
+      head: [['Pilot', 'Emp ID', 'Role', 'Category', 'Period', 'Expiry', 'Urgency']],
+      body: unpairedTableData,
+      startY: bannerY + 16,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [255, 140, 0], textColor: 255 }, // Orange for unpaired
+      didParseCell: (cellData: any) => {
+        // Color code urgency
+        if (cellData.section === 'body' && cellData.column.index === 6) {
+          const urgency = cellData.cell.raw
+          if (urgency === 'CRITICAL') {
+            cellData.cell.styles.textColor = [220, 53, 69]
+            cellData.cell.styles.fontStyle = 'bold'
+          } else if (urgency === 'HIGH') {
+            cellData.cell.styles.textColor = [255, 140, 0]
+            cellData.cell.styles.fontStyle = 'bold'
+          }
+        }
+        // Color code low expiry days
+        if (cellData.section === 'body' && cellData.column.index === 5) {
+          const days = parseInt(cellData.cell.raw, 10)
+          if (days <= 14) {
+            cellData.cell.styles.textColor = [220, 53, 69]
+            cellData.cell.styles.fontStyle = 'bold'
+          } else if (days <= 30) {
+            cellData.cell.styles.textColor = [255, 140, 0]
+          }
+        }
+      },
+    })
+  }
 }
