@@ -1,6 +1,5 @@
 /**
  * Paired Crew Card Component
- * Author: Maurice Rondeau
  *
  * Displays a paired Captain + First Officer for Flight/Simulator checks.
  * Shows renewal window overlap, scheduled date, and pairing status.

@@ -11,7 +11,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { generateRenewalPlanPDF } from '@/lib/services/renewal-planning-pdf-service'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
 
@@ -19,9 +19,11 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
     const { searchParams } = new URL(request.url)
     const yearParam = searchParams.get('year')
+    const checkCodesParam = searchParams.get('checkCodes') // Optional check codes filter (comma-separated)
+    const checkCodes = checkCodesParam ? checkCodesParam.split(',').filter(Boolean) : []
 
     // Validate year parameter
     if (!yearParam) {
@@ -45,13 +47,12 @@ export async function GET(request: Request) {
       )
     }
 
-    // FIX #1: Get roster periods for the SPECIFIED YEAR (not 'today')
-    // Query roster periods that fall within the specified year (February - November)
+    // Get all 13 roster periods for the specified year (full year coverage)
     const { data: periods, error: periodsError } = await supabase
       .from('roster_period_capacity')
       .select('roster_period, period_start_date, period_end_date')
-      .gte('period_start_date', `${year}-02-01`) // Start from February of specified year
-      .lte('period_start_date', `${year}-11-30`) // End in November of specified year
+      .gte('period_start_date', `${year}-01-01`)
+      .lte('period_start_date', `${year}-12-31`)
       .order('period_start_date')
 
     if (periodsError) {
@@ -103,7 +104,7 @@ export async function GET(request: Request) {
 
     // Query renewal plans - use lowercase status values that match what the service creates
     // FIX: Service uses 'planned', 'confirmed', 'in_progress', 'completed' (lowercase)
-    const { data: renewals, error: renewalsError } = await supabase
+    const renewalsQuery = supabase
       .from('certification_renewal_plans')
       .select(
         `
@@ -114,6 +115,8 @@ export async function GET(request: Request) {
       )
       .in('planned_roster_period', rosterPeriods)
       .in('status', ['planned', 'confirmed', 'in_progress', 'completed'])
+
+    const { data: renewals, error: renewalsError } = await renewalsQuery
 
     if (renewalsError) {
       console.error('Error fetching renewals:', renewalsError)
@@ -138,8 +141,26 @@ export async function GET(request: Request) {
       )
     }
 
+    // Filter by checkCodes if specified
+    let filteredRenewals = renewals
+    if (checkCodes.length > 0) {
+      filteredRenewals = renewals.filter((r: any) => checkCodes.includes(r.check_type?.check_code))
+    }
+
+    // Validate that we have data after filtering
+    if (filteredRenewals.length === 0) {
+      return NextResponse.json(
+        {
+          error: `No renewal plans found for the selected check types`,
+          details: `No renewals match the specified check codes: ${checkCodes.join(', ')}`,
+          suggestion: 'Try different filter options.',
+        },
+        { status: 404 }
+      )
+    }
+
     // Type assertion for renewals data
-    const typedRenewals = (renewals || []).map((r: any) => ({
+    const typedRenewals = filteredRenewals.map((r: any) => ({
       id: r.id,
       pilot: {
         first_name: r.pilot?.first_name || '',
@@ -170,10 +191,14 @@ export async function GET(request: Request) {
     // Convert blob to buffer for Response
     const buffer = await pdfBlob.arrayBuffer()
 
+    // Build filename with filter info
+    const filterPart = checkCodes.length > 0 ? `_${checkCodes.join('_')}` : ''
+    const filename = `Renewal_Plan_${year}${filterPart}.pdf`
+
     // Return PDF as download
     const headers = new Headers()
     headers.set('Content-Type', 'application/pdf')
-    headers.set('Content-Disposition', `attachment; filename="Renewal_Plan_${year}.pdf"`)
+    headers.set('Content-Disposition', `attachment; filename="${filename}"`)
     headers.set('Content-Length', buffer.byteLength.toString())
 
     return new Response(buffer, {

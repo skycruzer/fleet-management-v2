@@ -1,6 +1,5 @@
 /**
  * Renewal Plan Preview Modal
- * Author: Maurice Rondeau
  *
  * Category-centric preview of renewal plan before emailing/exporting.
  * Uses tabs to show each category's distribution, capacity, and pilots.

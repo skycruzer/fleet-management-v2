@@ -1,13 +1,12 @@
 /**
  * CSV Export API Route for Certification Renewal Planning
- * Author: Maurice Rondeau
  *
  * Generates CSV export of renewal plans with pairing information.
  * Includes Captain/FO pairing status for Flight and Simulator checks.
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { formatDate } from '@/lib/utils/date-utils'
 
 export const dynamic = 'force-dynamic'
@@ -30,10 +29,12 @@ interface RenewalRow {
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
     const { searchParams } = new URL(request.url)
     const yearParam = searchParams.get('year')
     const categoryFilter = searchParams.get('category') // Optional category filter
+    const checkCodesParam = searchParams.get('checkCodes') // Optional check codes filter (comma-separated)
+    const checkCodes = checkCodesParam ? checkCodesParam.split(',').filter(Boolean) : []
 
     // Validate year parameter
     if (!yearParam) {
@@ -54,12 +55,12 @@ export async function GET(request: Request) {
       )
     }
 
-    // Get roster periods for the specified year (February - November)
+    // Get all 13 roster periods for the specified year (full year coverage)
     const { data: periods, error: periodsError } = await supabase
       .from('roster_period_capacity')
       .select('roster_period')
-      .gte('period_start_date', `${year}-02-01`)
-      .lte('period_start_date', `${year}-11-30`)
+      .gte('period_start_date', `${year}-01-01`)
+      .lte('period_start_date', `${year}-12-31`)
       .order('period_start_date')
 
     if (periodsError) {
@@ -135,9 +136,13 @@ export async function GET(request: Request) {
       )
     }
 
-    // Optionally filter by category
+    // Filter by checkCodes (takes priority) or category
     let filteredRenewals = renewals
-    if (categoryFilter) {
+    if (checkCodes.length > 0) {
+      // Filter by specific check codes (e.g., B767_COMP, B767_IRR)
+      filteredRenewals = renewals.filter((r: any) => checkCodes.includes(r.check_type?.check_code))
+    } else if (categoryFilter) {
+      // Fall back to category filter
       filteredRenewals = renewals.filter((r: any) => r.check_type?.category === categoryFilter)
     }
 
@@ -212,9 +217,14 @@ export async function GET(request: Request) {
       ),
     ].join('\n')
 
-    // Build filename
-    const categoryPart = categoryFilter ? `_${categoryFilter.replace(/\s+/g, '_')}` : ''
-    const filename = `Renewal_Plan_${year}${categoryPart}.csv`
+    // Build filename with filter info
+    let filterPart = ''
+    if (checkCodes.length > 0) {
+      filterPart = `_${checkCodes.join('_')}`
+    } else if (categoryFilter) {
+      filterPart = `_${categoryFilter.replace(/\s+/g, '_')}`
+    }
+    const filename = `Renewal_Plan_${year}${filterPart}.csv`
 
     // Return CSV as download
     const headers_ = new Headers()

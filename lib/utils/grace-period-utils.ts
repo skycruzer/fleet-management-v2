@@ -4,7 +4,8 @@
  *
  * Business Rules:
  * - Pilot Medical: 28 days grace period
- * - Flight/Simulator Checks: 90 days grace period
+ * - Flight Checks: 90 days grace period
+ * - Simulator Checks: 60 days grace period
  * - Ground Courses: 60 days grace period
  * - ID Cards/Work Permits/Visas: 0 days (renew on or after expiry)
  */
@@ -17,7 +18,7 @@ import { subDays } from 'date-fns'
 export const GRACE_PERIODS: Record<string, number> = {
   'Pilot Medical': 28,
   'Flight Checks': 90,
-  'Simulator Checks': 90,
+  'Simulator Checks': 60,
   'Ground Courses Refresher': 60,
   'ID Cards': 0,
   'Foreign Pilot Work Permit': 0,
@@ -101,3 +102,32 @@ export function validateRenewalDate(
 
   return { valid: true }
 }
+
+/**
+ * Categories that can be included in renewal planning
+ * (grace period >= 60 days allows for meaningful advance scheduling)
+ */
+export const PLANNABLE_CATEGORIES = [
+  'Flight Checks',
+  'Simulator Checks',
+  'Ground Courses Refresher',
+] as const
+
+/**
+ * Categories excluded from renewal planning
+ * Medical has 28-day window - too short for advance planning
+ */
+export const NON_PLANNABLE_CATEGORIES = ['Pilot Medical'] as const
+
+/**
+ * Check if a category is suitable for renewal planning
+ * Categories with grace periods < 60 days are excluded
+ */
+export function isPlannable(category: string): boolean {
+  return PLANNABLE_CATEGORIES.includes(category as (typeof PLANNABLE_CATEGORIES)[number])
+}
+
+/**
+ * Get minimum grace period required for planning (60 days)
+ */
+export const MIN_PLANNABLE_GRACE_PERIOD = 60

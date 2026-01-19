@@ -1,6 +1,5 @@
 /**
  * Unpaired Pilot Card Component
- * Author: Maurice Rondeau
  *
  * Displays a warning card for pilots who couldn't be paired for Flight/Simulator checks.
  * Shows urgency level, reason for being unpaired, and scheduling status.

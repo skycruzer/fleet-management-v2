@@ -2,8 +2,6 @@
 
 /**
  * Period Detail Panel Component
- * Author: Maurice Rondeau
- * Date: December 19, 2025
  *
  * Inline panel for viewing roster period renewal details
  * Eliminates need for page navigation - shows in dialog/sheet

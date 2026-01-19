@@ -1,6 +1,5 @@
 /**
  * Calendar Page Client Component
- * Author: Maurice Rondeau
  *
  * Client-side wrapper for the renewal planning calendar page.
  * Handles state for preview modal, filters, and export actions.
@@ -77,9 +76,18 @@ export function CalendarPageClient({
     {} as Record<string, number>
   )
 
+  // Build export URL with checkCodes filter if active
+  const buildExportUrl = (baseUrl: string) => {
+    const params = new URLSearchParams({ year: year.toString() })
+    if (filters.checkCodes.length > 0) {
+      params.set('checkCodes', filters.checkCodes.join(','))
+    }
+    return `${baseUrl}?${params.toString()}`
+  }
+
   const handleExportPDF = () => {
-    // Open PDF in new tab
-    window.open(`/api/renewal-planning/export-pdf?year=${year}`, '_blank')
+    // Open PDF in new tab with filters
+    window.open(buildExportUrl('/api/renewal-planning/export-pdf'), '_blank')
     toast.success('PDF Export Started', {
       description: 'Your PDF will download shortly.',
     })
@@ -87,8 +95,8 @@ export function CalendarPageClient({
   }
 
   const handleExportCSV = () => {
-    // Trigger CSV download
-    window.open(`/api/renewal-planning/export-csv?year=${year}`, '_blank')
+    // Trigger CSV download with filters
+    window.open(buildExportUrl('/api/renewal-planning/export-csv'), '_blank')
     toast.success('CSV Export Started', {
       description: 'Your CSV will download shortly.',
     })
@@ -143,7 +151,7 @@ export function CalendarPageClient({
           </Link>
           <h1 className="text-foreground text-3xl font-bold">Renewal Planning Calendar ({year})</h1>
           <p className="text-muted-foreground mt-1">
-            Visual overview of certification renewals (February - November {year})
+            Visual overview of certification renewals across all 13 roster periods ({year})
           </p>
         </div>
 
@@ -199,7 +207,7 @@ export function CalendarPageClient({
 
           {/* PDF Export Button */}
           <Link
-            href={hasRenewals ? `/api/renewal-planning/export-pdf?year=${year}` : '#'}
+            href={hasRenewals ? buildExportUrl('/api/renewal-planning/export-pdf') : '#'}
             target={hasRenewals ? '_blank' : undefined}
             className={!hasRenewals ? 'pointer-events-none' : ''}
           >

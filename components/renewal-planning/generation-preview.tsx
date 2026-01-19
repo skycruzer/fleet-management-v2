@@ -1,6 +1,5 @@
 /**
  * Generation Preview Component
- * Author: Maurice Rondeau
  *
  * Shows real-time preview of renewal generation results
  * before actually committing to the database.

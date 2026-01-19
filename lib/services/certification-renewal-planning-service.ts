@@ -186,21 +186,13 @@ export async function generateRenewalPlan(options?: {
     const { start: windowStart, end: windowEnd } = calculateRenewalWindow(expiryDate, category)
 
     // Get eligible roster periods within renewal window
-    const eligiblePeriods = getRosterPeriodsInRange(windowStart, windowEnd)
-
-    // BUSINESS RULE: Exclude December and January from renewal scheduling
-    // Reason: Holiday months with reduced operational capacity and higher pilot absence rates
-    // This ensures critical certification renewals are not scheduled during holiday periods
-    const filteredPeriods = eligiblePeriods.filter((period) => {
-      const month = period.startDate.getMonth()
-      // month 0 = January, month 11 = December
-      return month !== 0 && month !== 11
-    })
+    // All 13 roster periods are now available for scheduling (Dec/Jan exclusion removed)
+    const filteredPeriods = getRosterPeriodsInRange(windowStart, windowEnd)
 
     if (filteredPeriods.length === 0) {
       console.warn(
-        `No eligible roster periods for certification ${cert.id}, category ${category} ` +
-          `after excluding December/January. Original window: ${windowStart.toISOString()} - ${windowEnd.toISOString()}`
+        `No eligible roster periods for certification ${cert.id}, category ${category}. ` +
+          `Renewal window: ${windowStart.toISOString()} - ${windowEnd.toISOString()}`
       )
       continue
     }
@@ -674,13 +666,14 @@ export async function generateRenewalPlanWithPairing(options?: {
   monthsAhead?: number
   categories?: string[]
   pilotIds?: string[]
+  checkCodes?: string[]
   pairingOptions?: PairingOptions
 }): Promise<{
   renewals: RenewalPlanWithDetails[]
   pairing: PairingResult
 }> {
   const supabase = createServiceRoleClient()
-  const { monthsAhead = 12, categories, pilotIds, pairingOptions } = options || {}
+  const { monthsAhead = 12, categories, pilotIds, checkCodes, pairingOptions } = options || {}
   const {
     minOverlapDays = 7,
     autoScheduleUrgent = true,
@@ -691,8 +684,30 @@ export async function generateRenewalPlanWithPairing(options?: {
   // Step 1: Fetch all certifications
   const endDate = addDays(new Date(), monthsAhead * 30)
 
+  // Filter by checkCodes (specific check types) or categories
+  // checkCodes takes priority as it's more specific
   let checkTypeIds: string[] | undefined
-  if (categories && categories.length > 0) {
+  if (checkCodes && checkCodes.length > 0) {
+    // Filter by exact check_code values (e.g., 'B767_COMP', 'B767_IRR')
+    const { data: checkTypes } = await supabase
+      .from('check_types')
+      .select('id')
+      .in('check_code', checkCodes)
+
+    checkTypeIds = checkTypes?.map((ct) => ct.id) || []
+    if (checkTypeIds.length === 0) {
+      return {
+        renewals: [],
+        pairing: {
+          pairs: [],
+          unpaired: [],
+          statistics: createEmptyStatistics(),
+          warnings: [],
+        },
+      }
+    }
+  } else if (categories && categories.length > 0) {
+    // Fall back to category filtering if no checkCodes specified
     const { data: checkTypes } = await supabase
       .from('check_types')
       .select('id')
@@ -858,10 +873,23 @@ export async function generateRenewalPlanWithPairing(options?: {
     updateAllocations(currentAllocations, pair.plannedRosterPeriod, pair.category)
   }
 
-  // Add unpaired solo plans
+  // Add unpaired solo plans (only those with valid planned dates)
   for (const unpaired of pairingResult.unpaired) {
+    // Skip unpaired pilots without a valid planned date (they need manual review)
+    if (!unpaired.plannedDate || !unpaired.plannedRosterPeriod) {
+      console.log(
+        `[generateRenewalPlanWithPairing] Skipping unpaired pilot ${unpaired.name} - needs manual review (no planned date)`
+      )
+      continue
+    }
+
     const cert = pairingCerts.find((c) => c.pilot_id === unpaired.pilotId)
     if (!cert) continue
+
+    // Calculate proper renewal window for the unpaired pilot
+    const expiryDate = parseISO(cert.expiry_date!)
+    const category = cert.check_types?.category || 'Flight Checks'
+    const { start: windowStart, end: windowEnd } = calculateRenewalWindow(expiryDate, category)
 
     renewalPlans.push({
       pilot_id: unpaired.pilotId,
@@ -869,8 +897,8 @@ export async function generateRenewalPlanWithPairing(options?: {
       original_expiry_date: unpaired.expiryDate,
       planned_renewal_date: unpaired.plannedDate,
       planned_roster_period: unpaired.plannedRosterPeriod,
-      renewal_window_start: cert.expiry_date!, // Simplified, actual window calc needed
-      renewal_window_end: cert.expiry_date!,
+      renewal_window_start: windowStart.toISOString().split('T')[0],
+      renewal_window_end: windowEnd.toISOString().split('T')[0],
       status: 'planned',
       priority: calculatePriority(parseISO(unpaired.expiryDate)),
       pairing_status: 'unpaired_solo' as PairingStatus,
@@ -879,10 +907,36 @@ export async function generateRenewalPlanWithPairing(options?: {
     updateAllocations(currentAllocations, unpaired.plannedRosterPeriod, unpaired.category)
   }
 
-  // Step 6: Insert all renewal plans
+  // Step 6: Deduplicate renewal plans (a pilot may appear in both paired and unpaired)
+  // Keep the first occurrence (paired entries are added first, so they take priority)
+  const seenKeys = new Set<string>()
+  const deduplicatedPlans = renewalPlans.filter((plan) => {
+    const key = `${plan.pilot_id}-${plan.check_type_id}`
+    if (seenKeys.has(key)) {
+      console.log(
+        `[generateRenewalPlanWithPairing] Removing duplicate: pilot=${plan.pilot_id}, check=${plan.check_type_id}`
+      )
+      return false
+    }
+    seenKeys.add(key)
+    return true
+  })
+
+  console.log(
+    `[generateRenewalPlanWithPairing] After deduplication: ${deduplicatedPlans.length} plans (removed ${renewalPlans.length - deduplicatedPlans.length} duplicates)`
+  )
+
+  // Step 7: Insert all renewal plans (skip if empty)
+  if (deduplicatedPlans.length === 0) {
+    return {
+      renewals: [],
+      pairing: pairingResult,
+    }
+  }
+
   const { data: created, error: insertError } = await supabase
     .from('certification_renewal_plans')
-    .insert(renewalPlans)
+    .insert(deduplicatedPlans)
     .select(
       `
       *,
@@ -1015,10 +1069,8 @@ export async function getPairingSuggestions(options?: {
       const overlapStart = max([captainWindow.start, foWindow.start])
       const overlapEnd = min([captainWindow.end, foWindow.end])
 
-      // Get suggested period
-      const eligiblePeriods = getRosterPeriodsInRange(overlapStart, overlapEnd).filter(
-        (p) => p.startDate.getMonth() !== 0 && p.startDate.getMonth() !== 11
-      )
+      // Get suggested period - all 13 roster periods available
+      const eligiblePeriods = getRosterPeriodsInRange(overlapStart, overlapEnd)
 
       if (eligiblePeriods.length > 0) {
         suggestions.push({
@@ -1292,12 +1344,12 @@ export async function getPairingDataForYear(year: number): Promise<{
 }> {
   const supabase = createServiceRoleClient()
 
-  // Get roster periods for the year (Feb-Nov only, excluding Dec/Jan)
+  // Get all 13 roster periods for the year (full year coverage)
   const { data: periods, error } = await supabase
     .from('roster_period_capacity')
     .select('roster_period')
-    .gte('period_start_date', `${year}-02-01`)
-    .lte('period_start_date', `${year}-11-30`)
+    .gte('period_start_date', `${year}-01-01`)
+    .lte('period_start_date', `${year}-12-31`)
     .order('period_start_date')
 
   if (error) throw error
@@ -1379,10 +1431,10 @@ function createIndividualRenewalPlan(
   const category = cert.check_types.category
   const { start: windowStart, end: windowEnd } = calculateRenewalWindow(expiryDate, category)
 
-  const eligiblePeriods = getRosterPeriodsInRange(windowStart, windowEnd).filter((period) => {
-    const month = period.startDate.getMonth()
-    return month !== 0 && month !== 11 && !excludePeriods.includes(period.code)
-  })
+  // All 13 roster periods available, only filter by explicitly excluded periods
+  const eligiblePeriods = getRosterPeriodsInRange(windowStart, windowEnd).filter(
+    (period) => !excludePeriods.includes(period.code)
+  )
 
   if (eligiblePeriods.length === 0) return null
 
@@ -1492,11 +1544,10 @@ async function processPairingCertifications(
         const overlapStart = max([captainWindow.start, foWindow.start])
         const overlapEnd = min([captainWindow.end, foWindow.end])
 
-        // Find optimal period for pair
-        const eligiblePeriods = getRosterPeriodsInRange(overlapStart, overlapEnd).filter((p) => {
-          const month = p.startDate.getMonth()
-          return month !== 0 && month !== 11 && !options.excludePeriods.includes(p.code)
-        })
+        // Find optimal period for pair - all 13 roster periods available
+        const eligiblePeriods = getRosterPeriodsInRange(overlapStart, overlapEnd).filter(
+          (p) => !options.excludePeriods.includes(p.code)
+        )
 
         if (eligiblePeriods.length > 0) {
           // Find period with lowest utilization (pairs need 2 slots)
@@ -1511,6 +1562,11 @@ async function processPairingCertifications(
 
           if (optimalPeriod) {
             const pairId = uuidv4()
+            // Ensure planned date falls within the renewal window overlap
+            let plannedDate = optimalPeriod.period.startDate
+            if (plannedDate < overlapStart) plannedDate = overlapStart
+            if (plannedDate > overlapEnd) plannedDate = overlapEnd
+
             pairs.push({
               id: pairId,
               captain: {
@@ -1531,7 +1587,7 @@ async function processPairingCertifications(
               },
               category: category as any,
               plannedRosterPeriod: optimalPeriod.period.code,
-              plannedDate: optimalPeriod.period.startDate.toISOString().split('T')[0],
+              plannedDate: plannedDate.toISOString().split('T')[0],
               renewalWindowOverlap: {
                 start: overlapStart.toISOString().split('T')[0],
                 end: overlapEnd.toISOString().split('T')[0],
@@ -1551,15 +1607,15 @@ async function processPairingCertifications(
       // Could not pair this captain - handle as unpaired
       const daysUntilExpiry = differenceInDays(captainExpiry, new Date())
       if (options.autoScheduleUrgent && daysUntilExpiry <= options.urgentThresholdDays) {
-        const eligiblePeriods = getRosterPeriodsInRange(
-          captainWindow.start,
-          captainWindow.end
-        ).filter((p) => {
-          const month = p.startDate.getMonth()
-          return month !== 0 && month !== 11
-        })
+        // All 13 roster periods available for urgent solo scheduling
+        const eligiblePeriods = getRosterPeriodsInRange(captainWindow.start, captainWindow.end)
 
         if (eligiblePeriods.length > 0) {
+          // Ensure planned date falls within the renewal window
+          let plannedDate = eligiblePeriods[0].startDate
+          if (plannedDate < captainWindow.start) plannedDate = captainWindow.start
+          if (plannedDate > captainWindow.end) plannedDate = captainWindow.end
+
           unpaired.push({
             pilotId: captain.pilot_id,
             renewalPlanId: '',
@@ -1570,7 +1626,7 @@ async function processPairingCertifications(
             daysUntilExpiry,
             category: category as any,
             plannedRosterPeriod: eligiblePeriods[0].code,
-            plannedDate: eligiblePeriods[0].startDate.toISOString().split('T')[0],
+            plannedDate: plannedDate.toISOString().split('T')[0],
             reason: 'no_matching_role',
             status: 'unpaired_solo',
             urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
@@ -1610,14 +1666,15 @@ async function processPairingCertifications(
       const foWindow = calculateRenewalWindow(foExpiry, category)
 
       if (options.autoScheduleUrgent && daysUntilExpiry <= options.urgentThresholdDays) {
-        const eligiblePeriods = getRosterPeriodsInRange(foWindow.start, foWindow.end).filter(
-          (p) => {
-            const month = p.startDate.getMonth()
-            return month !== 0 && month !== 11
-          }
-        )
+        // All 13 roster periods available for urgent solo scheduling
+        const eligiblePeriods = getRosterPeriodsInRange(foWindow.start, foWindow.end)
 
         if (eligiblePeriods.length > 0) {
+          // Ensure planned date falls within the renewal window
+          let plannedDate = eligiblePeriods[0].startDate
+          if (plannedDate < foWindow.start) plannedDate = foWindow.start
+          if (plannedDate > foWindow.end) plannedDate = foWindow.end
+
           unpaired.push({
             pilotId: fo.pilot_id,
             renewalPlanId: '',
@@ -1628,7 +1685,7 @@ async function processPairingCertifications(
             daysUntilExpiry,
             category: category as any,
             plannedRosterPeriod: eligiblePeriods[0].code,
-            plannedDate: eligiblePeriods[0].startDate.toISOString().split('T')[0],
+            plannedDate: plannedDate.toISOString().split('T')[0],
             reason: 'no_matching_role',
             status: 'unpaired_solo',
             urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',

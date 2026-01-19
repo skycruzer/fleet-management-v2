@@ -85,8 +85,7 @@ export function RenewalPlanningDashboard({
         <div>
           <h1 className="text-foreground text-3xl font-bold">Certification Renewal Planning</h1>
           <p className="text-muted-foreground mt-1">
-            Manage and distribute pilot certification renewals across roster periods (February -
-            November)
+            Manage and distribute pilot certification renewals across all 13 roster periods
           </p>
         </div>
         <div className="flex items-center space-x-2">
@@ -222,9 +221,7 @@ export function RenewalPlanningDashboard({
           <div className="py-12 text-center">
             <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
             <h3 className="text-foreground mb-2 text-lg font-semibold">No Roster Periods Found</h3>
-            <p className="text-muted-foreground">
-              No roster periods available for {selectedYear} (February - November).
-            </p>
+            <p className="text-muted-foreground">No roster periods available for {selectedYear}.</p>
             <p className="text-muted-foreground mt-2 text-sm">
               Try selecting a different year or generate a plan first.
             </p>
@@ -326,12 +323,8 @@ export function RenewalPlanningDashboard({
         </h3>
         <ul className="mt-2 space-y-1 text-sm text-blue-700 dark:text-blue-300">
           <li>
-            • <strong>Select a year</strong> to view renewal planning for that year (February -
-            November only)
-          </li>
-          <li>
-            • <strong>December and January</strong> are excluded from renewal scheduling (holiday
-            months)
+            • <strong>Select a year</strong> to view renewal planning for that year (all 13 roster
+            periods)
           </li>
           <li>
             • <strong>Click a roster period</strong> to see detailed renewal schedule
@@ -347,7 +340,7 @@ export function RenewalPlanningDashboard({
             • <strong>Use Previous/Next Year buttons</strong> to navigate through years - the year
             range will automatically extend as you navigate
           </li>
-          <li>• Capacity limits: Medical (4), Flight (4), Simulator (6), Ground (8) per period</li>
+          <li>• Capacity limits: Flight (4), Simulator (6), Ground (8) per period</li>
         </ul>
       </Card>
     </div>

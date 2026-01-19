@@ -1,6 +1,5 @@
 /**
  * Renewal Planning PDF Generation Service
- * Author: Maurice Rondeau
  *
  * Creates professional PDF reports for certification renewal planning.
  * Reports are organized BY CATEGORY for easy distribution to respective teams.
@@ -302,7 +301,7 @@ function addExecutiveSummary(doc: jsPDF, data: RenewalPlanPDFData) {
   const notes = [
     '• This report is organized BY CATEGORY for easy distribution to respective teams',
     '• Each category section contains period distribution and pilot assignments',
-    '• December and January are excluded from renewal scheduling (holiday months)',
+    '• All 13 roster periods (RP1-RP13) are available for scheduling',
     '• Capacity limits: Flight (4), Simulator (6), Ground (8) per period',
     '• High-risk periods (>80% utilization) are highlighted in each category section',
   ]

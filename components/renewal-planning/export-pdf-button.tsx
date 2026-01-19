@@ -1,9 +1,6 @@
 /**
  * Export PDF Button Component
  * Client component for exporting renewal plan to PDF
- *
- * Author: Maurice Rondeau
- * Date: November 13, 2025
  */
 
 'use client'

@@ -1,6 +1,5 @@
 /**
  * Period Hover Card
- * Author: Maurice Rondeau
  *
  * Detailed tooltip/hover card for roster period cards.
  * Uses CSS-based hover for showing detailed information.

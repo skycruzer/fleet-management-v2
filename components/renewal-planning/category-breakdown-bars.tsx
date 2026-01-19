@@ -1,6 +1,5 @@
 /**
  * Category Breakdown Bars
- * Author: Maurice Rondeau
  *
  * Horizontal progress bars showing category-wise breakdown of renewals.
  * Displays planned count vs capacity with color-coded utilization.

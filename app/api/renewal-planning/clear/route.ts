@@ -4,10 +4,6 @@
  *
  * Deletes all existing renewal plans from the database
  * Use with caution - this is a destructive operation
- *
- * Developer: Maurice Rondeau
- * @version 3.0.0 - SECURITY: Added CSRF protection and rate limiting
- * @updated 2025-11-04 - Critical security hardening
  */
 
 import { NextRequest, NextResponse } from 'next/server'

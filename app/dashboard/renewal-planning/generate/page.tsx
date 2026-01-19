@@ -1,31 +1,38 @@
 'use client'
 
 /**
- * Generate Renewal Plan Configuration Page
- * Author: Maurice Rondeau
+ * Generate Renewal Plan - 3-Step Wizard
  *
- * Allows users to customize renewal plan generation with:
- * - Live preview as configuration changes
- * - Post-generation results view
- * - User-controlled navigation
+ * Complete overhaul with:
+ * - Step 1: Configure - Set planning parameters
+ * - Step 2: Preview - Review pairing assignments per roster period
+ * - Step 3: Results - View generation summary
  *
  * Features:
- * - Configure time horizon (months ahead)
- * - Filter by category
- * - Preview before generating (uses GenerationPreview component)
- * - Clear existing plans option
- * - Detailed results view after generation
+ * - Captain/FO pairing preview with roster assignments
+ * - All 13 roster periods (no Dec/Jan exclusion)
+ * - Category-specific capacity utilization
+ * - Medical excluded (28-day window too short)
  */
 
-import { useState } from 'react'
+import { useState, useCallback, useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   ArrowLeft,
+  ArrowRight,
   RefreshCw,
   AlertTriangle,
   CheckCircle2,
   BarChart3,
-  ArrowRight,
+  Users,
+  UserX,
   RotateCcw,
+  Download,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  Plane,
+  Monitor,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -33,19 +40,30 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
-import { GenerationPreview } from '@/components/renewal-planning/generation-preview'
 
-// Focus on checks with grace periods suitable for advance planning
-// - Flight Checks: 90-day grace period
-// - Simulator Checks: 90-day grace period
-// - Ground Courses Refresher: 60-day grace period
+// Components
+import {
+  GenerationStepIndicator,
+  type WizardStep,
+} from '@/components/renewal-planning/generation-step-indicator'
+import { PreviewPairingPanel } from '@/components/renewal-planning/preview-pairing-panel'
+import { RosterPeriodTimeline } from '@/components/renewal-planning/roster-period-timeline'
+
+// Check type configuration
+import {
+  CHECK_TYPE_CONFIG,
+  CATEGORIES_WITH_CHECK_TYPES,
+  getCheckTypesForCategory,
+  getDefaultSelectedCheckCodes,
+} from '@/lib/config/renewal-check-types'
+
+// Categories with grace periods suitable for advance planning (60-90 days)
+// Medical EXCLUDED - 28-day window too short for advance scheduling
 const CATEGORIES = ['Flight Checks', 'Simulator Checks', 'Ground Courses Refresher']
-
-// Page state machine
-type PageState = 'configure' | 'generating' | 'results'
 
 // Generation result data structure
 interface GenerationResult {
@@ -54,6 +72,43 @@ interface GenerationResult {
   rosterPeriodSummary: Array<{
     rosterPeriod: string
     totalRenewals: number
+  }>
+  pairingStats?: {
+    totalPairs: number
+    totalUnpaired: number
+    pairingRate: number
+  }
+}
+
+// Preview data types
+interface PreviewData {
+  totalPlans: number
+  periodsAffected: number
+  avgUtilization: number
+  categoryBreakdown: Record<string, number>
+  pairingStats: {
+    totalPairs: number
+    totalUnpaired: number
+    pairingRate: number
+    urgentUnpaired: number
+  }
+  distribution: Array<{
+    rosterPeriod: string
+    periodStart: string
+    periodEnd: string
+    plannedCount: number
+    totalCapacity: number
+    utilization: number
+    byCategory: Record<string, number>
+    pairs: any[]
+    unpaired: any[]
+    individual: any[]
+    categoryUtilization: any
+  }>
+  warnings: Array<{
+    rosterPeriod: string
+    message: string
+    severity: 'warning' | 'critical'
   }>
 }
 
@@ -65,20 +120,99 @@ export default function GeneratePlanPage() {
   // Configuration state
   const [monthsAhead, setMonthsAhead] = useState(12)
   const [selectedCategories, setSelectedCategories] = useState<string[]>(CATEGORIES)
+  const [selectedCheckCodes, setSelectedCheckCodes] = useState<string[]>(
+    getDefaultSelectedCheckCodes()
+  )
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([
+    'Simulator Checks',
+    'Flight Checks',
+  ])
   const [clearExisting, setClearExisting] = useState(false)
 
-  // Page state machine
-  const [pageState, setPageState] = useState<PageState>('configure')
+  // Wizard state
+  const [currentStep, setCurrentStep] = useState<WizardStep>('configure')
+  const [isGenerating, setIsGenerating] = useState(false)
   const [generationResult, setGenerationResult] = useState<GenerationResult | null>(null)
 
+  // Preview query - only runs when on preview step
+  const previewQuery = useQuery<PreviewData>({
+    queryKey: ['renewal-preview', monthsAhead, selectedCategories, selectedCheckCodes],
+    queryFn: async () => {
+      const response = await fetch('/api/renewal-planning/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          monthsAhead,
+          categories: selectedCategories,
+          checkCodes: selectedCheckCodes.length > 0 ? selectedCheckCodes : undefined,
+        }),
+        credentials: 'include',
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch preview')
+      }
+      const result = await response.json()
+      return result.data
+    },
+    enabled: currentStep === 'preview' && selectedCategories.length > 0,
+    staleTime: 30000, // Cache for 30 seconds
+  })
+
   const handleCategoryToggle = (category: string) => {
-    setSelectedCategories((prev) =>
+    setSelectedCategories((prev) => {
+      const isSelected = prev.includes(category)
+      if (isSelected) {
+        // When deselecting a category, also remove its check codes
+        if (CATEGORIES_WITH_CHECK_TYPES.includes(category)) {
+          const checkTypesForCategory = getCheckTypesForCategory(category)
+          const codesToRemove = checkTypesForCategory.map((c) => c.checkCode)
+          setSelectedCheckCodes((codes) => codes.filter((c) => !codesToRemove.includes(c)))
+        }
+        return prev.filter((c) => c !== category)
+      } else {
+        // When selecting a category, also add its default check codes
+        if (CATEGORIES_WITH_CHECK_TYPES.includes(category)) {
+          const checkTypesForCategory = getCheckTypesForCategory(category)
+          const defaultCodes = checkTypesForCategory
+            .filter((c) => c.includedByDefault)
+            .map((c) => c.checkCode)
+          setSelectedCheckCodes((codes) => [...new Set([...codes, ...defaultCodes])])
+        }
+        return [...prev, category]
+      }
+    })
+  }
+
+  const handleCheckCodeToggle = (checkCode: string) => {
+    setSelectedCheckCodes((prev) =>
+      prev.includes(checkCode) ? prev.filter((c) => c !== checkCode) : [...prev, checkCode]
+    )
+  }
+
+  const handleExpandCategory = (category: string) => {
+    setExpandedCategories((prev) =>
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     )
   }
 
+  const handleNextStep = () => {
+    if (currentStep === 'configure') {
+      setCurrentStep('preview')
+    }
+  }
+
+  const handlePreviousStep = () => {
+    if (currentStep === 'preview') {
+      setCurrentStep('configure')
+    } else if (currentStep === 'results') {
+      // Go back to configure to start fresh
+      setGenerationResult(null)
+      setCurrentStep('configure')
+    }
+  }
+
   const handleGenerate = async () => {
-    setPageState('generating')
+    setIsGenerating(true)
 
     try {
       // Clear existing plans if requested
@@ -95,15 +229,14 @@ export default function GeneratePlanPage() {
       }
 
       // Generate new plans
-      toast.info('Generating renewal plans...')
+      toast.info('Generating renewal plans with Captain/FO pairing...')
       const response = await fetch('/api/renewal-planning/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           monthsAhead,
           categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+          checkCodes: selectedCheckCodes.length > 0 ? selectedCheckCodes : undefined,
         }),
         credentials: 'include',
       })
@@ -117,72 +250,422 @@ export default function GeneratePlanPage() {
 
       // Store results and transition to results view
       setGenerationResult(result.data)
-      setPageState('results')
+      setCurrentStep('results')
       toast.success(`Successfully generated ${result.data.totalPlans} renewal plans!`)
     } catch (error: unknown) {
       console.error('Error generating renewal plan:', error)
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to generate renewal plan'
       toast.error(errorMessage)
-      setPageState('configure') // Go back to configure on error
+    } finally {
+      setIsGenerating(false)
     }
   }
 
-  const handleGenerateAnother = () => {
-    setGenerationResult(null)
-    setPageState('configure')
+  const handleExportCSV = () => {
+    const checkCodesParam =
+      selectedCheckCodes.length > 0 ? `&checkCodes=${selectedCheckCodes.join(',')}` : ''
+    window.open(`/api/renewal-planning/export-csv?year=${year}${checkCodesParam}`, '_blank')
   }
 
-  const handleViewDashboard = () => {
-    router.push(`/dashboard/renewal-planning?year=${year}`)
+  const handleExportPDF = () => {
+    const checkCodesParam =
+      selectedCheckCodes.length > 0 ? `&checkCodes=${selectedCheckCodes.join(',')}` : ''
+    window.open(`/api/renewal-planning/export-pdf?year=${year}${checkCodesParam}`, '_blank')
   }
 
-  // Results View Component
-  if (pageState === 'results' && generationResult) {
+  // ============================================================
+  // Step 1: Configure
+  // ============================================================
+  const renderConfigureStep = () => (
+    <div className="grid gap-6 lg:grid-cols-3">
+      <div className="space-y-6 lg:col-span-2">
+        {/* Time Horizon */}
+        <Card className="p-6">
+          <h2 className="text-foreground mb-4 text-xl font-semibold">Time Horizon</h2>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="monthsAhead">Months Ahead</Label>
+              <Input
+                id="monthsAhead"
+                type="number"
+                min={1}
+                max={24}
+                value={monthsAhead}
+                onChange={(e) => setMonthsAhead(Number(e.target.value))}
+                className="mt-2 max-w-[200px]"
+              />
+              <p className="text-muted-foreground mt-2 text-sm">
+                Plan renewals for certifications expiring in the next {monthsAhead} months
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Category Selection with Check Types */}
+        <Card className="p-6">
+          <h2 className="text-foreground mb-4 text-xl font-semibold">
+            Categories &amp; Check Types
+          </h2>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Select certification categories and specific check types to include. Medical is excluded
+            from planning (28-day window too short for advance scheduling).
+          </p>
+          <div className="space-y-3">
+            {CATEGORIES.map((category) => {
+              const hasCheckTypes = CATEGORIES_WITH_CHECK_TYPES.includes(category)
+              const isExpanded = expandedCategories.includes(category)
+              const checkTypesForCategory = hasCheckTypes ? getCheckTypesForCategory(category) : []
+              const selectedCheckTypesCount = hasCheckTypes
+                ? checkTypesForCategory.filter((ct) => selectedCheckCodes.includes(ct.checkCode))
+                    .length
+                : 0
+              const CategoryIcon =
+                category === 'Flight Checks'
+                  ? Plane
+                  : category === 'Simulator Checks'
+                    ? Monitor
+                    : null
+
+              return (
+                <div key={category} className="rounded-lg border p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={category}
+                        checked={selectedCategories.includes(category)}
+                        onCheckedChange={() => handleCategoryToggle(category)}
+                      />
+                      {CategoryIcon && <CategoryIcon className="text-muted-foreground h-4 w-4" />}
+                      <Label htmlFor={category} className="cursor-pointer font-medium">
+                        {category}
+                      </Label>
+                      {hasCheckTypes && selectedCheckTypesCount > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {selectedCheckTypesCount} selected
+                        </Badge>
+                      )}
+                    </div>
+                    {hasCheckTypes && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleExpandCategory(category)}
+                        className="h-8 px-2"
+                      >
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Check Types Submenu */}
+                  {hasCheckTypes && isExpanded && (
+                    <div className="border-muted mt-3 ml-6 space-y-2 border-l-2 pl-4">
+                      <p className="text-muted-foreground mb-2 text-xs">
+                        Select specific check types to include:
+                      </p>
+                      {checkTypesForCategory.map((checkType) => (
+                        <div key={checkType.checkCode} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={checkType.checkCode}
+                            checked={selectedCheckCodes.includes(checkType.checkCode)}
+                            onCheckedChange={() => handleCheckCodeToggle(checkType.checkCode)}
+                            disabled={!selectedCategories.includes(category)}
+                          />
+                          <Label
+                            htmlFor={checkType.checkCode}
+                            className={`cursor-pointer text-sm ${
+                              !selectedCategories.includes(category) ? 'text-muted-foreground' : ''
+                            }`}
+                          >
+                            {checkType.label}
+                            <span className="text-muted-foreground ml-1 text-xs">
+                              ({checkType.checkCode})
+                            </span>
+                            {checkType.includedByDefault && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                Default
+                              </Badge>
+                            )}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+          <Separator className="my-4" />
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>Note:</strong> Pilot Medical certifications have a 28-day grace period, which
+              is too short for advance planning. Medical renewals should be scheduled through urgent
+              scheduling.
+            </p>
+          </div>
+        </Card>
+
+        {/* Options */}
+        <Card className="p-6">
+          <h2 className="text-foreground mb-4 text-xl font-semibold">Options</h2>
+          <div className="space-y-4">
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="clearExisting"
+                checked={clearExisting}
+                onCheckedChange={(checked) => setClearExisting(checked as boolean)}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="clearExisting" className="cursor-pointer font-medium">
+                  Clear existing renewal plans
+                </Label>
+                <p className="text-muted-foreground text-sm">
+                  Remove all existing renewal plans before generating new ones
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Warning */}
+        {clearExisting && (
+          <Card className="border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
+            <div className="flex items-start space-x-3">
+              <AlertTriangle className="mt-1 h-6 w-6 text-red-600 dark:text-red-400" />
+              <div>
+                <h3 className="font-semibold text-red-900 dark:text-red-100">
+                  Warning: Destructive Action
+                </h3>
+                <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                  This will permanently delete all existing renewal plans. This action cannot be
+                  undone.
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Right sidebar */}
+      <div className="space-y-6">
+        {/* Quick Stats */}
+        <Card className="bg-blue-50 p-6 dark:bg-blue-900/20">
+          <h3 className="mb-3 font-semibold text-blue-900 dark:text-blue-100">How It Works</h3>
+          <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
+            <li>• Fetches expiring checks for selected categories</li>
+            <li>• Pairs Captains with First Officers (Flight/Simulator)</li>
+            <li>• Assigns to all 13 roster periods (RP1-RP13)</li>
+            <li>• Distributes evenly based on capacity limits</li>
+            <li>• Grace periods: 90 days (Flight/Sim), 60 days (Ground)</li>
+          </ul>
+        </Card>
+
+        {/* Navigation */}
+        <Button
+          onClick={handleNextStep}
+          disabled={selectedCategories.length === 0}
+          size="lg"
+          className="w-full"
+        >
+          Next: Preview
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+        {selectedCategories.length === 0 && (
+          <p className="text-muted-foreground text-center text-sm">
+            Select at least one category to continue
+          </p>
+        )}
+      </div>
+    </div>
+  )
+
+  // ============================================================
+  // Step 2: Preview
+  // ============================================================
+  const renderPreviewStep = () => {
+    const preview = previewQuery.data
+
     return (
-      <div className="space-y-6 p-8">
-        {/* Header */}
+      <div className="space-y-6">
+        {/* Summary Stats */}
+        {preview && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="p-4 text-center">
+              <p className="text-primary text-3xl font-bold">{preview.totalPlans}</p>
+              <p className="text-muted-foreground text-sm">Total Renewals</p>
+            </Card>
+            <Card className="p-4 text-center">
+              <p className="text-3xl font-bold text-green-600">{preview.pairingStats.totalPairs}</p>
+              <p className="text-muted-foreground text-sm">Paired Crews</p>
+            </Card>
+            <Card className="p-4 text-center">
+              <p className="text-3xl font-bold text-orange-600">
+                {preview.pairingStats.totalUnpaired}
+              </p>
+              <p className="text-muted-foreground text-sm">Unpaired Pilots</p>
+            </Card>
+            <Card className="p-4 text-center">
+              <p className="text-3xl font-bold">{preview.avgUtilization}%</p>
+              <p className="text-muted-foreground text-sm">Avg Utilization</p>
+            </Card>
+          </div>
+        )}
+
+        {/* Timeline visualization */}
+        {preview && preview.distribution.length > 0 && (
+          <Card className="p-6">
+            <h3 className="text-foreground mb-4 font-semibold">Roster Period Utilization</h3>
+            <RosterPeriodTimeline
+              periods={preview.distribution.map((d) => ({
+                code: d.rosterPeriod,
+                utilization: d.utilization,
+                plannedCount: d.plannedCount,
+                totalCapacity: d.totalCapacity,
+              }))}
+            />
+          </Card>
+        )}
+
+        {/* Warnings */}
+        {preview && preview.warnings.length > 0 && (
+          <Card className="border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
+            <h3 className="mb-2 flex items-center font-semibold text-orange-900 dark:text-orange-100">
+              <AlertTriangle className="mr-2 h-5 w-5" />
+              Warnings ({preview.warnings.length})
+            </h3>
+            <ul className="space-y-1">
+              {preview.warnings.map((w, idx) => (
+                <li key={idx} className="text-sm text-orange-700 dark:text-orange-300">
+                  <Badge
+                    variant={w.severity === 'critical' ? 'destructive' : 'outline'}
+                    className="mr-2"
+                  >
+                    {w.rosterPeriod}
+                  </Badge>
+                  {w.message}
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
+
+        {/* Pairing Details */}
+        {previewQuery.isLoading ? (
+          <Card className="p-8 text-center">
+            <RefreshCw className="text-primary mx-auto mb-4 h-8 w-8 animate-spin" />
+            <p className="text-muted-foreground">Loading preview with pairing information...</p>
+          </Card>
+        ) : previewQuery.isError ? (
+          <Card className="border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/20">
+            <p className="text-red-600 dark:text-red-400">
+              Failed to load preview. Please try again.
+            </p>
+            <Button
+              onClick={() => previewQuery.refetch()}
+              variant="outline"
+              className="mt-4"
+              size="sm"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          </Card>
+        ) : preview ? (
+          <PreviewPairingPanel distribution={preview.distribution} />
+        ) : null}
+
+        {/* Navigation */}
+        <div className="flex justify-between gap-4">
+          <Button onClick={handlePreviousStep} variant="outline" size="lg">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Configure
+          </Button>
+          <Button
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            size="lg"
+            className="min-w-[200px]"
+          >
+            {isGenerating ? (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Generate Plan
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
+  // Step 3: Results
+  // ============================================================
+  const renderResultsStep = () => {
+    if (!generationResult) return null
+
+    return (
+      <div className="space-y-6">
+        {/* Success Header */}
         <div className="flex items-center space-x-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-            <CheckCircle2 className="h-6 w-6 text-green-600" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+            <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h1 className="text-foreground text-3xl font-bold">Generation Complete</h1>
-            <p className="text-muted-foreground mt-1">
+            <h2 className="text-foreground text-2xl font-bold">Generation Complete!</h2>
+            <p className="text-muted-foreground">
               Successfully generated {generationResult.totalPlans} renewal plans
             </p>
           </div>
         </div>
 
-        {/* Summary Stats */}
-        <Card className="border-green-200 bg-green-50 p-6">
-          <div className="grid grid-cols-3 gap-6 text-center">
-            <div>
-              <p className="text-4xl font-bold text-green-700">{generationResult.totalPlans}</p>
-              <p className="text-sm text-green-600">Total Plans Generated</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold text-green-700">
-                {Object.keys(generationResult.byCategory).length}
+        {/* Summary Cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-900/20">
+            <p className="text-4xl font-bold text-green-700 dark:text-green-300">
+              {generationResult.totalPlans}
+            </p>
+            <p className="text-sm text-green-600 dark:text-green-400">Total Plans Generated</p>
+          </Card>
+          <Card className="p-6 text-center">
+            <p className="text-foreground text-4xl font-bold">
+              {Object.keys(generationResult.byCategory).length}
+            </p>
+            <p className="text-muted-foreground text-sm">Categories Covered</p>
+          </Card>
+          <Card className="p-6 text-center">
+            <p className="text-foreground text-4xl font-bold">
+              {generationResult.rosterPeriodSummary.length}
+            </p>
+            <p className="text-muted-foreground text-sm">Roster Periods</p>
+          </Card>
+          {generationResult.pairingStats && (
+            <Card className="p-6 text-center">
+              <p className="text-foreground text-4xl font-bold">
+                {generationResult.pairingStats.pairingRate}%
               </p>
-              <p className="text-sm text-green-600">Categories Covered</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold text-green-700">
-                {generationResult.rosterPeriodSummary.length}
-              </p>
-              <p className="text-sm text-green-600">Roster Periods</p>
-            </div>
-          </div>
-        </Card>
+              <p className="text-muted-foreground text-sm">Pairing Rate</p>
+            </Card>
+          )}
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Category Breakdown */}
           <Card className="p-6">
-            <h2 className="text-foreground mb-4 flex items-center text-xl font-semibold">
+            <h3 className="text-foreground mb-4 flex items-center text-lg font-semibold">
               <BarChart3 className="mr-2 h-5 w-5" />
               By Category
-            </h2>
+            </h3>
             <div className="space-y-3">
               {Object.entries(generationResult.byCategory).map(([category, count]) => {
                 const percentage = Math.round((count / generationResult.totalPlans) * 100)
@@ -208,16 +691,17 @@ export default function GeneratePlanPage() {
 
           {/* Roster Period Breakdown */}
           <Card className="p-6">
-            <h2 className="text-foreground mb-4 flex items-center text-xl font-semibold">
+            <h3 className="text-foreground mb-4 flex items-center text-lg font-semibold">
               <BarChart3 className="mr-2 h-5 w-5" />
               By Roster Period
-            </h2>
+            </h3>
             <div className="space-y-3">
               {generationResult.rosterPeriodSummary.slice(0, 8).map((period) => {
                 const maxCount = Math.max(
                   ...generationResult.rosterPeriodSummary.map((p) => p.totalRenewals)
                 )
-                const percentage = Math.round((period.totalRenewals / maxCount) * 100)
+                const percentage =
+                  maxCount > 0 ? Math.round((period.totalRenewals / maxCount) * 100) : 0
                 return (
                   <div key={period.rosterPeriod} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
@@ -242,194 +726,66 @@ export default function GeneratePlanPage() {
           </Card>
         </div>
 
-        {/* Action Buttons */}
+        {/* Actions */}
         <Card className="p-6">
           <div className="flex flex-wrap justify-center gap-4">
-            <Button onClick={handleViewDashboard} size="lg">
+            <Button
+              onClick={() => router.push(`/dashboard/renewal-planning?year=${year}`)}
+              size="lg"
+            >
               <ArrowRight className="mr-2 h-4 w-4" />
               View Dashboard
             </Button>
-            <Button onClick={handleGenerateAnother} variant="outline" size="lg">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Generate Another Plan
+            <Button onClick={handleExportCSV} variant="outline" size="lg">
+              <Download className="mr-2 h-4 w-4" />
+              Export CSV
             </Button>
-            <Link href={`/dashboard/renewal-planning?year=${year}`}>
-              <Button variant="ghost" size="lg">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Planning
-              </Button>
-            </Link>
+            <Button onClick={handleExportPDF} variant="outline" size="lg">
+              <FileText className="mr-2 h-4 w-4" />
+              Export PDF
+            </Button>
+            <Button onClick={handlePreviousStep} variant="ghost" size="lg">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Generate Another
+            </Button>
           </div>
         </Card>
       </div>
     )
   }
 
-  // Generating State
-  if (pageState === 'generating') {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center p-8">
-        <Card className="p-12 text-center">
-          <RefreshCw className="text-primary mx-auto mb-4 h-12 w-12 animate-spin" />
-          <h2 className="text-foreground mb-2 text-2xl font-semibold">Generating Renewal Plans</h2>
-          <p className="text-muted-foreground">
-            {clearExisting
-              ? 'Clearing existing plans and generating new ones...'
-              : 'Calculating optimal renewal schedule...'}
-          </p>
-          <p className="text-muted-foreground mt-2 text-sm">This may take a few moments</p>
-        </Card>
-      </div>
-    )
-  }
-
-  // Configure State (default)
+  // ============================================================
+  // Main Render
+  // ============================================================
   return (
     <div className="space-y-6 p-8">
       {/* Header */}
-      <div className="flex items-center space-x-4">
-        <Link href={`/dashboard/renewal-planning?year=${year}`}>
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Planning
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-foreground text-3xl font-bold">Generate Renewal Plan</h1>
-          <p className="text-muted-foreground mt-1">
-            Generate renewal schedule for Flight, Simulator, and Ground Courses (60-90 day grace
-            periods)
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Link href={`/dashboard/renewal-planning?year=${year}`}>
+            <Button variant="outline" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-foreground text-3xl font-bold">Generate Renewal Plan</h1>
+            <p className="text-muted-foreground mt-1">
+              Plan renewals for Flight, Simulator, and Ground Courses with Captain/FO pairing
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Configuration Panel */}
-        <div className="space-y-6 lg:col-span-2">
-          {/* Time Horizon */}
-          <Card className="p-6">
-            <h2 className="text-foreground mb-4 text-xl font-semibold">Time Horizon</h2>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="monthsAhead">Months Ahead</Label>
-                <Input
-                  id="monthsAhead"
-                  type="number"
-                  min={1}
-                  max={24}
-                  value={monthsAhead}
-                  onChange={(e) => setMonthsAhead(Number(e.target.value))}
-                  className="mt-2"
-                />
-                <p className="text-muted-foreground mt-2 text-sm">
-                  Plan renewals for certifications expiring in the next {monthsAhead} months
-                </p>
-              </div>
-            </div>
-          </Card>
+      {/* Step Indicator */}
+      <Card className="p-6">
+        <GenerationStepIndicator currentStep={currentStep} />
+      </Card>
 
-          {/* Category Filter */}
-          <Card className="p-6">
-            <h2 className="text-foreground mb-4 text-xl font-semibold">Category Filter</h2>
-            <p className="text-muted-foreground mb-4 text-sm">
-              All three categories selected by default. These certifications have grace periods
-              (60-90 days) suitable for advance planning, allowing renewals to be evenly distributed
-              across roster periods throughout the year.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {CATEGORIES.map((category) => (
-                <div key={category} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={category}
-                    checked={selectedCategories.includes(category)}
-                    onCheckedChange={() => handleCategoryToggle(category)}
-                  />
-                  <Label htmlFor={category} className="cursor-pointer">
-                    {category}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Options */}
-          <Card className="p-6">
-            <h2 className="text-foreground mb-4 text-xl font-semibold">Options</h2>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-2">
-                <Checkbox
-                  id="clearExisting"
-                  checked={clearExisting}
-                  onCheckedChange={(checked) => setClearExisting(checked as boolean)}
-                />
-                <div className="space-y-1">
-                  <Label htmlFor="clearExisting" className="cursor-pointer font-medium">
-                    Clear existing renewal plans
-                  </Label>
-                  <p className="text-muted-foreground text-sm">
-                    Remove all existing renewal plans before generating new ones
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Warning */}
-          {clearExisting && (
-            <Card className="border-red-200 bg-red-50 p-6">
-              <div className="flex items-start space-x-3">
-                <AlertTriangle className="mt-1 h-6 w-6 text-red-600" />
-                <div>
-                  <h3 className="font-semibold text-red-900">Warning: Destructive Action</h3>
-                  <p className="mt-1 text-sm text-red-700">
-                    This will permanently delete all existing renewal plans. Make sure you have a
-                    backup if needed. This action cannot be undone.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-        </div>
-
-        {/* Right Panel - Preview & Summary */}
-        <div className="space-y-6">
-          {/* Live Preview */}
-          <GenerationPreview
-            monthsAhead={monthsAhead}
-            categories={selectedCategories}
-            enabled={selectedCategories.length > 0}
-          />
-
-          {/* How It Works */}
-          <Card className="bg-blue-50 p-6">
-            <h3 className="mb-2 font-semibold text-blue-900">How It Works</h3>
-            <ul className="space-y-2 text-sm text-blue-700">
-              <li>• Fetches checks expiring in time horizon (Flight, Simulator, Ground Courses)</li>
-              <li>• Grace periods: 90 days (Flight/Simulator), 60 days (Ground Courses)</li>
-              <li>• Assigns to roster periods with lowest load</li>
-              <li>• Respects capacity: Flight (4), Simulator (6), Ground (8) pilots per period</li>
-              <li>• Distributes renewals evenly throughout the year</li>
-            </ul>
-          </Card>
-
-          {/* Generate Button */}
-          <Button
-            onClick={handleGenerate}
-            disabled={selectedCategories.length === 0}
-            size="lg"
-            className="w-full"
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Generate Renewal Plan
-          </Button>
-
-          {selectedCategories.length === 0 && (
-            <p className="text-muted-foreground text-center text-sm">
-              Select at least one category to generate
-            </p>
-          )}
-        </div>
-      </div>
+      {/* Step Content */}
+      {currentStep === 'configure' && renderConfigureStep()}
+      {currentStep === 'preview' && renderPreviewStep()}
+      {currentStep === 'results' && renderResultsStep()}
     </div>
   )
 }

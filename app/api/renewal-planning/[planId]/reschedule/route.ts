@@ -3,9 +3,6 @@
  * PUT /api/renewal-planning/:planId/reschedule
  *
  * Updates the planned renewal date for a certification
- *
- * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
- * @updated 2025-11-04 - Critical security hardening
  */
 
 import { NextRequest, NextResponse } from 'next/server'

@@ -1,6 +1,5 @@
 /**
  * Pairing Visualization Panel Component
- * Author: Maurice Rondeau
  *
  * Main panel for displaying Captain/First Officer pairing results.
  * Shows paired crews, unpaired pilots, and pairing statistics.

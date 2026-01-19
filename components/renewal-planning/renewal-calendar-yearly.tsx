@@ -1,15 +1,13 @@
 /**
  * Yearly Calendar View for Renewal Planning
- * Author: Maurice Rondeau
  *
- * Displays all roster periods with capacity indicators.
+ * Displays all 13 roster periods with capacity indicators.
  * Features compact cards with hover details and visual progress bars.
  *
- * Redesigned with:
- * - Compact period cards with better visual hierarchy
- * - Hover cards showing detailed breakdown
- * - Visual progress bars for utilization
- * - Improved responsive design
+ * Updated to:
+ * - Show ALL 13 roster periods (Dec/Jan no longer excluded)
+ * - All periods are clickable and fully functional
+ * - Improved 4-column grid layout for better visualization
  */
 
 'use client'
@@ -17,10 +15,9 @@
 import { useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import Link from 'next/link'
 import { formatDate } from '@/lib/utils/date-utils'
-import { Calendar, AlertTriangle, TrendingUp, Info } from 'lucide-react'
+import { Calendar, Info } from 'lucide-react'
 import { PeriodHoverCard } from './period-hover-card'
 import { cn } from '@/lib/utils'
 import type { CalendarFilters } from './calendar-filter-panel'
@@ -54,21 +51,11 @@ export function RenewalCalendarYearly({
   filters,
   compact = false,
 }: RenewalCalendarYearlyProps) {
-  // Check if period is in December or January (excluded)
-  const isExcludedPeriod = (period: RosterPeriodSummary): boolean => {
-    const month = period.periodStartDate.getMonth()
-    return month === 0 || month === 11 // January or December
-  }
-
-  // Apply filters to summaries
+  // Apply filters to summaries (all 13 periods are now valid)
   const filteredSummaries = useMemo(() => {
     if (!filters) return summaries
 
     return summaries.filter((summary) => {
-      // Filter by excluded periods
-      const isExcluded = isExcludedPeriod(summary)
-      if (!filters.showExcludedPeriods && isExcluded) return false
-
       // Filter by utilization level
       if (filters.utilizationLevel !== 'all') {
         const util = summary.utilizationPercentage
@@ -120,7 +107,7 @@ export function RenewalCalendarYearly({
         <div>
           <h2 className="text-foreground text-2xl font-bold">Yearly Calendar - {year}</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            Visual overview of certification renewals across all roster periods
+            Visual overview of certification renewals across all 13 roster periods
           </p>
         </div>
         <div className="flex items-center gap-4 text-xs">
@@ -139,7 +126,7 @@ export function RenewalCalendarYearly({
         </div>
       </div>
 
-      {/* Calendar Grid */}
+      {/* Calendar Grid - Optimized for 13 periods (4+4+4+1) */}
       <div
         className={cn(
           'grid gap-3',
@@ -149,7 +136,6 @@ export function RenewalCalendarYearly({
         )}
       >
         {filteredSummaries.map((summary) => {
-          const isExcluded = isExcludedPeriod(summary)
           const utilization = summary.utilizationPercentage
 
           // Add pilots array to category breakdown for hover card
@@ -167,13 +153,9 @@ export function RenewalCalendarYearly({
             <Card
               className={cn(
                 'group border-l-4 transition-all duration-200',
-                isExcluded
-                  ? 'cursor-not-allowed border-l-gray-300 bg-gray-50 dark:bg-gray-900/50'
-                  : cn(
-                      getUtilizationColor(utilization),
-                      getUtilizationBg(utilization),
-                      'cursor-pointer hover:shadow-md'
-                    ),
+                getUtilizationColor(utilization),
+                getUtilizationBg(utilization),
+                'cursor-pointer hover:shadow-md',
                 compact ? 'p-3' : 'p-4'
               )}
             >
@@ -182,15 +164,9 @@ export function RenewalCalendarYearly({
                 <h3 className={cn('text-foreground font-bold', compact ? 'text-sm' : 'text-base')}>
                   {summary.rosterPeriod}
                 </h3>
-                {isExcluded ? (
-                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
-                    EXCLUDED
-                  </Badge>
-                ) : (
-                  <Badge className={cn('px-1.5 py-0 text-[10px]', getBadgeVariant(utilization))}>
-                    {Math.round(utilization)}%
-                  </Badge>
-                )}
+                <Badge className={cn('px-1.5 py-0 text-[10px]', getBadgeVariant(utilization))}>
+                  {Math.round(utilization)}%
+                </Badge>
               </div>
 
               {/* Date Range */}
@@ -198,86 +174,75 @@ export function RenewalCalendarYearly({
                 {formatDate(summary.periodStartDate)} - {formatDate(summary.periodEndDate)}
               </p>
 
-              {isExcluded ? (
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <AlertTriangle className="h-3 w-3" />
-                  <span>Holiday Period</span>
-                </div>
-              ) : (
-                <>
-                  {/* Capacity Count */}
-                  <div className="mb-2 flex items-baseline gap-1">
-                    <span
-                      className={cn('text-foreground font-bold', compact ? 'text-xl' : 'text-2xl')}
-                    >
-                      {summary.totalPlannedRenewals}
-                    </span>
-                    <span className="text-muted-foreground text-sm">/ {summary.totalCapacity}</span>
-                  </div>
+              {/* Capacity Count */}
+              <div className="mb-2 flex items-baseline gap-1">
+                <span className={cn('text-foreground font-bold', compact ? 'text-xl' : 'text-2xl')}>
+                  {summary.totalPlannedRenewals}
+                </span>
+                <span className="text-muted-foreground text-sm">/ {summary.totalCapacity}</span>
+              </div>
 
-                  {/* Progress Bar */}
-                  <div className="bg-secondary mb-2 h-1.5 w-full overflow-hidden rounded-full">
-                    <div
-                      className={cn(
-                        'h-full rounded-full transition-all',
-                        getProgressColor(utilization)
-                      )}
-                      style={{ width: `${Math.min(utilization, 100)}%` }}
-                    />
-                  </div>
-
-                  {/* Category Quick View (show top 2 in compact mode) */}
-                  {!compact && (
-                    <div className="space-y-0.5">
-                      {Object.entries(summary.categoryBreakdown)
-                        .slice(0, 3)
-                        .map(([category, data]) => {
-                          const catUtil =
-                            data.capacity > 0 ? (data.plannedCount / data.capacity) * 100 : 0
-                          return (
-                            <div
-                              key={category}
-                              className="flex items-center justify-between text-[10px]"
-                            >
-                              <span className="text-muted-foreground max-w-[100px] truncate">
-                                {category
-                                  .replace('Pilot Medical', 'Medical')
-                                  .replace('Ground Courses Refresher', 'Ground')}
-                              </span>
-                              <span
-                                className={cn(
-                                  'font-medium',
-                                  catUtil > 80
-                                    ? 'text-red-600'
-                                    : catUtil > 60
-                                      ? 'text-yellow-600'
-                                      : 'text-green-600'
-                                )}
-                              >
-                                {data.plannedCount}/{data.capacity}
-                              </span>
-                            </div>
-                          )
-                        })}
-                      {Object.keys(summary.categoryBreakdown).length > 3 && (
-                        <p className="text-muted-foreground text-[10px] italic">
-                          +{Object.keys(summary.categoryBreakdown).length - 3} more
-                        </p>
-                      )}
-                    </div>
+              {/* Progress Bar */}
+              <div className="bg-secondary mb-2 h-1.5 w-full overflow-hidden rounded-full">
+                <div
+                  className={cn(
+                    'h-full rounded-full transition-all',
+                    getProgressColor(utilization)
                   )}
+                  style={{ width: `${Math.min(utilization, 100)}%` }}
+                />
+              </div>
 
-                  {/* Hover hint */}
-                  <div className="text-muted-foreground mt-2 flex items-center gap-1 text-[10px] opacity-0 transition-opacity group-hover:opacity-100">
-                    <Info className="h-3 w-3" />
-                    <span>Hover for details</span>
-                  </div>
-                </>
+              {/* Category Quick View (show top 3 in non-compact mode) */}
+              {!compact && (
+                <div className="space-y-0.5">
+                  {Object.entries(summary.categoryBreakdown)
+                    .slice(0, 3)
+                    .map(([category, data]) => {
+                      const catUtil =
+                        data.capacity > 0 ? (data.plannedCount / data.capacity) * 100 : 0
+                      return (
+                        <div
+                          key={category}
+                          className="flex items-center justify-between text-[10px]"
+                        >
+                          <span className="text-muted-foreground max-w-[100px] truncate">
+                            {category
+                              .replace('Ground Courses Refresher', 'Ground')
+                              .replace(' Checks', '')}
+                          </span>
+                          <span
+                            className={cn(
+                              'font-medium',
+                              catUtil > 80
+                                ? 'text-red-600'
+                                : catUtil > 60
+                                  ? 'text-yellow-600'
+                                  : 'text-green-600'
+                            )}
+                          >
+                            {data.plannedCount}/{data.capacity}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  {Object.keys(summary.categoryBreakdown).length > 3 && (
+                    <p className="text-muted-foreground text-[10px] italic">
+                      +{Object.keys(summary.categoryBreakdown).length - 3} more
+                    </p>
+                  )}
+                </div>
               )}
+
+              {/* Hover hint */}
+              <div className="text-muted-foreground mt-2 flex items-center gap-1 text-[10px] opacity-0 transition-opacity group-hover:opacity-100">
+                <Info className="h-3 w-3" />
+                <span>Hover for details</span>
+              </div>
             </Card>
           )
 
-          // Wrap with hover card for non-excluded periods
+          // Wrap with hover card
           const wrappedCard = (
             <PeriodHoverCard
               key={summary.rosterPeriod}
@@ -288,18 +253,14 @@ export function RenewalCalendarYearly({
               totalCapacity={summary.totalCapacity}
               utilizationPercentage={summary.utilizationPercentage}
               categoryBreakdown={categoryBreakdownWithPilots}
-              isExcluded={isExcluded}
+              isExcluded={false}
               side="right"
             >
               {cardContent}
             </PeriodHoverCard>
           )
 
-          // Wrap with link for non-excluded periods
-          if (isExcluded) {
-            return <div key={summary.rosterPeriod}>{wrappedCard}</div>
-          }
-
+          // All periods are now clickable
           return (
             <Link
               key={summary.rosterPeriod}
@@ -331,7 +292,7 @@ export function RenewalCalendarYearly({
         <h4 className="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-100">
           Calendar Guide
         </h4>
-        <ul className="grid gap-1 text-xs text-blue-700 sm:grid-cols-2 dark:text-blue-300">
+        <ul className="grid gap-1 text-xs text-blue-700 sm:grid-cols-3 dark:text-blue-300">
           <li className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-green-500" />
             Good utilization (&lt;60%)
@@ -344,13 +305,10 @@ export function RenewalCalendarYearly({
             <div className="h-3 w-3 rounded-full bg-red-500" />
             High utilization (&gt;80%)
           </li>
-          <li className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-gray-400" />
-            Excluded periods (Dec/Jan)
-          </li>
         </ul>
         <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
-          Hover over any period for detailed breakdown. Click to view full pilot schedules.
+          All 13 roster periods (RP1-RP13) are available for planning. Hover over any period for
+          detailed breakdown. Click to view full pilot schedules.
         </p>
       </Card>
     </div>

@@ -1,6 +1,5 @@
 /**
  * Category Detail Tab
- * Author: Maurice Rondeau
  *
  * Shows detailed renewal information for a single category.
  * Displays distribution across roster periods, capacity utilization, and pilot list.

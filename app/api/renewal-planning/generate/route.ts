@@ -3,15 +3,12 @@
  * POST /api/renewal-planning/generate
  *
  * Generates complete renewal plan for all pilots based on certification expiry dates
- *
- * Developer: Maurice Rondeau
- * @version 2.0.0
- * @updated 2025-11-02 - Added authentication and role validation
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { generateRenewalPlan } from '@/lib/services/certification-renewal-planning-service'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
+import { generateRenewalPlanWithPairing } from '@/lib/services/certification-renewal-planning-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
@@ -49,20 +46,41 @@ export async function POST(request: NextRequest) {
     // Supabase Auth users are trusted as admins (dashboard access requires Supabase Auth)
 
     const body = await request.json()
-    const { monthsAhead = 12, categories, pilotIds } = body
+    const { monthsAhead = 12, categories, pilotIds, checkCodes, clearExisting = false } = body
 
-    // Generate renewal plans
-    const plans = await generateRenewalPlan({
+    // Clear existing renewal plans if requested
+    if (clearExisting) {
+      console.log('Clearing existing renewal plans...')
+      const serviceClient = createServiceRoleClient()
+      // Use gte on created_at to match all rows (Supabase requires a filter)
+      const { data: deleteData, error: deleteError } = await serviceClient
+        .from('certification_renewal_plans')
+        .delete()
+        .gte('created_at', '1900-01-01')
+        .select('id')
+
+      console.log('Delete result:', { deleted: deleteData?.length || 0, error: deleteError })
+
+      if (deleteError) {
+        console.error('Error clearing existing plans:', deleteError)
+        throw new Error(`Failed to clear existing renewal plans: ${deleteError.message}`)
+      }
+      console.log(`Cleared ${deleteData?.length || 0} existing renewal plans`)
+    }
+
+    // Generate renewal plans with Captain/FO pairing
+    const { renewals, pairing } = await generateRenewalPlanWithPairing({
       monthsAhead,
       categories,
       pilotIds,
+      checkCodes,
     })
 
     // Calculate summary statistics
     const byCategory: Record<string, number> = {}
     const byRosterPeriod: Record<string, number> = {}
 
-    plans.forEach((plan) => {
+    renewals.forEach((plan) => {
       const category = plan.check_type?.category || 'Unknown'
       byCategory[category] = (byCategory[category] || 0) + 1
 
@@ -76,15 +94,27 @@ export async function POST(request: NextRequest) {
       totalRenewals: count,
     }))
 
+    // Calculate pairing statistics
+    const totalPaired = pairing.statistics.totalPairs * 2
+    const totalUnpaired = pairing.statistics.totalUnpaired
+    const totalWithPairingData = totalPaired + totalUnpaired
+    const pairingRate =
+      totalWithPairingData > 0 ? Math.round((totalPaired / totalWithPairingData) * 100) : 0
+
     return NextResponse.json({
       success: true,
       data: {
-        totalPlans: plans.length,
+        totalPlans: renewals.length,
         byCategory,
         rosterPeriodSummary,
-        plans: plans.slice(0, 50), // Return first 50 for preview
+        pairingStats: {
+          totalPairs: pairing.statistics.totalPairs,
+          totalUnpaired: pairing.statistics.totalUnpaired,
+          pairingRate,
+        },
+        plans: renewals.slice(0, 50), // Return first 50 for preview
       },
-      message: `Successfully generated ${plans.length} renewal plans`,
+      message: `Successfully generated ${renewals.length} renewal plans`,
     })
   } catch (error: any) {
     console.error('Error generating renewal plan:', error)

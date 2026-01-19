@@ -1,6 +1,5 @@
 /**
  * Export Options Panel Component
- * Author: Maurice Rondeau
  *
  * Provides UI for selecting export format (PDF/CSV) and filtering options
  * for certification renewal plan exports.

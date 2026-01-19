@@ -1,6 +1,5 @@
 /**
  * Renewal Distribution Chart
- * Author: Maurice Rondeau
  *
  * CSS-only bar chart showing renewal distribution across roster periods.
  * Uses calculated heights for bars based on utilization percentage.

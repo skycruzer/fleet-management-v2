@@ -1,6 +1,5 @@
 /**
  * Calendar View Page for Renewal Planning
- * Author: Maurice Rondeau
  *
  * Server component that fetches data and passes to client component.
  * Displays yearly overview of all roster periods with enhanced UI.
@@ -16,21 +15,21 @@ import {
   getRosterPeriodCapacity,
   getPairingDataForYear,
 } from '@/lib/services/certification-renewal-planning-service'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { CalendarPageClient } from '@/components/renewal-planning/calendar-page-client'
 
 export const dynamic = 'force-dynamic'
 
 async function getRosterPeriodSummariesForYear(year: number) {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
-  // Get roster periods that cover the selected year (February - November only)
-  // This excludes December and January from renewal scheduling
+  // Get all roster periods that cover the selected year
+  // All 13 periods (RP01-RP13) are now included for planning
   const { data: periods, error } = await supabase
     .from('roster_period_capacity')
     .select('roster_period, period_start_date, period_end_date')
-    .gte('period_start_date', `${year}-02-01`) // Start from February
-    .lte('period_start_date', `${year}-11-30`) // End in November
+    .gte('period_start_date', `${year}-01-01`)
+    .lte('period_start_date', `${year}-12-31`)
     .order('period_start_date')
 
   if (error) {

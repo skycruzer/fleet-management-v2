@@ -19,10 +19,18 @@ export const PAIRING_REQUIRED_CATEGORIES = ['Flight Checks', 'Simulator Checks']
 export type PairingRequiredCategory = (typeof PAIRING_REQUIRED_CATEGORIES)[number]
 
 /**
- * Categories that are individual scheduling
+ * Categories that are individual scheduling (no pairing required)
+ * Note: Medical removed from planning - 28-day window too short for advance scheduling
  */
-export const INDIVIDUAL_CATEGORIES = ['Pilot Medical', 'Ground Courses Refresher'] as const
+export const INDIVIDUAL_CATEGORIES = ['Ground Courses Refresher'] as const
 export type IndividualCategory = (typeof INDIVIDUAL_CATEGORIES)[number]
+
+/**
+ * Categories that should NOT be included in renewal planning
+ * Medical has a 28-day window - too short for advance planning, handle via urgent scheduling
+ */
+export const EXCLUDED_FROM_PLANNING = ['Pilot Medical'] as const
+export type ExcludedCategory = (typeof EXCLUDED_FROM_PLANNING)[number]
 
 /**
  * Renewal window configuration by category
@@ -39,6 +47,14 @@ export const RENEWAL_WINDOWS = {
  */
 export function requiresPairing(category: string): boolean {
   return PAIRING_REQUIRED_CATEGORIES.includes(category as PairingRequiredCategory)
+}
+
+/**
+ * Check if a category should be included in renewal planning
+ * Medical is excluded due to 28-day window being too short for advance planning
+ */
+export function isPlannable(category: string): boolean {
+  return !EXCLUDED_FROM_PLANNING.includes(category as ExcludedCategory)
 }
 
 /**
