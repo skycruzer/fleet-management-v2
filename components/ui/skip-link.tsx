@@ -74,15 +74,15 @@ export function SkipLink({ href, children, className }: SkipLinkProps) {
         'inline-block',
         'px-4',
         'py-2',
-        'bg-blue-600',
-        'text-white',
+        'bg-primary',
+        'text-primary-foreground',
         'font-medium',
         'rounded-lg',
         'shadow-lg',
         // Focus visible ring
         'focus-visible:ring-2',
         'focus-visible:ring-offset-2',
-        'focus-visible:ring-blue-500',
+        'focus-visible:ring-primary',
         'focus-visible:outline-none',
         className
       )}

@@ -31,17 +31,19 @@ interface TeamStatusWidgetProps {
 const statusConfig = {
   available: {
     label: 'Available',
-    color: 'bg-green-100 text-green-800 border-green-200',
+    color:
+      'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] border-[var(--color-status-low-border)]',
     icon: CheckCircle,
   },
   on_leave: {
     label: 'On Leave',
-    color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    color:
+      'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
     icon: Calendar,
   },
   returning_soon: {
     label: 'Returning Soon',
-    color: 'bg-blue-100 text-blue-800 border-blue-200',
+    color: 'bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info-border)]',
     icon: Clock,
   },
 }
@@ -61,7 +63,7 @@ export function TeamStatusWidget({ teamMembers, currentPilotRank }: TeamStatusWi
   return (
     <Card className="p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Users className="h-5 w-5 text-cyan-600" />
+        <Users className="text-primary h-5 w-5" />
         <h3 className="text-foreground text-lg font-semibold">Team Status</h3>
         <Badge variant="outline" className="ml-auto">
           {currentPilotRank}s
@@ -70,28 +72,28 @@ export function TeamStatusWidget({ teamMembers, currentPilotRank }: TeamStatusWi
 
       {/* Stats Grid */}
       <div className="mb-6 grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-center">
-          <div className="mb-1 flex items-center justify-center gap-1 text-green-600">
+        <div className="rounded-lg border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-3 text-center">
+          <div className="mb-1 flex items-center justify-center gap-1 text-[var(--color-status-low)]">
             <CheckCircle className="h-4 w-4" />
             <p className="text-2xl font-bold">{availableCount}</p>
           </div>
-          <p className="text-xs font-medium text-green-700">Available</p>
+          <p className="text-xs font-medium text-[var(--color-status-low)]">Available</p>
         </div>
 
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-center">
-          <div className="mb-1 flex items-center justify-center gap-1 text-yellow-600">
+        <div className="rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-3 text-center">
+          <div className="mb-1 flex items-center justify-center gap-1 text-[var(--color-status-medium)]">
             <Calendar className="h-4 w-4" />
             <p className="text-2xl font-bold">{onLeaveCount}</p>
           </div>
-          <p className="text-xs font-medium text-yellow-700">On Leave</p>
+          <p className="text-xs font-medium text-[var(--color-status-medium)]">On Leave</p>
         </div>
 
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-center">
-          <div className="mb-1 flex items-center justify-center gap-1 text-blue-600">
+        <div className="rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3 text-center">
+          <div className="mb-1 flex items-center justify-center gap-1 text-[var(--color-info)]">
             <Clock className="h-4 w-4" />
             <p className="text-2xl font-bold">{returningSoonCount}</p>
           </div>
-          <p className="text-xs font-medium text-blue-700">Returning</p>
+          <p className="text-xs font-medium text-[var(--color-info)]">Returning</p>
         </div>
       </div>
 

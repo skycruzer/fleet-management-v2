@@ -65,25 +65,25 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
   const getActionBadgeColor = (action: string) => {
     switch (action) {
       case 'INSERT':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
       case 'UPDATE':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       case 'DELETE':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
       case 'LOGIN':
-        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
+        return 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]'
       case 'LOGOUT':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
   if (logs.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
+      <div className="border-border bg-card rounded-lg border p-8 text-center">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400"
+          className="text-muted-foreground mx-auto h-12 w-12"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -95,10 +95,8 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">
-          No audit logs found
-        </h3>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <h3 className="text-foreground mt-2 text-lg font-medium">No audit logs found</h3>
+        <p className="text-muted-foreground mt-1 text-sm">
           No audit logs match your current filters. Try adjusting your search criteria.
         </p>
       </div>
@@ -108,13 +106,13 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
   return (
     <div className="space-y-4">
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-900/50">
+      <div className="border-border bg-card overflow-x-auto rounded-lg border shadow-sm">
+        <table className="divide-border min-w-full divide-y">
+          <thead className="bg-muted/50">
             <tr>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('created_at')}
               >
                 <div className="flex items-center gap-1">
@@ -138,7 +136,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('user_email')}
               >
                 <div className="flex items-center gap-1">
@@ -162,7 +160,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('action')}
               >
                 <div className="flex items-center gap-1">
@@ -186,7 +184,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('table_name')}
               >
                 <div className="flex items-center gap-1">
@@ -210,13 +208,13 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
               >
                 Record ID
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
               >
                 Description
               </th>
@@ -225,15 +223,13 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+          <tbody className="divide-border bg-card divide-y">
             {logs.map((log) => (
-              <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
+              <tr key={log.id} className="hover:bg-muted">
+                <td className="text-foreground px-6 py-4 text-sm whitespace-nowrap">
                   {new Date(log.created_at).toLocaleString()}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                  {log.user_email || 'System'}
-                </td>
+                <td className="text-foreground px-6 py-4 text-sm">{log.user_email || 'System'}</td>
                 <td className="px-6 py-4 text-sm whitespace-nowrap">
                   <span
                     className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getActionBadgeColor(log.action)}`}
@@ -242,22 +238,22 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <code className="rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-white">
+                  <code className="bg-muted text-foreground rounded px-2 py-1 font-mono text-xs">
                     {log.table_name}
                   </code>
                 </td>
                 <td className="px-6 py-4 text-sm">
-                  <code className="font-mono text-xs text-gray-600 dark:text-gray-400">
+                  <code className="text-muted-foreground font-mono text-xs">
                     {log.record_id ? log.record_id.slice(0, 8) + '...' : 'N/A'}
                   </code>
                 </td>
-                <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                <td className="text-muted-foreground max-w-xs truncate px-6 py-4 text-sm">
                   {log.description || '-'}
                 </td>
                 <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                   <Link
                     href={`/dashboard/audit/${log.id}`}
-                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    className="text-[var(--color-info)] hover:text-[var(--color-info)]/80"
                   >
                     View Details
                   </Link>
@@ -269,8 +265,8 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
-        <div className="text-sm text-gray-700 dark:text-gray-300">
+      <div className="border-border bg-card flex items-center justify-between rounded-lg border px-6 py-4">
+        <div className="text-foreground text-sm">
           Showing{' '}
           <span className="font-medium">{(pagination.page - 1) * pagination.pageSize + 1}</span> to{' '}
           <span className="font-medium">
@@ -282,7 +278,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
           <button
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="border-border text-foreground hover:bg-muted rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Previous
           </button>
@@ -305,8 +301,8 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
                   onClick={() => handlePageChange(pageNum)}
                   className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
                     pagination.page === pageNum
-                      ? 'bg-blue-600 text-white dark:bg-blue-500'
-                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+                      ? 'bg-[var(--color-info)] text-white'
+                      : 'border-border text-foreground hover:bg-muted border'
                   }`}
                 >
                   {pageNum}
@@ -317,7 +313,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
           <button
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.totalPages}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="border-border text-foreground hover:bg-muted rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Next
           </button>

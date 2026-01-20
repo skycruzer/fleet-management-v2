@@ -96,23 +96,29 @@ export function LeaveRequestGroup({
             <Badge variant="outline" className="text-xs">
               {stats.total} Total
             </Badge>
-            <Badge variant="outline" className="border-blue-500 bg-blue-50 text-xs text-blue-800">
+            <Badge
+              variant="outline"
+              className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-xs text-[var(--color-info)]"
+            >
               {stats.pending} Pending
             </Badge>
             <Badge
               variant="outline"
-              className="border-green-500 bg-green-50 text-xs text-green-800"
+              className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-xs text-[var(--color-status-low)]"
             >
               {stats.approved} Approved
             </Badge>
             {stats.denied > 0 && (
-              <Badge variant="outline" className="border-red-500 bg-red-50 text-xs text-red-800">
+              <Badge
+                variant="outline"
+                className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-xs text-[var(--color-status-high)]"
+              >
                 {stats.denied} Denied
               </Badge>
             )}
             <Badge
               variant="outline"
-              className="bg-primary/5 text-primary-foreground border-purple-500 text-xs"
+              className="border-[var(--color-category-simulator)]/30 bg-[var(--color-category-simulator-bg)] text-xs text-[var(--color-category-simulator)]"
             >
               {stats.totalDays} Days
             </Badge>
@@ -210,7 +216,7 @@ export function LeaveRequestGroup({
                                 {multiPeriodInfo.isMultiPeriod && (
                                   <Badge
                                     variant="outline"
-                                    className="w-fit border-orange-500 bg-orange-50 text-xs text-orange-800"
+                                    className="w-fit border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] text-xs text-[var(--color-status-medium)]"
                                   >
                                     🔄 Spans {multiPeriodInfo.count} periods
                                   </Badge>
@@ -221,10 +227,10 @@ export function LeaveRequestGroup({
                               <span
                                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                   req.workflow_status === 'SUBMITTED'
-                                    ? 'bg-blue-100 text-blue-800'
+                                    ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
                                     : req.workflow_status === 'APPROVED'
-                                      ? 'bg-green-100 text-green-800'
-                                      : 'bg-red-100 text-red-800'
+                                      ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
+                                      : 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
                                 }`}
                               >
                                 {req.workflow_status}

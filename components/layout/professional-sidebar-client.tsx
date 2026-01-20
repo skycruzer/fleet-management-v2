@@ -254,10 +254,10 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
 
   return (
     <motion.aside
-      initial={{ x: -260 }}
+      initial={{ x: -240 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="border-border/40 bg-background fixed top-0 left-0 z-40 h-screen w-56 border-r"
+      className="border-border/40 bg-background fixed top-0 left-0 z-[var(--z-sidebar)] h-screen w-60 border-r"
       style={{ willChange: 'transform' }}
     >
       {/* Logo Header */}

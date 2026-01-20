@@ -105,7 +105,7 @@ export function EditProfileDialog({
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
             <Input id="name" {...register('name')} placeholder="John Doe" />
-            {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+            {errors.name && <p className="text-destructive text-sm">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">

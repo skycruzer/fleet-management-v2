@@ -77,12 +77,14 @@ export function RenewalCalendarMonthly({
 
   const getUtilizationBadge = () => {
     if (utilizationPercentage > 80) {
-      return <Badge className="bg-red-600 text-white">High Utilization</Badge>
+      return <Badge className="bg-[var(--color-status-high)] text-white">High Utilization</Badge>
     }
     if (utilizationPercentage > 60) {
-      return <Badge className="bg-yellow-600 text-white">Medium Utilization</Badge>
+      return (
+        <Badge className="bg-[var(--color-status-medium)] text-white">Medium Utilization</Badge>
+      )
     }
-    return <Badge className="bg-green-600 text-white">Good Utilization</Badge>
+    return <Badge className="bg-[var(--color-status-low)] text-white">Good Utilization</Badge>
   }
 
   return (
@@ -234,9 +236,9 @@ export function RenewalCalendarMonthly({
       )}
 
       {/* Help Card */}
-      <Card className="bg-blue-50 p-4">
-        <h4 className="mb-2 font-semibold text-blue-900">Schedule Details</h4>
-        <ul className="space-y-1 text-sm text-blue-700">
+      <Card className="bg-[var(--color-info-bg)] p-4">
+        <h4 className="mb-2 font-semibold text-[var(--color-info-foreground)]">Schedule Details</h4>
+        <ul className="space-y-1 text-sm text-[var(--color-info)]">
           <li>
             • <strong>Planned Date</strong>: Target date for certification renewal
           </li>

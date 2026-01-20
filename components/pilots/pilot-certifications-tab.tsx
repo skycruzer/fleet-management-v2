@@ -142,7 +142,7 @@ export function PilotCertificationsTab({
 
     if (days <= 30) {
       return (
-        <Badge className="flex items-center gap-1 bg-yellow-500 hover:bg-yellow-600">
+        <Badge className="flex items-center gap-1 bg-[var(--color-status-medium)] hover:bg-[var(--color-status-medium)]/90">
           <AlertCircle className="h-3 w-3" />
           Expiring ({days} days)
         </Badge>
@@ -150,7 +150,7 @@ export function PilotCertificationsTab({
     }
 
     return (
-      <Badge className="flex items-center gap-1 bg-green-500 hover:bg-green-600">
+      <Badge className="flex items-center gap-1 bg-[var(--color-status-low)] hover:bg-[var(--color-status-low)]/90">
         <CheckCircle2 className="h-3 w-3" />
         Current ({days} days)
       </Badge>
@@ -382,9 +382,9 @@ export function PilotCertificationsTab({
                   key={cert.id}
                   className={cn(
                     getCertStatus(cert.expiry_date) === 'expired' &&
-                      'bg-red-50/50 dark:bg-red-950/20',
+                      'bg-[var(--color-status-high-bg)]/50',
                     getCertStatus(cert.expiry_date) === 'expiring' &&
-                      'bg-yellow-50/50 dark:bg-yellow-950/20'
+                      'bg-[var(--color-status-medium-bg)]/50'
                   )}
                 >
                   <TableCell className="font-medium">
@@ -414,7 +414,7 @@ export function PilotCertificationsTab({
                           size="sm"
                           onClick={() => handleSave(cert.id)}
                           disabled={saving}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-[var(--color-status-low)] hover:bg-[var(--color-status-low)]/90"
                         >
                           {saving ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -454,21 +454,21 @@ export function PilotCertificationsTab({
       <Card className="bg-muted/30 p-4">
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
             <span className="text-muted-foreground">
               Current:{' '}
               {certifications.filter((c) => getCertStatus(c.expiry_date) === 'current').length}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-yellow-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]" />
             <span className="text-muted-foreground">
               Expiring:{' '}
               {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expiring').length}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-red-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-high)]" />
             <span className="text-muted-foreground">
               Expired:{' '}
               {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expired').length}

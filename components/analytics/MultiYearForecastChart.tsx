@@ -51,7 +51,7 @@ export function MultiYearForecastChart({ data }: MultiYearForecastChartProps) {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <TrendingUp className="h-5 w-5 text-blue-600" />
+          <TrendingUp className="h-5 w-5 text-[var(--color-info)]" />
           <h3 className="text-foreground text-lg font-semibold">10-Year Retirement Forecast</h3>
         </div>
         <div className="flex items-center gap-4">
@@ -87,23 +87,25 @@ export function MultiYearForecastChart({ data }: MultiYearForecastChartProps) {
 
       {/* Summary Stats */}
       <div className="border-border mt-6 grid grid-cols-3 gap-4 border-t pt-4">
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-          <p className="text-xs font-medium text-blue-700">Avg per Year</p>
-          <p className="text-xl font-bold text-blue-900">
+        <div className="rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3">
+          <p className="text-xs font-medium text-[var(--color-info)]">Avg per Year</p>
+          <p className="text-foreground text-xl font-bold">
             {Math.round(totalRetirements / data.length)}
           </p>
         </div>
 
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-          <p className="text-xs font-medium text-emerald-700">Captains</p>
-          <p className="text-xl font-bold text-emerald-900">
+        <div className="rounded-lg border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-3">
+          <p className="text-xs font-medium text-[var(--color-status-low)]">Captains</p>
+          <p className="text-foreground text-xl font-bold">
             {data.reduce((sum, year) => sum + year.captains, 0)}
           </p>
         </div>
 
-        <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
-          <p className="text-xs font-medium text-purple-700">First Officers</p>
-          <p className="text-xl font-bold text-purple-900">
+        <div className="rounded-lg border border-[var(--color-category-simulator)]/30 bg-[var(--color-category-simulator-bg)] p-3">
+          <p className="text-xs font-medium text-[var(--color-category-simulator)]">
+            First Officers
+          </p>
+          <p className="text-foreground text-xl font-bold">
             {data.reduce((sum, year) => sum + year.firstOfficers, 0)}
           </p>
         </div>
@@ -111,8 +113,8 @@ export function MultiYearForecastChart({ data }: MultiYearForecastChartProps) {
 
       {/* Planning Recommendation */}
       {totalRetirements > 0 && (
-        <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-          <p className="text-xs text-yellow-800">
+        <div className="mt-4 rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-3">
+          <p className="text-xs text-[var(--color-status-medium)]">
             <span className="font-semibold">Planning Insight:</span>{' '}
             {peakYear.total >= 5
               ? `Prepare for significant retirement wave in ${peakYear.yearLabel} with ${peakYear.total} expected retirements.`

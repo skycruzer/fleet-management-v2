@@ -132,43 +132,35 @@ export function LeaveCalendar({
 
         {/* Month Statistics */}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <div className="flex items-center gap-2 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-            <Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+          <div className="bg-muted flex items-center gap-2 rounded-lg p-3">
+            <Users className="text-muted-foreground h-5 w-5" />
             <div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Total Requests</div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {stats.total}
-              </div>
+              <div className="text-muted-foreground text-sm">Total Requests</div>
+              <div className="text-foreground text-2xl font-bold">{stats.total}</div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 dark:bg-green-950">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <div className="flex items-center gap-2 rounded-lg bg-[var(--color-status-low-bg)] p-3">
+            <CheckCircle className="h-5 w-5 text-[var(--color-status-low)]" />
             <div>
-              <div className="text-sm text-green-600 dark:text-green-400">Approved</div>
-              <div className="text-2xl font-bold text-green-900 dark:text-green-100">
-                {stats.approved}
-              </div>
+              <div className="text-sm text-[var(--color-status-low)]">Approved</div>
+              <div className="text-foreground text-2xl font-bold">{stats.approved}</div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-950">
-            <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex items-center gap-2 rounded-lg bg-[var(--color-info-bg)] p-3">
+            <Clock className="h-5 w-5 text-[var(--color-info)]" />
             <div>
-              <div className="text-sm text-blue-600 dark:text-blue-400">Pending</div>
-              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                {stats.pending}
-              </div>
+              <div className="text-sm text-[var(--color-info)]">Pending</div>
+              <div className="text-foreground text-2xl font-bold">{stats.pending}</div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-950">
-            <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+          <div className="flex items-center gap-2 rounded-lg bg-[var(--color-status-high-bg)] p-3">
+            <XCircle className="h-5 w-5 text-[var(--color-status-high)]" />
             <div>
-              <div className="text-sm text-red-600 dark:text-red-400">Denied</div>
-              <div className="text-2xl font-bold text-red-900 dark:text-red-100">
-                {stats.denied}
-              </div>
+              <div className="text-sm text-[var(--color-status-high)]">Denied</div>
+              <div className="text-foreground text-2xl font-bold">{stats.denied}</div>
             </div>
           </div>
         </div>
@@ -179,10 +171,7 @@ export function LeaveCalendar({
         <div className="grid grid-cols-7 gap-2">
           {/* Day Headers */}
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div
-              key={day}
-              className="py-2 text-center text-sm font-semibold text-gray-600 dark:text-gray-400"
-            >
+            <div key={day} className="text-muted-foreground py-2 text-center text-sm font-semibold">
               {day}
             </div>
           ))}
@@ -232,36 +221,36 @@ export function LeaveCalendar({
         <h3 className="mb-3 text-sm font-semibold">Legend</h3>
         <div className="grid grid-cols-2 gap-4 text-xs md:grid-cols-4">
           <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-green-200 bg-green-100 dark:border-green-700 dark:bg-green-900"></div>
+            <div className="h-4 w-4 rounded border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]"></div>
             <span>Approved Leave</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-blue-200 bg-blue-100 dark:border-blue-700 dark:bg-blue-900"></div>
+            <div className="h-4 w-4 rounded border border-[var(--color-info-border)] bg-[var(--color-info-bg)]"></div>
             <span>Pending Leave</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-red-200 bg-red-100 dark:border-red-700 dark:bg-red-900"></div>
+            <div className="h-4 w-4 rounded border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]"></div>
             <span>Denied Leave</span>
           </div>
           {showRecommendedDates && (
             <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500" />
+              <Star className="h-4 w-4 text-[var(--color-status-medium)]" />
               <span>Recommended Date</span>
             </div>
           )}
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-4 border-t pt-3 text-xs dark:border-gray-700">
+        <div className="border-border mt-3 grid grid-cols-3 gap-4 border-t pt-3 text-xs">
           <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-green-200 bg-green-50 dark:border-green-700 dark:bg-green-950"></div>
+            <div className="h-4 w-4 rounded border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]"></div>
             <span>Safe Crew Levels</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-yellow-200 bg-yellow-100 dark:border-yellow-700 dark:bg-yellow-900"></div>
+            <div className="h-4 w-4 rounded border border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]"></div>
             <span>Warning Crew Levels</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded border border-red-200 bg-red-100 dark:border-red-700 dark:bg-red-900"></div>
+            <div className="h-4 w-4 rounded border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]"></div>
             <span>Critical Crew Levels</span>
           </div>
         </div>
@@ -302,7 +291,7 @@ function CalendarDay({
 
   return (
     <div
-      className={`hover:border-primary min-h-[120px] cursor-pointer rounded-lg border p-2 transition-all hover:shadow-md ${isToday ? 'border-primary border-2' : 'border-gray-200 dark:border-gray-700'} ${dayStatusColor} `}
+      className={`hover:border-primary min-h-[120px] cursor-pointer rounded-lg border p-2 transition-all hover:shadow-md ${isToday ? 'border-primary border-2' : 'border-border'} ${dayStatusColor} `}
       onClick={onClick}
     >
       {/* Day Number and Recommended Badge */}
@@ -310,11 +299,13 @@ function CalendarDay({
         <span className={`text-sm font-semibold ${isToday ? 'text-primary' : ''}`}>
           {format(date, 'd')}
         </span>
-        {isRecommended && <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />}
+        {isRecommended && (
+          <Star className="h-3 w-3 fill-[var(--color-status-medium)] text-[var(--color-status-medium)]" />
+        )}
       </div>
 
       {/* Crew Availability */}
-      <div className="mb-2 text-xs text-gray-600 dark:text-gray-400">
+      <div className="text-muted-foreground mb-2 text-xs">
         <div className="flex items-center gap-1">
           <Users className="h-3 w-3" />
           <span>
@@ -341,9 +332,7 @@ function CalendarDay({
         ))}
 
         {events.length > 3 && (
-          <div className="pl-1 text-xs text-gray-500 dark:text-gray-400">
-            +{events.length - 3} more
-          </div>
+          <div className="text-muted-foreground pl-1 text-xs">+{events.length - 3} more</div>
         )}
       </div>
     </div>

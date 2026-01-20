@@ -60,7 +60,7 @@ export function RosterPeriodCard() {
   }
 
   return (
-    <Card className="border-primary-200 dark:border-primary-800 overflow-hidden border-2 bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
+    <Card className="border-primary-200 dark:border-primary-800 from-card to-muted/30 overflow-hidden border-2 bg-gradient-to-br">
       {/* Header */}
       <div className="from-primary-600 to-primary-700 bg-gradient-to-r px-6 py-4">
         <div className="flex items-center gap-3">
@@ -82,7 +82,7 @@ export function RosterPeriodCard() {
           <h4 className="text-primary-900 dark:text-primary-100 mb-2 text-3xl font-black">
             {currentPeriod.code}
           </h4>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-muted-foreground mb-4 text-sm">
             {new Date(currentPeriod.startDate).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
@@ -101,14 +101,14 @@ export function RosterPeriodCard() {
             <span className="text-primary-600 dark:text-primary-400 text-4xl font-black">
               {daysRemaining}
             </span>
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <span className="text-muted-foreground text-sm font-medium">
               {daysRemaining === 1 ? 'day' : 'days'} remaining
             </span>
           </div>
 
           {/* Progress Bar */}
           <div className="mt-4">
-            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
               <div
                 className="from-primary-500 to-primary-600 h-full bg-gradient-to-r transition-all duration-500"
                 style={{
@@ -116,19 +116,19 @@ export function RosterPeriodCard() {
                 }}
               />
             </div>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-muted-foreground mt-1 text-xs">
               {28 - daysRemaining} of 28 days completed
             </p>
           </div>
         </div>
 
         {/* Next Period */}
-        <div className="rounded-lg border-2 border-dashed border-blue-200 bg-blue-50 p-5 dark:border-blue-700 dark:bg-blue-950/30">
-          <Badge className="mb-3 bg-blue-600 text-white hover:bg-blue-700">NEXT UP</Badge>
-          <h4 className="mb-2 text-3xl font-black text-blue-900 dark:text-blue-100">
-            {nextPeriod.code}
-          </h4>
-          <p className="mb-4 text-sm text-blue-700 dark:text-blue-400">
+        <div className="rounded-lg border-2 border-dashed border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-5">
+          <Badge className="mb-3 bg-[var(--color-info)] text-white hover:bg-[var(--color-info)]">
+            NEXT UP
+          </Badge>
+          <h4 className="text-foreground mb-2 text-3xl font-black">{nextPeriod.code}</h4>
+          <p className="text-muted-foreground mb-4 text-sm">
             {new Date(nextPeriod.startDate).toLocaleDateString('en-US', {
               month: 'short',
               day: 'numeric',
@@ -141,8 +141,8 @@ export function RosterPeriodCard() {
             })}
           </p>
 
-          <div className="rounded-md bg-blue-100 px-3 py-2 dark:bg-blue-900/50">
-            <p className="text-xs font-medium text-blue-800 dark:text-blue-300">
+          <div className="rounded-md border border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-3 py-2">
+            <p className="text-xs font-medium text-[var(--color-info)]">
               Starts in {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}
             </p>
           </div>

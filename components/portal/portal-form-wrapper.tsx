@@ -71,7 +71,7 @@ export function PortalFormWrapper({
           <button
             type="button"
             onClick={handleCancel}
-            className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="border-border text-foreground hover:bg-muted rounded-lg border px-6 py-3 font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isSubmitting}
           >
             {cancelText}

@@ -41,8 +41,8 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
-        <p className="text-gray-600 dark:text-gray-400">No flight requests yet</p>
+      <div className="border-border rounded-lg border-2 border-dashed p-8 text-center">
+        <p className="text-muted-foreground">No flight requests yet</p>
       </div>
     )
   }
@@ -84,7 +84,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
       </div>
 
       {/* Results Count */}
-      <p className="text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-muted-foreground text-sm">
         Showing {filteredRequests.length} of {requests.length} requests
       </p>
 
@@ -93,13 +93,13 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
         {filteredRequests.map((request) => (
           <div
             key={request.id}
-            className="rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md dark:border-gray-700"
+            className="border-border rounded-lg border p-4 transition-shadow hover:shadow-md"
           >
             <div className="flex items-start justify-between">
               {/* Request Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-3">
-                  <h3 className="font-medium text-gray-900 dark:text-white">
+                  <h3 className="text-foreground font-medium">
                     {formatRequestType(request.request_type)}
                   </h3>
                   <StatusBadge status={request.workflow_status} />
@@ -107,32 +107,32 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
                 <div className="mt-2 grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
                   <div>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                       <strong>Pilot:</strong> {request.pilot_name || 'Unknown'}
                       {request.pilot_rank && ` (${request.pilot_rank})`}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                       <strong>Flight Date:</strong>{' '}
                       {new Date(request.start_date).toLocaleDateString()}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                       <strong>Description:</strong>{' '}
                       {request.description ? request.description.substring(0, 50) + '...' : 'N/A'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                       <strong>Submitted:</strong>{' '}
                       {new Date(request.created_at).toLocaleDateString()}
                     </p>
                     {request.reason && (
-                      <p className="text-gray-600 dark:text-gray-400">
+                      <p className="text-muted-foreground">
                         <strong>Reason:</strong> {request.reason.substring(0, 100)}
                         {request.reason.length > 100 && '...'}
                       </p>
                     )}
                     {request.reviewed_by && (
-                      <p className="text-gray-600 dark:text-gray-400">
+                      <p className="text-muted-foreground">
                         <strong>Reviewed by:</strong> {request.reviewer_name || 'Unknown'}
                       </p>
                     )}
@@ -143,7 +143,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
               {/* Review Button */}
               <button
                 onClick={() => handleReview(request)}
-                className="ml-4 rounded-md bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30"
+                className="focus:ring-accent ml-4 rounded-md bg-[var(--color-info-bg)] px-4 py-2 text-sm font-medium text-[var(--color-info)] transition-colors hover:bg-[var(--color-info-bg)]/80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
               >
                 {request.workflow_status === 'SUBMITTED' ||
                 request.workflow_status === 'UNDER_REVIEW'
@@ -184,8 +184,8 @@ function FilterButton({
       onClick={onClick}
       className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
         isActive
-          ? 'bg-blue-600 text-white dark:bg-blue-500'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+          ? 'bg-accent text-accent-foreground'
+          : 'bg-muted text-muted-foreground hover:bg-muted/80'
       }`}
     >
       {label} ({count})
@@ -208,12 +208,12 @@ function StatusBadge({
   status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
 }) {
   const badgeStyles = {
-    SUBMITTED: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
-    PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
-    UNDER_REVIEW: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
-    APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
-    DENIED: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
-    WITHDRAWN: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
+    SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+    PENDING: 'bg-muted text-muted-foreground',
+    UNDER_REVIEW: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
+    APPROVED: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
+    DENIED: 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
+    WITHDRAWN: 'bg-muted text-muted-foreground',
   }
 
   const labels = {

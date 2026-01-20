@@ -56,7 +56,7 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
         {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardContent className="p-6">
-              <div className="h-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+              <div className="bg-muted h-16 animate-pulse rounded"></div>
             </CardContent>
           </Card>
         ))}
@@ -80,14 +80,15 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
       value: stats.active_certifications,
       icon: Award,
       description: 'Current valid certifications',
-      color: 'text-green-600',
+      color: 'text-[var(--color-status-low)]',
     },
     {
       title: 'Upcoming Checks',
       value: stats.upcoming_checks,
       icon: AlertCircle,
       description: 'Expiring within 60 days',
-      color: stats.upcoming_checks > 0 ? 'text-yellow-600' : 'text-gray-600',
+      color:
+        stats.upcoming_checks > 0 ? 'text-[var(--color-status-medium)]' : 'text-muted-foreground',
     },
     {
       title: 'Pending Leave Requests',
@@ -101,7 +102,7 @@ export function DashboardStats({ pilotId }: { pilotId: string }) {
       value: stats.pending_flight_requests,
       icon: Plane,
       description: 'Pending or under review',
-      color: 'text-indigo-600',
+      color: 'text-primary',
     },
     {
       title: 'Fleet Pilots',

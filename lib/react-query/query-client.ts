@@ -4,12 +4,19 @@
  * Provides client-side data caching, automatic refetching, and optimistic updates
  * for improved performance and user experience.
  *
+ * AVIATION-OPTIMIZED CONFIGURATION:
+ * - Fail-fast with single retry for better UX in critical workflows
+ * - Disabled window focus refetch to prevent disruption during operations
+ * - offlineFirst network mode for request deduplication
+ * - Conservative stale time (1 min) to balance freshness and performance
+ *
  * BENEFITS:
- * - Automatic background refetching
  * - Cache deduplication (multiple components, one request)
  * - Stale-while-revalidate pattern
  * - Optimistic updates for mutations
  * - Loading and error states managed automatically
+ *
+ * @author Maurice Rondeau
  */
 
 import { QueryClient, DefaultOptions } from '@tanstack/react-query'
@@ -17,22 +24,24 @@ import { QueryClient, DefaultOptions } from '@tanstack/react-query'
 /**
  * Default Query Configuration
  *
- * These settings apply to all queries unless overridden
+ * These settings apply to all queries unless overridden.
+ * Optimized for aviation fleet management workflows.
  */
-const defaultQueryOptions: DefaultOptions = {
+export const defaultQueryOptions: DefaultOptions = {
   queries: {
-    // Stale time: How long data is considered fresh (5 minutes)
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    // Data remains fresh for 1 minute (no refetch during this time)
+    staleTime: 60 * 1000, // 1 minute
 
-    // Cache time: How long unused data stays in cache (10 minutes)
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    // Garbage collect inactive queries after 5 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
 
-    // Retry failed requests 2 times with exponential backoff
-    retry: 2,
+    // Single retry for failed queries (fail fast for better UX)
+    retry: 1,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 
-    // Refetch on window focus (when user returns to tab)
-    refetchOnWindowFocus: true,
+    // IMPORTANT: Disable automatic refetch on window focus
+    // Aviation context - prevents disruption during operations
+    refetchOnWindowFocus: false,
 
     // Refetch on reconnect (when network restored)
     refetchOnReconnect: true,
@@ -40,16 +49,19 @@ const defaultQueryOptions: DefaultOptions = {
     // Refetch on mount
     refetchOnMount: true,
 
-    // Network mode: online only
-    networkMode: 'online',
+    // offlineFirst for better deduplication
+    networkMode: 'offlineFirst',
+
+    // Disable automatic refetch interval (manual invalidation preferred)
+    refetchInterval: false,
   },
   mutations: {
-    // Retry failed mutations once
+    // Single retry for failed mutations
     retry: 1,
     retryDelay: 1000,
 
-    // Network mode: online only
-    networkMode: 'online',
+    // Network mode for mutations
+    networkMode: 'offlineFirst',
   },
 }
 

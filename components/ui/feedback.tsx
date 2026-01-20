@@ -29,12 +29,12 @@ const feedbackVariants = cva(
     variants: {
       type: {
         error:
-          'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200',
+          'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)] text-[var(--color-status-high-foreground)]',
         warning:
-          'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-200',
+          'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)] text-[var(--color-status-medium-foreground)]',
         success:
-          'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200',
-        info: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200',
+          'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)] text-[var(--color-status-low-foreground)]',
+        info: 'bg-[var(--color-info-bg)] border-[var(--color-info-border)] text-[var(--color-info-foreground)]',
       },
       variant: {
         inline: '',
@@ -193,6 +193,36 @@ export function FormErrorFeedback({
 }
 
 /**
+ * Form Error Alert - Compatible wrapper for portal forms
+ * Matches the interface of the deprecated portal/form-error-alert
+ * @param error - Error message string or null (returns null when no error)
+ * @param onDismiss - Optional dismiss callback
+ */
+export function FormErrorAlert({
+  error,
+  onDismiss,
+  className,
+}: {
+  error: string | null
+  onDismiss?: () => void
+  className?: string
+}) {
+  if (!error) return null
+
+  return (
+    <Feedback
+      type="error"
+      variant="inline"
+      title="Submission Failed"
+      message={error}
+      dismissible={!!onDismiss}
+      onDismiss={onDismiss}
+      className={cn('mb-4', className)}
+    />
+  )
+}
+
+/**
  * Inline Feedback - Minimal feedback for inline contexts
  */
 export function InlineFeedback({
@@ -206,10 +236,10 @@ export function InlineFeedback({
 }) {
   const Icon = iconMap[type]
   const colorMap = {
-    error: 'text-red-600 dark:text-red-400',
-    warning: 'text-amber-600 dark:text-amber-400',
-    success: 'text-emerald-600 dark:text-emerald-400',
-    info: 'text-blue-600 dark:text-blue-400',
+    error: 'text-[var(--color-status-high)]',
+    warning: 'text-[var(--color-status-medium)]',
+    success: 'text-[var(--color-status-low)]',
+    info: 'text-[var(--color-info)]',
   }
 
   return (

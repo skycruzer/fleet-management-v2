@@ -151,9 +151,11 @@ export function LeaveApprovalCard({
     <Card
       className={cn(
         'p-6 transition-all hover:shadow-md',
-        alertLevel === 'critical' && 'border-red-300 bg-red-50',
-        alertLevel === 'warning' && 'border-yellow-300 bg-yellow-50',
-        alertLevel === 'info' && 'border-blue-300 bg-blue-50'
+        alertLevel === 'critical' &&
+          'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]',
+        alertLevel === 'warning' &&
+          'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]',
+        alertLevel === 'info' && 'border-[var(--color-info-border)] bg-[var(--color-info-bg)]'
       )}
     >
       {/* Header */}
@@ -218,27 +220,29 @@ export function LeaveApprovalCard({
         <div
           className={cn(
             'mb-4 rounded-lg border p-3',
-            alertLevel === 'critical' && 'border-red-300 bg-red-100',
-            alertLevel === 'warning' && 'border-yellow-300 bg-yellow-100',
-            alertLevel === 'info' && 'border-blue-300 bg-blue-100'
+            alertLevel === 'critical' &&
+              'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]',
+            alertLevel === 'warning' &&
+              'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]',
+            alertLevel === 'info' && 'border-[var(--color-info-border)] bg-[var(--color-info-bg)]'
           )}
         >
           <div className="flex items-start gap-2">
             <AlertTriangle
               className={cn(
                 'mt-0.5 h-5 w-5',
-                alertLevel === 'critical' && 'text-red-600',
-                alertLevel === 'warning' && 'text-yellow-600',
-                alertLevel === 'info' && 'text-blue-600'
+                alertLevel === 'critical' && 'text-[var(--color-status-high)]',
+                alertLevel === 'warning' && 'text-[var(--color-status-medium)]',
+                alertLevel === 'info' && 'text-[var(--color-info)]'
               )}
             />
             <div className="flex-1">
               <p
                 className={cn(
                   'mb-1 text-sm font-semibold',
-                  alertLevel === 'critical' && 'text-red-900',
-                  alertLevel === 'warning' && 'text-yellow-900',
-                  alertLevel === 'info' && 'text-blue-900'
+                  alertLevel === 'critical' && 'text-[var(--color-status-high)]',
+                  alertLevel === 'warning' && 'text-[var(--color-status-medium)]',
+                  alertLevel === 'info' && 'text-[var(--color-info)]'
                 )}
               >
                 {alertLevel === 'critical' && 'Critical Alert'}
@@ -248,7 +252,7 @@ export function LeaveApprovalCard({
 
               {/* Conflict Flags */}
               {request.conflict_flags && request.conflict_flags.length > 0 && (
-                <p className="mb-2 text-sm text-red-800">
+                <p className="mb-2 text-sm text-[var(--color-status-high)]">
                   Conflicts detected: {request.conflict_flags.join(', ')}
                 </p>
               )}
@@ -261,8 +265,8 @@ export function LeaveApprovalCard({
                       className={cn(
                         request.availability_impact.captains_after !== undefined &&
                           request.availability_impact.captains_after < 10
-                          ? 'text-red-800'
-                          : 'text-yellow-800'
+                          ? 'text-[var(--color-status-high)]'
+                          : 'text-[var(--color-status-medium)]'
                       )}
                     >
                       Captains: {request.availability_impact.captains_before || 0} →{' '}
@@ -278,8 +282,8 @@ export function LeaveApprovalCard({
                       className={cn(
                         request.availability_impact.fos_after !== undefined &&
                           request.availability_impact.fos_after < 10
-                          ? 'text-red-800'
-                          : 'text-yellow-800'
+                          ? 'text-[var(--color-status-high)]'
+                          : 'text-[var(--color-status-medium)]'
                       )}
                     >
                       First Officers: {request.availability_impact.fos_before || 0} →{' '}
@@ -295,7 +299,9 @@ export function LeaveApprovalCard({
 
               {/* Late/Past Deadline */}
               {request.is_past_deadline && (
-                <p className="text-sm text-yellow-800">Submitted past roster deadline</p>
+                <p className="text-sm text-[var(--color-status-medium)]">
+                  Submitted past roster deadline
+                </p>
               )}
             </div>
           </div>
@@ -305,13 +311,19 @@ export function LeaveApprovalCard({
       {/* Flags */}
       <div className="mb-4 flex gap-2">
         {request.is_late_request && (
-          <Badge variant="outline" className="border-yellow-600 text-yellow-600">
+          <Badge
+            variant="outline"
+            className="border-[var(--color-status-medium)] text-[var(--color-status-medium)]"
+          >
             <Clock className="mr-1 h-3 w-3" />
             Late Request
           </Badge>
         )}
         {request.is_past_deadline && (
-          <Badge variant="outline" className="border-red-600 text-red-600">
+          <Badge
+            variant="outline"
+            className="border-[var(--color-status-high)] text-[var(--color-status-high)]"
+          >
             <AlertTriangle className="mr-1 h-3 w-3" />
             Past Deadline
           </Badge>
@@ -323,7 +335,7 @@ export function LeaveApprovalCard({
         <Button
           onClick={handleApprove}
           disabled={isApproving || isDenying}
-          className="flex-1 bg-green-600 text-white hover:bg-green-700"
+          className="flex-1 bg-[var(--color-status-low)] text-white hover:bg-[var(--color-status-low)]/90"
         >
           <CheckCircle className="mr-2 h-4 w-4" />
           {isApproving ? 'Approving...' : 'Approve'}

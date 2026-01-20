@@ -47,23 +47,27 @@ export function RetirementCountdownBadge({
   // Urgency configuration with colors and animations
   const urgencyConfig = {
     green: {
-      className: 'bg-green-100 text-green-800 border-green-300',
+      className:
+        'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] border-[var(--color-status-low-border)]',
       icon: null,
     },
     yellow: {
-      className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      className:
+        'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
       icon: null,
     },
     orange: {
-      className: 'bg-orange-100 text-orange-800 border-orange-300',
+      className:
+        'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
       icon: '⚠️',
     },
     red: {
-      className: 'bg-red-100 text-red-800 border-red-300 animate-pulse',
+      className:
+        'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)] animate-pulse',
       icon: '🔴',
     },
     gray: {
-      className: 'bg-gray-100 text-gray-800 border-gray-300',
+      className: 'bg-muted text-muted-foreground border-border',
       icon: null,
     },
   }

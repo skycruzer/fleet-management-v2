@@ -70,30 +70,30 @@ export function ConflictAlert({
       LOW: {
         variant: 'default' as const,
         icon: Info,
-        iconColor: 'text-blue-600',
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
+        iconColor: 'text-[var(--color-info)]',
+        bgColor: 'bg-[var(--color-info-bg)]',
+        borderColor: 'border-[var(--color-info-border)]',
       },
       MEDIUM: {
         variant: 'default' as const,
         icon: AlertCircle,
-        iconColor: 'text-yellow-600',
-        bgColor: 'bg-yellow-50',
-        borderColor: 'border-yellow-200',
+        iconColor: 'text-[var(--color-status-medium)]',
+        bgColor: 'bg-[var(--color-status-medium-bg)]',
+        borderColor: 'border-[var(--color-status-medium-border)]',
       },
       HIGH: {
         variant: 'default' as const,
         icon: AlertTriangle,
-        iconColor: 'text-orange-600',
-        bgColor: 'bg-orange-50',
-        borderColor: 'border-orange-200',
+        iconColor: 'text-[var(--color-status-medium)]',
+        bgColor: 'bg-[var(--color-status-medium-bg)]',
+        borderColor: 'border-[var(--color-status-medium-border)]',
       },
       CRITICAL: {
         variant: 'destructive' as const,
         icon: XCircle,
-        iconColor: 'text-red-600',
-        bgColor: 'bg-red-50',
-        borderColor: 'border-red-200',
+        iconColor: 'text-[var(--color-status-high)]',
+        bgColor: 'bg-[var(--color-status-high-bg)]',
+        borderColor: 'border-[var(--color-status-high-border)]',
       },
     }
 
@@ -172,7 +172,10 @@ export function ConflictAlert({
             <Icon className={`h-4 w-4 ${config.iconColor}`} />
             <AlertTitle className="flex items-center gap-2">
               {getConflictTypeLabel(conflict.type)}
-              <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">
+              <Badge
+                variant="secondary"
+                className="ml-2 bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]"
+              >
                 HIGH
               </Badge>
             </AlertTitle>
@@ -197,7 +200,10 @@ export function ConflictAlert({
             <Icon className={`h-4 w-4 ${config.iconColor}`} />
             <AlertTitle className="flex items-center gap-2">
               {getConflictTypeLabel(conflict.type)}
-              <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">
+              <Badge
+                variant="secondary"
+                className="ml-2 bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]"
+              >
                 WARNING
               </Badge>
             </AlertTitle>
@@ -235,8 +241,11 @@ export function ConflictAlert({
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <Alert variant="default" className="border-yellow-200 bg-yellow-50">
-          <AlertCircle className="h-4 w-4 text-yellow-600" />
+        <Alert
+          variant="default"
+          className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]"
+        >
+          <AlertCircle className="h-4 w-4 text-[var(--color-status-medium)]" />
           <AlertTitle>Warnings</AlertTitle>
           <AlertDescription>
             <ul className="mt-2 list-inside list-disc space-y-1">
@@ -253,7 +262,9 @@ export function ConflictAlert({
         <Alert
           variant={crewImpact.belowMinimum ? 'destructive' : 'default'}
           className={
-            crewImpact.belowMinimum ? 'border-red-200 bg-red-50' : 'border-blue-200 bg-blue-50'
+            crewImpact.belowMinimum
+              ? 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]'
+              : 'border-[var(--color-info-border)] bg-[var(--color-info-bg)]'
           }
         >
           <Info className="h-4 w-4" />
@@ -266,7 +277,9 @@ export function ConflictAlert({
                 <p className="text-sm">
                   After: {crewImpact.captainsAfter} available
                   {crewImpact.captainsAfter < 10 && (
-                    <span className="ml-2 font-bold text-red-600">⚠️ Below minimum (10)</span>
+                    <span className="ml-2 font-bold text-[var(--color-status-high)]">
+                      ⚠️ Below minimum (10)
+                    </span>
                   )}
                 </p>
               </div>
@@ -276,7 +289,9 @@ export function ConflictAlert({
                 <p className="text-sm">
                   After: {crewImpact.firstOfficersAfter} available
                   {crewImpact.firstOfficersAfter < 10 && (
-                    <span className="ml-2 font-bold text-red-600">⚠️ Below minimum (10)</span>
+                    <span className="ml-2 font-bold text-[var(--color-status-high)]">
+                      ⚠️ Below minimum (10)
+                    </span>
                   )}
                 </p>
               </div>

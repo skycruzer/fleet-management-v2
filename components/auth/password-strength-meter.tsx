@@ -152,11 +152,11 @@ export function PasswordStrengthMeter({
 
   // Progress bar color
   const progressColorClass = {
-    [PasswordStrength.VERY_WEAK]: 'bg-red-600',
-    [PasswordStrength.WEAK]: 'bg-orange-600',
-    [PasswordStrength.FAIR]: 'bg-yellow-600',
-    [PasswordStrength.STRONG]: 'bg-green-600',
-    [PasswordStrength.VERY_STRONG]: 'bg-emerald-600',
+    [PasswordStrength.VERY_WEAK]: 'bg-[var(--color-status-high)]',
+    [PasswordStrength.WEAK]: 'bg-[var(--color-status-medium)]',
+    [PasswordStrength.FAIR]: 'bg-[var(--color-status-medium)]/70',
+    [PasswordStrength.STRONG]: 'bg-[var(--color-status-low)]',
+    [PasswordStrength.VERY_STRONG]: 'bg-[var(--color-status-low)]',
   }[validation.score]
 
   return (
@@ -164,11 +164,11 @@ export function PasswordStrengthMeter({
       {/* Strength Bar */}
       <div className="space-y-1">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Password Strength</span>
+          <span className="text-muted-foreground">Password Strength</span>
           <span className={`font-medium ${strengthColor}`}>{strengthLabel}</span>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+        <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
           <div
             className={`h-full transition-all duration-300 ${progressColorClass}`}
             style={{ width: `${progressWidth}%` }}
@@ -179,7 +179,7 @@ export function PasswordStrengthMeter({
       {/* Requirements Checklist */}
       {showRequirements && (
         <div className="space-y-2 text-sm">
-          <p className="font-medium text-gray-700 dark:text-gray-300">Requirements:</p>
+          <p className="text-foreground font-medium">Requirements:</p>
 
           <ul className="space-y-1.5">
             <RequirementItem met={validation.strength.length} text="At least 12 characters" />
@@ -203,8 +203,8 @@ export function PasswordStrengthMeter({
 
       {/* Errors */}
       {validation.errors.length > 0 && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950">
-          <ul className="space-y-1 text-sm text-red-700 dark:text-red-400">
+        <div className="rounded-md border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-3">
+          <ul className="space-y-1 text-sm text-[var(--color-status-high-foreground)]">
             {validation.errors.slice(0, 3).map((error, index) => (
               <li key={index} className="flex items-start gap-2">
                 <X className="mt-0.5 h-4 w-4 flex-shrink-0" />
@@ -217,11 +217,11 @@ export function PasswordStrengthMeter({
 
       {/* Suggestions */}
       {validation.suggestions.length > 0 && validation.score < 3 && (
-        <div className="rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950">
-          <p className="mb-1.5 text-sm font-medium text-blue-900 dark:text-blue-300">
+        <div className="rounded-md border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3">
+          <p className="mb-1.5 text-sm font-medium text-[var(--color-info-foreground)]">
             Suggestions:
           </p>
-          <ul className="space-y-1 text-sm text-blue-700 dark:text-blue-400">
+          <ul className="space-y-1 text-sm text-[var(--color-info)]">
             {validation.suggestions.map((suggestion, index) => (
               <li key={index} className="flex items-start gap-2">
                 <span>•</span>
@@ -244,13 +244,11 @@ function RequirementItem({ met, text }: RequirementItemProps) {
   return (
     <li className="flex items-center gap-2">
       {met ? (
-        <Check className="h-4 w-4 flex-shrink-0 text-green-600 dark:text-green-500" />
+        <Check className="h-4 w-4 flex-shrink-0 text-[var(--color-status-low)]" />
       ) : (
-        <X className="h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-600" />
+        <X className="text-muted-foreground h-4 w-4 flex-shrink-0" />
       )}
-      <span
-        className={met ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}
-      >
+      <span className={met ? 'text-[var(--color-status-low-foreground)]' : 'text-muted-foreground'}>
         {text}
       </span>
     </li>

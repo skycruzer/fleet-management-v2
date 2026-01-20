@@ -115,27 +115,36 @@ function ChangeFieldRow({
   const changeConfig = {
     added: {
       icon: Plus,
-      iconColor: 'text-green-600',
-      bgColor: highlightChanges ? 'bg-green-50 border-green-200' : '',
+      iconColor: 'text-[var(--color-status-low)]',
+      bgColor: highlightChanges
+        ? 'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)]'
+        : '',
       label: 'Added',
       badgeVariant: 'default' as const,
-      badgeClassName: 'bg-green-100 text-green-800 border-green-300',
+      badgeClassName:
+        'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] border-[var(--color-status-low-border)]',
     },
     removed: {
       icon: Minus,
-      iconColor: 'text-red-600',
-      bgColor: highlightChanges ? 'bg-red-50 border-red-200' : '',
+      iconColor: 'text-[var(--color-status-high)]',
+      bgColor: highlightChanges
+        ? 'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)]'
+        : '',
       label: 'Removed',
       badgeVariant: 'destructive' as const,
-      badgeClassName: 'bg-red-100 text-red-800 border-red-300',
+      badgeClassName:
+        'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]',
     },
     modified: {
       icon: Edit3,
-      iconColor: 'text-yellow-600',
-      bgColor: highlightChanges ? 'bg-yellow-50 border-yellow-200' : '',
+      iconColor: 'text-[var(--color-status-medium)]',
+      bgColor: highlightChanges
+        ? 'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)]'
+        : '',
       label: 'Modified',
       badgeVariant: 'secondary' as const,
-      badgeClassName: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      badgeClassName:
+        'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
     },
   }
 

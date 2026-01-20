@@ -88,8 +88,8 @@ export function LeaveBidAnnualCalendar({ bids, initialYear }: LeaveBidAnnualCale
 
     return (
       <Card key={monthDate.toISOString()} className="overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-600 p-3">
-          <CardTitle className="text-center text-base font-bold text-white">
+        <CardHeader className="bg-primary p-3">
+          <CardTitle className="text-primary-foreground text-center text-base font-bold">
             {format(monthDate, 'MMMM yyyy')}
           </CardTitle>
         </CardHeader>
@@ -116,7 +116,7 @@ export function LeaveBidAnnualCalendar({ bids, initialYear }: LeaveBidAnnualCale
               return (
                 <div
                   key={day.toISOString()}
-                  className={`relative min-h-[50px] rounded border p-1 text-xs ${isCurrentMonth ? 'bg-card' : 'bg-muted'} ${isCurrentDay ? 'border-2 border-cyan-500' : 'border-border'} ${bidsOnDate.length > 0 ? 'bg-blue-50 dark:bg-blue-950' : ''} `}
+                  className={`relative min-h-[50px] rounded border p-1 text-xs ${isCurrentMonth ? 'bg-card' : 'bg-muted'} ${isCurrentDay ? 'border-primary border-2' : 'border-border'} ${bidsOnDate.length > 0 ? 'bg-[var(--color-info-bg)]' : ''} `}
                 >
                   <div
                     className={`text-[10px] font-semibold ${!isCurrentMonth ? 'text-muted-foreground/50' : 'text-foreground'}`}
@@ -130,7 +130,7 @@ export function LeaveBidAnnualCalendar({ bids, initialYear }: LeaveBidAnnualCale
                       {bidsOnDate.slice(0, 3).map(({ bid, option }) => (
                         <div
                           key={`${bid.id}-${option.id}`}
-                          className={`truncate rounded px-1 py-0.5 text-[8px] font-medium ${bid.status === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-200' : ''} ${bid.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-200' : ''} ${bid.status === 'REJECTED' ? 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200' : ''} `}
+                          className={`truncate rounded px-1 py-0.5 text-[8px] font-medium ${bid.status === 'APPROVED' ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]' : ''} ${bid.status === 'PENDING' ? 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]' : ''} ${bid.status === 'REJECTED' ? 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]' : ''} `}
                           title={`${bid.pilots.first_name} ${bid.pilots.last_name} - Priority ${option.priority}`}
                         >
                           {bid.pilots.last_name} P{option.priority}
@@ -183,19 +183,19 @@ export function LeaveBidAnnualCalendar({ bids, initialYear }: LeaveBidAnnualCale
         <CardContent className="p-4">
           <div className="flex flex-wrap gap-4">
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded border border-green-300 bg-green-100 dark:border-green-700 dark:bg-green-950"></div>
+              <div className="h-4 w-4 rounded border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]"></div>
               <span className="text-muted-foreground text-sm">Approved</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded border border-yellow-300 bg-yellow-100 dark:border-yellow-700 dark:bg-yellow-950"></div>
+              <div className="h-4 w-4 rounded border border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]"></div>
               <span className="text-muted-foreground text-sm">Pending</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded border border-red-300 bg-red-100 dark:border-red-700 dark:bg-red-950"></div>
+              <div className="h-4 w-4 rounded border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]"></div>
               <span className="text-muted-foreground text-sm">Rejected</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded border-2 border-cyan-500"></div>
+              <div className="border-accent h-4 w-4 rounded border-2"></div>
               <span className="text-muted-foreground text-sm">Today</span>
             </div>
           </div>

@@ -61,7 +61,9 @@ export async function RequestsTableWrapper({ searchParams }: RequestsTableWrappe
     return (
       <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
         <div className="space-y-3 text-center">
-          <p className="text-lg font-medium text-red-600">Error loading requests</p>
+          <p className="text-lg font-medium text-[var(--color-status-high)]">
+            Error loading requests
+          </p>
           <p className="text-muted-foreground text-sm">
             {response.error || 'An unexpected error occurred'}
           </p>

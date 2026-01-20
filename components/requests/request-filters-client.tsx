@@ -78,12 +78,28 @@ export interface RequestFiltersProps {
 // ============================================================================
 
 const WORKFLOW_STATUSES = [
-  { value: 'DRAFT', label: 'Draft', color: 'bg-gray-100 text-gray-800' },
-  { value: 'SUBMITTED', label: 'Submitted', color: 'bg-blue-100 text-blue-800' },
-  { value: 'IN_REVIEW', label: 'In Review', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'APPROVED', label: 'Approved', color: 'bg-green-100 text-green-800' },
-  { value: 'DENIED', label: 'Denied', color: 'bg-red-100 text-red-800' },
-  { value: 'WITHDRAWN', label: 'Withdrawn', color: 'bg-gray-100 text-gray-800' },
+  { value: 'DRAFT', label: 'Draft', color: 'bg-muted text-muted-foreground' },
+  {
+    value: 'SUBMITTED',
+    label: 'Submitted',
+    color: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+  },
+  {
+    value: 'IN_REVIEW',
+    label: 'In Review',
+    color: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
+  },
+  {
+    value: 'APPROVED',
+    label: 'Approved',
+    color: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
+  },
+  {
+    value: 'DENIED',
+    label: 'Denied',
+    color: 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
+  },
+  { value: 'WITHDRAWN', label: 'Withdrawn', color: 'bg-muted text-muted-foreground' },
 ]
 
 const SUBMISSION_CHANNELS = [
@@ -430,7 +446,7 @@ export function RequestFiltersClient({
                     htmlFor="is-late"
                     className="flex items-center gap-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <Clock className="h-4 w-4 text-yellow-600" />
+                    <Clock className="h-4 w-4 text-[var(--color-status-medium)]" />
                     Late Requests (submitted &lt; 21 days before)
                   </label>
                 </div>
@@ -444,7 +460,7 @@ export function RequestFiltersClient({
                     htmlFor="is-past-deadline"
                     className="flex items-center gap-2 text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <AlertTriangle className="h-4 w-4 text-[var(--color-status-high)]" />
                     Past Deadline
                   </label>
                 </div>

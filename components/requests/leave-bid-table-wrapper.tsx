@@ -40,7 +40,7 @@ export async function LeaveBidTableWrapper({ searchParams }: LeaveBidTableWrappe
     return (
       <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
         <div className="space-y-3 text-center">
-          <p className="text-lg font-medium text-red-600">Unauthorized</p>
+          <p className="text-lg font-medium text-[var(--color-status-high)]">Unauthorized</p>
           <p className="text-muted-foreground text-sm">Please log in to view leave bids</p>
         </div>
       </div>
@@ -97,7 +97,9 @@ export async function LeaveBidTableWrapper({ searchParams }: LeaveBidTableWrappe
     return (
       <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
         <div className="space-y-3 text-center">
-          <p className="text-lg font-medium text-red-600">Error loading leave bids</p>
+          <p className="text-lg font-medium text-[var(--color-status-high)]">
+            Error loading leave bids
+          </p>
           <p className="text-muted-foreground text-sm">{error.message}</p>
         </div>
       </div>

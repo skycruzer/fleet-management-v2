@@ -8,6 +8,16 @@ export {
   useOptimisticLeaveRequestUpdate,
 } from './use-optimistic-leave-request'
 
+/**
+ * Animation & Accessibility Hooks
+ */
+export {
+  useAnimationSettings,
+  usePresetVariants,
+  useAnimationTransition,
+  useReducedMotion,
+} from './use-reduced-motion'
+
 export {
   useOptimisticCertificationUpdate,
   useOptimisticCertificationCreate,

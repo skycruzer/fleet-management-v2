@@ -103,9 +103,9 @@ function StepIndicator({
       <div
         className={cn(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium transition-all duration-300',
-          isCompleted && 'bg-emerald-500 text-white',
+          isCompleted && 'bg-[var(--color-status-low)] text-white',
           isActive && 'bg-primary text-primary-foreground ring-primary/20 ring-4',
-          !isActive && !isCompleted && 'bg-slate-200 text-slate-500'
+          !isActive && !isCompleted && 'bg-muted text-muted-foreground'
         )}
       >
         {isCompleted ? (
@@ -139,7 +139,7 @@ function ProgressBar({ currentStep, totalSteps }: { currentStep: number; totalSt
   const progress = ((currentStep + 1) / totalSteps) * 100
 
   return (
-    <div className="h-1 w-full overflow-hidden rounded-full bg-slate-200">
+    <div className="bg-muted h-1 w-full overflow-hidden rounded-full">
       <div
         className="bg-primary h-full transition-all duration-500 ease-out"
         style={{ width: `${progress}%` }}
@@ -243,7 +243,7 @@ export function FormWizard({
                   <div
                     className={cn(
                       'h-0.5 flex-1 transition-colors duration-300',
-                      index < currentStep ? 'bg-emerald-500' : 'bg-slate-200'
+                      index < currentStep ? 'bg-[var(--color-status-low)]' : 'bg-muted'
                     )}
                   />
                 )}
@@ -261,7 +261,7 @@ export function FormWizard({
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-between gap-4 border-t bg-slate-50/50 pt-4">
+        <CardFooter className="bg-muted/50 flex justify-between gap-4 border-t pt-4">
           <Button
             type="button"
             variant="outline"

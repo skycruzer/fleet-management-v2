@@ -65,17 +65,14 @@ export default function PilotLoginForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        <div className="rounded-md bg-[var(--color-status-high-bg)] p-4">
+          <p className="text-sm text-[var(--color-status-high)]">{error}</p>
         </div>
       )}
 
       {/* Email Field */}
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="email" className="text-foreground block text-sm font-medium">
           Email Address
         </label>
         <input
@@ -83,20 +80,17 @@ export default function PilotLoginForm() {
           type="email"
           id="email"
           autoComplete="email"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           placeholder="pilot@airniugini.com"
         />
         {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">{errors.email.message}</p>
         )}
       </div>
 
       {/* Password Field */}
       <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="password" className="text-foreground block text-sm font-medium">
           Password
         </label>
         <input
@@ -104,11 +98,11 @@ export default function PilotLoginForm() {
           type="password"
           id="password"
           autoComplete="current-password"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           placeholder="••••••••"
         />
         {errors.password && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">{errors.password.message}</p>
         )}
       </div>
 

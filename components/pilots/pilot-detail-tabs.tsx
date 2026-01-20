@@ -110,7 +110,7 @@ export function PilotDetailTabs({
           <FileCheck className="h-4 w-4" />
           <span className="hidden sm:inline">Certifications</span>
           {(pilot.certificationStatus.expiring > 0 || pilot.certificationStatus.expired > 0) && (
-            <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-yellow-500 px-1.5 text-xs font-bold text-white">
+            <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-status-medium)] px-1.5 text-xs font-bold text-white">
               {pilot.certificationStatus.expiring + pilot.certificationStatus.expired}
             </span>
           )}

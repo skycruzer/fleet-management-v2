@@ -90,14 +90,14 @@ function getCategoryCompliance(stats: CategoryGroup['stats']): {
       label: 'Attention',
       variant: 'default',
       className:
-        'bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400',
+        'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] hover:bg-[var(--color-status-medium-bg)]',
     }
   }
   return {
     label: 'Compliant',
     variant: 'secondary',
     className:
-      'bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400',
+      'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)]',
   }
 }
 
@@ -142,7 +142,7 @@ function CategoryAccordion({
             {category.stats.current > 0 && (
               <Badge
                 variant="secondary"
-                className="gap-1 bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400"
+                className="gap-1 bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]"
               >
                 <CheckCircle className="h-3 w-3" />
                 {category.stats.current}
@@ -151,7 +151,7 @@ function CategoryAccordion({
             {category.stats.expiring > 0 && (
               <Badge
                 variant="secondary"
-                className="gap-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400"
+                className="gap-1 bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]"
               >
                 <Clock className="h-3 w-3" />
                 {category.stats.expiring}
@@ -215,10 +215,10 @@ function CategoryAccordion({
                       <p
                         className={`text-xs ${
                           cert.status.color === 'red'
-                            ? 'text-red-600 dark:text-red-500'
+                            ? 'text-[var(--color-status-high)]'
                             : cert.status.color === 'yellow'
-                              ? 'text-yellow-600 dark:text-yellow-500'
-                              : 'text-green-600 dark:text-green-500'
+                              ? 'text-[var(--color-status-medium)]'
+                              : 'text-[var(--color-status-low)]'
                         }`}
                       >
                         {cert.status.daysUntilExpiry < 0
@@ -239,9 +239,9 @@ function CategoryAccordion({
                     }
                     className={
                       cert.status?.color === 'yellow'
-                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                        ? 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]'
                         : cert.status?.color === 'green'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
                           : ''
                     }
                   >

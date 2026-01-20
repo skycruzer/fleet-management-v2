@@ -188,8 +188,8 @@ export function LeaveRequestForm({
               </div>
 
               {calculateIsLate() && (
-                <div className="rounded-md bg-yellow-50 p-4 dark:bg-yellow-900/20">
-                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <div className="rounded-md bg-[var(--color-status-medium-bg)] p-4">
+                  <p className="text-sm text-[var(--color-status-medium-foreground)]">
                     ⚠️ This is a late request (less than 21 days advance notice)
                   </p>
                 </div>

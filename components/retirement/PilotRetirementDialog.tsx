@@ -116,8 +116,8 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
-            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+          <div className="rounded-lg border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4">
+            <p className="text-sm text-[var(--color-status-high-foreground)]">{error}</p>
           </div>
         )}
 
@@ -140,17 +140,15 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
 
             {/* Retirement Countdown */}
             {retirementCountdown && !retirementCountdown.isRetired && (
-              <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 dark:border-purple-700 dark:bg-purple-950">
+              <div className="rounded-lg border border-[var(--color-category-simulator-bg)] bg-[var(--color-category-simulator-bg)]/30 p-4">
                 <div className="mb-3 flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
-                    Time Until Retirement
-                  </span>
+                  <Clock className="h-5 w-5 text-[var(--color-category-simulator)]" />
+                  <span className="text-foreground text-sm font-medium">Time Until Retirement</span>
                 </div>
-                <div className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+                <div className="text-foreground text-3xl font-bold">
                   {formatRetirementCountdown(retirementCountdown)}
                 </div>
-                <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
+                <div className="text-muted-foreground mt-2 text-sm">
                   {retirementCountdown.years} years, {retirementCountdown.months} months,{' '}
                   {retirementCountdown.days} days
                 </div>
@@ -158,8 +156,8 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
             )}
 
             {retirementCountdown?.isRetired && (
-              <div className="rounded-lg border border-gray-300 bg-gray-100 p-4 dark:border-gray-600 dark:bg-gray-800">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div className="border-border bg-muted rounded-lg border p-4">
+                <p className="text-muted-foreground text-sm font-medium">
                   This pilot has already retired.
                 </p>
               </div>
@@ -169,7 +167,7 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
             {retirementDate && (
               <div className="space-y-3">
                 <div className="bg-muted flex items-center gap-3 rounded-lg p-3">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+                  <Calendar className="h-5 w-5 text-[var(--color-info)]" />
                   <div>
                     <div className="text-muted-foreground text-xs">Retirement Date</div>
                     <div className="text-foreground font-medium">
@@ -183,7 +181,7 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
                 </div>
 
                 <div className="bg-muted flex items-center gap-3 rounded-lg p-3">
-                  <Award className="h-5 w-5 text-green-600" />
+                  <Award className="h-5 w-5 text-[var(--color-status-low)]" />
                   <div>
                     <div className="text-muted-foreground text-xs">Date of Birth</div>
                     <div className="text-foreground font-medium">
@@ -198,7 +196,7 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
 
                 {yearsOfService !== null && (
                   <div className="bg-muted flex items-center gap-3 rounded-lg p-3">
-                    <TrendingUp className="h-5 w-5 text-orange-600" />
+                    <TrendingUp className="h-5 w-5 text-[var(--color-status-medium)]" />
                     <div>
                       <div className="text-muted-foreground text-xs">Years of Service</div>
                       <div className="text-foreground font-medium">
@@ -210,7 +208,7 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
 
                 {pilot.seniority_number !== null && (
                   <div className="bg-muted flex items-center gap-3 rounded-lg p-3">
-                    <Award className="h-5 w-5 text-purple-600" />
+                    <Award className="h-5 w-5 text-[var(--color-category-simulator)]" />
                     <div>
                       <div className="text-muted-foreground text-xs">Seniority Number</div>
                       <div className="text-foreground font-medium">#{pilot.seniority_number}</div>
@@ -221,8 +219,8 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
             )}
 
             {/* Succession Planning Note (Admin only - placeholder) */}
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-950">
-              <p className="text-xs text-blue-700 dark:text-blue-300">
+            <div className="rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4">
+              <p className="text-xs text-[var(--color-info-foreground)]">
                 <strong>Note:</strong> Contact HR for succession planning and retirement transition
                 support.
               </p>

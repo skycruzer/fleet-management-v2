@@ -72,23 +72,25 @@ export function RosterReportPreviewDialog({
                 </div>
                 <div className="rounded-lg border p-3">
                   <p className="text-muted-foreground text-xs">Approved</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-[var(--color-status-low)]">
                     {report.statistics.approvedCount}
                   </p>
                 </div>
                 <div className="rounded-lg border p-3">
                   <p className="text-muted-foreground text-xs">Denied</p>
-                  <p className="text-2xl font-bold text-red-600">{report.statistics.deniedCount}</p>
+                  <p className="text-2xl font-bold text-[var(--color-status-high)]">
+                    {report.statistics.deniedCount}
+                  </p>
                 </div>
                 <div className="rounded-lg border p-3">
                   <p className="text-muted-foreground text-xs">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">
+                  <p className="text-2xl font-bold text-[var(--color-status-medium)]">
                     {report.statistics.pendingCount}
                   </p>
                 </div>
                 <div className="rounded-lg border p-3">
                   <p className="text-muted-foreground text-xs">Withdrawn</p>
-                  <p className="text-2xl font-bold text-gray-600">
+                  <p className="text-muted-foreground text-2xl font-bold">
                     {report.statistics.withdrawnCount}
                   </p>
                 </div>
@@ -100,16 +102,16 @@ export function RosterReportPreviewDialog({
               <h3 className="mb-3 font-semibold">Crew Availability Analysis</h3>
 
               {hasCrewWarning && (
-                <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                <div className="mb-4 flex items-start gap-3 rounded-lg border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4">
+                  <AlertTriangle className="h-5 w-5 text-[var(--color-status-high)]" />
                   <div className="flex-1">
-                    <p className="font-medium text-red-900">Minimum Crew Warning</p>
-                    <p className="mt-1 text-sm text-red-700">
+                    <p className="text-foreground font-medium">Minimum Crew Warning</p>
+                    <p className="mt-1 text-sm text-[var(--color-status-high)]">
                       Crew availability falls below the minimum requirement of 10 during this roster
                       period.
                     </p>
                     {report.crewAvailability.minimumCrewDate && (
-                      <p className="mt-2 text-sm text-red-700">
+                      <p className="mt-2 text-sm text-[var(--color-status-high)]">
                         Minimum occurs on:{' '}
                         <strong>{report.crewAvailability.minimumCrewDate}</strong>
                         <br />
@@ -125,7 +127,7 @@ export function RosterReportPreviewDialog({
                 {/* Captains */}
                 <div className="rounded-lg border p-4">
                   <div className="mb-3 flex items-center gap-2">
-                    <Users className="h-5 w-5 text-blue-600" />
+                    <Users className="h-5 w-5 text-[var(--color-info)]" />
                     <h4 className="font-medium">Captains</h4>
                   </div>
                   <div className="space-y-2">
@@ -146,19 +148,19 @@ export function RosterReportPreviewDialog({
                       <span
                         className={`font-medium ${
                           report.crewAvailability.captains.belowMinimum
-                            ? 'text-red-600'
-                            : 'text-green-600'
+                            ? 'text-[var(--color-status-high)]'
+                            : 'text-[var(--color-status-low)]'
                         }`}
                       >
                         {report.crewAvailability.captains.available}
                       </span>
                     </div>
-                    <div className="mt-3 h-2 w-full rounded-full bg-gray-200">
+                    <div className="bg-muted mt-3 h-2 w-full rounded-full">
                       <div
                         className={`h-2 rounded-full ${
                           report.crewAvailability.captains.belowMinimum
-                            ? 'bg-red-500'
-                            : 'bg-green-500'
+                            ? 'bg-[var(--color-status-high)]'
+                            : 'bg-[var(--color-status-low)]'
                         }`}
                         style={{
                           width: `${report.crewAvailability.captains.percentageAvailable}%`,
@@ -174,7 +176,7 @@ export function RosterReportPreviewDialog({
                 {/* First Officers */}
                 <div className="rounded-lg border p-4">
                   <div className="mb-3 flex items-center gap-2">
-                    <Users className="h-5 w-5 text-purple-600" />
+                    <Users className="h-5 w-5 text-[var(--color-category-simulator)]" />
                     <h4 className="font-medium">First Officers</h4>
                   </div>
                   <div className="space-y-2">
@@ -195,19 +197,19 @@ export function RosterReportPreviewDialog({
                       <span
                         className={`font-medium ${
                           report.crewAvailability.firstOfficers.belowMinimum
-                            ? 'text-red-600'
-                            : 'text-green-600'
+                            ? 'text-[var(--color-status-high)]'
+                            : 'text-[var(--color-status-low)]'
                         }`}
                       >
                         {report.crewAvailability.firstOfficers.available}
                       </span>
                     </div>
-                    <div className="mt-3 h-2 w-full rounded-full bg-gray-200">
+                    <div className="bg-muted mt-3 h-2 w-full rounded-full">
                       <div
                         className={`h-2 rounded-full ${
                           report.crewAvailability.firstOfficers.belowMinimum
-                            ? 'bg-red-500'
-                            : 'bg-green-500'
+                            ? 'bg-[var(--color-status-high)]'
+                            : 'bg-[var(--color-status-low)]'
                         }`}
                         style={{
                           width: `${report.crewAvailability.firstOfficers.percentageAvailable}%`,
@@ -228,7 +230,7 @@ export function RosterReportPreviewDialog({
               <h3 className="mb-3 font-semibold">Approved Requests Breakdown</h3>
               <div className="grid gap-3 md:grid-cols-3">
                 <div className="flex items-center gap-3 rounded-lg border p-3">
-                  <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  <CheckCircle2 className="h-8 w-8 text-[var(--color-status-low)]" />
                   <div>
                     <p className="text-muted-foreground text-xs">Leave Requests</p>
                     <p className="text-xl font-bold">
@@ -237,7 +239,7 @@ export function RosterReportPreviewDialog({
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-lg border p-3">
-                  <CheckCircle2 className="h-8 w-8 text-purple-600" />
+                  <CheckCircle2 className="h-8 w-8 text-[var(--color-category-simulator)]" />
                   <div>
                     <p className="text-muted-foreground text-xs">Flight Requests</p>
                     <p className="text-xl font-bold">
@@ -246,7 +248,7 @@ export function RosterReportPreviewDialog({
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-lg border p-3">
-                  <CheckCircle2 className="h-8 w-8 text-blue-600" />
+                  <CheckCircle2 className="h-8 w-8 text-[var(--color-info)]" />
                   <div>
                     <p className="text-muted-foreground text-xs">Leave Bids</p>
                     <p className="text-xl font-bold">{report.approvedRequests.leaveBids.length}</p>

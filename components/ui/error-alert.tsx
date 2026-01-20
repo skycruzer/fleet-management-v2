@@ -1,7 +1,12 @@
 /**
  * Standardized Error Alert Component
- * Displays error messages consistently across the application
- * Integrates with the centralized error messages utility
+ * @deprecated Use components from @/components/ui/feedback instead:
+ * - ErrorAlert -> ErrorFeedback
+ * - FormErrorAlert -> FormErrorAlert (from feedback.tsx)
+ * - SuccessAlert -> SuccessFeedback
+ *
+ * The feedback.tsx component provides a unified API with better
+ * accessibility, variant support, and consistent styling.
  */
 
 import { AlertCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react'
@@ -151,19 +156,19 @@ export function FormErrorAlert({
  */
 export function SuccessAlert({ message, onDismiss }: { message: string; onDismiss?: () => void }) {
   return (
-    <Alert className="border-green-200 bg-green-50">
-      <AlertCircle className="h-4 w-4 text-green-600" aria-hidden="true" />
+    <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
+      <AlertCircle className="h-4 w-4 text-[var(--color-status-low)]" aria-hidden="true" />
       <div className="flex flex-1 items-start justify-between">
         <div className="flex-1">
-          <AlertTitle className="text-green-800">Success</AlertTitle>
-          <AlertDescription className="text-green-700">{message}</AlertDescription>
+          <AlertTitle className="text-[var(--color-status-low-foreground)]">Success</AlertTitle>
+          <AlertDescription className="text-[var(--color-status-low)]">{message}</AlertDescription>
         </div>
         {onDismiss && (
           <Button
             onClick={onDismiss}
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 text-green-600 hover:text-green-800"
+            className="h-6 w-6 p-0 text-[var(--color-status-low)] hover:text-[var(--color-status-low-foreground)]"
             aria-label="Dismiss message"
           >
             <X className="h-4 w-4" />

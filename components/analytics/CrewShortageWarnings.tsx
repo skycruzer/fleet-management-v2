@@ -47,9 +47,9 @@ interface CrewShortageWarningsProps {
 function getSeverityBadgeClasses(severity: 'high' | 'critical'): string {
   switch (severity) {
     case 'critical':
-      return 'bg-red-100 text-red-800 border-red-300'
+      return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]'
     case 'high':
-      return 'bg-orange-100 text-orange-800 border-orange-300'
+      return 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]'
   }
 }
 
@@ -59,11 +59,11 @@ function getSeverityBadgeClasses(severity: 'high' | 'critical'): string {
 function getPriorityBadgeClasses(priority: 'immediate' | 'high' | 'medium'): string {
   switch (priority) {
     case 'immediate':
-      return 'bg-red-100 text-red-800 border-red-300'
+      return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]'
     case 'high':
-      return 'bg-orange-100 text-orange-800 border-orange-300'
+      return 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]'
     case 'medium':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-300'
+      return 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]'
   }
 }
 
@@ -84,9 +84,9 @@ export function CrewShortageWarnings({
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {hasShortages ? (
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <AlertTriangle className="h-5 w-5 text-[var(--color-status-medium)]" />
             ) : (
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <CheckCircle2 className="h-5 w-5 text-[var(--color-status-low)]" />
             )}
             <h3 className="text-foreground text-lg font-semibold">Crew Shortage Analysis</h3>
           </div>
@@ -100,20 +100,24 @@ export function CrewShortageWarnings({
           <div
             className={`rounded-lg border p-3 ${
               summary.totalCriticalMonths > 0
-                ? 'border-orange-200 bg-orange-50'
-                : 'border-green-200 bg-green-50'
+                ? 'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
+                : 'border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]'
             }`}
           >
             <p
               className={`text-xs font-medium ${
-                summary.totalCriticalMonths > 0 ? 'text-orange-700' : 'text-green-700'
+                summary.totalCriticalMonths > 0
+                  ? 'text-[var(--color-status-medium)]'
+                  : 'text-[var(--color-status-low)]'
               }`}
             >
               Critical Periods
             </p>
             <p
               className={`text-2xl font-bold ${
-                summary.totalCriticalMonths > 0 ? 'text-orange-900' : 'text-green-900'
+                summary.totalCriticalMonths > 0
+                  ? 'text-[var(--color-status-medium)]'
+                  : 'text-[var(--color-status-low)]'
               }`}
             >
               {summary.totalCriticalMonths}
@@ -123,29 +127,33 @@ export function CrewShortageWarnings({
           <div
             className={`rounded-lg border p-3 ${
               summary.worstCaseShortage > 0
-                ? 'border-red-200 bg-red-50'
-                : 'border-green-200 bg-green-50'
+                ? 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]'
+                : 'border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]'
             }`}
           >
             <p
               className={`text-xs font-medium ${
-                summary.worstCaseShortage > 0 ? 'text-red-700' : 'text-green-700'
+                summary.worstCaseShortage > 0
+                  ? 'text-[var(--color-status-high)]'
+                  : 'text-[var(--color-status-low)]'
               }`}
             >
               Worst Case Shortage
             </p>
             <p
               className={`text-2xl font-bold ${
-                summary.worstCaseShortage > 0 ? 'text-red-900' : 'text-green-900'
+                summary.worstCaseShortage > 0
+                  ? 'text-[var(--color-status-high)]'
+                  : 'text-[var(--color-status-low)]'
               }`}
             >
               {summary.worstCaseShortage}
             </p>
           </div>
 
-          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-            <p className="text-xs font-medium text-blue-700">Time to First Shortage</p>
-            <p className="text-2xl font-bold text-blue-900">
+          <div className="rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3">
+            <p className="text-xs font-medium text-[var(--color-info)]">Time to First Shortage</p>
+            <p className="text-foreground text-2xl font-bold">
               {summary.timeToFirstShortage !== null ? `${summary.timeToFirstShortage} mo` : 'None'}
             </p>
           </div>
@@ -156,7 +164,7 @@ export function CrewShortageWarnings({
       {hasShortages && (
         <Card className="p-6">
           <div className="mb-4 flex items-center space-x-2">
-            <Calendar className="h-5 w-5 text-orange-600" />
+            <Calendar className="h-5 w-5 text-[var(--color-status-medium)]" />
             <h4 className="text-foreground text-base font-semibold">
               Critical Shortage Periods ({criticalPeriods.length})
             </h4>
@@ -168,15 +176,17 @@ export function CrewShortageWarnings({
                 key={index}
                 className={`rounded-lg border p-4 ${
                   period.severity === 'critical'
-                    ? 'border-red-300 bg-red-50'
-                    : 'border-orange-300 bg-orange-50'
+                    ? 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]'
+                    : 'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
                 }`}
               >
                 <div className="mb-2 flex items-start justify-between">
                   <div className="flex items-center space-x-2">
                     <AlertCircle
                       className={`h-4 w-4 ${
-                        period.severity === 'critical' ? 'text-red-600' : 'text-orange-600'
+                        period.severity === 'critical'
+                          ? 'text-[var(--color-status-high)]'
+                          : 'text-[var(--color-status-medium)]'
                       }`}
                     />
                     <span className="text-foreground text-sm font-semibold">
@@ -214,7 +224,7 @@ export function CrewShortageWarnings({
       {recommendations.length > 0 && (
         <Card className="p-6">
           <div className="mb-4 flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
+            <TrendingUp className="h-5 w-5 text-[var(--color-info)]" />
             <h4 className="text-foreground text-base font-semibold">
               Recommended Actions ({recommendations.length})
             </h4>
@@ -224,7 +234,7 @@ export function CrewShortageWarnings({
             {recommendations.map((rec, index) => (
               <div
                 key={index}
-                className="space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-4"
+                className="space-y-2 rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -256,16 +266,16 @@ export function CrewShortageWarnings({
       {/* No Shortages Message */}
       {!hasShortages && (
         <Card className="p-6">
-          <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
-            <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-green-600" />
-            <h4 className="mb-2 text-base font-semibold text-green-900">
+          <div className="rounded-lg border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 text-center">
+            <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-[var(--color-status-low)]" />
+            <h4 className="text-foreground mb-2 text-base font-semibold">
               No Crew Shortages Predicted
             </h4>
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-[var(--color-status-low)]">
               Based on current retirement projections and minimum crew requirements, no critical
               shortages are expected in the next 5 years.
             </p>
-            <p className="mt-2 text-xs text-green-600">
+            <p className="mt-2 text-xs text-[var(--color-status-low)]">
               Continue monitoring succession planning and recruitment to maintain adequate staffing
               levels.
             </p>

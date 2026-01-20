@@ -101,15 +101,15 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="border-border bg-card rounded-lg border shadow-sm">
       {/* Filter Header */}
       <div
-        className="flex cursor-pointer items-center justify-between px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-900/50"
+        className="hover:bg-muted flex cursor-pointer items-center justify-between px-6 py-4"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
           <svg
-            className="h-5 w-5 text-gray-600 dark:text-gray-400"
+            className="text-muted-foreground h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -121,9 +121,9 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
               d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
             />
           </svg>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Filters</h3>
+          <h3 className="text-foreground text-lg font-semibold">Filters</h3>
           {hasActiveFilters && (
-            <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+            <span className="rounded-full bg-[var(--color-info-bg)] px-2 py-1 text-xs font-medium text-[var(--color-info)]">
               Active
             </span>
           )}
@@ -140,14 +140,11 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
 
       {/* Filter Fields */}
       {isExpanded && (
-        <div className="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+        <div className="border-border border-t px-6 py-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {/* User Email */}
             <div>
-              <label
-                htmlFor="userEmail"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="userEmail" className="text-foreground block text-sm font-medium">
                 User Email
               </label>
               <input
@@ -156,16 +153,13 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
                 placeholder="Filter by user email"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="border-border bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
               />
             </div>
 
             {/* Table Name */}
             <div>
-              <label
-                htmlFor="tableName"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="tableName" className="text-foreground block text-sm font-medium">
                 Table Name
               </label>
               <input
@@ -174,23 +168,20 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={tableName}
                 onChange={(e) => setTableName(e.target.value)}
                 placeholder="Filter by table"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="border-border bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
               />
             </div>
 
             {/* Action */}
             <div>
-              <label
-                htmlFor="action"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="action" className="text-foreground block text-sm font-medium">
                 Action
               </label>
               <select
                 id="action"
                 value={action}
                 onChange={(e) => setAction(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="border-border bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
               >
                 <option value="">All Actions</option>
                 <option value="INSERT">INSERT</option>
@@ -207,10 +198,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
 
             {/* Record ID */}
             <div>
-              <label
-                htmlFor="recordId"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="recordId" className="text-foreground block text-sm font-medium">
                 Record ID
               </label>
               <input
@@ -225,10 +213,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
 
             {/* Start Date */}
             <div>
-              <label
-                htmlFor="startDate"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="startDate" className="text-foreground block text-sm font-medium">
                 Start Date
               </label>
               <input
@@ -236,16 +221,13 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="border-border bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
               />
             </div>
 
             {/* End Date */}
             <div>
-              <label
-                htmlFor="endDate"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="endDate" className="text-foreground block text-sm font-medium">
                 End Date
               </label>
               <input
@@ -253,16 +235,13 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 id="endDate"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="border-border bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
               />
             </div>
 
             {/* Search Query (spans full width) */}
             <div className="md:col-span-2 lg:col-span-3">
-              <label
-                htmlFor="searchQuery"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="searchQuery" className="text-foreground block text-sm font-medium">
                 Search Description
               </label>
               <input
@@ -271,7 +250,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search in descriptions..."
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="border-border bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
               />
             </div>
           </div>
@@ -280,14 +259,14 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
           <div className="mt-4 flex gap-3">
             <button
               onClick={applyFilters}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
+              className="rounded-md bg-[var(--color-info)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-info)]/90 focus:ring-2 focus:ring-[var(--color-info)] focus:ring-offset-2 focus:outline-none"
             >
               Apply Filters
             </button>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                className="border-border text-foreground hover:bg-muted focus:ring-primary rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
               >
                 Clear All
               </button>

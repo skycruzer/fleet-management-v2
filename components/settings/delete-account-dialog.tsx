@@ -102,15 +102,15 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
       <AlertDialogContent className="sm:max-w-[600px]">
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-red-100 p-2 dark:bg-red-900">
-              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+            <div className="rounded-full bg-[var(--color-status-high-bg)] p-2">
+              <AlertTriangle className="h-6 w-6 text-[var(--color-status-high)]" />
             </div>
-            <AlertDialogTitle className="text-red-900 dark:text-red-200">
+            <AlertDialogTitle className="text-[var(--color-status-high-foreground)]">
               Delete Account
             </AlertDialogTitle>
           </div>
           <AlertDialogDescription className="space-y-4 pt-4">
-            <p className="font-semibold text-red-900 dark:text-red-200">
+            <p className="font-semibold text-[var(--color-status-high-foreground)]">
               This action is permanent and cannot be undone!
             </p>
             <p>When you delete your account, the following will happen:</p>
@@ -126,8 +126,8 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
 
         <div className="space-y-6 py-4">
           {/* Warning Acknowledgements */}
-          <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
-            <p className="text-sm font-semibold text-red-900 dark:text-red-100">
+          <div className="space-y-3 rounded-lg border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4">
+            <p className="text-sm font-semibold text-[var(--color-status-high-foreground)]">
               Please acknowledge the following warnings:
             </p>
             <div className="space-y-3">
@@ -141,7 +141,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="permanent"
-                  className="cursor-pointer text-sm leading-tight font-normal text-red-900 dark:text-red-200"
+                  className="cursor-pointer text-sm leading-tight font-normal text-[var(--color-status-high-foreground)]"
                 >
                   I understand this action is permanent and cannot be reversed
                 </Label>
@@ -156,7 +156,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="dataLoss"
-                  className="cursor-pointer text-sm leading-tight font-normal text-red-900 dark:text-red-200"
+                  className="cursor-pointer text-sm leading-tight font-normal text-[var(--color-status-high-foreground)]"
                 >
                   I understand all my data will be permanently deleted
                 </Label>
@@ -171,7 +171,7 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
                 />
                 <Label
                   htmlFor="noRecovery"
-                  className="cursor-pointer text-sm leading-tight font-normal text-red-900 dark:text-red-200"
+                  className="cursor-pointer text-sm leading-tight font-normal text-[var(--color-status-high-foreground)]"
                 >
                   I understand there is no way to recover my account after deletion
                 </Label>
@@ -193,13 +193,15 @@ export function DeleteAccountDialog({ open, onOpenChange, userEmail }: DeleteAcc
               disabled={!allWarningsAcknowledged}
             />
             {confirmText && !confirmationMatch && (
-              <p className="text-xs text-red-600">Text must match exactly (case-sensitive)</p>
+              <p className="text-xs text-[var(--color-status-high)]">
+                Text must match exactly (case-sensitive)
+              </p>
             )}
           </div>
 
           {/* User Email Confirmation */}
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-            <p className="text-xs text-gray-600 dark:text-gray-400">Account being deleted:</p>
+          <div className="border-border bg-muted rounded-lg border p-3">
+            <p className="text-muted-foreground text-xs">Account being deleted:</p>
             <p className="text-foreground font-mono text-sm font-semibold">{userEmail}</p>
           </div>
         </div>

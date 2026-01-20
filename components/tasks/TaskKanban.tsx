@@ -34,9 +34,9 @@ interface TaskKanbanProps {
 type KanbanStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED'
 
 const KANBAN_COLUMNS: { status: KanbanStatus; title: string; color: string }[] = [
-  { status: 'TODO', title: 'To Do', color: 'bg-gray-100 dark:bg-gray-800' },
-  { status: 'IN_PROGRESS', title: 'In Progress', color: 'bg-blue-100 dark:bg-blue-900/20' },
-  { status: 'COMPLETED', title: 'Completed', color: 'bg-green-100 dark:bg-green-900/20' },
+  { status: 'TODO', title: 'To Do', color: 'bg-muted' },
+  { status: 'IN_PROGRESS', title: 'In Progress', color: 'bg-[var(--color-info-bg)]' },
+  { status: 'COMPLETED', title: 'Completed', color: 'bg-[var(--color-status-low-bg)]' },
 ]
 
 // Sortable Task Card wrapper
@@ -149,10 +149,8 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
               {/* Column Header */}
               <div className={`mb-4 rounded-lg p-4 ${column.color}`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {column.title}
-                  </h3>
-                  <span className="rounded-full bg-white px-2 py-1 text-sm font-medium text-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                  <h3 className="text-foreground text-lg font-semibold">{column.title}</h3>
+                  <span className="bg-background text-muted-foreground rounded-full px-2 py-1 text-sm font-medium">
                     {columnTasks.length}
                   </span>
                 </div>
@@ -164,9 +162,9 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
                 items={taskIds}
                 strategy={verticalListSortingStrategy}
               >
-                <div className="flex-1 space-y-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/50">
+                <div className="border-border bg-muted/50 flex-1 space-y-3 rounded-lg border-2 border-dashed p-4">
                   {columnTasks.length === 0 ? (
-                    <div className="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-gray-500">
+                    <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
                       No tasks in {column.title.toLowerCase()}
                     </div>
                   ) : (
@@ -191,10 +189,10 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
       {/* Loading Overlay */}
       {isUpdating && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-          <div className="rounded-lg bg-white p-4 shadow-xl dark:bg-gray-800">
+          <div className="bg-background rounded-lg p-4 shadow-xl">
             <div className="flex items-center gap-3">
-              <div className="h-6 w-6 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-500" />
-              <p className="text-gray-900 dark:text-white">Updating task...</p>
+              <div className="border-primary h-6 w-6 animate-spin rounded-full border-4 border-t-transparent" />
+              <p className="text-foreground">Updating task...</p>
             </div>
           </div>
         </div>

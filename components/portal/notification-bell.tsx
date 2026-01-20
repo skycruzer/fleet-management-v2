@@ -62,19 +62,19 @@ export function NotificationBell() {
 
   const getNotificationIcon = (type: string) => {
     const colors: Record<string, string> = {
-      leave_approved: 'bg-green-500',
-      leave_denied: 'bg-red-500',
-      flight_approved: 'bg-blue-500',
-      flight_denied: 'bg-orange-500',
-      certification_expiring: 'bg-yellow-500',
-      certification_expired: 'bg-red-600',
-      task_assigned: 'bg-cyan-500',
-      registration_approved: 'bg-green-600',
-      registration_denied: 'bg-red-600',
-      system_alert: 'bg-blue-600',
-      general: 'bg-gray-400',
+      leave_approved: 'bg-[var(--color-status-low)]',
+      leave_denied: 'bg-[var(--color-status-high)]',
+      flight_approved: 'bg-[var(--color-info)]',
+      flight_denied: 'bg-[var(--color-status-medium)]',
+      certification_expiring: 'bg-[var(--color-status-medium)]',
+      certification_expired: 'bg-[var(--color-status-high)]',
+      task_assigned: 'bg-[var(--color-info)]',
+      registration_approved: 'bg-[var(--color-status-low)]',
+      registration_denied: 'bg-[var(--color-status-high)]',
+      system_alert: 'bg-[var(--color-info)]',
+      general: 'bg-muted-foreground',
     }
-    return colors[type] || 'bg-gray-400'
+    return colors[type] || 'bg-muted-foreground'
   }
 
   return (
@@ -144,7 +144,7 @@ export function NotificationBell() {
 
                         {/* Unread Indicator */}
                         {!notification.read && (
-                          <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                          <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-[var(--color-info)]" />
                         )}
                       </div>
                     </div>
@@ -159,7 +159,7 @@ export function NotificationBell() {
             <div className="border-border border-t p-3">
               <Link
                 href="/portal/notifications"
-                className="block text-center text-sm font-medium text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300"
+                className="text-primary hover:text-primary/80 block text-center text-sm font-medium"
                 onClick={() => setIsOpen(false)}
               >
                 View All Notifications

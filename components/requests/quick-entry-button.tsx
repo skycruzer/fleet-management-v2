@@ -137,15 +137,15 @@ export function QuickEntryButton({
             </DialogDescription>
             <div className="text-muted-foreground flex gap-4 pt-2 text-sm">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-blue-600" />
+                <Mail className="h-4 w-4 text-[var(--color-info)]" />
                 <span>Email</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-green-600" />
+                <Phone className="h-4 w-4 text-[var(--color-status-low)]" />
                 <span>Phone</span>
               </div>
               <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-purple-600" />
+                <Globe className="h-4 w-4 text-[var(--color-category-simulator)]" />
                 <span>Oracle System</span>
               </div>
             </div>

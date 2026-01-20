@@ -81,15 +81,15 @@ export function SupportContactButtons() {
           const Icon = channel.icon
           const bgColor =
             channel.color === 'blue'
-              ? 'bg-blue-100'
+              ? 'bg-[var(--color-info-bg)]'
               : channel.color === 'green'
-                ? 'bg-green-100'
+                ? 'bg-[var(--color-status-low-bg)]'
                 : 'bg-primary/10'
           const textColor =
             channel.color === 'blue'
-              ? 'text-blue-600'
+              ? 'text-[var(--color-info)]'
               : channel.color === 'green'
-                ? 'text-green-600'
+                ? 'text-[var(--color-status-low)]'
                 : 'text-primary'
 
           return (

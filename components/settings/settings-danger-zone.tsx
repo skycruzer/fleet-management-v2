@@ -21,28 +21,34 @@ export function SettingsDangerZone({ userEmail }: SettingsDangerZoneProps) {
 
   return (
     <>
-      <Card className="border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-950/30">
-        <h2 className="mb-4 text-xl font-semibold text-red-900 dark:text-red-100">Danger Zone</h2>
+      <Card className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6">
+        <h2 className="mb-4 text-xl font-semibold text-[var(--color-status-high-foreground)]">
+          Danger Zone
+        </h2>
         <div className="space-y-4">
-          <div className="bg-card flex items-center justify-between rounded-lg border border-red-200 p-4 dark:border-red-800">
+          <div className="bg-card flex items-center justify-between rounded-lg border border-[var(--color-status-high-border)] p-4">
             <div>
-              <p className="font-semibold text-red-900 dark:text-red-100">Export Account Data</p>
-              <p className="text-sm text-red-700 dark:text-red-300">
+              <p className="font-semibold text-[var(--color-status-high-foreground)]">
+                Export Account Data
+              </p>
+              <p className="text-sm text-[var(--color-status-high)]">
                 Download all your account data
               </p>
             </div>
             <Button
               variant="outline"
-              className="border-red-300 text-red-700 hover:bg-red-100 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900"
+              className="border-[var(--color-status-high-border)] text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)]"
               onClick={() => setExportDialogOpen(true)}
             >
               Export Data
             </Button>
           </div>
-          <div className="bg-card flex items-center justify-between rounded-lg border border-red-200 p-4 dark:border-red-800">
+          <div className="bg-card flex items-center justify-between rounded-lg border border-[var(--color-status-high-border)] p-4">
             <div>
-              <p className="font-semibold text-red-900 dark:text-red-100">Delete Account</p>
-              <p className="text-sm text-red-700 dark:text-red-300">
+              <p className="font-semibold text-[var(--color-status-high-foreground)]">
+                Delete Account
+              </p>
+              <p className="text-sm text-[var(--color-status-high)]">
                 Permanently delete your account and all data
               </p>
             </div>

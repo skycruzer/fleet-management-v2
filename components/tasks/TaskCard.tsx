@@ -22,30 +22,30 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'URGENT':
-        return 'border-l-red-500 bg-red-50 dark:bg-red-900/10'
+        return 'border-l-[var(--color-status-high)] bg-[var(--color-status-high-bg)]'
       case 'HIGH':
-        return 'border-l-orange-500 bg-orange-50 dark:bg-orange-900/10'
+        return 'border-l-[var(--color-status-medium)] bg-[var(--color-status-medium-bg)]'
       case 'MEDIUM':
-        return 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-900/10'
+        return 'border-l-[var(--color-status-medium)] bg-[var(--color-status-medium-bg)]/50'
       case 'LOW':
-        return 'border-l-blue-500 bg-blue-50 dark:bg-blue-900/10'
+        return 'border-l-[var(--color-info)] bg-[var(--color-info-bg)]'
       default:
-        return 'border-l-gray-500 bg-gray-50 dark:bg-gray-900/10'
+        return 'border-l-border bg-muted'
     }
   }
 
   const getPriorityBadgeColor = (priority: string) => {
     switch (priority) {
       case 'URGENT':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high-foreground)]'
       case 'HIGH':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+        return 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium-foreground)]'
       case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+        return 'bg-[var(--color-status-medium-bg)]/70 text-[var(--color-status-medium-foreground)]'
       case 'LOW':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info-foreground)]'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
@@ -68,7 +68,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
 
   return (
     <div
-      className={`group relative rounded-lg border-l-4 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-gray-800 ${getPriorityColor(
+      className={`group bg-background relative rounded-lg border-l-4 p-4 shadow-sm transition-all hover:shadow-md ${getPriorityColor(
         task.priority
       )} ${isDragging ? 'opacity-50' : ''} ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
@@ -77,7 +77,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
       <div className="mb-2 flex items-start justify-between gap-2">
         <Link
           href={`/dashboard/tasks/${task.id}`}
-          className="flex-1 font-semibold text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400"
+          className="text-foreground hover:text-primary flex-1 font-semibold"
         >
           {task.title}
         </Link>
@@ -90,17 +90,15 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
 
       {/* Description (truncated) */}
       {task.description && (
-        <p className="mb-3 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
-          {task.description}
-        </p>
+        <p className="text-muted-foreground mb-3 line-clamp-2 text-sm">{task.description}</p>
       )}
 
       {/* Metadata Row */}
-      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-500">
+      <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-xs">
         {/* Due Date */}
         {task.due_date && (
           <div
-            className={`flex items-center gap-1 ${overdue ? 'text-red-600 dark:text-red-400' : ''}`}
+            className={`flex items-center gap-1 ${overdue ? 'text-[var(--color-status-high)]' : ''}`}
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -170,13 +168,13 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
           {(task.tags as string[]).slice(0, 3).map((tag, index) => (
             <span
               key={index}
-              className="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
             >
               {tag}
             </span>
           ))}
           {(task.tags as string[]).length > 3 && (
-            <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+            <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs">
               +{(task.tags as string[]).length - 3}
             </span>
           )}
@@ -186,13 +184,13 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
       {/* Progress Bar (if set) */}
       {task.progress_percentage !== null && task.progress_percentage > 0 && (
         <div className="mt-3">
-          <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+          <div className="text-muted-foreground flex items-center justify-between text-xs">
             <span>Progress</span>
             <span>{task.progress_percentage}%</span>
           </div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+          <div className="bg-muted mt-1 h-1.5 w-full overflow-hidden rounded-full">
             <div
-              className="h-full bg-blue-600 transition-all dark:bg-blue-500"
+              className="bg-primary h-full transition-all"
               style={{ width: `${task.progress_percentage}%` }}
             />
           </div>
@@ -201,7 +199,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
 
       {/* Subtasks indicator */}
       {task.subtasks && task.subtasks.length > 0 && (
-        <div className="mt-2 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-500">
+        <div className="text-muted-foreground mt-2 flex items-center gap-1 text-xs">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
@@ -221,7 +219,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
       <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
         <Link
           href={`/dashboard/tasks/${task.id}`}
-          className="rounded-md bg-white p-1 text-gray-600 shadow-sm hover:text-blue-600 dark:bg-gray-700 dark:text-gray-400 dark:hover:text-blue-400"
+          className="bg-background text-muted-foreground hover:text-primary rounded-md p-1 shadow-sm"
           title="View details"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

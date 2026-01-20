@@ -303,9 +303,9 @@ export function RequestsTable({
 
   const getCategoryBadge = (category: PilotRequest['request_category']) => {
     const colors: Record<PilotRequest['request_category'], string> = {
-      LEAVE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      FLIGHT: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      LEAVE_BID: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      LEAVE: 'bg-[var(--color-category-flight-bg)] text-[var(--color-category-flight)]',
+      FLIGHT: 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]',
+      LEAVE_BID: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
     }
 
     const labels: Record<PilotRequest['request_category'], string> = {
@@ -533,13 +533,19 @@ export function RequestsTable({
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {request.is_late_request && (
-                        <Badge variant="outline" className="border-yellow-600 text-yellow-600">
+                        <Badge
+                          variant="outline"
+                          className="border-[var(--color-status-medium)] text-[var(--color-status-medium)]"
+                        >
                           <Clock className="mr-1 h-3 w-3" />
                           Late
                         </Badge>
                       )}
                       {request.is_past_deadline && (
-                        <Badge variant="outline" className="border-red-600 text-red-600">
+                        <Badge
+                          variant="outline"
+                          className="border-[var(--color-status-high)] text-[var(--color-status-high)]"
+                        >
                           <AlertTriangle className="mr-1 h-3 w-3" />
                           Past
                         </Badge>
@@ -547,7 +553,7 @@ export function RequestsTable({
                       {request.conflict_flags && request.conflict_flags.length > 0 && (
                         <Badge
                           variant="outline"
-                          className="border-red-600 bg-red-50 text-red-600 dark:border-red-500 dark:bg-red-950 dark:text-red-400"
+                          className="border-[var(--color-status-high)] bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]"
                         >
                           <AlertTriangle className="mr-1 h-3 w-3" />
                           {request.conflict_flags.length} Conflict
@@ -582,14 +588,14 @@ export function RequestsTable({
                             <>
                               <DropdownMenuItem
                                 onClick={() => onUpdateStatus(request.id, 'APPROVED')}
-                                className="cursor-pointer text-green-600 focus:bg-green-50 focus:text-green-600 dark:text-green-400 dark:focus:bg-green-950 dark:focus:text-green-400"
+                                className="cursor-pointer text-[var(--color-status-low)] focus:bg-[var(--color-status-low-bg)] focus:text-[var(--color-status-low)]"
                               >
                                 <CheckCircle className="mr-2 h-4 w-4" />
                                 Approve
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => onUpdateStatus(request.id, 'DENIED')}
-                                className="cursor-pointer text-orange-600 focus:bg-orange-50 focus:text-orange-600 dark:text-orange-400 dark:focus:bg-orange-950 dark:focus:text-orange-400"
+                                className="cursor-pointer text-[var(--color-status-medium)] focus:bg-[var(--color-status-medium-bg)] focus:text-[var(--color-status-medium)]"
                               >
                                 <XCircle className="mr-2 h-4 w-4" />
                                 Deny
@@ -601,7 +607,7 @@ export function RequestsTable({
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => handleDeleteClick(request.id)}
-                              className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 dark:text-red-400 dark:focus:bg-red-950 dark:focus:text-red-300"
+                              className="cursor-pointer text-[var(--color-status-high)] focus:bg-[var(--color-status-high-bg)] focus:text-[var(--color-status-high)]"
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete
@@ -616,48 +622,35 @@ export function RequestsTable({
                 {/* Expanded Details Row */}
                 {expandedRequest === request.id && (
                   <TableRow>
-                    <TableCell
-                      colSpan={enableSelection ? 10 : 9}
-                      className="bg-gray-50 dark:bg-gray-800/50"
-                    >
+                    <TableCell colSpan={enableSelection ? 10 : 9} className="bg-muted/50">
                       <div className="space-y-4 py-4">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                          Request Details
-                        </h4>
+                        <h4 className="text-foreground font-semibold">Request Details</h4>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                           {/* Request Information Card */}
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                            <h5 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="border-border bg-card rounded-lg border-2 p-4">
+                            <h5 className="text-muted-foreground mb-3 text-sm font-semibold">
                               Request Information
                             </h5>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
-                                  Type:
-                                </span>{' '}
-                                <span className="text-gray-900 dark:text-gray-100">
-                                  {request.request_type}
-                                </span>
+                                <span className="text-muted-foreground font-medium">Type:</span>{' '}
+                                <span className="text-foreground">{request.request_type}</span>
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
-                                  Category:
-                                </span>{' '}
+                                <span className="text-muted-foreground font-medium">Category:</span>{' '}
                                 {getCategoryBadge(request.request_category)}
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                <span className="text-muted-foreground font-medium">
                                   Submitted:
                                 </span>{' '}
-                                <span className="text-gray-900 dark:text-gray-100">
+                                <span className="text-foreground">
                                   {formatDate(request.submission_date)}
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
-                                  Channel:
-                                </span>{' '}
-                                <span className="text-gray-900 dark:text-gray-100">
+                                <span className="text-muted-foreground font-medium">Channel:</span>{' '}
+                                <span className="text-foreground">
                                   {request.submission_channel}
                                 </span>
                               </div>
@@ -665,41 +658,39 @@ export function RequestsTable({
                           </div>
 
                           {/* Date Information Card */}
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                            <h5 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="border-border bg-card rounded-lg border-2 p-4">
+                            <h5 className="text-muted-foreground mb-3 text-sm font-semibold">
                               Date Information
                             </h5>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                <span className="text-muted-foreground font-medium">
                                   Start Date:
                                 </span>{' '}
-                                <span className="text-gray-900 dark:text-gray-100">
+                                <span className="text-foreground">
                                   {formatDate(request.start_date)}
                                 </span>
                               </div>
                               {request.end_date && (
                                 <div>
-                                  <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  <span className="text-muted-foreground font-medium">
                                     End Date:
                                   </span>{' '}
-                                  <span className="text-gray-900 dark:text-gray-100">
+                                  <span className="text-foreground">
                                     {formatDate(request.end_date)}
                                   </span>
                                 </div>
                               )}
                               {request.days_count && (
                                 <div>
-                                  <span className="font-medium text-gray-600 dark:text-gray-400">
+                                  <span className="text-muted-foreground font-medium">
                                     Duration:
                                   </span>{' '}
-                                  <span className="text-gray-900 dark:text-gray-100">
-                                    {request.days_count} days
-                                  </span>
+                                  <span className="text-foreground">{request.days_count} days</span>
                                 </div>
                               )}
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                <span className="text-muted-foreground font-medium">
                                   Roster Period(s):
                                 </span>{' '}
                                 <div className="mt-1 flex flex-wrap gap-1">
@@ -729,30 +720,26 @@ export function RequestsTable({
                           </div>
 
                           {/* Status & Flags Card */}
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                            <h5 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="border-border bg-card rounded-lg border-2 p-4">
+                            <h5 className="text-muted-foreground mb-3 text-sm font-semibold">
                               Status & Flags
                             </h5>
                             <div className="space-y-2 text-sm">
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
-                                  Status:
-                                </span>{' '}
+                                <span className="text-muted-foreground font-medium">Status:</span>{' '}
                                 {getStatusBadge(request.workflow_status)}
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600 dark:text-gray-400">
+                                <span className="text-muted-foreground font-medium">
                                   Priority Score:
                                 </span>{' '}
-                                <span className="text-gray-900 dark:text-gray-100">
-                                  {request.priority_score}
-                                </span>
+                                <span className="text-foreground">{request.priority_score}</span>
                               </div>
                               {request.is_late_request && (
                                 <div>
                                   <Badge
                                     variant="outline"
-                                    className="border-yellow-600 text-yellow-600"
+                                    className="border-[var(--color-status-medium)] text-[var(--color-status-medium)]"
                                   >
                                     <Clock className="mr-1 h-3 w-3" />
                                     Late Request
@@ -761,7 +748,10 @@ export function RequestsTable({
                               )}
                               {request.is_past_deadline && (
                                 <div>
-                                  <Badge variant="outline" className="border-red-600 text-red-600">
+                                  <Badge
+                                    variant="outline"
+                                    className="border-[var(--color-status-high)] text-[var(--color-status-high)]"
+                                  >
                                     <AlertTriangle className="mr-1 h-3 w-3" />
                                     Past Deadline
                                   </Badge>
@@ -773,13 +763,11 @@ export function RequestsTable({
 
                         {/* Reason (if provided) */}
                         {request.reason && (
-                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                            <h5 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          <div className="border-border bg-card rounded-lg border-2 p-4">
+                            <h5 className="text-muted-foreground mb-2 text-sm font-semibold">
                               Reason
                             </h5>
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                              {request.reason}
-                            </p>
+                            <p className="text-foreground text-sm">{request.reason}</p>
                           </div>
                         )}
                       </div>
@@ -803,7 +791,10 @@ export function RequestsTable({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600">
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-[var(--color-status-high)]"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

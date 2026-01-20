@@ -98,7 +98,7 @@ export function ExportOptionsPanel({ year, onExport, disabled = false }: ExportO
                 htmlFor="format-pdf"
                 className="flex cursor-pointer items-center gap-1.5 text-sm"
               >
-                <FileText className="h-4 w-4 text-red-500" />
+                <FileText className="h-4 w-4 text-[var(--color-status-high)]" />
                 PDF Report
               </Label>
             </div>
@@ -108,7 +108,7 @@ export function ExportOptionsPanel({ year, onExport, disabled = false }: ExportO
                 htmlFor="format-csv"
                 className="flex cursor-pointer items-center gap-1.5 text-sm"
               >
-                <Table2 className="h-4 w-4 text-green-500" />
+                <Table2 className="h-4 w-4 text-[var(--color-status-low)]" />
                 CSV Spreadsheet
               </Label>
             </div>
@@ -162,8 +162,10 @@ export function ExportOptionsPanel({ year, onExport, disabled = false }: ExportO
             disabled={disabled || isExporting}
             className={cn(
               'flex-1',
-              exportStatus === 'success' && 'bg-green-600 hover:bg-green-600',
-              exportStatus === 'error' && 'bg-red-600 hover:bg-red-600'
+              exportStatus === 'success' &&
+                'bg-[var(--color-status-low)] hover:bg-[var(--color-status-low)]',
+              exportStatus === 'error' &&
+                'bg-[var(--color-status-high)] hover:bg-[var(--color-status-high)]'
             )}
           >
             {isExporting ? (
@@ -191,11 +193,11 @@ export function ExportOptionsPanel({ year, onExport, disabled = false }: ExportO
         </div>
 
         {/* Format Info */}
-        <div className="text-muted-foreground rounded-lg bg-slate-50 p-3 text-xs dark:bg-slate-900">
+        <div className="text-muted-foreground bg-muted rounded-lg p-3 text-xs">
           {format === 'pdf' ? (
             <div className="space-y-1">
-              <p className="font-medium text-slate-700 dark:text-slate-300">PDF Report includes:</p>
-              <ul className="list-inside list-disc space-y-0.5 text-slate-600 dark:text-slate-400">
+              <p className="text-foreground font-medium">PDF Report includes:</p>
+              <ul className="list-inside list-disc space-y-0.5">
                 <li>Cover page with summary statistics</li>
                 <li>Executive summary by category</li>
                 {includePairing && <li>Captain/FO pairing summary</li>}
@@ -205,8 +207,8 @@ export function ExportOptionsPanel({ year, onExport, disabled = false }: ExportO
             </div>
           ) : (
             <div className="space-y-1">
-              <p className="font-medium text-slate-700 dark:text-slate-300">CSV Export includes:</p>
-              <ul className="list-inside list-disc space-y-0.5 text-slate-600 dark:text-slate-400">
+              <p className="text-foreground font-medium">CSV Export includes:</p>
+              <ul className="list-inside list-disc space-y-0.5">
                 <li>All renewal data in spreadsheet format</li>
                 <li>Pilot names, IDs, and roles</li>
                 <li>Check details and scheduled dates</li>
@@ -243,11 +245,11 @@ export function ExportButtons({
   return (
     <div className="flex gap-2">
       <Button variant="outline" size="sm" onClick={onExportPDF} disabled={disabled || isExporting}>
-        <FileText className="mr-1.5 h-4 w-4 text-red-500" />
+        <FileText className="mr-1.5 h-4 w-4 text-[var(--color-status-high)]" />
         PDF
       </Button>
       <Button variant="outline" size="sm" onClick={onExportCSV} disabled={disabled || isExporting}>
-        <Table2 className="mr-1.5 h-4 w-4 text-green-500" />
+        <Table2 className="mr-1.5 h-4 w-4 text-[var(--color-status-low)]" />
         CSV
       </Button>
     </div>

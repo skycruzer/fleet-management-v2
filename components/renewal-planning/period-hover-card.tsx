@@ -56,15 +56,15 @@ function getCategoryIcon(category: string) {
 }
 
 function getUtilizationColor(utilization: number): string {
-  if (utilization > 80) return 'text-red-600'
-  if (utilization > 60) return 'text-yellow-600'
-  return 'text-green-600'
+  if (utilization > 80) return 'text-[var(--color-status-high)]'
+  if (utilization > 60) return 'text-[var(--color-status-medium)]'
+  return 'text-[var(--color-status-low)]'
 }
 
 function getProgressColor(utilization: number): string {
-  if (utilization > 80) return 'bg-red-500'
-  if (utilization > 60) return 'bg-yellow-500'
-  return 'bg-green-500'
+  if (utilization > 80) return 'bg-[var(--color-status-high)]'
+  if (utilization > 60) return 'bg-[var(--color-status-medium)]'
+  return 'bg-[var(--color-status-low)]'
 }
 
 export function PeriodHoverCard({
@@ -99,8 +99,8 @@ export function PeriodHoverCard({
         <div className={cn('absolute z-50 hidden w-64 group-hover:block', positionClass)}>
           <div className="bg-popover rounded-lg border p-4 shadow-lg">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-gray-500" />
-              <span className="font-semibold text-gray-700">{rosterPeriod}</span>
+              <AlertTriangle className="text-muted-foreground h-4 w-4" />
+              <span className="text-foreground font-semibold">{rosterPeriod}</span>
             </div>
             <p className="text-muted-foreground mt-2 text-sm">
               This period is excluded from renewal scheduling (holiday month).
@@ -130,9 +130,11 @@ export function PeriodHoverCard({
             <Badge
               className={cn(
                 'text-xs',
-                utilizationPercentage > 80 && 'bg-red-500',
-                utilizationPercentage > 60 && utilizationPercentage <= 80 && 'bg-yellow-500',
-                utilizationPercentage <= 60 && 'bg-green-500'
+                utilizationPercentage > 80 && 'bg-[var(--color-status-high)]',
+                utilizationPercentage > 60 &&
+                  utilizationPercentage <= 80 &&
+                  'bg-[var(--color-status-medium)]',
+                utilizationPercentage <= 60 && 'bg-[var(--color-status-low)]'
               )}
             >
               {Math.round(utilizationPercentage)}%
@@ -189,9 +191,9 @@ export function PeriodHoverCard({
 
           {/* High Utilization Warning */}
           {highUtilizationCategories.length > 0 && (
-            <div className="flex items-start gap-2 rounded-md bg-yellow-50 p-2 text-xs dark:bg-yellow-950">
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-yellow-600" />
-              <span className="text-yellow-700 dark:text-yellow-300">
+            <div className="flex items-start gap-2 rounded-md bg-[var(--color-status-medium-bg)] p-2 text-xs">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[var(--color-status-medium)]" />
+              <span className="text-[var(--color-status-medium-foreground)]">
                 {highUtilizationCategories.length} category
                 {highUtilizationCategories.length > 1 ? 'ies' : 'y'} above 80% capacity
               </span>

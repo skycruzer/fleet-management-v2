@@ -49,18 +49,18 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
 
   // Get utilization color class
   const getUtilizationColor = (utilization: number): string => {
-    if (utilization >= 100) return 'bg-red-500'
-    if (utilization >= 85) return 'bg-orange-500'
-    if (utilization >= 75) return 'bg-yellow-500'
-    return 'bg-green-500'
+    if (utilization >= 100) return 'bg-[var(--color-status-high)]'
+    if (utilization >= 85) return 'bg-[var(--color-status-medium)]'
+    if (utilization >= 75) return 'bg-[var(--color-status-medium)]/70'
+    return 'bg-[var(--color-status-low)]'
   }
 
   // Get utilization text color
   const getUtilizationTextColor = (utilization: number): string => {
-    if (utilization >= 100) return 'text-red-900'
-    if (utilization >= 85) return 'text-orange-900'
-    if (utilization >= 75) return 'text-yellow-900'
-    return 'text-green-900'
+    if (utilization >= 100) return 'text-[var(--color-status-high-foreground)]'
+    if (utilization >= 85) return 'text-[var(--color-status-medium-foreground)]'
+    if (utilization >= 75) return 'text-[var(--color-status-medium-foreground)]'
+    return 'text-[var(--color-status-low-foreground)]'
   }
 
   return (
@@ -81,7 +81,9 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
             </div>
             <div className="border-border rounded-lg border p-4">
               <div className="text-muted-foreground mb-1 text-sm">Critical Months</div>
-              <div className="text-2xl font-bold text-red-600">{summary.criticalMonths}</div>
+              <div className="text-2xl font-bold text-[var(--color-status-high)]">
+                {summary.criticalMonths}
+              </div>
             </div>
             <div className="border-border rounded-lg border p-4">
               <div className="text-muted-foreground mb-1 text-sm">Avg Utilization</div>
@@ -137,19 +139,19 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
             {/* Legend */}
             <div className="text-muted-foreground flex items-center gap-4 pt-2 text-xs">
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-green-500" />
+                <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
                 <span>&lt;75%</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-yellow-500" />
+                <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]/70" />
                 <span>75-85%</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-orange-500" />
+                <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]" />
                 <span>85-100%</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-3 w-3 rounded-full bg-red-500" />
+                <div className="h-3 w-3 rounded-full bg-[var(--color-status-high)]" />
                 <span>&gt;100%</span>
               </div>
             </div>
@@ -159,7 +161,7 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
           {warnings.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
+                <AlertTriangle className="h-5 w-5 text-[var(--color-status-medium)]" />
                 <span className="text-foreground text-sm font-medium">Warnings</span>
               </div>
 
@@ -169,15 +171,15 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
                     key={idx}
                     className={`rounded-lg border p-4 ${
                       warning.severity === 'critical'
-                        ? 'border-red-200 bg-red-50'
-                        : 'border-yellow-200 bg-yellow-50'
+                        ? 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]'
+                        : 'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       {warning.severity === 'critical' ? (
-                        <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
+                        <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-status-high)]" />
                       ) : (
-                        <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
+                        <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-status-medium)]" />
                       )}
                       <div className="flex-1">
                         <div className="mb-1 flex items-center gap-2">
@@ -189,7 +191,9 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
                           </Badge>
                           <span
                             className={`text-xs font-medium ${
-                              warning.severity === 'critical' ? 'text-red-700' : 'text-yellow-700'
+                              warning.severity === 'critical'
+                                ? 'text-[var(--color-status-high-foreground)]'
+                                : 'text-[var(--color-status-medium-foreground)]'
                             }`}
                           >
                             {warning.month}
@@ -199,7 +203,9 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
                         </div>
                         <p
                           className={`text-sm ${
-                            warning.severity === 'critical' ? 'text-red-800' : 'text-yellow-800'
+                            warning.severity === 'critical'
+                              ? 'text-[var(--color-status-high-foreground)]'
+                              : 'text-[var(--color-status-medium-foreground)]'
                           }`}
                         >
                           {warning.message}
@@ -214,12 +220,12 @@ export function CrewImpactAnalysis({ impactData }: CrewImpactAnalysisProps) {
 
           {/* No Warnings Message */}
           {warnings.length === 0 && (
-            <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center">
-              <div className="mb-2 flex items-center justify-center gap-2 text-green-700">
+            <div className="rounded-lg border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 text-center">
+              <div className="mb-2 flex items-center justify-center gap-2 text-[var(--color-status-low-foreground)]">
                 <AlertCircle className="h-5 w-5" />
                 <span className="font-medium">All Clear</span>
               </div>
-              <p className="text-sm text-green-600">
+              <p className="text-sm text-[var(--color-status-low)]">
                 No crew shortages detected for the forecast period
               </p>
             </div>

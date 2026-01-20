@@ -95,16 +95,13 @@ export default function FlightRequestForm() {
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
       {/* Request Type */}
       <div>
-        <label
-          htmlFor="request_type"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Request Type <span className="text-red-500">*</span>
+        <label htmlFor="request_type" className="text-foreground block text-sm font-medium">
+          Request Type <span className="text-[var(--color-status-high)]">*</span>
         </label>
         <select
           id="request_type"
           {...form.register('request_type')}
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
         >
           <option value="FLIGHT_REQUEST">Flight</option>
           <option value="RDO">RDO</option>
@@ -112,39 +109,40 @@ export default function FlightRequestForm() {
           <option value="OFFICE_DAY">Office</option>
         </select>
         {form.formState.errors.request_type && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.request_type.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">
+            {form.formState.errors.request_type.message}
+          </p>
         )}
       </div>
 
       {/* Flight Date */}
       <div>
-        <label
-          htmlFor="start_date"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Flight Date <span className="text-red-500">*</span>
+        <label htmlFor="start_date" className="text-foreground block text-sm font-medium">
+          Flight Date <span className="text-[var(--color-status-high)]">*</span>
         </label>
         <input
           type="date"
           id="start_date"
           {...form.register('start_date')}
-          className="focus:border-primary focus:ring-primary mt-1 block h-11 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary bg-background text-foreground mt-1 block h-11 w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
         />
         {form.formState.errors.start_date && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.start_date.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">
+            {form.formState.errors.start_date.message}
+          </p>
         )}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-muted-foreground mt-1 text-xs">
           Select the date for your flight request
         </p>
       </div>
 
       {/* Calculated Roster Period */}
       {calculatedRosterPeriod && (
-        <div className="rounded-md border border-cyan-200 bg-cyan-50 p-3 dark:bg-cyan-900/20">
-          <p className="text-sm font-medium text-cyan-900 dark:text-cyan-100">
+        <div className="rounded-md border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3">
+          <p className="text-sm font-medium text-[var(--color-info-foreground)]">
             Roster Period: <span className="text-lg font-bold">{calculatedRosterPeriod}</span>
           </p>
-          <p className="mt-1 text-xs text-cyan-700 dark:text-cyan-300">
+          <p className="mt-1 text-xs text-[var(--color-info)]">
             Automatically calculated from selected date
           </p>
         </div>
@@ -152,33 +150,29 @@ export default function FlightRequestForm() {
 
       {/* Description */}
       <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Description <span className="text-red-500">*</span>
+        <label htmlFor="description" className="text-foreground block text-sm font-medium">
+          Description <span className="text-[var(--color-status-high)]">*</span>
         </label>
         <textarea
           id="description"
           {...form.register('description')}
           rows={3}
           placeholder="Describe your flight request (route, requirements, etc.)..."
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
         />
         {form.formState.errors.description && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.description.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">
+            {form.formState.errors.description.message}
+          </p>
         )}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-muted-foreground mt-1 text-xs">
           Minimum 50 characters, maximum 2000 characters
         </p>
       </div>
 
       {/* Reason (Optional) */}
       <div>
-        <label
-          htmlFor="reason"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="reason" className="text-foreground block text-sm font-medium">
           Reason (Optional)
         </label>
         <textarea
@@ -186,25 +180,27 @@ export default function FlightRequestForm() {
           {...form.register('reason')}
           rows={2}
           placeholder="Additional reasoning for your request..."
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
         />
         {form.formState.errors.reason && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.reason.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">
+            {form.formState.errors.reason.message}
+          </p>
         )}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Maximum 1000 characters</p>
+        <p className="text-muted-foreground mt-1 text-xs">Maximum 1000 characters</p>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-red-50 p-3 dark:bg-red-900/20">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        <div className="rounded-md bg-[var(--color-status-high-bg)] p-3">
+          <p className="text-sm text-[var(--color-status-high)]">{error}</p>
         </div>
       )}
 
       {/* Success Message */}
       {success && (
-        <div className="rounded-md bg-green-50 p-3 dark:bg-green-900/20">
-          <p className="text-sm text-green-800 dark:text-green-200">
+        <div className="rounded-md bg-[var(--color-status-low-bg)] p-3">
+          <p className="text-sm text-[var(--color-status-low)]">
             Flight request submitted successfully!
           </p>
         </div>
@@ -214,7 +210,7 @@ export default function FlightRequestForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="bg-primary hover:bg-primary/90 focus:ring-primary dark:bg-primary dark:hover:bg-primary w-full rounded-md px-4 py-2 text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 focus:ring-primary w-full rounded-md px-4 py-2 text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Request'}
       </button>

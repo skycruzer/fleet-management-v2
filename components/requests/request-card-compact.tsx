@@ -111,9 +111,9 @@ export function RequestCardCompact({
     <div
       className={cn(
         'bg-card rounded-xl border transition-all duration-200',
-        isPending && 'border-l-4 border-l-amber-400',
-        request.status === 'APPROVED' && 'border-l-4 border-l-emerald-400',
-        request.status === 'DENIED' && 'border-l-4 border-l-red-400',
+        isPending && 'border-l-4 border-l-[var(--color-status-medium)]',
+        request.status === 'APPROVED' && 'border-l-4 border-l-[var(--color-status-low)]',
+        request.status === 'DENIED' && 'border-l-4 border-l-[var(--color-status-high)]',
         className
       )}
     >
@@ -159,10 +159,10 @@ export function RequestCardCompact({
               <StatusIcon
                 className={cn(
                   'h-5 w-5',
-                  statusInfo.variant === 'success' && 'text-emerald-500',
-                  statusInfo.variant === 'warning' && 'text-amber-500',
-                  statusInfo.variant === 'destructive' && 'text-red-500',
-                  statusInfo.variant === 'outline' && 'text-blue-500'
+                  statusInfo.variant === 'success' && 'text-[var(--color-status-low)]',
+                  statusInfo.variant === 'warning' && 'text-[var(--color-status-medium)]',
+                  statusInfo.variant === 'destructive' && 'text-[var(--color-status-high)]',
+                  statusInfo.variant === 'outline' && 'text-[var(--color-info)]'
                 )}
               />
             </div>
@@ -174,7 +174,7 @@ export function RequestCardCompact({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 w-8 p-0 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                    className="h-8 w-8 p-0 text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)] hover:text-[var(--color-status-low)]"
                     onClick={() => onApprove(request.id)}
                   >
                     <CheckCircle2 className="h-4 w-4" />
@@ -184,7 +184,7 @@ export function RequestCardCompact({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    className="h-8 w-8 p-0 text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)] hover:text-[var(--color-status-high)]"
                     onClick={() => onDeny(request.id)}
                   >
                     <XCircle className="h-4 w-4" />
@@ -212,13 +212,16 @@ export function RequestCardCompact({
                 {isPending && onApprove && (
                   <DropdownMenuItem
                     onClick={() => onApprove(request.id)}
-                    className="text-emerald-600"
+                    className="text-[var(--color-status-low)]"
                   >
                     Approve
                   </DropdownMenuItem>
                 )}
                 {isPending && onDeny && (
-                  <DropdownMenuItem onClick={() => onDeny(request.id)} className="text-red-600">
+                  <DropdownMenuItem
+                    onClick={() => onDeny(request.id)}
+                    className="text-[var(--color-status-high)]"
+                  >
                     Deny
                   </DropdownMenuItem>
                 )}
@@ -270,7 +273,7 @@ export function RequestCardCompact({
           {onApprove && (
             <Button
               variant="ghost"
-              className="flex-1 rounded-none text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+              className="flex-1 rounded-none text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)] hover:text-[var(--color-status-low)]"
               onClick={() => onApprove(request.id)}
             >
               <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -280,7 +283,7 @@ export function RequestCardCompact({
           {onDeny && (
             <Button
               variant="ghost"
-              className="flex-1 rounded-none border-l text-red-600 hover:bg-red-50 hover:text-red-700"
+              className="flex-1 rounded-none border-l text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)] hover:text-[var(--color-status-high)]"
               onClick={() => onDeny(request.id)}
             >
               <XCircle className="mr-2 h-4 w-4" />

@@ -115,28 +115,28 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
     switch (status) {
       case 'PENDING':
         return (
-          <Badge className="border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900 dark:text-yellow-200">
+          <Badge className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]">
             <Clock className="mr-1 h-3 w-3" />
             Pending Review
           </Badge>
         )
       case 'PROCESSING':
         return (
-          <Badge className="border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-200">
+          <Badge className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info)]">
             <Clock className="mr-1 h-3 w-3" />
             Processing
           </Badge>
         )
       case 'APPROVED':
         return (
-          <Badge className="border-green-300 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-200">
+          <Badge className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]">
             <CheckCircle className="mr-1 h-3 w-3" />
             Approved
           </Badge>
         )
       case 'REJECTED':
         return (
-          <Badge className="border-red-300 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-200">
+          <Badge className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]">
             <XCircle className="mr-1 h-3 w-3" />
             Rejected
           </Badge>
@@ -177,11 +177,9 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
       )}
 
       {success && (
-        <Alert className="border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950">
-          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-          <AlertDescription className="text-green-800 dark:text-green-200">
-            {success}
-          </AlertDescription>
+        <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
+          <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" />
+          <AlertDescription className="text-[var(--color-status-low)]">{success}</AlertDescription>
         </Alert>
       )}
 
@@ -195,27 +193,23 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</p>
-            <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-muted-foreground text-sm font-medium">Name</p>
+            <p className="text-foreground text-base font-semibold">
               {pilot.first_name} {pilot.middle_name ? pilot.middle_name + ' ' : ''}
               {pilot.last_name}
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Employee ID</p>
-            <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
-              {pilot.employee_id || 'N/A'}
-            </p>
+            <p className="text-muted-foreground text-sm font-medium">Employee ID</p>
+            <p className="text-foreground text-base font-semibold">{pilot.employee_id || 'N/A'}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Rank</p>
-            <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
-              {pilot.role || 'N/A'}
-            </p>
+            <p className="text-muted-foreground text-sm font-medium">Rank</p>
+            <p className="text-foreground text-base font-semibold">{pilot.role || 'N/A'}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Seniority</p>
-            <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-muted-foreground text-sm font-medium">Seniority</p>
+            <p className="text-foreground text-base font-semibold">
               #{pilot.seniority_number || 'N/A'}
             </p>
           </div>
@@ -237,13 +231,13 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
               .map((option) => (
                 <div
                   key={option.id}
-                  className="rounded-lg border-2 border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                  className="border-border bg-card rounded-lg border-2 p-4 shadow-sm"
                 >
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-sm font-bold text-cyan-900 dark:bg-cyan-900 dark:text-cyan-100">
+                    <span className="bg-accent/10 text-accent flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
                       {option.priority}
                     </span>
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    <span className="text-muted-foreground text-sm font-medium">
                       {option.priority === 1 && '1st Choice'}
                       {option.priority === 2 && '2nd Choice'}
                       {option.priority === 3 && '3rd Choice'}
@@ -252,19 +246,15 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                        Start - End
-                      </p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      <p className="text-muted-foreground text-xs font-medium">Start - End</p>
+                      <p className="text-foreground text-sm font-semibold">
                         {format(new Date(option.start_date), 'MMM dd')} -{' '}
                         {format(new Date(option.end_date), 'MMM dd, yyyy')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                        Duration
-                      </p>
-                      <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-400">
+                      <p className="text-muted-foreground text-xs font-medium">Duration</p>
+                      <p className="text-accent text-sm font-semibold">
                         {Math.ceil(
                           (new Date(option.end_date).getTime() -
                             new Date(option.start_date).getTime()) /
@@ -339,7 +329,7 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
                 placeholder="Add your review comments here..."
                 rows={4}
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-muted-foreground text-xs">
                 These comments will be visible to the pilot.
               </p>
             </div>

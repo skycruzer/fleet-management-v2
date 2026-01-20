@@ -345,11 +345,11 @@ export function LeaveReportForm() {
                       const dateRange = rosterPeriodsToDateRange(field.value)
                       if (dateRange) {
                         return (
-                          <div className="mt-2 rounded-md border border-blue-200 bg-blue-50 p-3">
-                            <p className="text-sm font-medium text-blue-900">
+                          <div className="mt-2 rounded-md border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3">
+                            <p className="text-foreground text-sm font-medium">
                               Selected: {field.value.join(', ')}
                             </p>
-                            <p className="mt-1 text-xs text-blue-700">
+                            <p className="mt-1 text-xs text-[var(--color-info)]">
                               Date Range: {new Date(dateRange.startDate).toLocaleDateString()} -{' '}
                               {new Date(dateRange.endDate).toLocaleDateString()}
                             </p>

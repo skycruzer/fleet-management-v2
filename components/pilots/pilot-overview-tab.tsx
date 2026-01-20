@@ -169,8 +169,8 @@ export function PilotOverviewTab({
                     className={cn(
                       'rounded-full px-4 py-1.5 text-sm font-semibold backdrop-blur-sm',
                       pilot.is_active
-                        ? 'bg-green-500/30 ring-1 ring-green-300/50'
-                        : 'bg-gray-500/30 ring-1 ring-gray-300/50'
+                        ? 'bg-[var(--color-status-low)]/30 ring-1 ring-[var(--color-status-low)]/50'
+                        : 'bg-white/20 ring-1 ring-white/30'
                     )}
                   >
                     {pilot.is_active ? 'Active' : 'Inactive'}
@@ -232,58 +232,56 @@ export function PilotOverviewTab({
         className="grid grid-cols-1 gap-4 md:grid-cols-3"
       >
         <motion.div variants={fadeIn}>
-          <Card className="group relative overflow-hidden border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 transition-all hover:shadow-lg dark:border-green-800 dark:from-green-950/30 dark:to-emerald-950/30">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-green-500/10" />
+          <Card className="group relative overflow-hidden border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 transition-all hover:shadow-lg">
+            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-low)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-green-700 dark:text-green-400">
-                  Current
-                </p>
-                <p className="text-4xl font-bold text-green-900 dark:text-green-100">
+                <p className="mb-1 text-sm font-medium text-[var(--color-status-low)]">Current</p>
+                <p className="text-4xl font-bold text-[var(--color-status-low)]">
                   {pilot.certificationStatus.current}
                 </p>
-                <p className="mt-1 text-xs text-green-600 dark:text-green-500">Certifications</p>
+                <p className="mt-1 text-xs text-[var(--color-status-low)]">Certifications</p>
               </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-500/20">
-                <CheckCircle2 className="h-7 w-7 text-green-600 dark:text-green-400" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-status-low)]/20">
+                <CheckCircle2 className="h-7 w-7 text-[var(--color-status-low)]" />
               </div>
             </div>
           </Card>
         </motion.div>
 
         <motion.div variants={fadeIn}>
-          <Card className="group relative overflow-hidden border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50 p-6 transition-all hover:shadow-lg dark:border-yellow-800 dark:from-yellow-950/30 dark:to-amber-950/30">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-yellow-500/10" />
+          <Card className="group relative overflow-hidden border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-6 transition-all hover:shadow-lg">
+            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-medium)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-yellow-700 dark:text-yellow-400">
+                <p className="mb-1 text-sm font-medium text-[var(--color-status-medium)]">
                   Expiring Soon
                 </p>
-                <p className="text-4xl font-bold text-yellow-900 dark:text-yellow-100">
+                <p className="text-4xl font-bold text-[var(--color-status-medium)]">
                   {pilot.certificationStatus.expiring}
                 </p>
-                <p className="mt-1 text-xs text-yellow-600 dark:text-yellow-500">Within 30 days</p>
+                <p className="mt-1 text-xs text-[var(--color-status-medium)]">Within 30 days</p>
               </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-yellow-500/20">
-                <AlertCircle className="h-7 w-7 text-yellow-600 dark:text-yellow-400" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-status-medium)]/20">
+                <AlertCircle className="h-7 w-7 text-[var(--color-status-medium)]" />
               </div>
             </div>
           </Card>
         </motion.div>
 
         <motion.div variants={fadeIn}>
-          <Card className="group relative overflow-hidden border-red-200 bg-gradient-to-br from-red-50 to-rose-50 p-6 transition-all hover:shadow-lg dark:border-red-800 dark:from-red-950/30 dark:to-rose-950/30">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-red-500/10" />
+          <Card className="group relative overflow-hidden border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6 transition-all hover:shadow-lg">
+            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-high)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-red-700 dark:text-red-400">Expired</p>
-                <p className="text-4xl font-bold text-red-900 dark:text-red-100">
+                <p className="mb-1 text-sm font-medium text-[var(--color-status-high)]">Expired</p>
+                <p className="text-4xl font-bold text-[var(--color-status-high)]">
                   {pilot.certificationStatus.expired}
                 </p>
-                <p className="mt-1 text-xs text-red-600 dark:text-red-500">Needs renewal</p>
+                <p className="mt-1 text-xs text-[var(--color-status-high)]">Needs renewal</p>
               </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500/20">
-                <XCircle className="h-7 w-7 text-red-600 dark:text-red-400" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-status-high)]/20">
+                <XCircle className="h-7 w-7 text-[var(--color-status-high)]" />
               </div>
             </div>
           </Card>
@@ -358,8 +356,8 @@ export function PilotOverviewTab({
         <motion.div variants={fadeIn}>
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
-                <Briefcase className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-status-low)]/10">
+                <Briefcase className="h-5 w-5 text-[var(--color-status-low)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">Employment Details</h3>
             </div>
@@ -394,8 +392,8 @@ export function PilotOverviewTab({
       >
         <Card className="p-6 transition-all hover:shadow-md">
           <div className="mb-4 flex items-center gap-3 border-b pb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-              <FileText className="h-5 w-5 text-blue-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info)]/10">
+              <FileText className="h-5 w-5 text-[var(--color-info)]" />
             </div>
             <h3 className="text-foreground text-lg font-semibold">Passport Information</h3>
           </div>
@@ -422,8 +420,8 @@ export function PilotOverviewTab({
       >
         <Card className="p-6 transition-all hover:shadow-md">
           <div className="mb-4 flex items-center gap-3 border-b pb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-              <Plane className="h-5 w-5 text-purple-600" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-category-simulator)]/10">
+              <Plane className="h-5 w-5 text-[var(--color-category-simulator)]" />
             </div>
             <h3 className="text-foreground text-lg font-semibold">Licence Information</h3>
           </div>
@@ -451,8 +449,8 @@ export function PilotOverviewTab({
         >
           <Card className="p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
-                <Award className="h-5 w-5 text-amber-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-status-medium)]/10">
+                <Award className="h-5 w-5 text-[var(--color-status-medium)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">Captain Qualifications</h3>
             </div>
@@ -462,7 +460,7 @@ export function PilotOverviewTab({
                   {captainQualifications.map((qual, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-status-medium-bg)] px-3 py-1.5 text-sm font-medium text-[var(--color-status-medium)]"
                     >
                       <Star className="h-3.5 w-3.5" />
                       {qual}
@@ -497,8 +495,8 @@ export function PilotOverviewTab({
       >
         <Card className="p-6 transition-all hover:shadow-md">
           <div className="mb-4 flex items-center gap-3 border-b pb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-500/10">
-              <Clock className="h-5 w-5 text-gray-600" />
+            <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
+              <Clock className="text-muted-foreground h-5 w-5" />
             </div>
             <h3 className="text-foreground text-lg font-semibold">System Information</h3>
           </div>

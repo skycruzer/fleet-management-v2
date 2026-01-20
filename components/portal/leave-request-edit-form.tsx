@@ -11,7 +11,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   PilotLeaveRequestSchema,
@@ -22,6 +22,13 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { AlertCircle, CheckCircle } from 'lucide-react'
 
 interface LeaveRequest {
@@ -95,9 +102,11 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
   if (success) {
     return (
       <div className="py-8 text-center">
-        <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-600" />
-        <h3 className="text-xl font-bold text-green-600">Request Updated!</h3>
-        <p className="mt-2 text-gray-600">Your leave request has been updated successfully.</p>
+        <CheckCircle className="mx-auto mb-4 h-16 w-16 text-[var(--color-status-low)]" />
+        <h3 className="text-xl font-bold text-[var(--color-status-low)]">Request Updated!</h3>
+        <p className="text-muted-foreground mt-2">
+          Your leave request has been updated successfully.
+        </p>
       </div>
     )
   }
@@ -114,21 +123,31 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
       {/* Leave Type */}
       <div className="space-y-2">
         <Label htmlFor="request_type">Leave Type *</Label>
-        <select
-          id="request_type"
-          {...form.register('request_type')}
-          disabled={isSubmitting}
-          className="focus:ring-primary w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 disabled:cursor-not-allowed disabled:bg-gray-100"
-        >
-          <option value="ANNUAL">Annual Leave</option>
-          <option value="SICK">Sick Leave</option>
-          <option value="LSL">Long Service Leave (LSL)</option>
-          <option value="LWOP">Leave Without Pay (LWOP)</option>
-          <option value="MATERNITY">Maternity Leave</option>
-          <option value="COMPASSIONATE">Compassionate Leave</option>
-        </select>
+        <Controller
+          name="request_type"
+          control={form.control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange} disabled={isSubmitting}>
+              <SelectTrigger
+                id="request_type"
+                className={form.formState.errors.request_type ? 'border-destructive' : ''}
+                aria-invalid={!!form.formState.errors.request_type}
+              >
+                <SelectValue placeholder="Select leave type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ANNUAL">Annual Leave</SelectItem>
+                <SelectItem value="SICK">Sick Leave</SelectItem>
+                <SelectItem value="LSL">Long Service Leave (LSL)</SelectItem>
+                <SelectItem value="LWOP">Leave Without Pay (LWOP)</SelectItem>
+                <SelectItem value="MATERNITY">Maternity Leave</SelectItem>
+                <SelectItem value="COMPASSIONATE">Compassionate Leave</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         {form.formState.errors.request_type && (
-          <p className="text-sm text-red-500">{form.formState.errors.request_type.message}</p>
+          <p className="text-destructive text-sm">{form.formState.errors.request_type.message}</p>
         )}
       </div>
 
@@ -142,7 +161,7 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
           disabled={isSubmitting}
         />
         {form.formState.errors.start_date && (
-          <p className="text-sm text-red-500">{form.formState.errors.start_date.message}</p>
+          <p className="text-destructive text-sm">{form.formState.errors.start_date.message}</p>
         )}
       </div>
 
@@ -151,7 +170,7 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
         <Label htmlFor="end_date">End Date *</Label>
         <Input id="end_date" type="date" {...form.register('end_date')} disabled={isSubmitting} />
         {form.formState.errors.end_date && (
-          <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
+          <p className="text-destructive text-sm">{form.formState.errors.end_date.message}</p>
         )}
       </div>
 
@@ -166,9 +185,11 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
           {...form.register('reason')}
           disabled={isSubmitting}
         />
-        <p className="text-xs text-gray-500">{form.watch('reason')?.length || 0}/500 characters</p>
+        <p className="text-muted-foreground text-xs">
+          {form.watch('reason')?.length || 0}/500 characters
+        </p>
         {form.formState.errors.reason && (
-          <p className="text-sm text-red-500">{form.formState.errors.reason.message}</p>
+          <p className="text-destructive text-sm">{form.formState.errors.reason.message}</p>
         )}
       </div>
 

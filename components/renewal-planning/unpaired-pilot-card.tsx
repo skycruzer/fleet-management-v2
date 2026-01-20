@@ -45,23 +45,23 @@ const URGENCY_CONFIG = {
   critical: {
     label: 'Critical',
     color:
-      'bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-300 dark:border-red-700',
+      'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]',
     icon: AlertCircle,
-    borderColor: 'border-l-red-500',
+    borderColor: 'border-l-[var(--color-status-high)]',
   },
   high: {
     label: 'High',
     color:
-      'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-700',
+      'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
     icon: AlertTriangle,
-    borderColor: 'border-l-orange-500',
+    borderColor: 'border-l-[var(--color-status-medium)]',
   },
   normal: {
     label: 'Normal',
     color:
-      'bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-950 dark:text-yellow-300 dark:border-yellow-700',
+      'bg-[var(--color-status-medium-bg)]/70 text-[var(--color-status-medium)]/80 border-[var(--color-status-medium-border)]/70',
     icon: Timer,
-    borderColor: 'border-l-yellow-500',
+    borderColor: 'border-l-[var(--color-status-medium)]/70',
   },
 }
 
@@ -73,7 +73,10 @@ export function UnpairedPilotCard({
   compact = false,
 }: UnpairedPilotCardProps) {
   const CategoryIcon = pilot.category === 'Flight Checks' ? Plane : Monitor
-  const categoryColor = pilot.category === 'Flight Checks' ? 'text-blue-500' : 'text-purple-500'
+  const categoryColor =
+    pilot.category === 'Flight Checks'
+      ? 'text-[var(--color-category-flight)]'
+      : 'text-[var(--color-category-simulator)]'
 
   const urgencyConfig = URGENCY_CONFIG[pilot.urgency]
   const UrgencyIcon = urgencyConfig.icon
@@ -81,8 +84,8 @@ export function UnpairedPilotCard({
   const roleLabel = pilot.role === 'Captain' ? 'CPT' : 'FO'
   const roleColor =
     pilot.role === 'Captain'
-      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300'
-      : 'bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300'
+      ? 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium-foreground)]'
+      : 'bg-[var(--color-category-flight-bg)] text-[var(--color-category-flight)]'
 
   return (
     <Card
@@ -131,9 +134,9 @@ export function UnpairedPilotCard({
 
         {/* Unpaired status warning */}
         <div className="bg-muted/50 flex items-start gap-2 rounded-lg p-3">
-          <UserX className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-500" />
+          <UserX className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--color-status-medium)]" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-orange-700 dark:text-orange-300">
+            <p className="text-sm font-medium text-[var(--color-status-medium-foreground)]">
               Scheduled Solo
             </p>
             <p className="text-muted-foreground text-xs">{UNPAIRED_REASON_LABELS[pilot.reason]}</p>
@@ -169,10 +172,10 @@ export function UnpairedPilotCard({
                 className={cn(
                   'font-medium',
                   pilot.daysUntilExpiry <= 14
-                    ? 'text-red-600 dark:text-red-400'
+                    ? 'text-[var(--color-status-high)]'
                     : pilot.daysUntilExpiry <= 30
-                      ? 'text-orange-600 dark:text-orange-400'
-                      : 'text-yellow-600 dark:text-yellow-400'
+                      ? 'text-[var(--color-status-medium)]'
+                      : 'text-[var(--color-status-medium)]/80'
                 )}
               >
                 {pilot.daysUntilExpiry < 0
@@ -185,10 +188,10 @@ export function UnpairedPilotCard({
                 className={cn(
                   'h-full rounded-full transition-all',
                   pilot.daysUntilExpiry <= 14
-                    ? 'bg-red-500'
+                    ? 'bg-[var(--color-status-high)]'
                     : pilot.daysUntilExpiry <= 30
-                      ? 'bg-orange-500'
-                      : 'bg-yellow-500'
+                      ? 'bg-[var(--color-status-medium)]'
+                      : 'bg-[var(--color-status-medium)]/70'
                 )}
                 style={{
                   width: `${Math.max(Math.min((pilot.daysUntilExpiry / 90) * 100, 100), 5)}%`,

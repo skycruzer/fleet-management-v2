@@ -283,9 +283,11 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
         )}
 
         {success && (
-          <Alert className="border-green-300 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">{success}</AlertDescription>
+          <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
+            <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" />
+            <AlertDescription className="text-[var(--color-status-low)]">
+              {success}
+            </AlertDescription>
           </Alert>
         )}
 

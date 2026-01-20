@@ -77,27 +77,27 @@ export function RenewalCalendarYearly({
   }, [summaries, filters])
 
   const getUtilizationColor = (utilization: number): string => {
-    if (utilization > 80) return 'border-red-400 dark:border-red-600'
-    if (utilization > 60) return 'border-yellow-400 dark:border-yellow-600'
-    return 'border-green-400 dark:border-green-600'
+    if (utilization > 80) return 'border-[var(--color-status-high-border)]'
+    if (utilization > 60) return 'border-[var(--color-status-medium-border)]'
+    return 'border-[var(--color-status-low-border)]'
   }
 
   const getUtilizationBg = (utilization: number): string => {
-    if (utilization > 80) return 'bg-red-50 dark:bg-red-950/30'
-    if (utilization > 60) return 'bg-yellow-50 dark:bg-yellow-950/30'
-    return 'bg-green-50 dark:bg-green-950/30'
+    if (utilization > 80) return 'bg-[var(--color-status-high-bg)]'
+    if (utilization > 60) return 'bg-[var(--color-status-medium-bg)]'
+    return 'bg-[var(--color-status-low-bg)]'
   }
 
   const getProgressColor = (utilization: number): string => {
-    if (utilization > 80) return 'bg-red-500'
-    if (utilization > 60) return 'bg-yellow-500'
-    return 'bg-green-500'
+    if (utilization > 80) return 'bg-[var(--color-status-high)]'
+    if (utilization > 60) return 'bg-[var(--color-status-medium)]'
+    return 'bg-[var(--color-status-low)]'
   }
 
   const getBadgeVariant = (utilization: number): string => {
-    if (utilization > 80) return 'bg-red-600 text-white hover:bg-red-700'
-    if (utilization > 60) return 'bg-yellow-600 text-white hover:bg-yellow-700'
-    return 'bg-green-600 text-white hover:bg-green-700'
+    if (utilization > 80) return 'bg-[var(--color-status-high)] text-white hover:opacity-90'
+    if (utilization > 60) return 'bg-[var(--color-status-medium)] text-white hover:opacity-90'
+    return 'bg-[var(--color-status-low)] text-white hover:opacity-90'
   }
 
   return (
@@ -112,15 +112,15 @@ export function RenewalCalendarYearly({
         </div>
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
             <span className="text-muted-foreground">&lt;60%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-yellow-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]" />
             <span className="text-muted-foreground">60-80%</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-red-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-high)]" />
             <span className="text-muted-foreground">&gt;80%</span>
           </div>
         </div>
@@ -215,10 +215,10 @@ export function RenewalCalendarYearly({
                             className={cn(
                               'font-medium',
                               catUtil > 80
-                                ? 'text-red-600'
+                                ? 'text-[var(--color-status-high)]'
                                 : catUtil > 60
-                                  ? 'text-yellow-600'
-                                  : 'text-green-600'
+                                  ? 'text-[var(--color-status-medium)]'
+                                  : 'text-[var(--color-status-low)]'
                             )}
                           >
                             {data.plannedCount}/{data.capacity}
@@ -288,25 +288,25 @@ export function RenewalCalendarYearly({
       )}
 
       {/* Legend */}
-      <Card className="bg-blue-50 p-4 dark:bg-blue-950/30">
-        <h4 className="mb-2 text-sm font-semibold text-blue-900 dark:text-blue-100">
+      <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4">
+        <h4 className="mb-2 text-sm font-semibold text-[var(--color-info-foreground)]">
           Calendar Guide
         </h4>
-        <ul className="grid gap-1 text-xs text-blue-700 sm:grid-cols-3 dark:text-blue-300">
+        <ul className="grid gap-1 text-xs text-[var(--color-info)] sm:grid-cols-3">
           <li className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
             Good utilization (&lt;60%)
           </li>
           <li className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-yellow-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]" />
             Medium utilization (60-80%)
           </li>
           <li className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-red-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-high)]" />
             High utilization (&gt;80%)
           </li>
         </ul>
-        <p className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+        <p className="mt-2 text-xs text-[var(--color-info)]">
           All 13 roster periods (RP1-RP13) are available for planning. Hover over any period for
           detailed breakdown. Click to view full pilot schedules.
         </p>

@@ -86,8 +86,7 @@ export function RetryIndicator({
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-2 rounded-md bg-blue-50 px-3 py-1 text-sm text-blue-900',
-          'dark:bg-blue-950 dark:text-blue-100',
+          'inline-flex items-center gap-2 rounded-md bg-[var(--color-info-bg)] px-3 py-1 text-sm text-[var(--color-info-foreground)]',
           className
         )}
       >
@@ -102,25 +101,24 @@ export function RetryIndicator({
       <div
         className={cn(
           'fixed right-4 bottom-4 z-50 flex min-w-[300px] items-center gap-3 rounded-lg',
-          'border border-blue-200 bg-white p-4 shadow-lg',
-          'dark:border-blue-800 dark:bg-gray-900',
+          'bg-background border border-[var(--color-info-border)] p-4 shadow-lg',
           className
         )}
       >
         <div className="flex-shrink-0">{displayIcon}</div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-foreground text-sm font-medium">
             {statusMessage || 'Retrying request...'}
           </p>
           {showProgress && (
             <div className="mt-2">
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
                 <div
-                  className="h-full bg-blue-600 transition-all duration-300 dark:bg-blue-500"
+                  className="h-full bg-[var(--color-info)] transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Attempt {attempt}/{maxRetries}
               </p>
             </div>
@@ -134,29 +132,28 @@ export function RetryIndicator({
   return (
     <div
       className={cn(
-        'flex items-center gap-4 rounded-lg border border-blue-200 bg-blue-50 p-4',
-        'dark:border-blue-800 dark:bg-blue-950',
+        'flex items-center gap-4 rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4',
         className
       )}
       role="status"
       aria-live="polite"
     >
-      <div className="flex-shrink-0 text-blue-600 dark:text-blue-400">{displayIcon}</div>
+      <div className="flex-shrink-0 text-[var(--color-info)]">{displayIcon}</div>
 
       <div className="flex-1">
-        <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+        <p className="text-sm font-medium text-[var(--color-info-foreground)]">
           {statusMessage || 'Connection issue. Retrying...'}
         </p>
 
         {showProgress && (
           <div className="mt-2 space-y-2">
-            <div className="h-2 w-full overflow-hidden rounded-full bg-blue-200 dark:bg-blue-900">
+            <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
               <div
-                className="h-full bg-blue-600 transition-all duration-300 ease-in-out dark:bg-blue-500"
+                className="h-full bg-[var(--color-info)] transition-all duration-300 ease-in-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-xs text-blue-700 dark:text-blue-300">
+            <p className="text-xs text-[var(--color-info)]">
               Retry attempt {attempt} of {maxRetries}
             </p>
           </div>
@@ -213,27 +210,25 @@ export function NetworkErrorBanner({
   return (
     <div
       className={cn(
-        'flex items-center gap-4 rounded-lg border border-red-200 bg-red-50 p-4',
-        'dark:border-red-800 dark:bg-red-950',
+        'flex items-center gap-4 rounded-lg border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4',
         className
       )}
       role="alert"
     >
-      <div className="flex-shrink-0 text-red-600 dark:text-red-400">
+      <div className="flex-shrink-0 text-[var(--color-status-high)]">
         <WifiOff className="h-5 w-5" />
       </div>
 
       <div className="flex-1">
-        <p className="text-sm font-medium text-red-900 dark:text-red-100">{message}</p>
+        <p className="text-sm font-medium text-[var(--color-status-high-foreground)]">{message}</p>
       </div>
 
       {onRetry && (
         <button
           onClick={onRetry}
           className={cn(
-            'flex items-center gap-2 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white',
-            'hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none',
-            'dark:bg-red-500 dark:hover:bg-red-600'
+            'flex items-center gap-2 rounded-md bg-[var(--color-status-high)] px-3 py-1.5 text-sm font-medium text-white',
+            'hover:opacity-90 focus:ring-2 focus:ring-[var(--color-status-high)] focus:ring-offset-2 focus:outline-none'
           )}
         >
           <RefreshCw className="h-4 w-4" />
@@ -292,7 +287,7 @@ export function InlineRetryStatus({
   return (
     <div
       className={cn(
-        'inline-flex items-center text-blue-600 dark:text-blue-400',
+        'inline-flex items-center text-[var(--color-info)]',
         sizeClasses[size],
         className
       )}

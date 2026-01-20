@@ -40,7 +40,7 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
       <Card className="p-12 text-center">
         <div className="flex flex-col items-center justify-center space-y-4">
           <svg
-            className="h-24 w-24 text-gray-300 dark:text-gray-600"
+            className="text-muted-foreground/30 h-24 w-24"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -53,10 +53,8 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
             />
           </svg>
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              No Leave Bids Yet
-            </h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
+            <h3 className="text-foreground text-xl font-semibold">No Leave Bids Yet</h3>
+            <p className="text-muted-foreground mt-2">
               Pilots haven&apos;t submitted any leave bids for review. Leave bids will appear here
               once pilots submit their annual leave preferences.
             </p>
@@ -70,17 +68,17 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
     <div className="space-y-6">
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card className="border-yellow-300 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-950">
+        <Card className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+              <p className="text-sm font-medium text-[var(--color-status-medium)]">
                 Pending Review
               </p>
-              <p className="text-3xl font-bold text-yellow-700 dark:text-yellow-300">
+              <p className="text-3xl font-bold text-[var(--color-status-medium)]">
                 {pendingBids.length}
               </p>
             </div>
-            <div className="text-yellow-500 dark:text-yellow-400">
+            <div className="text-[var(--color-status-medium)]">
               <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -93,15 +91,15 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
           </div>
         </Card>
 
-        <Card className="border-green-300 bg-green-50 p-4 dark:border-green-700 dark:bg-green-950">
+        <Card className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-green-900 dark:text-green-100">Approved</p>
-              <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+              <p className="text-sm font-medium text-[var(--color-status-low)]">Approved</p>
+              <p className="text-3xl font-bold text-[var(--color-status-low)]">
                 {approvedBids.length}
               </p>
             </div>
-            <div className="text-green-500 dark:text-green-400">
+            <div className="text-[var(--color-status-low)]">
               <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -114,15 +112,15 @@ export function LeaveBidTableClient({ bids }: LeaveBidTableClientProps) {
           </div>
         </Card>
 
-        <Card className="border-red-300 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950">
+        <Card className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-red-900 dark:text-red-100">Rejected</p>
-              <p className="text-3xl font-bold text-red-700 dark:text-red-300">
+              <p className="text-sm font-medium text-[var(--color-status-high)]">Rejected</p>
+              <p className="text-3xl font-bold text-[var(--color-status-high)]">
                 {rejectedBids.length}
               </p>
             </div>
-            <div className="text-red-500 dark:text-red-400">
+            <div className="text-[var(--color-status-high)]">
               <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"

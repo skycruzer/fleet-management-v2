@@ -37,7 +37,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'INSERT':
         return (
           <svg
-            className="h-6 w-6 text-green-600 dark:text-green-400"
+            className="h-6 w-6 text-[var(--color-status-low)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -48,7 +48,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'UPDATE':
         return (
           <svg
-            className="h-6 w-6 text-blue-600 dark:text-blue-400"
+            className="h-6 w-6 text-[var(--color-info)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -64,7 +64,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'DELETE':
         return (
           <svg
-            className="h-6 w-6 text-red-600 dark:text-red-400"
+            className="h-6 w-6 text-[var(--color-status-high)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -96,7 +96,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'LOGOUT':
         return (
           <svg
-            className="h-6 w-6 text-gray-600 dark:text-gray-400"
+            className="text-muted-foreground h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -112,7 +112,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'APPROVE':
         return (
           <svg
-            className="h-6 w-6 text-green-600 dark:text-green-400"
+            className="h-6 w-6 text-[var(--color-status-low)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -128,7 +128,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'DENY':
         return (
           <svg
-            className="h-6 w-6 text-red-600 dark:text-red-400"
+            className="h-6 w-6 text-[var(--color-status-high)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -144,7 +144,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       default:
         return (
           <svg
-            className="h-6 w-6 text-gray-600 dark:text-gray-400"
+            className="text-muted-foreground h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -163,21 +163,21 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
   const getActionBadgeColor = (action: string) => {
     switch (action) {
       case 'INSERT':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
       case 'UPDATE':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       case 'DELETE':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
       case 'LOGIN':
-        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
+        return 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]'
       case 'LOGOUT':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
       case 'APPROVE':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
       case 'DENY':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
@@ -207,7 +207,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
 
   if (logs.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-gray-700 dark:bg-gray-800">
+      <div className="border-border bg-card rounded-lg border p-8 text-center">
         <svg
           className="mx-auto h-12 w-12 text-gray-400"
           fill="none"
@@ -221,8 +221,8 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">No activity</h3>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <h3 className="text-foreground mt-2 text-lg font-medium">No activity</h3>
+        <p className="text-muted-foreground mt-1 text-sm">
           No audit logs to display in timeline view.
         </p>
       </div>
@@ -235,15 +235,15 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
         <div key={dateKey}>
           {/* Date Header */}
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
-            <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+            <div className="bg-border h-px flex-1" />
+            <h3 className="text-muted-foreground text-sm font-semibold">
               {formatDate(logs[0].created_at).date}
             </h3>
-            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+            <div className="bg-border h-px flex-1" />
           </div>
 
           {/* Timeline Items */}
-          <div className="relative ml-6 space-y-6 border-l-2 border-gray-200 pl-8 dark:border-gray-700">
+          <div className="border-border relative ml-6 space-y-6 border-l-2 pl-8">
             {logs.map((log) => {
               const { time } = formatDate(log.created_at)
               const isHighlighted = highlightRecordId && log.record_id === highlightRecordId
@@ -251,15 +251,15 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
               return (
                 <div
                   key={log.id}
-                  className={`relative ${isHighlighted ? 'rounded-lg border-2 border-blue-500 bg-blue-50/50 p-4 dark:bg-blue-900/10' : ''}`}
+                  className={`relative ${isHighlighted ? 'rounded-lg border-2 border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4' : ''}`}
                 >
                   {/* Timeline Icon */}
-                  <div className="absolute -left-11 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-gray-100 dark:border-gray-900 dark:bg-gray-800">
+                  <div className="border-background bg-muted absolute -left-11 flex h-10 w-10 items-center justify-center rounded-full border-4">
                     {getActionIcon(log.action)}
                   </div>
 
                   {/* Timeline Content */}
-                  <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                  <div className="border-border bg-card rounded-lg border p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="mb-2 flex items-center gap-2">
@@ -268,27 +268,25 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
                           >
                             {log.action}
                           </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">{time}</span>
+                          <span className="text-muted-foreground text-sm">{time}</span>
                         </div>
 
-                        <p className="text-sm text-gray-900 dark:text-white">
+                        <p className="text-foreground text-sm">
                           <strong>{log.user_email || 'System'}</strong>
                           {log.description
                             ? ` ${log.description}`
                             : ` performed ${log.action.toLowerCase()} on ${log.table_name}`}
                         </p>
 
-                        <div className="mt-2 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+                        <div className="text-muted-foreground mt-2 flex items-center gap-4 text-xs">
                           <span>
                             Table:{' '}
-                            <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-900">
-                              {log.table_name}
-                            </code>
+                            <code className="bg-muted rounded px-1 py-0.5">{log.table_name}</code>
                           </span>
                           {log.record_id && (
                             <span>
                               Record:{' '}
-                              <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-900">
+                              <code className="bg-muted rounded px-1 py-0.5">
                                 {log.record_id.slice(0, 8)}...
                               </code>
                             </span>
@@ -298,7 +296,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
 
                       <Link
                         href={`/dashboard/audit/${log.id}`}
-                        className="flex-shrink-0 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        className="flex-shrink-0 text-sm font-medium text-[var(--color-info)] hover:text-[var(--color-info)]/80"
                       >
                         Details →
                       </Link>

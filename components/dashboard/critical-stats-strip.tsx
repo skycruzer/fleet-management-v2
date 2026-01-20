@@ -45,16 +45,16 @@ interface CriticalStatsStripProps {
 }
 
 const statusColors = {
-  success: 'text-emerald-600',
-  warning: 'text-amber-600',
-  critical: 'text-red-600',
+  success: 'text-[var(--color-status-low)]',
+  warning: 'text-[var(--color-status-medium)]',
+  critical: 'text-[var(--color-status-high)]',
   neutral: 'text-muted-foreground',
 }
 
 const statusBgColors = {
-  success: 'bg-emerald-50 dark:bg-emerald-900/20',
-  warning: 'bg-amber-50 dark:bg-amber-900/20',
-  critical: 'bg-red-50 dark:bg-red-900/20',
+  success: 'bg-[var(--color-status-low-bg)]',
+  warning: 'bg-[var(--color-status-medium-bg)]',
+  critical: 'bg-[var(--color-status-high-bg)]',
   neutral: 'bg-muted',
 }
 
@@ -83,8 +83,8 @@ function StatCard({ stat }: { stat: StatItem }) {
             <span
               className={cn(
                 'flex items-center text-xs font-medium',
-                stat.trend === 'up' && 'text-emerald-600',
-                stat.trend === 'down' && 'text-red-600',
+                stat.trend === 'up' && 'text-[var(--color-status-low)]',
+                stat.trend === 'down' && 'text-[var(--color-status-high)]',
                 stat.trend === 'stable' && 'text-muted-foreground'
               )}
             >

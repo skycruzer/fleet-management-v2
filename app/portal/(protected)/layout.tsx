@@ -4,7 +4,7 @@ import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { PilotPortalSidebar } from '@/components/layout/pilot-portal-sidebar'
 import { PortalToastHandler } from '@/components/portal/portal-toast-handler'
-import { QueryProvider } from '@/providers/query-provider'
+import { QueryProvider } from '@/lib/react-query/query-provider'
 
 /**
  * Portal Layout
@@ -31,7 +31,7 @@ export default async function PortalLayout({ children }: { children: React.React
   return (
     <ErrorBoundary>
       <QueryProvider>
-        <div className="flex min-h-screen bg-gradient-to-br from-zinc-100 via-zinc-50 to-white dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+        <div className="bg-background flex min-h-screen">
           {/* Pilot Portal Sidebar */}
           <PilotPortalSidebar
             pilotName={`${pilot.first_name} ${pilot.last_name}`}
@@ -40,8 +40,8 @@ export default async function PortalLayout({ children }: { children: React.React
             email={pilot.email || undefined}
           />
 
-          {/* Main Content */}
-          <main id="main-content" className="flex-1 pt-16 md:ml-64 md:pt-0">
+          {/* Main Content - uses lg breakpoint for consistency with admin portal */}
+          <main id="main-content" className="flex-1 pt-16 lg:ml-60 lg:pt-0">
             {children}
           </main>
 

@@ -24,15 +24,15 @@ interface RenewalDistributionChartProps {
 }
 
 function getUtilizationColor(utilization: number): string {
-  if (utilization > 80) return 'bg-red-500'
-  if (utilization > 60) return 'bg-yellow-500'
-  return 'bg-green-500'
+  if (utilization > 80) return 'bg-[var(--color-status-high)]'
+  if (utilization > 60) return 'bg-[var(--color-status-medium)]'
+  return 'bg-[var(--color-status-low)]'
 }
 
 function getUtilizationBgColor(utilization: number): string {
-  if (utilization > 80) return 'bg-red-100 dark:bg-red-950'
-  if (utilization > 60) return 'bg-yellow-100 dark:bg-yellow-950'
-  return 'bg-green-100 dark:bg-green-950'
+  if (utilization > 80) return 'bg-[var(--color-status-high-bg)]'
+  if (utilization > 60) return 'bg-[var(--color-status-medium-bg)]'
+  return 'bg-[var(--color-status-low-bg)]'
 }
 
 export function RenewalDistributionChart({

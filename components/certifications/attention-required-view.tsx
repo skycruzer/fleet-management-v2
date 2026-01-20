@@ -39,9 +39,9 @@ export function AttentionRequiredView({
   // All good state
   if (totalExpiring === 0) {
     return (
-      <Card className="border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-950/30">
+      <Card className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 text-center">
         <CheckCircle
-          className="mx-auto h-10 w-10 text-green-600 dark:text-green-500"
+          className="mx-auto h-10 w-10 text-[var(--color-status-low)]"
           aria-hidden="true"
         />
         <h3 className="text-foreground mt-3 text-lg font-semibold">All Certifications Current</h3>
@@ -56,10 +56,10 @@ export function AttentionRequiredView({
     <div className="space-y-3">
       {/* Priority Alert Banner */}
       {mostCritical && (
-        <Card className="border-destructive/20 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/30">
+        <Card className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-3">
           <div className="flex items-start space-x-2.5">
             <AlertTriangle
-              className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-500"
+              className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-status-high)]"
               aria-hidden="true"
             />
             <div className="flex-1">
@@ -100,8 +100,8 @@ export function AttentionRequiredView({
                     <p
                       className={`text-xs font-medium ${
                         cert.status.daysUntilExpiry < 0
-                          ? 'text-red-600 dark:text-red-500'
-                          : 'text-yellow-600 dark:text-yellow-500'
+                          ? 'text-[var(--color-status-high)]'
+                          : 'text-[var(--color-status-medium)]'
                       }`}
                     >
                       {formatDaysUntilExpiry(cert.status.daysUntilExpiry)}

@@ -311,10 +311,10 @@ export function PaginatedReportTable({
               variant="outline"
               className={`font-mono text-xs ${
                 getValue() === 'HIGH'
-                  ? 'border-red-500 text-red-600'
+                  ? 'border-[var(--color-status-high)] text-[var(--color-status-high)]'
                   : getValue() === 'MEDIUM'
-                    ? 'border-yellow-500 text-yellow-600'
-                    : 'border-gray-500 text-gray-600'
+                    ? 'border-[var(--color-status-medium)] text-[var(--color-status-medium)]'
+                    : 'border-muted-foreground text-muted-foreground'
               }`}
             >
               {getValue() as string}
@@ -425,7 +425,11 @@ export function PaginatedReportTable({
           return (
             <div
               className={`text-sm font-medium ${
-                days < 0 ? 'text-red-600' : days <= 30 ? 'text-yellow-600' : 'text-green-600'
+                days < 0
+                  ? 'text-[var(--color-status-high)]'
+                  : days <= 30
+                    ? 'text-[var(--color-status-medium)]'
+                    : 'text-[var(--color-status-low)]'
               }`}
             >
               {days}

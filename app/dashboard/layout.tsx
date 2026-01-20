@@ -138,7 +138,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-x-hidden lg:ml-56">
+        <div className="flex-1 overflow-x-hidden lg:ml-60">
           {/* Professional Header - Hidden on mobile */}
           <div className="hidden lg:block">
             <ProfessionalHeader />

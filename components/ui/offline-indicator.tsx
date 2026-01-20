@@ -72,7 +72,7 @@ export function OfflineIndicator() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed top-0 right-0 left-0 z-50 bg-red-600 text-white shadow-lg"
+          className="fixed top-0 right-0 left-0 z-50 bg-[var(--color-status-high)] text-white shadow-lg"
           role="alert"
           aria-live="assertive"
         >
@@ -110,7 +110,7 @@ export function OfflineIndicator() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed top-0 right-0 left-0 z-50 bg-green-600 text-white shadow-lg"
+          className="fixed top-0 right-0 left-0 z-50 bg-[var(--color-status-low)] text-white shadow-lg"
           role="alert"
           aria-live="polite"
         >
@@ -167,9 +167,9 @@ export function OfflineBadge() {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       exit={{ scale: 0 }}
-      className="flex items-center gap-2 rounded-full bg-red-100 px-3 py-1.5 text-xs font-medium text-red-800"
+      className="flex items-center gap-2 rounded-full bg-[var(--color-status-high-bg)] px-3 py-1.5 text-xs font-medium text-[var(--color-status-high)]"
     >
-      <div className="h-2 w-2 animate-pulse rounded-full bg-red-500" />
+      <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-status-high)]" />
       <span>Offline</span>
     </motion.div>
   )

@@ -24,22 +24,22 @@ export default function LeaveEligibilityIndicator({
 }: LeaveEligibilityIndicatorProps) {
   const statusConfig = {
     available: {
-      color: 'bg-green-100 border-green-500 dark:bg-green-900/20',
-      textColor: 'text-green-800 dark:text-green-200',
+      color: 'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)]',
+      textColor: 'text-[var(--color-status-low)]',
       icon: '✓',
       label: 'Available',
       defaultMessage: 'Leave request can be approved',
     },
     limited: {
-      color: 'bg-yellow-100 border-yellow-500 dark:bg-yellow-900/20',
-      textColor: 'text-yellow-800 dark:text-yellow-200',
+      color: 'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)]',
+      textColor: 'text-[var(--color-status-medium)]',
       icon: '!',
       label: 'Limited Availability',
       defaultMessage: 'Approaching minimum crew requirements',
     },
     unavailable: {
-      color: 'bg-red-100 border-red-500 dark:bg-red-900/20',
-      textColor: 'text-red-800 dark:text-red-200',
+      color: 'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)]',
+      textColor: 'text-[var(--color-status-high)]',
       icon: '✕',
       label: 'Unavailable',
       defaultMessage: 'Would violate minimum crew requirements',
@@ -80,17 +80,17 @@ export function LeaveEligibilityBadge({
 }) {
   const badgeConfig = {
     available: {
-      color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+      color: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
       icon: '●',
       label: 'Available',
     },
     limited: {
-      color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+      color: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
       icon: '●',
       label: 'Limited',
     },
     unavailable: {
-      color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+      color: 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
       icon: '●',
       label: 'Unavailable',
     },

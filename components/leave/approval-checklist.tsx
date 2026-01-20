@@ -143,7 +143,9 @@ export function ApprovalChecklist({
               key={item.id}
               className={cn(
                 'flex items-center gap-2.5 rounded-md border p-1.5 transition-colors',
-                checkedItems.has(item.id) ? 'border-green-300 bg-green-50' : 'border-gray-200'
+                checkedItems.has(item.id)
+                  ? 'border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]'
+                  : 'border-border'
               )}
             >
               <Checkbox
@@ -156,7 +158,7 @@ export function ApprovalChecklist({
                 htmlFor={uniqueId}
                 className={cn(
                   'cursor-pointer text-sm',
-                  checkedItems.has(item.id) && 'text-green-700'
+                  checkedItems.has(item.id) && 'text-[var(--color-status-low)]'
                 )}
               >
                 {item.label}

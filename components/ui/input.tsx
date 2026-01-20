@@ -1,9 +1,36 @@
 import * as React from 'react'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
+import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
-export interface InputProps extends React.ComponentProps<'input'> {
+const inputVariants = cva(
+  // Base styles - Linear-inspired
+  [
+    'bg-background flex w-full rounded-lg border px-3 py-2 text-sm',
+    'transition-all duration-200',
+    'file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium',
+    'placeholder:text-muted-foreground',
+    'border-border',
+    'focus:ring-ring/20 focus:border-foreground/30 focus:ring-2 focus:outline-none',
+    'disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50',
+  ],
+  {
+    variants: {
+      size: {
+        default: 'h-9',
+        sm: 'h-8 text-xs',
+        lg: 'h-11',
+      },
+    },
+    defaultVariants: {
+      size: 'default',
+    },
+  }
+)
+
+export interface InputProps
+  extends Omit<React.ComponentProps<'input'>, 'size'>, VariantProps<typeof inputVariants> {
   'aria-label'?: string
   'aria-describedby'?: string
   'aria-required'?: boolean
@@ -15,7 +42,10 @@ export interface InputProps extends React.ComponentProps<'input'> {
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, error, success, showIcon = true, autoFocusFirst = false, ...props }, ref) => {
+  (
+    { className, type, size, error, success, showIcon = true, autoFocusFirst = false, ...props },
+    ref
+  ) => {
     const hasState = error || success
     const showStateIcon = showIcon && hasState && !props.disabled
     const localRef = React.useRef<HTMLInputElement>(null)
@@ -33,17 +63,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           type={type}
           className={cn(
-            // Base styles - Linear-inspired
-            'bg-background flex h-9 w-full rounded-lg border px-3 py-2 text-sm',
-            'transition-all duration-200',
-            'file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium',
-            'placeholder:text-muted-foreground',
-            // Default border
-            'border-border',
-            // Focus state - subtle indigo glow
-            'focus:ring-ring/20 focus:border-foreground/30 focus:ring-2 focus:outline-none',
-            // Disabled state
-            'disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50',
+            inputVariants({ size }),
             // Error state
             error &&
               'border-destructive focus:ring-destructive/20 focus:border-destructive text-destructive',
@@ -61,13 +81,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {/* Validation icons */}
         {showStateIcon && error && (
           <AlertCircle
-            className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-red-500"
+            className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-[var(--color-status-high)]"
             aria-hidden="true"
           />
         )}
         {showStateIcon && success && (
           <CheckCircle2
-            className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-green-500"
+            className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-[var(--color-status-low)]"
             aria-hidden="true"
           />
         )}
@@ -77,4 +97,4 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 )
 Input.displayName = 'Input'
 
-export { Input }
+export { Input, inputVariants }

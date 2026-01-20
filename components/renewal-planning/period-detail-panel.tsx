@@ -161,12 +161,12 @@ export function PeriodDetailPanel({
                 variant="outline"
                 className={
                   utilizationStatus === 'over'
-                    ? 'border-red-500 text-red-500'
+                    ? 'border-[var(--color-status-high-border)] text-[var(--color-status-high)]'
                     : utilizationStatus === 'high'
-                      ? 'border-red-400 text-red-400'
+                      ? 'border-[var(--color-status-high-border)] text-[var(--color-status-high)]'
                       : utilizationStatus === 'medium'
-                        ? 'border-yellow-500 text-yellow-500'
-                        : 'border-green-500 text-green-500'
+                        ? 'border-[var(--color-status-medium-border)] text-[var(--color-status-medium)]'
+                        : 'border-[var(--color-status-low-border)] text-[var(--color-status-low)]'
                 }
               >
                 {utilizationStatus === 'over'
@@ -256,10 +256,10 @@ export function PeriodDetailPanel({
                             variant="outline"
                             className={
                               renewal.status === 'completed'
-                                ? 'border-green-500 text-green-500'
+                                ? 'border-[var(--color-status-low-border)] text-[var(--color-status-low)]'
                                 : renewal.status === 'confirmed'
-                                  ? 'border-blue-500 text-blue-500'
-                                  : 'border-gray-500 text-gray-500'
+                                  ? 'border-[var(--color-info-border)] text-[var(--color-info)]'
+                                  : 'border-muted text-muted-foreground'
                             }
                           >
                             {renewal.status}

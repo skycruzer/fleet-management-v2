@@ -272,12 +272,12 @@ export function CalendarPageClient({
 
       {/* Info Box */}
       {hasRenewals && (
-        <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-950/30">
-          <AlertCircle className="h-4 w-4 text-blue-600" />
-          <AlertTitle className="text-blue-900 dark:text-blue-100">
+        <Alert className="border-[var(--color-info-border)] bg-[var(--color-info-bg)]">
+          <AlertCircle className="h-4 w-4 text-[var(--color-info)]" />
+          <AlertTitle className="text-[var(--color-info-foreground)]">
             Export & Email Options
           </AlertTitle>
-          <AlertDescription className="text-blue-700 dark:text-blue-300">
+          <AlertDescription className="text-[var(--color-info)]">
             <ul className="mt-2 space-y-1 text-sm">
               <li>
                 <strong>Preview</strong>: View a comprehensive summary before exporting or emailing

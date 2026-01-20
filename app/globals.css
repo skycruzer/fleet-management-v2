@@ -102,6 +102,29 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
+  /* === LAYOUT TOKENS (Unified across portals) === */
+  --layout-sidebar-width: 15rem; /* 240px - unified for Admin & Pilot */
+  --layout-header-height: 3.5rem; /* 56px */
+  --layout-mobile-header: 4rem; /* 64px */
+
+  /* === SPACING SCALE (Consistent padding) === */
+  --spacing-page: 1rem; /* 16px mobile */
+  --spacing-page-sm: 1.5rem; /* 24px tablet */
+  --spacing-page-lg: 2rem; /* 32px desktop */
+  --spacing-section: 2rem; /* 32px between sections */
+  --spacing-card: 1.25rem; /* 20px card padding */
+
+  /* === Z-INDEX SCALE (Fix stacking conflicts) === */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-header: 30;
+  --z-sidebar: 40;
+  --z-overlay: 50;
+  --z-modal: 60;
+  --z-popover: 70;
+  --z-tooltip: 80;
+  --z-toast: 90;
+
   /* === TRANSITIONS === */
   --transition-fast: 150ms;
   --transition-normal: 200ms;
@@ -111,6 +134,44 @@
   --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.03);
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
   --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+
+  /* === INTERACTIVE SHADOWS (Phase 3 Enhancement) === */
+  --shadow-interactive: 0 4px 12px -2px rgb(0 0 0 / 0.08);
+  --shadow-interactive-hover: 0 8px 20px -4px rgb(0 0 0 / 0.12);
+  --shadow-glow-accent: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  --shadow-glow-success: 0 0 0 3px rgba(34, 197, 94, 0.15);
+  --shadow-glow-destructive: 0 0 0 3px rgba(239, 68, 68, 0.15);
+
+  /* === STATUS COLORS (Semantic tokens for compliance indicators) === */
+  --color-status-low: #22c55e;
+  --color-status-low-bg: #dcfce7;
+  --color-status-low-border: #86efac;
+  --color-status-medium: #f59e0b;
+  --color-status-medium-bg: #fef3c7;
+  --color-status-medium-border: #fcd34d;
+  --color-status-high: #ef4444;
+  --color-status-high-bg: #fee2e2;
+  --color-status-high-border: #fca5a5;
+
+  /* === CATEGORY COLORS (For training/certification types) === */
+  --color-category-flight: #3b82f6;
+  --color-category-flight-bg: #eff6ff;
+  --color-category-flight-border: #93c5fd;
+  --color-category-simulator: #8b5cf6;
+  --color-category-simulator-bg: #faf5ff;
+  --color-category-simulator-border: #c4b5fd;
+  --color-category-ground: #22c55e;
+  --color-category-ground-bg: #f0fdf4;
+  --color-category-ground-border: #86efac;
+  --color-category-medical: #ec4899;
+  --color-category-medical-bg: #fdf2f8;
+  --color-category-medical-border: #f9a8d4;
+
+  /* === INFO/NEUTRAL ACCENT === */
+  --color-info: #3b82f6;
+  --color-info-bg: #eff6ff;
+  --color-info-border: #93c5fd;
+  --color-info-foreground: #1e40af;
 }
 
 /* === DARK MODE (Stone-based for warmth) === */
@@ -151,6 +212,44 @@
   --color-success: #4ade80;
   --color-warning: #fbbf24;
   --color-destructive: #f87171;
+
+  /* Interactive shadows - darker variants */
+  --shadow-interactive: 0 4px 12px -2px rgb(0 0 0 / 0.3);
+  --shadow-interactive-hover: 0 8px 20px -4px rgb(0 0 0 / 0.4);
+  --shadow-glow-accent: 0 0 0 3px rgba(129, 140, 248, 0.25);
+  --shadow-glow-success: 0 0 0 3px rgba(74, 222, 128, 0.25);
+  --shadow-glow-destructive: 0 0 0 3px rgba(248, 113, 113, 0.25);
+
+  /* Status colors - Adjusted for dark mode visibility */
+  --color-status-low: #4ade80;
+  --color-status-low-bg: rgba(34, 197, 94, 0.15);
+  --color-status-low-border: rgba(34, 197, 94, 0.3);
+  --color-status-medium: #fbbf24;
+  --color-status-medium-bg: rgba(245, 158, 11, 0.15);
+  --color-status-medium-border: rgba(245, 158, 11, 0.3);
+  --color-status-high: #f87171;
+  --color-status-high-bg: rgba(239, 68, 68, 0.15);
+  --color-status-high-border: rgba(239, 68, 68, 0.3);
+
+  /* Category colors - Adjusted for dark mode */
+  --color-category-flight: #60a5fa;
+  --color-category-flight-bg: rgba(59, 130, 246, 0.15);
+  --color-category-flight-border: rgba(59, 130, 246, 0.3);
+  --color-category-simulator: #a78bfa;
+  --color-category-simulator-bg: rgba(139, 92, 246, 0.15);
+  --color-category-simulator-border: rgba(139, 92, 246, 0.3);
+  --color-category-ground: #4ade80;
+  --color-category-ground-bg: rgba(34, 197, 94, 0.15);
+  --color-category-ground-border: rgba(34, 197, 94, 0.3);
+  --color-category-medical: #f472b6;
+  --color-category-medical-bg: rgba(236, 72, 153, 0.15);
+  --color-category-medical-border: rgba(236, 72, 153, 0.3);
+
+  /* Info colors */
+  --color-info: #60a5fa;
+  --color-info-bg: rgba(59, 130, 246, 0.15);
+  --color-info-border: rgba(59, 130, 246, 0.3);
+  --color-info-foreground: #93c5fd;
 }
 
 /* === BASE STYLES === */
@@ -263,6 +362,162 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* =========================================================================
+   * ANIMATION KEYFRAMES (Phase 1 Enhancement)
+   * Subtle, professional micro-interactions
+   * ========================================================================= */
+
+  /* Success feedback - subtle bounce */
+  @keyframes success-bounce {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-success-bounce {
+    animation: success-bounce 0.4s ease-out;
+  }
+
+  /* Error feedback - shake */
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  .animate-shake {
+    animation: shake 0.4s ease-out;
+  }
+
+  /* Slide in from right (toasts, panels) */
+  @keyframes slide-in-right {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.25s ease-out;
+  }
+
+  /* Slide out to right */
+  @keyframes slide-out-right {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  .animate-slide-out-right {
+    animation: slide-out-right 0.15s ease-in;
+  }
+
+  /* Slide in from top (mobile toasts, dropdowns) */
+  @keyframes slide-in-top {
+    0% {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-top {
+    animation: slide-in-top 0.2s ease-out;
+  }
+
+  /* Fade in up (page sections, cards) */
+  @keyframes fade-in-up {
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.25s ease-out;
+  }
+
+  /* Scale in (modals, dialogs) */
+  @keyframes scale-in {
+    0% {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out;
+  }
+
+  /* Progress bar animation */
+  @keyframes progress-shrink {
+    0% {
+      width: 100%;
+    }
+    100% {
+      width: 0%;
+    }
+  }
+
+  /* =========================================================================
+   * REDUCED MOTION SUPPORT (WCAG 2.1 Level AA)
+   * Disables animations for users who prefer reduced motion
+   * ========================================================================= */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .animate-success-bounce,
+    .animate-shake,
+    .animate-slide-in-right,
+    .animate-slide-out-right,
+    .animate-slide-in-top,
+    .animate-fade-in-up,
+    .animate-scale-in,
+    .animate-scroll,
+    .animate-shimmer,
+    .animate-subtle-pulse {
+      animation: none !important;
+    }
   }
 
   .scrollbar-hide {

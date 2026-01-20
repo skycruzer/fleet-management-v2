@@ -29,7 +29,10 @@ export function PairedCrewCard({
   compact = false,
 }: PairedCrewCardProps) {
   const CategoryIcon = pair.category === 'Flight Checks' ? Plane : Monitor
-  const categoryColor = pair.category === 'Flight Checks' ? 'text-blue-500' : 'text-purple-500'
+  const categoryColor =
+    pair.category === 'Flight Checks'
+      ? 'text-[var(--color-category-flight)]'
+      : 'text-[var(--color-category-simulator)]'
 
   const overlapDays = pair.renewalWindowOverlap.days
 
@@ -44,7 +47,9 @@ export function PairedCrewCard({
       <div
         className={cn(
           'absolute top-0 left-0 h-full w-1',
-          pair.category === 'Flight Checks' ? 'bg-blue-500' : 'bg-purple-500'
+          pair.category === 'Flight Checks'
+            ? 'bg-[var(--color-category-flight)]'
+            : 'bg-[var(--color-category-simulator)]'
         )}
       />
 
@@ -57,7 +62,7 @@ export function PairedCrewCard({
           </div>
           <Badge
             variant="outline"
-            className="border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-950 dark:text-green-300"
+            className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]"
           >
             <CheckCircle className="mr-1 h-3 w-3" />
             Paired
@@ -121,10 +126,10 @@ export function PairedCrewCard({
               className={cn(
                 'text-xs font-medium',
                 overlapDays >= 30
-                  ? 'text-green-600 dark:text-green-400'
+                  ? 'text-[var(--color-status-low)]'
                   : overlapDays >= 14
-                    ? 'text-yellow-600 dark:text-yellow-400'
-                    : 'text-red-600 dark:text-red-400'
+                    ? 'text-[var(--color-status-medium)]'
+                    : 'text-[var(--color-status-high)]'
               )}
             >
               {overlapDays}d overlap
@@ -147,10 +152,10 @@ export function PairedCrewCard({
                 className={cn(
                   'h-full rounded-full transition-all',
                   overlapDays >= 30
-                    ? 'bg-green-500'
+                    ? 'bg-[var(--color-status-low)]'
                     : overlapDays >= 14
-                      ? 'bg-yellow-500'
-                      : 'bg-red-500'
+                      ? 'bg-[var(--color-status-medium)]'
+                      : 'bg-[var(--color-status-high)]'
                 )}
                 style={{ width: `${Math.min((overlapDays / 90) * 100, 100)}%` }}
               />

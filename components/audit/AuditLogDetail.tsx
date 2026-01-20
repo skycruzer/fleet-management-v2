@@ -67,7 +67,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
     if (!hasChanges) {
       return (
         <div className="rounded-lg bg-gray-50 p-6 text-center dark:bg-gray-700/50">
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             {auditLog.action === 'INSERT'
               ? 'New record created - no previous values'
               : auditLog.action === 'DELETE'
@@ -86,31 +86,26 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
           const isMultiline = oldVal.includes('\n') || newVal.includes('\n')
 
           return (
-            <div
-              key={key}
-              className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
-            >
-              <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">
-                <code className="rounded bg-gray-100 px-2 py-1 text-sm dark:bg-gray-900">
-                  {key}
-                </code>
+            <div key={key} className="border-border bg-card rounded-lg border p-4">
+              <h3 className="text-foreground mb-3 font-semibold">
+                <code className="bg-muted rounded px-2 py-1 text-sm">{key}</code>
               </h3>
 
               {isMultiline ? (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
-                    <p className="mb-2 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
+                    <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
                       Old Value
                     </p>
-                    <pre className="overflow-x-auto rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200">
+                    <pre className="overflow-x-auto rounded-md bg-[var(--color-status-high-bg)] p-3 text-sm text-[var(--color-status-high)]">
                       {oldVal || '(empty)'}
                     </pre>
                   </div>
                   <div>
-                    <p className="mb-2 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
+                    <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wider uppercase">
                       New Value
                     </p>
-                    <pre className="overflow-x-auto rounded-md bg-green-50 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-200">
+                    <pre className="overflow-x-auto rounded-md bg-[var(--color-status-low-bg)] p-3 text-sm text-[var(--color-status-low)]">
                       {newVal || '(empty)'}
                     </pre>
                   </div>
@@ -118,15 +113,15 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="flex-1 overflow-hidden">
-                    <p className="mb-1 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
+                    <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wider uppercase">
                       Old
                     </p>
-                    <code className="block truncate rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-200">
+                    <code className="block truncate rounded-md bg-[var(--color-status-high-bg)] px-3 py-2 text-sm text-[var(--color-status-high)]">
                       {oldVal || '(empty)'}
                     </code>
                   </div>
                   <svg
-                    className="h-6 w-6 flex-shrink-0 text-gray-400"
+                    className="text-muted-foreground h-6 w-6 flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -139,10 +134,10 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
                     />
                   </svg>
                   <div className="flex-1 overflow-hidden">
-                    <p className="mb-1 text-xs font-medium tracking-wider text-gray-600 uppercase dark:text-gray-400">
+                    <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wider uppercase">
                       New
                     </p>
-                    <code className="block truncate rounded-md bg-green-50 px-3 py-2 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-200">
+                    <code className="block truncate rounded-md bg-[var(--color-status-low-bg)] px-3 py-2 text-sm text-[var(--color-status-low)]">
                       {newVal || '(empty)'}
                     </code>
                   </div>
@@ -160,24 +155,24 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Old Values */}
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">Old Values</h3>
+        <div className="border-border bg-card rounded-lg border p-4">
+          <h3 className="text-foreground mb-3 font-semibold">Old Values</h3>
           {Object.keys(oldValues).length === 0 ? (
-            <p className="text-sm text-gray-600 dark:text-gray-400">No previous values</p>
+            <p className="text-muted-foreground text-sm">No previous values</p>
           ) : (
-            <pre className="overflow-x-auto rounded-md bg-gray-50 p-3 text-xs dark:bg-gray-900">
+            <pre className="bg-muted overflow-x-auto rounded-md p-3 text-xs">
               {JSON.stringify(oldValues, null, 2)}
             </pre>
           )}
         </div>
 
         {/* New Values */}
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">New Values</h3>
+        <div className="border-border bg-card rounded-lg border p-4">
+          <h3 className="text-foreground mb-3 font-semibold">New Values</h3>
           {Object.keys(newValues).length === 0 ? (
-            <p className="text-sm text-gray-600 dark:text-gray-400">No new values</p>
+            <p className="text-muted-foreground text-sm">No new values</p>
           ) : (
-            <pre className="overflow-x-auto rounded-md bg-gray-50 p-3 text-xs dark:bg-gray-900">
+            <pre className="bg-muted overflow-x-auto rounded-md p-3 text-xs">
               {JSON.stringify(newValues, null, 2)}
             </pre>
           )}
@@ -190,19 +185,15 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
   const renderRawView = () => {
     return (
       <div className="space-y-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">
-            Old Values (Raw JSON)
-          </h3>
-          <pre className="overflow-x-auto rounded-md bg-gray-50 p-4 text-xs dark:bg-gray-900">
+        <div className="border-border bg-card rounded-lg border p-4">
+          <h3 className="text-foreground mb-3 font-semibold">Old Values (Raw JSON)</h3>
+          <pre className="bg-muted overflow-x-auto rounded-md p-4 text-xs">
             {JSON.stringify(oldValues, null, 2)}
           </pre>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">
-            New Values (Raw JSON)
-          </h3>
-          <pre className="overflow-x-auto rounded-md bg-gray-50 p-4 text-xs dark:bg-gray-900">
+        <div className="border-border bg-card rounded-lg border p-4">
+          <h3 className="text-foreground mb-3 font-semibold">New Values (Raw JSON)</h3>
+          <pre className="bg-muted overflow-x-auto rounded-md p-4 text-xs">
             {JSON.stringify(newValues, null, 2)}
           </pre>
         </div>
@@ -213,15 +204,15 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
   return (
     <div className="space-y-4">
       {/* View Mode Selector */}
-      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Data Changes</h2>
+      <div className="border-border bg-card flex items-center justify-between rounded-lg border px-6 py-4">
+        <h2 className="text-foreground text-lg font-semibold">Data Changes</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setViewMode('diff')}
             className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
               viewMode === 'diff'
-                ? 'bg-blue-600 text-white dark:bg-blue-500'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-[var(--color-info)] text-white'
+                : 'bg-muted text-foreground hover:bg-muted/80'
             }`}
           >
             Diff View
@@ -230,8 +221,8 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
             onClick={() => setViewMode('side-by-side')}
             className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
               viewMode === 'side-by-side'
-                ? 'bg-blue-600 text-white dark:bg-blue-500'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-[var(--color-info)] text-white'
+                : 'bg-muted text-foreground hover:bg-muted/80'
             }`}
           >
             Side by Side
@@ -240,8 +231,8 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
             onClick={() => setViewMode('raw')}
             className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
               viewMode === 'raw'
-                ? 'bg-blue-600 text-white dark:bg-blue-500'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-[var(--color-info)] text-white'
+                : 'bg-muted text-foreground hover:bg-muted/80'
             }`}
           >
             Raw JSON
@@ -251,8 +242,8 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
 
       {/* Summary Badge */}
       {hasChanges && viewMode === 'diff' && (
-        <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/50 dark:bg-blue-900/20">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
+        <div className="rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-4 py-3">
+          <p className="text-sm text-[var(--color-info)]">
             <strong>{changedFields.length}</strong> field{changedFields.length !== 1 ? 's' : ''}{' '}
             changed
           </p>

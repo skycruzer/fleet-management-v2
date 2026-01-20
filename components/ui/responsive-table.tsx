@@ -106,19 +106,19 @@ function TableView<T>({
   onSort: (key: string) => void
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200">
+    <div className="border-border overflow-hidden rounded-xl border">
       <table className="w-full">
-        <thead className="bg-slate-50">
+        <thead className="bg-muted">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'px-4 py-3 text-left text-xs font-semibold tracking-wider text-slate-600 uppercase',
+                  'text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase',
                   col.width,
                   col.align === 'center' && 'text-center',
                   col.align === 'right' && 'text-right',
-                  col.sortable && 'cursor-pointer transition-colors hover:bg-slate-100'
+                  col.sortable && 'hover:bg-muted/50 cursor-pointer transition-colors'
                 )}
                 onClick={() => col.sortable && onSort(col.key)}
               >
@@ -137,13 +137,13 @@ function TableView<T>({
             {actions && actions.length > 0 && <th className="w-12 px-4 py-3" />}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-border divide-y">
           {data.map((row) => (
             <tr
               key={keyExtractor(row)}
               className={cn(
-                'bg-white transition-colors',
-                onRowClick && 'cursor-pointer hover:bg-slate-50'
+                'bg-background transition-colors',
+                onRowClick && 'hover:bg-muted cursor-pointer'
               )}
               onClick={() => onRowClick?.(row)}
             >
@@ -176,7 +176,11 @@ function TableView<T>({
                           key={i}
                           onClick={() => action.onClick(row)}
                           disabled={action.disabled?.(row)}
-                          className={action.variant === 'destructive' ? 'text-red-600' : ''}
+                          className={
+                            action.variant === 'destructive'
+                              ? 'text-[var(--color-status-high)]'
+                              : ''
+                          }
                         >
                           {action.icon && <span className="mr-2">{action.icon}</span>}
                           {action.label}
@@ -218,8 +222,8 @@ function CardView<T>({
         <div
           key={keyExtractor(row)}
           className={cn(
-            'rounded-xl border border-slate-200 bg-white p-4 transition-all duration-200',
-            onRowClick && 'cursor-pointer hover:border-slate-300 hover:shadow-md'
+            'border-border bg-background rounded-xl border p-4 transition-all duration-200',
+            onRowClick && 'hover:border-border/80 cursor-pointer hover:shadow-md'
           )}
           onClick={() => onRowClick?.(row)}
         >
@@ -257,7 +261,9 @@ function CardView<T>({
                         key={i}
                         onClick={() => action.onClick(row)}
                         disabled={action.disabled?.(row)}
-                        className={action.variant === 'destructive' ? 'text-red-600' : ''}
+                        className={
+                          action.variant === 'destructive' ? 'text-[var(--color-status-high)]' : ''
+                        }
                       >
                         {action.icon && <span className="mr-2">{action.icon}</span>}
                         {action.label}
@@ -271,7 +277,7 @@ function CardView<T>({
 
           {/* Secondary info */}
           {secondaryColumns.length > 0 && (
-            <div className="mt-3 border-t border-slate-100 pt-3">
+            <div className="border-border/50 mt-3 border-t pt-3">
               <div className="grid grid-cols-2 gap-2">
                 {secondaryColumns.map((col) => {
                   const value = getCellValue(row, col.accessor)
@@ -296,13 +302,13 @@ function CardView<T>({
 // Loading skeleton
 function TableSkeleton({ columns, rows = 5 }: { columns: number; rows?: number }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200">
+    <div className="border-border overflow-hidden rounded-xl border">
       <div className="animate-pulse">
-        <div className="h-12 bg-slate-50" />
+        <div className="bg-muted h-12" />
         {Array.from({ length: rows }).map((_, i) => (
-          <div key={i} className="flex h-14 items-center gap-4 border-t border-slate-100 px-4">
+          <div key={i} className="border-border/50 flex h-14 items-center gap-4 border-t px-4">
             {Array.from({ length: columns }).map((_, j) => (
-              <div key={j} className="h-4 flex-1 rounded bg-slate-200" />
+              <div key={j} className="bg-muted-foreground/20 h-4 flex-1 rounded" />
             ))}
           </div>
         ))}
@@ -364,7 +370,7 @@ export function ResponsiveTable<T>({
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 px-4 py-12 text-center">
+      <div className="border-border flex flex-col items-center justify-center rounded-xl border border-dashed px-4 py-12 text-center">
         <p className="text-muted-foreground">{emptyMessage}</p>
       </div>
     )

@@ -69,10 +69,12 @@ export function CertificationCategoryGroup({
 
   // Get status color classes
   const getStatusColor = (cert: Certification): string => {
-    if (!cert.status) return 'bg-gray-100 text-gray-800'
-    if (cert.status.color === 'red') return 'bg-red-100 text-red-800'
-    if (cert.status.color === 'yellow') return 'bg-yellow-100 text-yellow-800'
-    return 'bg-green-100 text-green-800'
+    if (!cert.status) return 'bg-muted text-muted-foreground'
+    if (cert.status.color === 'red')
+      return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
+    if (cert.status.color === 'yellow')
+      return 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]'
+    return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
   }
 
   return (
@@ -91,18 +93,21 @@ export function CertificationCategoryGroup({
             </Badge>
             <Badge
               variant="outline"
-              className="border-green-500 bg-green-50 text-xs text-green-800"
+              className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-xs text-[var(--color-status-low)]"
             >
               {stats.current} Current
             </Badge>
             <Badge
               variant="outline"
-              className="border-yellow-500 bg-yellow-50 text-xs text-yellow-800"
+              className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] text-xs text-[var(--color-status-medium)]"
             >
               {stats.expiring} Expiring
             </Badge>
             {stats.expired > 0 && (
-              <Badge variant="outline" className="border-red-500 bg-red-50 text-xs text-red-800">
+              <Badge
+                variant="outline"
+                className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-xs text-[var(--color-status-high)]"
+              >
                 {stats.expired} Expired
               </Badge>
             )}
@@ -160,7 +165,7 @@ export function CertificationCategoryGroup({
                             size="sm"
                             onClick={() => onSave(cert.id)}
                             disabled={savingCert}
-                            className="bg-green-600 text-white hover:bg-green-700"
+                            className="bg-[var(--color-status-low)] text-white hover:bg-[var(--color-success-600)]"
                           >
                             {savingCert ? 'Saving...' : 'Save'}
                           </Button>

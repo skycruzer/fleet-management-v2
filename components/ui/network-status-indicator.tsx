@@ -102,8 +102,8 @@ export function NetworkStatusIndicator({
         className={cn(
           'flex w-full items-center justify-between gap-4 px-4 py-3',
           isOnline
-            ? 'border-b border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950'
-            : 'border-b border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950',
+            ? 'border-b border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]'
+            : 'border-b border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]',
           className
         )}
         role="status"
@@ -113,13 +113,15 @@ export function NetworkStatusIndicator({
           <Icon
             className={cn(
               'h-5 w-5',
-              isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+              isOnline ? 'text-[var(--color-status-low)]' : 'text-[var(--color-status-high)]'
             )}
           />
           <p
             className={cn(
               'text-sm font-medium',
-              isOnline ? 'text-green-900 dark:text-green-100' : 'text-red-900 dark:text-red-100'
+              isOnline
+                ? 'text-[var(--color-status-low-foreground)]'
+                : 'text-[var(--color-status-high-foreground)]'
             )}
           >
             {message}
@@ -132,10 +134,9 @@ export function NetworkStatusIndicator({
             disabled={isReconnecting}
             className={cn(
               'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium',
-              'bg-red-600 text-white hover:bg-red-700',
-              'focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-              'dark:bg-red-500 dark:hover:bg-red-600'
+              'bg-[var(--color-status-high)] text-white hover:opacity-90',
+              'focus:ring-2 focus:ring-[var(--color-status-high)] focus:ring-offset-2 focus:outline-none',
+              'disabled:cursor-not-allowed disabled:opacity-50'
             )}
           >
             <RefreshCw className={cn('h-4 w-4', isReconnecting && 'animate-spin')} />
@@ -153,8 +154,8 @@ export function NetworkStatusIndicator({
         className={cn(
           'inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium',
           isOnline
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+            ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low-foreground)]'
+            : 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high-foreground)]',
           className
         )}
         role="status"
@@ -172,7 +173,7 @@ export function NetworkStatusIndicator({
       <div
         className={cn(
           'inline-flex items-center gap-1.5 text-sm',
-          isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400',
+          isOnline ? 'text-[var(--color-status-low)]' : 'text-[var(--color-status-high)]',
           className
         )}
         role="status"
@@ -193,8 +194,8 @@ export function NetworkStatusIndicator({
           'rounded-lg border shadow-lg',
           position === 'top' ? 'top-4' : 'bottom-4',
           isOnline
-            ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950'
-            : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950',
+            ? 'border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]'
+            : 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]',
           className
         )}
         role="status"
@@ -209,13 +210,15 @@ export function NetworkStatusIndicator({
           <Icon
             className={cn(
               'h-5 w-5 flex-shrink-0',
-              isOnline ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+              isOnline ? 'text-[var(--color-status-low)]' : 'text-[var(--color-status-high)]'
             )}
           />
           <p
             className={cn(
               'text-sm font-medium',
-              isOnline ? 'text-green-900 dark:text-green-100' : 'text-red-900 dark:text-red-100'
+              isOnline
+                ? 'text-[var(--color-status-low-foreground)]'
+                : 'text-[var(--color-status-high-foreground)]'
             )}
           >
             {message}
@@ -223,16 +226,15 @@ export function NetworkStatusIndicator({
         </div>
 
         {showReconnectButton && !isOnline && onReconnect && (
-          <div className="border-l border-red-200 p-4 dark:border-red-800">
+          <div className="border-l border-[var(--color-status-high-border)] p-4">
             <button
               onClick={onReconnect}
               disabled={isReconnecting}
               className={cn(
                 'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium',
-                'bg-red-600 text-white hover:bg-red-700',
-                'focus:ring-2 focus:ring-red-500 focus:outline-none',
-                'disabled:cursor-not-allowed disabled:opacity-50',
-                'dark:bg-red-500 dark:hover:bg-red-600'
+                'bg-[var(--color-status-high)] text-white hover:opacity-90',
+                'focus:ring-2 focus:ring-[var(--color-status-high)] focus:outline-none',
+                'disabled:cursor-not-allowed disabled:opacity-50'
               )}
             >
               <RefreshCw className={cn('h-4 w-4', isReconnecting && 'animate-spin')} />
@@ -288,16 +290,15 @@ export function OfflineWarning({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4',
-        'dark:border-yellow-800 dark:bg-yellow-950',
+        'flex items-center gap-3 rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-4',
         className
       )}
       role="alert"
     >
       {showIcon && (
-        <AlertCircle className="h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
+        <AlertCircle className="h-5 w-5 flex-shrink-0 text-[var(--color-status-medium)]" />
       )}
-      <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">{message}</p>
+      <p className="text-sm font-medium text-[var(--color-status-medium-foreground)]">{message}</p>
     </div>
   )
 }
@@ -356,7 +357,7 @@ export function NetworkStatusBadge({
         className={cn(
           'rounded-full',
           sizeClasses[size],
-          isOnline ? 'bg-green-500 dark:bg-green-400' : 'animate-pulse bg-red-500 dark:bg-red-400'
+          isOnline ? 'bg-[var(--color-status-low)]' : 'animate-pulse bg-[var(--color-status-high)]'
         )}
         aria-label={isOnline ? 'Online' : 'Offline'}
       />
@@ -365,7 +366,7 @@ export function NetworkStatusBadge({
           className={cn(
             'font-medium',
             textSizeClasses[size],
-            isOnline ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
+            isOnline ? 'text-[var(--color-status-low)]' : 'text-[var(--color-status-high)]'
           )}
         >
           {isOnline ? 'Online' : 'Offline'}

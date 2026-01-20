@@ -87,12 +87,13 @@ export function PilotPortalSidebar({
   const [mounted, setMounted] = useState(false)
 
   // Track screen size for responsive sidebar positioning - update after mount
+  // Uses lg breakpoint (1024px) for consistency with admin portal
   useEffect(() => {
     setMounted(true)
     // Set initial desktop state after hydration
-    setIsDesktop(window.innerWidth >= 768)
+    setIsDesktop(window.innerWidth >= 1024)
 
-    const checkDesktop = () => setIsDesktop(window.innerWidth >= 768)
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024)
     window.addEventListener('resize', checkDesktop)
     return () => window.removeEventListener('resize', checkDesktop)
   }, [])
@@ -131,10 +132,10 @@ export function PilotPortalSidebar({
   return (
     <>
       {/* Mobile Header with Hamburger */}
-      <div className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur-sm md:hidden dark:border-slate-700 dark:bg-slate-900/95">
+      <div className="border-border bg-card/95 fixed top-0 right-0 left-0 z-[var(--z-header)] flex h-16 items-center justify-between border-b px-4 backdrop-blur-sm lg:hidden">
         <div className="flex items-center gap-3">
-          <div className="bg-primary-600 flex h-10 w-10 items-center justify-center rounded-lg">
-            <Plane className="h-5 w-5 text-white" />
+          <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
+            <Plane className="text-primary-foreground h-5 w-5" />
           </div>
           <div>
             <h1 className="text-foreground text-lg font-bold" tabIndex={-1}>
@@ -147,7 +148,7 @@ export function PilotPortalSidebar({
           <NotificationBell />
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-foreground flex h-10 w-10 items-center justify-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="text-foreground hover:bg-muted flex h-10 w-10 items-center justify-center rounded-lg"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -163,7 +164,7 @@ export function PilotPortalSidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-[var(--z-overlay)] bg-black/50 lg:hidden"
             onClick={closeMobileMenu}
           />
         )}
@@ -171,17 +172,17 @@ export function PilotPortalSidebar({
 
       {/* Sidebar - Desktop (always visible) and Mobile (slide in) */}
       <motion.aside
-        initial={{ x: isDesktop ? 0 : -280 }}
+        initial={{ x: isDesktop ? 0 : -240 }}
         animate={{
-          x: isDesktop ? 0 : mobileMenuOpen ? 0 : -280,
+          x: isDesktop ? 0 : mobileMenuOpen ? 0 : -240,
         }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="fixed top-0 left-0 z-50 h-screen w-64 border-r border-slate-200 bg-slate-50 md:z-40 dark:border-slate-700 dark:bg-slate-900"
+        className="border-border bg-background fixed top-0 left-0 z-[var(--z-modal)] h-screen w-60 border-r lg:z-[var(--z-sidebar)]"
       >
         {/* Logo Header */}
-        <div className="flex h-16 items-center gap-3 border-b border-slate-200 bg-white px-6 dark:border-slate-700 dark:bg-slate-800">
-          <div className="bg-primary-600 flex h-10 w-10 items-center justify-center rounded-lg">
-            <Plane className="h-5 w-5 text-white" />
+        <div className="border-border bg-card flex h-16 items-center gap-3 border-b px-6">
+          <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
+            <Plane className="text-primary-foreground h-5 w-5" />
           </div>
           <div className="flex-1">
             <h1 className="text-foreground text-lg font-bold">Pilot Portal</h1>
@@ -193,9 +194,9 @@ export function PilotPortalSidebar({
 
         {/* Pilot Info */}
         {(pilotName || pilotRank) && (
-          <div className="border-b border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+          <div className="border-border bg-card border-b p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+              <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
                 <UserCircle className="text-primary h-7 w-7" />
               </div>
               <div className="min-w-0 flex-1">
@@ -221,15 +222,15 @@ export function PilotPortalSidebar({
                 className={cn(
                   'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                   isActive('/portal/dashboard')
-                    ? 'bg-primary-600 text-white'
-                    : 'text-foreground hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground hover:bg-muted'
                 )}
               >
                 <Cloud
                   className={cn(
                     'h-5 w-5 transition-colors',
                     isActive('/portal/dashboard')
-                      ? 'text-white'
+                      ? 'text-primary-foreground'
                       : 'text-muted-foreground group-hover:text-foreground'
                   )}
                 />
@@ -239,7 +240,9 @@ export function PilotPortalSidebar({
                   <div
                     className={cn(
                       'text-sm',
-                      isActive('/portal/dashboard') ? 'text-white/80' : 'text-muted-foreground'
+                      isActive('/portal/dashboard')
+                        ? 'text-primary-foreground/80'
+                        : 'text-muted-foreground'
                     )}
                   >
                     Home & overview
@@ -257,7 +260,7 @@ export function PilotPortalSidebar({
             </Link>
 
             {/* Divider */}
-            <div className="my-3 border-t border-slate-200 dark:border-slate-700"></div>
+            <div className="border-border my-3 border-t"></div>
 
             {/* Navigation Items */}
             {navigationItems.map((item) => {
@@ -270,14 +273,16 @@ export function PilotPortalSidebar({
                     className={cn(
                       'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                       active
-                        ? 'bg-primary-600 text-white'
-                        : 'text-foreground hover:bg-slate-100 dark:hover:bg-slate-800'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-foreground hover:bg-muted'
                     )}
                   >
                     <Icon
                       className={cn(
                         'h-5 w-5 transition-colors',
-                        active ? 'text-white' : 'text-muted-foreground group-hover:text-foreground'
+                        active
+                          ? 'text-primary-foreground'
+                          : 'text-muted-foreground group-hover:text-foreground'
                       )}
                     />
 
@@ -286,7 +291,7 @@ export function PilotPortalSidebar({
                       <div
                         className={cn(
                           'text-sm',
-                          active ? 'text-white/80' : 'text-muted-foreground'
+                          active ? 'text-primary-foreground/80' : 'text-muted-foreground'
                         )}
                       >
                         {item.description}
@@ -308,10 +313,10 @@ export function PilotPortalSidebar({
         </nav>
 
         {/* Bottom Section - Logout */}
-        <div className="border-t border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+        <div className="border-border bg-card border-t p-4">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700"
+            className="bg-destructive hover:bg-destructive/90 flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors"
           >
             <LogOut className="h-5 w-5" />
             <span>Logout</span>

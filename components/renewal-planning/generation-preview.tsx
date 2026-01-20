@@ -77,48 +77,48 @@ const CATEGORIES = [
     id: 'Pilot Medical',
     label: 'Medical',
     icon: Stethoscope,
-    color: 'text-red-500',
-    bgColor: 'bg-red-50 dark:bg-red-950/30',
-    borderColor: 'border-red-200 dark:border-red-800',
-    progressColor: 'bg-red-500',
+    color: 'text-[var(--color-status-high)]',
+    bgColor: 'bg-[var(--color-status-high-bg)]',
+    borderColor: 'border-[var(--color-status-high-border)]',
+    progressColor: 'bg-[var(--color-status-high)]',
     capacityPerPeriod: 4,
   },
   {
     id: 'Flight Checks',
     label: 'Flight',
     icon: Plane,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-50 dark:bg-blue-950/30',
-    borderColor: 'border-blue-200 dark:border-blue-800',
-    progressColor: 'bg-blue-500',
+    color: 'text-[var(--color-category-flight)]',
+    bgColor: 'bg-[var(--color-category-flight-bg)]',
+    borderColor: 'border-[var(--color-category-flight)]/30',
+    progressColor: 'bg-[var(--color-category-flight)]',
     capacityPerPeriod: 4,
   },
   {
     id: 'Simulator Checks',
     label: 'Simulator',
     icon: Monitor,
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-50 dark:bg-purple-950/30',
-    borderColor: 'border-purple-200 dark:border-purple-800',
-    progressColor: 'bg-purple-500',
+    color: 'text-[var(--color-category-simulator)]',
+    bgColor: 'bg-[var(--color-category-simulator-bg)]',
+    borderColor: 'border-[var(--color-category-simulator)]/30',
+    progressColor: 'bg-[var(--color-category-simulator)]',
     capacityPerPeriod: 6,
   },
   {
     id: 'Ground Courses Refresher',
     label: 'Ground',
     icon: GraduationCap,
-    color: 'text-green-500',
-    bgColor: 'bg-green-50 dark:bg-green-950/30',
-    borderColor: 'border-green-200 dark:border-green-800',
-    progressColor: 'bg-green-500',
+    color: 'text-[var(--color-category-ground)]',
+    bgColor: 'bg-[var(--color-category-ground-bg)]',
+    borderColor: 'border-[var(--color-category-ground)]/30',
+    progressColor: 'bg-[var(--color-category-ground)]',
     capacityPerPeriod: 8,
   },
 ]
 
 function getUtilizationColor(utilization: number): string {
-  if (utilization > 80) return 'text-red-600'
-  if (utilization > 60) return 'text-yellow-600'
-  return 'text-green-600'
+  if (utilization > 80) return 'text-[var(--color-status-high)]'
+  if (utilization > 60) return 'text-[var(--color-status-medium)]'
+  return 'text-[var(--color-status-low)]'
 }
 
 export function GenerationPreview({ monthsAhead, categories, enabled }: GenerationPreviewProps) {
@@ -195,12 +195,12 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
 
   if (error) {
     return (
-      <Card className="border-red-200 bg-red-50 p-6 dark:bg-red-950/30">
+      <Card className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6">
         <div className="flex items-start space-x-3">
-          <AlertTriangle className="h-5 w-5 flex-shrink-0 text-red-600" />
+          <AlertTriangle className="h-5 w-5 flex-shrink-0 text-[var(--color-status-high)]" />
           <div>
-            <p className="font-medium text-red-900 dark:text-red-200">Preview Error</p>
-            <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+            <p className="font-medium text-[var(--color-status-high-foreground)]">Preview Error</p>
+            <p className="text-sm text-[var(--color-status-high-foreground)]">{error}</p>
           </div>
         </div>
       </Card>
@@ -296,11 +296,13 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
                       variant="outline"
                       className={cn(
                         'text-xs',
-                        cat.utilization > 80 && 'border-red-300 text-red-600',
+                        cat.utilization > 80 &&
+                          'border-[var(--color-status-high-border)] text-[var(--color-status-high)]',
                         cat.utilization > 60 &&
                           cat.utilization <= 80 &&
-                          'border-yellow-300 text-yellow-600',
-                        cat.utilization <= 60 && 'border-green-300 text-green-600'
+                          'border-[var(--color-status-medium-border)] text-[var(--color-status-medium)]',
+                        cat.utilization <= 60 &&
+                          'border-[var(--color-status-low-border)] text-[var(--color-status-low)]'
                       )}
                     >
                       {Math.round(cat.utilization)}%
@@ -320,8 +322,10 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
                     <div
                       className={cn(
                         'h-full rounded-full transition-all',
-                        cat.utilization > 80 && 'bg-red-500',
-                        cat.utilization > 60 && cat.utilization <= 80 && 'bg-yellow-500',
+                        cat.utilization > 80 && 'bg-[var(--color-status-high)]',
+                        cat.utilization > 60 &&
+                          cat.utilization <= 80 &&
+                          'bg-[var(--color-status-medium)]',
                         cat.utilization <= 60 && cat.progressColor
                       )}
                       style={{ width: `${Math.min(cat.utilization, 100)}%` }}
@@ -359,8 +363,8 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
 
       {/* Critical Warnings */}
       {criticalWarnings.length > 0 && (
-        <Card className="border-red-200 bg-red-50 p-4 dark:bg-red-950/30">
-          <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-200">
+        <Card className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4">
+          <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--color-status-high-foreground)]">
             <AlertCircle className="h-4 w-4" />
             Critical Capacity Issues
           </h3>
@@ -368,7 +372,7 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
             {criticalWarnings.map((warning, index) => (
               <div
                 key={index}
-                className="flex items-start space-x-2 text-xs text-red-700 dark:text-red-300"
+                className="flex items-start space-x-2 text-xs text-[var(--color-status-high-foreground)]"
               >
                 <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0" />
                 <span>
@@ -382,8 +386,8 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
 
       {/* Regular Warnings */}
       {regularWarnings.length > 0 && (
-        <Card className="border-yellow-200 bg-yellow-50 p-4 dark:bg-yellow-950/30">
-          <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-yellow-900 dark:text-yellow-200">
+        <Card className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-4">
+          <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--color-status-medium-foreground)]">
             <AlertTriangle className="h-4 w-4" />
             Capacity Warnings ({regularWarnings.length})
           </h3>
@@ -391,7 +395,7 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
             {regularWarnings.slice(0, 3).map((warning, index) => (
               <div
                 key={index}
-                className="flex items-start space-x-2 text-xs text-yellow-700 dark:text-yellow-300"
+                className="flex items-start space-x-2 text-xs text-[var(--color-status-medium-foreground)]"
               >
                 <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0" />
                 <span>
@@ -400,7 +404,7 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
               </div>
             ))}
             {regularWarnings.length > 3 && (
-              <p className="text-xs text-yellow-600 italic dark:text-yellow-400">
+              <p className="text-xs text-[var(--color-status-medium)] italic">
                 +{regularWarnings.length - 3} more warnings...
               </p>
             )}
@@ -410,14 +414,17 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
 
       {/* Conflict Detection */}
       {preview.conflicts && preview.conflicts.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50 p-4 dark:bg-orange-950/30">
-          <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-orange-900 dark:text-orange-200">
+        <Card className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-4">
+          <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--color-status-medium-foreground)]">
             <AlertTriangle className="h-4 w-4" />
             Scheduling Conflicts ({preview.conflicts.length})
           </h3>
           <div className="space-y-1">
             {preview.conflicts.slice(0, 3).map((conflict) => (
-              <div key={conflict.pilotId} className="text-xs text-orange-700 dark:text-orange-300">
+              <div
+                key={conflict.pilotId}
+                className="text-xs text-[var(--color-status-medium-foreground)]"
+              >
                 <strong>{conflict.pilotName}</strong>: {conflict.renewals.length} renewals in same
                 period
               </div>
@@ -430,10 +437,10 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
       {preview.totalPlans > 0 &&
         criticalWarnings.length === 0 &&
         (!preview.conflicts || preview.conflicts.length === 0) && (
-          <Card className="border-green-200 bg-green-50 p-3 dark:bg-green-950/30">
+          <Card className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-3">
             <div className="flex items-center space-x-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-xs font-medium text-green-900 dark:text-green-200">
+              <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" />
+              <span className="text-xs font-medium text-[var(--color-status-low-foreground)]">
                 Configuration looks good - ready to generate {preview.totalPlans} renewals!
               </span>
             </div>

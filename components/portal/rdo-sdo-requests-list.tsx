@@ -174,7 +174,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
+            <Clock className="h-4 w-4 text-[var(--color-status-medium)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.submitted + stats.in_review}</div>
@@ -187,7 +187,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Approved</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <CheckCircle2 className="h-4 w-4 text-[var(--color-status-low)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.approved}</div>
@@ -197,7 +197,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Denied/Withdrawn</CardTitle>
-            <XCircle className="h-4 w-4 text-red-600" />
+            <XCircle className="h-4 w-4 text-[var(--color-status-high)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.denied + stats.withdrawn}</div>

@@ -76,11 +76,14 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         />
         {/* Validation icons */}
         {showStateIcon && error && (
-          <AlertCircle className="absolute top-3 right-3 h-4 w-4 text-red-500" aria-hidden="true" />
+          <AlertCircle
+            className="absolute top-3 right-3 h-4 w-4 text-[var(--color-status-high)]"
+            aria-hidden="true"
+          />
         )}
         {showStateIcon && success && (
           <CheckCircle2
-            className="absolute top-3 right-3 h-4 w-4 text-green-500"
+            className="absolute top-3 right-3 h-4 w-4 text-[var(--color-status-low)]"
             aria-hidden="true"
           />
         )}
@@ -89,8 +92,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           <div
             className={cn(
               'absolute right-3 bottom-2 text-xs transition-colors',
-              isAtLimit && 'font-semibold text-red-600',
-              isNearLimit && !isAtLimit && 'text-orange-600',
+              isAtLimit && 'font-semibold text-[var(--color-status-high)]',
+              isNearLimit && !isAtLimit && 'text-[var(--color-status-medium)]',
               !isNearLimit && 'text-muted-foreground'
             )}
             aria-live="polite"

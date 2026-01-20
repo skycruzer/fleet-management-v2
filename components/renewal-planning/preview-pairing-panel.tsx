@@ -163,10 +163,10 @@ export function PreviewPairingPanel({ distribution, className }: PreviewPairingP
               className={cn(
                 'overflow-hidden transition-all',
                 isOverCapacity &&
-                  'border-red-300 bg-red-50/50 dark:border-red-800 dark:bg-red-900/20',
+                  'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]/50',
                 hasWarning &&
                   !isOverCapacity &&
-                  'border-orange-300 bg-orange-50/50 dark:border-orange-800 dark:bg-orange-900/20'
+                  'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]/50'
               )}
             >
               <Collapsible open={isExpanded} onOpenChange={() => togglePeriod(period.rosterPeriod)}>
@@ -196,7 +196,10 @@ export function PreviewPairingPanel({ distribution, className }: PreviewPairingP
                           </Badge>
                         )}
                         {period.unpaired.length > 0 && (
-                          <Badge variant="outline" className="text-xs text-orange-600">
+                          <Badge
+                            variant="outline"
+                            className="text-xs text-[var(--color-status-medium)]"
+                          >
                             <UserX className="mr-1 h-3 w-3" />
                             {period.unpaired.length} unpaired
                           </Badge>
@@ -248,7 +251,7 @@ export function PreviewPairingPanel({ distribution, className }: PreviewPairingP
                     {period.pairs.length > 0 && (
                       <div className="mb-4">
                         <h4 className="text-foreground mb-2 flex items-center text-sm font-medium">
-                          <Users className="mr-2 h-4 w-4 text-green-600" />
+                          <Users className="mr-2 h-4 w-4 text-[var(--color-status-low)]" />
                           Paired Crews ({period.pairs.length})
                         </h4>
                         <div className="space-y-2">
@@ -263,7 +266,7 @@ export function PreviewPairingPanel({ distribution, className }: PreviewPairingP
                     {period.unpaired.length > 0 && (
                       <div className="mb-4">
                         <h4 className="text-foreground mb-2 flex items-center text-sm font-medium">
-                          <UserX className="mr-2 h-4 w-4 text-orange-600" />
+                          <UserX className="mr-2 h-4 w-4 text-[var(--color-status-medium)]" />
                           Unpaired Pilots ({period.unpaired.length})
                         </h4>
                         <div className="space-y-2">
@@ -278,7 +281,7 @@ export function PreviewPairingPanel({ distribution, className }: PreviewPairingP
                     {period.individual.length > 0 && (
                       <div>
                         <h4 className="text-foreground mb-2 flex items-center text-sm font-medium">
-                          <GraduationCap className="mr-2 h-4 w-4 text-blue-600" />
+                          <GraduationCap className="mr-2 h-4 w-4 text-[var(--color-category-ground)]" />
                           Individual Renewals ({period.individual.length})
                         </h4>
                         <div className="grid gap-2 sm:grid-cols-2">
@@ -317,10 +320,10 @@ function CapacityBar({
   percent: number
 }) {
   const getBarColor = () => {
-    if (percent > 100) return 'bg-red-500'
-    if (percent >= 80) return 'bg-orange-500'
-    if (percent >= 50) return 'bg-yellow-500'
-    return 'bg-green-500'
+    if (percent > 100) return 'bg-[var(--color-status-high)]'
+    if (percent >= 80) return 'bg-[var(--color-status-medium)]'
+    if (percent >= 50) return 'bg-[var(--color-status-medium)]/70'
+    return 'bg-[var(--color-status-low)]'
   }
 
   return (
@@ -398,16 +401,16 @@ function UnpairedCard({ pilot }: { pilot: UnpairedPreviewItem }) {
   const getUrgencyColor = () => {
     switch (pilot.urgency) {
       case 'critical':
-        return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30'
+        return 'text-[var(--color-status-high)] bg-[var(--color-status-high-bg)]'
       case 'high':
-        return 'text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30'
+        return 'text-[var(--color-status-medium)] bg-[var(--color-status-medium-bg)]'
       default:
         return 'text-muted-foreground bg-secondary'
     }
   }
 
   return (
-    <div className="bg-background flex items-center justify-between rounded-lg border border-orange-200 p-3 dark:border-orange-800">
+    <div className="bg-background flex items-center justify-between rounded-lg border border-[var(--color-status-medium-border)] p-3">
       <div>
         <p className="text-foreground text-sm font-medium">{pilot.name}</p>
         <p className="text-muted-foreground text-xs">

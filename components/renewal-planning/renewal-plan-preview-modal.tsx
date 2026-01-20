@@ -82,10 +82,30 @@ interface RenewalPlanPreviewModalProps {
 }
 
 const CATEGORIES = [
-  { id: 'Pilot Medical', label: 'Medical', icon: Stethoscope, color: 'text-red-500' },
-  { id: 'Flight Checks', label: 'Flight', icon: Plane, color: 'text-blue-500' },
-  { id: 'Simulator Checks', label: 'Simulator', icon: Monitor, color: 'text-purple-500' },
-  { id: 'Ground Courses Refresher', label: 'Ground', icon: GraduationCap, color: 'text-green-500' },
+  {
+    id: 'Pilot Medical',
+    label: 'Medical',
+    icon: Stethoscope,
+    color: 'text-[var(--color-status-high)]',
+  },
+  {
+    id: 'Flight Checks',
+    label: 'Flight',
+    icon: Plane,
+    color: 'text-[var(--color-category-flight)]',
+  },
+  {
+    id: 'Simulator Checks',
+    label: 'Simulator',
+    icon: Monitor,
+    color: 'text-[var(--color-category-simulator)]',
+  },
+  {
+    id: 'Ground Courses Refresher',
+    label: 'Ground',
+    icon: GraduationCap,
+    color: 'text-[var(--color-category-ground)]',
+  },
 ]
 
 export function RenewalPlanPreviewModal({
@@ -251,7 +271,7 @@ export function RenewalPlanPreviewModal({
                 {pairingData.statistics.totalUnpaired > 0 && (
                   <Badge
                     variant="outline"
-                    className="ml-1 h-4 border-orange-300 px-1 text-[10px] text-orange-600"
+                    className="ml-1 h-4 border-[var(--color-status-medium-border)] px-1 text-[10px] text-[var(--color-status-medium)]"
                   >
                     {pairingData.statistics.totalUnpaired}
                   </Badge>
@@ -284,14 +304,14 @@ export function RenewalPlanPreviewModal({
                   icon={Users}
                   label="Total Renewals"
                   value={totalRenewals}
-                  iconColor="text-blue-500"
+                  iconColor="text-[var(--color-category-flight)]"
                 />
                 <StatCard
                   icon={Calendar}
                   label="Active Periods"
                   value={activePeriods}
                   subtext={`of ${summaries.length}`}
-                  iconColor="text-purple-500"
+                  iconColor="text-[var(--color-category-simulator)]"
                 />
                 <StatCard
                   icon={TrendingUp}
@@ -299,10 +319,10 @@ export function RenewalPlanPreviewModal({
                   value={`${Math.round(avgUtilization)}%`}
                   iconColor={
                     avgUtilization > 80
-                      ? 'text-red-500'
+                      ? 'text-[var(--color-status-high)]'
                       : avgUtilization > 60
-                        ? 'text-yellow-500'
-                        : 'text-green-500'
+                        ? 'text-[var(--color-status-medium)]'
+                        : 'text-[var(--color-status-low)]'
                   }
                 />
                 <StatCard
@@ -310,7 +330,11 @@ export function RenewalPlanPreviewModal({
                   label="High Risk"
                   value={highRiskPeriods}
                   subtext="periods >80%"
-                  iconColor={highRiskPeriods > 0 ? 'text-red-500' : 'text-green-500'}
+                  iconColor={
+                    highRiskPeriods > 0
+                      ? 'text-[var(--color-status-high)]'
+                      : 'text-[var(--color-status-low)]'
+                  }
                   variant={highRiskPeriods > 0 ? 'warning' : 'default'}
                 />
               </div>
@@ -351,11 +375,13 @@ export function RenewalPlanPreviewModal({
                             variant="outline"
                             className={cn(
                               'text-xs',
-                              catData.utilization > 80 && 'border-red-300 text-red-600',
+                              catData.utilization > 80 &&
+                                'border-[var(--color-status-high-border)] text-[var(--color-status-high)]',
                               catData.utilization > 60 &&
                                 catData.utilization <= 80 &&
-                                'border-yellow-300 text-yellow-600',
-                              catData.utilization <= 60 && 'border-green-300 text-green-600'
+                                'border-[var(--color-status-medium-border)] text-[var(--color-status-medium)]',
+                              catData.utilization <= 60 &&
+                                'border-[var(--color-status-low-border)] text-[var(--color-status-low)]'
                             )}
                           >
                             {Math.round(catData.utilization)}%
@@ -367,11 +393,11 @@ export function RenewalPlanPreviewModal({
                           <div
                             className={cn(
                               'h-full rounded-full transition-all',
-                              catData.utilization > 80 && 'bg-red-500',
+                              catData.utilization > 80 && 'bg-[var(--color-status-high)]',
                               catData.utilization > 60 &&
                                 catData.utilization <= 80 &&
-                                'bg-yellow-500',
-                              catData.utilization <= 60 && 'bg-green-500'
+                                'bg-[var(--color-status-medium)]',
+                              catData.utilization <= 60 && 'bg-[var(--color-status-low)]'
                             )}
                             style={{ width: `${Math.min(catData.utilization, 100)}%` }}
                           />
@@ -384,14 +410,14 @@ export function RenewalPlanPreviewModal({
 
               {/* Status Banners */}
               {highRiskPeriods > 0 && (
-                <Card className="border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-950">
+                <Card className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-4">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
+                    <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-status-medium)]" />
                     <div>
-                      <h4 className="font-medium text-yellow-800 dark:text-yellow-200">
+                      <h4 className="font-medium text-[var(--color-status-medium-foreground)]">
                         Capacity Warning
                       </h4>
-                      <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+                      <p className="mt-1 text-sm text-[var(--color-status-medium-foreground)]">
                         {highRiskPeriods} roster period{highRiskPeriods > 1 ? 's' : ''} exceed
                         {highRiskPeriods === 1 ? 's' : ''} 80% utilization. Click on category tabs
                         to see details.
@@ -402,10 +428,10 @@ export function RenewalPlanPreviewModal({
               )}
 
               {highRiskPeriods === 0 && totalRenewals > 0 && (
-                <Card className="border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950">
+                <Card className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-4">
                   <div className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                    <CheckCircle className="h-5 w-5 text-[var(--color-status-low)]" />
+                    <span className="text-sm font-medium text-[var(--color-status-low-foreground)]">
                       Renewal plan is well-balanced and ready for distribution
                     </span>
                   </div>
@@ -454,11 +480,11 @@ export function RenewalPlanPreviewModal({
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onExportPDF} disabled={totalRenewals === 0}>
-              <FileText className="mr-2 h-4 w-4 text-red-500" />
+              <FileText className="mr-2 h-4 w-4 text-[var(--color-status-high)]" />
               PDF
             </Button>
             <Button variant="outline" onClick={onExportCSV} disabled={totalRenewals === 0}>
-              <Table2 className="mr-2 h-4 w-4 text-green-500" />
+              <Table2 className="mr-2 h-4 w-4 text-[var(--color-status-low)]" />
               CSV
             </Button>
           </div>
@@ -511,14 +537,14 @@ function StatCard({
       className={cn(
         'p-4',
         variant === 'warning' &&
-          'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950'
+          'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
       )}
     >
       <div className="flex items-center gap-3">
         <div
           className={cn(
             'bg-muted rounded-lg p-2',
-            variant === 'warning' && 'bg-yellow-100 dark:bg-yellow-900'
+            variant === 'warning' && 'bg-[var(--color-status-medium-bg)]'
           )}
         >
           <Icon className={cn('h-5 w-5', iconColor)} />

@@ -107,13 +107,13 @@ export function RosterPeriodCarousel() {
     <div className="w-full max-w-full space-y-6 overflow-hidden" style={{ minWidth: 0 }}>
       {/* Current Roster Period with Countdown */}
       <Card
-        className="to-primary/10 w-full border-blue-200 bg-gradient-to-r from-blue-50 p-6"
+        className="to-primary/10 w-full border-[var(--color-info-border)] bg-gradient-to-r from-[var(--color-info-bg)] p-6"
         style={{ minWidth: 0 }}
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-3">
-              <Badge variant="default" className="bg-blue-600 text-sm font-semibold">
+              <Badge variant="default" className="bg-[var(--color-info)] text-sm font-semibold">
                 CURRENT ROSTER
               </Badge>
               <h3 className="text-foreground text-2xl font-bold">{currentRoster.code}</h3>
@@ -131,7 +131,9 @@ export function RosterPeriodCarousel() {
                   <p className="text-muted-foreground text-xs font-medium uppercase">
                     Time Until Next Roster
                   </p>
-                  <p className="text-lg font-bold text-blue-700">{formatCountdown(countdown)}</p>
+                  <p className="text-lg font-bold text-[var(--color-info)]">
+                    {formatCountdown(countdown)}
+                  </p>
                 </div>
               </div>
 
@@ -143,7 +145,7 @@ export function RosterPeriodCarousel() {
                   <p className="text-muted-foreground text-xs font-medium uppercase">
                     Days Remaining
                   </p>
-                  <p className="text-lg font-bold text-purple-700">
+                  <p className="text-lg font-bold text-[var(--color-category-simulator)]">
                     {currentRoster.daysRemaining} days
                   </p>
                 </div>
@@ -188,10 +190,10 @@ export function RosterPeriodCarousel() {
           {showScrollControls && canScrollLeft && (
             <button
               onClick={handleScrollLeft}
-              className="absolute top-1/2 left-0 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+              className="bg-card hover:bg-muted border-border absolute top-1/2 left-0 z-10 -translate-y-1/2 rounded-full border p-2 shadow-lg transition-all"
               aria-label="Scroll left"
             >
-              <ChevronLeft className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+              <ChevronLeft className="text-muted-foreground h-5 w-5" />
             </button>
           )}
 
@@ -199,10 +201,10 @@ export function RosterPeriodCarousel() {
           {showScrollControls && canScrollRight && (
             <button
               onClick={handleScrollRight}
-              className="absolute top-1/2 right-0 z-10 -translate-y-1/2 rounded-full bg-white p-2 shadow-lg transition-all hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700"
+              className="bg-card hover:bg-muted border-border absolute top-1/2 right-0 z-10 -translate-y-1/2 rounded-full border p-2 shadow-lg transition-all"
               aria-label="Scroll right"
             >
-              <ChevronRight className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+              <ChevronRight className="text-muted-foreground h-5 w-5" />
             </button>
           )}
 
@@ -232,7 +234,9 @@ export function RosterPeriodCarousel() {
                         <Badge
                           variant={index === 0 ? 'default' : 'outline'}
                           className={`mb-1 text-xs ${
-                            index === 0 ? 'bg-purple-600' : 'border-muted-foreground/30'
+                            index === 0
+                              ? 'bg-[var(--color-category-simulator)]'
+                              : 'border-muted-foreground/30'
                           }`}
                         >
                           {index === 0 ? 'NEXT' : `+${index + 1}`}

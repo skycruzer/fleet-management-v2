@@ -159,10 +159,10 @@ export function RenewalPlanningDashboard({
             <Badge
               className={
                 overallUtilization > 80
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-[var(--color-status-high)] text-white'
                   : overallUtilization > 60
-                    ? 'bg-yellow-600 text-white'
-                    : 'bg-green-600 text-white'
+                    ? 'bg-[var(--color-status-medium)] text-white'
+                    : 'bg-[var(--color-status-low)] text-white'
               }
             >
               {overallUtilization > 80 ? 'High' : overallUtilization > 60 ? 'Medium' : 'Good'}
@@ -176,21 +176,23 @@ export function RenewalPlanningDashboard({
               <p className="text-muted-foreground text-sm">High Risk Periods</p>
               <p className="text-foreground text-2xl font-bold">{highRiskPeriods.length}</p>
             </div>
-            {highRiskPeriods.length > 0 && <AlertTriangle className="h-8 w-8 text-red-600" />}
+            {highRiskPeriods.length > 0 && (
+              <AlertTriangle className="h-8 w-8 text-[var(--color-status-high)]" />
+            )}
           </div>
         </Card>
       </div>
 
       {/* High Risk Alert */}
       {highRiskPeriods.length > 0 && (
-        <Card className="border-red-200 bg-red-50 p-6 dark:border-red-700 dark:bg-red-950">
+        <Card className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6">
           <div className="flex items-start space-x-3">
-            <AlertTriangle className="mt-1 h-6 w-6 text-red-600 dark:text-red-400" />
+            <AlertTriangle className="mt-1 h-6 w-6 text-[var(--color-status-high)]" />
             <div className="flex-1">
-              <h3 className="font-semibold text-red-900 dark:text-red-100">
+              <h3 className="font-semibold text-[var(--color-status-high-foreground)]">
                 High Capacity Utilization
               </h3>
-              <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+              <p className="mt-1 text-sm text-[var(--color-status-high)]">
                 {highRiskPeriods.length} roster period{highRiskPeriods.length > 1 ? 's' : ''} have
                 utilization above 80%:
               </p>
@@ -200,7 +202,7 @@ export function RenewalPlanningDashboard({
                     key={period.rosterPeriod}
                     href={`/dashboard/renewal-planning/roster-period/${period.rosterPeriod}`}
                   >
-                    <Badge className="bg-red-600 text-white hover:bg-red-700">
+                    <Badge className="bg-[var(--color-status-high)] text-white hover:opacity-90">
                       {period.rosterPeriod} - {Math.round(period.utilizationPercentage)}%
                     </Badge>
                   </Link>
@@ -231,17 +233,17 @@ export function RenewalPlanningDashboard({
             {summaries.map((summary) => {
               const utilizationColor =
                 summary.utilizationPercentage > 80
-                  ? 'bg-red-100 border-red-300 dark:bg-red-950 dark:border-red-700'
+                  ? 'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)]'
                   : summary.utilizationPercentage > 60
-                    ? 'bg-yellow-100 border-yellow-300 dark:bg-yellow-950 dark:border-yellow-700'
-                    : 'bg-green-100 border-green-300 dark:bg-green-950 dark:border-green-700'
+                    ? 'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)]'
+                    : 'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)]'
 
               const badgeColor =
                 summary.utilizationPercentage > 80
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-[var(--color-status-high)] text-white'
                   : summary.utilizationPercentage > 60
-                    ? 'bg-yellow-600 text-white'
-                    : 'bg-green-600 text-white'
+                    ? 'bg-[var(--color-status-medium)] text-white'
+                    : 'bg-[var(--color-status-low)] text-white'
 
               return (
                 <Link
@@ -317,11 +319,11 @@ export function RenewalPlanningDashboard({
       </div>
 
       {/* Help Text */}
-      <Card className="bg-blue-50 p-6 dark:bg-blue-950">
-        <h3 className="font-semibold text-blue-900 dark:text-blue-100">
+      <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-6">
+        <h3 className="font-semibold text-[var(--color-info-foreground)]">
           How to Use Renewal Planning
         </h3>
-        <ul className="mt-2 space-y-1 text-sm text-blue-700 dark:text-blue-300">
+        <ul className="mt-2 space-y-1 text-sm text-[var(--color-info)]">
           <li>
             • <strong>Select a year</strong> to view renewal planning for that year (all 13 roster
             periods)

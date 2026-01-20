@@ -22,9 +22,9 @@ const sizeMap = {
 }
 
 const variantMap = {
-  primary: 'border-blue-600',
+  primary: 'border-primary',
   white: 'border-white',
-  gray: 'border-gray-600',
+  gray: 'border-muted-foreground',
 }
 
 export function Spinner({ size = 'md', variant = 'primary', className }: SpinnerProps) {
@@ -61,7 +61,7 @@ export function CenteredSpinner({ size = 'lg', text, minHeight = '200px' }: Cent
   return (
     <div className="flex flex-col items-center justify-center space-y-4" style={{ minHeight }}>
       <Spinner size={size} variant="primary" />
-      {text && <p className="text-sm text-gray-600">{text}</p>}
+      {text && <p className="text-muted-foreground text-sm">{text}</p>}
     </div>
   )
 }

@@ -50,9 +50,9 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
-        <p className="text-gray-600 dark:text-gray-400">No leave requests yet</p>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-500">
+      <div className="rounded-lg border-2 border-dashed p-8 text-center">
+        <p className="text-muted-foreground">No leave requests yet</p>
+        <p className="text-muted-foreground mt-1 text-sm">
           Submit your first leave request using the form on the left
         </p>
       </div>
@@ -62,26 +62,21 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
   return (
     <div className="space-y-3">
       {requests.map((request) => (
-        <div
-          key={request.id}
-          className="rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md dark:border-gray-700"
-        >
+        <div key={request.id} className="rounded-lg border p-4 transition-shadow hover:shadow-md">
           <div className="flex items-start justify-between">
             {/* Request Details */}
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                <h3 className="font-medium text-gray-900 dark:text-white">
-                  {request.request_type}
-                </h3>
+                <h3 className="text-foreground font-medium">{request.request_type}</h3>
                 <StatusBadge status={request.workflow_status} />
                 {request.is_late_request && (
-                  <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-800 dark:bg-orange-900/20 dark:text-orange-400">
+                  <span className="rounded-full bg-[var(--color-status-medium-bg)] px-2 py-0.5 text-xs font-medium text-[var(--color-status-medium)]">
                     Late Request
                   </span>
                 )}
               </div>
 
-              <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-muted-foreground mt-2 space-y-1 text-sm">
                 <p>
                   <strong>Dates:</strong> {new Date(request.start_date).toLocaleDateString()} -{' '}
                   {request.end_date
@@ -109,15 +104,11 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
 
               {/* Review Comments */}
               {request.workflow_status !== 'SUBMITTED' && request.review_comments && (
-                <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    Review Comments:
-                  </p>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    {request.review_comments}
-                  </p>
+                <div className="bg-muted/50 mt-3 rounded-md p-3">
+                  <p className="text-foreground text-sm font-medium">Review Comments:</p>
+                  <p className="text-muted-foreground mt-1 text-sm">{request.review_comments}</p>
                   {request.reviewed_at && (
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Reviewed on {new Date(request.reviewed_at).toLocaleDateString()}
                     </p>
                   )}
@@ -130,7 +121,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
               <button
                 onClick={() => handleCancel(request.id)}
                 disabled={cancelingId === request.id}
-                className="ml-4 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                className="ml-4 rounded-md bg-[var(--color-status-high-bg)] px-3 py-1.5 text-sm font-medium text-[var(--color-status-high)] transition-colors hover:bg-[var(--color-status-high-bg)]/80 focus:ring-2 focus:ring-[var(--color-status-high)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {cancelingId === request.id ? 'Canceling...' : 'Cancel'}
               </button>
@@ -149,12 +140,12 @@ function StatusBadge({
   status: 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
 }) {
   const badgeStyles: Record<string, string> = {
-    DRAFT: 'bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400',
-    SUBMITTED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
-    IN_REVIEW: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
-    APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
-    DENIED: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
-    WITHDRAWN: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
+    DRAFT: 'bg-muted text-muted-foreground',
+    SUBMITTED: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
+    IN_REVIEW: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+    APPROVED: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
+    DENIED: 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
+    WITHDRAWN: 'bg-muted text-muted-foreground',
   }
 
   return (

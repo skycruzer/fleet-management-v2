@@ -71,11 +71,11 @@ export function TimelineVisualization({ timeline, onMonthClick }: TimelineVisual
       {chartData.length > 0 && (
         <div className="mt-4 flex items-center justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-blue-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-info)]" />
             <span className="text-muted-foreground">Captains</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-emerald-500" />
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
             <span className="text-muted-foreground">First Officers</span>
           </div>
         </div>

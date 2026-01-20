@@ -41,15 +41,15 @@ function getCategoryIcon(category: string) {
 
 // Get utilization color
 function getUtilizationColor(utilization: number): string {
-  if (utilization > 80) return 'bg-red-500'
-  if (utilization > 60) return 'bg-yellow-500'
-  return 'bg-green-500'
+  if (utilization > 80) return 'bg-[var(--color-status-high)]'
+  if (utilization > 60) return 'bg-[var(--color-status-medium)]'
+  return 'bg-[var(--color-status-low)]'
 }
 
 function getUtilizationTextColor(utilization: number): string {
-  if (utilization > 80) return 'text-red-600 dark:text-red-400'
-  if (utilization > 60) return 'text-yellow-600 dark:text-yellow-400'
-  return 'text-green-600 dark:text-green-400'
+  if (utilization > 80) return 'text-[var(--color-status-high)]'
+  if (utilization > 60) return 'text-[var(--color-status-medium)]'
+  return 'text-[var(--color-status-low)]'
 }
 
 // Get short category name for display
@@ -113,9 +113,13 @@ export function CategoryBreakdownBars({
                   variant="outline"
                   className={cn(
                     'px-1.5 py-0 text-xs',
-                    utilization > 80 && 'border-red-300 text-red-600',
-                    utilization > 60 && utilization <= 80 && 'border-yellow-300 text-yellow-600',
-                    utilization <= 60 && 'border-green-300 text-green-600'
+                    utilization > 80 &&
+                      'border-[var(--color-status-high-border)] text-[var(--color-status-high)]',
+                    utilization > 60 &&
+                      utilization <= 80 &&
+                      'border-[var(--color-status-medium-border)] text-[var(--color-status-medium)]',
+                    utilization <= 60 &&
+                      'border-[var(--color-status-low-border)] text-[var(--color-status-low)]'
                   )}
                 >
                   {Math.round(utilization)}%

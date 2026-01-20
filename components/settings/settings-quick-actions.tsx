@@ -33,8 +33,8 @@ export function SettingsQuickActions({ userData, onSuccess }: SettingsQuickActio
           className="h-auto justify-start gap-3 p-4 text-left"
           onClick={() => setEditProfileOpen(true)}
         >
-          <div className="rounded-lg bg-blue-100 p-2">
-            <User className="h-4 w-4 text-blue-600" />
+          <div className="rounded-lg bg-[var(--color-info-bg)] p-2">
+            <User className="h-4 w-4 text-[var(--color-info)]" />
           </div>
           <div>
             <p className="font-semibold">Edit Profile</p>
@@ -47,8 +47,8 @@ export function SettingsQuickActions({ userData, onSuccess }: SettingsQuickActio
           className="h-auto justify-start gap-3 p-4 text-left"
           onClick={() => setChangePasswordOpen(true)}
         >
-          <div className="rounded-lg bg-green-100 p-2">
-            <Lock className="h-4 w-4 text-green-600" />
+          <div className="rounded-lg bg-[var(--color-status-low-bg)] p-2">
+            <Lock className="h-4 w-4 text-[var(--color-status-low)]" />
           </div>
           <div>
             <p className="font-semibold">Change Password</p>

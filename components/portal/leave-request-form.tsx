@@ -13,7 +13,7 @@
  */
 
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { usePortalForm } from '@/lib/hooks/use-portal-form'
@@ -22,6 +22,13 @@ import { SubmitButton } from '@/components/portal/submit-button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { CheckCircle } from 'lucide-react'
 import { submitLeaveRequestAction } from '@/app/portal/leave/actions'
 import {
@@ -94,6 +101,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors, touchedFields },
   } = useForm<LeaveRequestFormData>({
     resolver: zodResolver(leaveRequestSchema),
@@ -167,9 +175,9 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Success Alert */}
       {showSuccess && (
-        <Alert className="border-green-300 bg-green-50">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
+        <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
+          <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" />
+          <AlertDescription className="text-[var(--color-status-low)]">
             Leave request submitted successfully! Your request is now pending approval.
           </AlertDescription>
         </Alert>
@@ -183,17 +191,28 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
         <label className="text-foreground text-sm font-medium">
           Leave Type <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
-        <select
-          {...register('request_type')}
-          className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
-        >
-          <option value="ANNUAL">Annual Leave</option>
-          <option value="SICK">Sick Leave</option>
-          <option value="LSL">Long Service Leave (LSL)</option>
-          <option value="LWOP">Leave Without Pay (LWOP)</option>
-          <option value="MATERNITY">Maternity Leave</option>
-          <option value="COMPASSIONATE">Compassionate Leave</option>
-        </select>
+        <Controller
+          name="request_type"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger
+                className={errors.request_type ? 'border-destructive' : ''}
+                aria-invalid={!!errors.request_type}
+              >
+                <SelectValue placeholder="Select leave type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ANNUAL">Annual Leave</SelectItem>
+                <SelectItem value="SICK">Sick Leave</SelectItem>
+                <SelectItem value="LSL">Long Service Leave (LSL)</SelectItem>
+                <SelectItem value="LWOP">Leave Without Pay (LWOP)</SelectItem>
+                <SelectItem value="MATERNITY">Maternity Leave</SelectItem>
+                <SelectItem value="COMPASSIONATE">Compassionate Leave</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.request_type && (
           <p className="text-destructive text-xs font-medium">{errors.request_type.message}</p>
         )}
@@ -213,7 +232,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
             id="start_date"
             type="date"
             {...register('start_date')}
-            className="h-11"
+            size="lg"
             error={!!errors.start_date}
             success={touchedFields.start_date && !errors.start_date}
             aria-required={true}
@@ -236,7 +255,7 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
             type="date"
             {...register('end_date')}
             min={startDate || undefined}
-            className="h-11"
+            size="lg"
             error={!!errors.end_date}
             success={touchedFields.end_date && !errors.end_date}
             aria-required={true}

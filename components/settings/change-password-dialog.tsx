@@ -121,7 +121,9 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
               </Button>
             </div>
             {errors.currentPassword && (
-              <p className="text-sm text-red-600">{errors.currentPassword.message}</p>
+              <p className="text-sm text-[var(--color-status-high)]">
+                {errors.currentPassword.message}
+              </p>
             )}
           </div>
 
@@ -144,7 +146,9 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
               </Button>
             </div>
             {errors.newPassword && (
-              <p className="text-sm text-red-600">{errors.newPassword.message}</p>
+              <p className="text-sm text-[var(--color-status-high)]">
+                {errors.newPassword.message}
+              </p>
             )}
 
             {/* Password Requirements */}
@@ -154,7 +158,7 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
                 {passwordRequirements.map((req) => (
                   <li
                     key={req.label}
-                    className={`flex items-center gap-2 text-xs ${req.met ? 'text-green-600' : 'text-muted-foreground'}`}
+                    className={`flex items-center gap-2 text-xs ${req.met ? 'text-[var(--color-status-low)]' : 'text-muted-foreground'}`}
                   >
                     {req.met ? (
                       <CheckCircle2 className="h-3 w-3" />
@@ -187,7 +191,9 @@ export function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialo
               </Button>
             </div>
             {errors.confirmPassword && (
-              <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+              <p className="text-sm text-[var(--color-status-high)]">
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 

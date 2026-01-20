@@ -63,7 +63,7 @@ export function HeroStatsClient({ stats }: HeroStatsClientProps) {
             variants={item}
             whileHover={{ y: -4, scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-            className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+            className="group border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
           >
             {/* Background gradient on hover */}
             <div className="from-primary-50/0 to-primary-100/0 dark:from-primary-900/0 dark:to-primary-800/0 absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity group-hover:opacity-100" />
@@ -81,13 +81,11 @@ export function HeroStatsClient({ stats }: HeroStatsClientProps) {
               </div>
 
               {/* Title */}
-              <p className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-400">
-                {stat.title}
-              </p>
+              <p className="text-muted-foreground mb-1 text-sm font-medium">{stat.title}</p>
 
               {/* Value */}
               <div className="mb-2 flex items-baseline gap-2">
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</h3>
+                <h3 className="text-foreground text-3xl font-bold">{stat.value}</h3>
 
                 {/* Trend indicator */}
                 {stat.trend && (
@@ -95,8 +93,8 @@ export function HeroStatsClient({ stats }: HeroStatsClientProps) {
                     className={cn(
                       'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold',
                       stat.trend.direction === 'up'
-                        ? 'bg-success-50 text-success-700 dark:bg-success-900/20 dark:text-success-400'
-                        : 'bg-danger-50 text-danger-700 dark:bg-danger-900/20 dark:text-danger-400'
+                        ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
+                        : 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
                     )}
                   >
                     <TrendIcon className="h-3 w-3" />
@@ -106,13 +104,11 @@ export function HeroStatsClient({ stats }: HeroStatsClientProps) {
               </div>
 
               {/* Subtitle */}
-              <p className="text-sm text-slate-500 dark:text-slate-400">{stat.subtitle}</p>
+              <p className="text-muted-foreground text-sm">{stat.subtitle}</p>
 
               {/* Trend label */}
               {stat.trend && (
-                <p className="mt-2 text-xs text-slate-500 dark:text-slate-500">
-                  {stat.trend.label}
-                </p>
+                <p className="text-muted-foreground mt-2 text-xs">{stat.trend.label}</p>
               )}
 
               {/* Bottom border accent */}

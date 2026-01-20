@@ -72,7 +72,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
         return (
           <Badge
             variant="outline"
-            className="border-yellow-300 bg-yellow-100 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900 dark:text-yellow-200"
+            className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]"
           >
             <Clock className="mr-1 h-3 w-3" />
             Pending
@@ -82,7 +82,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
         return (
           <Badge
             variant="outline"
-            className="border-blue-300 bg-blue-100 text-blue-800 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-200"
+            className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info)]"
           >
             <Clock className="mr-1 h-3 w-3" />
             Processing
@@ -92,7 +92,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
         return (
           <Badge
             variant="outline"
-            className="border-green-300 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-900 dark:text-green-200"
+            className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]"
           >
             <CheckCircle className="mr-1 h-3 w-3" />
             Approved
@@ -102,7 +102,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
         return (
           <Badge
             variant="outline"
-            className="border-red-300 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-200"
+            className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]"
           >
             <XCircle className="mr-1 h-3 w-3" />
             Rejected
@@ -199,11 +199,9 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
       )}
 
       {success && (
-        <Alert className="border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950">
-          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-          <AlertDescription className="text-green-800 dark:text-green-200">
-            {success}
-          </AlertDescription>
+        <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
+          <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" />
+          <AlertDescription className="text-[var(--color-status-low)]">{success}</AlertDescription>
         </Alert>
       )}
 
@@ -246,7 +244,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
         </CardHeader>
         <CardContent>
           {filteredBids.length === 0 ? (
-            <p className="py-8 text-center text-gray-500 dark:text-gray-400">
+            <p className="text-muted-foreground py-8 text-center">
               No {filter.toLowerCase()} leave bids found
             </p>
           ) : (
@@ -267,7 +265,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                 {filteredBids.map((bid) => (
                   <React.Fragment key={bid.id}>
                     {/* Main Row */}
-                    <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                    <TableRow className="hover:bg-muted/50">
                       <TableCell>
                         <Button
                           variant="ghost"
@@ -285,7 +283,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                       <TableCell className="font-medium">
                         {bid.pilots.first_name} {bid.pilots.last_name}
                         <br />
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-muted-foreground text-xs">
                           ID: {bid.pilots.employee_id || 'N/A'}
                         </span>
                       </TableCell>
@@ -303,7 +301,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                             variant="outline"
                             size="sm"
                             onClick={() => router.push(`/dashboard/admin/leave-bids/${bid.id}`)}
-                            className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400 dark:hover:bg-blue-950"
+                            className="border-[var(--color-info-border)] text-[var(--color-info)] hover:bg-[var(--color-info-bg)]"
                           >
                             <Eye className="mr-1 h-3 w-3" />
                             View
@@ -316,7 +314,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                             onClick={() =>
                               router.push(`/dashboard/admin/leave-bids/${bid.id}/edit`)
                             }
-                            className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                            className="border-border text-muted-foreground hover:bg-muted"
                           >
                             <Edit className="mr-1 h-3 w-3" />
                             Edit
@@ -330,7 +328,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                                 size="sm"
                                 onClick={() => handleApprove(bid.id)}
                                 disabled={actionLoading === bid.id}
-                                className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-950"
+                                className="border-[var(--color-status-low-border)] text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)]"
                               >
                                 <CheckCircle className="mr-1 h-3 w-3" />
                                 Approve
@@ -340,7 +338,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                                 size="sm"
                                 onClick={() => handleReject(bid.id)}
                                 disabled={actionLoading === bid.id}
-                                className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950"
+                                className="border-[var(--color-status-high-border)] text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)]"
                               >
                                 <XCircle className="mr-1 h-3 w-3" />
                                 Reject
@@ -354,35 +352,33 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                     {/* Expanded Details Row */}
                     {expandedBid === bid.id && (
                       <TableRow>
-                        <TableCell colSpan={8} className="bg-gray-50 dark:bg-gray-800/50">
+                        <TableCell colSpan={8} className="bg-muted/50">
                           <div className="space-y-3 py-4">
-                            <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                              Bid Options
-                            </h4>
+                            <h4 className="text-foreground font-semibold">Bid Options</h4>
                             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                               {bid.leave_bid_options
                                 .sort((a, b) => a.priority - b.priority)
                                 .map((option) => (
                                   <div
                                     key={option.id}
-                                    className="rounded-lg border-2 border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
+                                    className="bg-card border-border rounded-lg border-2 p-3"
                                   >
                                     <div className="mb-2 flex items-center gap-2">
-                                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-900 dark:bg-cyan-900 dark:text-cyan-100">
+                                      <span className="bg-primary/10 text-primary flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold">
                                         {option.priority}
                                       </span>
-                                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                      <span className="text-muted-foreground text-xs font-medium">
                                         {option.priority === 1 && '1st Choice'}
                                         {option.priority === 2 && '2nd Choice'}
                                         {option.priority === 3 && '3rd Choice'}
                                         {option.priority === 4 && '4th Choice'}
                                       </span>
                                     </div>
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                    <p className="text-foreground text-sm font-semibold">
                                       {format(new Date(option.start_date), 'MMM dd')} -{' '}
                                       {format(new Date(option.end_date), 'MMM dd, yyyy')}
                                     </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    <p className="text-muted-foreground text-xs">
                                       {Math.ceil(
                                         (new Date(option.end_date).getTime() -
                                           new Date(option.start_date).getTime()) /

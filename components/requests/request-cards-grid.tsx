@@ -270,11 +270,9 @@ export function RequestCardsGrid({
     return (
       <Card className="p-8 text-center">
         <div className="flex flex-col items-center justify-center space-y-3">
-          <CheckCircle className="h-16 w-16 text-green-500" />
+          <CheckCircle className="h-16 w-16 text-[var(--color-status-low)]" />
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              All Caught Up!
-            </h3>
+            <h3 className="text-foreground text-lg font-semibold">All Caught Up!</h3>
             <p className="text-muted-foreground mt-1.5">
               No pending requests require your attention at this time.
             </p>
@@ -292,12 +290,18 @@ export function RequestCardsGrid({
           <h2 className="text-xl font-semibold">Requests ({requests.length})</h2>
           <div className="flex gap-2">
             {criticalCount > 0 && (
-              <Badge variant="outline" className="border-red-600 text-red-600">
+              <Badge
+                variant="outline"
+                className="border-[var(--color-status-high)] text-[var(--color-status-high)]"
+              >
                 {criticalCount} Critical
               </Badge>
             )}
             {warningCount > 0 && (
-              <Badge variant="outline" className="border-yellow-600 text-yellow-600">
+              <Badge
+                variant="outline"
+                className="border-[var(--color-status-medium)] text-[var(--color-status-medium)]"
+              >
                 {warningCount} Warnings
               </Badge>
             )}
@@ -366,7 +370,7 @@ export function RequestCardsGrid({
               <Button
                 onClick={handleBulkApprove}
                 disabled={isPending}
-                className="bg-green-600 text-white hover:bg-green-700"
+                className="bg-[var(--color-status-low)] text-white hover:bg-[var(--color-status-low)]/90"
               >
                 <CheckCheck className="mr-2 h-4 w-4" />
                 {isPending ? 'Processing...' : `Approve All (${selectedIds.size})`}
@@ -435,14 +439,12 @@ export function RequestCardsGrid({
       </div>
 
       {/* Help Text */}
-      <Card className="border-blue-300 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/20">
+      <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4">
         <div className="flex items-start gap-2.5">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 text-[var(--color-info)]" />
           <div>
-            <h3 className="mb-1.5 font-semibold text-blue-900 dark:text-blue-300">
-              Approval Guidelines
-            </h3>
-            <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-400">
+            <h3 className="mb-1.5 font-semibold text-[var(--color-info)]">Approval Guidelines</h3>
+            <ul className="space-y-1 text-sm text-[var(--color-info-foreground)]">
               <li>
                 <strong>Critical Alerts</strong>: Conflicts or approving would drop crew below
                 minimum (10 per rank)

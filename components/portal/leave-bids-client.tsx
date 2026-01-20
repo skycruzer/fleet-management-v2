@@ -173,7 +173,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
+            <Clock className="h-4 w-4 text-[var(--color-status-medium)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -185,7 +185,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Approved</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <CheckCircle2 className="h-4 w-4 text-[var(--color-status-low)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -197,7 +197,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Rejected</CardTitle>
-            <XCircle className="h-4 w-4 text-red-600" />
+            <XCircle className="h-4 w-4 text-[var(--color-status-high)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -226,9 +226,9 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
         <CardContent>
           {bids.length === 0 ? (
             <div className="py-12 text-center">
-              <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+              <Calendar className="text-muted-foreground mx-auto h-12 w-12" />
               <h3 className="mt-4 text-lg font-semibold">No Leave Bids</h3>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground mt-2">
                 You haven't submitted any leave bids yet.
               </p>
             </div>

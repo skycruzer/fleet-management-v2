@@ -37,10 +37,13 @@ const activityIcons = {
 }
 
 const statusColors = {
-  success: 'bg-green-100 text-green-800 border-green-200',
-  pending: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  error: 'bg-red-100 text-red-800 border-red-200',
-  info: 'bg-blue-100 text-blue-800 border-blue-200',
+  success:
+    'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] border-[var(--color-status-low-border)]',
+  pending:
+    'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
+  error:
+    'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]',
+  info: 'bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info-border)]',
 }
 
 const statusIcons = {
@@ -57,7 +60,7 @@ export function RecentActivityWidget({ activities, maxItems = 5 }: RecentActivit
     return (
       <Card className="p-6">
         <div className="mb-4 flex items-center gap-2">
-          <Clock className="h-5 w-5 text-cyan-600" />
+          <Clock className="text-primary h-5 w-5" />
           <h3 className="text-foreground text-lg font-semibold">Recent Activity</h3>
         </div>
         <p className="text-muted-foreground py-8 text-center text-sm">
@@ -70,7 +73,7 @@ export function RecentActivityWidget({ activities, maxItems = 5 }: RecentActivit
   return (
     <Card className="p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Clock className="h-5 w-5 text-cyan-600" />
+        <Clock className="text-primary h-5 w-5" />
         <h3 className="text-foreground text-lg font-semibold">Recent Activity</h3>
       </div>
 
@@ -85,8 +88,8 @@ export function RecentActivityWidget({ activities, maxItems = 5 }: RecentActivit
               className="flex items-start gap-3 border-b pb-4 last:border-0 last:pb-0"
             >
               {/* Activity Icon */}
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-cyan-100">
-                <Icon className="h-5 w-5 text-cyan-600" />
+              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
+                <Icon className="text-primary h-5 w-5" />
               </div>
 
               {/* Activity Content */}

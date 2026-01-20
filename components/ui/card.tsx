@@ -2,15 +2,26 @@ import * as React from 'react'
 
 import { cn } from '@/lib/utils'
 
-const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+/**
+ * Interactive variant prop for cards that need hover elevation
+ */
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  /** Add interactive hover effects (shadow elevation, lift) */
+  interactive?: boolean
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, interactive = false, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        // Linear/Notion-inspired card: clean border, no shadow by default
+        // Linear/Notion-inspired card: clean border, subtle shadow
         'border-border bg-card text-card-foreground rounded-xl border',
-        // Subtle hover effect
-        'hover:border-border/80 transition-all duration-200',
+        'shadow-sm transition-all duration-200 ease-out',
+        // Interactive cards get enhanced hover effects
+        interactive
+          ? 'hover:border-border/80 cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--shadow-interactive-hover)]'
+          : 'hover:border-border/80',
         className
       )}
       {...props}

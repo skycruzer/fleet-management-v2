@@ -56,13 +56,13 @@ function getReadinessBadgeVariant(
 function getReadinessBadgeClasses(readiness: SuccessionCandidate['promotionReadiness']): string {
   switch (readiness) {
     case 'Ready':
-      return 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900 dark:text-green-200 dark:border-green-700'
+      return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] border-[var(--color-status-low-border)]'
     case 'Potential':
-      return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700'
+      return 'bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info-border)]'
     case 'Developing':
-      return 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600'
+      return 'bg-muted text-muted-foreground border-border'
     default:
-      return 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200 dark:border-red-700'
+      return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]'
   }
 }
 
@@ -90,7 +90,7 @@ export function SuccessionPipelineTable({
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-blue-600" />
+            <Users className="h-5 w-5 text-[var(--color-info)]" />
             <h3 className="text-foreground text-lg font-semibold">Succession Pipeline</h3>
           </div>
         </div>
@@ -110,7 +110,7 @@ export function SuccessionPipelineTable({
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Users className="h-5 w-5 text-blue-600" />
+          <Users className="h-5 w-5 text-[var(--color-info)]" />
           <h3 className="text-foreground text-lg font-semibold">
             Succession Pipeline ({candidates.length})
           </h3>
@@ -122,23 +122,23 @@ export function SuccessionPipelineTable({
 
       {/* Summary Stats */}
       <div className="mb-4 grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-700 dark:bg-green-950">
-          <p className="text-xs font-medium text-green-700 dark:text-green-400">Ready</p>
-          <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+        <div className="rounded-lg border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-3">
+          <p className="text-xs font-medium text-[var(--color-status-low)]">Ready</p>
+          <p className="text-foreground text-2xl font-bold">
             {candidates.filter((c) => c.promotionReadiness === 'Ready').length}
           </p>
         </div>
 
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-950">
-          <p className="text-xs font-medium text-blue-700 dark:text-blue-400">Potential</p>
-          <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+        <div className="rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3">
+          <p className="text-xs font-medium text-[var(--color-info)]">Potential</p>
+          <p className="text-foreground text-2xl font-bold">
             {candidates.filter((c) => c.promotionReadiness === 'Potential').length}
           </p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Developing</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <div className="border-border bg-muted rounded-lg border p-3">
+          <p className="text-muted-foreground text-xs font-medium">Developing</p>
+          <p className="text-foreground text-2xl font-bold">
             {candidates.filter((c) => c.promotionReadiness === 'Developing').length}
           </p>
         </div>
@@ -193,14 +193,14 @@ export function SuccessionPipelineTable({
                 {/* Qualification Gaps */}
                 <TableCell>
                   {candidate.qualificationGaps.length === 0 ? (
-                    <span className="text-xs font-medium text-green-600">
+                    <span className="text-xs font-medium text-[var(--color-status-low)]">
                       ✓ All requirements met
                     </span>
                   ) : (
                     <ul className="space-y-1">
                       {candidate.qualificationGaps.map((gap, index) => (
                         <li key={index} className="text-muted-foreground flex items-start text-xs">
-                          <AlertCircle className="mt-0.5 mr-1 h-3 w-3 flex-shrink-0 text-orange-500" />
+                          <AlertCircle className="mt-0.5 mr-1 h-3 w-3 flex-shrink-0 text-[var(--color-status-medium)]" />
                           {gap}
                         </li>
                       ))}
@@ -220,7 +220,7 @@ export function SuccessionPipelineTable({
                             key={index}
                             className="text-muted-foreground flex items-start text-xs"
                           >
-                            <TrendingUp className="mt-0.5 mr-1 h-3 w-3 flex-shrink-0 text-blue-500" />
+                            <TrendingUp className="mt-0.5 mr-1 h-3 w-3 flex-shrink-0 text-[var(--color-info)]" />
                             {action}
                           </li>
                         ))}
@@ -236,8 +236,8 @@ export function SuccessionPipelineTable({
 
       {/* Footer Note */}
       {!showSensitiveData && (
-        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-700 dark:bg-blue-950">
-          <p className="text-xs text-blue-800 dark:text-blue-200">
+        <div className="mt-4 rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-3">
+          <p className="text-xs text-[var(--color-info)]">
             <span className="font-semibold">Note:</span> Full succession planning details are only
             visible to Admin and Manager roles.
           </p>

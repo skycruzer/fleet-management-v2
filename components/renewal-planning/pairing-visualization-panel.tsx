@@ -129,25 +129,33 @@ export function PairingVisualizationPanel({
             icon={Users}
             label="Paired Crews"
             value={statistics.totalPairs}
-            iconColor="text-green-500"
+            iconColor="text-[var(--color-status-low)]"
           />
           <StatItem
             icon={UserX}
             label="Unpaired Pilots"
             value={statistics.totalUnpaired}
-            iconColor={statistics.totalUnpaired > 0 ? 'text-orange-500' : 'text-green-500'}
+            iconColor={
+              statistics.totalUnpaired > 0
+                ? 'text-[var(--color-status-medium)]'
+                : 'text-[var(--color-status-low)]'
+            }
           />
           <StatItem
             icon={AlertTriangle}
             label="Urgent Solo"
             value={statistics.urgentUnpaired}
-            iconColor={statistics.urgentUnpaired > 0 ? 'text-red-500' : 'text-green-500'}
+            iconColor={
+              statistics.urgentUnpaired > 0
+                ? 'text-[var(--color-status-high)]'
+                : 'text-[var(--color-status-low)]'
+            }
           />
           <StatItem
             icon={CheckCircle}
             label="Avg Overlap"
             value={`${Math.round(statistics.averageOverlapDays)}d`}
-            iconColor="text-blue-500"
+            iconColor="text-[var(--color-category-flight)]"
           />
         </div>
 
@@ -163,9 +171,9 @@ export function PairingVisualizationPanel({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {cat.category === 'Flight Checks' ? (
-                          <Plane className="h-4 w-4 text-blue-500" />
+                          <Plane className="h-4 w-4 text-[var(--color-category-flight)]" />
                         ) : (
-                          <Monitor className="h-4 w-4 text-purple-500" />
+                          <Monitor className="h-4 w-4 text-[var(--color-category-simulator)]" />
                         )}
                         <span className="text-sm font-medium">{cat.category}</span>
                       </div>
@@ -177,7 +185,7 @@ export function PairingVisualizationPanel({
                         {cat.unpairedCount > 0 && (
                           <Badge
                             variant="outline"
-                            className="border-orange-300 text-xs text-orange-600"
+                            className="border-[var(--color-status-medium-border)] text-xs text-[var(--color-status-medium)]"
                           >
                             <UserX className="mr-1 h-3 w-3" />
                             {cat.unpairedCount} solo
@@ -202,14 +210,14 @@ export function PairingVisualizationPanel({
 
       {/* Warning banner for urgent unpaired */}
       {hasWarnings && (
-        <Card className="border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
+        <Card className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-status-high)]" />
             <div>
-              <h4 className="font-medium text-red-800 dark:text-red-200">
+              <h4 className="font-medium text-[var(--color-status-high-foreground)]">
                 Urgent Attention Required
               </h4>
-              <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+              <p className="mt-1 text-sm text-[var(--color-status-high-foreground)]">
                 {statistics.urgentUnpaired} pilot{statistics.urgentUnpaired !== 1 ? 's' : ''}{' '}
                 scheduled solo due to expiring certifications. Review the Unpaired tab to confirm
                 scheduling or attempt manual pairing.
@@ -236,7 +244,7 @@ export function PairingVisualizationPanel({
               {filteredUnpaired.length > 0 && (
                 <Badge
                   variant="outline"
-                  className="ml-1 h-5 border-orange-300 px-1.5 text-xs text-orange-600"
+                  className="ml-1 h-5 border-[var(--color-status-medium-border)] px-1.5 text-xs text-[var(--color-status-medium)]"
                 >
                   {filteredUnpaired.length}
                 </Badge>
@@ -314,12 +322,12 @@ export function PairingVisualizationPanel({
       ) : (
         <div className="space-y-6">
           {filteredUnpaired.length === 0 ? (
-            <Card className="border-green-200 bg-green-50 p-8 text-center dark:border-green-800 dark:bg-green-950">
-              <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-              <h3 className="mt-4 font-medium text-green-800 dark:text-green-200">
+            <Card className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-8 text-center">
+              <CheckCircle className="mx-auto h-12 w-12 text-[var(--color-status-low)]" />
+              <h3 className="mt-4 font-medium text-[var(--color-status-low-foreground)]">
                 All Pilots Paired
               </h3>
-              <p className="mt-1 text-sm text-green-700 dark:text-green-300">
+              <p className="mt-1 text-sm text-[var(--color-status-low-foreground)]">
                 {categoryFilter !== 'all'
                   ? `All ${categoryFilter} pilots have been successfully paired`
                   : 'All Flight and Simulator check pilots have been successfully paired'}
@@ -330,7 +338,7 @@ export function PairingVisualizationPanel({
               {/* Critical urgency */}
               {unpairedByUrgency.critical.length > 0 && (
                 <div>
-                  <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-red-600 dark:text-red-400">
+                  <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-status-high)]">
                     <AlertTriangle className="h-4 w-4" />
                     Critical ({unpairedByUrgency.critical.length})
                   </h4>
@@ -351,7 +359,7 @@ export function PairingVisualizationPanel({
               {/* High urgency */}
               {unpairedByUrgency.high.length > 0 && (
                 <div>
-                  <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-orange-600 dark:text-orange-400">
+                  <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-status-medium)]">
                     <AlertTriangle className="h-4 w-4" />
                     High Priority ({unpairedByUrgency.high.length})
                   </h4>
@@ -372,7 +380,7 @@ export function PairingVisualizationPanel({
               {/* Normal urgency */}
               {unpairedByUrgency.normal.length > 0 && (
                 <div>
-                  <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-yellow-600 dark:text-yellow-400">
+                  <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-status-medium)]/80">
                     <UserX className="h-4 w-4" />
                     Pending Review ({unpairedByUrgency.normal.length})
                   </h4>

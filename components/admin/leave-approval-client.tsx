@@ -214,13 +214,13 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
     <div className="space-y-4">
       {/* Success/Error Messages */}
       {success && (
-        <Alert className="border-green-200 bg-green-50">
-          <AlertDescription className="text-green-800">{success}</AlertDescription>
+        <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
+          <AlertDescription className="text-[var(--color-status-low)]">{success}</AlertDescription>
         </Alert>
       )}
       {error && (
-        <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
+        <Alert className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]">
+          <AlertDescription className="text-[var(--color-status-high)]">{error}</AlertDescription>
         </Alert>
       )}
 
@@ -286,7 +286,7 @@ export function LeaveApprovalClient({ initialRequests }: Props) {
                         <Button
                           size="sm"
                           variant="default"
-                          className="bg-green-600 text-white hover:bg-green-700"
+                          className="bg-[var(--color-status-low)] text-white hover:bg-[var(--color-success-600)]"
                           onClick={() => handleApproval(request.id)}
                           disabled={isProcessing === request.id}
                         >

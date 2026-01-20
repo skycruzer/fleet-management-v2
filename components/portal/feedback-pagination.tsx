@@ -167,7 +167,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           {pagination.hasPrev ? (
             <Link href={buildPageUrl(pagination.page - 1)}>
               <button
-                className="focus:ring-primary rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                className="focus:ring-primary bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 aria-label="Go to previous page"
               >
                 ← Previous
@@ -204,8 +204,8 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
                 <button
                   className={`rounded-lg px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
                     isCurrentPage
-                      ? 'focus:ring-primary bg-blue-600 text-white'
-                      : 'bg-muted text-foreground hover:bg-muted/80 focus:ring-gray-400'
+                      ? 'focus:ring-primary bg-primary text-white'
+                      : 'bg-muted text-foreground hover:bg-muted/80 focus:ring-border'
                   }`}
                   aria-label={`Go to page ${pageNum}`}
                   aria-current={isCurrentPage ? 'page' : undefined}
@@ -222,7 +222,7 @@ export function FeedbackPagination({ pagination }: PaginationProps) {
           {pagination.hasNext ? (
             <Link href={buildPageUrl(pagination.page + 1)}>
               <button
-                className="focus:ring-primary rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                className="focus:ring-primary bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 aria-label="Go to next page"
               >
                 Next →

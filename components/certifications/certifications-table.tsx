@@ -155,9 +155,9 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
 
         const className =
           row.status.color === 'yellow'
-            ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400'
+            ? 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] hover:bg-[var(--color-status-medium-bg)]'
             : row.status.color === 'green'
-              ? 'bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-400'
+              ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)]'
               : ''
 
         return (

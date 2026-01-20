@@ -31,24 +31,24 @@ export function RosterPeriodTimeline({
   className,
 }: RosterPeriodTimelineProps) {
   const getUtilizationColor = (utilization: number) => {
-    if (utilization > 100) return 'bg-red-500'
-    if (utilization >= 80) return 'bg-orange-500'
-    if (utilization >= 50) return 'bg-yellow-500'
-    if (utilization > 0) return 'bg-green-500'
-    return 'bg-gray-200 dark:bg-gray-700'
+    if (utilization > 100) return 'bg-[var(--color-status-high)]'
+    if (utilization >= 80) return 'bg-[var(--color-status-medium)]'
+    if (utilization >= 50) return 'bg-[var(--color-status-medium)]/70'
+    if (utilization > 0) return 'bg-[var(--color-status-low)]'
+    return 'bg-muted'
   }
 
   const getUtilizationBgColor = (utilization: number, isSelected: boolean) => {
     if (isSelected) return 'ring-2 ring-primary ring-offset-2'
     if (utilization > 100)
-      return 'bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50'
+      return 'bg-[var(--color-status-high-bg)] hover:bg-[var(--color-status-high-bg)]/80'
     if (utilization >= 80)
-      return 'bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-900/50'
+      return 'bg-[var(--color-status-medium-bg)] hover:bg-[var(--color-status-medium-bg)]/80'
     if (utilization >= 50)
-      return 'bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50'
+      return 'bg-[var(--color-status-medium-bg)]/70 hover:bg-[var(--color-status-medium-bg)]/60'
     if (utilization > 0)
-      return 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/50'
-    return 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+      return 'bg-[var(--color-status-low-bg)] hover:bg-[var(--color-status-low-bg)]/80'
+    return 'bg-muted hover:bg-muted/80'
   }
 
   // Extract just the period number from "RP01/2026" format
@@ -102,7 +102,7 @@ export function RosterPeriodTimeline({
                       />
                       {/* Overflow indicator */}
                       {period.utilization > 100 && (
-                        <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 animate-pulse rounded-full bg-red-600" />
+                        <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 animate-pulse rounded-full bg-[var(--color-status-high)]" />
                       )}
                     </div>
                   </button>
@@ -113,7 +113,7 @@ export function RosterPeriodTimeline({
                     {period.plannedCount} / {period.totalCapacity} ({period.utilization}%)
                   </p>
                   {period.utilization > 100 && (
-                    <p className="text-xs text-red-400">Over capacity!</p>
+                    <p className="text-xs text-[var(--color-status-high)]">Over capacity!</p>
                   )}
                 </TooltipContent>
               </Tooltip>
@@ -124,19 +124,19 @@ export function RosterPeriodTimeline({
         {/* Legend */}
         <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs">
           <div className="flex items-center gap-1">
-            <div className="h-2 w-4 rounded-sm bg-green-500" />
+            <div className="h-2 w-4 rounded-sm bg-[var(--color-status-low)]" />
             <span className="text-muted-foreground">&lt;50%</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="h-2 w-4 rounded-sm bg-yellow-500" />
+            <div className="h-2 w-4 rounded-sm bg-[var(--color-status-medium)]/70" />
             <span className="text-muted-foreground">50-79%</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="h-2 w-4 rounded-sm bg-orange-500" />
+            <div className="h-2 w-4 rounded-sm bg-[var(--color-status-medium)]" />
             <span className="text-muted-foreground">80-99%</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="h-2 w-4 rounded-sm bg-red-500" />
+            <div className="h-2 w-4 rounded-sm bg-[var(--color-status-high)]" />
             <span className="text-muted-foreground">≥100%</span>
           </div>
         </div>

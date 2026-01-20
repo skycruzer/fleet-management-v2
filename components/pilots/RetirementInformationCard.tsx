@@ -48,7 +48,7 @@ export function RetirementInformationCard({
       <Card>
         <CardHeader>
           <h3 className="flex items-center gap-2 text-lg font-semibold">
-            <Clock className="h-5 w-5 text-purple-600" />
+            <Clock className="h-5 w-5 text-[var(--color-category-simulator)]" />
             Retirement Information
           </h3>
         </CardHeader>
@@ -118,16 +118,16 @@ export function RetirementInformationCard({
     <Card
       className={
         isUrgent
-          ? 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30'
+          ? 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]'
           : isWarning
-            ? 'border-orange-300 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30'
+            ? 'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
             : ''
       }
     >
       <CardHeader>
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-lg font-semibold">
-            <Clock className="h-5 w-5 text-purple-600" />
+            <Clock className="h-5 w-5 text-[var(--color-category-simulator)]" />
             Retirement Information
           </h3>
           <Badge variant="outline" className="text-xs">
@@ -137,14 +137,14 @@ export function RetirementInformationCard({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Countdown Display */}
-        <div className="rounded-lg border border-purple-200 bg-purple-50 p-6 dark:border-purple-800 dark:bg-purple-950/30">
-          <div className="mb-2 text-sm font-medium text-purple-700 dark:text-purple-300">
+        <div className="rounded-lg border border-[var(--color-category-simulator)]/30 bg-[var(--color-category-simulator-bg)] p-6">
+          <div className="mb-2 text-sm font-medium text-[var(--color-category-simulator)]">
             Time Until Retirement
           </div>
-          <div className="text-4xl font-bold text-purple-900 dark:text-purple-100">
+          <div className="text-4xl font-bold text-[var(--color-category-simulator)]">
             {formatRetirementCountdown(countdown)}
           </div>
-          <div className="mt-3 flex items-center gap-2 text-sm text-purple-600 dark:text-purple-300">
+          <div className="mt-3 flex items-center gap-2 text-sm text-[var(--color-category-simulator)]">
             <Calendar className="h-4 w-4" />
             Retirement Date:{' '}
             <span className="font-semibold">{formatRetirementDate(countdown.retirementDate)}</span>
@@ -175,13 +175,11 @@ export function RetirementInformationCard({
 
         {/* Years of Service */}
         {yearsOfService && (
-          <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
-            <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex items-center gap-2 rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4">
+            <TrendingUp className="h-5 w-5 text-[var(--color-info)]" />
             <div>
-              <div className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                Years of Service
-              </div>
-              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              <div className="text-sm font-medium text-[var(--color-info)]">Years of Service</div>
+              <div className="text-2xl font-bold text-[var(--color-info)]">
                 {yearsOfService} years
               </div>
             </div>
@@ -190,16 +188,16 @@ export function RetirementInformationCard({
 
         {/* Warning Alerts */}
         {isUrgent && (
-          <div className="flex items-start gap-3 rounded-lg border border-red-300 bg-red-100 p-4 dark:border-red-800 dark:bg-red-950">
+          <div className="flex items-start gap-3 rounded-lg border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4">
             <AlertTriangle
-              className="mt-0.5 h-5 w-5 text-red-600 dark:text-red-400"
+              className="mt-0.5 h-5 w-5 text-[var(--color-status-high)]"
               aria-hidden="true"
             />
             <div>
-              <div className="font-semibold text-red-900 dark:text-red-100">
+              <div className="font-semibold text-[var(--color-status-high)]">
                 Urgent: Retirement Within 1 Year
               </div>
-              <p className="mt-1 text-sm text-red-700 dark:text-red-200">
+              <p className="mt-1 text-sm text-[var(--color-status-high)]">
                 {pilotName} will retire in less than 1 year. Begin succession planning and
                 recruitment immediately to ensure smooth transition.
               </p>
@@ -208,16 +206,16 @@ export function RetirementInformationCard({
         )}
 
         {isWarning && !isUrgent && (
-          <div className="flex items-start gap-3 rounded-lg border border-orange-300 bg-orange-100 p-4 dark:border-orange-800 dark:bg-orange-950">
+          <div className="flex items-start gap-3 rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-4">
             <AlertTriangle
-              className="mt-0.5 h-5 w-5 text-orange-600 dark:text-orange-400"
+              className="mt-0.5 h-5 w-5 text-[var(--color-status-medium)]"
               aria-hidden="true"
             />
             <div>
-              <div className="font-semibold text-orange-900 dark:text-orange-100">
+              <div className="font-semibold text-[var(--color-status-medium)]">
                 Warning: Retirement Within 2 Years
               </div>
-              <p className="mt-1 text-sm text-orange-700 dark:text-orange-200">
+              <p className="mt-1 text-sm text-[var(--color-status-medium)]">
                 {pilotName} will retire in less than 2 years. Consider succession planning and
                 knowledge transfer initiatives.
               </p>

@@ -61,9 +61,9 @@ const CATEGORIES = [
 
 const UTILIZATION_LEVELS = [
   { id: 'all', label: 'All Levels', color: 'text-foreground' },
-  { id: 'low', label: 'Low (<60%)', color: 'text-green-600' },
-  { id: 'medium', label: 'Medium (60-80%)', color: 'text-yellow-600' },
-  { id: 'high', label: 'High (>80%)', color: 'text-red-600' },
+  { id: 'low', label: 'Low (<60%)', color: 'text-[var(--color-status-low)]' },
+  { id: 'medium', label: 'Medium (60-80%)', color: 'text-[var(--color-status-medium)]' },
+  { id: 'high', label: 'High (>80%)', color: 'text-[var(--color-status-high)]' },
 ]
 
 export function CalendarFilterPanel({
@@ -344,7 +344,7 @@ export function CalendarFilterPanel({
           className="w-full text-xs"
           onClick={() => handleUtilizationChange('high')}
         >
-          <AlertTriangle className="mr-2 h-3 w-3 text-red-500" />
+          <AlertTriangle className="mr-2 h-3 w-3 text-[var(--color-status-high)]" />
           Show High Risk Only
         </Button>
         <Button
@@ -353,7 +353,7 @@ export function CalendarFilterPanel({
           className="w-full text-xs"
           onClick={() => handleUtilizationChange('low')}
         >
-          <CheckCircle className="mr-2 h-3 w-3 text-green-500" />
+          <CheckCircle className="mr-2 h-3 w-3 text-[var(--color-status-low)]" />
           Show Available Capacity
         </Button>
       </div>

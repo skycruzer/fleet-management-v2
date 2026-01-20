@@ -877,9 +877,7 @@ export async function generateRenewalPlanWithPairing(options?: {
   for (const unpaired of pairingResult.unpaired) {
     // Skip unpaired pilots without a valid planned date (they need manual review)
     if (!unpaired.plannedDate || !unpaired.plannedRosterPeriod) {
-      console.log(
-        `[generateRenewalPlanWithPairing] Skipping unpaired pilot ${unpaired.name} - needs manual review (no planned date)`
-      )
+      // Debug: Unpaired pilot needs manual review (no planned date)
       continue
     }
 
@@ -913,18 +911,14 @@ export async function generateRenewalPlanWithPairing(options?: {
   const deduplicatedPlans = renewalPlans.filter((plan) => {
     const key = `${plan.pilot_id}-${plan.check_type_id}`
     if (seenKeys.has(key)) {
-      console.log(
-        `[generateRenewalPlanWithPairing] Removing duplicate: pilot=${plan.pilot_id}, check=${plan.check_type_id}`
-      )
+      // Debug: Removing duplicate - paired entry takes priority
       return false
     }
     seenKeys.add(key)
     return true
   })
 
-  console.log(
-    `[generateRenewalPlanWithPairing] After deduplication: ${deduplicatedPlans.length} plans (removed ${renewalPlans.length - deduplicatedPlans.length} duplicates)`
-  )
+  // Note: Deduplication removed (renewalPlans.length - deduplicatedPlans.length) duplicates
 
   // Step 7: Insert all renewal plans (skip if empty)
   if (deduplicatedPlans.length === 0) {

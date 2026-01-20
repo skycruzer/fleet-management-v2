@@ -30,23 +30,23 @@ interface StatCardProps {
 function StatCard({ label, value, icon, description, variant }: StatCardProps) {
   const variantStyles = {
     default: 'bg-background border',
-    critical: 'bg-red-50 border-red-300 dark:bg-red-950/20 dark:border-red-800',
-    warning: 'bg-yellow-50 border-yellow-300 dark:bg-yellow-950/20 dark:border-yellow-800',
-    success: 'bg-green-50 border-green-300 dark:bg-green-950/20 dark:border-green-800',
+    critical: 'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)]',
+    warning: 'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)]',
+    success: 'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)]',
   }
 
   const textStyles = {
     default: 'text-foreground',
-    critical: 'text-red-700 dark:text-red-400',
-    warning: 'text-yellow-700 dark:text-yellow-400',
-    success: 'text-green-700 dark:text-green-400',
+    critical: 'text-[var(--color-status-high)]',
+    warning: 'text-[var(--color-status-medium)]',
+    success: 'text-[var(--color-status-low)]',
   }
 
   const labelStyles = {
     default: 'text-muted-foreground',
-    critical: 'text-red-900 dark:text-red-300',
-    warning: 'text-yellow-900 dark:text-yellow-300',
-    success: 'text-green-900 dark:text-green-300',
+    critical: 'text-[var(--color-status-high)]',
+    warning: 'text-[var(--color-status-medium)]',
+    success: 'text-[var(--color-status-low)]',
   }
 
   return (

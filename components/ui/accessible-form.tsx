@@ -127,8 +127,8 @@ export const SuccessMessage = React.forwardRef<HTMLDivElement, SuccessMessagePro
         aria-live="polite"
         aria-atomic="true"
         className={cn(
-          'rounded-lg border border-green-200 bg-green-50 p-4',
-          'focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none',
+          'rounded-lg border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-4',
+          'focus:ring-2 focus:ring-[var(--color-status-low)] focus:ring-offset-2 focus:outline-none',
           className
         )}
       >
@@ -178,8 +178,8 @@ export const ErrorMessage = React.forwardRef<HTMLDivElement, ErrorMessageProps>(
         aria-live="assertive"
         aria-atomic="true"
         className={cn(
-          'rounded-lg border border-red-200 bg-red-50 p-4',
-          'focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none',
+          'rounded-lg border border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-4',
+          'focus:ring-2 focus:ring-[var(--color-status-high)] focus:ring-offset-2 focus:outline-none',
           className
         )}
       >

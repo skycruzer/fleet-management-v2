@@ -175,19 +175,19 @@ export function GenerateReportButton({
               </>
             ) : (
               <>
-                <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                  <p className="font-medium text-green-900">Report Generated Successfully</p>
-                  <p className="mt-1 text-sm text-green-700">
+                <div className="rounded-lg border border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-4">
+                  <p className="text-foreground font-medium">Report Generated Successfully</p>
+                  <p className="mt-1 text-sm text-[var(--color-status-low)]">
                     {report.metadata.reportType} report for {rosterPeriod}
                   </p>
                   <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
                     <div>
-                      <span className="text-green-600">Total Requests:</span>{' '}
+                      <span className="text-[var(--color-status-low)]">Total Requests:</span>{' '}
                       <span className="font-medium">{report.statistics.totalRequests}</span>
                     </div>
                     <div>
-                      <span className="text-green-600">Approved:</span>{' '}
-                      <span className="font-medium text-green-700">
+                      <span className="text-[var(--color-status-low)]">Approved:</span>{' '}
+                      <span className="font-medium text-[var(--color-status-low)]">
                         {report.statistics.approvedCount}
                       </span>
                     </div>

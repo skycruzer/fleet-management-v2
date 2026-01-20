@@ -71,22 +71,22 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Pilot Medical': 'text-red-500',
-  'Flight Checks': 'text-blue-500',
-  'Simulator Checks': 'text-purple-500',
-  'Ground Courses Refresher': 'text-green-500',
+  'Pilot Medical': 'text-[var(--color-status-high)]',
+  'Flight Checks': 'text-[var(--color-category-flight)]',
+  'Simulator Checks': 'text-[var(--color-category-simulator)]',
+  'Ground Courses Refresher': 'text-[var(--color-category-ground)]',
 }
 
 function getUtilizationColor(utilization: number): string {
-  if (utilization > 80) return 'text-red-600'
-  if (utilization > 60) return 'text-yellow-600'
-  return 'text-green-600'
+  if (utilization > 80) return 'text-[var(--color-status-high)]'
+  if (utilization > 60) return 'text-[var(--color-status-medium)]'
+  return 'text-[var(--color-status-low)]'
 }
 
 function getProgressColor(utilization: number): string {
-  if (utilization > 80) return 'bg-red-500'
-  if (utilization > 60) return 'bg-yellow-500'
-  return 'bg-green-500'
+  if (utilization > 80) return 'bg-[var(--color-status-high)]'
+  if (utilization > 60) return 'bg-[var(--color-status-medium)]'
+  return 'bg-[var(--color-status-low)]'
 }
 
 export function CategoryDetailTab({
@@ -114,7 +114,7 @@ export function CategoryDetailTab({
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="bg-muted rounded-lg p-2">
-              <Users className="h-5 w-5 text-blue-500" />
+              <Users className="h-5 w-5 text-[var(--color-category-flight)]" />
             </div>
             <div>
               <div className="text-foreground text-2xl font-bold">{totalRenewals}</div>
@@ -126,7 +126,7 @@ export function CategoryDetailTab({
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="bg-muted rounded-lg p-2">
-              <Calendar className="h-5 w-5 text-purple-500" />
+              <Calendar className="h-5 w-5 text-[var(--color-category-simulator)]" />
             </div>
             <div>
               <div className="text-foreground text-2xl font-bold">{totalCapacity}</div>
@@ -153,20 +153,22 @@ export function CategoryDetailTab({
           className={cn(
             'p-4',
             highRiskPeriods.length > 0 &&
-              'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950'
+              'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
           )}
         >
           <div className="flex items-center gap-3">
             <div
               className={cn(
                 'rounded-lg p-2',
-                highRiskPeriods.length > 0 ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-muted'
+                highRiskPeriods.length > 0 ? 'bg-[var(--color-status-medium-bg)]' : 'bg-muted'
               )}
             >
               <AlertTriangle
                 className={cn(
                   'h-5 w-5',
-                  highRiskPeriods.length > 0 ? 'text-yellow-600' : 'text-green-500'
+                  highRiskPeriods.length > 0
+                    ? 'text-[var(--color-status-medium)]'
+                    : 'text-[var(--color-status-low)]'
                 )}
               />
             </div>
@@ -200,11 +202,13 @@ export function CategoryDetailTab({
                       variant="outline"
                       className={cn(
                         'text-xs',
-                        period.utilization > 80 && 'border-red-300 text-red-600',
+                        period.utilization > 80 &&
+                          'border-[var(--color-status-high-border)] text-[var(--color-status-high)]',
                         period.utilization > 60 &&
                           period.utilization <= 80 &&
-                          'border-yellow-300 text-yellow-600',
-                        period.utilization <= 60 && 'border-green-300 text-green-600'
+                          'border-[var(--color-status-medium-border)] text-[var(--color-status-medium)]',
+                        period.utilization <= 60 &&
+                          'border-[var(--color-status-low-border)] text-[var(--color-status-low)]'
                       )}
                     >
                       {Math.round(period.utilization)}%
@@ -267,7 +271,7 @@ export function CategoryDetailTab({
                     <td className="px-4 py-2">
                       {pilot.pairingStatus === 'paired' && pilot.pairedWith ? (
                         <div className="flex items-center gap-1.5">
-                          <Link className="h-3.5 w-3.5 text-green-500" />
+                          <Link className="h-3.5 w-3.5 text-[var(--color-status-low)]" />
                           <div>
                             <div className="text-sm font-medium">{pilot.pairedWith.name}</div>
                             <div className="text-muted-foreground text-xs">
@@ -277,10 +281,10 @@ export function CategoryDetailTab({
                         </div>
                       ) : pilot.pairingStatus === 'unpaired_solo' ? (
                         <div className="flex items-center gap-1.5">
-                          <UserX className="h-3.5 w-3.5 text-orange-500" />
+                          <UserX className="h-3.5 w-3.5 text-[var(--color-status-medium)]" />
                           <Badge
                             variant="outline"
-                            className="border-orange-300 text-xs text-orange-600 dark:border-orange-700 dark:text-orange-400"
+                            className="border-[var(--color-status-medium-border)] text-xs text-[var(--color-status-medium)]"
                           >
                             Solo
                           </Badge>
@@ -317,12 +321,14 @@ export function CategoryDetailTab({
 
       {/* Status Banner */}
       {highRiskPeriods.length > 0 ? (
-        <Card className="border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-950">
+        <Card className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-status-medium)]" />
             <div>
-              <h4 className="font-medium text-yellow-800 dark:text-yellow-200">Capacity Warning</h4>
-              <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
+              <h4 className="font-medium text-[var(--color-status-medium-foreground)]">
+                Capacity Warning
+              </h4>
+              <p className="mt-1 text-sm text-[var(--color-status-medium-foreground)]">
                 {highRiskPeriods.length} period{highRiskPeriods.length > 1 ? 's' : ''} exceed
                 {highRiskPeriods.length === 1 ? 's' : ''} 80% capacity:{' '}
                 {highRiskPeriods.map((p) => p.rosterPeriod).join(', ')}
@@ -332,10 +338,10 @@ export function CategoryDetailTab({
         </Card>
       ) : (
         totalRenewals > 0 && (
-          <Card className="border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950">
+          <Card className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-4">
             <div className="flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <span className="text-sm font-medium text-green-800 dark:text-green-200">
+              <CheckCircle className="h-5 w-5 text-[var(--color-status-low)]" />
+              <span className="text-sm font-medium text-[var(--color-status-low-foreground)]">
                 All periods within healthy capacity limits
               </span>
             </div>

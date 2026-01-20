@@ -29,7 +29,12 @@ interface SortIconProps {
 function SortIcon({ field, currentSortField, currentSortOrder }: SortIconProps) {
   if (currentSortField !== field) {
     return (
-      <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg
+        className="text-muted-foreground h-4 w-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -41,7 +46,7 @@ function SortIcon({ field, currentSortField, currentSortOrder }: SortIconProps) 
   }
   return (
     <svg
-      className={`h-4 w-4 text-blue-600 transition-transform dark:text-blue-400 ${currentSortOrder === 'desc' ? 'rotate-180' : ''}`}
+      className={`text-primary h-4 w-4 transition-transform ${currentSortOrder === 'desc' ? 'rotate-180' : ''}`}
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -116,32 +121,32 @@ export default function TaskList({ tasks }: TaskListProps) {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'TODO':
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
       case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info-foreground)]'
       case 'IN_REVIEW':
-        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
+        return 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]'
       case 'DONE':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low-foreground)]'
       case 'CANCELLED':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high-foreground)]'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
   const getPriorityBadgeColor = (priority: string) => {
     switch (priority) {
       case 'URGENT':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high-foreground)]'
       case 'HIGH':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+        return 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium-foreground)]'
       case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+        return 'bg-[var(--color-status-medium-bg)]/70 text-[var(--color-status-medium-foreground)]'
       case 'LOW':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info-foreground)]'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
@@ -169,8 +174,8 @@ export default function TaskList({ tasks }: TaskListProps) {
           onClick={() => setStatusFilter('all')}
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             statusFilter === 'all'
-              ? 'bg-blue-600 text-white dark:bg-blue-500'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
           All ({tasks.length})
@@ -179,8 +184,8 @@ export default function TaskList({ tasks }: TaskListProps) {
           onClick={() => setStatusFilter('TODO')}
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             statusFilter === 'TODO'
-              ? 'bg-blue-600 text-white dark:bg-blue-500'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
           To Do ({tasks.filter((t) => t.status === 'TODO').length})
@@ -189,8 +194,8 @@ export default function TaskList({ tasks }: TaskListProps) {
           onClick={() => setStatusFilter('IN_PROGRESS')}
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             statusFilter === 'IN_PROGRESS'
-              ? 'bg-blue-600 text-white dark:bg-blue-500'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
           In Progress ({tasks.filter((t) => t.status === 'IN_PROGRESS').length})
@@ -199,8 +204,8 @@ export default function TaskList({ tasks }: TaskListProps) {
           onClick={() => setStatusFilter('DONE')}
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             statusFilter === 'DONE'
-              ? 'bg-blue-600 text-white dark:bg-blue-500'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
           Done ({tasks.filter((t) => t.status === 'DONE').length})
@@ -209,8 +214,8 @@ export default function TaskList({ tasks }: TaskListProps) {
           onClick={() => setStatusFilter('CANCELLED')}
           className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
             statusFilter === 'CANCELLED'
-              ? 'bg-blue-600 text-white dark:bg-blue-500'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
           Cancelled ({tasks.filter((t) => t.status === 'CANCELLED').length})
@@ -218,13 +223,13 @@ export default function TaskList({ tasks }: TaskListProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-900/50">
+      <div className="border-border bg-background overflow-x-auto rounded-lg border shadow-sm">
+        <table className="divide-border min-w-full divide-y">
+          <thead className="bg-muted">
             <tr>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted/50 cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('title')}
               >
                 <div className="flex items-center gap-1">
@@ -238,7 +243,7 @@ export default function TaskList({ tasks }: TaskListProps) {
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted/50 cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('status')}
               >
                 <div className="flex items-center gap-1">
@@ -252,7 +257,7 @@ export default function TaskList({ tasks }: TaskListProps) {
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted/50 cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('priority')}
               >
                 <div className="flex items-center gap-1">
@@ -266,13 +271,13 @@ export default function TaskList({ tasks }: TaskListProps) {
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400"
+                className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
               >
                 Assignee
               </th>
               <th
                 scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
+                className="text-muted-foreground hover:bg-muted/50 cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
                 onClick={() => handleSort('due_date')}
               >
                 <div className="flex items-center gap-1">
@@ -289,26 +294,23 @@ export default function TaskList({ tasks }: TaskListProps) {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+          <tbody className="divide-border bg-background divide-y">
             {filteredAndSortedTasks.length === 0 ? (
               <tr>
-                <td
-                  colSpan={6}
-                  className="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
-                >
+                <td colSpan={6} className="text-muted-foreground px-6 py-12 text-center text-sm">
                   No tasks found
                 </td>
               </tr>
             ) : (
               filteredAndSortedTasks.map((task) => (
-                <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                <tr key={task.id} className="hover:bg-muted/50">
                   <td className="px-6 py-4">
                     <Link href={`/dashboard/tasks/${task.id}`} className="block">
-                      <div className="font-medium text-gray-900 hover:text-blue-600 dark:text-white dark:hover:text-blue-400">
+                      <div className="text-foreground hover:text-primary font-medium">
                         {task.title}
                       </div>
                       {task.description && (
-                        <div className="mt-1 line-clamp-1 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-muted-foreground mt-1 line-clamp-1 text-sm">
                           {task.description}
                         </div>
                       )}
@@ -328,10 +330,10 @@ export default function TaskList({ tasks }: TaskListProps) {
                       {task.priority}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                  <td className="text-foreground px-6 py-4 text-sm">
                     {task.assigned_user ? (
                       <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-info-bg)] text-sm font-medium text-[var(--color-info-foreground)]">
                           {(task.assigned_user.name || task.assigned_user.email)[0].toUpperCase()}
                         </div>
                         <span className="truncate">
@@ -339,7 +341,7 @@ export default function TaskList({ tasks }: TaskListProps) {
                         </span>
                       </div>
                     ) : (
-                      <span className="text-gray-500 dark:text-gray-500">Unassigned</span>
+                      <span className="text-muted-foreground">Unassigned</span>
                     )}
                   </td>
                   <td className="px-6 py-4 text-sm whitespace-nowrap">
@@ -347,21 +349,21 @@ export default function TaskList({ tasks }: TaskListProps) {
                       <span
                         className={
                           isOverdue(task)
-                            ? 'font-semibold text-red-600 dark:text-red-400'
-                            : 'text-gray-900 dark:text-white'
+                            ? 'font-semibold text-[var(--color-status-high)]'
+                            : 'text-foreground'
                         }
                       >
                         {formatDate(task.due_date)}
                         {isOverdue(task) && ' (Overdue)'}
                       </span>
                     ) : (
-                      <span className="text-gray-500 dark:text-gray-500">-</span>
+                      <span className="text-muted-foreground">-</span>
                     )}
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                     <Link
                       href={`/dashboard/tasks/${task.id}`}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                      className="text-primary hover:text-primary/80"
                     >
                       View
                     </Link>

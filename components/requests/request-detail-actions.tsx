@@ -159,7 +159,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
           <Button
             onClick={handleApprove}
             disabled={loading}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-[var(--color-status-low)] hover:bg-[var(--color-status-low)]/90"
           >
             <CheckCircle className="mr-2 h-4 w-4" />
             Approve
@@ -170,7 +170,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
             onClick={handleDeny}
             disabled={loading}
             variant="secondary"
-            className="bg-yellow-100 text-yellow-900 hover:bg-yellow-200"
+            className="bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] hover:bg-[var(--color-status-medium-bg)]/80"
           >
             <XCircle className="mr-2 h-4 w-4" />
             Deny
@@ -202,7 +202,10 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-[var(--color-status-high)] hover:bg-[var(--color-status-high)]/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

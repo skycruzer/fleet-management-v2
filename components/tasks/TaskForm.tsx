@@ -132,41 +132,39 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       {/* Title */}
       <div>
-        <label
-          htmlFor="title"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Title <span className="text-red-500">*</span>
+        <label htmlFor="title" className="text-foreground block text-sm font-medium">
+          Title <span className="text-[var(--color-status-high)]">*</span>
         </label>
         <input
           type="text"
           id="title"
           {...form.register('title')}
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
           placeholder="Task title"
         />
         {form.formState.errors.title && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.title.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">
+            {form.formState.errors.title.message}
+          </p>
         )}
       </div>
 
       {/* Description */}
       <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="description" className="text-foreground block text-sm font-medium">
           Description
         </label>
         <textarea
           id="description"
           {...form.register('description')}
           rows={4}
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
           placeholder="Describe the task..."
         />
         {form.formState.errors.description && (
-          <p className="mt-1 text-sm text-red-600">{form.formState.errors.description.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">
+            {form.formState.errors.description.message}
+          </p>
         )}
       </div>
 
@@ -174,16 +172,13 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Priority */}
         <div>
-          <label
-            htmlFor="priority"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="priority" className="text-foreground block text-sm font-medium">
             Priority
           </label>
           <select
             id="priority"
             {...form.register('priority')}
-            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
           >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
@@ -191,23 +186,22 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
             <option value="URGENT">Urgent</option>
           </select>
           {form.formState.errors.priority && (
-            <p className="mt-1 text-sm text-red-600">{form.formState.errors.priority.message}</p>
+            <p className="mt-1 text-sm text-[var(--color-status-high)]">
+              {form.formState.errors.priority.message}
+            </p>
           )}
         </div>
 
         {/* Status (only for edit) */}
         {isEdit && (
           <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
+            <label htmlFor="status" className="text-foreground block text-sm font-medium">
               Status
             </label>
             <select
               id="status"
               {...form.register('status')}
-              className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
             >
               <option value="TODO">To Do</option>
               <option value="IN_PROGRESS">In Progress</option>
@@ -216,7 +210,9 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
               <option value="CANCELLED">Cancelled</option>
             </select>
             {isEdit && 'status' in form.formState.errors && form.formState.errors.status && (
-              <p className="mt-1 text-sm text-red-600">{form.formState.errors.status.message}</p>
+              <p className="mt-1 text-sm text-[var(--color-status-high)]">
+                {form.formState.errors.status.message}
+              </p>
             )}
           </div>
         )}
@@ -226,16 +222,13 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Assignee */}
         <div>
-          <label
-            htmlFor="assigned_to"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="assigned_to" className="text-foreground block text-sm font-medium">
             Assign To
           </label>
           <select
             id="assigned_to"
             {...form.register('assigned_to')}
-            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
           >
             <option value="">Unassigned</option>
             {users.map((user) => (
@@ -245,34 +238,35 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
             ))}
           </select>
           {form.formState.errors.assigned_to && (
-            <p className="mt-1 text-sm text-red-600">{form.formState.errors.assigned_to.message}</p>
+            <p className="mt-1 text-sm text-[var(--color-status-high)]">
+              {form.formState.errors.assigned_to.message}
+            </p>
           )}
         </div>
 
         {/* Due Date */}
         <div>
-          <label
-            htmlFor="due_date"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="due_date" className="text-foreground block text-sm font-medium">
             Due Date
           </label>
           <input
             type="date"
             id="due_date"
             {...form.register('due_date')}
-            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary border-border bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
           />
           {form.formState.errors.due_date && (
-            <p className="mt-1 text-sm text-red-600">{form.formState.errors.due_date.message}</p>
+            <p className="mt-1 text-sm text-[var(--color-status-high)]">
+              {form.formState.errors.due_date.message}
+            </p>
           )}
         </div>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="rounded-md bg-red-50 p-3 dark:bg-red-900/20">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        <div className="rounded-md bg-[var(--color-status-high-bg)] p-3">
+          <p className="text-sm text-[var(--color-status-high-foreground)]">{error}</p>
         </div>
       )}
 
@@ -281,7 +275,7 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
         <button
           type="button"
           onClick={onCancel || (() => router.back())}
-          className="focus:ring-primary rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="focus:ring-primary border-border text-muted-foreground hover:bg-muted rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
         >
           Cancel
         </button>

@@ -260,15 +260,17 @@ export function FeedbackDashboardClient({ initialFeedback, initialStats }: Feedb
         </div>
         <div className="bg-card rounded-lg border p-4">
           <div className="text-muted-foreground text-sm font-medium">Pending</div>
-          <div className="text-2xl font-bold text-orange-600">{stats.pending}</div>
+          <div className="text-2xl font-bold text-[var(--color-status-medium)]">
+            {stats.pending}
+          </div>
         </div>
         <div className="bg-card rounded-lg border p-4">
           <div className="text-muted-foreground text-sm font-medium">Reviewed</div>
-          <div className="text-2xl font-bold text-blue-600">{stats.reviewed}</div>
+          <div className="text-2xl font-bold text-[var(--color-info)]">{stats.reviewed}</div>
         </div>
         <div className="bg-card rounded-lg border p-4">
           <div className="text-muted-foreground text-sm font-medium">Resolved</div>
-          <div className="text-2xl font-bold text-green-600">{stats.resolved}</div>
+          <div className="text-2xl font-bold text-[var(--color-status-low)]">{stats.resolved}</div>
         </div>
       </div>
 

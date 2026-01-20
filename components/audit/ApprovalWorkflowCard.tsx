@@ -170,32 +170,32 @@ function getActionConfig(action: ApprovalTimelineEntry['action']) {
   const configs = {
     submitted: {
       icon: Send,
-      iconColor: 'text-blue-600',
-      borderColor: 'border-blue-200',
+      iconColor: 'text-[var(--color-info)]',
+      borderColor: 'border-[var(--color-info-border)]',
       label: 'Submitted',
     },
     approved: {
       icon: CheckCircle2,
-      iconColor: 'text-green-600',
-      borderColor: 'border-green-200',
+      iconColor: 'text-[var(--color-status-low)]',
+      borderColor: 'border-[var(--color-status-low-border)]',
       label: 'Approved',
     },
     denied: {
       icon: XCircle,
-      iconColor: 'text-red-600',
-      borderColor: 'border-red-200',
+      iconColor: 'text-[var(--color-status-high)]',
+      borderColor: 'border-[var(--color-status-high-border)]',
       label: 'Denied',
     },
     cancelled: {
       icon: AlertCircle,
-      iconColor: 'text-orange-600',
-      borderColor: 'border-orange-200',
+      iconColor: 'text-[var(--color-status-medium)]',
+      borderColor: 'border-[var(--color-status-medium-border)]',
       label: 'Cancelled',
     },
     updated: {
       icon: Clock,
-      iconColor: 'text-yellow-600',
-      borderColor: 'border-yellow-200',
+      iconColor: 'text-[var(--color-status-medium)]',
+      borderColor: 'border-[var(--color-status-medium-border)]',
       label: 'Updated',
     },
   }
@@ -210,19 +210,22 @@ function StatusBadge({ status }: { status: string }) {
   const configs: Record<string, { variant: any; className: string }> = {
     PENDING: {
       variant: 'secondary',
-      className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      className:
+        'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] border-[var(--color-status-medium-border)]',
     },
     APPROVED: {
       variant: 'default',
-      className: 'bg-green-100 text-green-800 border-green-300',
+      className:
+        'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] border-[var(--color-status-low-border)]',
     },
     DENIED: {
       variant: 'destructive',
-      className: 'bg-red-100 text-red-800 border-red-300',
+      className:
+        'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] border-[var(--color-status-high-border)]',
     },
     CANCELLED: {
       variant: 'secondary',
-      className: 'bg-gray-100 text-gray-800 border-gray-300',
+      className: 'bg-muted text-muted-foreground border-border',
     },
   }
 

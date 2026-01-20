@@ -13,7 +13,7 @@
  */
 
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { usePortalForm } from '@/lib/hooks/use-portal-form'
@@ -22,6 +22,13 @@ import { SubmitButton } from '@/components/portal/submit-button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { CheckCircle, Info } from 'lucide-react'
 import { getRosterPeriodFromDate, formatRosterPeriodFromObject } from '@/lib/utils/roster-utils'
 import { useEffect, useState } from 'react'
@@ -86,6 +93,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors, touchedFields },
   } = useForm<RdoSdoRequestFormData>({
     resolver: zodResolver(rdoSdoRequestSchema),
@@ -144,9 +152,9 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
 
   if (showSuccess) {
     return (
-      <Alert className="border-green-300 bg-green-50">
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        <AlertDescription className="text-green-800">
+      <Alert className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)]">
+        <CheckCircle className="h-4 w-4 text-[var(--color-status-low)]" />
+        <AlertDescription className="text-[var(--color-status-low)]">
           {requestType} request submitted successfully! Redirecting...
         </AlertDescription>
       </Alert>
@@ -162,14 +170,25 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
         <label htmlFor="request_type" className="text-foreground text-sm font-medium">
           Request Type <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
-        <select
-          id="request_type"
-          {...register('request_type')}
-          className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
-        >
-          <option value="RDO">RDO (Rostered Day Off)</option>
-          <option value="SDO">SDO (Scheduled Day Off)</option>
-        </select>
+        <Controller
+          name="request_type"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger
+                id="request_type"
+                className={errors.request_type ? 'border-destructive' : ''}
+                aria-invalid={!!errors.request_type}
+              >
+                <SelectValue placeholder="Select request type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="RDO">RDO (Rostered Day Off)</SelectItem>
+                <SelectItem value="SDO">SDO (Scheduled Day Off)</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.request_type && (
           <p className="text-destructive text-xs font-medium">{errors.request_type.message}</p>
         )}
@@ -202,7 +221,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
           id="start_date"
           type="date"
           {...register('start_date')}
-          className="h-11"
+          size="lg"
           error={!!errors.start_date}
         />
         {errors.start_date && (
@@ -220,7 +239,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
           id="end_date"
           type="date"
           {...register('end_date')}
-          className="h-11"
+          size="lg"
           error={!!errors.end_date}
         />
         {errors.end_date && (

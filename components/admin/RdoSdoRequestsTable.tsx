@@ -137,9 +137,9 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
-        <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-        <p className="text-gray-600 dark:text-gray-400">No RDO/SDO requests yet</p>
+      <div className="border-border rounded-lg border-2 border-dashed p-8 text-center">
+        <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+        <p className="text-muted-foreground">No RDO/SDO requests yet</p>
       </div>
     )
   }
@@ -218,7 +218,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
       </div>
 
       {/* Results Count */}
-      <p className="text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-muted-foreground text-sm">
         Showing {filteredRequests.length} of {requests.length} requests
       </p>
 
@@ -235,7 +235,10 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                     <RequestTypeBadge type={request.request_type} />
                     <StatusBadge status={request.workflow_status} />
                     {request.is_late_request && (
-                      <Badge variant="outline" className="border-orange-600 text-orange-600">
+                      <Badge
+                        variant="outline"
+                        className="border-[var(--color-status-medium-border)] text-[var(--color-status-medium)]"
+                      >
                         <Clock className="mr-1 h-3 w-3" />
                         Late Request
                       </Badge>
@@ -453,8 +456,8 @@ function FilterButton({
       onClick={onClick}
       className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
         isActive
-          ? 'bg-blue-600 text-white'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+          ? 'bg-accent text-accent-foreground'
+          : 'bg-muted text-muted-foreground hover:bg-muted/80'
       }`}
     >
       {label} ({count})
@@ -471,7 +474,7 @@ function StatusBadge({ status }: { status: string }) {
     IN_REVIEW: { variant: 'default', icon: <FileText className="mr-1 h-3 w-3" /> },
     APPROVED: {
       variant: 'default',
-      icon: <CheckCircle2 className="mr-1 h-3 w-3 text-green-600" />,
+      icon: <CheckCircle2 className="mr-1 h-3 w-3 text-[var(--color-status-low)]" />,
     },
     DENIED: { variant: 'destructive', icon: <XCircle className="mr-1 h-3 w-3" /> },
     WITHDRAWN: { variant: 'outline', icon: <Ban className="mr-1 h-3 w-3" /> },

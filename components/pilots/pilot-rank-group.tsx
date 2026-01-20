@@ -98,12 +98,15 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
             </Badge>
             <Badge
               variant="outline"
-              className="border-green-500 bg-green-50 text-xs text-green-800"
+              className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-xs text-[var(--color-status-low)]"
             >
               {stats.active} Active
             </Badge>
             {stats.inactive > 0 && (
-              <Badge variant="outline" className="border-gray-500 bg-gray-50 text-xs text-gray-800">
+              <Badge
+                variant="outline"
+                className="border-border bg-muted text-muted-foreground text-xs"
+              >
                 {stats.inactive} Inactive
               </Badge>
             )}
@@ -161,8 +164,8 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                           pilot.is_active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
+                            : 'bg-muted text-muted-foreground'
                         }`}
                       >
                         {pilot.is_active ? 'Active' : 'Inactive'}
