@@ -8,7 +8,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { updateRequestStatus } from '@/lib/services/unified-request-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
@@ -21,7 +21,7 @@ interface BulkActionRequest {
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Check authentication

@@ -36,6 +36,7 @@ import {
   ErrorSeverity,
 } from '@/lib/utils/error-messages'
 import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { validateContentType } from '@/lib/middleware/content-type-middleware'
 import { createSafeLogger } from '@/lib/utils/log-sanitizer'
 import {
   checkAccountLockout,
@@ -62,7 +63,13 @@ export async function GET() {
 
 export const POST = withAuthRateLimit(async (request: NextRequest) => {
   try {
-    // Check content type
+    // Content-Type validation
+    const contentTypeError = validateContentType(request)
+    if (contentTypeError) {
+      return contentTypeError
+    }
+
+    // Log request info
     const contentType = request.headers.get('content-type')
     logger.info('Login API called', { contentType })
 
@@ -88,7 +95,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       }
 
       body = JSON.parse(text)
-      logger.info('Request body parsed successfully', { hasEmail: Boolean(body.email) })
+      logger.info('Request body parsed successfully', { hasStaffId: Boolean(body.staffId) })
     } catch (parseError) {
       logger.error('JSON parse error', parseError)
       return NextResponse.json(
@@ -127,13 +134,13 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       undefined
     const userAgent = request.headers.get('user-agent') || undefined
 
-    const { email } = validation.data
+    const { staffId } = validation.data
 
     // SECURITY: Check if account is locked (brute force protection)
-    const lockoutStatus = await checkAccountLockout(email)
+    const lockoutStatus = await checkAccountLockout(staffId)
 
     if (!lockoutStatus.success) {
-      logger.error('Failed to check account lockout status', { email })
+      logger.error('Failed to check account lockout status', { staffId })
       return NextResponse.json(
         formatApiError(
           {
@@ -149,7 +156,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
 
     if (lockoutStatus.data?.isLocked) {
       logger.warn('Login attempt on locked account', {
-        email,
+        staffId,
         remainingTime: lockoutStatus.data.remainingTime,
         lockedUntil: lockoutStatus.data.lockedUntil,
       })
@@ -180,8 +187,8 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
 
     if (!result.success) {
       // SECURITY: Record failed login attempt
-      logger.warn('Failed login attempt', { email, ipAddress })
-      await recordFailedAttempt(email, ipAddress)
+      logger.warn('Failed login attempt', { staffId, ipAddress })
+      await recordFailedAttempt(staffId, ipAddress)
 
       return NextResponse.json(formatApiError(ERROR_MESSAGES.PORTAL.LOGIN_FAILED, 401), {
         status: 401,
@@ -189,7 +196,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     }
 
     // SECURITY: Clear failed attempts after successful login
-    await clearFailedAttempts(email)
+    await clearFailedAttempts(staffId)
 
     // SECURITY: Session created successfully - return success response
     // Client will handle redirect to dashboard
@@ -199,10 +206,15 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       hasSecureSession: true,
     })
 
+    // Determine redirect: force password change if needed
+    const redirect = result.data?.mustChangePassword
+      ? '/portal/change-password'
+      : '/portal/dashboard'
+
     return NextResponse.json({
       success: true,
       data: result.data,
-      redirect: '/portal/dashboard',
+      redirect,
     })
   } catch (error) {
     logger.error('Login API error', error)

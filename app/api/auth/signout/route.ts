@@ -3,11 +3,11 @@
  * Handles user sign out
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
 export async function POST() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Sign out user
   await supabase.auth.signOut()

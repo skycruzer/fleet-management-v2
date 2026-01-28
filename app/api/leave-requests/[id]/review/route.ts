@@ -13,7 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
 import { createNotification } from '@/lib/services/notification-service'
@@ -85,7 +85,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const result = await updateLeaveRequestStatus(requestId, status, auth.userId!, comments)
 
     // Fetch the leave request details to get pilot information
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data: leaveRequest } = await supabase
       .from('pilot_requests')
       .select('*')

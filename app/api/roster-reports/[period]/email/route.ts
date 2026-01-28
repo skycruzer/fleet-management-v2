@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { generateRosterPeriodReport, saveRosterReport } from '@/lib/services/roster-report-service'
 import { generateRosterPDF } from '@/lib/services/roster-pdf-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
@@ -258,7 +258,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
     await saveRosterReport(report)
 
     // Update roster_reports table with sent_at timestamp
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     await supabase
       .from('roster_reports')
       .update({

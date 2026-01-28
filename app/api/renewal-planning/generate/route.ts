@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { generateRenewalPlanWithPairing } from '@/lib/services/certification-renewal-planning-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Verify admin/manager role
     // For Supabase Auth users: trust them as admins (only admins can access dashboard via Supabase Auth)
     // For admin-session users: look up by ID in an_users table
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     if (auth.source === 'admin-session') {
       // Admin session - verify role in an_users table

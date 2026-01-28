@@ -18,7 +18,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { redisCacheService, checkRedisHealth } from '@/lib/services/redis-cache-service'
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     const redisInfo = await redisCacheService.info()
 
     // Get materialized view status
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data: viewData, error: viewError } = await supabase
       .from('pilot_dashboard_metrics' as any)
       .select('last_refreshed')

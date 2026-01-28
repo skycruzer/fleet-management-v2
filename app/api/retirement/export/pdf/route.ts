@@ -8,7 +8,7 @@
  */
 
 import { generateRetirementForecastPDF } from '@/lib/services/retirement-forecast-service'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { NextResponse } from 'next/server'
 
@@ -27,7 +27,7 @@ export async function GET() {
     }
 
     // Get user role
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data: userData, error: userError } = await supabase
       .from('an_users')
       .select('role')

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -10,7 +10,7 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  */
 export async function GET() {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()

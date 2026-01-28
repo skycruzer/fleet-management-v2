@@ -12,7 +12,7 @@ import {
   getCaptainPromotionCandidates,
   getSuccessionReadinessScore,
 } from '@/lib/services/succession-planning-service'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { NextRequest, NextResponse } from 'next/server'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check role (Admin/Manager only for succession planning)
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data: userData, error: userError } = await supabase
       .from('an_users')
       .select('role')

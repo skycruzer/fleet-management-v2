@@ -10,7 +10,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { exportAuditTrailCSV } from '@/lib/services/audit-service'
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user role to verify permissions
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data: userData, error: userError } = await supabase
       .from('an_users')
       .select('role')

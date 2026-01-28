@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { generateLeaveBidsPDF } from '@/lib/services/leave-bids-pdf-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
     const statusFilter = searchParams.get('status') || 'all'
     const yearParam = searchParams.get('year')

@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const rosterPeriod = searchParams.get('rosterPeriod')
 
     // Build query
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     let query = supabase
       .from('roster_reports')
       .select('*')

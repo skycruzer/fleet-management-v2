@@ -29,7 +29,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
 import { createAuditLog } from '@/lib/services/audit-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -345,7 +345,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get roster periods for the year
     const { data: periods, error: periodsError } = await supabase
