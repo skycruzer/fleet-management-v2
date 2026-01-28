@@ -12,7 +12,6 @@
  * @since 2025-10-17
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
 import { differenceInDays } from 'date-fns'
@@ -91,7 +90,7 @@ export async function getCertifications(
   return unifiedCacheService.getOrSet(
     cacheKey,
     async () => {
-      const supabase = await createClient()
+      const supabase = createAdminClient()
 
       try {
         // Calculate pagination range
@@ -201,7 +200,7 @@ export async function getCertificationsUnpaginated(): Promise<CertificationWithD
 export async function getCertificationById(
   certificationId: string
 ): Promise<CertificationWithDetails | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -257,7 +256,7 @@ export async function getCertificationById(
 export async function getCertificationsByPilotId(
   pilotId: string
 ): Promise<CertificationWithDetails[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -302,7 +301,7 @@ export async function getCertificationsByPilotId(
  * Uses FAA color coding logic
  */
 export async function getExpiringCertifications(daysAhead: number = 60) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -645,7 +644,7 @@ export async function batchUpdateCertifications(
  * Get certification statistics
  */
 export async function getCertificationStats() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase.from('pilot_checks').select('expiry_date')
@@ -701,7 +700,7 @@ export async function getCertificationStats() {
  * Get certifications by category with status breakdown
  */
 export async function getCertificationsByCategory() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase.from('pilot_checks').select(
@@ -767,7 +766,7 @@ export async function getCertificationsByCategory() {
 export async function getCertificationsGroupedByCategory(): Promise<
   Record<string, CertificationWithDetails[]>
 > {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase

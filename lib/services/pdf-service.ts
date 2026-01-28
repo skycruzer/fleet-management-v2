@@ -16,7 +16,7 @@
  * @since 2025-10-17
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { differenceInDays, differenceInYears, format, addYears } from 'date-fns'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { getPilotRequirements } from '@/lib/services/admin-service'
@@ -57,7 +57,7 @@ import { getPilotRequirements } from '@/lib/services/admin-service'
  * Fetch all pilots
  */
 async function fetchPilots() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('pilots')
@@ -72,7 +72,7 @@ async function fetchPilots() {
  * Fetch single pilot
  */
 async function fetchPilot(pilotId: string) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase.from('pilots').select('*').eq('id', pilotId).single()
 
@@ -84,7 +84,7 @@ async function fetchPilot(pilotId: string) {
  * Fetch pilot checks with optional filter
  */
 async function fetchPilotChecks(pilotId?: string) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   let query = supabase.from('pilot_checks').select(`
       *,
@@ -105,7 +105,7 @@ async function fetchPilotChecks(pilotId?: string) {
  * Fetch check types
  */
 async function fetchCheckTypes() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('check_types')
@@ -120,7 +120,7 @@ async function fetchCheckTypes() {
  * Fetch leave requests with optional filter
  */
 async function fetchLeaveRequests(pilotId?: string) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   let query = supabase
     .from('pilot_requests')

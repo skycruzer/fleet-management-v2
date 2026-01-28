@@ -11,7 +11,7 @@
  * @spec 001-missing-core-features (US3, T056)
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { FlightRequestReviewInput } from '@/lib/validations/flight-request-schema'
@@ -39,7 +39,7 @@ export async function getAllFlightRequests(filters?: {
   start_date_to?: string
 }): Promise<ServiceResponse<FlightRequest[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Check authentication (admin/manager only)
     const {
@@ -128,7 +128,7 @@ export async function getFlightRequestById(
   requestId: string
 ): Promise<ServiceResponse<FlightRequest>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Check authentication
     const {
@@ -205,7 +205,7 @@ export async function reviewFlightRequest(
   reviewData: FlightRequestReviewInput
 ): Promise<ServiceResponse<FlightRequest>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Check authentication
     const {
@@ -315,7 +315,7 @@ export async function getFlightRequestStats(): Promise<
   }>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Check authentication
     const {

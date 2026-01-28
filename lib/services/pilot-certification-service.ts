@@ -9,7 +9,7 @@
  * @since 2025-11-09
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
 
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
@@ -34,7 +34,7 @@ export interface PilotCertificationWithDetails extends PilotCheck {
 export async function getPilotCertifications(
   pilotId: string
 ): Promise<PilotCertificationWithDetails[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('pilot_checks')
@@ -170,7 +170,7 @@ export async function getPilotCertificationById(
   certificationId: string,
   pilotId: string
 ): Promise<PilotCertificationWithDetails | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('pilot_checks')

@@ -12,7 +12,7 @@
  * @since 2025-10-25
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 /**
@@ -54,7 +54,7 @@ export async function getCaptainPromotionCandidates(
     developingCount: number
   }
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Query materialized view
@@ -151,7 +151,7 @@ async function getFallbackPromotionCandidates(
     developingCount: number
   }
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: pilots, error } = await supabase
     .from('pilots')
@@ -281,7 +281,7 @@ export async function getSuccessionReadinessScore(): Promise<{
     impact: string
   }>
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Get promotion candidates

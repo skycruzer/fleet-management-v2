@@ -11,7 +11,7 @@
  * Phase 4.0: Updated for unified architecture (pilot_requests with request_category filter)
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { unifiedCacheService, invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
 import { rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
@@ -92,7 +92,7 @@ export async function generateLeaveReport(
   fullExport: boolean = false,
   generatedBy?: string
 ): Promise<ReportData> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Query pilot_requests table (unified architecture)
   // Filter by request_category = 'LEAVE' to get only leave requests
@@ -204,7 +204,7 @@ export async function generateRdoSdoReport(
   fullExport: boolean = false,
   generatedBy?: string
 ): Promise<ReportData> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Query pilot_requests table (unified architecture)
   // Filter by request_category = 'FLIGHT' to get RDO/SDO requests
@@ -339,7 +339,7 @@ export async function generateCertificationsReport(
   fullExport: boolean = false,
   generatedBy?: string
 ): Promise<ReportData> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   let query = supabase
     .from('pilot_checks')
@@ -477,7 +477,7 @@ export async function generateAllRequestsReport(
   fullExport: boolean = false,
   generatedBy?: string
 ): Promise<ReportData> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Convert roster periods to date range if provided
   let effectiveDateRange = filters.dateRange
@@ -829,7 +829,7 @@ export async function generateLeaveBidsReport(
   fullExport: boolean = false,
   generatedBy?: string
 ): Promise<ReportData> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Query leave_bids table with pilot information
   let query = supabase

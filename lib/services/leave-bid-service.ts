@@ -16,7 +16,7 @@
  * - status: string (PENDING, PROCESSING, APPROVED, REJECTED)
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 
@@ -64,7 +64,7 @@ export interface ServiceResponse<T = void> {
  */
 export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceResponse<LeaveBid>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
@@ -182,7 +182,7 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
  */
 export async function getCurrentPilotLeaveBids(): Promise<ServiceResponse<LeaveBid[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
@@ -230,7 +230,7 @@ export async function getCurrentPilotLeaveBids(): Promise<ServiceResponse<LeaveB
  */
 export async function getLeaveBidById(bidId: string): Promise<ServiceResponse<LeaveBid>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
@@ -279,7 +279,7 @@ export async function getLeaveBidById(bidId: string): Promise<ServiceResponse<Le
  */
 export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()

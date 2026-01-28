@@ -7,7 +7,7 @@
  * @module services/notification-service
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/services/logging-service'
 import { ErrorSeverity } from '@/lib/utils/error-messages'
 import type { Database } from '@/types/supabase'
@@ -61,7 +61,7 @@ export async function createNotification(
   params: CreateNotificationParams
 ): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('notifications')
@@ -133,7 +133,7 @@ export async function createBulkNotifications(
   notifications: CreateNotificationParams[]
 ): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const notificationsToInsert = notifications.map((n) => ({
       recipient_id: n.userId,
@@ -190,7 +190,7 @@ export async function getUserNotifications(
   unreadOnly = false
 ): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     let query = supabase
       .from('notifications')
@@ -241,7 +241,7 @@ export async function getUserNotifications(
  */
 export async function markNotificationAsRead(notificationId: string): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('notifications')
@@ -287,7 +287,7 @@ export async function markNotificationAsRead(notificationId: string): Promise<No
  */
 export async function markAllNotificationsAsRead(userId: string): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('notifications')
@@ -333,7 +333,7 @@ export async function markAllNotificationsAsRead(userId: string): Promise<Notifi
  */
 export async function deleteNotification(notificationId: string): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { error } = await supabase.from('notifications').delete().eq('id', notificationId)
 
@@ -373,7 +373,7 @@ export async function deleteNotification(notificationId: string): Promise<Notifi
  */
 export async function deleteReadNotifications(userId: string): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { error } = await supabase
       .from('notifications')
@@ -419,7 +419,7 @@ export async function getUnreadNotificationCount(
   userId: string
 ): Promise<{ success: boolean; count?: number; error?: string }> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { count, error } = await supabase
       .from('notifications')
@@ -482,7 +482,7 @@ export async function notifyAllAdmins(
   link?: string
 ): Promise<NotificationResult> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get all admin users
     const { data: admins, error: adminsError } = await supabase

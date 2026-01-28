@@ -8,7 +8,7 @@
  * @auth Pilot Portal Authentication (via an_users table)
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import type {
@@ -57,7 +57,7 @@ export async function submitFeedback(
   feedbackData: PilotFeedbackInput
 ): Promise<ServiceResponse<Feedback>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
@@ -111,7 +111,7 @@ export async function submitFeedback(
  */
 export async function getCurrentPilotFeedback(): Promise<ServiceResponse<Feedback[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
@@ -158,7 +158,7 @@ export async function getCurrentPilotFeedback(): Promise<ServiceResponse<Feedbac
  */
 export async function getFeedbackById(feedbackId: string): Promise<ServiceResponse<Feedback>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
@@ -209,7 +209,7 @@ export async function getAllFeedback(
   filters?: FeedbackFilters
 ): Promise<ServiceResponse<Feedback[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Build query
     let query = supabase.from('pilot_feedback').select(`
@@ -278,7 +278,7 @@ export async function updateFeedbackStatus(
   statusUpdate: FeedbackStatusUpdate
 ): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current admin user
     const {
@@ -330,7 +330,7 @@ export async function addAdminResponse(
   responseData: FeedbackResponseInput
 ): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current admin user
     const {

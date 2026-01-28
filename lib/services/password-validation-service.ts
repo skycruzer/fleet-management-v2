@@ -8,7 +8,7 @@
  * @author Maurice Rondeau
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
  * Password validation configuration
@@ -325,7 +325,7 @@ function checkCommonPassword(password: string): boolean {
  */
 async function checkPasswordHistory(password: string, userId: string): Promise<boolean> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get user's password history
 
@@ -397,7 +397,7 @@ export async function savePasswordHistory(
   passwordHash: string
 ): Promise<ServiceResponse<null>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Insert password hash into history
     // TODO: Regenerate types after password_history migration is applied (npm run db:types)
@@ -438,7 +438,7 @@ export async function savePasswordHistory(
  */
 async function cleanupPasswordHistory(userId: string): Promise<void> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get all password history for user
 

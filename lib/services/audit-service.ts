@@ -15,7 +15,6 @@
  * @since 2025-10-17
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { format, subDays, startOfDay, endOfDay } from 'date-fns'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
@@ -146,7 +145,7 @@ export interface TableModificationHistory {
 export async function createAuditLog(params: CreateAuditLogParams): Promise<void> {
   try {
     // Try to get user info from Supabase Auth (may be null for admin-session auth)
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     let user = null
     let userRole: string | null = null
 
@@ -243,7 +242,7 @@ export async function createAuditLog(params: CreateAuditLogParams): Promise<void
  * Get audit logs with advanced filtering and pagination
  */
 export async function getAuditLogs(filters: AuditLogFilters = {}): Promise<AuditLogResult> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const {
     userEmail,
     tableName,
@@ -334,7 +333,7 @@ export async function getAuditLogs(filters: AuditLogFilters = {}): Promise<Audit
  * Get a single audit log entry by ID
  */
 export async function getAuditLogById(id: string): Promise<AuditLog | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase.from('audit_logs').select('*').eq('id', id).single()
@@ -366,7 +365,7 @@ export async function getRecordAuditHistory(
   tableName: string,
   recordId: string
 ): Promise<AuditLog[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -400,7 +399,7 @@ export async function getRecordAuditHistory(
  * Get recent audit activity (last 7 days by default)
  */
 export async function getRecentAuditActivity(days: number = 7): Promise<AuditLog[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const startDate = subDays(new Date(), days)
 
   try {
@@ -439,7 +438,7 @@ export async function getRecentAuditActivity(days: number = 7): Promise<AuditLog
  * Get comprehensive audit statistics
  */
 export async function getAuditStats(startDate?: Date, endDate?: Date): Promise<AuditStats> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Build base query
@@ -560,7 +559,7 @@ export async function getUserActivitySummary(
   startDate?: Date,
   endDate?: Date
 ): Promise<UserActivitySummary | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase.from('audit_logs').select('*').eq('user_email', userEmail)
@@ -631,7 +630,7 @@ export async function getTableModificationHistory(
   tableName: string,
   limit: number = 10
 ): Promise<TableModificationHistory | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -759,7 +758,7 @@ export function downloadAuditLogsCSV(logs: AuditLog[], filename?: string): void 
  * Get list of all unique tables in audit logs
  */
 export async function getAuditedTables(): Promise<string[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase.from('audit_logs').select('table_name')
@@ -789,7 +788,7 @@ export async function getAuditedTables(): Promise<string[]> {
  * Get list of all users in audit logs
  */
 export async function getAuditedUsers(): Promise<{ email: string; role: string }[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -841,7 +840,7 @@ export async function getCertificationAuditTrail(
   startDate?: Date,
   endDate?: Date
 ): Promise<AuditLog[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase
@@ -888,7 +887,7 @@ export async function getPilotAuditTrail(
   startDate?: Date,
   endDate?: Date
 ): Promise<AuditLog[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase
@@ -970,7 +969,7 @@ export interface AuditLogChanges {
  */
 export async function getAuditLogChanges(auditLogId: string): Promise<AuditLogChanges | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Fetch the audit log entry
     const { data: auditLog, error } = await supabase
@@ -1136,7 +1135,7 @@ export async function getLeaveRequestApprovalHistory(
   leaveRequestId: string
 ): Promise<ApprovalHistory | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get the leave request details
     // @ts-ignore - Supabase type inference issue
@@ -1286,7 +1285,7 @@ export interface ExportAuditFilters {
  */
 export async function exportAuditTrailCSV(filters: ExportAuditFilters = {}): Promise<string> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Build the query
     let query = supabase

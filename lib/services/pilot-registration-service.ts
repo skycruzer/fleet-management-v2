@@ -8,7 +8,7 @@
  * Admin approval is still required before pilots can login.
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { randomBytes, scrypt } from 'crypto'
 import { promisify } from 'util'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
@@ -39,7 +39,7 @@ export async function submitDirectRegistration(
   registration: PilotRegistrationInput
 ): Promise<ServiceResponse<{ id: string; status: string }>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Hash the password
     const hashedPassword = await hashPassword(registration.password)

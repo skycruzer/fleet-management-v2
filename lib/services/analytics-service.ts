@@ -16,14 +16,14 @@
  * @since 2025-10-17
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 /**
  * Get comprehensive pilot analytics for charts and KPIs
  */
 export async function getPilotAnalytics() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: pilots, error } = await supabase
@@ -130,7 +130,7 @@ export async function getPilotAnalytics() {
  * Get comprehensive certification analytics for charts
  */
 export async function getCertificationAnalytics() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: checks, error: checksError } = await supabase.from('pilot_checks').select(
@@ -221,7 +221,7 @@ export async function getCertificationAnalytics() {
  * Get leave analytics with trends and patterns
  */
 export async function getLeaveAnalytics() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: leaveRequests, error } = await supabase
@@ -455,7 +455,7 @@ export async function getMultiYearRetirementForecast(
     yearLabel: string
   }>
 > {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // @ts-ignore - Supabase type inference issue with select fields
@@ -560,7 +560,7 @@ export async function predictCrewShortages(
     timeToFirstShortage: number | null
   }
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // @ts-ignore - Supabase type inference issue with select fields
@@ -762,7 +762,7 @@ export async function getHistoricalRetirementTrends(): Promise<
     trend: 'increasing' | 'stable' | 'decreasing'
   }>
 > {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // @ts-ignore - Materialized view not yet in generated types until migration is deployed

@@ -4,33 +4,29 @@
  * Date: December 28, 2025
  *
  * Handles admin authentication using bcrypt password verification.
- * Implements secure server-side session management for admin portal.
+ * Now delegates session management to redis-session-service for
+ * Redis-backed sessions with DB audit logging.
  *
  * SECURITY:
  * - bcrypt password hashing (10 salt rounds)
  * - Cryptographically secure session tokens
- * - Server-side session storage
+ * - Redis + DB dual-write sessions
  * - HTTP-only secure cookies
- *
- * NOTE: Uses 'as any' type assertions because the admin_sessions table
- * and password_hash column are not yet in the generated TypeScript types.
- * Run `npm run db:types` after applying the migration to fix types.
  */
 
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
-import crypto from 'crypto'
 import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
+import {
+  createRedisSession,
+  validateRedisSession,
+  destroyRedisSession,
+} from '@/lib/services/redis-session-service'
 
 /**
  * Admin session cookie name
  */
 const ADMIN_SESSION_COOKIE_NAME = 'admin-session'
-
-/**
- * Session duration (24 hours)
- */
-const SESSION_DURATION_HOURS = 24
 
 /**
  * Salt rounds for bcrypt
@@ -91,29 +87,15 @@ export interface AdminSessionValidationResult {
 }
 
 /**
- * Generate a cryptographically secure session token
- * Uses 32 bytes (256 bits) of random data
- */
-function generateSessionToken(): string {
-  return crypto.randomBytes(32).toString('base64url')
-}
-
-/**
  * Admin login with email and password
- *
- * @param credentials - Login credentials
- * @param metadata - Optional request metadata (IP address, user agent)
- * @returns Service response with admin user and session
  */
 export async function adminLogin(
   credentials: AdminLoginCredentials,
   metadata?: { ipAddress?: string; userAgent?: string }
 ): Promise<ServiceResponse<{ user: AdminUser; sessionToken: string }>> {
   try {
-    // Use service role client to bypass RLS for login query
     const supabase = createServiceRoleClient()
 
-    // Find admin user by email (using 'as any' because password_hash not in types yet)
     const { data: adminUser, error: adminError } = await supabase
       .from('an_users' as any)
       .select('id, email, name, role, user_type, password_hash')
@@ -121,15 +103,11 @@ export async function adminLogin(
       .single()
 
     if (adminError || !adminUser) {
-      return {
-        success: false,
-        error: 'Invalid email or password',
-      }
+      return { success: false, error: 'Invalid email or password' }
     }
 
     const user = adminUser as any
 
-    // Check if password_hash exists
     if (!user.password_hash) {
       console.error('Admin user has no password set:', credentials.email)
       return {
@@ -138,33 +116,41 @@ export async function adminLogin(
       }
     }
 
-    // Verify password using bcrypt
     const passwordMatch = await bcrypt.compare(credentials.password, user.password_hash)
-
     if (!passwordMatch) {
-      return {
-        success: false,
-        error: 'Invalid email or password',
-      }
+      return { success: false, error: 'Invalid email or password' }
     }
 
-    // Update last login time (using 'as any' because last_login_at not in types yet)
+    // Update last login time
     await supabase
       .from('an_users' as any)
       .update({ last_login_at: new Date().toISOString() } as any)
       .eq('id', user.id)
 
-    // Create admin session
-    const sessionResult = await createAdminSession(user.id, metadata)
+    // Create session via Redis
+    const sessionResult = await createRedisSession(
+      {
+        userId: user.id,
+        role: user.role === 'admin' ? 'admin' : 'manager',
+        email: user.email,
+        staffId: user.email, // Admin sessions use email as identifier
+        name: user.name,
+        pilotId: null,
+        mustChangePassword: false,
+      },
+      {
+        ipAddress: metadata?.ipAddress,
+        userAgent: metadata?.userAgent,
+        cookieName: ADMIN_SESSION_COOKIE_NAME,
+        dbTable: 'admin_sessions',
+        dbUserIdColumn: 'admin_user_id',
+      }
+    )
 
     if (!sessionResult.success || !sessionResult.sessionToken) {
-      return {
-        success: false,
-        error: 'Failed to create session',
-      }
+      return { success: false, error: 'Failed to create session' }
     }
 
-    // Return user without password_hash
     const adminUserData: AdminUser = {
       id: user.id,
       email: user.email,
@@ -182,16 +168,13 @@ export async function adminLogin(
     }
   } catch (error) {
     console.error('Admin login error:', error)
-    return {
-      success: false,
-      error: 'An error occurred during login',
-    }
+    return { success: false, error: 'An error occurred during login' }
   }
 }
 
 /**
  * Create a new admin session
- * SECURITY: Generates secure token, stores server-side
+ * SECURITY: Generates secure token, stores in Redis + DB
  */
 export async function createAdminSession(
   adminUserId: string,
@@ -201,80 +184,105 @@ export async function createAdminSession(
   }
 ): Promise<{ success: boolean; sessionToken?: string; error?: string }> {
   try {
+    // Look up admin user data for Redis session
     const supabase = createServiceRoleClient()
+    const { data: adminUser, error: userError } = await supabase
+      .from('an_users')
+      .select('id, email, name, role')
+      .eq('id', adminUserId)
+      .single()
 
-    // Generate secure session token
-    const sessionToken = generateSessionToken()
+    if (userError || !adminUser) {
+      return { success: false, error: 'Admin user not found' }
+    }
 
-    // Calculate expiry time
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + SESSION_DURATION_HOURS)
-
-    // Create session in database (using 'as any' because admin_sessions not in types yet)
-    const { error } = await supabase.from('admin_sessions' as any).insert({
-      session_token: sessionToken,
-      admin_user_id: adminUserId,
-      expires_at: expiresAt.toISOString(),
-      ip_address: metadata?.ipAddress,
-      user_agent: metadata?.userAgent,
-      is_active: true,
-    } as any)
-
-    if (error) {
-      console.error('Failed to create admin session:', error)
-      return {
-        success: false,
-        error: 'Failed to create session',
+    return await createRedisSession(
+      {
+        userId: adminUserId,
+        role: adminUser.role === 'admin' ? 'admin' : 'manager',
+        email: adminUser.email,
+        staffId: adminUser.email,
+        name: adminUser.name,
+        pilotId: null,
+        mustChangePassword: false,
+      },
+      {
+        ipAddress: metadata?.ipAddress,
+        userAgent: metadata?.userAgent,
+        cookieName: ADMIN_SESSION_COOKIE_NAME,
+        dbTable: 'admin_sessions',
+        dbUserIdColumn: 'admin_user_id',
       }
-    }
-
-    // Set session cookie (HTTP-only, secure)
-    const cookieStore = await cookies()
-    cookieStore.set(ADMIN_SESSION_COOKIE_NAME, sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      maxAge: SESSION_DURATION_HOURS * 60 * 60, // Convert to seconds
-    })
-
-    return {
-      success: true,
-      sessionToken,
-    }
+    )
   } catch (error) {
     console.error('Error creating admin session:', error)
-    return {
-      success: false,
-      error: 'Session creation error',
-    }
+    return { success: false, error: 'Session creation error' }
   }
 }
 
 /**
  * Validate admin session
- * SECURITY: Checks token validity, expiry, and active status
+ * SECURITY: Checks token validity via Redis (with DB fallback)
  */
 export async function validateAdminSession(
   sessionToken?: string
 ): Promise<AdminSessionValidationResult> {
   try {
-    // Get session token from cookie if not provided
-    if (!sessionToken) {
+    // If a specific token was passed, check if it matches the cookie
+    if (sessionToken) {
       const cookieStore = await cookies()
-      const cookieToken = cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value
-      if (!cookieToken) {
-        return {
-          isValid: false,
-          error: 'No session token found',
-        }
+      const existingToken = cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value
+      if (existingToken !== sessionToken) {
+        // Token passed explicitly doesn't match cookie — fall back to DB
+        return await validateAdminSessionByToken(sessionToken)
       }
-      sessionToken = cookieToken
     }
 
+    const result = await validateRedisSession(
+      ADMIN_SESSION_COOKIE_NAME,
+      'admin_sessions',
+      'admin_user_id'
+    )
+
+    if (!result.isValid || !result.data) {
+      return { isValid: false, error: result.error }
+    }
+
+    const data = result.data
+
+    const adminSession: AdminSession = {
+      id: data.sessionId,
+      session_token: '',
+      admin_user_id: data.userId,
+      created_at: data.createdAt,
+      expires_at: data.expiresAt,
+      last_activity_at: data.lastActivityAt,
+      is_active: true,
+    }
+
+    const adminUser: AdminUser = {
+      id: data.userId,
+      email: data.email || '',
+      name: data.name,
+      role: data.role,
+    }
+
+    return { isValid: true, session: adminSession, user: adminUser }
+  } catch (error) {
+    console.error('Error validating admin session:', error)
+    return { isValid: false, error: 'Session validation error' }
+  }
+}
+
+/**
+ * Fallback: validate by explicit token via DB
+ */
+async function validateAdminSessionByToken(
+  sessionToken: string
+): Promise<AdminSessionValidationResult> {
+  try {
     const supabase = createServiceRoleClient()
 
-    // Find session in database (using 'as any' because admin_sessions not in types yet)
     const { data: session, error: sessionError } = await supabase
       .from('admin_sessions' as any)
       .select('*')
@@ -283,31 +291,20 @@ export async function validateAdminSession(
       .single()
 
     if (sessionError || !session) {
-      return {
-        isValid: false,
-        error: 'Session not found',
-      }
+      return { isValid: false, error: 'Session not found' }
     }
 
     const sessionData = session as any
-
-    // Check if session is expired
     const now = new Date()
     const expiresAt = new Date(sessionData.expires_at)
     if (now > expiresAt) {
-      // Mark session as inactive
       await supabase
         .from('admin_sessions' as any)
         .update({ is_active: false } as any)
         .eq('id', sessionData.id)
-
-      return {
-        isValid: false,
-        error: 'Session expired',
-      }
+      return { isValid: false, error: 'Session expired' }
     }
 
-    // Get admin user details
     const { data: adminUser, error: userError } = await supabase
       .from('an_users')
       .select('id, email, name, role, user_type')
@@ -315,13 +312,9 @@ export async function validateAdminSession(
       .single()
 
     if (userError || !adminUser) {
-      return {
-        isValid: false,
-        error: 'User not found',
-      }
+      return { isValid: false, error: 'User not found' }
     }
 
-    // Update last activity
     await supabase
       .from('admin_sessions' as any)
       .update({ last_activity_at: new Date().toISOString() } as any)
@@ -333,11 +326,8 @@ export async function validateAdminSession(
       user: adminUser as AdminUser,
     }
   } catch (error) {
-    console.error('Error validating admin session:', error)
-    return {
-      isValid: false,
-      error: 'Session validation error',
-    }
+    console.error('Error validating admin session by token:', error)
+    return { isValid: false, error: 'Session validation error' }
   }
 }
 
@@ -345,42 +335,14 @@ export async function validateAdminSession(
  * Revoke admin session (logout)
  */
 export async function revokeAdminSession(
-  sessionToken?: string
+  _sessionToken?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const cookieStore = await cookies()
-
-    // Get session token from cookie if not provided
-    if (!sessionToken) {
-      const cookieToken = cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value
-      if (!cookieToken) {
-        return { success: true } // No session to revoke
-      }
-      sessionToken = cookieToken
-    }
-
-    const supabase = createServiceRoleClient()
-
-    // Mark session as inactive (using 'as any' because admin_sessions not in types yet)
-    const { error } = await supabase
-      .from('admin_sessions' as any)
-      .update({ is_active: false } as any)
-      .eq('session_token', sessionToken)
-
-    if (error) {
-      console.error('Failed to revoke admin session:', error)
-    }
-
-    // Clear session cookie
-    cookieStore.delete(ADMIN_SESSION_COOKIE_NAME)
-
+    await destroyRedisSession(ADMIN_SESSION_COOKIE_NAME, 'admin_sessions')
     return { success: true }
   } catch (error) {
     console.error('Error revoking admin session:', error)
-    return {
-      success: false,
-      error: 'Failed to revoke session',
-    }
+    return { success: false, error: 'Failed to revoke session' }
   }
 }
 
@@ -393,8 +355,6 @@ export async function getCurrentAdminSession(): Promise<AdminSessionValidationRe
 
 /**
  * Hash a password using bcrypt
- * @param password - Plain text password
- * @returns Hashed password
  */
 export async function hashAdminPassword(password: string): Promise<string> {
   return bcrypt.hash(password, BCRYPT_SALT_ROUNDS)
@@ -402,8 +362,6 @@ export async function hashAdminPassword(password: string): Promise<string> {
 
 /**
  * Set password for an admin user
- * @param email - Admin email
- * @param password - New password
  */
 export async function setAdminPassword(
   email: string,
@@ -411,10 +369,8 @@ export async function setAdminPassword(
 ): Promise<ServiceResponse<void>> {
   try {
     const supabase = createServiceRoleClient()
-
     const passwordHash = await hashAdminPassword(password)
 
-    // Using 'as any' because password_hash not in types yet
     const { error } = await supabase
       .from('an_users' as any)
       .update({ password_hash: passwordHash } as any)
@@ -422,18 +378,12 @@ export async function setAdminPassword(
 
     if (error) {
       console.error('Failed to set admin password:', error)
-      return {
-        success: false,
-        error: 'Failed to set password',
-      }
+      return { success: false, error: 'Failed to set password' }
     }
 
     return { success: true }
   } catch (error) {
     console.error('Error setting admin password:', error)
-    return {
-      success: false,
-      error: 'Failed to set password',
-    }
+    return { success: false, error: 'Failed to set password' }
   }
 }

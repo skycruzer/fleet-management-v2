@@ -8,7 +8,7 @@
  * @date November 11, 2025
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // ============================================================================
 // Constants
@@ -359,7 +359,7 @@ export async function ensureRosterPeriodsExist(): Promise<{
   message: string
   created: number
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const currentYear = new Date().getFullYear()
   const requiredYears = [currentYear, currentYear + 1, currentYear + 2]
 
@@ -457,7 +457,7 @@ export async function syncRosterPeriodsToDatabase(): Promise<{
   updated: number
   errors: string[]
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const now = new Date()
   const currentYear = now.getFullYear()
 
@@ -523,7 +523,7 @@ export async function syncRosterPeriodsToDatabase(): Promise<{
 export async function getRosterPeriodByCode(code: string): Promise<RosterPeriod | null> {
   // Tracked: tasks/062 #4 - Uncomment after migration
   /*
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('roster_periods')
@@ -564,7 +564,7 @@ export async function getRosterPeriodByCode(code: string): Promise<RosterPeriod 
 export async function getRosterPeriodsByYear(year: number): Promise<RosterPeriod[]> {
   // Tracked: tasks/062 #4 - Uncomment after migration
   /*
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('roster_periods')
@@ -610,7 +610,7 @@ export async function updateRosterPeriodStatus(
 ): Promise<boolean> {
   // Tracked: tasks/062 #4 - Uncomment after migration
   /*
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { error } = await supabase
     .from('roster_periods')

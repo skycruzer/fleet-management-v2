@@ -13,7 +13,7 @@
  * - Redis fallback when available
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { redisCacheService, CACHE_TTL } from '@/lib/services/redis-cache-service'
 
@@ -364,7 +364,7 @@ class UnifiedCacheService {
     return this.getOrSet(
       'check_types',
       async () => {
-        const supabase = await createClient()
+        const supabase = createAdminClient()
         const { data, error } = await supabase.from('check_types').select('*').order('check_code')
 
         if (error) throw error
@@ -378,7 +378,7 @@ class UnifiedCacheService {
     return this.getOrSet(
       'contract_types',
       async () => {
-        const supabase = await createClient()
+        const supabase = createAdminClient()
         const { data, error } = await supabase
           .from('contract_types')
           .select('*')
@@ -396,7 +396,7 @@ class UnifiedCacheService {
     return this.getOrSet(
       'settings',
       async () => {
-        const supabase = await createClient()
+        const supabase = createAdminClient()
         const { data, error } = await supabase.from('settings').select('*')
 
         if (error) throw error

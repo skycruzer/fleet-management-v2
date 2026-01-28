@@ -9,7 +9,7 @@
  * @since 2025-11-09
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from '@/lib/services/audit-service'
 
 /**
@@ -49,7 +49,7 @@ export async function deleteUserAccount(
 ): Promise<AccountDeletionResult> {
   const { userId, userEmail, preserveAuditTrail = true, anonymizeData = true } = options
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Check if user exists
@@ -188,7 +188,7 @@ export async function checkDeletionSafety(userId: string): Promise<{
     certifications: number
   }
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const warnings: string[] = []
 
   // Get user data
@@ -289,7 +289,7 @@ export async function anonymizeUserData(userId: string): Promise<{
   success: boolean
   message: string
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Get user data

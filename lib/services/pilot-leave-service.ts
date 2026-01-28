@@ -14,7 +14,7 @@
  * ✅ All database queries updated to use unified pilot_requests table
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import {
   createLeaveRequestServer,
@@ -252,7 +252,7 @@ export async function updatePilotLeaveRequest(
  */
 export async function cancelPilotLeaveRequest(requestId: string): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()
@@ -337,7 +337,7 @@ export async function getPilotLeaveStats(): Promise<
   }>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current pilot
     const pilot = await getCurrentPilot()

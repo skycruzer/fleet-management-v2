@@ -6,7 +6,7 @@
  * @since 2025-10-18
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 
@@ -34,7 +34,7 @@ export interface UserWithStats extends User {
  * Get all users
  */
 export async function getAllUsers(): Promise<User[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: users, error } = await supabase
@@ -59,7 +59,7 @@ export async function getAllUsers(): Promise<User[]> {
  * Get a single user by ID
  */
 export async function getUserById(userId: string): Promise<User | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: user, error } = await supabase
@@ -90,7 +90,7 @@ export async function getUserById(userId: string): Promise<User | null> {
  * Get user by email
  */
 export async function getUserByEmail(email: string): Promise<User | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: user, error } = await supabase
@@ -121,7 +121,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
  * Create a new user
  */
 export async function createUser(userData: UserFormData): Promise<User> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Check if email already exists
@@ -171,7 +171,7 @@ export async function createUser(userData: UserFormData): Promise<User> {
  * Update an existing user
  */
 export async function updateUser(userId: string, userData: Partial<UserFormData>): Promise<User> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // If email is being updated, check for duplicates
@@ -231,7 +231,7 @@ export async function updateUser(userId: string, userData: Partial<UserFormData>
  * NOTE: This will fail if the user has associated records (foreign key constraints)
  */
 export async function deleteUser(userId: string): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Get user data for audit log
@@ -279,7 +279,7 @@ export async function deleteUser(userId: string): Promise<void> {
  * Get users by role
  */
 export async function getUsersByRole(role: 'Admin' | 'Manager' | 'User'): Promise<User[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: users, error } = await supabase
@@ -308,7 +308,7 @@ export async function getUserStats(): Promise<{
   total: number
   byRole: { Admin: number; Manager: number; User: number }
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: users, error } = await supabase.from('an_users').select('role')

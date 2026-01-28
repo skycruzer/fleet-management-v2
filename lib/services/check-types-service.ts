@@ -8,7 +8,7 @@
  * @since 2025-10-22
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 
@@ -30,7 +30,7 @@ type CheckType = Database['public']['Tables']['check_types']['Row']
  */
 export async function getCheckTypes(): Promise<CheckType[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('check_types')
@@ -73,7 +73,7 @@ export async function getCheckTypes(): Promise<CheckType[]> {
  */
 export async function getCheckTypeById(id: string): Promise<CheckType | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase.from('check_types').select('*').eq('id', id).single()
 
@@ -112,7 +112,7 @@ export async function getCheckTypeById(id: string): Promise<CheckType | null> {
  */
 export async function getCheckTypesByCategory(category: string): Promise<CheckType[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('check_types')

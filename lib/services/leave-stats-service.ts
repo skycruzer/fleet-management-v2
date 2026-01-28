@@ -11,7 +11,7 @@
  * @since 2025-10-26
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { differenceInDays, parseISO } from 'date-fns'
 
 export interface PilotLeaveStats {
@@ -46,7 +46,7 @@ export async function getApprovedDaysForYear(
   pilotId: string,
   year: number = new Date().getFullYear()
 ): Promise<number> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('pilot_requests')
@@ -85,7 +85,7 @@ export async function getPendingDaysForYear(
   pilotId: string,
   year: number = new Date().getFullYear()
 ): Promise<number> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data, error } = await supabase
     .from('pilot_requests')
@@ -123,7 +123,7 @@ export async function getPilotLeaveStats(
   pilotId: string,
   year: number = new Date().getFullYear()
 ): Promise<PilotLeaveStats | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Get pilot details
   const { data: pilot, error: pilotError } = await supabase
@@ -204,7 +204,7 @@ export async function getPriorityRanking(
   rank: 'Captain' | 'First Officer',
   year: number = new Date().getFullYear()
 ): Promise<PriorityRanking[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Get all pilots of this rank
   const { data: pilots, error } = await supabase
@@ -254,7 +254,7 @@ export async function getPriorityRanking(
 export async function getAllPilotLeaveStats(
   year: number = new Date().getFullYear()
 ): Promise<PilotLeaveStats[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: pilots, error } = await supabase
     .from('pilots')

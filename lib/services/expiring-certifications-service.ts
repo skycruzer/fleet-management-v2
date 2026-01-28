@@ -6,7 +6,7 @@
  * @since 2025-10-17
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { format } from 'date-fns'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { getAlertThresholds } from './admin-service'
@@ -109,7 +109,7 @@ export interface ExpiringCertification {
 export async function getExpiringCertifications(
   daysAhead: number = 60
 ): Promise<ExpiringCertification[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Calculate date threshold - include expired certifications (30 days back)

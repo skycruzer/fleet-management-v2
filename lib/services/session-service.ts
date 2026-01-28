@@ -5,27 +5,25 @@
  *
  * SECURITY: Fixes session fixation vulnerability
  *
- * Implements secure server-side session management for pilot portal:
- * - Cryptographically secure session tokens
- * - Server-side session storage (not cookies)
- * - Automatic expiry and cleanup
- * - Session revocation
- * - Activity tracking
+ * Implements secure server-side session management for pilot portal.
+ * Now delegates to redis-session-service for Redis-backed sessions
+ * with DB audit logging.
  */
 
-import { createClient } from '@/lib/supabase/server'
-import crypto from 'crypto'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { cookies } from 'next/headers'
+import {
+  createRedisSession,
+  validateRedisSession,
+  destroyRedisSession,
+  destroyAllUserSessions,
+  type RedisSessionResult,
+} from '@/lib/services/redis-session-service'
 
 /**
  * Session cookie name
  */
 const SESSION_COOKIE_NAME = 'pilot-session'
-
-/**
- * Session duration (24 hours)
- */
-const SESSION_DURATION_HOURS = 24
 
 /**
  * Session token interface
@@ -53,16 +51,8 @@ export interface SessionValidationResult {
 }
 
 /**
- * Generate a cryptographically secure session token
- * Uses 32 bytes (256 bits) of random data
- */
-export function generateSessionToken(): string {
-  return crypto.randomBytes(32).toString('base64url')
-}
-
-/**
  * Create a new pilot session
- * SECURITY: Generates secure token, stores server-side
+ * SECURITY: Generates secure token, stores in Redis + DB
  */
 export async function createPilotSession(
   pilotUserId: string,
@@ -72,106 +62,108 @@ export async function createPilotSession(
   }
 ): Promise<{ success: boolean; sessionToken?: string; error?: string }> {
   try {
-    const supabase = await createClient()
-
-    // Generate secure session token
-    const sessionToken = generateSessionToken()
-
-    // Calculate expiry time
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + SESSION_DURATION_HOURS)
-
-    // Create session in database
-    const { data, error } = await supabase
-      .from('pilot_sessions' as any)
-      .insert({
-        session_token: sessionToken,
-        pilot_user_id: pilotUserId,
-        expires_at: expiresAt.toISOString(),
-        ip_address: metadata?.ipAddress,
-        user_agent: metadata?.userAgent,
-        is_active: true,
-      })
-      .select()
+    // Look up pilot user data for Redis session
+    const supabase = createServiceRoleClient()
+    const { data: pilotUser, error: userError } = await supabase
+      .from('pilot_users')
+      .select('id, email, first_name, last_name, employee_id')
+      .eq('id', pilotUserId)
       .single()
 
-    if (error) {
-      console.error('Failed to create pilot session:', error)
-      return {
-        success: false,
-        error: 'Failed to create session',
+    if (userError || !pilotUser) {
+      return { success: false, error: 'Pilot user not found' }
+    }
+
+    return await createRedisSession(
+      {
+        userId: pilotUserId,
+        role: 'pilot',
+        email: pilotUser.email,
+        staffId: pilotUser.employee_id || pilotUser.email,
+        name: `${pilotUser.first_name} ${pilotUser.last_name}`,
+        pilotId: pilotUserId,
+        mustChangePassword: false,
+      },
+      {
+        ipAddress: metadata?.ipAddress,
+        userAgent: metadata?.userAgent,
+        cookieName: SESSION_COOKIE_NAME,
+        dbTable: 'pilot_sessions',
+        dbUserIdColumn: 'pilot_user_id',
       }
-    }
-
-    // Set session cookie (HTTP-only, secure)
-    const cookieStore = await cookies()
-    cookieStore.set(SESSION_COOKIE_NAME, sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-      maxAge: SESSION_DURATION_HOURS * 60 * 60, // Convert to seconds
-    })
-
-    return {
-      success: true,
-      sessionToken,
-    }
+    )
   } catch (error) {
     console.error('Error creating pilot session:', error)
-    return {
-      success: false,
-      error: 'Session creation error',
-    }
+    return { success: false, error: 'Session creation error' }
   }
 }
 
 /**
  * Validate pilot session
- * SECURITY: Checks token validity, expiry, and active status
+ * SECURITY: Checks token validity via Redis (with DB fallback)
  */
 export async function validatePilotSession(
   sessionToken?: string
 ): Promise<SessionValidationResult> {
-  try {
-    // Get session token from cookie if not provided
-    if (!sessionToken) {
-      const cookieStore = await cookies()
-      const cookieToken = cookieStore.get(SESSION_COOKIE_NAME)?.value
-      if (!cookieToken) {
-        return {
-          isValid: false,
-          error: 'No session token found',
-        }
-      }
-      sessionToken = cookieToken
+  // If a specific token was passed, set it as a cookie temporarily
+  // (this is rare — most callers don't pass a token)
+  if (sessionToken) {
+    const cookieStore = await cookies()
+    const existingToken = cookieStore.get(SESSION_COOKIE_NAME)?.value
+    if (existingToken !== sessionToken) {
+      // Token was passed explicitly but doesn't match cookie — validate via DB directly
+      return await validatePilotSessionByToken(sessionToken)
     }
+  }
 
-    const supabase = await createClient()
+  const result: RedisSessionResult = await validateRedisSession(
+    SESSION_COOKIE_NAME,
+    'pilot_sessions',
+    'pilot_user_id'
+  )
 
-    // Validate session using database function
+  if (!result.isValid || !result.data) {
+    return { isValid: false, error: result.error }
+  }
+
+  // Map RedisSessionData back to PilotSession for backward compatibility
+  const pilotSession: PilotSession = {
+    id: result.data.sessionId,
+    session_token: '',
+    pilot_user_id: result.data.userId,
+    created_at: result.data.createdAt,
+    expires_at: result.data.expiresAt,
+    last_activity_at: result.data.lastActivityAt,
+    is_active: true,
+  }
+
+  return {
+    isValid: true,
+    session: pilotSession,
+    userId: result.data.userId,
+  }
+}
+
+/**
+ * Validate by explicit token (for rare cases where token is passed directly)
+ */
+async function validatePilotSessionByToken(sessionToken: string): Promise<SessionValidationResult> {
+  try {
+    const supabase = createServiceRoleClient()
+
     const { data, error } = await supabase.rpc('validate_pilot_session' as any, {
       token: sessionToken,
     })
 
     if (error || !data || data.length === 0) {
-      return {
-        isValid: false,
-        error: 'Invalid session',
-      }
+      return { isValid: false, error: 'Invalid session' }
     }
 
     const sessionData = data[0]
-
-    // Check if session is valid
     if (!sessionData.is_valid) {
-      return {
-        isValid: false,
-        error: 'Session expired or revoked',
-      }
+      return { isValid: false, error: 'Session expired or revoked' }
     }
 
-    // Get full session details
     const { data: session, error: sessionError } = await supabase
       .from('pilot_sessions' as any)
       .select('*')
@@ -179,10 +171,7 @@ export async function validatePilotSession(
       .single()
 
     if (sessionError || !session) {
-      return {
-        isValid: false,
-        error: 'Session not found',
-      }
+      return { isValid: false, error: 'Session not found' }
     }
 
     return {
@@ -191,11 +180,8 @@ export async function validatePilotSession(
       userId: (session as any).pilot_user_id,
     }
   } catch (error) {
-    console.error('Error validating pilot session:', error)
-    return {
-      isValid: false,
-      error: 'Session validation error',
-    }
+    console.error('Error validating pilot session by token:', error)
+    return { isValid: false, error: 'Session validation error' }
   }
 }
 
@@ -207,77 +193,50 @@ export async function revokePilotSession(
   reason: string = 'User logout'
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
+    await destroyRedisSession(SESSION_COOKIE_NAME, 'pilot_sessions')
 
-    const { error } = await supabase
+    // Also update revocation metadata in DB
+    const supabase = createServiceRoleClient()
+    await supabase
       .from('pilot_sessions' as any)
       .update({
-        is_active: false,
         revoked_at: new Date().toISOString(),
         revocation_reason: reason,
       })
       .eq('session_token', sessionToken)
 
-    if (error) {
-      console.error('Failed to revoke session:', error)
-      return {
-        success: false,
-        error: 'Failed to revoke session',
-      }
-    }
-
-    // Clear session cookie
-    const cookieStore = await cookies()
-    cookieStore.delete(SESSION_COOKIE_NAME)
-
     return { success: true }
   } catch (error) {
     console.error('Error revoking pilot session:', error)
-    return {
-      success: false,
-      error: 'Session revocation error',
-    }
+    return { success: false, error: 'Session revocation error' }
   }
 }
 
 /**
  * Revoke all sessions for a pilot user
- * Useful for logout all devices or password reset
  */
 export async function revokeAllPilotSessions(
   pilotUserId: string,
   reason: string = 'User logout all devices'
 ): Promise<{ success: boolean; revokedCount?: number; error?: string }> {
   try {
-    const supabase = await createClient()
+    await destroyAllUserSessions(pilotUserId, 'pilot_sessions', 'pilot_user_id')
 
-    const { data, error } = await supabase.rpc('revoke_all_pilot_sessions' as any, {
+    // Also call the DB stored procedure for revocation metadata
+    const supabase = createServiceRoleClient()
+    const { data } = await supabase.rpc('revoke_all_pilot_sessions' as any, {
       user_id: pilotUserId,
       reason,
     })
-
-    if (error) {
-      console.error('Failed to revoke all sessions:', error)
-      return {
-        success: false,
-        error: 'Failed to revoke sessions',
-      }
-    }
 
     // Clear current session cookie
     const cookieStore = await cookies()
     cookieStore.delete(SESSION_COOKIE_NAME)
 
-    return {
-      success: true,
-      revokedCount: data || 0,
-    }
+    return { success: true, revokedCount: data || 0 }
   } catch (error) {
     console.error('Error revoking all pilot sessions:', error)
-    return {
-      success: false,
-      error: 'Session revocation error',
-    }
+    return { success: false, error: 'Session revocation error' }
   }
 }
 
@@ -292,48 +251,19 @@ export async function getCurrentPilotSession(): Promise<PilotSession | null> {
 
 /**
  * Refresh session expiry
- * Extends session by SESSION_DURATION_HOURS
+ * Redis TTL extension is handled automatically by validateRedisSession
  */
 export async function refreshPilotSession(
-  sessionToken: string
+  _sessionToken: string
 ): Promise<{ success: boolean; error?: string }> {
-  try {
-    const supabase = await createClient()
-
-    // Calculate new expiry time
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + SESSION_DURATION_HOURS)
-
-    const { error } = await supabase
-      .from('pilot_sessions' as any)
-      .update({
-        expires_at: expiresAt.toISOString(),
-        last_activity_at: new Date().toISOString(),
-      })
-      .eq('session_token', sessionToken)
-      .eq('is_active', true)
-
-    if (error) {
-      console.error('Failed to refresh session:', error)
-      return {
-        success: false,
-        error: 'Failed to refresh session',
-      }
-    }
-
-    return { success: true }
-  } catch (error) {
-    console.error('Error refreshing pilot session:', error)
-    return {
-      success: false,
-      error: 'Session refresh error',
-    }
-  }
+  // TTL extension is now handled automatically by redis-session-service
+  // during validation (throttled to once per 60s).
+  return { success: true }
 }
 
 /**
  * Cleanup expired sessions
- * Should be run via cron job
+ * Redis handles expiry via TTL. This only cleans DB records.
  */
 export async function cleanupExpiredSessions(): Promise<{
   success: boolean
@@ -341,27 +271,17 @@ export async function cleanupExpiredSessions(): Promise<{
   error?: string
 }> {
   try {
-    const supabase = await createClient()
-
+    const supabase = createServiceRoleClient()
     const { data, error } = await supabase.rpc('cleanup_expired_pilot_sessions' as any)
 
     if (error) {
       console.error('Failed to cleanup expired sessions:', error)
-      return {
-        success: false,
-        error: 'Cleanup failed',
-      }
+      return { success: false, error: 'Cleanup failed' }
     }
 
-    return {
-      success: true,
-      deletedCount: data || 0,
-    }
+    return { success: true, deletedCount: data || 0 }
   } catch (error) {
     console.error('Error cleaning up expired sessions:', error)
-    return {
-      success: false,
-      error: 'Cleanup error',
-    }
+    return { success: false, error: 'Cleanup error' }
   }
 }

@@ -7,7 +7,6 @@
  * @spec 001-missing-core-features (US5)
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
@@ -97,7 +96,7 @@ export async function getTasks(
   filters?: TaskFilters
 ): Promise<ServiceResponse<TaskWithRelations[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -201,7 +200,7 @@ export async function getTasks(
  */
 export async function getTaskById(taskId: string): Promise<ServiceResponse<TaskWithRelations>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -287,7 +286,7 @@ export async function createTask(taskData: {
 
     // Try to get user from Supabase Auth, but don't require it
     // (admin-session auth is verified at API layer)
-    const readSupabase = await createClient()
+    const readSupabase = createAdminClient()
     const {
       data: { user },
     } = await readSupabase.auth.getUser()
@@ -521,7 +520,7 @@ export async function deleteTask(
  */
 export async function getTaskStats(filters?: TaskFilters): Promise<ServiceResponse<TaskStats>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -622,7 +621,7 @@ export async function getTaskCategories(): Promise<
   ServiceResponse<Database['public']['Tables']['task_categories']['Row'][]>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('task_categories')

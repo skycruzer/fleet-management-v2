@@ -8,7 +8,7 @@
  * @date November 11, 2025
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { calculateRosterPeriodDates } from './roster-period-service'
 import { logger } from './logging-service'
 
@@ -132,7 +132,7 @@ export async function generateRosterPeriodReport(
       generatedBy,
     })
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get roster period details
     const [periodNumber, year] = rosterPeriodCode.replace('RP', '').split('/').map(Number)
@@ -250,7 +250,7 @@ export async function saveRosterReport(
   pdfUrl?: string
 ): Promise<ServiceResponse<string>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('roster_reports')
@@ -305,7 +305,7 @@ export async function getRosterReportHistory(
   rosterPeriodCode: string
 ): Promise<ServiceResponse<any[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('roster_reports')
@@ -374,7 +374,7 @@ async function calculateCrewAvailability(
   endDate: Date,
   approvedLeave: RosterRequestItem[]
 ): Promise<RosterPeriodReport['crewAvailability']> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Get all active pilots
   const { data: pilots, error } = await supabase

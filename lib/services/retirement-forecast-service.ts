@@ -6,7 +6,7 @@
  * @since 2025-10-25
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
 
 type Pilot = Database['public']['Tables']['pilots']['Row']
@@ -44,7 +44,7 @@ export interface RetirementForecast {
 export async function getRetirementForecast(
   retirementAge: number = 65
 ): Promise<RetirementForecast> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Fetch all active pilots with date of birth
   const { data: pilots, error } = await supabase
@@ -245,7 +245,7 @@ export async function getMonthlyRetirementTimeline(retirementAge: number = 65): 
     peakCount: number
   }
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Fetch all active pilots with date of birth
   const { data: pilots, error } = await supabase
@@ -405,7 +405,7 @@ export async function getCrewImpactAnalysis(
     averageFirstOfficerUtilization: number
   }
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Get current pilot counts
   const { data: currentPilots, error: currentError } = await supabase

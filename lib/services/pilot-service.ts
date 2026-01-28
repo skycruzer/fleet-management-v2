@@ -13,7 +13,6 @@
  * @since 2025-10-17
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
 import { createAuditLog } from './audit-service'
@@ -36,7 +35,7 @@ function safeRevalidate(tag: string) {
       revalidatePath('/api/pilots')
     } else if (tag === 'certifications') {
       revalidatePath('/dashboard/certifications')
-      revalidatePath('/dashboard/certifications/expiring')
+      revalidatePath('/dashboard/certifications')
     } else if (tag === 'dashboard') {
       revalidatePath('/dashboard')
     }
@@ -101,7 +100,7 @@ export async function calculateSeniorityNumber(
   commencementDate: string,
   excludePilotId?: string
 ): Promise<number> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase
@@ -159,7 +158,7 @@ export async function getAllPilots(
   page: number
   pageSize: number
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Calculate pagination range
@@ -269,7 +268,7 @@ export async function getAllPilotsUnpaginated(): Promise<PilotWithCertifications
 }
 
 export async function getPilotById(pilotId: string): Promise<PilotWithCertifications | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: pilot, error: pilotError } = await supabase
@@ -351,7 +350,7 @@ export async function getPilotById(pilotId: string): Promise<PilotWithCertificat
  * @returns Promise<PilotWithCertifications | null>
  */
 export async function getPilotByUserId(userId: string): Promise<PilotWithCertifications | null> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data: pilot, error: pilotError } = await supabase
@@ -432,7 +431,7 @@ export async function getPilotByUserId(userId: string): Promise<PilotWithCertifi
  */
 export const getPilotStats = unstable_cache(
   async () => {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     try {
       const { data: pilots, error } = await supabase
@@ -833,7 +832,7 @@ export async function getPilots(filters?: {
   role?: 'Captain' | 'First Officer'
   is_active?: boolean
 }): Promise<Pilot[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase
@@ -873,7 +872,7 @@ export async function getPilots(filters?: {
  * @returns Promise<Record<string, Pilot[]>>
  */
 export async function getPilotsGroupedByRank(): Promise<Record<string, Pilot[]>> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase
@@ -917,7 +916,7 @@ export async function searchPilots(
     status?: 'active' | 'inactive' | 'all'
   } = {}
 ): Promise<PilotWithCertifications[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase.from('pilots').select('*')
@@ -966,7 +965,7 @@ export async function checkEmployeeIdExists(
   employeeId: string,
   excludePilotId?: string
 ): Promise<boolean> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase.from('pilots').select('id').eq('employee_id', employeeId)
@@ -997,7 +996,7 @@ export async function checkEmployeeIdExists(
 // ===================================
 
 export async function getPilotsNearingRetirementForDashboard(): Promise<PilotWithRetirement[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Fetch retirement age from settings dynamically

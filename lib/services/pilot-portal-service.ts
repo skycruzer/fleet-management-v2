@@ -9,7 +9,7 @@
  * @spec 001-missing-core-features
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Database } from '@/types/supabase'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { handleConstraintError } from '@/lib/utils/constraint-error-handler'
@@ -76,28 +76,27 @@ interface PortalStats {
 // ===================================
 
 /**
- * Pilot login with email and password
+ * Pilot login with staff ID and password
  *
- * @param credentials - Login credentials
+ * @param credentials - Login credentials (staffId + password)
  * @param metadata - Optional request metadata (IP address, user agent)
- * @returns Service response with user session
+ * @returns Service response with user session and mustChangePassword flag
  */
 export async function pilotLogin(
   credentials: PilotLoginInput,
   metadata?: { ipAddress?: string; userAgent?: string }
-): Promise<ServiceResponse<{ user: any; session: any }>> {
+): Promise<ServiceResponse<{ user: any; session: any; mustChangePassword?: boolean }>> {
   try {
-    // SECURITY: Authentication attempt (email not logged for privacy)
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const bcrypt = require('bcryptjs')
 
-    // Find pilot user by email
+    // Find pilot user by employee_id (staff ID)
     const { data: pilotUser, error: pilotError } = await supabase
       .from('pilot_users')
       .select(
-        'id, email, password_hash, auth_user_id, registration_approved, first_name, last_name, rank'
+        'id, email, employee_id, password_hash, registration_approved, first_name, last_name, rank, must_change_password, pilot_id'
       )
-      .eq('email', credentials.email)
+      .eq('employee_id', credentials.staffId)
       .single()
 
     if (pilotError || !pilotUser) {
@@ -111,116 +110,71 @@ export async function pilotLogin(
     if (!pilotUser.registration_approved) {
       return {
         success: false,
-        error: 'Your registration is pending admin approval.',
+        error: 'Your account is not yet active. Contact your administrator.',
       }
     }
 
-    // PRIORITY: Check password_hash first (direct registration with bcrypt)
-    // Fall back to Supabase Auth only if no password_hash exists
-    if (pilotUser.password_hash) {
-      // Pilot registered with password hash - use bcrypt verification
-      // SECURITY: Using bcrypt authentication
-
-      const passwordMatch = await bcrypt.compare(credentials.password, pilotUser.password_hash)
-
-      if (!passwordMatch) {
-        // SECURITY: Password mismatch - do not log details
-        return {
-          success: false,
-          error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
-        }
+    // Verify password hash exists
+    if (!pilotUser.password_hash) {
+      return {
+        success: false,
+        error: 'Account not configured. Contact your administrator.',
       }
+    }
 
-      // SECURITY: Password validated successfully
+    // Verify password with bcrypt
+    const passwordMatch = await bcrypt.compare(credentials.password, pilotUser.password_hash)
 
-      // Update last login time
-      await supabase
-        .from('pilot_users')
-        .update({ last_login_at: new Date().toISOString() })
-        .eq('id', pilotUser.id)
-
-      // SECURITY FIX: Create secure server-side session (no longer using user ID as token)
-      const sessionResult = await createPilotSession(pilotUser.id, metadata)
-
-      if (!sessionResult.success || !sessionResult.sessionToken) {
-        console.error('Failed to create pilot session:', sessionResult.error)
-        return {
-          success: false,
-          error: 'Session creation failed. Please try again.',
-        }
+    if (!passwordMatch) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
       }
+    }
 
-      // Return session data with secure token
-      const sessionData = {
+    // Update last login time
+    await supabase
+      .from('pilot_users')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('id', pilotUser.id)
+
+    // Create secure server-side session
+    const sessionResult = await createPilotSession(pilotUser.id, metadata)
+
+    if (!sessionResult.success || !sessionResult.sessionToken) {
+      console.error('Failed to create pilot session:', sessionResult.error)
+      return {
+        success: false,
+        error: 'Session creation failed. Please try again.',
+      }
+    }
+
+    // Return session data with secure token
+    const sessionData = {
+      user: {
+        id: pilotUser.id,
+        email: pilotUser.email,
+        employee_id: pilotUser.employee_id,
+        pilot_id: pilotUser.pilot_id,
+        user_metadata: {
+          first_name: pilotUser.first_name,
+          last_name: pilotUser.last_name,
+          rank: pilotUser.rank,
+        },
+      },
+      session: {
+        access_token: sessionResult.sessionToken,
         user: {
           id: pilotUser.id,
           email: pilotUser.email,
-          user_metadata: {
-            first_name: pilotUser.first_name,
-            last_name: pilotUser.last_name,
-            rank: pilotUser.rank,
-          },
         },
-        session: {
-          access_token: sessionResult.sessionToken, // ✅ Secure cryptographic token
-          user: {
-            id: pilotUser.id,
-            email: pilotUser.email,
-          },
-        },
-      }
+      },
+      mustChangePassword: pilotUser.must_change_password ?? false,
+    }
 
-      return {
-        success: true,
-        data: sessionData,
-      }
-    } else if (pilotUser.auth_user_id) {
-      // Pilot registered via Supabase Auth - use Supabase authentication
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: credentials.email,
-        password: credentials.password,
-      })
-
-      if (authError || !authData.session) {
-        // Check if this is because the Supabase Auth user doesn't exist
-        // (can happen if registration had connectivity issues)
-        if (
-          authError?.message?.includes('Invalid login credentials') ||
-          authError?.message?.includes('Email not confirmed')
-        ) {
-          return {
-            success: false,
-            error:
-              'Your account setup is incomplete. Please contact the administrator for assistance.',
-          }
-        }
-
-        return {
-          success: false,
-          error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
-        }
-      }
-
-      // Update last login time
-      await supabase
-        .from('pilot_users')
-        .update({ last_login_at: new Date().toISOString() })
-        .eq('id', pilotUser.id)
-
-      // Return Supabase Auth session
-      return {
-        success: true,
-        data: {
-          user: authData.user,
-          session: authData.session,
-        },
-      }
-    } else {
-      // No password set at all
-      return {
-        success: false,
-        error: 'Password not set. Please contact administrator.',
-      }
+    return {
+      success: true,
+      data: sessionData,
     }
   } catch (error) {
     console.error('Pilot login error:', error)
@@ -255,7 +209,7 @@ export async function pilotLogout(): Promise<ServiceResponse<null>> {
     }
 
     // Also sign out from Supabase Auth (for pilots using Supabase Auth)
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { error } = await supabase.auth.signOut()
 
     if (error) {
@@ -293,7 +247,7 @@ export async function submitPilotRegistration(
   registration: PilotRegistrationInput
 ): Promise<ServiceResponse<{ id: string; status: string }>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Hash password using bcrypt
     const bcrypt = require('bcryptjs')
@@ -366,7 +320,7 @@ export async function getRegistrationStatus(
   email: string
 ): Promise<ServiceResponse<PilotRegistration | null>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('pilot_users')
@@ -403,7 +357,7 @@ export async function getRegistrationStatus(
  */
 export async function getPendingRegistrations(): Promise<ServiceResponse<PilotRegistration[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('pilot_users')
@@ -445,7 +399,7 @@ export async function reviewPilotRegistration(
   reviewerId: string
 ): Promise<ServiceResponse<{ status: string }>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Step 1: Update registration status in pilot_users
     const { data: registration, error: updateError } = await supabase
@@ -507,7 +461,7 @@ export async function reviewPilotRegistration(
  */
 export async function getPilotPortalStats(pilotId: string): Promise<ServiceResponse<PortalStats>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get total pilots count
     const { count: pilotsCount } = await supabase
@@ -675,7 +629,7 @@ export async function getPilotDetailsWithRetirement(pilotId: string): Promise<
   }>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data: pilot, error } = await supabase
       .from('pilots')
@@ -715,7 +669,7 @@ export async function getPilotLeaveBids(
   limit: number = 5
 ): Promise<ServiceResponse<any[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data: leaveBids, error } = await supabase
       .from('leave_bids')
@@ -765,7 +719,7 @@ export async function getPilotLeaveBids(
  */
 export async function getCurrentPilot(): Promise<ServiceResponse<any | null>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current user
     const {
@@ -828,7 +782,7 @@ export async function requestPasswordReset(
   email: string
 ): Promise<ServiceResponse<{ message: string }>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const crypto = require('crypto')
 
     // Find pilot user by email
@@ -927,7 +881,7 @@ export async function validatePasswordResetToken(
   token: string
 ): Promise<ServiceResponse<{ userId: string; email: string }>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Find token
     const { data: resetToken, error: tokenError } = await supabase
@@ -1001,7 +955,7 @@ export async function resetPassword(
   newPassword: string
 ): Promise<ServiceResponse<{ message: string }>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const bcrypt = require('bcryptjs')
 
     // Validate token first

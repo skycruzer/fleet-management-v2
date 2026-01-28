@@ -10,7 +10,7 @@
  * @version 1.0.0
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import type { Database } from '@/types/supabase'
@@ -70,7 +70,7 @@ export async function getAllFeedback(
   filters?: FeedbackFilters
 ): Promise<ServiceResponse<FeedbackWithPilot[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Verify admin authentication
     const {
@@ -159,7 +159,7 @@ export async function getFeedbackById(
   feedbackId: string
 ): Promise<ServiceResponse<FeedbackWithPilot>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Verify admin authentication
     const {
@@ -222,7 +222,7 @@ export async function getFeedbackById(
  */
 export async function getFeedbackStats(): Promise<ServiceResponse<FeedbackStats>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Verify admin authentication
     const {
@@ -296,7 +296,7 @@ export async function updateFeedbackStatus(
   status: 'PENDING' | 'REVIEWED' | 'RESOLVED' | 'DISMISSED'
 ): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Verify admin authentication
     const {
@@ -355,7 +355,7 @@ export async function addAdminResponse(
   response: string
 ): Promise<ServiceResponse> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Verify admin authentication
     const {
@@ -425,7 +425,7 @@ export async function exportFeedbackToCSV(
   filters?: FeedbackFilters
 ): Promise<ServiceResponse<string>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Verify admin authentication
     const {

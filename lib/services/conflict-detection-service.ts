@@ -10,7 +10,7 @@
  * @date November 11, 2025
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from './logging-service'
 
 // ============================================================================
@@ -162,7 +162,7 @@ export async function detectConflicts(
  * @returns List of overlapping request conflicts
  */
 export async function checkOverlappingRequests(requestInput: RequestInput): Promise<Conflict[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const conflicts: Conflict[] = []
 
   try {
@@ -235,7 +235,7 @@ export async function checkOverlappingRequests(requestInput: RequestInput): Prom
 export async function checkCrewAvailability(
   requestInput: RequestInput
 ): Promise<{ conflicts: Conflict[]; warnings: string[] }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const conflicts: Conflict[] = []
   const warnings: string[] = []
 
@@ -319,7 +319,7 @@ export async function checkCrewAvailability(
  * @returns List of duplicate request conflicts
  */
 export async function checkDuplicateRequests(requestInput: RequestInput): Promise<Conflict[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const conflicts: Conflict[] = []
 
   try {
@@ -381,7 +381,7 @@ export async function checkDuplicateRequests(requestInput: RequestInput): Promis
  * @returns Crew availability before and after approval
  */
 async function calculateCrewImpact(requestInput: RequestInput) {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Get total active captains and first officers

@@ -3,7 +3,7 @@
  * Handles administrative operations including user management, check types, and system settings
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -64,7 +64,7 @@ export interface AdminStats {
  */
 export async function getAdminUsers(): Promise<AdminUser[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('an_users')
@@ -96,7 +96,7 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
  */
 export async function getAdminUserById(userId: string): Promise<AdminUser | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase.from('an_users').select('*').eq('id', userId).single()
 
@@ -129,7 +129,7 @@ export async function getAdminUserById(userId: string): Promise<AdminUser | null
  */
 export async function getCheckTypes(): Promise<CheckType[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('check_types')
@@ -153,7 +153,7 @@ export async function getCheckTypes(): Promise<CheckType[]> {
  */
 export async function getCheckTypesByCategory(category: string): Promise<CheckType[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('check_types')
@@ -178,7 +178,7 @@ export async function getCheckTypesByCategory(category: string): Promise<CheckTy
  */
 export async function getCheckTypeCategories(): Promise<string[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('check_types')
@@ -209,7 +209,7 @@ export async function getCheckTypeCategories(): Promise<string[]> {
  */
 export async function getSystemSettings(): Promise<SystemSetting[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('settings')
@@ -233,7 +233,7 @@ export async function getSystemSettings(): Promise<SystemSetting[]> {
  */
 export async function getSystemSetting(key: string): Promise<SystemSetting | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase.from('settings').select('*').eq('key', key).single()
 
@@ -257,7 +257,7 @@ export async function updateSystemSetting(
   updates: { value?: any; description?: string }
 ): Promise<SystemSetting> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('settings')
@@ -292,7 +292,7 @@ export async function updateSystemSetting(
  */
 export async function getAppTitle(): Promise<string> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Fetch directly without caching to get fresh data
     const { data, error } = await supabase
@@ -345,7 +345,7 @@ export async function getPilotRequirements(): Promise<{
   examiners_per_pilots: number
 }> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('settings')
@@ -411,7 +411,7 @@ export async function getAlertThresholds(): Promise<{
   early_warning_90_days: number
 }> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('settings')
@@ -491,7 +491,7 @@ function getDefaultAlertThresholds() {
  */
 export async function getContractTypes(): Promise<ContractType[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('contract_types')
@@ -519,7 +519,7 @@ export async function getContractTypes(): Promise<ContractType[]> {
  */
 export async function getAdminStats(): Promise<AdminStats> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Fetch all stats in parallel
     const [_usersData, pilotsData, checkTypesData, certificationsData, leaveRequestsData] =

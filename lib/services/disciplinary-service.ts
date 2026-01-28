@@ -7,7 +7,6 @@
  * @spec 001-missing-core-features (US6)
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createAuditLog } from './audit-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
@@ -117,7 +116,7 @@ export async function getMatters(
   filters?: MatterFilters
 ): Promise<ServiceResponse<{ matters: DisciplinaryMatterWithRelations[]; totalCount: number }>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -247,7 +246,7 @@ export async function getMatterById(
   matterId: string
 ): Promise<ServiceResponse<DisciplinaryMatterWithRelations>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -508,7 +507,7 @@ export async function getMatterStats(filters?: {
   pilotId?: string
 }): Promise<ServiceResponse<MatterStats>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     let query = supabase.from('disciplinary_matters').select('*')
 
@@ -613,7 +612,7 @@ export async function getIncidentTypes(): Promise<
   ServiceResponse<Array<{ id: string; name: string; description: string }>>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('incident_types')

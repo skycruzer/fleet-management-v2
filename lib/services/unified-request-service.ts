@@ -13,7 +13,6 @@
  * run `npm run db:types` to generate the TypeScript types.
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   getRosterPeriodCodeFromDate,
@@ -458,7 +457,7 @@ export async function createPilotRequest(
 export async function getAllPilotRequests(
   filters?: PilotRequestFilters
 ): Promise<ServiceResponse<PilotRequest[]>> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     let query = supabase.from('pilot_requests').select(
@@ -557,7 +556,7 @@ export async function getAllPilotRequests(
  * @returns Pilot request with joined pilot and reviewer data
  */
 export async function getPilotRequestById(id: string): Promise<ServiceResponse<PilotRequest>> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     const { data, error } = await supabase

@@ -25,7 +25,7 @@
  */
 
 import { ServiceResponse } from '@/lib/types/service-response'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 
@@ -49,7 +49,7 @@ export abstract class BaseService {
    */
   protected async getSupabase(): Promise<SupabaseClient> {
     if (!this.supabase) {
-      this.supabase = await createClient()
+      this.supabase = createAdminClient()
     }
     return this.supabase
   }

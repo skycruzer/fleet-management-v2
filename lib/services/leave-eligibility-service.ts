@@ -64,7 +64,7 @@
  * - All business logic PRESERVED
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { differenceInDays, parseISO, isWithinInterval, eachDayOfInterval, addDays } from 'date-fns'
 
 // ===================================
@@ -162,7 +162,7 @@ export interface LeaveRequestCheck {
  * Get minimum crew requirements from settings
  */
 export async function getCrewRequirements(): Promise<CrewRequirements> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: settings, error } = await supabase
     .from('settings')
@@ -233,7 +233,7 @@ export async function checkCrewAvailabilityAtomic(
   canApprove: boolean
   reason: string
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Type for the atomic check result from PostgreSQL
   type AtomicCheckResult = {
@@ -331,7 +331,7 @@ export async function calculateCrewAvailability(
   endDate: string,
   excludeRequestId?: string
 ): Promise<CrewAvailability[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const requirements = await getCrewRequirements()
 
   // Get all active pilots by role
@@ -427,7 +427,7 @@ export async function calculateCrewAvailability(
 export async function getConflictingPendingRequests(
   request: LeaveRequestCheck
 ): Promise<{ conflictingRequests: ConflictingRequest[]; seniorityRecommendation: string }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Get the current pilot's seniority
   const { data: currentPilot } = await supabase
@@ -852,7 +852,7 @@ export async function checkLeaveEligibility(
   if (allConflictingRequests.length > 0) {
     // STEP 1: Check if we have minimum crew available
     // Logic: Do we have 10 Captains AND 10 First Officers available?
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get total active pilots
     const { data: pilots } = await supabase.from('pilots').select('id, role').eq('is_active', true)
@@ -1072,7 +1072,7 @@ export async function getAlternativePilotRecommendations(
   endDate: string,
   excludePilotId: string
 ): Promise<PilotRecommendation[]> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Get all pilots of the same role
   const { data: pilots, error } = await supabase
@@ -1157,7 +1157,7 @@ export async function checkBulkLeaveEligibility(rosterPeriod: string): Promise<{
   shouldDeny: string[]
   recommendations: Map<string, LeaveEligibilityCheck>
 }> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Get all pending requests for the roster period
   const { data: requests, error } = await supabase

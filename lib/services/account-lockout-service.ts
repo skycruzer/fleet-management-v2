@@ -9,7 +9,7 @@
  * @author Maurice Rondeau
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
 
 /**
@@ -59,7 +59,7 @@ export async function recordFailedAttempt(
   ipAddress?: string
 ): Promise<ServiceResponse<LockoutStatus>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get current failed attempts within window
     const windowStart = new Date()
@@ -151,7 +151,7 @@ export async function recordFailedAttempt(
  */
 export async function checkAccountLockout(email: string): Promise<ServiceResponse<LockoutStatus>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get active lockout
     const { data: lockout, error } = await supabase
@@ -210,7 +210,7 @@ export async function checkAccountLockout(email: string): Promise<ServiceRespons
  */
 export async function clearFailedAttempts(email: string): Promise<ServiceResponse<null>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Delete failed attempts
     const { error: deleteError } = await supabase
@@ -250,7 +250,7 @@ export async function unlockAccount(
   adminId: string
 ): Promise<ServiceResponse<null>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Delete active lockouts
     const { error: deleteError } = await supabase
@@ -302,7 +302,7 @@ export async function getLockoutStatistics(): Promise<
   }>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Get active lockouts
     const { data: lockouts, error: lockoutError } = await supabase

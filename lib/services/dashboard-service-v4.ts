@@ -23,7 +23,8 @@
  * @since 2025-10-27
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { redisCacheService, CACHE_KEYS, CACHE_TTL, checkRedisHealth } from './redis-cache-service'
 import type { PilotDashboardMetrics } from '@/types/database-views'
@@ -123,7 +124,20 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
   }
 
   // Layer 2: Fetch from materialized view (still very fast)
-  const metrics = await fetchDashboardMetricsFromView(startTime)
+  // Falls back to empty metrics if view is unavailable
+  let metrics: DashboardMetrics
+  try {
+    metrics = await fetchDashboardMetricsFromView(startTime)
+  } catch (viewError) {
+    logWarning('Materialized view unavailable, returning empty metrics', {
+      source: 'DashboardServiceV4',
+      metadata: {
+        operation: 'getDashboardMetrics',
+        error: viewError instanceof Error ? viewError.message : String(viewError),
+      },
+    })
+    metrics = getEmptyMetrics(startTime)
+  }
 
   // Cache in Redis for next request
   if (useCache) {
@@ -144,11 +158,40 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
 }
 
 /**
+ * Return zero-valued metrics when materialized view is unavailable
+ * Allows dashboard to render gracefully instead of showing an error
+ */
+function getEmptyMetrics(startTime: number): DashboardMetrics {
+  const queryTime = Date.now() - startTime
+  return {
+    pilots: {
+      total: 0,
+      active: 0,
+      captains: 0,
+      firstOfficers: 0,
+      trainingCaptains: 0,
+      examiners: 0,
+    },
+    certifications: { total: 0, current: 0, expiring: 0, expired: 0, complianceRate: 100 },
+    leave: { pending: 0, approved: 0, denied: 0, totalThisMonth: 0 },
+    alerts: { criticalExpired: 0, expiringThisWeek: 0, missingCertifications: 0 },
+    retirement: { nearingRetirement: 0, dueSoon: 0, overdue: 0 },
+    performance: {
+      queryTime,
+      cacheHit: false,
+      cacheLayer: 'database',
+      lastUpdated: new Date().toISOString(),
+    },
+  }
+}
+
+/**
  * Internal function to fetch dashboard metrics from materialized view
  * PERFORMANCE: Single query replaces 9+ queries
  */
 async function fetchDashboardMetricsFromView(startTime: number): Promise<DashboardMetrics> {
-  const supabase = await createClient()
+  // Use service role client to bypass RLS/permission issues on materialized views
+  const supabase = createServiceRoleClient()
 
   try {
     // SINGLE QUERY: Fetch all metrics from materialized view
@@ -234,7 +277,7 @@ async function fetchDashboardMetricsFromView(startTime: number): Promise<Dashboa
  * @returns {Promise<void>}
  */
 export async function refreshDashboardMetrics(): Promise<void> {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Step 1: Refresh materialized view
@@ -285,7 +328,7 @@ export async function getRecentActivity(): Promise<
     color: 'amber' | 'blue' | 'green' | 'red'
   }>
 > {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Get recent pilot updates and leave requests for activity feed
@@ -359,7 +402,7 @@ export async function getRecentActivity(): Promise<
  * @returns {Promise<boolean>} True if view exists and has data
  */
 export async function checkMaterializedViewHealth(): Promise<boolean> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   try {
     const { data, error } = await supabase
