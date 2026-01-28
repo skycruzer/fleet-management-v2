@@ -6,7 +6,7 @@
   "author": "Maurice (Skycruzer)",
   "license": "MIT",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
@@ -67,6 +67,7 @@
     "csrf": "^3.1.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.24",
+    "geist": "^1.5.1",
     "isomorphic-dompurify": "^2.33.0",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",
@@ -134,7 +135,7 @@
     ]
   },
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=18.18.0 <25",
     "npm": ">=9.0.0"
   },
   "optionalDependencies": {

@@ -9,11 +9,10 @@ import { z } from 'zod'
 
 // Login Schema
 export const PilotLoginSchema = z.object({
-  email: z
+  staffId: z
     .string()
-    .min(1, 'Email is required')
-    .email('Invalid email format')
-    .max(255, 'Email must be less than 255 characters'),
+    .min(1, 'Staff ID is required')
+    .max(50, 'Staff ID must be less than 50 characters'),
   password: z
     .string()
     .min(1, 'Password is required')

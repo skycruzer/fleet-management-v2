@@ -8,8 +8,10 @@ const nextConfig = {
   // Don't use standalone on Vercel - it handles this automatically
   // output: 'standalone',
 
-  // Turbopack configuration (required in Next.js 16 when using webpack)
-  turbopack: {},
+  // Turbopack configuration - explicit root to prevent incorrect workspace detection
+  turbopack: {
+    root: __dirname,
+  },
 
   // Image optimization
   images: {
@@ -25,11 +27,6 @@ const nextConfig = {
     ],
   },
 
-  // Force Webpack (Turbopack has path alias resolution issues in Vercel)
-  webpack: (config) => {
-    // Ensure path aliases work correctly
-    return config
-  },
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -104,15 +101,69 @@ const nextConfig = {
     ]
   },
 
-  // Redirects (if needed)
+  // Redirects — old URLs → consolidated pages
   async redirects() {
     return [
-      // Example redirect
-      // {
-      //   source: '/old-path',
-      //   destination: '/new-path',
-      //   permanent: true,
-      // },
+      // Certifications: Expiring Certs merged into Certifications (Attention Required tab)
+      {
+        source: '/dashboard/certifications/expiring',
+        destination: '/dashboard/certifications?tab=attention',
+        permanent: true,
+      },
+      // Requests: Leave pages merged into Requests
+      {
+        source: '/dashboard/leave/approve',
+        destination: '/dashboard/requests?tab=leave',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/leave/calendar',
+        destination: '/dashboard/requests?tab=leave&view=calendar',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/leave',
+        destination: '/dashboard/requests?tab=leave',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/admin/leave-bids',
+        destination: '/dashboard/requests?tab=leave-bids',
+        permanent: true,
+      },
+      // Analytics & Reports: Reports merged into Analytics
+      {
+        source: '/dashboard/reports',
+        destination: '/dashboard/analytics?tab=reports',
+        permanent: true,
+      },
+      // System Admin: Sub-pages merged into Admin
+      {
+        source: '/dashboard/admin/settings',
+        destination: '/dashboard/admin?tab=settings',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/admin/check-types',
+        destination: '/dashboard/admin?tab=check-types',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/admin/pilot-registrations',
+        destination: '/dashboard/admin?tab=registrations',
+        permanent: true,
+      },
+      // Help & Feedback: FAQs and Feedback merged into Help
+      {
+        source: '/dashboard/faqs',
+        destination: '/dashboard/help?tab=faqs',
+        permanent: true,
+      },
+      {
+        source: '/dashboard/feedback',
+        destination: '/dashboard/help?tab=feedback',
+        permanent: true,
+      },
     ]
   },
 

@@ -83,3 +83,12 @@ public/workbox-*.js.map
 public/swe-worker-*.js
 public/swe-worker-*.js.map
 firebase-debug.log
+
+# Build/test logs
+*.log
+
+# Playwright MCP screenshots
+.playwright-mcp/
+
+# Serena tool config
+.serena/

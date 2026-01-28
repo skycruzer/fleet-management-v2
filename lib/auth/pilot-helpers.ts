@@ -10,6 +10,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { NextRequest } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
+import { validateRedisSession } from '@/lib/services/redis-session-service'
 
 /**
  * Pilot user type returned by helper functions
@@ -53,35 +54,29 @@ export async function getCurrentPilot(): Promise<PilotUser | null> {
   try {
     const supabase = await createClient()
 
-    // First, check for custom pilot session cookie (bcrypt authentication)
+    // First, check for custom pilot session cookie via Redis
     const cookieStore = await cookies()
     const pilotSessionCookie = cookieStore.get('pilot-session')
 
     if (pilotSessionCookie?.value) {
       try {
-        // Validate token against pilot_sessions table
-        const { data: session, error: sessionError } = await supabase
-          .from('pilot_sessions')
-          .select('id, pilot_user_id, expires_at, is_active')
-          .eq('session_token', pilotSessionCookie.value)
-          .eq('is_active', true)
-          .single()
+        // Validate via Redis (with DB fallback)
+        const sessionResult = await validateRedisSession(
+          'pilot-session',
+          'pilot_sessions',
+          'pilot_user_id'
+        )
 
-        if (!sessionError && session) {
-          const expiresAt = new Date(session.expires_at)
+        if (sessionResult.isValid && sessionResult.data) {
+          // Get pilot user from database
+          const { data: pilotUser, error } = await supabase
+            .from('pilot_users')
+            .select('*')
+            .eq('id', sessionResult.data.userId)
+            .single()
 
-          // Check if session is still valid
-          if (expiresAt > new Date()) {
-            // Get pilot user from database
-            const { data: pilotUser, error } = await supabase
-              .from('pilot_users')
-              .select('*')
-              .eq('id', session.pilot_user_id)
-              .single()
-
-            if (!error && pilotUser && pilotUser.registration_approved === true) {
-              return pilotUser as PilotUser
-            }
+          if (!error && pilotUser && pilotUser.registration_approved === true) {
+            return pilotUser as PilotUser
           }
         }
       } catch (cookieError) {

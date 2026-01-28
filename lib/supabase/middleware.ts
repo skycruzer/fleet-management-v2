@@ -98,12 +98,13 @@ export async function updateSession(request: NextRequest) {
   // ============================================================================
 
   // Admin/Manager Dashboard Protection
-  // Check both Supabase Auth AND custom admin session cookie
+  // Check Supabase Auth, unified fleet-session, AND legacy admin-session cookie
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    const fleetSessionCookie = request.cookies.get('fleet-session')
     const adminSessionCookie = request.cookies.get('admin-session')
 
-    // If no Supabase user AND no admin session cookie, redirect to login
-    if (!user && !adminSessionCookie) {
+    // If no Supabase user AND no fleet-session AND no admin session cookie, redirect to login
+    if (!user && !fleetSessionCookie && !adminSessionCookie) {
       const url = request.nextUrl.clone()
       url.pathname = '/auth/login'
       return NextResponse.redirect(url)
@@ -119,10 +120,11 @@ export async function updateSession(request: NextRequest) {
   ) {
     // Check for custom pilot session cookie (bcrypt-authenticated pilots)
     // Note: Full validation happens in protected routes via validatePilotSession()
+    const fleetSessionCookieForPortal = request.cookies.get('fleet-session')
     const pilotSessionCookie = request.cookies.get('pilot-session')
 
-    // If no Supabase user AND no pilot session cookie, redirect to login
-    if (!user && !pilotSessionCookie) {
+    // If no Supabase user AND no fleet-session AND no pilot session cookie, redirect to login
+    if (!user && !fleetSessionCookieForPortal && !pilotSessionCookie) {
       const url = request.nextUrl.clone()
       url.pathname = '/portal/login'
       return NextResponse.redirect(url)

@@ -1,16 +1,16 @@
 /**
  * Custom Session Management for Pilot Portal
+ * Developer: Maurice Rondeau
  *
  * Handles session creation and validation for bcrypt-authenticated pilots.
+ * Now delegates to redis-session-service for Redis-backed sessions.
  * Uses HTTP-only cookies for secure session storage.
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
-import { randomBytes } from 'crypto'
+import { validateRedisSession, type RedisSessionData } from '@/lib/services/redis-session-service'
 
 const SESSION_COOKIE_NAME = 'pilot_session_token'
-const SESSION_DURATION_DAYS = 7
 
 export interface PilotSession {
   id: string
@@ -22,91 +22,78 @@ export interface PilotSession {
 /**
  * Create a new pilot session
  *
- * @param pilotId - Pilot user ID
- * @param pilotEmail - Pilot email
- * @param response - NextResponse object to set cookie on (for API routes)
+ * Note: This legacy function is kept for backward compatibility.
+ * New code should use createPilotSession from session-service.ts instead.
  */
 export async function createPilotSession(
   pilotId: string,
-  pilotEmail: string,
-  response?: any
+  _pilotEmail: string,
+  _response?: any
 ): Promise<string> {
-  // Generate secure session token
-  const sessionToken = randomBytes(32).toString('hex')
+  // Import dynamically to avoid circular dependency
+  const { createPilotSession: createSession } = await import('@/lib/services/session-service')
 
-  // Calculate expiration (7 days from now)
-  const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + SESSION_DURATION_DAYS)
+  const result = await createSession(pilotId, {})
 
-  const sessionData = JSON.stringify({
-    token: sessionToken,
-    pilot_id: pilotId,
-    pilot_email: pilotEmail,
-    expires_at: expiresAt.toISOString(),
-  })
-
-  // Set HTTP-only cookie
-  if (response) {
-    // API route - set cookie on response object
-    response.cookies.set({
-      name: SESSION_COOKIE_NAME,
-      value: sessionData,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      expires: expiresAt,
-      path: '/',
-    })
-  } else {
-    // Server Component - use cookies() from next/headers
-    const cookieStore = await cookies()
-    cookieStore.set({
-      name: SESSION_COOKIE_NAME,
-      value: sessionData,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      expires: expiresAt,
-      path: '/',
-    })
+  if (!result.success || !result.sessionToken) {
+    throw new Error('Failed to create pilot session')
   }
 
-  return sessionToken
+  return result.sessionToken
 }
 
 /**
  * Get current pilot session from cookie
+ * Now uses Redis validation with DB fallback
  */
 export async function getPilotSession(): Promise<PilotSession | null> {
   try {
+    // Try the newer pilot-session cookie first (from session-service)
     const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)
+    const pilotSessionCookie = cookieStore.get('pilot-session')
 
-    if (!sessionCookie) {
-      return null
+    if (pilotSessionCookie?.value) {
+      const result = await validateRedisSession('pilot-session', 'pilot_sessions', 'pilot_user_id')
+
+      if (result.isValid && result.data) {
+        return mapRedisDataToPilotSession(result.data)
+      }
     }
 
-    const sessionData = JSON.parse(sessionCookie.value)
+    // Fall back to legacy pilot_session_token cookie (JSON-based)
+    const legacyCookie = cookieStore.get(SESSION_COOKIE_NAME)
+    if (legacyCookie?.value) {
+      return parseLegacyCookie(legacyCookie.value)
+    }
 
-    // Check if session is expired
+    return null
+  } catch (error) {
+    console.error('Error getting pilot session:', error)
+    return null
+  }
+}
+
+/**
+ * Map RedisSessionData to the legacy PilotSession interface
+ */
+function mapRedisDataToPilotSession(data: RedisSessionData): PilotSession {
+  return {
+    id: data.sessionId,
+    pilot_id: data.userId,
+    pilot_email: data.email || '',
+    expires_at: data.expiresAt,
+  }
+}
+
+/**
+ * Parse legacy JSON cookie (backward compatibility)
+ */
+function parseLegacyCookie(cookieValue: string): PilotSession | null {
+  try {
+    const sessionData = JSON.parse(cookieValue)
     const expiresAt = new Date(sessionData.expires_at)
+
     if (expiresAt < new Date()) {
-      // Session expired - clear it
-      await clearPilotSession()
-      return null
-    }
-
-    // Verify pilot still exists and is approved
-    const supabase = await createClient()
-    const { data: pilot } = await supabase
-      .from('pilot_users')
-      .select('id, email, registration_approved')
-      .eq('id', sessionData.pilot_id)
-      .single()
-
-    if (!pilot || pilot.registration_approved !== true) {
-      // Pilot not found or not approved - clear session
-      await clearPilotSession()
       return null
     }
 
@@ -116,8 +103,7 @@ export async function getPilotSession(): Promise<PilotSession | null> {
       pilot_email: sessionData.pilot_email,
       expires_at: sessionData.expires_at,
     }
-  } catch (error) {
-    console.error('Error getting pilot session:', error)
+  } catch {
     return null
   }
 }
@@ -128,6 +114,7 @@ export async function getPilotSession(): Promise<PilotSession | null> {
 export async function clearPilotSession(): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.delete(SESSION_COOKIE_NAME)
+  cookieStore.delete('pilot-session')
 }
 
 /**
@@ -140,8 +127,6 @@ export function validateSessionFromCookie(cookieValue: string | undefined): Pilo
 
   try {
     const sessionData = JSON.parse(cookieValue)
-
-    // Check if session is expired
     const expiresAt = new Date(sessionData.expires_at)
     if (expiresAt < new Date()) {
       return null
@@ -153,7 +138,7 @@ export function validateSessionFromCookie(cookieValue: string | undefined): Pilo
       pilot_email: sessionData.pilot_email,
       expires_at: sessionData.expires_at,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }

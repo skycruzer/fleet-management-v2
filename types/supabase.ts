@@ -2120,6 +2120,7 @@ export type Database = {
           id: string
           last_login_at: string | null
           last_name: string
+          must_change_password: boolean | null
           password_hash: string | null
           phone_number: string | null
           pilot_id: string | null
@@ -2144,6 +2145,7 @@ export type Database = {
           id?: string
           last_login_at?: string | null
           last_name: string
+          must_change_password?: boolean | null
           password_hash?: string | null
           phone_number?: string | null
           pilot_id?: string | null
@@ -2168,6 +2170,7 @@ export type Database = {
           id?: string
           last_login_at?: string | null
           last_name?: string
+          must_change_password?: boolean | null
           password_hash?: string | null
           phone_number?: string | null
           pilot_id?: string | null
