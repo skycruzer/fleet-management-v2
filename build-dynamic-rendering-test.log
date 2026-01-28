@@ -1,7 +1,0 @@
-
-> fleet-management-v2@0.1.0 build
-> next build
-
-
-> Build error occurred
-[Error: The experimental feature "experimental.dynamicIO" can only be enabled when using the latest canary version of Next.js.]
