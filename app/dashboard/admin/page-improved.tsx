@@ -3,8 +3,6 @@
  * Enhanced Tailwind CSS styling with better spacing, typography, and responsive design
  */
 
-export const dynamic = 'force-dynamic'
-
 import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -65,8 +63,8 @@ export default async function AdminPage() {
                 Operational
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-green-100 transition-all group-hover:scale-105 group-hover:bg-green-200 sm:size-12 lg:size-14 dark:bg-green-900/30 dark:group-hover:bg-green-900/50">
-              <CheckCircle2 className="size-5 text-green-600 sm:size-6 lg:size-7 dark:text-green-400" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 transition-all group-hover:scale-105 group-hover:bg-emerald-500/20 sm:size-12 lg:size-14">
+              <CheckCircle2 className="size-5 text-emerald-400 sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
@@ -84,8 +82,8 @@ export default async function AdminPage() {
                 {stats.totalAdmins + stats.totalManagers} staff, {stats.totalPilots} pilots
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-100 transition-all group-hover:scale-105 group-hover:bg-blue-200 sm:size-12 lg:size-14 dark:bg-blue-900/30 dark:group-hover:bg-blue-900/50">
-              <Users className="size-5 text-blue-600 sm:size-6 lg:size-7 dark:text-blue-400" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-500/10 transition-all group-hover:scale-105 group-hover:bg-blue-500/20 sm:size-12 lg:size-14">
+              <Users className="size-5 text-blue-400 sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
@@ -103,8 +101,8 @@ export default async function AdminPage() {
                 certification types
               </p>
             </div>
-            <div className="bg-primary/10 group-hover:bg-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full transition-all group-hover:scale-105 sm:size-12 lg:size-14 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50">
-              <FileText className="text-primary dark:text-primary size-5 sm:size-6 lg:size-7" />
+            <div className="bg-primary/10 group-hover:bg-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full transition-all group-hover:scale-105 sm:size-12 lg:size-14">
+              <FileText className="text-primary size-5 sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
@@ -122,8 +120,8 @@ export default async function AdminPage() {
                 total records
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-orange-100 transition-all group-hover:scale-105 group-hover:bg-orange-200 sm:size-12 lg:size-14 dark:bg-orange-900/30 dark:group-hover:bg-orange-900/50">
-              <Database className="size-5 text-orange-600 sm:size-6 lg:size-7 dark:text-orange-400" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-orange-500/10 transition-all group-hover:scale-105 group-hover:bg-orange-500/20 sm:size-12 lg:size-14">
+              <Database className="size-5 text-orange-400 sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
@@ -140,8 +138,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-100 transition-all group-hover:scale-105 group-hover:bg-blue-200 sm:size-11 lg:size-12 dark:bg-blue-900/30 dark:group-hover:bg-blue-900/50">
-                <UserPlus className="size-4 text-blue-600 sm:size-5 dark:text-blue-400" />
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 transition-all group-hover:scale-105 group-hover:bg-blue-500/20 sm:size-11 lg:size-12">
+                <UserPlus className="size-4 text-blue-400 sm:size-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">Add New User</p>
@@ -157,8 +155,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="bg-primary/10 group-hover:bg-primary/20 flex size-10 shrink-0 items-center justify-center rounded-lg transition-all group-hover:scale-105 sm:size-11 lg:size-12 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50">
-                <List className="text-primary dark:text-primary size-4 sm:size-5" />
+              <div className="bg-primary/10 group-hover:bg-primary/20 flex size-10 shrink-0 items-center justify-center rounded-lg transition-all group-hover:scale-105 sm:size-11 lg:size-12">
+                <List className="text-primary size-4 sm:size-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">Manage Check Types</p>
@@ -174,8 +172,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-green-100 transition-all group-hover:scale-105 group-hover:bg-green-200 sm:size-11 lg:size-12 dark:bg-green-900/30 dark:group-hover:bg-green-900/50">
-                <Settings className="size-4 text-green-600 sm:size-5 dark:text-green-400" />
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 transition-all group-hover:scale-105 group-hover:bg-emerald-500/20 sm:size-11 lg:size-12">
+                <Settings className="size-4 text-emerald-400 sm:size-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">System Settings</p>

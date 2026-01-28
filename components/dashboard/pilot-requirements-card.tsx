@@ -193,10 +193,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               captainsStatus === 'success'
-                ? 'border-success-200 from-success-50 dark:border-success-800 dark:from-success-950/50 bg-gradient-to-br to-emerald-50 dark:to-emerald-950/50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
                 : captainsStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 dark:border-warning-800 dark:from-warning-950/50 bg-gradient-to-br to-orange-50 dark:to-orange-950/50'
-                  : 'border-danger-200 from-danger-50 dark:border-danger-800 dark:from-danger-950/50 bg-gradient-to-br to-red-50 dark:to-red-950/50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
             }`}
             role="region"
             aria-label={`Captains staffing: ${counts.totalCaptains} of ${requiredCaptains}, ${getStatusLabel(captainsPercentage)}`}
@@ -218,23 +218,17 @@ export async function PilotRequirementsCard() {
               </div>
               <div className="flex items-center gap-1">
                 {counts.totalCaptains >= requiredCaptains ? (
-                  <TrendingUp
-                    className="text-success-600 dark:text-success-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <TrendingDown
-                    className="text-danger-600 dark:text-danger-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
                 )}
                 <span
                   className={`text-xs font-bold ${
                     captainsStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : captainsStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {captainsPercentage}%
@@ -249,10 +243,10 @@ export async function PilotRequirementsCard() {
                 <p
                   className={`text-3xl font-black ${
                     captainsStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : captainsStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {counts.totalCaptains}
@@ -273,10 +267,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               firstOfficersStatus === 'success'
-                ? 'border-success-200 from-success-50 dark:border-success-800 dark:from-success-950/50 bg-gradient-to-br to-emerald-50 dark:to-emerald-950/50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
                 : firstOfficersStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 dark:border-warning-800 dark:from-warning-950/50 bg-gradient-to-br to-orange-50 dark:to-orange-950/50'
-                  : 'border-danger-200 from-danger-50 dark:border-danger-800 dark:from-danger-950/50 bg-gradient-to-br to-red-50 dark:to-red-950/50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
             }`}
             role="region"
             aria-label={`First Officers staffing: ${counts.totalFirstOfficers} of ${requiredFirstOfficers}, ${getStatusLabel(firstOfficersPercentage)}`}
@@ -298,23 +292,17 @@ export async function PilotRequirementsCard() {
               </div>
               <div className="flex items-center gap-1">
                 {counts.totalFirstOfficers >= requiredFirstOfficers ? (
-                  <TrendingUp
-                    className="text-success-600 dark:text-success-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <TrendingDown
-                    className="text-danger-600 dark:text-danger-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
                 )}
                 <span
                   className={`text-xs font-bold ${
                     firstOfficersStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : firstOfficersStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {firstOfficersPercentage}%
@@ -329,10 +317,10 @@ export async function PilotRequirementsCard() {
                 <p
                   className={`text-3xl font-black ${
                     firstOfficersStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : firstOfficersStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {counts.totalFirstOfficers}
@@ -353,10 +341,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               examinersStatus === 'success'
-                ? 'border-success-200 from-success-50 dark:border-success-800 dark:from-success-950/50 bg-gradient-to-br to-emerald-50 dark:to-emerald-950/50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
                 : examinersStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 dark:border-warning-800 dark:from-warning-950/50 bg-gradient-to-br to-orange-50 dark:to-orange-950/50'
-                  : 'border-danger-200 from-danger-50 dark:border-danger-800 dark:from-danger-950/50 bg-gradient-to-br to-red-50 dark:to-red-950/50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
             }`}
             role="region"
             aria-label={`Examiners staffing: ${counts.totalExaminers} of ${requiredExaminers}, ${getStatusLabel(examinersPercentage)}`}
@@ -378,23 +366,17 @@ export async function PilotRequirementsCard() {
               </div>
               <div className="flex items-center gap-1">
                 {counts.totalExaminers >= requiredExaminers ? (
-                  <TrendingUp
-                    className="text-success-600 dark:text-success-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <TrendingDown
-                    className="text-danger-600 dark:text-danger-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
                 )}
                 <span
                   className={`text-xs font-bold ${
                     examinersStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : examinersStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {examinersPercentage}%
@@ -409,10 +391,10 @@ export async function PilotRequirementsCard() {
                 <p
                   className={`text-3xl font-black ${
                     examinersStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : examinersStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {counts.totalExaminers}
@@ -431,10 +413,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               trainingCaptainsStatus === 'success'
-                ? 'border-success-200 from-success-50 dark:border-success-800 dark:from-success-950/50 bg-gradient-to-br to-emerald-50 dark:to-emerald-950/50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
                 : trainingCaptainsStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 dark:border-warning-800 dark:from-warning-950/50 bg-gradient-to-br to-orange-50 dark:to-orange-950/50'
-                  : 'border-danger-200 from-danger-50 dark:border-danger-800 dark:from-danger-950/50 bg-gradient-to-br to-red-50 dark:to-red-950/50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
             }`}
             role="region"
             aria-label={`Training Captains staffing: ${counts.totalTrainingCaptains} of ${requiredTrainingCaptains}, ${getStatusLabel(trainingCaptainsPercentage)}`}
@@ -456,23 +438,17 @@ export async function PilotRequirementsCard() {
               </div>
               <div className="flex items-center gap-1">
                 {counts.totalTrainingCaptains >= requiredTrainingCaptains ? (
-                  <TrendingUp
-                    className="text-success-600 dark:text-success-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingUp className="text-success-600 h-4 w-4" aria-hidden="true" />
                 ) : (
-                  <TrendingDown
-                    className="text-danger-600 dark:text-danger-400 h-4 w-4"
-                    aria-hidden="true"
-                  />
+                  <TrendingDown className="text-danger-600 h-4 w-4" aria-hidden="true" />
                 )}
                 <span
                   className={`text-xs font-bold ${
                     trainingCaptainsStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : trainingCaptainsStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {trainingCaptainsPercentage}%
@@ -487,10 +463,10 @@ export async function PilotRequirementsCard() {
                 <p
                   className={`text-3xl font-black ${
                     trainingCaptainsStatus === 'success'
-                      ? 'text-success-700 dark:text-success-400'
+                      ? 'text-success-700'
                       : trainingCaptainsStatus === 'warning'
-                        ? 'text-warning-700 dark:text-warning-400'
-                        : 'text-danger-700 dark:text-danger-400'
+                        ? 'text-warning-700'
+                        : 'text-danger-700'
                   }`}
                 >
                   {counts.totalTrainingCaptains}

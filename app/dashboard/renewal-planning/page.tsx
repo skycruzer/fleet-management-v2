@@ -16,8 +16,6 @@ import { RenewalPlanningSkeleton } from '@/components/skeletons'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
 
-export const dynamic = 'force-dynamic'
-
 async function getRosterPeriodSummariesForYear(year: number) {
   const supabase = createServiceRoleClient()
 

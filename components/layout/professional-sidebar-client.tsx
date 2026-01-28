@@ -9,7 +9,6 @@ import {
   Users,
   FileCheck,
   LogOut,
-  ChevronRight,
   ChevronDown,
   Plane,
   BarChart3,
@@ -19,16 +18,7 @@ import {
   ScrollText,
   UserCircle,
   RefreshCw,
-  CalendarCheck,
-  UserCheck,
   HelpCircle,
-  MessageSquare,
-  CalendarClock,
-  CheckCircle,
-  Settings,
-  FileType,
-  ClockAlert,
-  FileText,
   ClipboardList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -65,62 +55,31 @@ const navigationSections: NavSection[] = [
         title: 'Certifications',
         href: '/dashboard/certifications',
         icon: FileCheck,
-        badge: '12',
-        badgeVariant: 'warning',
-      },
-      {
-        title: 'Expiring Certs',
-        href: '/dashboard/certifications/expiring',
-        icon: ClockAlert,
-        badge: '12',
-        badgeVariant: 'danger',
       },
     ],
   },
   {
-    title: 'Requests',
+    title: 'Operations',
     items: [
       {
-        title: 'Pilot Requests',
+        title: 'Requests',
         href: '/dashboard/requests',
         icon: ClipboardList,
-        badge: 'NEW',
-        badgeVariant: 'default',
       },
-      {
-        title: 'Leave Approve',
-        href: '/dashboard/leave/approve',
-        icon: CheckCircle,
-      },
-      {
-        title: 'Leave Calendar',
-        href: '/dashboard/leave/calendar',
-        icon: CalendarClock,
-      },
-      {
-        title: 'Leave Bid Review',
-        href: '/dashboard/admin/leave-bids',
-        icon: CalendarCheck,
-      },
-    ],
-  },
-  {
-    title: 'Planning & Reports',
-    items: [
       {
         title: 'Renewal Planning',
         href: '/dashboard/renewal-planning',
         icon: RefreshCw,
       },
+    ],
+  },
+  {
+    title: 'Insights',
+    items: [
       {
-        title: 'Analytics',
+        title: 'Analytics & Reports',
         href: '/dashboard/analytics',
         icon: BarChart3,
-      },
-      {
-        title: 'Reports',
-        href: '/dashboard/reports',
-        icon: FileText,
       },
     ],
   },
@@ -128,24 +87,9 @@ const navigationSections: NavSection[] = [
     title: 'Administration',
     items: [
       {
-        title: 'Admin Dashboard',
+        title: 'System Admin',
         href: '/dashboard/admin',
         icon: Shield,
-      },
-      {
-        title: 'Admin Settings',
-        href: '/dashboard/admin/settings',
-        icon: Settings,
-      },
-      {
-        title: 'Check Types',
-        href: '/dashboard/admin/check-types',
-        icon: FileType,
-      },
-      {
-        title: 'Pilot Registrations',
-        href: '/dashboard/admin/pilot-registrations',
-        icon: UserCheck,
       },
       {
         title: 'Tasks',
@@ -163,14 +107,9 @@ const navigationSections: NavSection[] = [
         icon: ScrollText,
       },
       {
-        title: 'FAQs',
-        href: '/dashboard/faqs',
+        title: 'Help & Feedback',
+        href: '/dashboard/help',
         icon: HelpCircle,
-      },
-      {
-        title: 'Feedback',
-        href: '/dashboard/feedback',
-        icon: MessageSquare,
       },
     ],
   },
@@ -257,11 +196,11 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       initial={{ x: -240 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="border-border/40 bg-background fixed top-0 left-0 z-[var(--z-sidebar)] h-screen w-60 border-r"
+      className="fixed top-0 left-0 z-[var(--z-sidebar)] h-screen w-60 border-r border-white/[0.06] bg-[#0d1117]"
       style={{ willChange: 'transform' }}
     >
       {/* Logo Header */}
-      <div className="border-border/40 flex h-12 items-center gap-2 border-b px-4">
+      <div className="flex h-12 items-center gap-2 border-b border-white/[0.06] px-4">
         <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
           <Plane className="h-3.5 w-3.5 text-white" />
         </div>
@@ -288,12 +227,12 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                 {/* Section Header - Clickable to toggle */}
                 <button
                   onClick={() => toggleSection(section.title)}
-                  className="hover:bg-muted/40 focus:ring-ring/20 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors focus:ring-1 focus:outline-none"
+                  className="focus:ring-primary/20 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors hover:bg-white/[0.04] focus:ring-1 focus:outline-none"
                   aria-expanded={!isCollapsed}
                   aria-controls={sectionId}
                   aria-label={`${section.title} navigation section, ${isCollapsed ? 'expand' : 'collapse'}`}
                 >
-                  <h3 className="text-muted-foreground/70 text-[10px] font-medium tracking-widest uppercase">
+                  <h3 className="text-[10px] font-medium tracking-widest text-white/30 uppercase">
                     {section.title}
                   </h3>
                   <motion.div
@@ -302,7 +241,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                     aria-hidden="true"
                     style={{ willChange: 'transform' }}
                   >
-                    <ChevronDown className="text-muted-foreground/50 h-3 w-3" />
+                    <ChevronDown className="h-3 w-3 text-white/30" />
                   </motion.div>
                 </button>
 
@@ -330,16 +269,16 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                               className={cn(
                                 'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
                                 active
-                                  ? 'bg-muted text-foreground'
-                                  : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                                  ? 'bg-primary/15 text-primary border-primary border-l-2'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
                               )}
                             >
                               <Icon
                                 className={cn(
                                   'h-4 w-4 flex-shrink-0 transition-colors',
                                   active
-                                    ? 'text-foreground'
-                                    : 'text-muted-foreground/70 group-hover:text-muted-foreground'
+                                    ? 'text-primary'
+                                    : 'text-muted-foreground/70 group-hover:text-foreground'
                                 )}
                                 aria-hidden="true"
                               />
@@ -380,7 +319,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           })}
 
           {/* Settings (standalone) */}
-          <div className="border-border/40 mt-1 border-t pt-2">
+          <div className="mt-1 border-t border-white/[0.06] pt-2">
             {(() => {
               const Icon = settingsItem.icon
               const active = isActive(settingsItem.href)
@@ -391,16 +330,16 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                     className={cn(
                       'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
                       active
-                        ? 'bg-muted text-foreground'
-                        : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-accent/5 hover:text-foreground'
                     )}
                   >
                     <Icon
                       className={cn(
                         'h-4 w-4 flex-shrink-0 transition-colors',
                         active
-                          ? 'text-foreground'
-                          : 'text-muted-foreground/70 group-hover:text-muted-foreground'
+                          ? 'text-primary'
+                          : 'text-muted-foreground/70 group-hover:text-foreground'
                       )}
                     />
 
@@ -414,11 +353,11 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       </nav>
 
       {/* Bottom Section - Minimal */}
-      <div className="border-border/40 border-t p-2">
+      <div className="border-t border-white/[0.06] p-2">
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="text-muted-foreground hover:bg-muted/50 hover:text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors"
+          className="text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors hover:bg-red-500/10 hover:text-red-400"
         >
           <LogOut className="h-4 w-4 flex-shrink-0" />
           <span>Logout</span>

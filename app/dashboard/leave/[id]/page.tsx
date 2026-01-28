@@ -6,8 +6,6 @@
  * @since 2025-10-25
  */
 
-export const dynamic = 'force-dynamic'
-
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { getPilotRequestById, type PilotRequest } from '@/lib/services/unified-request-service'
@@ -44,19 +42,19 @@ export default async function LeaveRequestPage({ params }: LeaveRequestPageProps
   const statusConfig = {
     PENDING: {
       variant: 'secondary' as const,
-      className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      className: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     },
     APPROVED: {
       variant: 'default' as const,
-      className: 'bg-green-100 text-green-800 border-green-300',
+      className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     },
     DENIED: {
       variant: 'destructive' as const,
-      className: 'bg-red-100 text-red-800 border-red-300',
+      className: 'bg-red-500/10 text-red-400 border-red-500/20',
     },
     CANCELLED: {
       variant: 'secondary' as const,
-      className: 'bg-gray-100 text-gray-800 border-gray-300',
+      className: 'bg-white/[0.08] text-muted-foreground border-white/[0.1]',
     },
   }
 

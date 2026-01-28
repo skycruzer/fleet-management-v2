@@ -4,8 +4,6 @@ import { getMatters, getMatterStats } from '@/lib/services/disciplinary-service'
 import Link from 'next/link'
 import { DisciplinaryFilters } from './components/disciplinary-filters'
 // Force dynamic rendering to prevent static generation at build time
-export const dynamic = 'force-dynamic'
-
 /**
  * Disciplinary Matters Dashboard (Admin)
  *
@@ -54,10 +52,8 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   if (!mattersResult.success) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-50 p-6 dark:bg-red-900/20">
-          <p className="text-red-800 dark:text-red-200">
-            Failed to load disciplinary matters: {mattersResult.error}
-          </p>
+        <div className="rounded-lg bg-red-500/10 p-6">
+          <p className="text-red-400">Failed to load disciplinary matters: {mattersResult.error}</p>
         </div>
       </div>
     )
@@ -66,10 +62,8 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   if (!statsResult.success) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-50 p-6 dark:bg-red-900/20">
-          <p className="text-red-800 dark:text-red-200">
-            Failed to load statistics: {statsResult.error}
-          </p>
+        <div className="rounded-lg bg-red-500/10 p-6">
+          <p className="text-red-400">Failed to load statistics: {statsResult.error}</p>
         </div>
       </div>
     )
@@ -83,15 +77,15 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   const getSeverityBadgeColor = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-red-500/10 text-red-400'
       case 'SERIOUS':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+        return 'bg-orange-500/10 text-orange-400'
       case 'MODERATE':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+        return 'bg-amber-500/10 text-amber-400'
       case 'MINOR':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-blue-500/10 text-blue-400'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-white/[0.03] text-foreground'
     }
   }
 
@@ -99,15 +93,15 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
     switch (status) {
       case 'RESOLVED':
       case 'CLOSED':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-emerald-500/10 text-emerald-400'
       case 'UNDER_INVESTIGATION':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+        return 'bg-amber-500/10 text-amber-400'
       case 'ACTION_TAKEN':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-blue-500/10 text-blue-400'
       case 'APPEALED':
-        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
+        return 'bg-primary/10 text-primary-foreground'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-white/[0.03] text-foreground'
     }
   }
 
@@ -116,14 +110,14 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       {/* Page Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Disciplinary Matters</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <h1 className="text-foreground text-3xl font-bold">Disciplinary Matters</h1>
+          <p className="text-muted-foreground mt-2">
             Track and manage disciplinary matters and actions
           </p>
         </div>
         <Link
           href="/dashboard/disciplinary/new"
-          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -134,83 +128,59 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
 
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Matters</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-            {stats.totalMatters}
-          </p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Total Matters</p>
+          <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalMatters}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Open Cases</p>
-          <p className="mt-2 text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-            {stats.openMatters}
-          </p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Open Cases</p>
+          <p className="mt-2 text-3xl font-bold text-yellow-600">{stats.openMatters}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Under Investigation
-          </p>
-          <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">
-            {stats.underInvestigation}
-          </p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Under Investigation</p>
+          <p className="mt-2 text-3xl font-bold text-blue-600">{stats.underInvestigation}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Overdue</p>
-          <p className="mt-2 text-3xl font-bold text-red-600 dark:text-red-400">
-            {stats.overdueMatters}
-          </p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Overdue</p>
+          <p className="mt-2 text-3xl font-bold text-red-600">{stats.overdueMatters}</p>
         </div>
       </div>
 
       {/* Secondary Stats */}
-      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-          Matter Breakdown
-        </h2>
+      <div className="bg-card mb-8 rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <h2 className="text-foreground mb-4 text-lg font-semibold">Matter Breakdown</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* By Severity */}
           <div>
-            <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-              By Severity
-            </h3>
+            <h3 className="text-foreground/80 mb-3 text-sm font-medium">By Severity</h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Critical</span>
-                <span className="font-semibold text-red-600 dark:text-red-400">
-                  {stats.bySeverity.critical}
-                </span>
+                <span className="text-muted-foreground text-sm">Critical</span>
+                <span className="font-semibold text-red-600">{stats.bySeverity.critical}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Serious</span>
-                <span className="font-semibold text-orange-600 dark:text-orange-400">
-                  {stats.bySeverity.serious}
-                </span>
+                <span className="text-muted-foreground text-sm">Serious</span>
+                <span className="font-semibold text-orange-600">{stats.bySeverity.serious}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Moderate</span>
-                <span className="font-semibold text-yellow-600 dark:text-yellow-400">
-                  {stats.bySeverity.moderate}
-                </span>
+                <span className="text-muted-foreground text-sm">Moderate</span>
+                <span className="font-semibold text-yellow-600">{stats.bySeverity.moderate}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Minor</span>
-                <span className="font-semibold text-blue-600 dark:text-blue-400">
-                  {stats.bySeverity.minor}
-                </span>
+                <span className="text-muted-foreground text-sm">Minor</span>
+                <span className="font-semibold text-blue-600">{stats.bySeverity.minor}</span>
               </div>
             </div>
           </div>
 
           {/* By Status */}
           <div>
-            <h3 className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">By Status</h3>
+            <h3 className="text-foreground/80 mb-3 text-sm font-medium">By Status</h3>
             <div className="space-y-2">
               {Object.entries(stats.byStatus).map(([status, count]) => (
                 <div key={status} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {status.replace(/_/g, ' ')}
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{count}</span>
+                  <span className="text-muted-foreground text-sm">{status.replace(/_/g, ' ')}</span>
+                  <span className="text-foreground font-semibold">{count}</span>
                 </div>
               ))}
             </div>
@@ -222,53 +192,47 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       <DisciplinaryFilters currentStatus={status} currentSeverity={severity} />
 
       {/* Matters Table */}
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="bg-card overflow-hidden rounded-lg border border-white/[0.08] shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
+          <table className="min-w-full divide-y divide-white/[0.08]">
+            <thead className="bg-white/[0.03]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Title
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Pilot
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Severity
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Incident Date
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+            <tbody className="bg-card divide-y divide-white/[0.08]">
               {matters.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
-                  >
+                  <td colSpan={5} className="text-muted-foreground px-6 py-8 text-center">
                     No disciplinary matters found
                   </td>
                 </tr>
               ) : (
                 matters.map((matter) => (
-                  <tr
-                    key={matter.id}
-                    className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-900/50"
-                  >
+                  <tr key={matter.id} className="transition-colors hover:bg-white/[0.03]">
                     <td className="px-6 py-4">
                       <Link
                         href={`/dashboard/disciplinary/${matter.id}`}
-                        className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                        className="font-medium text-blue-600 hover:text-blue-700"
                       >
                         {matter.title}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                    <td className="text-foreground px-6 py-4 text-sm">
                       {matter.pilot
                         ? `${matter.pilot.role} ${matter.pilot.first_name} ${matter.pilot.last_name}`
                         : 'Unknown'}
@@ -287,7 +251,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                         {matter.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    <td className="text-muted-foreground px-6 py-4 text-sm">
                       {new Date(matter.incident_date).toLocaleDateString()}
                     </td>
                   </tr>
@@ -299,24 +263,24 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 dark:border-gray-700 dark:bg-gray-800">
+          <div className="bg-card flex items-center justify-between border-t border-white/[0.08] px-4 py-3 sm:px-6">
             <div className="flex flex-1 justify-between sm:hidden">
               <Link
                 href={`?page=${page - 1}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
-                className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${page === 1 ? 'pointer-events-none opacity-50' : ''}`}
+                className={`bg-card text-foreground/80 relative inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${page === 1 ? 'pointer-events-none opacity-50' : ''}`}
               >
                 Previous
               </Link>
               <Link
                 href={`?page=${page + 1}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
-                className={`relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${page === totalPages ? 'pointer-events-none opacity-50' : ''}`}
+                className={`bg-card text-foreground/80 relative ml-3 inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${page === totalPages ? 'pointer-events-none opacity-50' : ''}`}
               >
                 Next
               </Link>
             </div>
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+                <p className="text-foreground/80 text-sm">
                   Showing <span className="font-medium">{(page - 1) * pageSize + 1}</span> to{' '}
                   <span className="font-medium">{Math.min(page * pageSize, totalCount)}</span> of{' '}
                   <span className="font-medium">{totalCount}</span> results
@@ -334,7 +298,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                       className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                         pageNum === page
                           ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-                          : 'text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:outline-offset-0 dark:text-white dark:ring-gray-700 dark:hover:bg-gray-900'
+                          : 'text-foreground ring-1 ring-white/[0.1] ring-inset hover:bg-white/[0.03] focus:outline-offset-0'
                       }`}
                     >
                       {pageNum}

@@ -21,8 +21,6 @@ import {
 } from '@/lib/utils/certification-expiry-groups'
 import { AlertCircle, AlertTriangle, Plus, CheckCircle } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
-
 export default async function CertificationsPage() {
   // Data fetching with error handling
   let expiryGroups: ReturnType<typeof groupCertificationsByExpiry> | null = null
@@ -62,11 +60,8 @@ export default async function CertificationsPage() {
           </div>
         </div>
 
-        <Card className="border-destructive/20 bg-red-50 p-8 text-center dark:bg-red-950">
-          <AlertCircle
-            className="mx-auto h-12 w-12 text-red-600 dark:text-red-400"
-            aria-hidden="true"
-          />
+        <Card className="border-destructive/20 bg-red-500/10 p-8 text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-red-400" aria-hidden="true" />
           <h3 className="text-foreground mt-4 text-lg font-semibold">
             Failed to Load Certifications
           </h3>
@@ -117,9 +112,9 @@ export default async function CertificationsPage() {
         </Card>
 
         {/* Expired */}
-        <Card className="border-destructive/20 bg-red-50 p-6 dark:bg-red-950">
+        <Card className="border-destructive/20 bg-red-500/10 p-6">
           <div className="flex items-center space-x-3">
-            <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" aria-hidden="true" />
+            <AlertCircle className="h-8 w-8 text-red-400" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{expiredCount}</p>
               <p className="text-muted-foreground text-sm font-medium">Expired</p>
@@ -128,12 +123,9 @@ export default async function CertificationsPage() {
         </Card>
 
         {/* Critical (14 Days) */}
-        <Card className="border-orange-200 bg-orange-50 p-6 dark:border-orange-700 dark:bg-orange-950">
+        <Card className="border-orange-500/20 bg-orange-500/10 p-6">
           <div className="flex items-center space-x-3">
-            <AlertTriangle
-              className="h-8 w-8 text-orange-600 dark:text-orange-400"
-              aria-hidden="true"
-            />
+            <AlertTriangle className="h-8 w-8 text-orange-400" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{critical14DaysCount}</p>
               <p className="text-muted-foreground text-sm font-medium">Critical (≤14 Days)</p>
@@ -144,12 +136,9 @@ export default async function CertificationsPage() {
 
       {/* Priority Alert */}
       {mostCritical && (
-        <Card className="border-destructive/20 bg-red-50 p-4 dark:bg-red-950">
+        <Card className="border-destructive/20 bg-red-500/10 p-4">
           <div className="flex items-start space-x-3">
-            <AlertTriangle
-              className="mt-1 h-6 w-6 text-red-600 dark:text-red-400"
-              aria-hidden="true"
-            />
+            <AlertTriangle className="mt-1 h-6 w-6 text-red-400" aria-hidden="true" />
             <div>
               <h3 className="text-foreground font-semibold">Priority Action Required</h3>
               <p className="text-muted-foreground mt-1 text-sm">
@@ -164,11 +153,8 @@ export default async function CertificationsPage() {
 
       {/* No Issues Message */}
       {totalExpiring === 0 && (
-        <Card className="border-green-200 bg-green-50 p-8 text-center dark:border-green-700 dark:bg-green-950">
-          <CheckCircle
-            className="mx-auto h-12 w-12 text-green-600 dark:text-green-400"
-            aria-hidden="true"
-          />
+        <Card className="border-emerald-500/20 bg-emerald-500/10 p-8 text-center">
+          <CheckCircle className="mx-auto h-12 w-12 text-emerald-400" aria-hidden="true" />
           <h3 className="text-foreground mt-4 text-lg font-semibold">All Certifications Current</h3>
           <p className="text-muted-foreground mt-2">
             No certifications are expiring within 90 days or have expired. Excellent compliance!

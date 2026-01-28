@@ -94,10 +94,10 @@ export function SuccessionPipelineTable({
             <h3 className="text-foreground text-lg font-semibold">Succession Pipeline</h3>
           </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800">
-          <AlertCircle className="mx-auto mb-2 h-12 w-12 text-gray-400 dark:text-gray-500" />
-          <p className="text-sm text-gray-600 dark:text-gray-300">No promotion candidates found</p>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-8 text-center">
+          <AlertCircle className="text-muted-foreground mx-auto mb-2 h-12 w-12" />
+          <p className="text-muted-foreground text-sm">No promotion candidates found</p>
+          <p className="text-muted-foreground mt-1 text-xs">
             First Officers will appear here when they meet promotion criteria
           </p>
         </div>

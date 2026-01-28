@@ -29,9 +29,9 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      // Linear-inspired: softer overlay with blur and smooth transition
+      // Dark theme: darker overlay with strong blur
       // Uses z-modal (60) to appear above sidebars (z-40)
-      'bg-background/60 fixed inset-0 z-[var(--z-modal)] backdrop-blur-md',
+      'fixed inset-0 z-[var(--z-modal)] bg-black/60 backdrop-blur-md',
       // Enhanced animation timing for smoother feel
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -67,7 +67,7 @@ const DialogContent = React.forwardRef<
           // Linear-inspired: enhanced shadow, rounded-xl, clean border
           // Uses z-modal (60) to appear above sidebars (z-40)
           'fixed top-[50%] left-[50%] z-[var(--z-modal)] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
-          'border-border bg-background gap-4 border p-6 shadow-2xl',
+          'gap-4 border border-white/[0.08] bg-[#111827] p-6 shadow-2xl',
           'data-[state=open]:animate-in data-[state=closed]:animate-out duration-200',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',

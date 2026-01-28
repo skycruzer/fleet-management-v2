@@ -396,8 +396,8 @@ export default function CertificationsPage() {
           </div>
         </div>
 
-        <Card className="border-destructive/20 bg-red-50 p-8 text-center dark:bg-red-950/50">
-          <AlertCircle className="mx-auto h-12 w-12 text-red-600 dark:text-red-500" />
+        <Card className="border-destructive/20 bg-red-500/10 p-8 text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-red-600" />
           <h3 className="text-foreground mt-4 text-lg font-semibold">
             Failed to Load Certifications
           </h3>
@@ -450,8 +450,8 @@ export default function CertificationsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-500" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
+              <CheckCircle className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.current}</p>
@@ -462,8 +462,8 @@ export default function CertificationsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/20">
-              <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-500" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10">
+              <Clock className="h-5 w-5 text-amber-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.expiring}</p>
@@ -474,8 +474,8 @@ export default function CertificationsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-500" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
+              <AlertCircle className="h-5 w-5 text-red-400" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.expired}</p>
@@ -579,7 +579,7 @@ export default function CertificationsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteClick(cert)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-400 hover:text-red-300"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

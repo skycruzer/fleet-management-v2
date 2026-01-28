@@ -66,7 +66,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
   const renderDiffView = () => {
     if (!hasChanges) {
       return (
-        <div className="rounded-lg bg-gray-50 p-6 text-center dark:bg-gray-700/50">
+        <div className="rounded-lg bg-white/[0.03] p-6 text-center">
           <p className="text-muted-foreground">
             {auditLog.action === 'INSERT'
               ? 'New record created - no previous values'

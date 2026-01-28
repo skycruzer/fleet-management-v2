@@ -108,17 +108,17 @@ function TableView<T>({
   return (
     <div className="border-border overflow-hidden rounded-xl border">
       <table className="w-full">
-        <thead className="bg-muted">
+        <thead className="bg-white/[0.03]">
           <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase',
+                  'text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase tabular-nums',
                   col.width,
                   col.align === 'center' && 'text-center',
                   col.align === 'right' && 'text-right',
-                  col.sortable && 'hover:bg-muted/50 cursor-pointer transition-colors'
+                  col.sortable && 'cursor-pointer transition-colors hover:bg-white/[0.04]'
                 )}
                 onClick={() => col.sortable && onSort(col.key)}
               >
@@ -137,13 +137,13 @@ function TableView<T>({
             {actions && actions.length > 0 && <th className="w-12 px-4 py-3" />}
           </tr>
         </thead>
-        <tbody className="divide-border divide-y">
+        <tbody className="divide-y divide-white/[0.06]">
           {data.map((row) => (
             <tr
               key={keyExtractor(row)}
               className={cn(
-                'bg-background transition-colors',
-                onRowClick && 'hover:bg-muted cursor-pointer'
+                'bg-transparent transition-colors',
+                onRowClick && 'cursor-pointer hover:bg-white/[0.04]'
               )}
               onClick={() => onRowClick?.(row)}
             >
@@ -302,13 +302,13 @@ function CardView<T>({
 // Loading skeleton
 function TableSkeleton({ columns, rows = 5 }: { columns: number; rows?: number }) {
   return (
-    <div className="border-border overflow-hidden rounded-xl border">
-      <div className="animate-pulse">
-        <div className="bg-muted h-12" />
+    <div className="overflow-hidden rounded-xl border border-white/[0.06]">
+      <div className="animate-shimmer">
+        <div className="h-12 bg-white/[0.03]" />
         {Array.from({ length: rows }).map((_, i) => (
-          <div key={i} className="border-border/50 flex h-14 items-center gap-4 border-t px-4">
+          <div key={i} className="flex h-14 items-center gap-4 border-t border-white/[0.06] px-4">
             {Array.from({ length: columns }).map((_, j) => (
-              <div key={j} className="bg-muted-foreground/20 h-4 flex-1 rounded" />
+              <div key={j} className="h-4 flex-1 rounded bg-white/[0.06]" />
             ))}
           </div>
         ))}

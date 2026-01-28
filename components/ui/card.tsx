@@ -1,27 +1,44 @@
 import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
+
+const cardVariants = cva(
+  'rounded-xl border text-card-foreground transition-all duration-200 ease-out',
+  {
+    variants: {
+      variant: {
+        default: 'border-white/[0.06] bg-card shadow-sm',
+        glass: 'border-white/[0.06] bg-[rgba(17,24,39,0.8)] backdrop-blur-xl shadow-sm',
+        elevated:
+          'border-white/[0.08] bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--glow-primary)]',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+)
 
 /**
  * Interactive variant prop for cards that need hover elevation
  */
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CardProps
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {
   /** Add interactive hover effects (shadow elevation, lift) */
   interactive?: boolean
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, interactive = false, ...props }, ref) => (
+  ({ className, variant, interactive = false, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        // Linear/Notion-inspired card: clean border, subtle shadow
-        'border-border bg-card text-card-foreground rounded-xl border',
-        'shadow-sm transition-all duration-200 ease-out',
+        cardVariants({ variant }),
         // Interactive cards get enhanced hover effects
         interactive
-          ? 'hover:border-border/80 cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--shadow-interactive-hover)]'
-          : 'hover:border-border/80',
+          ? 'cursor-pointer hover:-translate-y-0.5 hover:border-white/[0.1] hover:shadow-[var(--shadow-interactive-hover)]'
+          : 'hover:border-white/[0.1]',
         className
       )}
       {...props}

@@ -33,7 +33,7 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('bg-muted/50 border-t font-medium [&>tr]:last:border-b-0', className)}
+    className={cn('border-t bg-white/[0.03] font-medium [&>tr]:last:border-b-0', className)}
     {...props}
   />
 ))
@@ -44,9 +44,9 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
     <tr
       ref={ref}
       className={cn(
-        // Linear-inspired: subtle border, smooth transition, refined hover
-        'border-border/50 border-b transition-all duration-150',
-        'hover:bg-muted/50 data-[state=selected]:bg-muted',
+        // Dark theme: subtle white-alpha borders, smooth transition
+        'border-b border-white/[0.06] transition-all duration-150',
+        'hover:bg-white/[0.04] data-[state=selected]:bg-white/[0.06]',
         className
       )}
       {...props}
@@ -63,9 +63,9 @@ const TableHead = React.forwardRef<
     ref={ref}
     role="columnheader"
     className={cn(
-      // Linear-inspired: uppercase, tracking, subtle background
-      'h-10 px-3 text-left align-middle text-xs font-medium tracking-wider uppercase',
-      'text-muted-foreground bg-muted/30',
+      // Dark theme: uppercase, tracking, subtle background
+      'h-10 px-3 text-left align-middle text-xs font-medium tracking-wider uppercase tabular-nums',
+      'text-muted-foreground bg-white/[0.03]',
       '[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
       className
     )}
@@ -82,7 +82,7 @@ const TableCell = React.forwardRef<
     ref={ref}
     className={cn(
       // Consistent padding with header
-      'px-3 py-3 align-middle text-sm',
+      'px-3 py-3 align-middle text-sm tabular-nums',
       '[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
       className
     )}

@@ -70,21 +70,21 @@ export default function PilotLoginForm() {
         </div>
       )}
 
-      {/* Email Field */}
+      {/* Staff ID Field */}
       <div>
-        <label htmlFor="email" className="text-foreground block text-sm font-medium">
-          Email Address
+        <label htmlFor="staffId" className="text-foreground block text-sm font-medium">
+          Staff ID
         </label>
         <input
-          {...register('email')}
-          type="email"
-          id="email"
-          autoComplete="email"
+          {...register('staffId')}
+          type="text"
+          id="staffId"
+          autoComplete="username"
           className="focus:border-primary focus:ring-primary bg-background text-foreground mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
-          placeholder="pilot@airniugini.com"
+          placeholder="Enter your staff ID"
         />
-        {errors.email && (
-          <p className="mt-1 text-sm text-[var(--color-status-high)]">{errors.email.message}</p>
+        {errors.staffId && (
+          <p className="mt-1 text-sm text-[var(--color-status-high)]">{errors.staffId.message}</p>
         )}
       </div>
 
@@ -112,7 +112,7 @@ export default function PilotLoginForm() {
         disabled={isSubmitting}
         whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
         whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-        className="bg-primary hover:bg-primary/90 focus:ring-primary relative w-full overflow-hidden rounded-md px-4 py-3 text-sm font-medium text-white shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:focus:ring-offset-gray-800"
+        className="bg-primary hover:bg-primary/90 focus:ring-primary relative w-full overflow-hidden rounded-md px-4 py-3 text-sm font-medium text-white shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {/* Animated progress bar */}
         <AnimatePresence>

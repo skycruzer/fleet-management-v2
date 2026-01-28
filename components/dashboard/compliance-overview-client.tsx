@@ -169,9 +169,9 @@ export function ComplianceOverviewClient({
                   transition={{ delay: 0.5, duration: 0.5 }}
                   className={cn(
                     'text-4xl font-bold',
-                    complianceColor === 'success' && 'text-success-600 dark:text-success-400',
-                    complianceColor === 'warning' && 'text-warning-600 dark:text-warning-400',
-                    complianceColor === 'danger' && 'text-danger-600 dark:text-danger-400'
+                    complianceColor === 'success' && 'text-success-600',
+                    complianceColor === 'warning' && 'text-warning-600',
+                    complianceColor === 'danger' && 'text-danger-600'
                   )}
                 >
                   {overallCompliance}%
@@ -185,9 +185,9 @@ export function ComplianceOverviewClient({
           <div
             className={cn(
               'flex items-center justify-center gap-2 rounded-lg p-3',
-              complianceColor === 'success' && 'bg-success-50 dark:bg-success-900/20',
-              complianceColor === 'warning' && 'bg-warning-50 dark:bg-warning-900/20',
-              complianceColor === 'danger' && 'bg-danger-50 dark:bg-danger-900/20'
+              complianceColor === 'success' && 'bg-success-50',
+              complianceColor === 'warning' && 'bg-warning-50',
+              complianceColor === 'danger' && 'bg-danger-50'
             )}
             role="status"
             aria-live="polite"
@@ -195,18 +195,18 @@ export function ComplianceOverviewClient({
             <CheckCircle2
               className={cn(
                 'h-5 w-5',
-                complianceColor === 'success' && 'text-success-600 dark:text-success-400',
-                complianceColor === 'warning' && 'text-warning-600 dark:text-warning-400',
-                complianceColor === 'danger' && 'text-danger-600 dark:text-danger-400'
+                complianceColor === 'success' && 'text-success-600',
+                complianceColor === 'warning' && 'text-warning-600',
+                complianceColor === 'danger' && 'text-danger-600'
               )}
               aria-hidden="true"
             />
             <span
               className={cn(
                 'text-sm font-semibold',
-                complianceColor === 'success' && 'text-success-700 dark:text-success-400',
-                complianceColor === 'warning' && 'text-warning-700 dark:text-warning-400',
-                complianceColor === 'danger' && 'text-danger-700 dark:text-danger-400'
+                complianceColor === 'success' && 'text-success-700',
+                complianceColor === 'warning' && 'text-warning-700',
+                complianceColor === 'danger' && 'text-danger-700'
               )}
             >
               {complianceColor === 'success' && 'Excellent Compliance'}

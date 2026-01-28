@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
 import { Toaster } from '@/components/ui/toaster'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { OfflineIndicator } from '@/components/ui/offline-indicator'
@@ -8,13 +9,7 @@ import { SkipLinks, SkipToMainContent, SkipToNavigation } from '@/components/ui/
 import { RouteChangeFocusManager } from '@/components/ui/route-change-focus'
 import './globals.css'
 
-// Professional Inter font - Modern, readable, supports 100+ languages
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['300', '400', '500', '600', '700', '800'],
-})
+// Geist font family — Vercel's open-source typeface for modern UI
 
 export const metadata: Metadata = {
   title: {
@@ -71,16 +66,18 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: '#ffffff',
+  themeColor: '#0a0e1a',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
-      <body className={`${inter.variable} bg-background min-h-screen font-sans antialiased`}>
+      <body
+        className={`${GeistSans.variable} ${GeistMono.variable} bg-background min-h-screen font-sans antialiased`}
+      >
         <ErrorBoundary>
           <Providers>
             {/* PWA Offline Indicator */}

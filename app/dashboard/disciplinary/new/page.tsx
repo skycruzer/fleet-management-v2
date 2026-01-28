@@ -4,8 +4,6 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getIncidentTypes } from '@/lib/services/disciplinary-service'
 import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatterForm'
 // Force dynamic rendering to prevent static generation at build time
-export const dynamic = 'force-dynamic'
-
 /**
  * New Disciplinary Matter Page (Admin)
  *
@@ -43,16 +41,14 @@ export default async function NewDisciplinaryMatterPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Create Disciplinary Matter
-        </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <h1 className="text-foreground text-3xl font-bold">Create Disciplinary Matter</h1>
+        <p className="text-muted-foreground mt-2">
           Create a new disciplinary matter and assign it for investigation
         </p>
       </div>
 
       {/* Form */}
-      <div className="mx-auto max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="bg-card mx-auto max-w-4xl rounded-lg border border-white/[0.08] p-6 shadow-sm">
         <DisciplinaryMatterForm
           pilots={pilots || []}
           users={users || []}

@@ -145,7 +145,7 @@ export async function CompactRosterDisplay() {
         {/* Current and Next Period Side by Side */}
         <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Current Period - Left Side */}
-          <div className="bg-muted/50 dark:bg-muted/30 rounded-xl p-5">
+          <div className="bg-muted/50 rounded-xl p-5">
             <div className="mb-4">
               <Badge className="bg-primary text-primary-foreground mb-2 text-xs font-bold">
                 ACTIVE
@@ -201,10 +201,10 @@ export async function CompactRosterDisplay() {
 
           {/* Next Period - Right Side with Dual Links */}
           {nextPeriod && (
-            <div className="border-primary/30 bg-primary/5 dark:border-primary/40 dark:bg-primary/10 h-full rounded-xl border-2 shadow-sm">
+            <div className="border-primary/30 bg-primary/5 h-full rounded-xl border-2 shadow-sm">
               {/* Header - Non-clickable */}
               <div className="p-5 pb-3">
-                <Badge className="border-primary bg-primary/10 text-primary dark:bg-primary/20 mb-2 text-xs font-bold">
+                <Badge className="border-primary bg-primary/10 text-primary mb-2 text-xs font-bold">
                   NEXT UP
                 </Badge>
                 <div className="mb-1 flex items-baseline gap-2">
@@ -228,12 +228,12 @@ export async function CompactRosterDisplay() {
               </div>
 
               {/* Dual-Link Sections */}
-              <div className="border-primary/20 dark:border-primary/30 flex flex-col border-t-2">
+              <div className="border-primary/20 flex flex-col border-t-2">
                 {/* Leave Requests Link */}
                 {nextPeriodLeave.total > 0 && (
                   <Link
                     href={`/dashboard/leave?period=${nextPeriod.code}`}
-                    className="group border-primary/10 hover:bg-primary/10 dark:border-primary/20 dark:hover:bg-primary/20 flex flex-col gap-1 border-b px-5 py-3 transition-colors"
+                    className="group border-primary/10 hover:bg-primary/10 flex flex-col gap-1 border-b px-5 py-3 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <Users className="text-primary h-4 w-4" />
@@ -256,7 +256,7 @@ export async function CompactRosterDisplay() {
                           .map(([type, count]) => (
                             <span
                               key={type}
-                              className="bg-primary/10 text-primary dark:bg-primary/20 rounded px-1.5 py-0.5 text-[9px] font-medium"
+                              className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-[9px] font-medium"
                             >
                               {type}: {count}
                             </span>
@@ -270,7 +270,7 @@ export async function CompactRosterDisplay() {
                 {nextPeriodCertChecks > 0 && (
                   <Link
                     href={`/dashboard/renewal-planning/roster-period/${nextPeriod.code}`}
-                    className="group hover:bg-primary/10 dark:hover:bg-primary/20 flex items-center gap-2 px-5 py-3 transition-colors"
+                    className="group hover:bg-primary/10 flex items-center gap-2 px-5 py-3 transition-colors"
                   >
                     <ClipboardCheck className="text-primary h-4 w-4" />
                     <span className="text-foreground flex-1 text-xs font-semibold">
@@ -285,7 +285,7 @@ export async function CompactRosterDisplay() {
                 {nextPeriodLeave.total === 0 && nextPeriodCertChecks === 0 && (
                   <Link
                     href={`/dashboard/renewal-planning/roster-period/${nextPeriod.code}`}
-                    className="group hover:bg-primary/10 dark:hover:bg-primary/20 flex items-center gap-2 px-5 py-3 transition-colors"
+                    className="group hover:bg-primary/10 flex items-center gap-2 px-5 py-3 transition-colors"
                   >
                     <span className="text-muted-foreground flex-1 text-xs font-semibold">
                       View Details

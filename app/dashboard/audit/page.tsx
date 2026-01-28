@@ -11,8 +11,6 @@ import {
 import AuditLogTable from '@/components/audit/AuditLogTable'
 import AuditLogFilters from '@/components/audit/AuditLogFilters'
 // Force dynamic rendering to prevent static generation at build time
-export const dynamic = 'force-dynamic'
-
 /**
  * Audit Log Viewer Page (Admin)
  *
@@ -137,8 +135,8 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
   if (fetchError) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-50 p-6 dark:bg-red-900/20">
-          <p className="text-red-800 dark:text-red-200">Failed to load audit data: {fetchError}</p>
+        <div className="rounded-lg bg-red-500/10 p-6">
+          <p className="text-red-400">Failed to load audit data: {fetchError}</p>
         </div>
       </div>
     )
@@ -148,8 +146,8 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Audit Logs</h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <h1 className="text-foreground text-3xl font-bold">Audit Logs</h1>
+        <p className="text-muted-foreground mt-2">
           Complete audit trail of all system changes and activities
         </p>
       </div>
@@ -157,17 +155,15 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Logs */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Logs</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.totalLogs}
-              </p>
+              <p className="text-muted-foreground text-sm font-medium">Total Logs</p>
+              <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalLogs}</p>
             </div>
-            <div className="rounded-full bg-blue-100 p-3 dark:bg-blue-900/20">
+            <div className="rounded-full bg-blue-500/10 p-3">
               <svg
-                className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                className="h-6 w-6 text-blue-600"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -184,17 +180,15 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
         </div>
 
         {/* Unique Users */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Unique Users</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.totalUsers}
-              </p>
+              <p className="text-muted-foreground text-sm font-medium">Unique Users</p>
+              <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalUsers}</p>
             </div>
-            <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/20">
+            <div className="rounded-full bg-emerald-500/10 p-3">
               <svg
-                className="h-6 w-6 text-green-600 dark:text-green-400"
+                className="h-6 w-6 text-green-600"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -211,19 +205,15 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
         </div>
 
         {/* Tables Monitored */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Tables Monitored
-              </p>
-              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.totalTables}
-              </p>
+              <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
+              <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalTables}</p>
             </div>
-            <div className="bg-primary/10 rounded-full p-3 dark:bg-purple-900/20">
+            <div className="bg-primary/10 rounded-full p-3">
               <svg
-                className="text-primary dark:text-primary h-6 w-6"
+                className="text-primary h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -240,17 +230,17 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
         </div>
 
         {/* Recent Activity */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Activity (30d)</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+              <p className="text-muted-foreground text-sm font-medium">Activity (30d)</p>
+              <p className="text-foreground mt-2 text-3xl font-bold">
                 {stats.recentActivity.reduce((sum, day) => sum + day.count, 0)}
               </p>
             </div>
-            <div className="rounded-full bg-orange-100 p-3 dark:bg-orange-900/20">
+            <div className="rounded-full bg-orange-500/10 p-3">
               <svg
-                className="h-6 w-6 text-orange-600 dark:text-orange-400"
+                className="h-6 w-6 text-orange-600"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -269,33 +259,33 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
 
       {/* Actions Breakdown */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Inserts</p>
-          <p className="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+          <p className="text-muted-foreground text-sm font-medium">Inserts</p>
+          <p className="mt-1 text-2xl font-bold text-green-600">
             {stats.actionBreakdown.INSERT || 0}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Updates</p>
-          <p className="mt-1 text-2xl font-bold text-blue-600 dark:text-blue-400">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+          <p className="text-muted-foreground text-sm font-medium">Updates</p>
+          <p className="mt-1 text-2xl font-bold text-blue-600">
             {stats.actionBreakdown.UPDATE || 0}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Deletes</p>
-          <p className="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+          <p className="text-muted-foreground text-sm font-medium">Deletes</p>
+          <p className="mt-1 text-2xl font-bold text-red-600">
             {stats.actionBreakdown.DELETE || 0}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Restores</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+          <p className="text-muted-foreground text-sm font-medium">Restores</p>
+          <p className="mt-1 text-2xl font-bold text-yellow-600">
             {stats.actionBreakdown.RESTORE || 0}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Soft Deletes</p>
-          <p className="mt-1 text-2xl font-bold text-gray-600 dark:text-gray-400">
+        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+          <p className="text-muted-foreground text-sm font-medium">Soft Deletes</p>
+          <p className="text-muted-foreground mt-1 text-2xl font-bold">
             {stats.actionBreakdown.SOFT_DELETE || 0}
           </p>
         </div>
@@ -309,7 +299,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
               Object.entries(searchParams).filter(([_, v]) => v != null) as [string, string][]
             )
           ).toString()}`}
-          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-500 dark:hover:bg-blue-600"
+          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -327,8 +317,8 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
       <div className="mb-6">
         <Suspense
           fallback={
-            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-              <p className="text-gray-600 dark:text-gray-400">Loading filters...</p>
+            <div className="bg-card rounded-lg border border-white/[0.08] p-6">
+              <p className="text-muted-foreground">Loading filters...</p>
             </div>
           }
         >
@@ -339,8 +329,8 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
       {/* Audit Log Table */}
       <Suspense
         fallback={
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <p className="text-gray-600 dark:text-gray-400">Loading audit logs...</p>
+          <div className="bg-card rounded-lg border border-white/[0.08] p-6">
+            <p className="text-muted-foreground">Loading audit logs...</p>
           </div>
         }
       >

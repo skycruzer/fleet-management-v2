@@ -51,31 +51,26 @@ export default async function PilotRegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-12 dark:from-gray-900 dark:to-gray-800">
+    <div className="from-primary/5 to-primary/15 flex min-h-screen items-center justify-center bg-gradient-to-br px-4 py-12">
       <div className="w-full max-w-2xl space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Pilot Registration
-          </h1>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">Pilot Registration</h1>
+          <p className="text-muted-foreground mt-2 text-sm">
             Register for access to the pilot portal. Your registration will be reviewed by an
             administrator.
           </p>
         </div>
 
         {/* Registration Form */}
-        <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
+        <div className="bg-card rounded-lg p-8 shadow-lg">
           <PilotRegisterForm />
 
           {/* Login Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground text-sm">
               Already have an account?{' '}
-              <Link
-                href="/pilot/login"
-                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-              >
+              <Link href="/pilot/login" className="text-primary hover:text-primary/80 font-medium">
                 Sign in here
               </Link>
             </p>
@@ -83,11 +78,9 @@ export default async function PilotRegisterPage() {
         </div>
 
         {/* Info Box */}
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-          <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-            Registration Process
-          </h3>
-          <ul className="mt-2 space-y-1 text-sm text-blue-700 dark:text-blue-300">
+        <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4">
+          <h3 className="text-sm font-medium text-blue-400">Registration Process</h3>
+          <ul className="mt-2 space-y-1 text-sm text-blue-400">
             <li>• Submit your registration with valid Air Niugini credentials</li>
             <li>• An administrator will review your application</li>
             <li>• You'll receive an email notification once approved</li>
@@ -96,7 +89,7 @@ export default async function PilotRegisterPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-muted-foreground text-center text-xs">
           Air Niugini B767 Fleet Management System
         </p>
       </div>

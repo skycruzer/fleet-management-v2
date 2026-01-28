@@ -80,7 +80,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'LOGIN':
         return (
           <svg
-            className="text-primary dark:text-primary h-6 w-6"
+            className="text-primary h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -209,7 +209,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
     return (
       <div className="border-border bg-card rounded-lg border p-8 text-center">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400"
+          className="text-muted-foreground mx-auto h-12 w-12"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

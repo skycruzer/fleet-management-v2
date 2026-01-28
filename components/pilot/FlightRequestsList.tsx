@@ -50,9 +50,9 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
-        <p className="text-gray-600 dark:text-gray-400">No flight requests yet</p>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-500">
+      <div className="rounded-lg border-2 border-dashed border-white/[0.1] p-8 text-center">
+        <p className="text-muted-foreground">No flight requests yet</p>
+        <p className="text-muted-foreground mt-1 text-sm">
           Submit your first flight request using the form on the left
         </p>
       </div>
@@ -64,19 +64,19 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
       {requests.map((request) => (
         <div
           key={request.id}
-          className="rounded-lg border border-gray-200 p-4 transition-shadow hover:shadow-md dark:border-gray-700"
+          className="rounded-lg border border-white/[0.08] p-4 transition-shadow hover:shadow-md"
         >
           <div className="flex items-start justify-between">
             {/* Request Details */}
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                <h3 className="font-medium text-gray-900 dark:text-white">
+                <h3 className="text-foreground font-medium">
                   {formatRequestType(request.request_type)}
                 </h3>
                 <StatusBadge status={request.workflow_status} />
               </div>
 
-              <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-muted-foreground mt-2 space-y-1 text-sm">
                 <p>
                   <strong>Flight Date:</strong> {new Date(request.start_date).toLocaleDateString()}
                 </p>
@@ -96,15 +96,11 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
               {/* Admin Comments */}
               {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') &&
                 request.review_comments && (
-                  <div className="mt-3 rounded-md bg-gray-50 p-3 dark:bg-gray-700/50">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      Reviewer Comments:
-                    </p>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {request.review_comments}
-                    </p>
+                  <div className="mt-3 rounded-md bg-white/[0.03] p-3">
+                    <p className="text-foreground text-sm font-medium">Reviewer Comments:</p>
+                    <p className="text-muted-foreground mt-1 text-sm">{request.review_comments}</p>
                     {request.reviewed_at && (
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                      <p className="text-muted-foreground mt-1 text-xs">
                         Reviewed on {new Date(request.reviewed_at).toLocaleDateString()}
                       </p>
                     )}
@@ -118,7 +114,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
               <button
                 onClick={() => handleCancel(request.id)}
                 disabled={cancelingId === request.id}
-                className="ml-4 rounded-md bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-100 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                className="ml-4 rounded-md bg-red-500/10 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {cancelingId === request.id ? 'Canceling...' : 'Cancel'}
               </button>
@@ -153,14 +149,14 @@ function StatusBadge({
     | 'WITHDRAWN'
 }) {
   const badgeStyles: Record<string, string> = {
-    DRAFT: 'bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400',
-    SUBMITTED: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
-    PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
-    UNDER_REVIEW: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
-    IN_REVIEW: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
-    APPROVED: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
-    DENIED: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
-    WITHDRAWN: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
+    DRAFT: 'bg-white/[0.03] text-muted-foreground',
+    SUBMITTED: 'bg-blue-500/10 text-blue-400',
+    PENDING: 'bg-white/[0.03] text-foreground',
+    UNDER_REVIEW: 'bg-amber-500/10 text-amber-400',
+    IN_REVIEW: 'bg-amber-500/10 text-amber-400',
+    APPROVED: 'bg-emerald-500/10 text-emerald-400',
+    DENIED: 'bg-red-500/10 text-red-400',
+    WITHDRAWN: 'bg-white/[0.03] text-foreground',
   }
 
   const labels: Record<string, string> = {

@@ -29,8 +29,8 @@ export default function Offline() {
   }, [])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 p-4 dark:from-neutral-900 dark:to-neutral-950">
-      <div className="w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl dark:bg-neutral-800">
+    <div className="from-background flex min-h-screen items-center justify-center bg-gradient-to-br to-white/[0.03] p-4">
+      <div className="bg-card w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl">
         {/* Header */}
         <div className="bg-sky-500 p-8">
           <div className="mb-4 flex items-center justify-center">
@@ -47,14 +47,12 @@ export default function Offline() {
         {/* Content */}
         <div className="space-y-6 p-8">
           {/* Connection Status */}
-          <div className="rounded-r border-l-4 border-amber-400 bg-amber-50 p-5 dark:bg-amber-950">
+          <div className="rounded-r border-l-4 border-amber-400 bg-amber-500/10 p-5">
             <div className="flex items-start">
-              <Signal className="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+              <Signal className="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-amber-400" />
               <div className="flex-1">
-                <h3 className="mb-1 text-sm font-semibold text-amber-800 dark:text-amber-200">
-                  Connection Status
-                </h3>
-                <p className="text-sm text-amber-700 dark:text-amber-300">
+                <h3 className="mb-1 text-sm font-semibold text-amber-400">Connection Status</h3>
+                <p className="text-sm text-amber-400">
                   The Fleet Management System requires an active internet connection to function
                   properly.
                 </p>
@@ -63,21 +61,21 @@ export default function Offline() {
           </div>
 
           {/* Troubleshooting Steps */}
-          <div className="rounded-lg bg-neutral-50 p-5 dark:bg-neutral-900">
-            <h3 className="mb-3 flex items-center text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <div className="rounded-lg bg-white/[0.03] p-5">
+            <h3 className="text-foreground mb-3 flex items-center text-base font-semibold">
               <WifiOff className="mr-2 h-5 w-5 text-sky-500" />
               Troubleshooting Steps:
             </h3>
-            <ul className="space-y-3 text-sm text-neutral-700 dark:text-neutral-300">
+            <ul className="text-foreground/80 space-y-3 text-sm">
               <li className="flex items-start">
                 <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky-500 text-xs font-bold text-white">
                   1
                 </span>
                 <div>
-                  <p className="mb-1 font-semibold text-neutral-900 dark:text-neutral-100">
+                  <p className="text-foreground mb-1 font-semibold">
                     Check your Wi-Fi or network connection
                   </p>
-                  <p className="text-neutral-600 dark:text-neutral-400">
+                  <p className="text-muted-foreground">
                     Make sure you&apos;re connected to a network and the signal is strong
                   </p>
                 </div>
@@ -87,10 +85,8 @@ export default function Offline() {
                   2
                 </span>
                 <div>
-                  <p className="mb-1 font-semibold text-neutral-900 dark:text-neutral-100">
-                    Check your router and modem
-                  </p>
-                  <p className="text-neutral-600 dark:text-neutral-400">
+                  <p className="text-foreground mb-1 font-semibold">Check your router and modem</p>
+                  <p className="text-muted-foreground">
                     Restart your router if necessary and wait for it to reconnect
                   </p>
                 </div>
@@ -100,10 +96,10 @@ export default function Offline() {
                   3
                 </span>
                 <div>
-                  <p className="mb-1 font-semibold text-neutral-900 dark:text-neutral-100">
+                  <p className="text-foreground mb-1 font-semibold">
                     Try another website or application
                   </p>
-                  <p className="text-neutral-600 dark:text-neutral-400">
+                  <p className="text-muted-foreground">
                     Verify if the issue is system-wide or specific to this application
                   </p>
                 </div>
@@ -113,10 +109,10 @@ export default function Offline() {
                   4
                 </span>
                 <div>
-                  <p className="mb-1 font-semibold text-neutral-900 dark:text-neutral-100">
+                  <p className="text-foreground mb-1 font-semibold">
                     Contact your network administrator
                   </p>
-                  <p className="text-neutral-600 dark:text-neutral-400">
+                  <p className="text-muted-foreground">
                     If you&apos;re on a corporate network, IT may need to assist
                   </p>
                 </div>
@@ -126,26 +122,24 @@ export default function Offline() {
 
           {/* Network Information */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-neutral-200 bg-white p-4">
+            <div className="bg-card rounded-lg border border-white/[0.08] p-4">
               <div className="mb-2 flex items-center gap-3">
-                <div className="rounded-lg bg-red-100 p-2">
+                <div className="rounded-lg bg-red-500/10 p-2">
                   <WifiOff className="h-5 w-5 text-red-600" />
                 </div>
-                <h4 className="font-semibold text-neutral-900 dark:text-neutral-100">Connection</h4>
+                <h4 className="text-foreground font-semibold">Connection</h4>
               </div>
               <p className="text-sm font-medium text-red-600">Offline</p>
             </div>
 
-            <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800">
+            <div className="bg-card rounded-lg border border-white/[0.08] p-4">
               <div className="mb-2 flex items-center gap-3">
-                <div className="rounded-lg bg-neutral-100 p-2 dark:bg-neutral-700">
-                  <Signal className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
+                <div className="rounded-lg bg-white/[0.06] p-2">
+                  <Signal className="text-muted-foreground h-5 w-5" />
                 </div>
-                <h4 className="font-semibold text-neutral-900 dark:text-neutral-100">Status</h4>
+                <h4 className="text-foreground font-semibold">Status</h4>
               </div>
-              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                No internet access
-              </p>
+              <p className="text-muted-foreground text-sm font-medium">No internet access</p>
             </div>
           </div>
 
@@ -168,15 +162,15 @@ export default function Offline() {
           </div>
 
           {/* Auto-Retry Notice */}
-          <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100/50 p-4 dark:border-blue-700 dark:from-blue-950 dark:to-blue-900/50">
-            <p className="text-center text-xs text-blue-800 dark:text-blue-200">
+          <div className="rounded-lg border border-blue-500/20 bg-gradient-to-r from-blue-500/10 to-blue-500/5 p-4">
+            <p className="text-center text-xs text-blue-400">
               The application will automatically retry connecting once your internet is restored
             </p>
           </div>
 
           {/* Support Contact */}
-          <div className="rounded-lg border border-neutral-200 bg-gradient-to-r from-neutral-100 to-neutral-50 p-4 dark:border-neutral-700 dark:from-neutral-800 dark:to-neutral-900">
-            <p className="text-center text-xs text-neutral-600 dark:text-neutral-400">
+          <div className="rounded-lg border border-white/[0.08] bg-gradient-to-r from-white/[0.06] to-white/[0.03] p-4">
+            <p className="text-muted-foreground text-center text-xs">
               Still having connection issues?{' '}
               <a
                 href="mailto:support@example.com"
@@ -189,9 +183,9 @@ export default function Offline() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-neutral-200 bg-gradient-to-r from-neutral-100 to-neutral-50 px-8 py-4 dark:border-neutral-700 dark:from-neutral-800 dark:to-neutral-900">
+        <div className="border-t border-white/[0.08] bg-gradient-to-r from-white/[0.06] to-white/[0.03] px-8 py-4">
           <div className="flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
-            <p className="text-neutral-600 dark:text-neutral-400">
+            <p className="text-muted-foreground">
               Fleet Management V2 - B767 Pilot Management System
             </p>
             <p className="font-bold text-sky-500">Powered by Serwist PWA</p>

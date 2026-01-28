@@ -1,7 +1,6 @@
 import { memo, Suspense } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
-import { getDashboardMetrics, type DashboardMetrics } from '@/lib/services/dashboard-service-v4'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { UrgentAlertBanner } from '@/components/dashboard/urgent-alert-banner'
 import { UnifiedComplianceCard } from '@/components/dashboard/unified-compliance-card'
@@ -9,30 +8,14 @@ import { CompactRosterDisplay } from '@/components/dashboard/compact-roster-disp
 import { ExpiringCertificationsBannerServer } from '@/components/dashboard/expiring-certifications-banner-server'
 import { PilotRequirementsCard } from '@/components/dashboard/pilot-requirements-card'
 import { RetirementForecastCard } from '@/components/dashboard/retirement-forecast-card'
-import { Star, User, Calendar, Plus, FileText, BarChart3 } from 'lucide-react'
-import { unifiedCacheService } from '@/lib/services/unified-cache-service'
-
-// Cached data fetching function
-async function getCachedDashboardData(): Promise<DashboardMetrics> {
-  const cacheKey = 'dashboard:metrics'
-
-  return unifiedCacheService.getOrSet(
-    cacheKey,
-    async () => await getDashboardMetrics(),
-    60 * 1000 // 60 seconds in milliseconds
-  )
-}
-
+import { Calendar, Plus, FileText, BarChart3 } from 'lucide-react'
 export async function DashboardContent() {
-  // Fetch dashboard data with caching
-  const metrics = await getCachedDashboardData()
-
   return (
     <div className="w-full max-w-full overflow-x-hidden" style={{ minWidth: 0 }}>
       {/* ROSTER PERIODS - Current + Next 13 - FULL WIDTH TOP */}
       <div className="mb-3">
         <ErrorBoundary>
-          <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
+          <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
             <CompactRosterDisplay />
           </Suspense>
         </ErrorBoundary>
@@ -41,7 +24,7 @@ export async function DashboardContent() {
       {/* 🚨 URGENT ALERT BANNER - FULL WIDTH */}
       <div className="mb-3">
         <ErrorBoundary>
-          <Suspense fallback={<div className="bg-muted h-16 animate-pulse rounded-lg" />}>
+          <Suspense fallback={<div className="bg-muted animate-shimmer h-16 rounded-lg" />}>
             <UrgentAlertBanner />
           </Suspense>
         </ErrorBoundary>
@@ -53,14 +36,14 @@ export async function DashboardContent() {
         <div className="space-y-3 xl:col-span-7">
           {/* PILOT STAFFING REQUIREMENTS - Required vs Actual */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
               <PilotRequirementsCard />
             </Suspense>
           </ErrorBoundary>
 
           {/* CERTIFICATIONS EXPIRING SOON - Banner */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="bg-muted h-48 animate-pulse rounded-lg" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-48 rounded-lg" />}>
               <ExpiringCertificationsBannerServer />
             </Suspense>
           </ErrorBoundary>
@@ -103,14 +86,14 @@ export async function DashboardContent() {
         <div className="space-y-3 xl:col-span-5">
           {/* RETIREMENT FORECAST - 2 and 5 Year Outlook */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
               <RetirementForecastCard />
             </Suspense>
           </ErrorBoundary>
 
           {/* UNIFIED FLEET COMPLIANCE - Single Responsive Card */}
           <ErrorBoundary>
-            <Suspense fallback={<div className="bg-muted h-64 animate-pulse rounded-lg" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
               <UnifiedComplianceCard />
             </Suspense>
           </ErrorBoundary>
@@ -135,12 +118,12 @@ const ActionCard = memo(function ActionCard({
   return (
     <Link
       href={href}
-      className="group border-border bg-background hover:border-foreground/20 hover:bg-muted/50 focus:ring-ring/20 block rounded-lg border p-3 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+      className="group border-border bg-background hover:border-primary/30 hover:bg-primary/5 focus:ring-primary/20 block rounded-lg border p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-offset-2 focus:outline-none"
       aria-label={`${title}: ${description}`}
     >
       <div className="flex flex-col items-center space-y-2 text-center">
-        <div className="bg-muted group-hover:bg-accent/10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors">
-          <div className="text-foreground/70 group-hover:text-accent scale-75">{icon}</div>
+        <div className="bg-primary/10 group-hover:bg-primary/15 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors">
+          <div className="text-primary group-hover:text-primary scale-75">{icon}</div>
         </div>
         <div className="min-w-0 flex-1">
           <h4 className="text-foreground text-xs font-medium">{title}</h4>

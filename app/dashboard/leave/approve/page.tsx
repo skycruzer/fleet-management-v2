@@ -130,43 +130,39 @@ export default async function LeaveApprovalPage() {
           </div>
         </Card>
 
-        <Card className="border-red-300 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950">
+        <Card className="border-red-500/20 bg-red-500/10 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-red-900 dark:text-red-100">Critical</p>
-              <p className="text-3xl font-bold text-red-700 dark:text-red-300">{criticalCount}</p>
+              <p className="text-sm font-medium text-red-400">Critical</p>
+              <p className="text-3xl font-bold text-red-400">{criticalCount}</p>
             </div>
-            <AlertTriangle className="h-12 w-12 text-red-500 dark:text-red-400" />
+            <AlertTriangle className="h-12 w-12 text-red-500" />
           </div>
-          <p className="mt-2 text-xs text-red-700 dark:text-red-300">
-            Conflicts or below minimum crew
-          </p>
+          <p className="mt-2 text-xs text-red-400">Conflicts or below minimum crew</p>
         </Card>
 
-        <Card className="border-yellow-300 bg-yellow-50 p-4 dark:border-yellow-700 dark:bg-yellow-950">
+        <Card className="border-amber-500/20 bg-amber-500/10 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">Warnings</p>
-              <p className="text-3xl font-bold text-yellow-700 dark:text-yellow-300">
-                {warningCount}
-              </p>
+              <p className="text-sm font-medium text-amber-400">Warnings</p>
+              <p className="text-3xl font-bold text-amber-400">{warningCount}</p>
             </div>
-            <AlertTriangle className="h-12 w-12 text-yellow-500 dark:text-yellow-400" />
+            <AlertTriangle className="h-12 w-12 text-yellow-500" />
           </div>
-          <p className="mt-2 text-xs text-yellow-700 dark:text-yellow-300">Late or past deadline</p>
+          <p className="mt-2 text-xs text-amber-400">Late or past deadline</p>
         </Card>
 
-        <Card className="border-green-300 bg-green-50 p-4 dark:border-green-700 dark:bg-green-950">
+        <Card className="border-emerald-500/20 bg-emerald-500/10 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-green-900 dark:text-green-100">Clean</p>
-              <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+              <p className="text-sm font-medium text-emerald-400">Clean</p>
+              <p className="text-3xl font-bold text-emerald-400">
                 {requests.length - criticalCount - warningCount}
               </p>
             </div>
-            <CheckCircle className="h-12 w-12 text-green-500 dark:text-green-400" />
+            <CheckCircle className="h-12 w-12 text-green-500" />
           </div>
-          <p className="mt-2 text-xs text-green-700 dark:text-green-300">No issues detected</p>
+          <p className="mt-2 text-xs text-emerald-400">No issues detected</p>
         </Card>
       </div>
 
@@ -174,7 +170,7 @@ export default async function LeaveApprovalPage() {
       {requests.length === 0 && (
         <Card className="p-12 text-center">
           <div className="flex flex-col items-center justify-center space-y-4">
-            <CheckCircle className="h-24 w-24 text-green-500 dark:text-green-400" />
+            <CheckCircle className="h-24 w-24 text-green-500" />
             <div>
               <h3 className="text-foreground text-xl font-semibold">All Caught Up!</h3>
               <p className="text-muted-foreground mt-2">
@@ -298,14 +294,12 @@ export default async function LeaveApprovalPage() {
       )}
 
       {/* Help Text */}
-      <Card className="border-blue-300 bg-blue-50 p-6 dark:border-blue-700 dark:bg-blue-950">
+      <Card className="border-blue-500/20 bg-blue-500/10 p-6">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 text-blue-400" />
           <div>
-            <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-100">
-              Approval Guidelines
-            </h3>
-            <ul className="space-y-1 text-sm text-blue-800 dark:text-blue-200">
+            <h3 className="mb-2 font-semibold text-blue-400">Approval Guidelines</h3>
+            <ul className="space-y-1 text-sm text-blue-400/80">
               <li>
                 • <strong>Critical Alerts</strong>: Conflicts or approving would drop crew below
                 minimum (10 per rank)

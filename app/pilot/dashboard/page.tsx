@@ -55,11 +55,11 @@ export default async function PilotDashboardPage() {
   if (!pilotUser.registration_approved) {
     // Registration pending approval
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
-        <div className="max-w-md rounded-lg bg-white p-8 text-center shadow-lg dark:bg-gray-800">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900">
+      <div className="bg-background flex min-h-screen items-center justify-center px-4">
+        <div className="bg-card max-w-md rounded-lg p-8 text-center shadow-lg">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10">
             <svg
-              className="h-6 w-6 text-yellow-600 dark:text-yellow-400"
+              className="h-6 w-6 text-amber-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -72,10 +72,8 @@ export default async function PilotDashboardPage() {
               />
             </svg>
           </div>
-          <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
-            Registration Pending
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <h2 className="text-foreground mb-2 text-xl font-bold">Registration Pending</h2>
+          <p className="text-muted-foreground text-sm">
             Your registration is awaiting administrator approval. You'll receive an email
             notification once your account has been approved.
           </p>
@@ -97,10 +95,10 @@ export default async function PilotDashboardPage() {
 
   if (!dashboardResult.success || !dashboardResult.data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
-        <div className="max-w-md rounded-lg bg-white p-8 text-center shadow-lg dark:bg-gray-800">
+      <div className="bg-background flex min-h-screen items-center justify-center px-4">
+        <div className="bg-card max-w-md rounded-lg p-8 text-center shadow-lg">
           <h2 className="mb-2 text-xl font-bold text-red-600">Error Loading Dashboard</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground text-sm">
             {dashboardResult.error || 'Unable to load dashboard data. Please try again later.'}
           </p>
         </div>
@@ -109,15 +107,13 @@ export default async function PilotDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="bg-background min-h-screen">
       {/* Header */}
-      <header className="bg-white shadow dark:bg-gray-800">
+      <header className="bg-card shadow">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-6 sm:px-6 lg:px-8">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Pilot Dashboard
-            </h1>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <h1 className="text-foreground text-3xl font-bold tracking-tight">Pilot Dashboard</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
               Welcome back, {pilotUser.first_name} {pilotUser.last_name}
             </p>
           </div>

@@ -66,7 +66,7 @@ export function HeroStatsClient({ stats }: HeroStatsClientProps) {
             className="group border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
           >
             {/* Background gradient on hover */}
-            <div className="from-primary-50/0 to-primary-100/0 dark:from-primary-900/0 dark:to-primary-800/0 absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity group-hover:opacity-100" />
+            <div className="from-primary-50/0 to-primary-100/0 absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity group-hover:opacity-100" />
 
             <div className="relative">
               {/* Icon with gradient background */}

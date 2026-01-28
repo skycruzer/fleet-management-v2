@@ -18,8 +18,6 @@ import {
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { CalendarPageClient } from '@/components/renewal-planning/calendar-page-client'
 
-export const dynamic = 'force-dynamic'
-
 async function getRosterPeriodSummariesForYear(year: number) {
   const supabase = createServiceRoleClient()
 

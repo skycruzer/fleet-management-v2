@@ -3,8 +3,6 @@
  * Help and support for Fleet Management System
  */
 
-export const dynamic = 'force-dynamic'
-
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -66,10 +64,10 @@ export default function SupportPage() {
       </div>
 
       {/* Support Status */}
-      <Card className="border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950/30">
+      <Card className="border-emerald-500/20 bg-emerald-500/10 p-6">
         <div className="flex items-center gap-4">
-          <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/50">
-            <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <div className="rounded-full bg-emerald-500/10 p-3">
+            <CheckCircle2 className="h-6 w-6 text-emerald-400" />
           </div>
           <div>
             <h3 className="text-foreground text-lg font-semibold">Support Available</h3>
@@ -129,7 +127,7 @@ export default function SupportPage() {
       </Card>
 
       {/* System Information */}
-      <Card className="border-blue-200 bg-blue-50 p-6">
+      <Card className="border-blue-500/20 bg-blue-500/10 p-6">
         <h3 className="text-foreground mb-4 text-lg font-semibold">System Information</h3>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
@@ -138,7 +136,7 @@ export default function SupportPage() {
           </div>
           <div>
             <p className="text-muted-foreground text-sm font-medium">Database Status</p>
-            <p className="text-lg font-bold text-green-600">Connected</p>
+            <p className="text-lg font-bold text-emerald-400">Connected</p>
           </div>
           <div>
             <p className="text-muted-foreground text-sm font-medium">Support Hours</p>

@@ -35,7 +35,7 @@ export default async function LeaveBidsPage() {
     <div className="container mx-auto space-y-6 p-6">
       <div>
         <h1 className="text-3xl font-bold">My Leave Bids</h1>
-        <p className="mt-1 text-gray-600 dark:text-gray-400">
+        <p className="text-muted-foreground mt-1">
           View your submitted leave bids and their approval status
         </p>
       </div>

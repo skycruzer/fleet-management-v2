@@ -164,7 +164,7 @@ export default function ResetPasswordPage() {
   const passwordStrength = getPasswordStrength(password)
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 px-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 px-4">
       {/* Aviation Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -211,24 +211,22 @@ export default function ResetPasswordPage() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="border-none bg-white/95 p-8 shadow-2xl backdrop-blur-sm dark:bg-gray-900/95">
+        <Card className="bg-card border-white/[0.08] p-8 shadow-2xl backdrop-blur-sm">
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600"
+              className="bg-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
             >
               <Shield className="h-8 w-8 text-white" />
             </motion.div>
 
-            <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold text-transparent">
-              Set New Password
-            </h1>
+            <h1 className="text-foreground mb-2 text-3xl font-bold">Set New Password</h1>
             {email && (
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                for <span className="font-medium text-gray-900 dark:text-gray-100">{email}</span>
+              <p className="text-muted-foreground text-sm">
+                for <span className="text-foreground font-medium">{email}</span>
               </p>
             )}
           </div>
@@ -236,28 +234,24 @@ export default function ResetPasswordPage() {
           {/* Loading State */}
           {isValidating && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-              <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                Validating reset link...
-              </p>
+              <Loader2 className="text-primary h-12 w-12 animate-spin" />
+              <p className="text-muted-foreground mt-4 text-sm">Validating reset link...</p>
             </div>
           )}
 
           {/* Invalid Token */}
           {!isValidating && !tokenValid && (
             <div className="space-y-6">
-              <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
-                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+              <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-red-900 dark:text-red-200">
-                    Invalid Reset Link
-                  </p>
-                  <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+                  <p className="text-sm font-medium text-red-400">Invalid Reset Link</p>
+                  <p className="mt-1 text-sm text-red-400/80">{error}</p>
                 </div>
               </div>
 
               <Link href="/portal/forgot-password">
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
                   Request New Reset Link
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -277,15 +271,15 @@ export default function ResetPasswordPage() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900"
+                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10"
                 >
-                  <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  <CheckCircle2 className="h-8 w-8 text-emerald-400" />
                 </motion.div>
 
-                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <p className="text-foreground text-lg font-semibold">
                   Password Reset Successfully!
                 </p>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-muted-foreground mt-2 text-sm">
                   You'll be redirected to login in a few seconds...
                 </p>
               </div>
@@ -300,25 +294,22 @@ export default function ResetPasswordPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950"
+                  className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4"
                 >
-                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600 dark:text-red-400" />
-                  <p className="flex-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
+                  <p className="flex-1 text-sm text-red-400">{error}</p>
                 </motion.div>
               )}
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label
-                  htmlFor="password"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
+                <label htmlFor="password" className="text-foreground/80 text-sm font-medium">
                   New Password
                 </label>
                 <div className="relative">
                   <div className="absolute top-1/2 left-3 -translate-y-1/2">
                     <Lock
-                      className={`h-5 w-5 transition-colors ${passwordFocused ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}
+                      className={`h-5 w-5 transition-colors ${passwordFocused ? 'text-primary' : 'text-muted-foreground'}`}
                     />
                   </div>
                   <Input
@@ -329,12 +320,12 @@ export default function ResetPasswordPage() {
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
                     disabled={isLoading}
-                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                    className="focus:border-primary focus:ring-primary h-12 border-white/[0.1] bg-white/[0.03] pr-10 pl-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -344,14 +335,14 @@ export default function ResetPasswordPage() {
                 {password && (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-600 dark:text-gray-400">Password strength:</span>
+                      <span className="text-muted-foreground">Password strength:</span>
                       <span
-                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-green-600' : passwordStrength.strength === 66 ? 'text-yellow-600' : 'text-red-600'}`}
+                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-emerald-400' : passwordStrength.strength === 66 ? 'text-amber-400' : 'text-red-400'}`}
                       >
                         {passwordStrength.label}
                       </span>
                     </div>
-                    <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+                    <div className="h-1.5 w-full rounded-full bg-white/[0.08]">
                       <div
                         className={`h-full rounded-full transition-all ${passwordStrength.color}`}
                         style={{ width: `${passwordStrength.strength}%` }}
@@ -361,24 +352,26 @@ export default function ResetPasswordPage() {
                 )}
 
                 {form.formState.errors.password && (
-                  <p className="text-sm text-red-600">{form.formState.errors.password.message}</p>
+                  <p className="text-sm text-red-400">{form.formState.errors.password.message}</p>
                 )}
 
                 {/* Password Requirements */}
-                <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-muted-foreground space-y-1 text-xs">
                   <p className="font-medium">Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
-                    <li className={password.length >= 8 ? 'text-green-600' : ''}>
+                    <li className={password.length >= 8 ? 'text-emerald-400' : ''}>
                       • At least 8 characters
                     </li>
-                    <li className={/[A-Z]/.test(password) ? 'text-green-600' : ''}>
+                    <li className={/[A-Z]/.test(password) ? 'text-emerald-400' : ''}>
                       • One uppercase letter
                     </li>
-                    <li className={/[a-z]/.test(password) ? 'text-green-600' : ''}>
+                    <li className={/[a-z]/.test(password) ? 'text-emerald-400' : ''}>
                       • One lowercase letter
                     </li>
-                    <li className={/[0-9]/.test(password) ? 'text-green-600' : ''}>• One number</li>
-                    <li className={/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : ''}>
+                    <li className={/[0-9]/.test(password) ? 'text-emerald-400' : ''}>
+                      • One number
+                    </li>
+                    <li className={/[^A-Za-z0-9]/.test(password) ? 'text-emerald-400' : ''}>
                       • One special character
                     </li>
                   </ul>
@@ -387,16 +380,13 @@ export default function ResetPasswordPage() {
 
               {/* Confirm Password Field */}
               <div className="space-y-2">
-                <label
-                  htmlFor="confirmPassword"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
+                <label htmlFor="confirmPassword" className="text-foreground/80 text-sm font-medium">
                   Confirm Password
                 </label>
                 <div className="relative">
                   <div className="absolute top-1/2 left-3 -translate-y-1/2">
                     <Lock
-                      className={`h-5 w-5 transition-colors ${confirmPasswordFocused ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`}
+                      className={`h-5 w-5 transition-colors ${confirmPasswordFocused ? 'text-primary' : 'text-muted-foreground'}`}
                     />
                   </div>
                   <Input
@@ -407,12 +397,12 @@ export default function ResetPasswordPage() {
                     onFocus={() => setConfirmPasswordFocused(true)}
                     onBlur={() => setConfirmPasswordFocused(false)}
                     disabled={isLoading}
-                    className="h-12 border-gray-300 pr-10 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                    className="focus:border-primary focus:ring-primary h-12 border-white/[0.1] bg-white/[0.03] pr-10 pl-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                    className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -422,7 +412,7 @@ export default function ResetPasswordPage() {
                   </button>
                 </div>
                 {form.formState.errors.confirmPassword && (
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-red-400">
                     {form.formState.errors.confirmPassword.message}
                   </p>
                 )}
@@ -432,7 +422,7 @@ export default function ResetPasswordPage() {
               <Button
                 type="submit"
                 disabled={isLoading || !password || !confirmPassword}
-                className="group relative h-12 w-full overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transition-all hover:shadow-xl disabled:opacity-50"
+                className="group bg-primary text-primary-foreground hover:bg-primary/90 relative h-12 w-full overflow-hidden shadow-lg transition-all hover:shadow-xl disabled:opacity-50"
               >
                 {isLoading ? (
                   <>
@@ -453,14 +443,14 @@ export default function ResetPasswordPage() {
           {!isValidating && !success && (
             <>
               <div className="my-8 flex items-center">
-                <div className="flex-1 border-t border-gray-300 dark:border-gray-700" />
-                <span className="px-4 text-sm text-gray-500 dark:text-gray-400">or</span>
-                <div className="flex-1 border-t border-gray-300 dark:border-gray-700" />
+                <div className="flex-1 border-t border-white/[0.08]" />
+                <span className="text-muted-foreground px-4 text-sm">or</span>
+                <div className="flex-1 border-t border-white/[0.08]" />
               </div>
 
               <Link
                 href="/portal/login"
-                className="flex items-center justify-center text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+                className="text-primary hover:text-primary/80 flex items-center justify-center text-sm font-medium transition-colors"
               >
                 Back to Login
               </Link>

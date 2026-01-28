@@ -45,7 +45,7 @@ export default async function PilotDashboardPage() {
 
   if (!pilotUser.registration_approved) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 dark:bg-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-white/[0.03] p-6">
         <Card className="max-w-md p-8 text-center">
           <div className="mb-4 flex justify-center">
             <Clock className="text-primary h-16 w-16" aria-hidden="true" />
@@ -130,14 +130,14 @@ export default async function PilotDashboardPage() {
             </h2>
             {/* Expired Certifications Alert */}
             {(stats?.expired_certifications || 0) > 0 && (
-              <Card className="border-red-300 bg-red-50 p-6 dark:border-red-800 dark:bg-red-950/30">
+              <Card className="border-red-500/20 bg-red-500/10 p-6">
                 <div className="flex items-start space-x-4">
-                  <XCircle className="h-8 w-8 text-red-600 dark:text-red-400" aria-hidden="true" />
+                  <XCircle className="h-8 w-8 text-red-400" aria-hidden="true" />
                   <div className="flex-1">
-                    <h2 className="text-foreground mb-2 text-xl font-semibold text-red-900 dark:text-red-100">
+                    <h2 className="text-foreground mb-2 text-xl font-semibold text-red-400">
                       ⚠️ Expired Certifications
                     </h2>
-                    <p className="mb-4 text-red-800 dark:text-red-200">
+                    <p className="mb-4 text-red-400/80">
                       You have {stats?.expired_certifications || 0} expired certification
                       {(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew
                       immediately.
@@ -157,21 +157,19 @@ export default async function PilotDashboardPage() {
                             return (
                               <div
                                 key={check.id}
-                                className="bg-card flex items-start justify-between rounded border border-red-200 p-3 dark:border-red-800"
+                                className="bg-card flex items-start justify-between rounded border border-red-500/20 p-3"
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-red-900 dark:text-red-100">
-                                    {check.check_code}
-                                  </p>
-                                  <p className="text-sm text-red-700 dark:text-red-300">
+                                  <p className="font-semibold text-red-400">{check.check_code}</p>
+                                  <p className="text-sm text-red-400/80">
                                     {check.check_description}
                                   </p>
                                 </div>
                                 <div className="ml-2 text-right">
-                                  <p className="font-bold text-red-600 dark:text-red-400">
+                                  <p className="font-bold text-red-400">
                                     Expired {daysExpired} days ago
                                   </p>
-                                  <p className="text-sm text-red-500 dark:text-red-400">
+                                  <p className="text-sm text-red-400/70">
                                     {expiryDate.toLocaleDateString('en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -191,17 +189,14 @@ export default async function PilotDashboardPage() {
 
             {/* Critical Certifications Alert (< 2 weeks) */}
             {(stats?.critical_certifications || 0) > 0 && (
-              <Card className="border-orange-300 bg-orange-50 p-6 dark:border-orange-800 dark:bg-orange-950/30">
+              <Card className="border-orange-500/20 bg-orange-500/10 p-6">
                 <div className="flex items-start space-x-4">
-                  <AlertTriangle
-                    className="h-8 w-8 text-orange-600 dark:text-orange-400"
-                    aria-hidden="true"
-                  />
+                  <AlertTriangle className="h-8 w-8 text-orange-400" aria-hidden="true" />
                   <div className="flex-1">
-                    <h2 className="text-foreground mb-2 text-xl font-semibold text-orange-900 dark:text-orange-100">
+                    <h2 className="text-foreground mb-2 text-xl font-semibold text-orange-400">
                       🚨 Critical: Certifications Expiring Soon
                     </h2>
-                    <p className="mb-4 text-orange-800 dark:text-orange-200">
+                    <p className="mb-4 text-orange-400/80">
                       You have {stats?.critical_certifications || 0} certification
                       {(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring within the
                       next 2 weeks. Action required.
@@ -219,21 +214,21 @@ export default async function PilotDashboardPage() {
                             return (
                               <div
                                 key={check.id}
-                                className="bg-card flex items-start justify-between rounded border border-orange-200 p-3 dark:border-orange-800"
+                                className="bg-card flex items-start justify-between rounded border border-orange-500/20 p-3"
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-orange-900 dark:text-orange-100">
+                                  <p className="font-semibold text-orange-400">
                                     {check.check_code}
                                   </p>
-                                  <p className="text-sm text-orange-700 dark:text-orange-300">
+                                  <p className="text-sm text-orange-400/80">
                                     {check.check_description}
                                   </p>
                                 </div>
                                 <div className="ml-2 text-right">
-                                  <p className="font-bold text-orange-600 dark:text-orange-400">
+                                  <p className="font-bold text-orange-400">
                                     {daysUntil} days remaining
                                   </p>
-                                  <p className="text-sm text-orange-500 dark:text-orange-400">
+                                  <p className="text-sm text-orange-400/70">
                                     {expiryDate.toLocaleDateString('en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -253,17 +248,14 @@ export default async function PilotDashboardPage() {
 
             {/* Warning Certifications Alert (upcoming checks within 60 days) */}
             {(stats?.upcoming_checks || 0) > 0 && (
-              <Card className="border-yellow-300 bg-yellow-50 p-6 dark:border-yellow-800 dark:bg-yellow-950/30">
+              <Card className="border-yellow-500/20 bg-yellow-500/10 p-6">
                 <div className="flex items-start space-x-3">
-                  <AlertTriangle
-                    className="h-8 w-8 text-yellow-600 dark:text-yellow-400"
-                    aria-hidden="true"
-                  />
+                  <AlertTriangle className="h-8 w-8 text-yellow-400" aria-hidden="true" />
                   <div className="flex-1">
-                    <h2 className="text-foreground mb-2 text-xl font-semibold text-yellow-900 dark:text-yellow-100">
+                    <h2 className="text-foreground mb-2 text-xl font-semibold text-yellow-400">
                       ⚠️ Warning: Upcoming Certifications
                     </h2>
-                    <p className="mb-4 text-yellow-800 dark:text-yellow-200">
+                    <p className="mb-4 text-yellow-400/80">
                       You have {stats?.upcoming_checks || 0} certification
                       {(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring within the next 60
                       days. Plan renewals accordingly.
@@ -280,21 +272,19 @@ export default async function PilotDashboardPage() {
                           return (
                             <div
                               key={check.id}
-                              className="bg-card flex items-start justify-between rounded border border-yellow-200 p-3 dark:border-yellow-800"
+                              className="bg-card flex items-start justify-between rounded border border-yellow-500/20 p-3"
                             >
                               <div className="flex-1">
-                                <p className="font-semibold text-yellow-900 dark:text-yellow-100">
-                                  {check.check_code}
-                                </p>
-                                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                                <p className="font-semibold text-yellow-400">{check.check_code}</p>
+                                <p className="text-sm text-yellow-400/80">
                                   {check.check_description}
                                 </p>
                               </div>
                               <div className="ml-2 text-right">
-                                <p className="font-bold text-yellow-600 dark:text-yellow-400">
+                                <p className="font-bold text-yellow-400">
                                   {daysUntil} days remaining
                                 </p>
-                                <p className="text-sm text-yellow-500 dark:text-yellow-400">
+                                <p className="text-sm text-yellow-400/70">
                                   {expiryDate.toLocaleDateString('en-US', {
                                     month: 'short',
                                     day: 'numeric',
@@ -317,7 +307,7 @@ export default async function PilotDashboardPage() {
         {/* Statistics Cards - Linear-inspired: clean, minimal */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Pending Leave Requests */}
-          <Card className="hover:border-foreground/20 p-5 transition-all duration-200">
+          <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
             <div className="mb-2 flex items-center justify-between">
               <Calendar className="text-accent h-6 w-6" aria-hidden="true" />
             </div>
@@ -333,7 +323,7 @@ export default async function PilotDashboardPage() {
           </Card>
 
           {/* RDO/SDO Requests */}
-          <Card className="hover:border-foreground/20 p-5 transition-all duration-200">
+          <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
             <div className="mb-2 flex items-center justify-between">
               <Plane className="text-accent h-6 w-6" aria-hidden="true" />
             </div>

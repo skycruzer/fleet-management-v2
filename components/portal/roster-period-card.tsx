@@ -60,9 +60,9 @@ export function RosterPeriodCard() {
   }
 
   return (
-    <Card className="border-primary-200 dark:border-primary-800 from-card to-muted/30 overflow-hidden border-2 bg-gradient-to-br">
+    <Card className="border-primary/20 from-card to-muted/30 overflow-hidden border-2 bg-gradient-to-br">
       {/* Header */}
-      <div className="from-primary-600 to-primary-700 bg-gradient-to-r px-6 py-4">
+      <div className="from-primary to-primary/90 bg-gradient-to-r px-6 py-4">
         <div className="flex items-center gap-3">
           <CalendarDays className="h-6 w-6 text-white" />
           <div>
@@ -75,13 +75,11 @@ export function RosterPeriodCard() {
       {/* Content */}
       <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-2">
         {/* Current Period */}
-        <div className="bg-primary-50 dark:bg-primary-950/30 rounded-lg p-5">
-          <Badge className="bg-primary-600 hover:bg-primary-700 mb-3 text-white">
+        <div className="bg-primary/5 rounded-lg p-5">
+          <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground mb-3">
             ACTIVE PERIOD
           </Badge>
-          <h4 className="text-primary-900 dark:text-primary-100 mb-2 text-3xl font-black">
-            {currentPeriod.code}
-          </h4>
+          <h4 className="text-foreground mb-2 text-3xl font-black">{currentPeriod.code}</h4>
           <p className="text-muted-foreground mb-4 text-sm">
             {new Date(currentPeriod.startDate).toLocaleDateString('en-US', {
               month: 'short',
@@ -97,10 +95,8 @@ export function RosterPeriodCard() {
 
           {/* Countdown */}
           <div className="flex items-baseline gap-2">
-            <Clock className="text-primary-600 h-5 w-5" />
-            <span className="text-primary-600 dark:text-primary-400 text-4xl font-black">
-              {daysRemaining}
-            </span>
+            <Clock className="text-primary h-5 w-5" />
+            <span className="text-primary text-4xl font-black">{daysRemaining}</span>
             <span className="text-muted-foreground text-sm font-medium">
               {daysRemaining === 1 ? 'day' : 'days'} remaining
             </span>
@@ -110,7 +106,7 @@ export function RosterPeriodCard() {
           <div className="mt-4">
             <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
               <div
-                className="from-primary-500 to-primary-600 h-full bg-gradient-to-r transition-all duration-500"
+                className="from-primary to-primary/90 h-full bg-gradient-to-r transition-all duration-500"
                 style={{
                   width: `${((28 - daysRemaining) / 28) * 100}%`,
                 }}

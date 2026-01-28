@@ -3,8 +3,6 @@
  * Manage certification check types and categories
  */
 
-export const dynamic = 'force-dynamic'
-
 import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
 
@@ -51,7 +49,7 @@ export default async function CheckTypesPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-        <Card className="border-primary/20 bg-primary/5 dark:bg-primary/10 p-6">
+        <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📋</span>
             <div>
@@ -60,7 +58,7 @@ export default async function CheckTypesPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-primary/20 bg-primary/5 dark:bg-primary/10 p-6">
+        <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🏷️</span>
             <div>
@@ -69,7 +67,7 @@ export default async function CheckTypesPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-950/30">
+        <Card className="border-emerald-500/20 bg-emerald-500/10 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
@@ -78,7 +76,7 @@ export default async function CheckTypesPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-orange-200 bg-orange-50 p-6 dark:border-orange-800 dark:bg-orange-950/30">
+        <Card className="border-orange-500/20 bg-orange-500/10 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📅</span>
             <div>
@@ -158,7 +156,7 @@ export default async function CheckTypesPage() {
                     {checkType.category || 'N/A'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                    <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
                       ACTIVE
                     </span>
                   </td>
@@ -190,7 +188,7 @@ export default async function CheckTypesPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="border-blue-200 bg-blue-50 p-4">
+      <Card className="border-blue-500/20 bg-blue-500/10 p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">💡</span>
           <div className="space-y-1">

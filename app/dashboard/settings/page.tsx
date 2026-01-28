@@ -3,8 +3,6 @@
  * Manage user preferences and profile settings
  */
 
-export const dynamic = 'force-dynamic'
-
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'

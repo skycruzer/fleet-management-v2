@@ -19,8 +19,6 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { redirect } from 'next/navigation'
 import { RequestDetailActions } from '@/components/requests/request-detail-actions'
 
-export const dynamic = 'force-dynamic'
-
 interface PageProps {
   params: Promise<{ id: string }>
 }
@@ -82,23 +80,23 @@ export default async function RequestDetailPage({ params }: PageProps) {
 
   const getStatusBadgeClass = (status: string) => {
     const classes: Record<string, string> = {
-      DRAFT: 'bg-gray-100 text-gray-800',
-      SUBMITTED: 'bg-blue-100 text-blue-800',
-      IN_REVIEW: 'bg-yellow-100 text-yellow-800',
-      APPROVED: 'bg-green-100 text-green-800',
-      DENIED: 'bg-red-100 text-red-800',
-      WITHDRAWN: 'bg-gray-100 text-gray-800',
+      DRAFT: 'bg-white/[0.08] text-muted-foreground',
+      SUBMITTED: 'bg-blue-500/10 text-blue-400',
+      IN_REVIEW: 'bg-amber-500/10 text-amber-400',
+      APPROVED: 'bg-emerald-500/10 text-emerald-400',
+      DENIED: 'bg-red-500/10 text-red-400',
+      WITHDRAWN: 'bg-white/[0.08] text-muted-foreground',
     }
-    return classes[status] || 'bg-gray-100 text-gray-800'
+    return classes[status] || 'bg-white/[0.08] text-muted-foreground'
   }
 
   const getCategoryBadgeClass = (category: string) => {
     const classes: Record<string, string> = {
-      LEAVE: 'bg-blue-100 text-blue-800',
-      FLIGHT: 'bg-purple-100 text-purple-800',
-      LEAVE_BID: 'bg-green-100 text-green-800',
+      LEAVE: 'bg-blue-500/10 text-blue-400',
+      FLIGHT: 'bg-purple-500/10 text-purple-400',
+      LEAVE_BID: 'bg-emerald-500/10 text-emerald-400',
     }
-    return classes[category] || 'bg-gray-100 text-gray-800'
+    return classes[category] || 'bg-white/[0.08] text-muted-foreground'
   }
 
   return (
@@ -130,13 +128,13 @@ export default async function RequestDetailPage({ params }: PageProps) {
           {request.request_category}
         </Badge>
         {request.is_late_request && (
-          <Badge variant="outline" className="border-yellow-300 bg-yellow-50 text-yellow-700">
+          <Badge variant="outline" className="border-amber-500/20 bg-amber-500/10 text-amber-400">
             <Clock className="mr-1 h-3 w-3" />
             Late Request
           </Badge>
         )}
         {request.is_past_deadline && (
-          <Badge variant="outline" className="border-red-300 bg-red-50 text-red-700">
+          <Badge variant="outline" className="border-red-500/20 bg-red-500/10 text-red-400">
             <AlertTriangle className="mr-1 h-3 w-3" />
             Past Deadline
           </Badge>
@@ -300,7 +298,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                   {request.is_late_request && (
                     <Badge
                       variant="outline"
-                      className="w-full justify-start border-yellow-300 bg-yellow-50 text-yellow-700"
+                      className="w-full justify-start border-amber-500/20 bg-amber-500/10 text-amber-400"
                     >
                       <Clock className="mr-1 h-3 w-3" />
                       Late Request (&lt;21 days notice)
@@ -309,7 +307,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                   {request.is_past_deadline && (
                     <Badge
                       variant="outline"
-                      className="w-full justify-start border-red-300 bg-red-50 text-red-700"
+                      className="w-full justify-start border-red-500/20 bg-red-500/10 text-red-400"
                     >
                       <AlertTriangle className="mr-1 h-3 w-3" />
                       Past Deadline (After 22-day cutoff)

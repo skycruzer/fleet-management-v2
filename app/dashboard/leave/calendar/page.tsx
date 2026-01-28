@@ -14,8 +14,6 @@ import { LeaveCalendarClient } from './leave-calendar-client'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export const dynamic = 'force-dynamic'
-
 export default async function LeaveCalendarPage() {
   // Check authentication (supports both Supabase Auth and admin-session cookie)
   const auth = await getAuthenticatedAdmin()
@@ -23,8 +21,8 @@ export default async function LeaveCalendarPage() {
     return (
       <div className="p-8">
         <Card className="p-8 text-center">
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">Authentication Required</h2>
-          <p className="text-gray-600">Please log in to view the leave calendar.</p>
+          <h2 className="text-foreground mb-2 text-xl font-semibold">Authentication Required</h2>
+          <p className="text-muted-foreground">Please log in to view the leave calendar.</p>
         </Card>
       </div>
     )

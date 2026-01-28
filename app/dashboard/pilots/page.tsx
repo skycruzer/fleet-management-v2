@@ -10,8 +10,6 @@ import { PilotListSkeleton } from '@/components/skeletons'
 import { PilotsPageContent } from '@/components/pilots/pilots-page-content'
 import { Plus } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
-
 export default function PilotsPage() {
   return (
     <div className="space-y-6">

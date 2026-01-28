@@ -28,14 +28,14 @@ const searchablePages: SearchResult[] = [
   // Requests
   { title: 'Pilot Requests', href: '/dashboard/requests', icon: Calendar, category: 'Requests' },
   {
-    title: 'Leave Approval',
-    href: '/dashboard/leave/approve',
+    title: 'Leave Requests',
+    href: '/dashboard/requests?tab=leave',
     icon: FileText,
     category: 'Requests',
   },
   {
-    title: 'Leave Calendar',
-    href: '/dashboard/leave/calendar',
+    title: 'Leave Calendar View',
+    href: '/dashboard/requests?tab=leave&view=calendar',
     icon: Calendar,
     category: 'Requests',
   },
@@ -53,7 +53,12 @@ const searchablePages: SearchResult[] = [
     icon: Calendar,
     category: 'Planning',
   },
-  { title: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp, category: 'Planning' },
+  {
+    title: 'Analytics & Reports',
+    href: '/dashboard/analytics',
+    icon: TrendingUp,
+    category: 'Planning',
+  },
 
   // Administration
   { title: 'Admin Dashboard', href: '/dashboard/admin', icon: Shield, category: 'Administration' },
@@ -72,10 +77,13 @@ const searchablePages: SearchResult[] = [
   },
   {
     title: 'Check Types',
-    href: '/dashboard/admin/check-types',
+    href: '/dashboard/admin?tab=check-types',
     icon: FileText,
     category: 'Administration',
   },
+
+  // Support
+  { title: 'Help & Feedback', href: '/dashboard/help', icon: FileText, category: 'Support' },
 
   // Settings
   { title: 'My Settings', href: '/dashboard/settings', icon: Settings, category: 'Settings' },
@@ -175,18 +183,18 @@ export function GlobalSearch() {
       {/* Search Trigger Button */}
       <button
         onClick={() => setOpen(true)}
-        className="bg-muted/50 hover:bg-muted text-muted-foreground flex w-full max-w-sm items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors sm:max-w-xs"
+        className="text-muted-foreground flex w-full max-w-sm items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.04] px-4 py-2 text-sm transition-colors hover:bg-white/[0.06] sm:max-w-xs"
       >
         <Search className="h-4 w-4" />
         <span className="flex-1 text-left">Quick search...</span>
-        <kbd className="bg-background pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-xs sm:inline-block">
+        <kbd className="pointer-events-none hidden rounded border border-white/[0.08] bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs sm:inline-block">
           ⌘K
         </kbd>
       </button>
 
       {/* Search Dialog */}
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-2xl p-0">
+        <DialogContent className="max-w-2xl overflow-hidden rounded-xl border-white/[0.08] bg-[rgba(17,24,39,0.95)] p-0 shadow-xl backdrop-blur-xl">
           <DialogHeader className="border-b px-4 py-3">
             <div className="flex items-center gap-3">
               <Search className="text-muted-foreground h-5 w-5" />
@@ -210,7 +218,25 @@ export function GlobalSearch() {
               <div className="space-y-4">
                 {Object.entries(groupedResults).map(([category, items]) => (
                   <div key={category}>
-                    <div className="text-muted-foreground mb-2 px-2 text-xs font-semibold tracking-wider uppercase">
+                    <div
+                      className={cn(
+                        'mb-2 px-2 text-xs font-semibold tracking-wider uppercase',
+                        category === 'Core' && 'text-primary',
+                        category === 'Requests' || category === 'Planning' ? 'text-accent' : '',
+                        category === 'Administration' && 'text-[var(--color-status-low)]',
+                        category === 'Support' || category === 'Settings'
+                          ? 'text-muted-foreground'
+                          : '',
+                        ![
+                          'Core',
+                          'Requests',
+                          'Planning',
+                          'Administration',
+                          'Support',
+                          'Settings',
+                        ].includes(category) && 'text-muted-foreground'
+                      )}
+                    >
                       {category}
                     </div>
                     <div className="space-y-1">

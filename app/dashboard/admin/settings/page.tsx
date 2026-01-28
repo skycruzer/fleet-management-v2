@@ -3,8 +3,6 @@
  * Configure system-wide preferences and settings
  */
 
-export const dynamic = 'force-dynamic'
-
 import { dashboardMetadata } from '@/lib/utils/metadata'
 import { Card } from '@/components/ui/card'
 
@@ -39,7 +37,7 @@ export default async function SystemSettingsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Card className="border-green-200 bg-green-50 p-6">
+        <Card className="border-emerald-500/20 bg-emerald-500/10 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">⚙️</span>
             <div>
@@ -48,7 +46,7 @@ export default async function SystemSettingsPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-blue-200 bg-blue-50 p-6">
+        <Card className="border-blue-500/20 bg-blue-500/10 p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
@@ -76,7 +74,7 @@ export default async function SystemSettingsPage() {
       <SettingsClient settings={settings} />
 
       {/* Help Text */}
-      <Card className="border-yellow-200 bg-yellow-50 p-4">
+      <Card className="border-amber-500/20 bg-amber-500/10 p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">⚠️</span>
           <div className="space-y-1">

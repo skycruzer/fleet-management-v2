@@ -65,15 +65,13 @@ export default function PilotRegisterForm() {
 
   if (success) {
     return (
-      <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
-        <h3 className="text-lg font-medium text-green-800 dark:text-green-200">
-          Registration Submitted!
-        </h3>
-        <p className="mt-2 text-sm text-green-700 dark:text-green-300">
+      <div className="rounded-md bg-emerald-500/10 p-4">
+        <h3 className="text-lg font-medium text-emerald-400">Registration Submitted!</h3>
+        <p className="mt-2 text-sm text-emerald-400">
           Your registration has been submitted successfully. An administrator will review your
           application shortly. You'll receive an email notification once approved.
         </p>
-        <p className="mt-2 text-sm text-green-600 dark:text-green-400">Redirecting to login...</p>
+        <p className="mt-2 text-sm text-emerald-400">Redirecting to login...</p>
       </div>
     )
   }
@@ -81,157 +79,122 @@ export default function PilotRegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        <div className="rounded-md bg-red-500/10 p-4">
+          <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         {/* First Name */}
         <div>
-          <label
-            htmlFor="first_name"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="first_name" className="text-foreground/80 block text-sm font-medium">
             First Name *
           </label>
           <input
             {...register('first_name')}
             type="text"
             id="first_name"
-            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           />
           {errors.first_name && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.first_name.message}
-            </p>
+            <p className="mt-1 text-sm text-red-400">{errors.first_name.message}</p>
           )}
         </div>
 
         {/* Last Name */}
         <div>
-          <label
-            htmlFor="last_name"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
+          <label htmlFor="last_name" className="text-foreground/80 block text-sm font-medium">
             Last Name *
           </label>
           <input
             {...register('last_name')}
             type="text"
             id="last_name"
-            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           />
           {errors.last_name && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-              {errors.last_name.message}
-            </p>
+            <p className="mt-1 text-sm text-red-400">{errors.last_name.message}</p>
           )}
         </div>
       </div>
 
       {/* Email */}
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="email" className="text-foreground/80 block text-sm font-medium">
           Email Address *
         </label>
         <input
           {...register('email')}
           type="email"
           id="email"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
       </div>
 
       {/* Password */}
       <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="password" className="text-foreground/80 block text-sm font-medium">
           Password *
         </label>
         <input
           {...register('password')}
           type="password"
           id="password"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
-        {errors.password && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
-        )}
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password.message}</p>}
+        <p className="text-muted-foreground mt-1 text-xs">
           Must contain uppercase, lowercase, number, and special character
         </p>
       </div>
 
       {/* Confirm Password */}
       <div>
-        <label
-          htmlFor="confirmPassword"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="confirmPassword" className="text-foreground/80 block text-sm font-medium">
           Confirm Password *
         </label>
         <input
           {...register('confirmPassword')}
           type="password"
           id="confirmPassword"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.confirmPassword && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-            {errors.confirmPassword.message}
-          </p>
+          <p className="mt-1 text-sm text-red-400">{errors.confirmPassword.message}</p>
         )}
       </div>
 
       {/* Rank */}
       <div>
-        <label
-          htmlFor="rank"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="rank" className="text-foreground/80 block text-sm font-medium">
           Rank *
         </label>
         <select
           {...register('rank')}
           id="rank"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         >
           <option value="">Select rank</option>
           <option value="Captain">Captain</option>
           <option value="First Officer">First Officer</option>
         </select>
-        {errors.rank && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.rank.message}</p>
-        )}
+        {errors.rank && <p className="mt-1 text-sm text-red-400">{errors.rank.message}</p>}
       </div>
 
       {/* Employee ID (Optional) */}
       <div>
-        <label
-          htmlFor="employee_id"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
+        <label htmlFor="employee_id" className="text-foreground/80 block text-sm font-medium">
           Employee ID (Optional)
         </label>
         <input
           {...register('employee_id')}
           type="text"
           id="employee_id"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:outline-none sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.employee_id && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-            {errors.employee_id.message}
-          </p>
+          <p className="mt-1 text-sm text-red-400">{errors.employee_id.message}</p>
         )}
       </div>
 

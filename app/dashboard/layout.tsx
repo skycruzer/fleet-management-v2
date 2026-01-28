@@ -17,7 +17,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0 // Always fetch fresh data
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -31,15 +30,16 @@ import { GlobalAnnouncer } from '@/components/accessibility/announcer'
 import {
   LayoutDashboard,
   Users,
-  FileText,
-  Calendar,
-  TrendingUp,
-  Settings,
-  CheckSquare,
-  AlertTriangle,
-  Plane,
-  ScrollText,
+  FileCheck,
+  ClipboardList,
   RefreshCw,
+  BarChart3,
+  Shield,
+  CheckSquare,
+  AlertCircle,
+  ScrollText,
+  HelpCircle,
+  UserCircle,
 } from 'lucide-react'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -77,13 +77,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
     },
     {
       href: '/dashboard/certifications',
-      icon: <FileText className="h-4 w-4" aria-hidden="true" />,
+      icon: <FileCheck className="h-4 w-4" aria-hidden="true" />,
       label: 'Certifications',
     },
     {
       href: '/dashboard/requests',
-      icon: <Calendar className="h-4 w-4" aria-hidden="true" />,
-      label: 'Pilot Requests',
+      icon: <ClipboardList className="h-4 w-4" aria-hidden="true" />,
+      label: 'Requests',
     },
     {
       href: '/dashboard/renewal-planning',
@@ -92,13 +92,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
     },
     {
       href: '/dashboard/analytics',
-      icon: <TrendingUp className="h-4 w-4" aria-hidden="true" />,
-      label: 'Analytics',
+      icon: <BarChart3 className="h-4 w-4" aria-hidden="true" />,
+      label: 'Analytics & Reports',
     },
     {
       href: '/dashboard/admin',
-      icon: <Settings className="h-4 w-4" aria-hidden="true" />,
-      label: 'Admin Dashboard',
+      icon: <Shield className="h-4 w-4" aria-hidden="true" />,
+      label: 'System Admin',
     },
     {
       href: '/dashboard/tasks',
@@ -107,7 +107,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     },
     {
       href: '/dashboard/disciplinary',
-      icon: <AlertTriangle className="h-4 w-4" aria-hidden="true" />,
+      icon: <AlertCircle className="h-4 w-4" aria-hidden="true" />,
       label: 'Disciplinary',
     },
     {
@@ -116,8 +116,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: 'Audit Logs',
     },
     {
+      href: '/dashboard/help',
+      icon: <HelpCircle className="h-4 w-4" aria-hidden="true" />,
+      label: 'Help & Feedback',
+    },
+    {
       href: '/dashboard/settings',
-      icon: <Settings className="h-4 w-4" aria-hidden="true" />,
+      icon: <UserCircle className="h-4 w-4" aria-hidden="true" />,
       label: 'My Settings',
     },
   ]

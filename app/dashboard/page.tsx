@@ -5,8 +5,6 @@
  * Optimized with caching and memoization for fast load times
  */
 
-export const dynamic = 'force-dynamic'
-
 import { Suspense } from 'react'
 import { DashboardSkeleton } from '@/components/skeletons'
 import { DashboardContent } from '@/components/dashboard/dashboard-content'

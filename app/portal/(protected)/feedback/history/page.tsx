@@ -68,14 +68,14 @@ export default function FeedbackHistoryPage() {
     switch (status) {
       case 'UNDER_REVIEW':
         return (
-          <Badge className="bg-yellow-100 text-yellow-800">
+          <Badge className="bg-amber-500/10 text-amber-400">
             <Clock className="mr-1 h-3 w-3" />
             Under Review
           </Badge>
         )
       case 'RESOLVED':
         return (
-          <Badge className="bg-green-100 text-green-800">
+          <Badge className="bg-emerald-500/10 text-emerald-400">
             <CheckCircle className="mr-1 h-3 w-3" />
             Resolved
           </Badge>
@@ -83,7 +83,7 @@ export default function FeedbackHistoryPage() {
       case 'SUBMITTED':
       default:
         return (
-          <Badge className="bg-gray-100 text-gray-800">
+          <Badge className="text-foreground bg-white/[0.03]">
             <AlertCircle className="mr-1 h-3 w-3" />
             Submitted
           </Badge>
@@ -93,14 +93,14 @@ export default function FeedbackHistoryPage() {
 
   const getCategoryBadge = (category: string) => {
     const colors: Record<string, string> = {
-      Operations: 'bg-blue-100 text-blue-800',
-      Training: 'bg-purple-100 text-purple-800',
-      Scheduling: 'bg-orange-100 text-orange-800',
-      Safety: 'bg-red-100 text-red-800',
-      Equipment: 'bg-green-100 text-green-800',
-      System: 'bg-cyan-100 text-cyan-800',
-      Suggestion: 'bg-pink-100 text-pink-800',
-      Other: 'bg-gray-100 text-gray-800',
+      Operations: 'bg-blue-500/10 text-blue-400',
+      Training: 'bg-purple-500/10 text-purple-400',
+      Scheduling: 'bg-orange-500/10 text-orange-400',
+      Safety: 'bg-red-500/10 text-red-400',
+      Equipment: 'bg-emerald-500/10 text-emerald-400',
+      System: 'bg-cyan-500/10 text-cyan-400',
+      Suggestion: 'bg-pink-500/10 text-pink-400',
+      Other: 'bg-white/[0.03] text-foreground',
     }
 
     return <Badge className={colors[category] || colors.Other}>{category}</Badge>
@@ -129,7 +129,7 @@ export default function FeedbackHistoryPage() {
   return (
     <div className="min-h-screen">
       {/* Page Header */}
-      <div className="border-b border-slate-200 bg-white px-8 py-6 dark:border-slate-700 dark:bg-slate-900">
+      <div className="bg-card border-b border-white/[0.08] px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <MessageSquare className="text-primary h-8 w-8" />
@@ -216,7 +216,7 @@ export default function FeedbackHistoryPage() {
           <div className="space-y-4">
             {feedback.map((item) => (
               <Card key={item.id} className="overflow-hidden transition-shadow hover:shadow-lg">
-                <CardHeader className="bg-slate-50 dark:bg-slate-800">
+                <CardHeader className="bg-white/[0.03]">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -247,18 +247,16 @@ export default function FeedbackHistoryPage() {
 
                   {/* Admin Response */}
                   {item.admin_response && (
-                    <div className="border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-950/30 rounded-lg border-2 p-4">
+                    <div className="border-primary-200 bg-primary-50 rounded-lg border-2 p-4">
                       <div className="mb-2 flex items-center gap-2">
                         <CheckCircle className="text-primary-600 h-4 w-4" />
-                        <h4 className="text-primary-900 dark:text-primary-100 text-sm font-semibold">
-                          Admin Response:
-                        </h4>
+                        <h4 className="text-primary-900 text-sm font-semibold">Admin Response:</h4>
                       </div>
-                      <p className="text-primary-800 dark:text-primary-200 text-sm whitespace-pre-wrap">
+                      <p className="text-primary-800 text-sm whitespace-pre-wrap">
                         {item.admin_response}
                       </p>
                       {item.updated_at && (
-                        <p className="text-primary-600 dark:text-primary-400 mt-2 text-xs">
+                        <p className="text-primary-600 mt-2 text-xs">
                           Responded{' '}
                           {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
                         </p>
@@ -268,8 +266,8 @@ export default function FeedbackHistoryPage() {
 
                   {/* No Response Yet */}
                   {!item.admin_response && item.status !== 'RESOLVED' && (
-                    <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-800">
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                    <div className="rounded-lg border border-dashed border-white/[0.1] bg-white/[0.03] p-3">
+                      <p className="text-muted-foreground text-xs">
                         <Clock className="mr-1 inline h-3 w-3" />
                         Waiting for admin response...
                       </p>

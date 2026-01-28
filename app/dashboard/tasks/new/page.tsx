@@ -4,8 +4,6 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTaskCategories } from '@/lib/services/task-service'
 import TaskForm from '@/components/tasks/TaskForm'
 // Force dynamic rendering to prevent static generation at build time
-export const dynamic = 'force-dynamic'
-
 /**
  * New Task Page (Admin)
  *
@@ -43,14 +41,12 @@ export default async function NewTaskPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Task</h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Create a task and assign it to a team member
-        </p>
+        <h1 className="text-foreground text-3xl font-bold">Create New Task</h1>
+        <p className="text-muted-foreground mt-2">Create a task and assign it to a team member</p>
       </div>
 
       {/* Task Form */}
-      <div className="mx-auto max-w-3xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="bg-card mx-auto max-w-3xl rounded-lg border border-white/[0.08] p-6 shadow-sm">
         <TaskForm users={users || []} pilots={pilots || []} categories={categories} />
       </div>
     </div>

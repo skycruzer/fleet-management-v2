@@ -43,11 +43,9 @@ export default async function PilotLeavePage() {
   if (!pilotUser.registration_approved) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <div className="rounded-lg bg-yellow-50 p-6 text-center shadow dark:bg-yellow-900/20">
-          <h1 className="text-2xl font-bold text-yellow-800 dark:text-yellow-200">
-            Registration Pending Approval
-          </h1>
-          <p className="mt-2 text-yellow-700 dark:text-yellow-300">
+        <div className="rounded-lg bg-amber-500/10 p-6 text-center shadow">
+          <h1 className="text-2xl font-bold text-amber-400">Registration Pending Approval</h1>
+          <p className="mt-2 text-amber-400">
             Your pilot registration is pending approval by the fleet management team. You will be
             able to submit leave requests once your registration is approved.
           </p>
@@ -70,10 +68,8 @@ export default async function PilotLeavePage() {
     <div className="container mx-auto max-w-7xl px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Leave Requests</h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Submit and manage your leave requests
-        </p>
+        <h1 className="text-foreground text-3xl font-bold">Leave Requests</h1>
+        <p className="text-muted-foreground mt-2">Submit and manage your leave requests</p>
       </div>
 
       {/* Stats Grid */}
@@ -88,20 +84,16 @@ export default async function PilotLeavePage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Leave Request Form */}
         <div className="lg:col-span-1">
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-            <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-              Submit New Request
-            </h2>
+          <div className="bg-card rounded-lg p-6 shadow">
+            <h2 className="text-foreground mb-4 text-xl font-bold">Submit New Request</h2>
             <LeaveRequestForm />
           </div>
         </div>
 
         {/* Leave Requests List */}
         <div className="lg:col-span-2">
-          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-            <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-              Your Leave Requests
-            </h2>
+          <div className="bg-card rounded-lg p-6 shadow">
+            <h2 className="text-foreground mb-4 text-xl font-bold">Your Leave Requests</h2>
             <LeaveRequestsList requests={leaveRequests} />
           </div>
         </div>
@@ -121,15 +113,15 @@ function StatCard({
   color: 'blue' | 'yellow' | 'green' | 'red'
 }) {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
-    yellow: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400',
-    green: 'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400',
-    red: 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400',
+    blue: 'bg-blue-500/10 text-blue-400',
+    yellow: 'bg-amber-500/10 text-amber-400',
+    green: 'bg-emerald-500/10 text-emerald-400',
+    red: 'bg-red-500/10 text-red-400',
   }
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
+    <div className="bg-card rounded-lg p-6 shadow">
+      <p className="text-muted-foreground text-sm font-medium">{title}</p>
       <p className={`mt-2 text-3xl font-bold ${colorClasses[color]}`}>{value}</p>
     </div>
   )

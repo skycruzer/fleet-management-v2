@@ -63,13 +63,13 @@ export default async function NotificationsPage() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-700'
+        return 'bg-emerald-500/10 border-emerald-500/20'
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950 dark:border-yellow-700'
+        return 'bg-amber-500/10 border-amber-500/20'
       case 'error':
-        return 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-700'
+        return 'bg-red-500/10 border-red-500/20'
       default:
-        return 'bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-700'
+        return 'bg-blue-500/10 border-blue-500/20'
     }
   }
 
@@ -110,8 +110,8 @@ export default async function NotificationsPage() {
 
       {/* Notifications List */}
       {notifications.length === 0 ? (
-        <div className="flex min-h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-12 dark:border-gray-600 dark:bg-gray-800">
-          <Bell className="h-12 w-12 text-gray-400 dark:text-gray-500" />
+        <div className="flex min-h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/[0.1] bg-white/[0.03] p-12">
+          <Bell className="text-muted-foreground h-12 w-12" />
           <h3 className="text-foreground mt-4 text-lg font-medium">No notifications</h3>
           <p className="text-muted-foreground mt-2">You are all caught up!</p>
         </div>
@@ -139,7 +139,7 @@ export default async function NotificationsPage() {
                           {notification.link && (
                             <Link
                               href={notification.link}
-                              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                              className="text-sm font-medium text-blue-400 hover:text-blue-300"
                             >
                               View Details →
                             </Link>
@@ -163,7 +163,7 @@ export default async function NotificationsPage() {
                 {readNotifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className="rounded-lg border border-gray-200 bg-white p-4 opacity-60 dark:border-gray-700 dark:bg-gray-800"
+                    className="bg-card rounded-lg border border-white/[0.08] p-4 opacity-60"
                   >
                     <div className="flex items-start gap-3">
                       {getTypeIcon(notification.type)}
@@ -177,7 +177,7 @@ export default async function NotificationsPage() {
                           {notification.link && (
                             <Link
                               href={notification.link}
-                              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+                              className="text-sm font-medium text-blue-400 hover:text-blue-300"
                             >
                               View Details →
                             </Link>

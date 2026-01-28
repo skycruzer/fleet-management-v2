@@ -129,7 +129,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
           )}
         </div>
         <svg
-          className={`h-5 w-5 text-gray-600 transition-transform dark:text-gray-400 ${isExpanded ? 'rotate-180' : ''}`}
+          className={`text-muted-foreground h-5 w-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -207,7 +207,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={recordId}
                 onChange={(e) => setRecordId(e.target.value)}
                 placeholder="Filter by record ID"
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 font-mono text-sm shadow-sm focus:ring-1 focus:outline-none"
               />
             </div>
 

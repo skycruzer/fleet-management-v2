@@ -18,7 +18,7 @@ export async function PilotsPageContent() {
     <>
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-        <Card className="border-primary/20 bg-primary/5 dark:border-primary/30 dark:bg-primary/10 p-6">
+        <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
             <Users className="text-primary h-8 w-8" aria-hidden="true" />
             <div>

@@ -52,29 +52,27 @@ export default async function PilotLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-12 dark:from-gray-900 dark:to-gray-800">
+    <div className="from-primary/5 to-primary/15 flex min-h-screen items-center justify-center bg-gradient-to-br px-4 py-12">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Pilot Portal
-          </h1>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">Pilot Portal</h1>
+          <p className="text-muted-foreground mt-2 text-sm">
             Sign in to access your dashboard and certifications
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
+        <div className="bg-card rounded-lg p-8 shadow-lg">
           <PilotLoginForm />
 
           {/* Registration Link */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground text-sm">
               Don't have an account?{' '}
               <Link
                 href="/pilot/register"
-                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                className="text-primary hover:text-primary/80 font-medium"
               >
                 Register here
               </Link>
@@ -83,7 +81,7 @@ export default async function PilotLoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-muted-foreground text-center text-xs">
           Air Niugini B767 Fleet Management System
         </p>
       </div>

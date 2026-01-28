@@ -80,21 +80,17 @@ export const PilotCard: Story = {
 
 export const CertificationAlert: Story = {
   render: () => (
-    <Card className="w-[350px] border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+    <Card className="w-[350px] border-yellow-500 bg-yellow-50">
       <CardHeader>
-        <CardTitle className="text-yellow-900 dark:text-yellow-100">
-          Certification Expiring Soon
-        </CardTitle>
-        <CardDescription className="text-yellow-700 dark:text-yellow-300">
+        <CardTitle className="text-yellow-900">Certification Expiring Soon</CardTitle>
+        <CardDescription className="text-yellow-700">
           Action required within 30 days
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <p className="text-sm text-yellow-900 dark:text-yellow-100">Line Check - Captain</p>
-          <p className="text-sm text-yellow-700 dark:text-yellow-300">
-            Expires: December 15, 2025 (28 days)
-          </p>
+          <p className="text-sm text-yellow-900">Line Check - Captain</p>
+          <p className="text-sm text-yellow-700">Expires: December 15, 2025 (28 days)</p>
         </div>
       </CardContent>
       <CardFooter>

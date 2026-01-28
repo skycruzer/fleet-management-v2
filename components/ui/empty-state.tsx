@@ -74,14 +74,12 @@ export function EmptyState({
             }
             className={cn(
               'mb-6 flex items-center justify-center rounded-full',
-              'from-accent/10 to-accent/5 dark:from-accent/20 dark:to-accent/10 bg-gradient-to-br',
+              'from-primary/15 to-primary/5 bg-gradient-to-br',
               isCompact ? 'h-16 w-16' : 'h-24 w-24'
             )}
             aria-hidden="true"
           >
-            <Icon
-              className={cn('text-accent dark:text-accent', isCompact ? 'h-8 w-8' : 'h-12 w-12')}
-            />
+            <Icon className={cn('text-primary', isCompact ? 'h-8 w-8' : 'h-12 w-12')} />
           </motion.div>
         )}
 

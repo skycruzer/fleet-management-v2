@@ -401,8 +401,8 @@ export default function GeneratePlanPage() {
             })}
           </div>
           <Separator className="my-4" />
-          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-            <p className="text-sm text-amber-800 dark:text-amber-200">
+          <div className="rounded-md border border-amber-500/20 bg-amber-500/10 p-3">
+            <p className="text-sm text-amber-400">
               <strong>Note:</strong> Pilot Medical certifications have a 28-day grace period, which
               is too short for advance planning. Medical renewals should be scheduled through urgent
               scheduling.
@@ -434,14 +434,12 @@ export default function GeneratePlanPage() {
 
         {/* Warning */}
         {clearExisting && (
-          <Card className="border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
+          <Card className="border-red-500/20 bg-red-500/10 p-6">
             <div className="flex items-start space-x-3">
-              <AlertTriangle className="mt-1 h-6 w-6 text-red-600 dark:text-red-400" />
+              <AlertTriangle className="mt-1 h-6 w-6 text-red-400" />
               <div>
-                <h3 className="font-semibold text-red-900 dark:text-red-100">
-                  Warning: Destructive Action
-                </h3>
-                <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                <h3 className="font-semibold text-red-400">Warning: Destructive Action</h3>
+                <p className="mt-1 text-sm text-red-400">
                   This will permanently delete all existing renewal plans. This action cannot be
                   undone.
                 </p>
@@ -454,9 +452,9 @@ export default function GeneratePlanPage() {
       {/* Right sidebar */}
       <div className="space-y-6">
         {/* Quick Stats */}
-        <Card className="bg-blue-50 p-6 dark:bg-blue-900/20">
-          <h3 className="mb-3 font-semibold text-blue-900 dark:text-blue-100">How It Works</h3>
-          <ul className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
+        <Card className="bg-blue-500/10 p-6">
+          <h3 className="mb-3 font-semibold text-blue-400">How It Works</h3>
+          <ul className="space-y-2 text-sm text-blue-400">
             <li>• Fetches expiring checks for selected categories</li>
             <li>• Pairs Captains with First Officers (Flight/Simulator)</li>
             <li>• Assigns to all 13 roster periods (RP1-RP13)</li>
@@ -533,14 +531,14 @@ export default function GeneratePlanPage() {
 
         {/* Warnings */}
         {preview && preview.warnings.length > 0 && (
-          <Card className="border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
-            <h3 className="mb-2 flex items-center font-semibold text-orange-900 dark:text-orange-100">
+          <Card className="border-orange-500/20 bg-orange-500/10 p-4">
+            <h3 className="mb-2 flex items-center font-semibold text-orange-400">
               <AlertTriangle className="mr-2 h-5 w-5" />
               Warnings ({preview.warnings.length})
             </h3>
             <ul className="space-y-1">
               {preview.warnings.map((w, idx) => (
-                <li key={idx} className="text-sm text-orange-700 dark:text-orange-300">
+                <li key={idx} className="text-sm text-orange-400">
                   <Badge
                     variant={w.severity === 'critical' ? 'destructive' : 'outline'}
                     className="mr-2"
@@ -561,10 +559,8 @@ export default function GeneratePlanPage() {
             <p className="text-muted-foreground">Loading preview with pairing information...</p>
           </Card>
         ) : previewQuery.isError ? (
-          <Card className="border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/20">
-            <p className="text-red-600 dark:text-red-400">
-              Failed to load preview. Please try again.
-            </p>
+          <Card className="border-red-500/20 bg-red-500/10 p-6 text-center">
+            <p className="text-red-400">Failed to load preview. Please try again.</p>
             <Button
               onClick={() => previewQuery.refetch()}
               variant="outline"
@@ -618,8 +614,8 @@ export default function GeneratePlanPage() {
       <div className="space-y-6">
         {/* Success Header */}
         <div className="flex items-center space-x-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-            <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
+            <CheckCircle2 className="h-6 w-6 text-emerald-400" />
           </div>
           <div>
             <h2 className="text-foreground text-2xl font-bold">Generation Complete!</h2>
@@ -631,11 +627,9 @@ export default function GeneratePlanPage() {
 
         {/* Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-900/20">
-            <p className="text-4xl font-bold text-green-700 dark:text-green-300">
-              {generationResult.totalPlans}
-            </p>
-            <p className="text-sm text-green-600 dark:text-green-400">Total Plans Generated</p>
+          <Card className="border-emerald-500/20 bg-emerald-500/10 p-6 text-center">
+            <p className="text-4xl font-bold text-emerald-400">{generationResult.totalPlans}</p>
+            <p className="text-sm text-emerald-400">Total Plans Generated</p>
           </Card>
           <Card className="p-6 text-center">
             <p className="text-foreground text-4xl font-bold">

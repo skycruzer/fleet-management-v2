@@ -10,8 +10,6 @@ import { AuditFilters } from './components/audit-filters'
 import { format } from 'date-fns'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
-export const dynamic = 'force-dynamic'
-
 /**
  * Audit Logs Dashboard (Admin)
  *
@@ -66,17 +64,17 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
   const getActionBadgeColor = (action: string) => {
     switch (action) {
       case 'INSERT':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-emerald-500/10 text-emerald-400'
       case 'UPDATE':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-blue-500/10 text-blue-400'
       case 'DELETE':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+        return 'bg-red-500/10 text-red-400'
       case 'SOFT_DELETE':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+        return 'bg-orange-500/10 text-orange-400'
       case 'RESTORE':
-        return 'bg-primary/10 text-primary-foreground dark:bg-purple-900/20 dark:text-primary'
+        return 'bg-primary/10 text-primary-foreground'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+        return 'bg-white/[0.03] text-foreground'
     }
   }
 
@@ -84,71 +82,57 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Audit Logs</h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <h1 className="text-foreground text-3xl font-bold">Audit Logs</h1>
+        <p className="text-muted-foreground mt-2">
           Complete audit trail of all system activities and changes
         </p>
       </div>
 
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Logs</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{stats.totalLogs}</p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Total Logs</p>
+          <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalLogs}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
-          <p className="mt-2 text-3xl font-bold text-blue-600 dark:text-blue-400">
-            {stats.totalUsers}
-          </p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Active Users</p>
+          <p className="mt-2 text-3xl font-bold text-blue-600">{stats.totalUsers}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Tables Monitored</p>
-          <p className="text-primary dark:text-primary mt-2 text-3xl font-bold">
-            {stats.totalTables}
-          </p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
+          <p className="text-primary mt-2 text-3xl font-bold">{stats.totalTables}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Recent Activity</p>
-          <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">{totalCount}</p>
+        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">Recent Activity</p>
+          <p className="mt-2 text-3xl font-bold text-green-600">{totalCount}</p>
         </div>
       </div>
 
       {/* Action Breakdown */}
-      <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-          Action Breakdown
-        </h2>
+      <div className="bg-card mb-8 rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <h2 className="text-foreground mb-4 text-lg font-semibold">Action Breakdown</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Inserts</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {stats.actionBreakdown.INSERT}
-            </p>
+            <p className="text-muted-foreground text-sm">Inserts</p>
+            <p className="text-2xl font-bold text-green-600">{stats.actionBreakdown.INSERT}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Updates</p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {stats.actionBreakdown.UPDATE}
-            </p>
+            <p className="text-muted-foreground text-sm">Updates</p>
+            <p className="text-2xl font-bold text-blue-600">{stats.actionBreakdown.UPDATE}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Deletes</p>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {stats.actionBreakdown.DELETE}
-            </p>
+            <p className="text-muted-foreground text-sm">Deletes</p>
+            <p className="text-2xl font-bold text-red-600">{stats.actionBreakdown.DELETE}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Soft Deletes</p>
-            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+            <p className="text-muted-foreground text-sm">Soft Deletes</p>
+            <p className="text-2xl font-bold text-orange-600">
               {stats.actionBreakdown.SOFT_DELETE}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Restores</p>
-            <p className="text-primary dark:text-primary text-2xl font-bold">
-              {stats.actionBreakdown.RESTORE}
-            </p>
+            <p className="text-muted-foreground text-sm">Restores</p>
+            <p className="text-primary text-2xl font-bold">{stats.actionBreakdown.RESTORE}</p>
           </div>
         </div>
       </div>
@@ -163,55 +147,48 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
       />
 
       {/* Audit Logs Table */}
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="bg-card overflow-hidden rounded-lg border border-white/[0.08] shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
+          <table className="min-w-full divide-y divide-white/[0.08]">
+            <thead className="bg-white/[0.03]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Timestamp
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Action
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Table
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Record ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Description
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+            <tbody className="bg-card divide-y divide-white/[0.08]">
               {logs.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
-                  >
+                  <td colSpan={6} className="text-muted-foreground px-6 py-12 text-center">
                     No audit logs found. Try adjusting your filters.
                   </td>
                 </tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
+                  <tr key={log.id} className="hover:bg-white/[0.03]">
+                    <td className="text-foreground px-6 py-4 text-sm whitespace-nowrap">
                       {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <div className="text-gray-900 dark:text-white">
-                        {log.user_email || 'System'}
-                      </div>
+                      <div className="text-foreground">{log.user_email || 'System'}</div>
                       {log.user_role && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {log.user_role}
-                        </div>
+                        <div className="text-muted-foreground text-xs">{log.user_role}</div>
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm whitespace-nowrap">
@@ -223,15 +200,15 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                         {log.action}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-900 dark:text-white">
+                    <td className="text-foreground px-6 py-4 text-sm whitespace-nowrap">
                       {log.table_name}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <code className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-900 dark:bg-gray-900 dark:text-white">
+                      <code className="text-foreground rounded bg-white/[0.03] px-2 py-1 text-xs">
                         {log.record_id}
                       </code>
                     </td>
-                    <td className="max-w-xs truncate px-6 py-4 text-sm text-gray-900 dark:text-white">
+                    <td className="text-foreground max-w-xs truncate px-6 py-4 text-sm">
                       {log.description || '-'}
                     </td>
                   </tr>
@@ -243,11 +220,11 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 dark:border-gray-700 dark:bg-gray-800">
+          <div className="bg-card flex items-center justify-between border-t border-white/[0.08] px-4 py-3 sm:px-6">
             <div className="flex flex-1 justify-between sm:hidden">
               <Link
                 href={`?${new URLSearchParams({ ...params, page: String(Math.max(1, page - 1)) }).toString()}`}
-                className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 ${
+                className={`bg-card text-foreground/80 relative inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${
                   page === 1 ? 'pointer-events-none opacity-50' : ''
                 }`}
               >
@@ -255,7 +232,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
               </Link>
               <Link
                 href={`?${new URLSearchParams({ ...params, page: String(Math.min(totalPages, page + 1)) }).toString()}`}
-                className={`relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 ${
+                className={`bg-card text-foreground/80 relative ml-3 inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${
                   page === totalPages ? 'pointer-events-none opacity-50' : ''
                 }`}
               >
@@ -264,7 +241,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
             </div>
             <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+                <p className="text-foreground/80 text-sm">
                   Showing <span className="font-medium">{(page - 1) * pageSize + 1}</span> to{' '}
                   <span className="font-medium">{Math.min(page * pageSize, totalCount)}</span> of{' '}
                   <span className="font-medium">{totalCount}</span> results
@@ -277,7 +254,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                 >
                   <Link
                     href={`?${new URLSearchParams({ ...params, page: String(Math.max(1, page - 1)) }).toString()}`}
-                    className={`relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 ${
+                    className={`bg-card text-muted-foreground relative inline-flex items-center rounded-l-md border border-white/[0.1] px-2 py-2 text-sm font-medium hover:bg-white/[0.03] focus:z-20 ${
                       page === 1 ? 'pointer-events-none opacity-50' : ''
                     }`}
                   >
@@ -295,12 +272,12 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                       />
                     </svg>
                   </Link>
-                  <span className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                  <span className="bg-card text-foreground/80 relative inline-flex items-center border border-white/[0.1] px-4 py-2 text-sm font-medium">
                     {page} / {totalPages}
                   </span>
                   <Link
                     href={`?${new URLSearchParams({ ...params, page: String(Math.min(totalPages, page + 1)) }).toString()}`}
-                    className={`relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 ${
+                    className={`bg-card text-muted-foreground relative inline-flex items-center rounded-r-md border border-white/[0.1] px-2 py-2 text-sm font-medium hover:bg-white/[0.03] focus:z-20 ${
                       page === totalPages ? 'pointer-events-none opacity-50' : ''
                     }`}
                   >

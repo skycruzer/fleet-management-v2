@@ -23,15 +23,15 @@ export default function PortalError({
   }, [error])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[var(--color-accent-50)] via-white to-[var(--color-primary-50)] px-4">
       <div className="w-full max-w-lg">
         {/* Error Card */}
         <div className="border-destructive/20 rounded-lg border p-8 shadow-lg">
           {/* Icon */}
           <div className="mb-4 flex justify-center">
-            <div className="rounded-full bg-red-100 p-4">
+            <div className="rounded-full bg-[var(--color-destructive-muted)] p-4">
               <svg
-                className="h-12 w-12 text-red-600"
+                className="text-destructive h-12 w-12"
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"

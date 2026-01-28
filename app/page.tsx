@@ -18,9 +18,14 @@ export const metadata = publicMetadata.home
 export default function HomePage() {
   return (
     <div className="min-h-screen">
-      {/* Hero Section - Clean Minimal Background */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-zinc-50 via-white to-zinc-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+      {/* Hero Section - Dark Navy Premium Background */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#0a0e1a] via-[#0f1629] to-[#0a0e1a]">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+
+        {/* Decorative gradient orbs */}
+        <div className="bg-primary/10 absolute -top-24 -left-24 h-96 w-96 rounded-full blur-3xl" />
+        <div className="bg-accent/10 absolute top-1/2 -right-32 h-80 w-80 rounded-full blur-3xl" />
+        <div className="bg-primary/5 absolute -bottom-16 left-1/3 h-64 w-64 rounded-full blur-3xl" />
 
         <div className="relative container mx-auto px-4 py-24 sm:py-32">
           <div className="flex flex-col items-center space-y-8 text-center">
@@ -107,7 +112,7 @@ export default function HomePage() {
         </div>
 
         {/* Benefits Section */}
-        <div className="rounded-3xl bg-gradient-to-br from-zinc-50 to-zinc-100 p-12 text-center dark:from-zinc-900 dark:to-zinc-950">
+        <div className="rounded-3xl border border-white/[0.08] bg-white/[0.03] p-12 text-center">
           <h2 className="mb-8 text-3xl font-bold sm:text-4xl">Why Choose Our Platform?</h2>
           <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
             <BenefitItem
@@ -147,7 +152,7 @@ function FeatureCard({
   description: string
 }) {
   return (
-    <Card className="hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <Card className="hover:border-primary/50 hover:shadow-primary/5 border-white/[0.08] bg-white/[0.04] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <CardHeader>
         <div className="text-primary bg-primary/10 mb-3 w-fit rounded-lg p-3">{icon}</div>
         <CardTitle className="text-xl">{title}</CardTitle>

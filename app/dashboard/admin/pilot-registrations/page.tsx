@@ -7,8 +7,6 @@
  * @route /dashboard/admin/pilot-registrations
  */
 
-export const dynamic = 'force-dynamic'
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -58,7 +56,7 @@ export default async function PilotRegistrationsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30">
+        <Card className="border-amber-500/20 bg-amber-500/10">
           <CardHeader className="pb-3">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Pending Review
@@ -70,7 +68,7 @@ export default async function PilotRegistrationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30">
+        <Card className="border-emerald-500/20 bg-emerald-500/10">
           <CardHeader className="pb-3">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Quick Action
@@ -85,7 +83,7 @@ export default async function PilotRegistrationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30">
+        <Card className="border-blue-500/20 bg-blue-500/10">
           <CardHeader className="pb-3">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Registration Link
@@ -94,7 +92,7 @@ export default async function PilotRegistrationsPage() {
           <CardContent>
             <Link
               href="/portal/register"
-              className="text-sm text-blue-600 hover:text-blue-500 hover:underline"
+              className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
             >
               /portal/register
             </Link>
@@ -106,7 +104,7 @@ export default async function PilotRegistrationsPage() {
       <RegistrationApprovalClient initialRegistrations={pendingRegistrations} />
 
       {/* Help Text */}
-      <Card className="border-blue-200 bg-blue-50">
+      <Card className="border-blue-500/20 bg-blue-500/10">
         <CardContent className="pt-6">
           <div className="flex items-start space-x-3">
             <span className="text-2xl">ℹ️</span>

@@ -29,8 +29,6 @@ import {
 } from '@/components/ui/table'
 import { formatDate } from '@/lib/utils/date-utils'
 
-export const dynamic = 'force-dynamic'
-
 interface PageProps {
   params: Promise<{ period: string[] }>
 }
@@ -65,10 +63,10 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
 
   const utilizationColor =
     summary.utilizationPercentage > 80
-      ? 'bg-red-100 border-red-300'
+      ? 'bg-red-500/10 border-red-500/20'
       : summary.utilizationPercentage > 60
-        ? 'bg-yellow-100 border-yellow-300'
-        : 'bg-green-100 border-green-300'
+        ? 'bg-amber-500/10 border-amber-500/20'
+        : 'bg-emerald-500/10 border-emerald-500/20'
 
   const badgeColor =
     summary.utilizationPercentage > 80
@@ -144,12 +142,12 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
 
       {/* High Utilization Warning */}
       {summary.utilizationPercentage > 80 && (
-        <Card className="border-red-200 bg-red-50 p-6">
+        <Card className="border-red-500/20 bg-red-500/10 p-6">
           <div className="flex items-start space-x-3">
-            <AlertCircle className="mt-1 h-6 w-6 text-red-600" />
+            <AlertCircle className="mt-1 h-6 w-6 text-red-400" />
             <div>
-              <h3 className="font-semibold text-red-900">High Capacity Utilization</h3>
-              <p className="mt-1 text-sm text-red-700">
+              <h3 className="font-semibold text-red-400">High Capacity Utilization</h3>
+              <p className="mt-1 text-sm text-red-400">
                 This roster period has {Math.round(summary.utilizationPercentage)}% utilization.
                 Consider rescheduling some renewals to other periods to avoid bottlenecks.
               </p>
@@ -167,10 +165,10 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
               data.capacity > 0 ? (data.plannedCount / data.capacity) * 100 : 0
             const categoryColor =
               categoryUtilization > 80
-                ? 'bg-red-100 border-red-300'
+                ? 'bg-red-500/10 border-red-500/20'
                 : categoryUtilization > 60
-                  ? 'bg-yellow-100 border-yellow-300'
-                  : 'bg-green-100 border-green-300'
+                  ? 'bg-amber-500/10 border-amber-500/20'
+                  : 'bg-emerald-500/10 border-emerald-500/20'
 
             return (
               <Card key={category} className={`border-2 p-4 ${categoryColor}`}>

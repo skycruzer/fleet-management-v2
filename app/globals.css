@@ -2,119 +2,120 @@
 
 @theme {
   /* =========================================================================
-   * LINEAR/NOTION-INSPIRED DESIGN SYSTEM
-   * Philosophy: Near-monochrome, subtle warmth, generous whitespace
-   * Accent: Refined indigo (softer than harsh blue)
-   * Author: Maurice Rondeau
+   * DARK NAVY PREMIUM DESIGN SYSTEM — Linear-Inspired
+   * Developer: Maurice Rondeau
+   * Philosophy: Deep navy surfaces + blue primary + glassmorphism accents
+   * Primary: Blue-500 | Accent: Cyan-500 | Status: Emerald/Amber/Red (bright)
+   * WCAG 2.2 AA Accessible | Dark premium theme
    * ========================================================================= */
 
-  /* === PRIMARY (Near-Black for buttons and emphasis) === */
-  --color-primary-50: #fafaf9;
-  --color-primary-100: #f5f5f4;
-  --color-primary-200: #e7e5e4;
-  --color-primary-300: #d6d3d1;
-  --color-primary-400: #a8a29e;
-  --color-primary-500: #1c1917;
-  --color-primary-600: #0c0a09;
-  --color-primary-700: #0c0a09;
-  --color-primary-800: #0c0a09;
-  --color-primary-900: #0c0a09;
+  /* === PRIMARY (Deep Blue — Main CTA, active states) === */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
 
-  --color-primary: #1c1917;
-  --color-primary-foreground: #fafaf9;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
 
-  /* === ACCENT (Refined Indigo - Linear-inspired) === */
-  --color-accent-50: #eef2ff;
-  --color-accent-100: #e0e7ff;
-  --color-accent-200: #c7d2fe;
-  --color-accent-300: #a5b4fc;
-  --color-accent-400: #818cf8;
-  --color-accent-500: #6366f1;
-  --color-accent-600: #4f46e5;
-  --color-accent-700: #4338ca;
-  --color-accent-800: #3730a3;
-  --color-accent-900: #312e81;
+  /* === ACCENT (Cyan — Secondary actions, links, highlights) === */
+  --color-accent-50: #ecfeff;
+  --color-accent-100: #cffafe;
+  --color-accent-200: #a5f3fc;
+  --color-accent-300: #67e8f9;
+  --color-accent-400: #22d3ee;
+  --color-accent-500: #06b6d4;
+  --color-accent-600: #0891b2;
+  --color-accent-700: #0e7490;
+  --color-accent-800: #155e75;
+  --color-accent-900: #164e63;
 
-  --color-accent: #6366f1;
+  --color-accent: #06b6d4;
   --color-accent-foreground: #ffffff;
 
-  /* === SEMANTIC: SUCCESS (Aviation Green - Current) === */
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success: #22c55e;
+  /* === SEMANTIC: SUCCESS (Emerald — Current certs, approved — bright for dark bg) === */
+  --color-success-500: #34d399;
+  --color-success-600: #10b981;
+  --color-success: #10b981;
   --color-success-foreground: #ffffff;
-  --color-success-muted: #dcfce7;
-  --color-success-muted-foreground: #166534;
+  --color-success-muted: rgba(52, 211, 153, 0.12);
+  --color-success-muted-foreground: #34d399;
 
-  /* === SEMANTIC: WARNING (Aviation Amber - Expiring ≤30 days) === */
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
+  /* === SEMANTIC: WARNING (Amber — Expiring certs ≤30 days — bright for dark bg) === */
+  --color-warning-500: #fbbf24;
+  --color-warning-600: #f59e0b;
   --color-warning: #f59e0b;
-  --color-warning-foreground: #ffffff;
-  --color-warning-muted: #fef3c7;
-  --color-warning-muted-foreground: #92400e;
+  --color-warning-foreground: #0f172a;
+  --color-warning-muted: rgba(251, 191, 36, 0.12);
+  --color-warning-muted-foreground: #fbbf24;
 
-  /* === SEMANTIC: DESTRUCTIVE (Aviation Red - Expired) === */
-  --color-danger-500: #ef4444;
-  --color-danger-600: #dc2626;
+  /* === SEMANTIC: DESTRUCTIVE (Red — Expired, errors, danger — bright for dark bg) === */
+  --color-danger-500: #f87171;
+  --color-danger-600: #ef4444;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-destructive-muted: #fee2e2;
-  --color-destructive-muted-foreground: #991b1b;
+  --color-destructive-muted: rgba(248, 113, 113, 0.12);
+  --color-destructive-muted-foreground: #f87171;
 
-  /* === NEUTRAL (Stone-based for warmth) === */
-  --color-slate-50: #fafaf9;
-  --color-slate-100: #f5f5f4;
-  --color-slate-200: #e7e5e4;
-  --color-slate-300: #d6d3d1;
-  --color-slate-400: #a8a29e;
-  --color-slate-500: #78716c;
-  --color-slate-600: #57534e;
-  --color-slate-700: #44403c;
-  --color-slate-800: #292524;
-  --color-slate-900: #1c1917;
+  /* === NEUTRAL (Inverted Slate — Dark scale for dark theme) === */
+  --color-slate-50: #0f172a;
+  --color-slate-100: #1e293b;
+  --color-slate-200: #334155;
+  --color-slate-300: #475569;
+  --color-slate-400: #64748b;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #cbd5e1;
+  --color-slate-700: #e2e8f0;
+  --color-slate-800: #f1f5f9;
+  --color-slate-900: #f8fafc;
 
-  --color-secondary: #f5f5f4;
-  --color-secondary-foreground: #1c1917;
+  --color-secondary: #1e293b;
+  --color-secondary-foreground: #e2e8f0;
 
-  /* === BACKGROUNDS & SURFACES (Light Mode) === */
-  --color-background: #fafaf9;
-  --color-foreground: #1c1917;
+  /* === BACKGROUNDS & SURFACES (Deep Navy) === */
+  --color-background: #0a0e1a;
+  --color-foreground: #e2e8f0;
 
-  --color-card: #ffffff;
-  --color-card-foreground: #1c1917;
+  --color-card: #111827;
+  --color-card-foreground: #e2e8f0;
 
-  --color-popover: #ffffff;
-  --color-popover-foreground: #1c1917;
+  --color-popover: #1e293b;
+  --color-popover-foreground: #e2e8f0;
 
-  /* === BORDERS & INPUTS (Light Mode) === */
-  --color-border: #e7e5e4;
-  --color-input: #e7e5e4;
-  --color-ring: #a8a29e;
+  /* === BORDERS & INPUTS (Subtle white alpha) === */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-input: rgba(255, 255, 255, 0.08);
+  --color-ring: #3b82f6;
 
-  /* === MUTED (Light Mode) === */
-  --color-muted: #f5f5f4;
-  --color-muted-foreground: #78716c;
+  /* === MUTED === */
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
 
-  /* === BORDER RADIUS (Linear-inspired) === */
+  /* === BORDER RADIUS === */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
-  /* === LAYOUT TOKENS (Unified across portals) === */
-  --layout-sidebar-width: 15rem; /* 240px - unified for Admin & Pilot */
-  --layout-header-height: 3.5rem; /* 56px */
-  --layout-mobile-header: 4rem; /* 64px */
+  /* === LAYOUT TOKENS === */
+  --layout-sidebar-width: 15rem;
+  --layout-header-height: 3.5rem;
+  --layout-mobile-header: 4rem;
 
-  /* === SPACING SCALE (Consistent padding) === */
-  --spacing-page: 1rem; /* 16px mobile */
-  --spacing-page-sm: 1.5rem; /* 24px tablet */
-  --spacing-page-lg: 2rem; /* 32px desktop */
-  --spacing-section: 2rem; /* 32px between sections */
-  --spacing-card: 1.25rem; /* 20px card padding */
+  /* === SPACING SCALE === */
+  --spacing-page: 1rem;
+  --spacing-page-sm: 1.5rem;
+  --spacing-page-lg: 2rem;
+  --spacing-section: 2rem;
+  --spacing-card: 1.25rem;
 
-  /* === Z-INDEX SCALE (Fix stacking conflicts) === */
+  /* === Z-INDEX SCALE === */
   --z-dropdown: 10;
   --z-sticky: 20;
   --z-header: 30;
@@ -130,126 +131,63 @@
   --transition-normal: 200ms;
   --transition-slow: 300ms;
 
-  /* === SHADOWS (Subtle, minimal) === */
-  --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.03);
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --shadow-elevated: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  /* === SHADOWS (Deep for dark backgrounds + blue glow) === */
+  --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 0 1px 0 rgb(59 130 246 / 0.05);
+  --shadow-elevated: 0 4px 12px -2px rgb(0 0 0 / 0.5);
 
-  /* === INTERACTIVE SHADOWS (Phase 3 Enhancement) === */
-  --shadow-interactive: 0 4px 12px -2px rgb(0 0 0 / 0.08);
-  --shadow-interactive-hover: 0 8px 20px -4px rgb(0 0 0 / 0.12);
-  --shadow-glow-accent: 0 0 0 3px rgba(99, 102, 241, 0.15);
-  --shadow-glow-success: 0 0 0 3px rgba(34, 197, 94, 0.15);
-  --shadow-glow-destructive: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  /* === INTERACTIVE SHADOWS === */
+  --shadow-interactive: 0 4px 12px -2px rgb(0 0 0 / 0.4);
+  --shadow-interactive-hover: 0 8px 24px -4px rgb(0 0 0 / 0.5);
+  --shadow-glow-accent: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.1);
+  --shadow-glow-success: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 0 20px rgba(16, 185, 129, 0.1);
+  --shadow-glow-destructive: 0 0 0 3px rgba(239, 68, 68, 0.2), 0 0 20px rgba(239, 68, 68, 0.1);
 
-  /* === STATUS COLORS (Semantic tokens for compliance indicators) === */
-  --color-status-low: #22c55e;
-  --color-status-low-bg: #dcfce7;
-  --color-status-low-border: #86efac;
-  --color-status-medium: #f59e0b;
-  --color-status-medium-bg: #fef3c7;
-  --color-status-medium-border: #fcd34d;
-  --color-status-high: #ef4444;
-  --color-status-high-bg: #fee2e2;
-  --color-status-high-border: #fca5a5;
+  /* === GLASSMORPHISM === */
+  --glass-bg: rgba(17, 24, 39, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glow-primary: 0 0 30px rgba(59, 130, 246, 0.15);
 
-  /* === CATEGORY COLORS (For training/certification types) === */
-  --color-category-flight: #3b82f6;
-  --color-category-flight-bg: #eff6ff;
-  --color-category-flight-border: #93c5fd;
-  --color-category-simulator: #8b5cf6;
-  --color-category-simulator-bg: #faf5ff;
-  --color-category-simulator-border: #c4b5fd;
-  --color-category-ground: #22c55e;
-  --color-category-ground-bg: #f0fdf4;
-  --color-category-ground-border: #86efac;
-  --color-category-medical: #ec4899;
-  --color-category-medical-bg: #fdf2f8;
-  --color-category-medical-border: #f9a8d4;
+  /* === STATUS COLORS (Aviation-standard — bright for dark backgrounds) === */
+  --color-status-low: #34d399;
+  --color-status-low-bg: rgba(52, 211, 153, 0.12);
+  --color-status-low-border: rgba(52, 211, 153, 0.3);
+  --color-status-medium: #fbbf24;
+  --color-status-medium-bg: rgba(251, 191, 36, 0.12);
+  --color-status-medium-border: rgba(251, 191, 36, 0.3);
+  --color-status-high: #f87171;
+  --color-status-high-bg: rgba(248, 113, 113, 0.12);
+  --color-status-high-border: rgba(248, 113, 113, 0.3);
+
+  /* === CATEGORY COLORS (Training/certification — alpha backgrounds for dark) === */
+  --color-category-flight: #38bdf8;
+  --color-category-flight-bg: rgba(56, 189, 248, 0.1);
+  --color-category-flight-border: rgba(56, 189, 248, 0.25);
+  --color-category-simulator: #a78bfa;
+  --color-category-simulator-bg: rgba(167, 139, 250, 0.1);
+  --color-category-simulator-border: rgba(167, 139, 250, 0.25);
+  --color-category-ground: #34d399;
+  --color-category-ground-bg: rgba(52, 211, 153, 0.1);
+  --color-category-ground-border: rgba(52, 211, 153, 0.25);
+  --color-category-medical: #f472b6;
+  --color-category-medical-bg: rgba(244, 114, 182, 0.1);
+  --color-category-medical-border: rgba(244, 114, 182, 0.25);
 
   /* === INFO/NEUTRAL ACCENT === */
-  --color-info: #3b82f6;
-  --color-info-bg: #eff6ff;
-  --color-info-border: #93c5fd;
-  --color-info-foreground: #1e40af;
-}
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.1);
+  --color-info-border: rgba(56, 189, 248, 0.25);
+  --color-info-foreground: #7dd3fc;
 
-/* === DARK MODE (Stone-based for warmth) === */
-.dark {
-  /* Background - True dark, not pure black */
-  --color-background: #0c0a09;
-  --color-foreground: #fafaf9;
-
-  /* Card - Elevated dark surface */
-  --color-card: #1c1917;
-  --color-card-foreground: #fafaf9;
-
-  /* Popover */
-  --color-popover: #1c1917;
-  --color-popover-foreground: #fafaf9;
-
-  /* Borders & Inputs */
-  --color-border: #292524;
-  --color-input: #292524;
-  --color-ring: #a8a29e;
-
-  /* Muted */
-  --color-muted: #292524;
-  --color-muted-foreground: #a8a29e;
-
-  /* Primary (inverted) */
-  --color-primary: #fafaf9;
-  --color-primary-foreground: #1c1917;
-
-  /* Secondary */
-  --color-secondary: #292524;
-  --color-secondary-foreground: #fafaf9;
-
-  /* Accent - Slightly brighter for dark mode */
-  --color-accent: #818cf8;
-
-  /* Semantic colors - Slightly brighter for dark mode */
-  --color-success: #4ade80;
-  --color-warning: #fbbf24;
-  --color-destructive: #f87171;
-
-  /* Interactive shadows - darker variants */
-  --shadow-interactive: 0 4px 12px -2px rgb(0 0 0 / 0.3);
-  --shadow-interactive-hover: 0 8px 20px -4px rgb(0 0 0 / 0.4);
-  --shadow-glow-accent: 0 0 0 3px rgba(129, 140, 248, 0.25);
-  --shadow-glow-success: 0 0 0 3px rgba(74, 222, 128, 0.25);
-  --shadow-glow-destructive: 0 0 0 3px rgba(248, 113, 113, 0.25);
-
-  /* Status colors - Adjusted for dark mode visibility */
-  --color-status-low: #4ade80;
-  --color-status-low-bg: rgba(34, 197, 94, 0.15);
-  --color-status-low-border: rgba(34, 197, 94, 0.3);
-  --color-status-medium: #fbbf24;
-  --color-status-medium-bg: rgba(245, 158, 11, 0.15);
-  --color-status-medium-border: rgba(245, 158, 11, 0.3);
-  --color-status-high: #f87171;
-  --color-status-high-bg: rgba(239, 68, 68, 0.15);
-  --color-status-high-border: rgba(239, 68, 68, 0.3);
-
-  /* Category colors - Adjusted for dark mode */
-  --color-category-flight: #60a5fa;
-  --color-category-flight-bg: rgba(59, 130, 246, 0.15);
-  --color-category-flight-border: rgba(59, 130, 246, 0.3);
-  --color-category-simulator: #a78bfa;
-  --color-category-simulator-bg: rgba(139, 92, 246, 0.15);
-  --color-category-simulator-border: rgba(139, 92, 246, 0.3);
-  --color-category-ground: #4ade80;
-  --color-category-ground-bg: rgba(34, 197, 94, 0.15);
-  --color-category-ground-border: rgba(34, 197, 94, 0.3);
-  --color-category-medical: #f472b6;
-  --color-category-medical-bg: rgba(236, 72, 153, 0.15);
-  --color-category-medical-border: rgba(236, 72, 153, 0.3);
-
-  /* Info colors */
-  --color-info: #60a5fa;
-  --color-info-bg: rgba(59, 130, 246, 0.15);
-  --color-info-border: rgba(59, 130, 246, 0.3);
-  --color-info-foreground: #93c5fd;
+  /* === FLUID TYPOGRAPHY SCALE === */
+  --text-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.75rem);
+  --text-sm: clamp(0.8rem, 0.75rem + 0.25vw, 0.875rem);
+  --text-base: clamp(0.9rem, 0.85rem + 0.25vw, 1rem);
+  --text-lg: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-xl: clamp(1.15rem, 1.05rem + 0.5vw, 1.25rem);
+  --text-2xl: clamp(1.4rem, 1.2rem + 1vw, 1.5rem);
+  --text-3xl: clamp(1.7rem, 1.4rem + 1.5vw, 1.875rem);
+  --text-4xl: clamp(2rem, 1.6rem + 2vw, 2.25rem);
 }
 
 /* === BASE STYLES === */
@@ -261,7 +199,7 @@
   body {
     @apply bg-background text-foreground;
     font-family:
-      var(--font-inter),
+      var(--font-geist-sans),
       -apple-system,
       BlinkMacSystemFont,
       'Segoe UI',
@@ -269,13 +207,12 @@
       sans-serif;
     font-feature-settings:
       'rlig' 1,
-      'calt' 1,
-      'ss01' 1;
+      'calt' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography - Compact, Linear-style */
+  /* Typography — Clean, modern hierarchy */
   h1,
   h2,
   h3,
@@ -286,19 +223,19 @@
   }
 
   h1 {
-    @apply text-2xl lg:text-3xl;
+    font-size: var(--text-3xl);
   }
 
   h2 {
-    @apply text-xl lg:text-2xl;
+    font-size: var(--text-2xl);
   }
 
   h3 {
-    @apply text-lg lg:text-xl;
+    font-size: var(--text-xl);
   }
 
   h4 {
-    @apply text-base lg:text-lg;
+    font-size: var(--text-lg);
   }
 
   p {
@@ -329,11 +266,11 @@
   }
 
   .btn-ghost {
-    @apply hover:bg-muted hover:text-foreground;
+    @apply hover:text-foreground hover:bg-white/5;
   }
 
   .btn-outline {
-    @apply border-border bg-background hover:bg-muted hover:border-muted-foreground/20 border;
+    @apply border border-white/10 bg-transparent hover:border-white/20 hover:bg-white/5;
   }
 
   .btn-soft {
@@ -353,7 +290,7 @@
     @apply border-border bg-background flex h-9 w-full rounded-lg border px-3 py-2 text-sm;
     @apply transition-all duration-200;
     @apply placeholder:text-muted-foreground;
-    @apply focus:ring-ring/20 focus:border-foreground/30 focus:ring-2 focus:outline-none;
+    @apply focus:ring-primary/20 focus:border-primary/40 focus:ring-2 focus:outline-none;
     @apply disabled:bg-muted disabled:cursor-not-allowed disabled:opacity-50;
   }
 }
@@ -365,11 +302,11 @@
   }
 
   /* =========================================================================
-   * ANIMATION KEYFRAMES (Phase 1 Enhancement)
+   * ANIMATION KEYFRAMES
    * Subtle, professional micro-interactions
    * ========================================================================= */
 
-  /* Success feedback - subtle bounce */
+  /* Success feedback — subtle bounce */
   @keyframes success-bounce {
     0%,
     100% {
@@ -384,7 +321,7 @@
     animation: success-bounce 0.4s ease-out;
   }
 
-  /* Error feedback - shake */
+  /* Error feedback — shake */
   @keyframes shake {
     0%,
     100% {
@@ -494,7 +431,6 @@
 
   /* =========================================================================
    * REDUCED MOTION SUPPORT (WCAG 2.1 Level AA)
-   * Disables animations for users who prefer reduced motion
    * ========================================================================= */
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -529,10 +465,10 @@
     display: none;
   }
 
-  /* Custom scrollbar for roster carousel */
+  /* Custom scrollbar */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgb(203 213 225) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -544,20 +480,20 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgb(203 213 225);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgb(148 163 184);
+    background: rgba(255, 255, 255, 0.2);
   }
 
   .scrollbar-thumb-border {
-    scrollbar-color: rgb(203 213 225) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
   }
 
   .scrollbar-track-transparent {
-    scrollbar-color: rgb(203 213 225) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
   }
 
   /* Touch feedback ripple effect */
@@ -587,7 +523,7 @@
     animation-play-state: paused;
   }
 
-  /* Shimmer animation for loading states */
+  /* Shimmer animation — upgraded gradient wave */
   @keyframes shimmer {
     0% {
       background-position: 200% 0;
@@ -601,9 +537,10 @@
     animation: shimmer 1.5s ease-in-out infinite;
     background: linear-gradient(
       90deg,
-      var(--color-muted) 0%,
-      var(--color-muted-foreground, #a8a29e) 50%,
-      var(--color-muted) 100%
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.06) 40%,
+      rgba(255, 255, 255, 0.03) 60%,
+      rgba(255, 255, 255, 0.06) 100%
     );
     background-size: 200% 100%;
   }
@@ -647,19 +584,13 @@
   }
 
   /* =========================================================================
-   * WCAG 2.1 AA Enhanced Focus Indicators
-   * =========================================================================
-   * Ensures keyboard navigation focus is clearly visible
-   * Meets WCAG 2.4.7 (Focus Visible) Level AA requirements
-   *
-   * Color: indigo-500 (#6366f1) - matches accent color for consistency
-   * Outline: 2px solid with 2px offset for visibility
-   * Border radius: 6px for Linear-inspired appearance
-   */
+   * WCAG 2.2 AA Enhanced Focus Indicators
+   * Color: blue-500 (#3b82f6) — matches primary for consistency
+   * ========================================================================= */
 
   /* Primary focus indicator for all interactive elements */
   *:focus-visible {
-    outline: 2px solid #6366f1; /* indigo-500 - accent color */
+    outline: 2px solid #3b82f6;
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -677,7 +608,7 @@
   [role='radio']:focus-visible,
   [role='checkbox']:focus-visible,
   [tabindex]:not([tabindex='-1']):focus-visible {
-    outline: 2px solid #6366f1; /* indigo-500 - accent color */
+    outline: 2px solid #3b82f6;
     outline-offset: 2px;
   }
 
@@ -696,12 +627,12 @@
   input[type='search']:focus-visible,
   input[type='date']:focus-visible,
   textarea:focus-visible {
-    outline: 2px solid #6366f1;
-    outline-offset: 0px; /* No offset for inputs - looks cleaner */
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); /* Subtle indigo glow */
+    outline: 2px solid #3b82f6;
+    outline-offset: 0px;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   }
 
-  /* High contrast mode support - ensures focus indicators work */
+  /* High contrast mode support */
   @media (prefers-contrast: high) {
     *:focus-visible {
       outline: 3px solid currentColor;
@@ -709,14 +640,14 @@
     }
   }
 
-  /* Skip to main content link (accessible via Tab on page load) */
+  /* Skip to main content link */
   .skip-to-main:focus-visible {
     position: fixed;
     top: 16px;
     left: 16px;
     z-index: 9999;
     padding: 12px 16px;
-    background-color: #171717;
+    background-color: #0f172a;
     color: white;
     border-radius: 6px;
     outline: 2px solid white;
@@ -737,7 +668,7 @@
     border-width: 0;
   }
 
-  /* Screen reader only - but visible on focus (for skip links) */
+  /* Screen reader only — but visible on focus (for skip links) */
   .sr-only-focusable:focus {
     position: static;
     width: auto;
@@ -747,5 +678,36 @@
     overflow: visible;
     clip: auto;
     white-space: normal;
+  }
+
+  /* === DARK THEME PREMIUM UTILITIES === */
+
+  /* Glow hover effect for cards and interactive elements */
+  .glow-hover:hover {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.12);
+  }
+
+  /* Gradient text utility (primary → accent) */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glass surface utility */
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Glass surface — stronger blur */
+  .glass-strong {
+    background: rgba(17, 24, 39, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 }
