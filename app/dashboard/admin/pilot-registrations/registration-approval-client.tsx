@@ -79,8 +79,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
         router.refresh()
         setSuccess(null)
       }, 2000)
-    } catch (err) {
-      console.error('Approval error:', err)
+    } catch {
       setError('An unexpected error occurred. Please try again.')
     } finally {
       setIsProcessing(null)

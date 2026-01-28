@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { RegistrationApprovalClient } from './registration-approval-client'
-import { getPendingRegistrations as getPendingRegistrationsService } from '@/lib/services/pilot-portal-service'
+import { cookies } from 'next/headers'
 
 interface PendingRegistration {
   id: string
@@ -26,12 +26,24 @@ interface PendingRegistration {
 
 async function getPendingRegistrations(): Promise<PendingRegistration[]> {
   try {
-    // Direct service call - See tasks/061-tracked-admin-auth-registration-approval.md
-    const result = await getPendingRegistrationsService()
-    // Type cast to PendingRegistration[] to match client component interface
+    // Use API route with proper admin authentication
+    const cookieStore = await cookies()
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+    const response = await fetch(`${baseUrl}/api/portal/registration-approval`, {
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      return []
+    }
+
+    const result = await response.json()
     return (result.success ? result.data || [] : []) as PendingRegistration[]
-  } catch (error) {
-    console.error('Error fetching pending registrations:', error)
+  } catch {
     return []
   }
 }

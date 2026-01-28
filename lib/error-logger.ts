@@ -109,17 +109,21 @@ export function logError(error: Error, context?: ErrorContext): void {
 
   // Production: Send to error monitoring service
   if (process.env.NODE_ENV === 'production') {
-    // Tracked: tasks/062 #7 - Integrate Sentry/LogRocket
-    // Example:
+    // Sentry Integration - Ready for use when @sentry/nextjs is installed
+    // To enable:
+    //   1. npm install @sentry/nextjs
+    //   2. Set NEXT_PUBLIC_SENTRY_DSN in environment variables
+    //   3. Create sentry.client.config.ts and sentry.server.config.ts
+    //
+    // Once installed, uncomment and use:
+    // import * as Sentry from '@sentry/nextjs'
     // Sentry.captureException(error, {
-    //   level: mapSeverityToSentryLevel(context?.severity),
-    //   tags: context?.tags,
-    //   contexts: {
-    //     custom: context?.metadata,
-    //   },
+    //   level: context?.severity === 'critical' ? 'fatal' : 'error',
+    //   tags: context?.tags?.reduce((acc, tag) => ({ ...acc, [tag]: true }), {}),
+    //   contexts: { custom: context?.metadata },
     // })
 
-    // Fallback: Store in local storage for debugging (temporary)
+    // Fallback: Store in local storage for debugging
     storeErrorInLocalStorage(errorEntry)
   }
 

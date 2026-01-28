@@ -50,22 +50,17 @@ export async function POST(request: NextRequest) {
 
     // Clear existing renewal plans if requested
     if (clearExisting) {
-      console.log('Clearing existing renewal plans...')
       const serviceClient = createServiceRoleClient()
       // Use gte on created_at to match all rows (Supabase requires a filter)
-      const { data: deleteData, error: deleteError } = await serviceClient
+      const { error: deleteError } = await serviceClient
         .from('certification_renewal_plans')
         .delete()
         .gte('created_at', '1900-01-01')
         .select('id')
 
-      console.log('Delete result:', { deleted: deleteData?.length || 0, error: deleteError })
-
       if (deleteError) {
-        console.error('Error clearing existing plans:', deleteError)
         throw new Error(`Failed to clear existing renewal plans: ${deleteError.message}`)
       }
-      console.log(`Cleared ${deleteData?.length || 0} existing renewal plans`)
     }
 
     // Generate renewal plans with Captain/FO pairing

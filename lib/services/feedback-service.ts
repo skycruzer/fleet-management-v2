@@ -374,8 +374,8 @@ export async function addAdminResponse(
       adminUserId = adminSession.userId
     }
 
-    // Update the feedback with admin response
-    const { error } = await supabase
+    // Update the feedback with admin response and get pilot_id for notification
+    const { data: updatedFeedback, error } = await supabase
       .from('pilot_feedback')
       .update({
         admin_response: response,
@@ -385,23 +385,40 @@ export async function addAdminResponse(
         updated_at: new Date().toISOString(),
       })
       .eq('id', feedbackId)
+      .select('pilot_id')
+      .single()
 
     if (error) {
-      console.error('Error adding admin response:', error)
       return {
         success: false,
         error: ERROR_MESSAGES.FEEDBACK.RESPONSE_FAILED.message,
       }
     }
 
-    // Tracked: tasks/062-tracked-infrastructure-enhancements.md #3
-    // Requires pilot_user_id column in pilot_feedback table
+    // Send notification to pilot about the response
+    if (updatedFeedback?.pilot_id) {
+      // Look up pilot_user_id from pilot_id using the mapping view
+      const { data: pilotMapping } = await supabase
+        .from('pilot_user_mappings')
+        .select('pilot_user_id')
+        .eq('pilot_id', updatedFeedback.pilot_id)
+        .single()
+
+      if (pilotMapping?.pilot_user_id) {
+        await createNotification({
+          userId: pilotMapping.pilot_user_id,
+          title: 'Feedback Response Received',
+          message: 'An admin has responded to your feedback submission.',
+          type: 'leave_request_approved',
+          link: '/portal/feedback/history',
+        })
+      }
+    }
 
     return {
       success: true,
     }
   } catch (error) {
-    console.error('Error in addAdminResponse:', error)
     return {
       success: false,
       error: ERROR_MESSAGES.FEEDBACK.RESPONSE_FAILED.message,

@@ -3,12 +3,15 @@
 /**
  * Server Actions for Pilot Registration Approval
  *
- * These server actions bypass API authentication for development/testing purposes.
- * In production, these should be properly protected with admin authentication.
+ * These server actions use proper admin authentication to capture the admin ID
+ * for audit trail purposes.
+ *
+ * Developer: Maurice Rondeau
  */
 
 import { revalidatePath } from 'next/cache'
-import { reviewPilotRegistration } from '@/lib/services/pilot-portal-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { createAdminClient } from '@/lib/supabase/admin'
 import {
   sendRegistrationApprovalEmail,
   sendRegistrationDenialEmail,
@@ -16,9 +19,17 @@ import {
 
 export async function approvePilotRegistration(registrationId: string) {
   try {
-    // Direct DB update - See tasks/061-tracked-admin-auth-registration-approval.md
-    const { createClient } = await import('@/lib/supabase/server')
-    const supabase = await createClient()
+    // Get authenticated admin for audit trail
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return {
+        success: false,
+        error: 'Authentication required',
+      }
+    }
+
+    // Use service role client for database operations
+    const supabase = createAdminClient()
 
     // First, get pilot details for email
     const { data: pilotData, error: fetchError } = await supabase
@@ -28,25 +39,23 @@ export async function approvePilotRegistration(registrationId: string) {
       .single()
 
     if (fetchError || !pilotData) {
-      console.error('Failed to fetch pilot data:', fetchError)
       return {
         success: false,
         error: 'Failed to fetch pilot information',
       }
     }
 
-    // Update approval status
+    // Update approval status with admin ID for audit trail
     const { error } = await supabase
       .from('pilot_users')
       .update({
         registration_approved: true,
         approved_at: new Date().toISOString(),
-        // approved_by is NULL since we don't have a valid admin ID
+        approved_by: auth.userId,
       })
       .eq('id', registrationId)
 
     if (error) {
-      console.error('Approval error:', error)
       return {
         success: false,
         error: 'Failed to approve registration',
@@ -62,8 +71,6 @@ export async function approvePilotRegistration(registrationId: string) {
       employeeId: pilotData.employee_id || undefined,
     })
 
-    // Email failure is logged but doesn't fail the approval
-
     // Revalidate the page to show updated data
     revalidatePath('/dashboard/admin/pilot-registrations')
 
@@ -73,8 +80,7 @@ export async function approvePilotRegistration(registrationId: string) {
         'Registration approved successfully' +
         (emailResult.success ? ' and email notification sent' : ''),
     }
-  } catch (error) {
-    console.error('Server action approval error:', error)
+  } catch {
     return {
       success: false,
       error: 'An unexpected error occurred',
@@ -84,8 +90,17 @@ export async function approvePilotRegistration(registrationId: string) {
 
 export async function denyPilotRegistration(registrationId: string, denialReason?: string) {
   try {
-    const { createClient } = await import('@/lib/supabase/server')
-    const supabase = await createClient()
+    // Get authenticated admin for audit trail
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return {
+        success: false,
+        error: 'Authentication required',
+      }
+    }
+
+    // Use service role client for database operations
+    const supabase = createAdminClient()
 
     // First, get pilot details for email
     const { data: pilotData, error: fetchError } = await supabase
@@ -95,25 +110,24 @@ export async function denyPilotRegistration(registrationId: string, denialReason
       .single()
 
     if (fetchError || !pilotData) {
-      console.error('Failed to fetch pilot data:', fetchError)
       return {
         success: false,
         error: 'Failed to fetch pilot information',
       }
     }
 
-    // Update denial status
+    // Update denial status with admin ID for audit trail
     const { error } = await supabase
       .from('pilot_users')
       .update({
         registration_approved: false,
         approved_at: new Date().toISOString(),
+        approved_by: auth.userId,
         denial_reason: denialReason || 'Registration did not meet approval criteria',
       })
       .eq('id', registrationId)
 
     if (error) {
-      console.error('Denial error:', error)
       return {
         success: false,
         error: 'Failed to deny registration',
@@ -132,8 +146,6 @@ export async function denyPilotRegistration(registrationId: string, denialReason
       denialReason
     )
 
-    // Email failure is logged but doesn't fail the denial
-
     // Revalidate the page to show updated data
     revalidatePath('/dashboard/admin/pilot-registrations')
 
@@ -143,8 +155,7 @@ export async function denyPilotRegistration(registrationId: string, denialReason
         'Registration denied successfully' +
         (emailResult.success ? ' and email notification sent' : ''),
     }
-  } catch (error) {
-    console.error('Server action denial error:', error)
+  } catch {
     return {
       success: false,
       error: 'An unexpected error occurred',

@@ -1,35 +1,28 @@
 /**
  * Pilot Dashboard Page
- * Personal stats, quick actions, and activity overview for pilots
+ * Developer: Maurice Rondeau
  *
- * TEMPORARY SIMPLIFIED VERSION
- * TODO: Implement full dashboard with:
- * - getPilotDashboardStats()
- * - getPilotCertifications()
- * - getPilotLeaveRequests()
- * - getPilotFlightRequests()
+ * Personal stats, quick actions, and activity overview for pilots.
+ * Includes: Stats overview, leave bids, roster period info, retirement card.
+ *
+ * Future enhancements (P3):
+ * - Certifications expiry timeline
+ * - Recent leave/flight requests summary
  */
 
 export const dynamic = 'force-dynamic'
 
+import type { Metadata } from 'next'
 import { portalMetadata } from '@/lib/utils/metadata'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
-export const metadata = portalMetadata.dashboard
+export const metadata: Metadata = portalMetadata.dashboard
 import { getCurrentPilot as getAuthPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import {
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  UserCircle,
-  XCircle,
-  Calendar,
-  Plane,
-} from 'lucide-react'
+import { Clock, AlertTriangle, XCircle, Calendar, Plane } from 'lucide-react'
 import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 import { RosterPeriodCard } from '@/components/portal/roster-period-card'

@@ -138,6 +138,31 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-muted/30 border-t py-8">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <p className="text-muted-foreground text-sm">
+              © {new Date().getFullYear()} Fleet Management. All rights reserved.
+            </p>
+            <div className="flex items-center gap-6">
+              <Link
+                href="/privacy"
+                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/terms"
+                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              >
+                Terms of Service
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

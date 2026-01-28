@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { createNotification } from '@/lib/services/notification-service'
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
@@ -96,12 +97,21 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       return NextResponse.json({ success: false, error: 'Leave bid not found' }, { status: 404 })
     }
 
-    // Notification pending: See tasks/060-tracked-leave-bid-notifications.md
-    // await sendPilotNotification(updatedBid.pilot_id, {
-    //   type: action === 'approve' ? 'LEAVE_BID_APPROVED' : 'LEAVE_BID_REJECTED',
-    //   rosterPeriodCode: updatedBid.roster_period_code,
-    //   bidId: updatedBid.id
-    // })
+    // Send notification to pilot about bid status change
+    const notificationType = action === 'approve' ? 'leave_bid_approved' : 'leave_bid_rejected'
+    const notificationTitle = action === 'approve' ? 'Leave Bid Approved' : 'Leave Bid Rejected'
+    const notificationMessage =
+      action === 'approve'
+        ? `Your leave bid for ${updatedBid.roster_period_code} has been approved.`
+        : `Your leave bid for ${updatedBid.roster_period_code} has been rejected.`
+
+    await createNotification({
+      userId: updatedBid.pilot_id,
+      title: notificationTitle,
+      message: notificationMessage,
+      type: notificationType,
+      link: `/portal/leave-bids`,
+    })
 
     return NextResponse.json({
       success: true,

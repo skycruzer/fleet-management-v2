@@ -8,9 +8,13 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { Calendar, Plane } from 'lucide-react'
+import { Calendar, Plane, Loader2 } from 'lucide-react'
+import { FlightRequestsList } from '@/components/portal/rdo-sdo-requests-list'
+import LeaveRequestsList from '@/components/pilot/LeaveRequestsList'
+import type { FlightRequest } from '@/lib/services/pilot-flight-service'
+import type { LeaveRequest } from '@/lib/services/unified-request-service'
 
 const tabs = [
   { id: 'leave', label: 'Leave Requests', icon: Calendar },
@@ -21,6 +25,51 @@ type TabId = (typeof tabs)[number]['id']
 
 export default function MyRequestsPage() {
   const [activeTab, setActiveTab] = useState<TabId>('leave')
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([])
+  const [flightRequests, setFlightRequests] = useState<FlightRequest[]>([])
+  const [isLoadingLeave, setIsLoadingLeave] = useState(true)
+  const [isLoadingFlight, setIsLoadingFlight] = useState(true)
+
+  useEffect(() => {
+    async function fetchLeaveRequests() {
+      try {
+        const response = await fetch('/api/portal/leave-requests', {
+          credentials: 'include',
+        })
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success) {
+            setLeaveRequests(result.data || [])
+          }
+        }
+      } catch {
+        // Silently handle error - empty list will be shown
+      } finally {
+        setIsLoadingLeave(false)
+      }
+    }
+
+    async function fetchFlightRequests() {
+      try {
+        const response = await fetch('/api/portal/flight-requests', {
+          credentials: 'include',
+        })
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success) {
+            setFlightRequests(result.data || [])
+          }
+        }
+      } catch {
+        // Silently handle error - empty list will be shown
+      } finally {
+        setIsLoadingFlight(false)
+      }
+    }
+
+    fetchLeaveRequests()
+    fetchFlightRequests()
+  }, [])
 
   return (
     <div className="space-y-6 p-6">
@@ -58,22 +107,26 @@ export default function MyRequestsPage() {
       {/* Tab Content */}
       <div>
         {activeTab === 'leave' && (
-          <div className="bg-card rounded-lg border border-white/[0.08] p-6">
-            <p className="text-muted-foreground text-sm">
-              Your leave requests will be displayed here. This consolidates the former
-              /portal/leave-requests page.
-            </p>
-            {/* TODO: Import and render LeaveRequestsList component */}
+          <div>
+            {isLoadingLeave ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+              </div>
+            ) : (
+              <LeaveRequestsList requests={leaveRequests} />
+            )}
           </div>
         )}
 
         {activeTab === 'rdo-sdo' && (
-          <div className="bg-card rounded-lg border border-white/[0.08] p-6">
-            <p className="text-muted-foreground text-sm">
-              Your RDO/SDO requests will be displayed here. This consolidates the former
-              /portal/flight-requests page.
-            </p>
-            {/* TODO: Import and render RdoSdoRequestsList component */}
+          <div>
+            {isLoadingFlight ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+              </div>
+            ) : (
+              <FlightRequestsList initialRequests={flightRequests} />
+            )}
           </div>
         )}
       </div>

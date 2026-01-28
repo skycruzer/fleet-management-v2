@@ -238,7 +238,7 @@ export async function sendRegistrationDenialEmail(
   denialReason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supportEmail = 'support@yourdomain.com' // Tracked: tasks/062 #5
+    const supportEmail = process.env.SUPPORT_EMAIL || 'support@fleetmanagement.com'
 
     const htmlContent = `
 <!DOCTYPE html>
