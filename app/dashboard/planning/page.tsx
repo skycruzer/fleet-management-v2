@@ -6,77 +6,77 @@
  * Tabs: Renewal Planning | Analytics
  */
 
-'use client'
+import { Suspense } from 'react'
+import { redirect } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
+import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
+import { RenewalPlanningDashboard } from '@/components/renewal-planning/renewal-planning-dashboard'
+import { RenewalPlanningSkeleton } from '@/components/skeletons'
+import { PlanningPageClient } from './planning-page-client'
 
-import { useState } from 'react'
-import { cn } from '@/lib/utils'
-import { RefreshCw, BarChart3 } from 'lucide-react'
+async function getRosterPeriodSummariesForYear(year: number) {
+  const supabase = createServiceRoleClient()
 
-const tabs = [
-  { id: 'renewals', label: 'Renewal Planning', icon: RefreshCw },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-] as const
+  // Get all roster periods for the selected year
+  // Filter by roster_period name (format: RPxx/YYYY) since RP01/YYYY starts in previous year
+  const { data: periods, error } = await supabase
+    .from('roster_period_capacity')
+    .select('roster_period, period_start_date, period_end_date')
+    .like('roster_period', `%/${year}`)
+    .order('period_start_date')
 
-type TabId = (typeof tabs)[number]['id']
+  if (!periods || error) return []
 
-export default function PlanningPage() {
-  const [activeTab, setActiveTab] = useState<TabId>('renewals')
+  // Get capacity summaries for each period
+  const summaries = await Promise.all(
+    periods.map(async (p) => {
+      const summary = await getRosterPeriodCapacity(p.roster_period)
+      return summary
+    })
+  )
+
+  return summaries.filter((s) => s !== null)
+}
+
+export default async function PlanningPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ year?: string; tab?: string }>
+}) {
+  // Check authentication
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
+    redirect('/auth/login')
+  }
+
+  const params = await searchParams
+  const selectedYear = params.year ? parseInt(params.year) : new Date().getFullYear()
+  const activeTab = params.tab || 'renewals'
+
+  // Fetch renewal summaries server-side
+  const summaries = await getRosterPeriodSummariesForYear(selectedYear)
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Planning</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-foreground">Planning</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-muted-foreground">
           Certification renewal planning and fleet analytics.
         </p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-slate-200">
-        <nav className="-mb-px flex gap-6">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  'flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
-                  activeTab === tab.id
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            )
-          })}
-        </nav>
-      </div>
+      <PlanningPageClient activeTab={activeTab}>
+        {/* Renewals Tab Content */}
+        <div data-tab="renewals">
+          <Suspense fallback={<RenewalPlanningSkeleton />}>
+            <RenewalPlanningDashboard summaries={summaries} selectedYear={selectedYear} />
+          </Suspense>
+        </div>
 
-      {/* Tab Content */}
-      <div>
-        {activeTab === 'renewals' && (
-          <div className="rounded-lg border border-slate-200 bg-white p-6">
-            <p className="text-sm text-slate-500">
-              Renewal planning dashboard will be displayed here. This consolidates the former
-              /dashboard/renewal-planning page.
-            </p>
-            {/* TODO: Import and render RenewalPlanningDashboard component */}
-          </div>
-        )}
-
-        {activeTab === 'analytics' && (
-          <div className="rounded-lg border border-slate-200 bg-white p-6">
-            <p className="text-sm text-slate-500">
-              Analytics dashboard will be displayed here. This consolidates the former
-              /dashboard/analytics page.
-            </p>
-            {/* TODO: Import and render Analytics components */}
-          </div>
-        )}
-      </div>
+        {/* Analytics Tab Content - rendered via dynamic import in client */}
+        <div data-tab="analytics">{/* AnalyticsContent loaded dynamically */}</div>
+      </PlanningPageClient>
     </div>
   )
 }

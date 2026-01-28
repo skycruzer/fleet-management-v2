@@ -27,7 +27,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3005',
 
     /* Increase timeout for slower operations (database queries, page loads) */
     actionTimeout: 60000, // 60 seconds per action (was 30s default)
@@ -90,14 +90,12 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer temporarily disabled - server crashes with Turbopack errors
-  // Run server manually: PORT=3005 npm run dev
-  // webServer: {
-  //   command: 'npm run dev',
-  //   url: 'http://localhost:3005',
-  //   reuseExistingServer: !process.env.CI,
-  //   stdout: 'ignore',
-  //   stderr: 'pipe',
-  //   timeout: 120000, // 2 minutes for server to start
-  // },
+  webServer: {
+    command: 'PORT=3005 npm run dev',
+    url: 'http://localhost:3005',
+    reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    timeout: 120000, // 2 minutes for server to start
+  },
 })

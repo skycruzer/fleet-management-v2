@@ -9,38 +9,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 3. **SIMPLICITY IS KING**: Minimal changes, minimal code impact, zero bugs introduced
 4. **NO LAZINESS**: Find root causes, no temporary fixes
 
----
-
-Load up context prompt:
-take a look at the app and architecture. Understand deeply how it works inside and out. Ask me any questions if there are things you don't understand. This will be the basis for the rest of our conversation.
-
-Tool use summaries:
-After completing a task that involves tool use, provide a quick summary of the work you've done
-
-Adjust eagerness up:
-By default, implement changes rather than only suggesting them. If the user's intent is unclear, infer the most useful likely action and proceed, using tools to discover any missing details instead of guessing. Try to infer the user's intent about whether a tool call (e.g. file edit or read) is intended or not, and act accordingly.
-
-Use parallel tool calls:
-If you intend to call multiple tools and there are no dependencies
-between the tool calls, make all of the independent tool calls in
-parallel. Prioritize calling tools simultaneously whenever the
-actions can be done in parallel rather than sequentially. For
-example, when reading 3 files, run 3 tool calls in parallel to read
-all 3 files into context at the same time. Maximize use of parallel
-tool calls where possible to increase speed and efficiency.
-However, if some tool calls depend on previous calls to inform
-dependent values like the parameters, do not call these tools in
-parallel and instead call them sequentially. Never use placeholders
-or guess missing parameters in tool calls.
-
-Reduce hallucinations:
-Never speculate about code you have not opened. If the user
-references a specific file, you MUST read the file before
-answering. Make sure to investigate and read relevant files BEFORE
-answering questions about the codebase. Never make any claims about
-code before investigating unless you are certain of the correct
-answer - give grounded and hallucination-free answers.
-
 ## Quick Start
 
 ```bash
@@ -112,9 +80,20 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Supabase Clients
 
-- **Browser** (`lib/supabase/client.ts`): Client Components, real-time
-- **Server** (`lib/supabase/server.ts`): Server Components, API routes
-- **Middleware** (`lib/supabase/middleware.ts`): Auth state, session refresh
+| Client | File | Use Case |
+|--------|------|----------|
+| Browser | `lib/supabase/client.ts` | Client Components, real-time subscriptions |
+| Server | `lib/supabase/server.ts` | Server Components, API routes |
+| Admin | `lib/supabase/admin.ts` | Service operations (pilot portal auth) |
+| Service Role | `lib/supabase/service-role.ts` | Bypasses RLS for system operations |
+| Middleware | `lib/supabase/middleware.ts` | Auth state, session refresh |
+
+### Session Management
+
+Pilot portal sessions use Redis-backed sessions via `redis-session-service.ts`:
+- Cookie name: `pilot-session`
+- Sessions stored in Redis with DB audit logging
+- Managed via `session-service.ts` → `redis-session-service.ts`
 
 ---
 
@@ -131,7 +110,7 @@ const { data } = await supabase.from('pilots').select('*')
 | `check_types`       | Check type definitions                      |
 | `pilot_requests` ⭐ | **UNIFIED** - ALL leave and flight requests |
 | `leave_bids`        | Annual leave bidding (separate system)      |
-| `an_users`          | Pilot portal authentication                 |
+| `an_users`          | Pilot portal authentication (also aliased as `pilot_users`) |
 
 ### Unified Requests Table (`pilot_requests`)
 
@@ -262,9 +241,10 @@ Enforced by `npm run validate:naming`:
 | Supabase       | 2.75.1  | PostgreSQL + Auth    |
 | TanStack Query | 5.90.2  | Server state         |
 | Playwright     | 1.56.1  | E2E testing          |
+| Redis (Upstash)| -       | Session storage, rate limiting |
 
 ---
 
-**Version**: 3.0.0
-**Last Updated**: December 2025
+**Version**: 3.1.0
+**Last Updated**: January 2026
 **Maintainer**: Maurice (Skycruzer)
