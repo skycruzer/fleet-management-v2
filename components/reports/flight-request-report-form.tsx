@@ -338,7 +338,8 @@ export function FlightRequestReportForm() {
                       placeholder="Select roster periods..."
                     />
                   </FormControl>
-                  {field.value && field.value.length > 0 &&
+                  {field.value &&
+                    field.value.length > 0 &&
                     (() => {
                       const dateRange = rosterPeriodsToDateRange(field.value)
                       if (dateRange) {

@@ -79,7 +79,7 @@ export function PlanningPageClient({ activeTab, children }: PlanningPageClientPr
                   'flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
                   currentTab === tab.id
                     ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-muted-foreground dark:hover:border-white/[0.1] dark:hover:text-foreground/80'
+                    : 'dark:text-muted-foreground dark:hover:text-foreground/80 border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:hover:border-white/[0.1]'
                 )}
               >
                 <Icon className="h-4 w-4" />

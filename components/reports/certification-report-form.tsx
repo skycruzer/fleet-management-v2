@@ -468,7 +468,9 @@ export function CertificationReportForm() {
                                   onCheckedChange={(checked) => {
                                     const newValue = checked
                                       ? [...(field.value ?? []), checkType.id]
-                                      : (field.value ?? []).filter((value) => value !== checkType.id)
+                                      : (field.value ?? []).filter(
+                                          (value) => value !== checkType.id
+                                        )
                                     field.onChange(newValue)
                                     handleFormChange()
                                   }}
