@@ -42,7 +42,8 @@ const EmailFormSchema = z.object({
   includeAvailability: z.boolean().default(true),
 })
 
-type EmailFormData = z.infer<typeof EmailFormSchema>
+// Use z.input for form types (before defaults are applied)
+type EmailFormData = z.input<typeof EmailFormSchema>
 
 // ============================================================================
 // Component

@@ -89,7 +89,8 @@ export function CertificationReportForm() {
 
   const exportMutation = useReportExport()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  // Use z.input for form types (before defaults are applied)
+  const form = useForm<z.input<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       filterMode: 'dateRange',
@@ -103,7 +104,7 @@ export function CertificationReportForm() {
     },
   })
 
-  const filterMode = form.watch('filterMode')
+  const filterMode = form.watch('filterMode') ?? 'dateRange'
   const rosterPeriods = generateRosterPeriods()
 
   // Fetch check types on mount
@@ -124,8 +125,8 @@ export function CertificationReportForm() {
     fetchCheckTypes()
   }, [])
 
-  // Build filters from form values
-  const buildFilters = (values: z.infer<typeof formSchema>): ReportFilters => {
+  // Build filters from form values (uses input type for optional handling)
+  const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {
     const filters: ReportFilters = {}
 
     // Only include date filters based on selected mode
@@ -203,14 +204,14 @@ export function CertificationReportForm() {
     }
   }, [exportMutation.isSuccess, toast])
 
-  const handlePreview = async (values: z.infer<typeof formSchema>) => {
+  const handlePreview = async (values: z.input<typeof formSchema>) => {
     const filters = buildFilters(values)
     setCurrentFilters(filters)
     setShouldFetchPreview(true)
     refetchPreview()
   }
 
-  const handleExport = async (values: z.infer<typeof formSchema>) => {
+  const handleExport = async (values: z.input<typeof formSchema>) => {
     const filters = buildFilters(values)
     exportMutation.mutate({
       reportType: 'certifications',
@@ -466,8 +467,8 @@ export function CertificationReportForm() {
                                   checked={field.value?.includes(checkType.id)}
                                   onCheckedChange={(checked) => {
                                     const newValue = checked
-                                      ? [...field.value, checkType.id]
-                                      : field.value?.filter((value) => value !== checkType.id)
+                                      ? [...(field.value ?? []), checkType.id]
+                                      : (field.value ?? []).filter((value) => value !== checkType.id)
                                     field.onChange(newValue)
                                     handleFormChange()
                                   }}

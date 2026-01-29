@@ -9,13 +9,7 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { formatDate } from '@/lib/utils/date-utils'
 import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
-
-// Type augmentation for jspdf-autotable
-declare module 'jspdf' {
-  interface jsPDF {
-    lastAutoTable?: { finalY: number }
-  }
-}
+// jsPDF type augmentation for lastAutoTable is in types/jspdf-autotable.d.ts
 
 interface PilotInfo {
   first_name: string

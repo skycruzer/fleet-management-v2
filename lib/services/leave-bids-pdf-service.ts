@@ -204,7 +204,7 @@ export async function generateLeaveBidsPDF(
       },
     })
 
-    yPosition = (doc as any).lastAutoTable.finalY + 10
+    yPosition = (doc.lastAutoTable?.finalY ?? yPosition) + 10
   }
 
   // Convert to Buffer

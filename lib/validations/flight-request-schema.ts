@@ -87,7 +87,10 @@ export const FlightRequestSchema = z
     }
   )
 
-export type FlightRequestInput = z.infer<typeof FlightRequestSchema>
+// Input type for forms (before transforms)
+export type FlightRequestInput = z.input<typeof FlightRequestSchema>
+// Output type for validated data (after transforms)
+export type FlightRequestOutput = z.infer<typeof FlightRequestSchema>
 
 // Flight request review schema (admin)
 export const FlightRequestReviewSchema = z

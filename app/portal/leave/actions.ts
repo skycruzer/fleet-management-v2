@@ -29,7 +29,7 @@ export async function submitLeaveRequestAction(formData: FormData) {
       request_type: requestType as any,
       start_date: startDate,
       end_date: endDate,
-      reason: reason || null,
+      reason: reason || undefined,
     })
 
     if (!result.success) {

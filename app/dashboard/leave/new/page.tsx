@@ -17,7 +17,8 @@ import { Label } from '@/components/ui/label'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
 import Link from 'next/link'
 
-type LeaveRequestFormData = z.infer<typeof LeaveRequestCreateSchema>
+// Use z.input for form types (before transforms/defaults are applied)
+type LeaveRequestFormData = z.input<typeof LeaveRequestCreateSchema>
 
 interface Pilot {
   id: string

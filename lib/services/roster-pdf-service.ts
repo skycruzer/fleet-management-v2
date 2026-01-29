@@ -173,7 +173,7 @@ export async function generateRosterPDF(
       },
     })
 
-    currentY = (doc as any).lastAutoTable.finalY + 15
+    currentY = (doc.lastAutoTable?.finalY ?? currentY) + 15
 
     // ========================================================================
     // Approved Leave Requests Section
@@ -217,7 +217,7 @@ export async function generateRosterPDF(
         },
       })
 
-      currentY = (doc as any).lastAutoTable.finalY + 15
+      currentY = (doc.lastAutoTable?.finalY ?? currentY) + 15
     }
 
     // ========================================================================
@@ -265,7 +265,7 @@ export async function generateRosterPDF(
         },
       })
 
-      currentY = (doc as any).lastAutoTable.finalY + 15
+      currentY = (doc.lastAutoTable?.finalY ?? currentY) + 15
     }
 
     // ========================================================================
@@ -307,7 +307,7 @@ export async function generateRosterPDF(
         },
       })
 
-      currentY = (doc as any).lastAutoTable.finalY + 15
+      currentY = (doc.lastAutoTable?.finalY ?? currentY) + 15
     }
 
     // ========================================================================
@@ -361,7 +361,7 @@ export async function generateRosterPDF(
         },
       })
 
-      currentY = (doc as any).lastAutoTable.finalY + 10
+      currentY = (doc.lastAutoTable?.finalY ?? currentY) + 10
 
       // Minimum crew warning (if applicable)
       if (report.crewAvailability.minimumCrewDate) {

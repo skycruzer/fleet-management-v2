@@ -58,10 +58,11 @@ export function PlanningPageClient({ activeTab, children }: PlanningPageClientPr
 
   // Extract children by tab
   const childArray = Array.isArray(children) ? children : [children]
-  const renewalsContent = childArray.find(
-    (child: ReactNode) =>
-      child && typeof child === 'object' && 'props' in child && child.props['data-tab'] === 'renewals'
-  )
+  const renewalsContent = childArray.find((child: ReactNode) => {
+    if (!child || typeof child !== 'object' || !('props' in child)) return false
+    const props = (child as { props: Record<string, unknown> }).props
+    return props['data-tab'] === 'renewals'
+  })
 
   return (
     <>

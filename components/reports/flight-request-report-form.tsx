@@ -76,7 +76,7 @@ export function FlightRequestReportForm() {
 
   const exportMutation = useReportExport()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.input<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       filterMode: 'dateRange',
@@ -93,11 +93,11 @@ export function FlightRequestReportForm() {
     },
   })
 
-  const filterMode = form.watch('filterMode')
+  const filterMode = form.watch('filterMode') ?? 'dateRange'
   const rosterPeriods = generateRosterPeriods()
 
-  // Build filters from form values
-  const buildFilters = (values: z.infer<typeof formSchema>): ReportFilters => {
+  // Build filters from form values (uses input type for optional handling)
+  const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {
     const filters: ReportFilters = {}
 
     // Only include date filters based on selected mode
@@ -175,14 +175,14 @@ export function FlightRequestReportForm() {
     }
   }, [exportMutation.isSuccess])
 
-  const handlePreview = async (values: z.infer<typeof formSchema>) => {
+  const handlePreview = async (values: z.input<typeof formSchema>) => {
     const filters = buildFilters(values)
     setCurrentFilters(filters)
     setShouldFetchPreview(true)
     refetchPreview()
   }
 
-  const handleExport = async (values: z.infer<typeof formSchema>) => {
+  const handleExport = async (values: z.input<typeof formSchema>) => {
     const filters = buildFilters(values)
     exportMutation.mutate({
       reportType: 'flight-requests',
@@ -338,7 +338,7 @@ export function FlightRequestReportForm() {
                       placeholder="Select roster periods..."
                     />
                   </FormControl>
-                  {field.value?.length > 0 &&
+                  {field.value && field.value.length > 0 &&
                     (() => {
                       const dateRange = rosterPeriodsToDateRange(field.value)
                       if (dateRange) {

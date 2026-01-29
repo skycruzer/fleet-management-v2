@@ -59,7 +59,7 @@ export function LeaveBidsReportForm() {
 
   const exportMutation = useReportExport()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.input<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       rosterPeriods: [],
@@ -73,11 +73,11 @@ export function LeaveBidsReportForm() {
   })
 
   // Build filters from form values
-  const buildFilters = (values: z.infer<typeof formSchema>): ReportFilters => {
+  const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {
     const filters: ReportFilters = {}
 
     // Roster periods
-    if (values.rosterPeriods.length > 0) {
+    if (values.rosterPeriods && values.rosterPeriods.length > 0) {
       filters.rosterPeriods = values.rosterPeriods
     }
 
@@ -208,7 +208,7 @@ export function LeaveBidsReportForm() {
             <Label htmlFor="rosterPeriods">Roster Periods</Label>
             <RosterPeriodMultiSelect
               periods={rosterPeriods}
-              selectedPeriods={values.rosterPeriods}
+              selectedPeriods={values.rosterPeriods ?? []}
               onChange={(periods) => form.setValue('rosterPeriods', periods)}
             />
           </div>

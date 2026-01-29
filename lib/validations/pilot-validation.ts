@@ -220,7 +220,10 @@ export const PilotCreateSchema = z
     }
   )
 
-export type PilotCreate = z.infer<typeof PilotCreateSchema>
+// Input type for forms (before transforms)
+export type PilotCreate = z.input<typeof PilotCreateSchema>
+// Output type for validated data (after transforms)
+export type PilotCreateOutput = z.infer<typeof PilotCreateSchema>
 
 // ===================================
 // PILOT UPDATE SCHEMA
@@ -305,7 +308,10 @@ export const PilotUpdateSchema = z
     }
   )
 
-export type PilotUpdate = z.infer<typeof PilotUpdateSchema>
+// Input type for forms (before transforms)
+export type PilotUpdate = z.input<typeof PilotUpdateSchema>
+// Output type for validated data (after transforms)
+export type PilotUpdateOutput = z.infer<typeof PilotUpdateSchema>
 
 // ===================================
 // PILOT SEARCH SCHEMA

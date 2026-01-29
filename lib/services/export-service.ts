@@ -188,7 +188,7 @@ export function generateAnalyticsPDF(
     margin: { left: 14 },
   })
 
-  yPos = (doc as any).lastAutoTable.finalY + 15
+  yPos = (doc.lastAutoTable?.finalY ?? yPos) + 15
 
   // Certification Status
   doc.setFontSize(14)
@@ -211,7 +211,7 @@ export function generateAnalyticsPDF(
     margin: { left: 14 },
   })
 
-  yPos = (doc as any).lastAutoTable.finalY + 15
+  yPos = (doc.lastAutoTable?.finalY ?? yPos) + 15
 
   // Leave Requests
   doc.setFontSize(14)
@@ -233,7 +233,7 @@ export function generateAnalyticsPDF(
     margin: { left: 14 },
   })
 
-  yPos = (doc as any).lastAutoTable.finalY + 15
+  yPos = (doc.lastAutoTable?.finalY ?? yPos) + 15
 
   // Check if we need a new page
   if (yPos > 240) {
@@ -260,7 +260,7 @@ export function generateAnalyticsPDF(
     margin: { left: 14 },
   })
 
-  yPos = (doc as any).lastAutoTable.finalY + 15
+  yPos = (doc.lastAutoTable?.finalY ?? yPos) + 15
 
   // Risk Assessment
   doc.setFontSize(14)

@@ -20,7 +20,8 @@ import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import Link from 'next/link'
 
-type PilotFormData = z.infer<typeof PilotCreateSchema>
+// Use z.input for form types (before transforms/defaults are applied)
+type PilotFormData = z.input<typeof PilotCreateSchema>
 
 interface ContractType {
   id: string

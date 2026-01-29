@@ -26,7 +26,7 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import {
   isLateRequest,
   getTodayISO,
-  type PilotLeaveRequestInput,
+  type PilotLeaveRequestOutput,
 } from '@/lib/validations/pilot-leave-schema'
 
 export interface ServiceResponse<T = void> {
@@ -47,7 +47,7 @@ export interface ServiceResponse<T = void> {
  * - Adds denormalized fields (name, rank, employee_number)
  */
 export async function submitPilotLeaveRequest(
-  request: PilotLeaveRequestInput
+  request: PilotLeaveRequestOutput
 ): Promise<ServiceResponse<LeaveRequest>> {
   try {
     // Get current pilot
@@ -159,7 +159,7 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
  */
 export async function updatePilotLeaveRequest(
   requestId: string,
-  updates: PilotLeaveRequestInput
+  updates: PilotLeaveRequestOutput
 ): Promise<ServiceResponse<LeaveRequest>> {
   try {
     const supabase = createServiceRoleClient()

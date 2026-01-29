@@ -57,7 +57,7 @@ export function ReportEmailDialog({
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.input<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       recipients: '',
@@ -66,7 +66,7 @@ export function ReportEmailDialog({
     },
   })
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.input<typeof formSchema>) => {
     setIsLoading(true)
     try {
       const recipients = values.recipients.split(',').map((email) => email.trim())

@@ -48,11 +48,8 @@ export const PilotLeaveRequestSchema = z
       .string()
       .min(1, 'End date is required')
       .regex(/^\d{4}-\d{2}-\d{2}$/, 'End date must be in format YYYY-MM-DD'),
-    reason: z
-      .string()
-      .max(500, 'Reason cannot exceed 500 characters')
-      .optional()
-      .transform((val) => val || null),
+    // Note: Empty string to null conversion handled in service layer
+    reason: z.string().max(500, 'Reason cannot exceed 500 characters').optional(),
   })
   .refine(
     (data) => {
@@ -80,7 +77,10 @@ export const PilotLeaveRequestSchema = z
     }
   )
 
-export type PilotLeaveRequestInput = z.infer<typeof PilotLeaveRequestSchema>
+// Input type for forms (before transforms)
+export type PilotLeaveRequestInput = z.input<typeof PilotLeaveRequestSchema>
+// Output type for validated data (after transforms)
+export type PilotLeaveRequestOutput = z.infer<typeof PilotLeaveRequestSchema>
 
 /**
  * Pilot Leave Request Cancellation Schema

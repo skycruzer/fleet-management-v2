@@ -21,7 +21,8 @@ import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 
-type PilotFormData = z.infer<typeof PilotUpdateSchema>
+// Use z.input for form types (before transforms/defaults are applied)
+type PilotFormData = z.input<typeof PilotUpdateSchema>
 
 interface Pilot {
   id: string

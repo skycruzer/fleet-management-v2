@@ -138,8 +138,10 @@ export default function CertificationsPage() {
       }
 
       const data = await response.json()
-      setCertifications(data.data || [])
-      setFilteredCertifications(data.data || [])
+      // API returns { data: { certifications: [...], pagination: {...} } }
+      const certificationsList = data.data?.certifications || []
+      setCertifications(certificationsList)
+      setFilteredCertifications(certificationsList)
     } catch (err) {
       console.error('Error fetching certifications:', err)
       setError(err instanceof Error ? err.message : 'Failed to load certifications')
@@ -162,7 +164,8 @@ export default function CertificationsPage() {
           const response = await fetch('/api/certifications')
           if (response.ok) {
             const data = await response.json()
-            setCertifications(data.data || [])
+            const certificationsList = data.data?.certifications || []
+            setCertifications(certificationsList)
           }
         } catch (err) {
           console.error('Failed to refresh certifications on visibility change:', err)

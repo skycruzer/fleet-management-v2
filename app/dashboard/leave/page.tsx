@@ -168,9 +168,11 @@ export default async function LeaveManagementPage({
     is_late_request: request.is_late_request,
   }))
 
-  // Transform leave bids
+  // Transform leave bids with proper status type casting
   const transformedLeaveBids = leaveBids.map((bid: LeadBidData) => ({
     ...bid,
+    // Cast status to expected enum type (validated at DB level)
+    status: bid.status as 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | null,
     bid_year: extractBidYear(bid.leave_bid_options),
   }))
 

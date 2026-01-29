@@ -16,12 +16,7 @@ import { createAuditLog } from './audit-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import type { FlightRequestReviewInput } from '@/lib/validations/flight-request-schema'
 import type { FlightRequest } from './pilot-flight-service'
-
-export interface ServiceResponse<T = void> {
-  success: boolean
-  data?: T
-  error?: string
-}
+import type { ServiceResponse } from '@/lib/types/service-response'
 
 /**
  * Get All Flight Requests (Admin View)

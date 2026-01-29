@@ -77,7 +77,7 @@ export function LeaveReportForm() {
 
   const exportMutation = useReportExport()
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<z.input<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       filterMode: 'dateRange',
@@ -95,10 +95,10 @@ export function LeaveReportForm() {
   })
 
   // Watch filter mode to conditionally show fields
-  const filterMode = form.watch('filterMode')
+  const filterMode = form.watch('filterMode') ?? 'dateRange'
 
   // Build filters from form values
-  const buildFilters = (values: z.infer<typeof formSchema>): ReportFilters => {
+  const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {
     const filters: ReportFilters = {}
 
     // Only include date filters based on selected mode
@@ -176,14 +176,14 @@ export function LeaveReportForm() {
     }
   }, [exportMutation.isSuccess])
 
-  const handlePreview = async (values: z.infer<typeof formSchema>) => {
+  const handlePreview = async (values: z.input<typeof formSchema>) => {
     const filters = buildFilters(values)
     setCurrentFilters(filters)
     setShouldFetchPreview(true)
     refetchPreview()
   }
 
-  const handleExport = async (values: z.infer<typeof formSchema>) => {
+  const handleExport = async (values: z.input<typeof formSchema>) => {
     const filters = buildFilters(values)
     exportMutation.mutate({
       reportType: 'leave',
@@ -340,7 +340,7 @@ export function LeaveReportForm() {
                       placeholder="Select roster periods..."
                     />
                   </FormControl>
-                  {field.value?.length > 0 &&
+                  {field.value && field.value.length > 0 &&
                     (() => {
                       const dateRange = rosterPeriodsToDateRange(field.value)
                       if (dateRange) {
