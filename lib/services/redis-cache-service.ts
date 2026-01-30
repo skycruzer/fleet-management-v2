@@ -89,6 +89,16 @@ export const CACHE_KEYS = {
   LEAVE_STATS: 'fleet:leave:stats',
   LEAVE_PENDING: 'fleet:leave:pending',
   LEAVE_APPROVED: 'fleet:leave:approved',
+
+  // Analytics (NEW - for caching expensive analytics operations)
+  ANALYTICS_PILOTS: 'analytics:pilots',
+  ANALYTICS_CERTIFICATIONS: 'analytics:certifications',
+  ANALYTICS_LEAVE: 'analytics:leave',
+  ANALYTICS_FLEET: 'analytics:fleet',
+  ANALYTICS_RISK: 'analytics:risk',
+
+  // Pilots list cache
+  PILOTS_LIST: 'pilots:list',
 } as const
 
 /**
@@ -109,16 +119,76 @@ export const CACHE_TTL = {
 
   // Frequently changing - 2 minutes
   LEAVE_STATS: 2 * 60,
+
+  // Analytics data - 10 minutes (expensive operations)
+  ANALYTICS: 10 * 60,
+
+  // Pilot lists - 5 minutes (moderate update frequency)
+  PILOTS_LIST: 5 * 60,
 } as const
+
+/**
+ * Cache metrics for monitoring
+ */
+interface CacheMetrics {
+  hits: number
+  misses: number
+  sets: number
+  deletes: number
+  errors: number
+  lastReset: Date
+}
 
 /**
  * Redis Cache Service Class
  */
 class RedisCacheService {
   private redis: Redis | null
+  private metrics: CacheMetrics
 
   constructor() {
     this.redis = getRedisClient()
+    this.metrics = {
+      hits: 0,
+      misses: 0,
+      sets: 0,
+      deletes: 0,
+      errors: 0,
+      lastReset: new Date(),
+    }
+  }
+
+  /**
+   * Get cache statistics and metrics
+   * @returns Current cache metrics and status
+   */
+  getMetrics(): CacheMetrics & {
+    hitRate: number
+    totalOperations: number
+  } {
+    const totalGets = this.metrics.hits + this.metrics.misses
+    const hitRate = totalGets > 0 ? Math.round((this.metrics.hits / totalGets) * 100) : 0
+    const totalOperations = totalGets + this.metrics.sets + this.metrics.deletes
+
+    return {
+      ...this.metrics,
+      hitRate,
+      totalOperations,
+    }
+  }
+
+  /**
+   * Reset cache metrics (useful for periodic monitoring)
+   */
+  resetMetrics(): void {
+    this.metrics = {
+      hits: 0,
+      misses: 0,
+      sets: 0,
+      deletes: 0,
+      errors: 0,
+      lastReset: new Date(),
+    }
   }
 
   /**
@@ -131,8 +201,14 @@ class RedisCacheService {
     if (!this.redis) return null
     try {
       const value = await this.redis.get<T>(key)
+      if (value !== null) {
+        this.metrics.hits++
+      } else {
+        this.metrics.misses++
+      }
       return value
     } catch (error) {
+      this.metrics.errors++
       logError(error as Error, {
         source: 'RedisCacheService',
         severity: ErrorSeverity.MEDIUM,
@@ -153,7 +229,9 @@ class RedisCacheService {
     if (!this.redis) return
     try {
       await this.redis.setex(key, ttlSeconds, JSON.stringify(value))
+      this.metrics.sets++
     } catch (error) {
+      this.metrics.errors++
       logError(error as Error, {
         source: 'RedisCacheService',
         severity: ErrorSeverity.MEDIUM,
@@ -189,7 +267,9 @@ class RedisCacheService {
     if (!this.redis) return
     try {
       await this.redis.del(key)
+      this.metrics.deletes++
     } catch (error) {
+      this.metrics.errors++
       logError(error as Error, {
         source: 'RedisCacheService',
         severity: ErrorSeverity.MEDIUM,

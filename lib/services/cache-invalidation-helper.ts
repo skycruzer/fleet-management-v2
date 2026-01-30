@@ -2,12 +2,21 @@
  * Cache Invalidation Helper
  *
  * Utility functions for invalidating caches after mutations.
+ * Handles both Next.js path/tag revalidation and Redis cache invalidation.
  *
  * @author Maurice Rondeau
  * @date December 2025
+ * @updated January 2026 - Added Redis analytics cache invalidation
  */
 
 import { revalidatePath, revalidateTag } from 'next/cache'
+import {
+  invalidatePilotAnalyticsCaches,
+  invalidateCertificationAnalyticsCaches,
+  invalidateLeaveAnalyticsCaches,
+  invalidateAnalyticsCaches,
+} from './analytics-service'
+import { redisCacheService, CACHE_KEYS } from './redis-cache-service'
 
 /**
  * Domain-specific path mappings for cache invalidation
@@ -99,6 +108,7 @@ export async function invalidateRequestCaches(): Promise<void> {
 
 /**
  * Invalidate pilot-related caches
+ * Includes Redis analytics cache invalidation
  */
 export async function invalidatePilotCaches(pilotId?: string): Promise<void> {
   const paths = ['/dashboard/pilots']
@@ -106,15 +116,55 @@ export async function invalidatePilotCaches(pilotId?: string): Promise<void> {
     paths.push(`/dashboard/pilots/${pilotId}`)
   }
 
+  // Invalidate Next.js caches
   await invalidateAfterMutation({ paths, tags: ['pilots'] })
+
+  // Invalidate Redis analytics caches (pilot changes affect analytics)
+  await invalidatePilotAnalyticsCaches()
+
+  // Invalidate Redis pilot list cache
+  await redisCacheService.delPattern(`${CACHE_KEYS.PILOTS_LIST}:*`)
 }
 
 /**
  * Invalidate certification-related caches
+ * Includes Redis analytics cache invalidation
  */
 export async function invalidateCertificationCaches(): Promise<void> {
+  // Invalidate Next.js caches
   await invalidateAfterMutation({
     paths: ['/dashboard/certifications'],
     tags: ['certifications', 'pilot-checks'],
   })
+
+  // Invalidate Redis analytics caches (certification changes affect analytics)
+  await invalidateCertificationAnalyticsCaches()
+}
+
+/**
+ * Invalidate leave/request-related caches
+ * Includes Redis analytics cache invalidation
+ */
+export async function invalidateLeaveCaches(): Promise<void> {
+  // Invalidate Next.js caches
+  await invalidateAfterMutation({
+    paths: [
+      '/dashboard/requests',
+      '/dashboard/leave',
+      '/dashboard/leave/approve',
+      '/dashboard/leave/calendar',
+    ],
+    tags: ['requests', 'leave-requests', 'pilot-requests'],
+  })
+
+  // Invalidate Redis analytics caches (leave changes affect analytics)
+  await invalidateLeaveAnalyticsCaches()
+}
+
+/**
+ * Invalidate all analytics caches
+ * Use for bulk operations or when unsure which domain changed
+ */
+export async function invalidateAllAnalyticsCaches(): Promise<void> {
+  await invalidateAnalyticsCaches()
 }

@@ -483,7 +483,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="RDO">RDO (Rostered Day Off)</SelectItem>
-                          <SelectItem value="SDO">SDO (Scheduled Day Off)</SelectItem>
+                          <SelectItem value="SDO">SDO (Substitute Day Off)</SelectItem>
                           <SelectItem value="ANNUAL">Annual Leave</SelectItem>
                           <SelectItem value="SICK">Sick Leave</SelectItem>
                           <SelectItem value="LSL">Long Service Leave</SelectItem>
@@ -514,7 +514,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="RDO">RDO (Rostered Day Off)</SelectItem>
-                          <SelectItem value="SDO">SDO (Scheduled Day Off)</SelectItem>
+                          <SelectItem value="SDO">SDO (Substitute Day Off)</SelectItem>
                           <SelectItem value="OFFICE_DAY">Office Day</SelectItem>
                         </SelectContent>
                       </Select>

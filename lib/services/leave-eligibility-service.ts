@@ -66,10 +66,21 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { differenceInDays, parseISO, isWithinInterval, eachDayOfInterval, addDays } from 'date-fns'
+import type { PilotRequirementsSetting } from '@/types/database-extensions'
 
 // ===================================
 // TYPES & INTERFACES
 // ===================================
+
+// Type for leave request with pilot join (from Supabase query)
+type LeaveRequestWithPilot = {
+  id: string
+  pilot_id: string
+  start_date: string | null
+  end_date: string | null
+  workflow_status: string | null
+  pilots: { id: string; role: string } | null
+}
 
 export interface CrewRequirements {
   minimumCaptains: number
@@ -181,7 +192,7 @@ export async function getCrewRequirements(): Promise<CrewRequirements> {
     }
   }
 
-  const reqs = settings.value as any
+  const reqs = settings.value as PilotRequirementsSetting
   return {
     minimumCaptains: (reqs.minimum_captains_per_hull || 5) * (reqs.number_of_aircraft || 2),
     minimumFirstOfficers:
@@ -369,8 +380,10 @@ export async function calculateCrewAvailability(
     throw new Error('Failed to fetch leave requests')
   }
 
-  // Filter out the request being checked (for updates)
-  const relevantLeave = (leaveRequests || []).filter((lr) => lr.id !== excludeRequestId)
+  // Filter out the request being checked (for updates) and cast to typed result
+  const relevantLeave = ((leaveRequests || []) as LeaveRequestWithPilot[]).filter(
+    (lr) => lr.id !== excludeRequestId
+  )
 
   // Calculate availability for each day in the range
   const days = eachDayOfInterval({
@@ -389,11 +402,9 @@ export async function calculateCrewAvailability(
       return isWithinInterval(day, { start: leaveStart, end: leaveEnd })
     })
 
-    const onLeaveCaptains = onLeaveToday.filter(
-      (lr) => (lr.pilots as any)?.role === 'Captain'
-    ).length
+    const onLeaveCaptains = onLeaveToday.filter((lr) => lr.pilots?.role === 'Captain').length
     const onLeaveFirstOfficers = onLeaveToday.filter(
-      (lr) => (lr.pilots as any)?.role === 'First Officer'
+      (lr) => lr.pilots?.role === 'First Officer'
     ).length
 
     const availableCaptains = totalCaptains - onLeaveCaptains
@@ -1186,23 +1197,43 @@ export async function checkBulkLeaveEligibility(rosterPeriod: string): Promise<{
     }
   }
 
+  // Type for the query result
+  type PilotRole = 'Captain' | 'First Officer'
+  type BulkCheckRequest = {
+    id: string
+    pilot_id: string
+    start_date: string | null
+    end_date: string | null
+    request_type: string | null
+    pilots: { role: string } | null
+  }
+
+  const typedRequests = requests as BulkCheckRequest[]
   const recommendations = new Map<string, LeaveEligibilityCheck>()
   const eligible: string[] = []
   const requiresReview: string[] = []
   const shouldDeny: string[] = []
 
+  // Helper to validate pilot role
+  function isValidPilotRole(role: string): role is PilotRole {
+    return role === 'Captain' || role === 'First Officer'
+  }
+
   // Check each request
-  for (const req of requests) {
+  for (const req of typedRequests) {
     // Skip requests without valid pilot_id or request_type
     if (!req.pilot_id || !req.request_type) continue
 
     // Skip requests with missing date information
     if (!req.start_date || !req.end_date) continue
 
+    // Skip requests without valid pilot role
+    if (!req.pilots?.role || !isValidPilotRole(req.pilots.role)) continue
+
     const check = await checkLeaveEligibility({
       requestId: req.id,
       pilotId: req.pilot_id,
-      pilotRole: (req.pilots as any).role,
+      pilotRole: req.pilots.role,
       startDate: req.start_date,
       endDate: req.end_date,
       requestType: req.request_type,

@@ -886,67 +886,46 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          feedback_id: string
           id: string
-          is_anonymous: boolean | null
           parent_comment_id: string | null
-          pilot_user_id: string
-          post_id: string
           updated_at: string
+          user_id: string
+          user_type: string
         }
         Insert: {
           content: string
           created_at?: string
+          feedback_id: string
           id?: string
-          is_anonymous?: boolean | null
           parent_comment_id?: string | null
-          pilot_user_id: string
-          post_id: string
           updated_at?: string
+          user_id: string
+          user_type: string
         }
         Update: {
           content?: string
           created_at?: string
+          feedback_id?: string
           id?: string
-          is_anonymous?: boolean | null
           parent_comment_id?: string | null
-          pilot_user_id?: string
-          post_id?: string
           updated_at?: string
+          user_id?: string
+          user_type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'feedback_comments_feedback_id_fkey'
+            columns: ['feedback_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_feedback'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'feedback_comments_parent_comment_id_fkey'
             columns: ['parent_comment_id']
             isOneToOne: false
             referencedRelation: 'feedback_comments'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'feedback_comments_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
-            isOneToOne: false
-            referencedRelation: 'pending_pilot_registrations'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'feedback_comments_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_user_id']
-          },
-          {
-            foreignKeyName: 'feedback_comments_pilot_user_id_fkey'
-            columns: ['pilot_user_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'feedback_comments_post_id_fkey'
-            columns: ['post_id']
-            isOneToOne: false
-            referencedRelation: 'feedback_posts'
             referencedColumns: ['id']
           },
         ]
@@ -3981,6 +3960,7 @@ export type Database = {
       }
       current_user_email: { Args: never; Returns: string }
       current_user_is_an_admin: { Args: never; Returns: boolean }
+      current_user_role: { Args: never; Returns: string }
       days_until_expiry: { Args: { expiry_date: string }; Returns: number }
       excel_date_to_pg_date: { Args: { excel_serial: number }; Returns: string }
       find_check_type_by_code: { Args: { code: string }; Returns: string }
@@ -4172,6 +4152,8 @@ export type Database = {
       }
       get_years_to_retirement: { Args: { birth_date: string }; Returns: number }
       is_account_locked: { Args: { user_email: string }; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
+      is_admin_or_manager: { Args: never; Returns: boolean }
       is_admin_user: { Args: never; Returns: boolean }
       is_current_user: { Args: { user_id: string }; Returns: boolean }
       is_current_user_admin: { Args: never; Returns: boolean }

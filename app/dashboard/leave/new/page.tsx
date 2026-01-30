@@ -261,7 +261,7 @@ export default function NewLeaveRequestPage() {
                 >
                   <option value="">Select leave type...</option>
                   <option value="RDO">RDO (Regular Day Off)</option>
-                  <option value="SDO">SDO (Scheduled Day Off)</option>
+                  <option value="SDO">SDO (Substitute Day Off)</option>
                   <option value="ANNUAL">Annual Leave</option>
                   <option value="SICK">Sick Leave</option>
                   <option value="LSL">Long Service Leave</option>

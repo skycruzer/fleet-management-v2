@@ -23,6 +23,7 @@ import {
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
 import { checkCrewAvailabilityAtomic } from '@/lib/services/leave-eligibility-service'
 import { invalidateCacheByTag } from '@/lib/services/unified-cache-service'
+import { notifyAllAdmins } from '@/lib/services/notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { logger } from '@/lib/services/logging-service'
 
@@ -44,7 +45,7 @@ export type RequestCategory = 'LEAVE' | 'FLIGHT' | 'LEAVE_BID'
 export type LeaveRequestType = 'ANNUAL' | 'SICK' | 'LSL' | 'LWOP' | 'MATERNITY' | 'COMPASSIONATE'
 export type FlightRequestType =
   | 'RDO' // Rostered Day Off (flight schedule related)
-  | 'SDO' // Scheduled Day Off (flight schedule related)
+  | 'SDO' // Substitute Day Off (flight schedule related)
   | 'FLIGHT_REQUEST'
   | 'SCHEDULE_CHANGE'
 export type RequestType = LeaveRequestType | FlightRequestType
@@ -425,6 +426,20 @@ export async function createPilotRequest(
         conflicts: conflictResult.conflicts.length,
         canApprove: conflictResult.canApprove,
       })
+    }
+
+    // Notify admins about new requests (for pilot portal submissions)
+    if (input.submission_channel === 'PILOT_PORTAL') {
+      const requestTypeLabel =
+        input.request_category === 'LEAVE' ? 'Leave Request' : 'Flight Request'
+      const notificationType =
+        input.request_category === 'LEAVE' ? 'leave_request_submitted' : 'flight_request_submitted'
+      notifyAllAdmins(
+        `New ${requestTypeLabel}`,
+        `${input.name} submitted a ${input.request_type} request for ${input.start_date}`,
+        notificationType,
+        '/dashboard/requests'
+      ).catch((err) => console.error('Failed to notify admins:', err))
     }
 
     return {

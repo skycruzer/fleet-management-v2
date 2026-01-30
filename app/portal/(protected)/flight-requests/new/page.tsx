@@ -3,7 +3,7 @@
 /**
  * RDO/SDO Request Submission Page
  *
- * Allows pilots to submit RDO (Rostered Day Off) and SDO (Scheduled Day Off) requests.
+ * Allows pilots to submit RDO (Rostered Day Off) and SDO (Substitute Day Off) requests.
  *
  * @spec 001-missing-core-features (US3)
  */
@@ -48,7 +48,7 @@ const REQUEST_TYPES = [
   },
   {
     value: 'SDO',
-    label: 'SDO (Scheduled Day Off)',
+    label: 'SDO (Substitute Day Off)',
     description: 'Request a scheduled day off',
   },
 ] as const
@@ -150,7 +150,7 @@ export default function NewFlightRequestPage() {
         <div>
           <h1 className="text-3xl font-bold">Submit RDO/SDO Request</h1>
           <p className="mt-1 text-gray-600">
-            Request a Rostered Day Off (RDO) or Scheduled Day Off (SDO)
+            Request a Rostered Day Off (RDO) or Substitute Day Off (SDO)
           </p>
         </div>
       </div>

@@ -1,7 +1,17 @@
 import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { Space_Grotesk } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
+
+// Space Grotesk — Geometric display font for headlines
+// Provides visual distinction from body text with technical precision feel
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+  weight: ['500', '600', '700'],
+})
 import { ErrorBoundary } from '@/components/error-boundary'
 import { OfflineIndicator } from '@/components/ui/offline-indicator'
 import { Providers } from './providers'
@@ -76,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} bg-background min-h-screen font-sans antialiased`}
+        className={`${GeistSans.variable} ${GeistMono.variable} ${spaceGrotesk.variable} bg-background min-h-screen font-sans antialiased`}
       >
         <ErrorBoundary>
           <Providers>

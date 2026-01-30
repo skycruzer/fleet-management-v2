@@ -5,9 +5,10 @@
  *
  * CSRF PROTECTION: POST method requires CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
+ * AUTH: Explicit pilot authentication check at API layer
  *
- * @version 2.1.0
- * @updated 2025-10-27 - Added rate limiting
+ * @version 2.2.0
+ * @updated 2026-01 - Added explicit auth guards and standardized responses
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -17,32 +18,64 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
+import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 /**
  * POST /api/portal/feedback
  *
  * Submit pilot feedback
  *
- * @auth Pilot Portal Authentication required
+ * @auth Pilot Portal Authentication required (explicit check)
  */
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // SECURITY: Explicit authentication check at API layer
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
+      return unauthorizedResponse('Pilot authentication required')
+    }
+
     // CSRF Protection
     const csrfError = await validateCsrf(request)
     if (csrfError) {
       return csrfError
     }
 
-    const body = await request.json()
+    // Read body once and handle potential stream errors
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch (parseError: unknown) {
+      console.error('POST /api/portal/feedback - JSON parse error:', parseError)
+      return NextResponse.json(
+        { success: false, error: 'Invalid request body', errorCode: 'VALIDATION_ERROR' },
+        { status: 400 }
+      )
+    }
 
-    // Validate request body
-    const validated = PilotFeedbackSchema.parse(body)
+    // Validate request body using safeParse for consistent error handling
+    const validation = PilotFeedbackSchema.safeParse(body)
+
+    if (!validation.success) {
+      // Log detailed validation errors for debugging
+      console.error('Zod validation errors:', JSON.stringify(validation.error.issues, null, 2))
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid feedback data',
+          details: validation.error.issues,
+          message: validation.error.issues[0]?.message || 'Validation failed',
+        },
+        { status: 400 }
+      )
+    }
 
     // Submit feedback
-    const result = await submitFeedback(validated)
+    const result = await submitFeedback(validation.data)
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 })
+      return NextResponse.json({ success: false, error: result.error }, { status: 400 })
     }
 
     // Revalidate cache for all affected paths
@@ -52,19 +85,6 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     return NextResponse.json({ success: true, data: result.data })
   } catch (error: any) {
     console.error('POST /api/portal/feedback error:', error)
-
-    if (error.name === 'ZodError') {
-      // Log detailed validation errors for debugging
-      console.error('Zod validation errors:', JSON.stringify(error.errors, null, 2))
-      return NextResponse.json(
-        {
-          error: 'Invalid feedback data',
-          details: error.errors,
-          message: error.errors[0]?.message || 'Validation failed',
-        },
-        { status: 400 }
-      )
-    }
 
     const sanitized = sanitizeError(error, {
       operation: 'submitFeedback',
@@ -79,23 +99,35 @@ export const POST = withRateLimit(async (request: NextRequest) => {
  *
  * Get pilot's own feedback submissions
  *
- * @auth Pilot Portal Authentication required
+ * @auth Pilot Portal Authentication required (explicit check)
  */
 export async function GET() {
   try {
+    // SECURITY: Explicit authentication check at API layer
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
+      return unauthorizedResponse('Pilot authentication required')
+    }
+
     const result = await getCurrentPilotFeedback()
 
     if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: result.error, errorCode: 'FETCH_FAILED' },
+        { status: 400 }
+      )
     }
 
     return NextResponse.json({ success: true, data: result.data })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('GET /api/portal/feedback error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getFeedback',
       endpoint: '/api/portal/feedback',
     })
-    return NextResponse.json(sanitized, { status: sanitized.statusCode })
+    return NextResponse.json(
+      { success: false, error: sanitized.error, errorId: sanitized.errorId },
+      { status: sanitized.statusCode || 500 }
+    )
   }
 }

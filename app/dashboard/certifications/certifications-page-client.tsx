@@ -52,7 +52,7 @@ export function CertificationsPageClient({
   const { toast } = useToast()
 
   // Data state
-  const [certifications, setCertifications] = useState(initialCertifications)
+  const [certifications, setCertifications] = useState(initialCertifications || [])
   const [stats, setStats] = useState(initialStats)
   const [pilots, setPilots] = useState<Pilot[]>([])
   const [checkTypes, setCheckTypes] = useState<CheckType[]>([])
@@ -71,7 +71,7 @@ export function CertificationsPageClient({
 
   if (initialCertifications !== prevInitialCertifications) {
     setPrevInitialCertifications(initialCertifications)
-    setCertifications(initialCertifications)
+    setCertifications(initialCertifications || [])
   }
   if (initialStats !== prevInitialStats) {
     setPrevInitialStats(initialStats)
@@ -83,8 +83,8 @@ export function CertificationsPageClient({
     async function fetchFormData() {
       try {
         const [pilotsRes, checkTypesRes] = await Promise.all([
-          fetch('/api/pilots'),
-          fetch('/api/check-types'),
+          fetch('/api/pilots', { credentials: 'include' }),
+          fetch('/api/check-types', { credentials: 'include' }),
         ])
 
         if (pilotsRes.ok) {
@@ -107,7 +107,10 @@ export function CertificationsPageClient({
   // Refresh data after mutations
   const refreshData = useCallback(async () => {
     try {
-      const response = await fetch('/api/certifications', { cache: 'no-store' })
+      const response = await fetch('/api/certifications', {
+        cache: 'no-store',
+        credentials: 'include',
+      })
       if (response.ok) {
         const data = await response.json()
         const certs = data.data || []

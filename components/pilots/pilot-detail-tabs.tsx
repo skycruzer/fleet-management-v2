@@ -85,7 +85,7 @@ export function PilotDetailTabs({
   isDeleting,
 }: PilotDetailTabsProps) {
   const [activeTab, setActiveTab] = useState('overview')
-  const [certifications, setCertifications] = useState<Certification[]>(initialCertifications)
+  const [certifications, setCertifications] = useState<Certification[]>(initialCertifications || [])
 
   const handleSwitchToCertifications = () => {
     setActiveTab('certifications')

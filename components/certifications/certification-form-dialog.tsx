@@ -89,12 +89,13 @@ const certificationFormSchema = z
   .object({
     pilot_id: z.string().uuid('Must select a pilot'),
     check_type_id: z.string().uuid('Must select a check type'),
-    completion_date: z.string().min(1, 'Check date is required'),
+    completion_date: z.string().optional(), // Optional - date the check was completed
     expiry_date: z.string().min(1, 'Expiry date is required'),
     notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),
   })
   .refine(
     (data) => {
+      // Only validate if both dates are provided
       if (data.completion_date && data.expiry_date) {
         const checkDate = new Date(data.completion_date)
         const expiryDate = new Date(data.expiry_date)
@@ -161,29 +162,29 @@ export function CertificationFormDialog({
   }, [open, certification, form])
 
   const onSubmit = async (data: CertificationFormData) => {
-    // Additional validation check before submission
-    const checkDate = new Date(data.completion_date)
-    const expiryDate = new Date(data.expiry_date)
+    // Additional validation check before submission (only if both dates provided)
+    if (data.completion_date && data.expiry_date) {
+      const checkDate = new Date(data.completion_date)
+      const expiryDate = new Date(data.expiry_date)
 
-    if (expiryDate <= checkDate) {
-      form.setError('expiry_date', {
-        type: 'manual',
-        message: 'Expiry date must be after check date',
-      })
-      return
+      if (expiryDate <= checkDate) {
+        form.setError('expiry_date', {
+          type: 'manual',
+          message: 'Expiry date must be after check date',
+        })
+        return
+      }
     }
 
     setIsSubmitting(true)
 
     try {
       // Convert dates to ISO datetime format for API
+      // NOTE: completion_date and notes are UI-only - not stored in pilot_checks table
       const payload = {
         pilot_id: data.pilot_id,
         check_type_id: data.check_type_id,
-        completion_date: new Date(data.completion_date).toISOString(),
         expiry_date: new Date(data.expiry_date).toISOString(),
-        notes: data.notes || null,
-        expiry_roster_period: null, // Will be calculated by backend
       }
 
       const url =
@@ -201,11 +202,13 @@ export function CertificationFormDialog({
         credentials: 'include',
       })
 
-      const result = await response.json()
-
+      // Check response.ok BEFORE parsing JSON to handle non-JSON error responses
       if (!response.ok) {
-        throw new Error(result.message || `Failed to ${mode} certification`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || errorData.error || `Failed to ${mode} certification`)
       }
+
+      const result = await response.json()
 
       // Show success message immediately
       toast({
@@ -214,12 +217,15 @@ export function CertificationFormDialog({
       })
 
       // Invalidate TanStack Query cache for instant refresh
-      await queryClient.invalidateQueries({ queryKey: ['certifications'] })
-      await queryClient.invalidateQueries({ queryKey: ['pilot-certifications'] })
-      await queryClient.invalidateQueries({ queryKey: ['pilots'] })
-      await queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      await queryClient.invalidateQueries({ queryKey: ['expiring-certifications'] })
-      await queryClient.invalidateQueries({ queryKey: ['compliance'] })
+      // Use Promise.allSettled to ensure all invalidations are attempted even if some fail
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey: ['certifications'] }),
+        queryClient.invalidateQueries({ queryKey: ['pilot-certifications'] }),
+        queryClient.invalidateQueries({ queryKey: ['pilots'] }),
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+        queryClient.invalidateQueries({ queryKey: ['expiring-certifications'] }),
+        queryClient.invalidateQueries({ queryKey: ['compliance'] }),
+      ])
 
       // Small delay to ensure toast is in DOM before dialog closes
       await new Promise((resolve) => setTimeout(resolve, 100))
@@ -316,15 +322,15 @@ export function CertificationFormDialog({
               )}
             />
 
-            {/* Check Date */}
+            {/* Check Date (Optional) */}
             <FormField
               control={form.control}
               name="completion_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Check Date</FormLabel>
+                  <FormLabel>Check Date (Optional)</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type="date" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormDescription>Date the check was completed</FormDescription>
                   <FormMessage />

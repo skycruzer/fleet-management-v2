@@ -13,6 +13,9 @@ export * from './form-layouts'
 export * from './date-range-utils'
 export * from './roster-period-utils'
 
+// API response utilities (NEW - standardized error handling)
+export * from './api-response-helper'
+
 // Existing utilities
 export * from './certification-utils'
 export * from './constraint-error-handler'

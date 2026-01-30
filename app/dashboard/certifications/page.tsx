@@ -131,6 +131,7 @@ export default function CertificationsPage() {
       setLoading(true)
       const response = await fetch('/api/certifications', {
         cache: 'no-store', // Force fresh data
+        credentials: 'include',
       })
 
       if (!response.ok) {
@@ -161,7 +162,7 @@ export default function CertificationsPage() {
     const handleVisibilityChange = async () => {
       if (!document.hidden) {
         try {
-          const response = await fetch('/api/certifications')
+          const response = await fetch('/api/certifications', { credentials: 'include' })
           if (response.ok) {
             const data = await response.json()
             const certificationsList = data.data?.certifications || []
@@ -182,13 +183,14 @@ export default function CertificationsPage() {
     async function fetchFormData() {
       try {
         const [pilotsRes, checkTypesRes] = await Promise.all([
-          fetch('/api/pilots'),
-          fetch('/api/check-types'),
+          fetch('/api/pilots', { credentials: 'include' }),
+          fetch('/api/check-types', { credentials: 'include' }),
         ])
 
         if (pilotsRes.ok) {
           const pilotsData = await pilotsRes.json()
-          setPilots(pilotsData.data || [])
+          // API returns { data: { pilots: [...] } }
+          setPilots(pilotsData.data?.pilots || pilotsData.data || [])
         }
 
         if (checkTypesRes.ok) {
@@ -250,15 +252,15 @@ export default function CertificationsPage() {
     }
   }
 
-  // Get status icon
+  // Get status icon (decorative - status conveyed by label)
   const getStatusIcon = (color: string) => {
     switch (color) {
       case 'red':
-        return <AlertCircle className="h-4 w-4" />
+        return <AlertCircle className="h-4 w-4" aria-hidden="true" />
       case 'yellow':
-        return <Clock className="h-4 w-4" />
+        return <Clock className="h-4 w-4" aria-hidden="true" />
       case 'green':
-        return <CheckCircle className="h-4 w-4" />
+        return <CheckCircle className="h-4 w-4" aria-hidden="true" />
       default:
         return null
     }
@@ -349,7 +351,12 @@ export default function CertificationsPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to delete certification')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(
+          errorData.error ||
+            errorData.message ||
+            `HTTP ${response.status}: Failed to delete certification`
+        )
       }
 
       toast({
@@ -426,12 +433,17 @@ export default function CertificationsPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={handleExport}>
-            <Download className="h-4 w-4" />
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={handleExport}
+            aria-label="Export certifications to CSV"
+          >
+            <Download className="h-4 w-4" aria-hidden="true" />
             Export
           </Button>
-          <Button className="gap-2" onClick={handleCreateClick}>
-            <Plus className="h-4 w-4" />
+          <Button className="gap-2" onClick={handleCreateClick} aria-label="Add new certification">
+            <Plus className="h-4 w-4" aria-hidden="true" />
             Add Certification
           </Button>
         </div>
@@ -490,14 +502,22 @@ export default function CertificationsPage() {
 
       {/* Filters */}
       <Card className="p-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div
+          className="flex flex-col gap-4 sm:flex-row sm:items-center"
+          role="search"
+          aria-label="Filter certifications"
+        >
           <div className="relative flex-1">
-            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <Search
+              className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+              aria-hidden="true"
+            />
             <Input
               placeholder="Search by pilot name or check type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
+              aria-label="Search certifications"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -583,8 +603,9 @@ export default function CertificationsPage() {
                           size="sm"
                           onClick={() => handleDeleteClick(cert)}
                           className="text-red-400 hover:text-red-300"
+                          aria-label={`Delete certification for ${cert.pilot.first_name} ${cert.pilot.last_name}`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
                         </Button>
                       </div>
                     </TableCell>

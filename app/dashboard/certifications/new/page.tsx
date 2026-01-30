@@ -59,19 +59,22 @@ export default function NewCertificationPage() {
       setLoadingData(true)
 
       // Fetch pilots and check types in parallel
+      // credentials: 'include' ensures the session cookie is sent
       const [pilotsResponse, checkTypesResponse] = await Promise.all([
-        fetch('/api/pilots'),
-        fetch('/api/check-types'),
+        fetch('/api/pilots', { credentials: 'include' }),
+        fetch('/api/check-types', { credentials: 'include' }),
       ])
 
       const pilotsData = await pilotsResponse.json()
       const checkTypesData = await checkTypesResponse.json()
 
-      if (pilotsData.success) {
-        setPilots(pilotsData.data)
+      // Pilots API returns { success: true, data: { pilots: [...], count: N } }
+      if (pilotsData.success && pilotsData.data?.pilots) {
+        setPilots(pilotsData.data.pilots)
       }
 
-      if (checkTypesData.success) {
+      // Check-types API returns { success: true, data: [...] }
+      if (checkTypesData.success && Array.isArray(checkTypesData.data)) {
         setCheckTypes(checkTypesData.data)
       }
     } catch (err) {

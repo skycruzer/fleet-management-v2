@@ -1,26 +1,31 @@
 /**
  * Pilot API Route - Individual Pilot Operations
- * Handles DELETE requests for pilot deletion
+ * Handles GET, PUT, DELETE requests for individual pilot operations
  *
  * Developer: Maurice Rondeau
  *
  * CSRF PROTECTION: PUT and DELETE methods require CSRF token validation
  * RATE LIMITING: 20 mutation requests per minute per IP
+ * AUTHORIZATION: DELETE requires Admin or Manager role
  *
- * @version 2.2.0
+ * @version 2.3.0
  * @since 2025-10-20
- * @updated 2025-10-27 - Added rate limiting
+ * @updated 2026-01 - Added role-based authorization for destructive operations
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { getPilotById, updatePilot, deletePilot } from '@/lib/services/pilot-service'
+import { PilotUpdateSchema } from '@/lib/validations/pilot-validation'
+import { validationErrorResponse } from '@/lib/utils/api-response-helper'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getClientIp } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
+import { unauthorizedResponse, forbiddenResponse } from '@/lib/utils/api-response-helper'
 
 /**
  * GET /api/pilots/[id]
@@ -31,14 +36,17 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     // Verify authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return unauthorizedResponse()
     }
 
     // Get pilot ID from params (Next.js 15 requires await)
     const { id: pilotId } = await params
 
     if (!pilotId) {
-      return NextResponse.json({ success: false, error: 'Pilot ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: 'Pilot ID is required', errorCode: 'VALIDATION_ERROR' },
+        { status: 400 }
+      )
     }
 
     // Fetch pilot and system settings in parallel
@@ -105,21 +113,41 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // Verify authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return unauthorizedResponse()
+    }
+
+    // SECURITY: Verify user has Admin or Manager role to update pilots
+    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
+    if (!roleCheck.authorized) {
+      return forbiddenResponse('Admin or Manager role required to update pilots')
     }
 
     // Get pilot ID from params (Next.js 15 requires await)
     const { id: pilotId } = await params
 
     if (!pilotId) {
-      return NextResponse.json({ success: false, error: 'Pilot ID is required' }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: 'Pilot ID is required', errorCode: 'VALIDATION_ERROR' },
+        { status: 400 }
+      )
     }
 
-    // Parse request body
-    const body = await request.json()
+    // Parse and validate request body
+    let validatedData
+    try {
+      const body = await request.json()
+      validatedData = PilotUpdateSchema.parse(body)
+    } catch (error) {
+      if (error instanceof Error && error.name === 'ZodError') {
+        return validationErrorResponse('Invalid pilot data', [
+          { field: 'body', message: error.message },
+        ])
+      }
+      throw error
+    }
 
-    // Update pilot using service layer
-    const updatedPilot = await updatePilot(pilotId, body)
+    // Update pilot using service layer with validated data
+    const updatedPilot = await updatePilot(pilotId, validatedData)
 
     // Revalidate cache for pilot-related pages
     revalidatePath('/dashboard/pilots')
@@ -146,6 +174,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 /**
  * DELETE /api/pilots/[id]
  * Delete a pilot and all related records (atomic)
+ *
+ * SECURITY: Requires Admin or Manager role - regular authenticated users cannot delete pilots
  */
 export async function DELETE(
   request: NextRequest,
@@ -184,7 +214,13 @@ export async function DELETE(
     // Verify authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return unauthorizedResponse()
+    }
+
+    // SECURITY: Verify user has Admin or Manager role for destructive operations
+    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
+    if (!roleCheck.authorized) {
+      return forbiddenResponse('Admin or Manager role required to delete pilots')
     }
 
     // Get pilot ID from params (Next.js 15 requires await)

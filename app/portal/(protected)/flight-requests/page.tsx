@@ -152,7 +152,7 @@ export default function FlightRequestsPage() {
   const getRequestTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
       RDO: 'RDO (Rostered Day Off)',
-      SDO: 'SDO (Scheduled Day Off)',
+      SDO: 'SDO (Substitute Day Off)',
     }
     return labels[type] || type
   }

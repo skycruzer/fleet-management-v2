@@ -188,6 +188,24 @@
   --text-2xl: clamp(1.4rem, 1.2rem + 1vw, 1.5rem);
   --text-3xl: clamp(1.7rem, 1.4rem + 1.5vw, 1.875rem);
   --text-4xl: clamp(2rem, 1.6rem + 2vw, 2.25rem);
+  --text-5xl: clamp(2.5rem, 2rem + 2.5vw, 3rem);
+  --text-6xl: clamp(3rem, 2.4rem + 3vw, 3.75rem);
+
+  /* === PILOT PORTAL WARM ACCENT (Amber/Gold differentiation) === */
+  --color-portal-accent-50: #fffbeb;
+  --color-portal-accent-100: #fef3c7;
+  --color-portal-accent-200: #fde68a;
+  --color-portal-accent-300: #fcd34d;
+  --color-portal-accent-400: #fbbf24;
+  --color-portal-accent-500: #f59e0b;
+  --color-portal-accent-600: #d97706;
+  --color-portal-accent: #f59e0b;
+  --color-portal-accent-foreground: #0f172a;
+
+  /* === AVIATION GRADIENTS === */
+  --gradient-aviation: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #3b82f6 100%);
+  --gradient-horizon: linear-gradient(180deg, #1e3a5f 0%, #0a0e1a 50%, #0f172a 100%);
+  --gradient-sky: linear-gradient(180deg, rgba(56, 189, 248, 0.05) 0%, transparent 100%);
 }
 
 /* === BASE STYLES === */
@@ -212,7 +230,7 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography — Clean, modern hierarchy */
+  /* Typography — Clean, modern hierarchy with display font for headings */
   h1,
   h2,
   h3,
@@ -220,6 +238,7 @@
   h5,
   h6 {
     @apply leading-tight font-semibold tracking-tight;
+    font-family: var(--font-space-grotesk), var(--font-geist-sans), system-ui, sans-serif;
   }
 
   h1 {
@@ -709,5 +728,248 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* =========================================================================
+   * AVIATION-THEMED DESIGN ELEMENTS
+   * Visual identity elements for fleet management aesthetic
+   * ========================================================================= */
+
+  /* Display font utility for headlines */
+  .font-display {
+    font-family: var(--font-space-grotesk), var(--font-geist-sans), system-ui, sans-serif;
+  }
+
+  /* Subtle noise texture for depth on dark surfaces */
+  .bg-noise {
+    position: relative;
+  }
+
+  .bg-noise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.02;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Horizon line decorative element */
+  .horizon-line {
+    position: relative;
+  }
+
+  .horizon-line::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(59, 130, 246, 0.3) 20%,
+      rgba(6, 182, 212, 0.5) 50%,
+      rgba(59, 130, 246, 0.3) 80%,
+      transparent 100%
+    );
+  }
+
+  /* Sky gradient overlay for hero sections */
+  .bg-sky-gradient {
+    background: linear-gradient(
+      180deg,
+      rgba(56, 189, 248, 0.03) 0%,
+      transparent 40%,
+      transparent 100%
+    );
+  }
+
+  /* Aviation gradient text */
+  .text-gradient-aviation {
+    background: var(--gradient-aviation);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%,
+    100% {
+      background-position: 0% center;
+    }
+    50% {
+      background-position: 100% center;
+    }
+  }
+
+  /* Runway markings decorative pattern */
+  .runway-pattern {
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 20px,
+      rgba(255, 255, 255, 0.03) 20px,
+      rgba(255, 255, 255, 0.03) 22px
+    );
+  }
+
+  /* Altitude indicator accent */
+  .altitude-accent {
+    position: relative;
+    padding-left: 1rem;
+  }
+
+  .altitude-accent::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, #3b82f6 0%, #06b6d4 100%);
+    border-radius: 2px;
+  }
+
+  /* Pilot portal warm accent utilities */
+  .portal-accent {
+    color: var(--color-portal-accent);
+  }
+
+  .bg-portal-accent {
+    background-color: var(--color-portal-accent);
+  }
+
+  .bg-portal-accent-muted {
+    background-color: rgba(245, 158, 11, 0.12);
+  }
+
+  .border-portal-accent {
+    border-color: var(--color-portal-accent);
+  }
+
+  /* =========================================================================
+   * CELEBRATION ANIMATIONS
+   * Micro-interactions for key moments
+   * ========================================================================= */
+
+  /* Flying plane animation for loading states */
+  @keyframes fly-across {
+    0% {
+      transform: translateX(-100%) translateY(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(100vw) translateY(-20px);
+      opacity: 0;
+    }
+  }
+
+  .animate-fly-across {
+    animation: fly-across 2s ease-in-out;
+  }
+
+  /* Success checkmark animation */
+  @keyframes success-check {
+    0% {
+      transform: scale(0) rotate(-45deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.2) rotate(0deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  .animate-success-check {
+    animation: success-check 0.5s ease-out forwards;
+  }
+
+  /* Confetti burst animation */
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-10px) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100px) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  .animate-confetti {
+    animation: confetti-fall 1s ease-out forwards;
+  }
+
+  /* Pulse ring for success states */
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+  }
+
+  .animate-pulse-ring {
+    animation: pulse-ring 0.6s ease-out;
+  }
+
+  /* Float animation for decorative elements */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Gentle rotate for icons */
+  @keyframes gentle-rotate {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  .animate-gentle-rotate {
+    animation: gentle-rotate 4s ease-in-out infinite;
+  }
+
+  /* Reduced motion support for new animations */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fly-across,
+    .animate-success-check,
+    .animate-confetti,
+    .animate-pulse-ring,
+    .animate-float,
+    .animate-gentle-rotate,
+    .text-gradient-aviation {
+      animation: none !important;
+    }
   }
 }

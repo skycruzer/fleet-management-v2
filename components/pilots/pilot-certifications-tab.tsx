@@ -67,7 +67,7 @@ export function PilotCertificationsTab({
   const router = useRouter()
   const { toast } = useToast()
 
-  const [certifications, setCertifications] = useState<Certification[]>(initialCertifications)
+  const [certifications, setCertifications] = useState<Certification[]>(initialCertifications || [])
   const [loading, setLoading] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDate, setEditDate] = useState('')
@@ -76,7 +76,7 @@ export function PilotCertificationsTab({
 
   // Fetch certifications on mount if not provided
   useEffect(() => {
-    if (initialCertifications.length === 0) {
+    if (!initialCertifications || initialCertifications.length === 0) {
       fetchCertifications()
     }
   }, [])
@@ -97,8 +97,10 @@ export function PilotCertificationsTab({
       const data = await response.json()
 
       if (data.success) {
-        setCertifications(data.data || [])
-        onCertificationsLoaded(data.data || [])
+        // API returns { data: { certifications: [...], pagination: {...} } }
+        const certs = data.data?.certifications || data.data || []
+        setCertifications(certs)
+        onCertificationsLoaded(certs)
       }
     } catch (err) {
       console.error('Failed to fetch certifications:', err)
@@ -166,8 +168,9 @@ export function PilotCertificationsTab({
     return 'current'
   }
 
-  // Filter certifications
-  const filteredCertifications = certifications.filter((cert) => {
+  // Filter certifications (with defensive array check)
+  const safeCertifications = Array.isArray(certifications) ? certifications : []
+  const filteredCertifications = safeCertifications.filter((cert) => {
     if (statusFilter === 'all') return true
     return getCertStatus(cert.expiry_date) === statusFilter
   })
@@ -297,7 +300,7 @@ export function PilotCertificationsTab({
               Certifications for {pilot.first_name} {pilot.last_name}
             </h2>
             <p className="text-muted-foreground text-sm">
-              {certifications.length} total certifications across {categories.length} categories
+              {safeCertifications.length} total certifications across {categories.length} categories
             </p>
           </div>
 
@@ -331,7 +334,7 @@ export function PilotCertificationsTab({
       </Card>
 
       {/* Loading State */}
-      {loading && certifications.length === 0 && (
+      {loading && safeCertifications.length === 0 && (
         <Card className="p-12">
           <div className="flex flex-col items-center justify-center">
             <Loader2 className="text-primary mb-4 h-8 w-8 animate-spin" />
@@ -341,7 +344,7 @@ export function PilotCertificationsTab({
       )}
 
       {/* Empty State */}
-      {!loading && certifications.length === 0 && (
+      {!loading && safeCertifications.length === 0 && (
         <Card className="p-12">
           <div className="flex flex-col items-center justify-center text-center">
             <FileText className="text-muted-foreground/50 mb-4 h-16 w-16" />
@@ -457,21 +460,21 @@ export function PilotCertificationsTab({
             <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
             <span className="text-muted-foreground">
               Current:{' '}
-              {certifications.filter((c) => getCertStatus(c.expiry_date) === 'current').length}
+              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'current').length}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]" />
             <span className="text-muted-foreground">
               Expiring:{' '}
-              {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expiring').length}
+              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'expiring').length}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-[var(--color-status-high)]" />
             <span className="text-muted-foreground">
               Expired:{' '}
-              {certifications.filter((c) => getCertStatus(c.expiry_date) === 'expired').length}
+              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'expired').length}
             </span>
           </div>
         </div>

@@ -39,7 +39,9 @@ import {
   Clock,
   XCircle,
   Download,
+  Pencil,
 } from 'lucide-react'
+import { LeaveBidForm } from '@/components/portal/leave-bid-form'
 import type { LeaveBid } from '@/lib/services/leave-bid-service'
 
 interface LeaveBidsClientProps {
@@ -51,8 +53,52 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
   const [bids, setBids] = useState<LeaveBid[]>(initialBids)
   const [selectedBid, setSelectedBid] = useState<LeaveBid | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [error, setError] = useState<string>('')
+
+  // Parse preferred_dates from bid to extract options for edit form
+  const parsePreferredDates = (
+    bid: LeaveBid
+  ): Array<{ priority: number; start_date: string; end_date: string }> => {
+    try {
+      const options = JSON.parse(bid.preferred_dates)
+      if (Array.isArray(options)) {
+        return options.map((opt, index) => ({
+          priority: opt.priority || index + 1,
+          start_date: opt.start_date || '',
+          end_date: opt.end_date || '',
+        }))
+      }
+      return []
+    } catch {
+      return []
+    }
+  }
+
+  // Extract bid year from roster_period_code (e.g., "RP1/2026" -> 2026)
+  const getBidYear = (bid: LeaveBid): number => {
+    try {
+      const match = bid.roster_period_code.match(/\/(\d{4})/)
+      if (match) {
+        return parseInt(match[1], 10)
+      }
+      // Try to get year from first option
+      const options = parsePreferredDates(bid)
+      if (options.length > 0 && options[0].start_date) {
+        return new Date(options[0].start_date).getFullYear()
+      }
+    } catch {
+      // ignore
+    }
+    return new Date().getFullYear() + 1
+  }
+
+  const handleEditSuccess = () => {
+    setShowEditDialog(false)
+    setSelectedBid(null)
+    router.refresh()
+  }
 
   const getStatusBadge = (status: string | null) => {
     const statusMap: Record<
@@ -267,16 +313,29 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
                           PDF
                         </Button>
                         {bid.status === 'PENDING' && (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedBid(bid)
-                              setShowCancelDialog(true)
-                            }}
-                          >
-                            Cancel
-                          </Button>
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedBid(bid)
+                                setShowEditDialog(true)
+                              }}
+                            >
+                              <Pencil className="mr-1 h-3 w-3" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedBid(bid)
+                                setShowCancelDialog(true)
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </>
                         )}
                       </div>
                     </TableCell>
@@ -306,6 +365,30 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
               {isCancelling ? 'Cancelling...' : 'Cancel Bid'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Leave Bid Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Leave Bid</DialogTitle>
+            <DialogDescription>
+              Update your leave bid options for {selectedBid?.roster_period_code}. Only pending bids
+              can be edited.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBid && (
+            <LeaveBidForm
+              isEdit={true}
+              initialData={{
+                id: selectedBid.id,
+                bid_year: getBidYear(selectedBid),
+                options: parsePreferredDates(selectedBid),
+              }}
+              onSuccess={handleEditSuccess}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

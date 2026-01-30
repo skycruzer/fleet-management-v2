@@ -53,7 +53,12 @@ export default async function FeedbackAdminPage() {
         </p>
       </div>
 
-      <FeedbackDashboardClient initialFeedback={initialFeedback} initialStats={initialStats} />
+      <FeedbackDashboardClient
+        initialFeedback={initialFeedback}
+        initialStats={initialStats}
+        currentUserId={auth.userId || ''}
+        currentUserName={auth.email?.split('@')[0] || 'Admin'}
+      />
     </div>
   )
 }

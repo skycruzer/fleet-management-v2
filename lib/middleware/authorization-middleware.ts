@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateAdminSession } from '@/lib/services/admin-auth-service'
 
 /**
  * User roles in the system
@@ -194,7 +195,7 @@ function getResourceConfig(resourceType: ResourceType): {
       userColumn: 'pilot_id',
     },
     [ResourceType.FEEDBACK]: {
-      table: 'feedback',
+      table: 'pilot_feedback',
       userColumn: 'pilot_id',
     },
     [ResourceType.DISCIPLINARY]: {
@@ -268,6 +269,10 @@ export async function verifyRequestAuthorization(
 /**
  * Require specific role for endpoint
  *
+ * Supports dual authentication:
+ * 1. Supabase Auth (standard)
+ * 2. Admin-session cookie (bcrypt-based fallback)
+ *
  * Usage:
  * ```typescript
  * const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
@@ -286,19 +291,32 @@ export async function requireRole(
   try {
     const supabase = await createClient()
 
+    // Try Supabase Auth first
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (!user) {
-      return {
-        authorized: false,
-        error: 'Unauthorized',
-        statusCode: 401,
-      }
+    if (user) {
+      return await verifyUserRole(user.id, requiredRoles)
     }
 
-    return await verifyUserRole(user.id, requiredRoles)
+    // Fallback to admin-session cookie (dual auth support)
+    const adminSession = await validateAdminSession()
+
+    if (adminSession.isValid && adminSession.user?.id) {
+      // Admin-session users are authenticated admins - check if Admin role is allowed
+      if (requiredRoles.includes(UserRole.ADMIN)) {
+        return { authorized: true }
+      }
+      // For other roles, verify against the database
+      return await verifyUserRole(adminSession.user.id, requiredRoles)
+    }
+
+    return {
+      authorized: false,
+      error: 'Unauthorized',
+      statusCode: 401,
+    }
   } catch (error) {
     console.error('Error in role verification:', error)
     return {

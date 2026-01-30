@@ -51,6 +51,19 @@ export interface PilotDashboardMetrics {
 }
 
 /**
+ * Historical Retirement Trends Materialized View
+ *
+ * Tracks retirement trends by year for workforce planning
+ */
+export interface HistoricalRetirementTrends {
+  year: number
+  captain_retirements: number
+  first_officer_retirements: number
+  total_retirements: number
+  avg_retirement_age: number
+}
+
+/**
  * Type guard to check if data is PilotDashboardMetrics
  */
 export function isPilotDashboardMetrics(data: any): data is PilotDashboardMetrics {

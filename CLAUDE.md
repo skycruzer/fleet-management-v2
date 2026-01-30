@@ -30,8 +30,11 @@ npm run validate:naming     # Validate naming conventions
 # Testing
 npm test                    # Run all Playwright E2E tests
 npm run test:ui             # Playwright UI mode
+npm run test:headed         # Run with browser visible
 npx playwright test e2e/auth.spec.ts        # Single test file
 npx playwright test --grep "leave request"  # Pattern match
+npx playwright test --project=chromium      # Specific browser
+npx playwright test --reporter=html         # Generate HTML report
 
 # Database
 npm run db:types            # Regenerate types after schema changes (REQUIRED)
@@ -80,20 +83,113 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Supabase Clients
 
-| Client | File | Use Case |
-|--------|------|----------|
-| Browser | `lib/supabase/client.ts` | Client Components, real-time subscriptions |
-| Server | `lib/supabase/server.ts` | Server Components, API routes |
-| Admin | `lib/supabase/admin.ts` | Service operations (pilot portal auth) |
-| Service Role | `lib/supabase/service-role.ts` | Bypasses RLS for system operations |
-| Middleware | `lib/supabase/middleware.ts` | Auth state, session refresh |
+| Client       | File                           | Use Case                                   |
+| ------------ | ------------------------------ | ------------------------------------------ |
+| Browser      | `lib/supabase/client.ts`       | Client Components, real-time subscriptions |
+| Server       | `lib/supabase/server.ts`       | Server Components, API routes              |
+| Admin        | `lib/supabase/admin.ts`        | Service operations (pilot portal auth)     |
+| Service Role | `lib/supabase/service-role.ts` | Bypasses RLS for system operations         |
+| Middleware   | `lib/supabase/middleware.ts`   | Auth state, session refresh                |
 
 ### Session Management
 
 Pilot portal sessions use Redis-backed sessions via `redis-session-service.ts`:
+
 - Cookie name: `pilot-session`
 - Sessions stored in Redis with DB audit logging
 - Managed via `session-service.ts` → `redis-session-service.ts`
+
+### Redis Caching Layer
+
+| Feature       | Service                        | Purpose                           |
+| ------------- | ------------------------------ | --------------------------------- |
+| Dashboard     | `dashboard-service-v4.ts`      | Cached metrics, faster page loads |
+| Rate Limiting | `@upstash/ratelimit`           | API protection                    |
+| Sessions      | `redis-session-service.ts`     | Pilot portal auth                 |
+| Invalidation  | `cache-invalidation-helper.ts` | Clear stale data after mutations  |
+
+### Middleware Architecture
+
+Middleware is at `lib/supabase/middleware.ts` (not root):
+
+- Admin auth via Supabase session validation
+- Pilot portal session validation via Redis
+- Route protection and redirects for unauthenticated users
+
+### Validation Schemas
+
+All Zod schemas in `lib/validations/`. Always validate API inputs:
+
+```typescript
+import { PilotRequestSchema } from '@/lib/validations/pilot-request-schema'
+const validated = PilotRequestSchema.parse(body)
+```
+
+### Error Handling Contract (Standardized Jan 2026)
+
+**Goal**: Consistent error handling across all services and API routes.
+
+#### Service Layer Pattern
+
+Services should return `ServiceResponse<T>` for new/migrated code:
+
+```typescript
+import { ServiceResponse } from '@/lib/types/service-response'
+
+// ✅ PREFERRED - Returns ServiceResponse
+async function getItem(id: string): Promise<ServiceResponse<Item>> {
+  try {
+    const item = await fetchItem(id)
+    if (!item) return ServiceResponse.notFound('Item not found')
+    return ServiceResponse.success(item)
+  } catch (error) {
+    return ServiceResponse.error('Failed to fetch item', error)
+  }
+}
+```
+
+#### API Route Pattern
+
+Use `api-response-helper.ts` utilities for consistent responses:
+
+```typescript
+import {
+  executeAndRespond,
+  unauthorizedResponse,
+  validationErrorResponse,
+  HTTP_STATUS,
+} from '@/lib/utils/api-response-helper'
+
+export async function GET(request: NextRequest) {
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
+    return unauthorizedResponse()
+  }
+
+  return executeAndRespond(async () => await getData(), {
+    operation: 'getData',
+    endpoint: '/api/data',
+  })
+}
+```
+
+#### Key Utilities
+
+| Utility                                | Purpose                             |
+| -------------------------------------- | ----------------------------------- |
+| `ServiceResponse.success(data)`        | Successful service response         |
+| `ServiceResponse.error(msg, err)`      | Error service response              |
+| `ServiceResponse.notFound(msg)`        | 404 response                        |
+| `executeAndRespond(fn, opts)`          | Wrap legacy services for API routes |
+| `unauthorizedResponse()`               | 401 response helper                 |
+| `validationErrorResponse(msg, errors)` | 400 validation error                |
+| `notFoundResponse(msg)`                | 404 response helper                 |
+
+#### Migration Status
+
+- **New services**: Must use `ServiceResponse<T>`
+- **Existing services**: May throw errors (wrapped by `executeAndRespond` in API routes)
+- **Priority services migrated**: `certification-service`, `pilot-service`, `analytics-service`, `leave-eligibility-service`
 
 ---
 
@@ -103,13 +199,13 @@ Pilot portal sessions use Redis-backed sessions via `redis-session-service.ts`:
 
 ### Primary Tables
 
-| Table               | Purpose                                     |
-| ------------------- | ------------------------------------------- |
-| `pilots`            | Pilot profiles, qualifications, seniority   |
-| `pilot_checks`      | Certification records                       |
-| `check_types`       | Check type definitions                      |
-| `pilot_requests` ⭐ | **UNIFIED** - ALL leave and flight requests |
-| `leave_bids`        | Annual leave bidding (separate system)      |
+| Table               | Purpose                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| `pilots`            | Pilot profiles, qualifications, seniority                   |
+| `pilot_checks`      | Certification records                                       |
+| `check_types`       | Check type definitions                                      |
+| `pilot_requests` ⭐ | **UNIFIED** - ALL leave and flight requests                 |
+| `leave_bids`        | Annual leave bidding (separate system)                      |
 | `an_users`          | Pilot portal authentication (also aliased as `pilot_users`) |
 
 ### Unified Requests Table (`pilot_requests`)
@@ -232,19 +328,20 @@ Enforced by `npm run validate:naming`:
 
 ## Technology Stack
 
-| Tech           | Version | Purpose              |
-| -------------- | ------- | -------------------- |
-| Next.js        | 16.0.7  | App framework        |
-| React          | 19.2.0  | UI library           |
-| TypeScript     | 5.7.3   | Type safety (strict) |
-| Tailwind CSS   | 4.1.0   | Styling              |
-| Supabase       | 2.75.1  | PostgreSQL + Auth    |
-| TanStack Query | 5.90.2  | Server state         |
-| Playwright     | 1.56.1  | E2E testing          |
-| Redis (Upstash)| -       | Session storage, rate limiting |
+| Tech            | Version | Purpose                        |
+| --------------- | ------- | ------------------------------ |
+| Next.js         | 16.1.6  | App framework                  |
+| React           | 19.2.4  | UI library                     |
+| TypeScript      | 5.9.3   | Type safety (strict)           |
+| Tailwind CSS    | 4.1.18  | Styling                        |
+| Supabase        | 2.93.2  | PostgreSQL + Auth              |
+| TanStack Query  | 5.90.20 | Server state                   |
+| Zod             | 4.3.6   | Schema validation              |
+| Playwright      | 1.58.0  | E2E testing                    |
+| Redis (Upstash) | -       | Session storage, rate limiting |
 
 ---
 
-**Version**: 3.1.0
+**Version**: 3.2.0
 **Last Updated**: January 2026
 **Maintainer**: Maurice (Skycruzer)

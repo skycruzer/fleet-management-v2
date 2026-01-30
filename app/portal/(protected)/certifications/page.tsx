@@ -39,6 +39,13 @@ interface Certification {
 type StatusFilter = 'all' | 'expired' | 'critical' | 'warning' | 'current'
 type ViewMode = 'card' | 'list'
 
+// Certification status thresholds (days until expiry)
+const CERTIFICATION_THRESHOLDS = {
+  CRITICAL_DAYS: 14, // Critical warning when <= 14 days remaining
+  WARNING_DAYS: 60, // Warning when <= 60 days remaining
+  VALIDITY_PERIOD: 365, // Assumed certification validity period for progress calculation
+} as const
+
 export default function CertificationsPage() {
   const [certifications, setCertifications] = useState<Certification[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -67,8 +74,11 @@ export default function CertificationsPage() {
     const today = new Date()
     const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 
-    // Assume certifications are valid for 365 days (adjust as needed)
-    const progressPercent = Math.max(0, Math.min(100, (daysUntilExpiry / 365) * 100))
+    // Calculate progress percentage based on validity period
+    const progressPercent = Math.max(
+      0,
+      Math.min(100, (daysUntilExpiry / CERTIFICATION_THRESHOLDS.VALIDITY_PERIOD) * 100)
+    )
 
     if (daysUntilExpiry < 0) {
       return {
@@ -82,7 +92,7 @@ export default function CertificationsPage() {
         daysRemaining: Math.abs(daysUntilExpiry),
         progressPercent: 0,
       }
-    } else if (daysUntilExpiry <= 14) {
+    } else if (daysUntilExpiry <= CERTIFICATION_THRESHOLDS.CRITICAL_DAYS) {
       return {
         status: 'Critical',
         color: 'orange',
@@ -94,7 +104,7 @@ export default function CertificationsPage() {
         daysRemaining: daysUntilExpiry,
         progressPercent,
       }
-    } else if (daysUntilExpiry <= 60) {
+    } else if (daysUntilExpiry <= CERTIFICATION_THRESHOLDS.WARNING_DAYS) {
       return {
         status: 'Warning',
         color: 'yellow',
@@ -121,35 +131,47 @@ export default function CertificationsPage() {
     }
   }, [])
 
-  // Define fetchCertifications with useCallback before it's used in effect
-  const fetchCertifications = useCallback(async () => {
-    try {
-      // This would normally be an API call, but for now we'll fetch directly
-      const response = await fetch('/api/portal/certifications')
-      const result = await response.json()
-
-      if (!response.ok || !result.success) {
-        setError(result.error || 'Failed to fetch certifications')
-        setIsLoading(false)
-        return
-      }
-
-      setCertifications(result.data || [])
-      setIsLoading(false)
-    } catch (err) {
-      setError('An unexpected error occurred')
-      setIsLoading(false)
-    }
-  }, [])
-
-  // Fetch certifications on mount
+  // Fetch certifications on mount with proper cleanup to prevent memory leaks
   useEffect(() => {
     let isMounted = true
+
     const fetchData = async () => {
-      const result = await fetchCertifications()
-      // State updates handled inside fetchCertifications
+      try {
+        const response = await fetch('/api/portal/certifications')
+
+        // Check if component is still mounted before proceeding
+        if (!isMounted) return
+
+        if (!response.ok) {
+          setError('Failed to fetch certifications')
+          setIsLoading(false)
+          return
+        }
+
+        const result = await response.json()
+
+        // Check again after JSON parsing (async operation)
+        if (!isMounted) return
+
+        if (!result.success) {
+          setError(result.error || 'Failed to fetch certifications')
+          setIsLoading(false)
+          return
+        }
+
+        setCertifications(result.data || [])
+        setIsLoading(false)
+      } catch (err) {
+        // Only update state if still mounted
+        if (isMounted) {
+          setError('An unexpected error occurred')
+          setIsLoading(false)
+        }
+      }
     }
+
     fetchData()
+
     return () => {
       isMounted = false
     }
@@ -180,34 +202,39 @@ export default function CertificationsPage() {
     return filtered
   }, [searchQuery, statusFilter, certifications, getCertificationStatus])
 
-  // Calculate statistics
-  const stats = {
-    total: certifications.length,
-    expired: certifications.filter(
-      (c) => getCertificationStatus(c.expiry_date).filterKey === 'expired'
-    ).length,
-    critical: certifications.filter(
-      (c) => getCertificationStatus(c.expiry_date).filterKey === 'critical'
-    ).length,
-    warning: certifications.filter(
-      (c) => getCertificationStatus(c.expiry_date).filterKey === 'warning'
-    ).length,
-    current: certifications.filter(
-      (c) => getCertificationStatus(c.expiry_date).filterKey === 'current'
-    ).length,
-  }
+  // Calculate statistics (memoized to avoid recalculating on every render)
+  const stats = useMemo(() => {
+    const counts = { total: 0, expired: 0, critical: 0, warning: 0, current: 0 }
+    counts.total = certifications.length
 
-  // Group certifications by category
-  const groupedCerts = filteredCerts.reduce((acc: any, cert: Certification) => {
-    const category = cert.check_types?.category || 'Uncategorized'
-    if (!acc[category]) {
-      acc[category] = []
+    for (const cert of certifications) {
+      const status = getCertificationStatus(cert.expiry_date)
+      if (status.filterKey === 'expired') counts.expired++
+      else if (status.filterKey === 'critical') counts.critical++
+      else if (status.filterKey === 'warning') counts.warning++
+      else if (status.filterKey === 'current') counts.current++
     }
-    acc[category].push(cert)
-    return acc
-  }, {})
 
-  const sortedCategories = Object.keys(groupedCerts).sort()
+    return counts
+  }, [certifications, getCertificationStatus])
+
+  // Group certifications by category (memoized)
+  const { groupedCerts, sortedCategories } = useMemo(() => {
+    const grouped: Record<string, Certification[]> = {}
+
+    for (const cert of filteredCerts) {
+      const category = cert.check_types?.category || 'Uncategorized'
+      if (!grouped[category]) {
+        grouped[category] = []
+      }
+      grouped[category].push(cert)
+    }
+
+    return {
+      groupedCerts: grouped,
+      sortedCategories: Object.keys(grouped).sort(),
+    }
+  }, [filteredCerts])
 
   if (isLoading) {
     return (
@@ -226,11 +253,14 @@ export default function CertificationsPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-600 to-emerald-600">
-                <FileText className="h-6 w-6 text-white" />
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-600 to-emerald-600"
+                aria-hidden="true"
+              >
+                <FileText className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
               <div>
-                <h1 className="text-foreground text-xl font-bold">My Certifications</h1>
+                <h1 className="text-xl font-bold text-gray-900">My Certifications</h1>
                 <p className="text-muted-foreground text-xs">{stats.total} total certifications</p>
               </div>
             </div>
@@ -240,7 +270,11 @@ export default function CertificationsPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Statistics Cards */}
-        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div
+          className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5"
+          role="group"
+          aria-label="Certification status filters"
+        >
           <Card className="p-4 transition-shadow hover:shadow-md">
             <div className="text-center">
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
@@ -248,8 +282,13 @@ export default function CertificationsPage() {
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('expired')}
+            onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('expired')}
+            tabIndex={0}
+            role="button"
+            aria-label={`Filter by expired certifications: ${stats.expired} expired`}
+            aria-pressed={statusFilter === 'expired'}
           >
             <div className="text-center">
               <p className="text-2xl font-bold text-red-600">{stats.expired}</p>
@@ -257,8 +296,13 @@ export default function CertificationsPage() {
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('critical')}
+            onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('critical')}
+            tabIndex={0}
+            role="button"
+            aria-label={`Filter by critical certifications: ${stats.critical} critical`}
+            aria-pressed={statusFilter === 'critical'}
           >
             <div className="text-center">
               <p className="text-2xl font-bold text-orange-600">{stats.critical}</p>
@@ -266,8 +310,13 @@ export default function CertificationsPage() {
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('warning')}
+            onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('warning')}
+            tabIndex={0}
+            role="button"
+            aria-label={`Filter by warning certifications: ${stats.warning} warning`}
+            aria-pressed={statusFilter === 'warning'}
           >
             <div className="text-center">
               <p className="text-2xl font-bold text-yellow-600">{stats.warning}</p>
@@ -275,8 +324,13 @@ export default function CertificationsPage() {
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('current')}
+            onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('current')}
+            tabIndex={0}
+            role="button"
+            aria-label={`Filter by current certifications: ${stats.current} current`}
+            aria-pressed={statusFilter === 'current'}
           >
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">{stats.current}</p>
@@ -287,16 +341,24 @@ export default function CertificationsPage() {
 
         {/* Search and Filter */}
         <Card className="mb-6 p-4">
-          <div className="flex flex-col gap-4 md:flex-row">
+          <div
+            className="flex flex-col gap-4 md:flex-row"
+            role="search"
+            aria-label="Filter certifications"
+          >
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
+              <Search
+                className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400"
+                aria-hidden="true"
+              />
               <Input
                 type="text"
                 placeholder="Search certifications..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
+                aria-label="Search certifications by code, description, or category"
               />
             </div>
 
@@ -378,8 +440,8 @@ export default function CertificationsPage() {
         {filteredCerts.length === 0 ? (
           <Card className="p-12">
             <div className="text-center">
-              <FileText className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="text-foreground mt-4 text-lg font-medium">
+              <FileText className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
+              <h3 className="mt-4 text-lg font-medium text-gray-900">
                 {searchQuery || statusFilter !== 'all'
                   ? 'No matching certifications'
                   : 'No Certifications Found'}
@@ -408,7 +470,7 @@ export default function CertificationsPage() {
             {sortedCategories.map((category) => (
               <div key={category}>
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-foreground inline-block border-b-2 border-blue-600 pb-2 text-lg font-semibold">
+                  <h3 className="inline-block border-b-2 border-blue-600 pb-2 text-lg font-semibold text-gray-900">
                     {category}
                   </h3>
                   <Badge variant="outline" className="text-xs">
@@ -436,7 +498,7 @@ export default function CertificationsPage() {
                             </div>
                           </div>
 
-                          <h4 className="text-foreground mb-1 text-lg font-bold">
+                          <h4 className="mb-1 text-lg font-bold text-gray-900">
                             {cert.check_types?.check_code || 'Unknown'}
                           </h4>
                           <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
@@ -446,7 +508,7 @@ export default function CertificationsPage() {
                           {cert.expiry_date && (
                             <>
                               <div className="mb-3 flex items-center space-x-2 text-sm text-gray-600">
-                                <Calendar className="h-4 w-4" />
+                                <Calendar className="h-4 w-4" aria-hidden="true" />
                                 <span>
                                   {status.daysRemaining !== null &&
                                   status.status !== 'No Expiry' ? (
@@ -512,7 +574,7 @@ export default function CertificationsPage() {
                             <div className="flex flex-1 items-center gap-4">
                               <StatusIcon className={`h-5 w-5 flex-shrink-0 ${status.textColor}`} />
                               <div className="min-w-0 flex-1">
-                                <h4 className="text-foreground truncate font-bold">
+                                <h4 className="truncate font-bold text-gray-900">
                                   {cert.check_types?.check_code || 'Unknown'}
                                 </h4>
                                 <p className="text-muted-foreground truncate text-sm">
@@ -600,7 +662,7 @@ export default function CertificationsPage() {
                                 </>
                               ) : (
                                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                                  <Clock className="h-4 w-4" />
+                                  <Clock className="h-4 w-4" aria-hidden="true" />
                                   <span>No expiry date</span>
                                 </div>
                               )}

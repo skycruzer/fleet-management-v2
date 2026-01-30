@@ -18,11 +18,21 @@ import { z } from 'zod'
 const uuidSchema = z.string().uuid('Must be a valid UUID')
 
 /**
- * Date validation: Must be ISO date string
+ * Date validation: Accepts both ISO datetime (2025-01-30T00:00:00.000Z)
+ * and simple date (2025-01-30) formats from HTML date inputs
  */
 const dateSchema = z
   .string()
-  .datetime({ message: 'Must be a valid ISO datetime string' })
+  .refine(
+    (val) => {
+      if (!val) return true
+      // Accept ISO datetime or YYYY-MM-DD format
+      const isoDatetimeRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/
+      const simpleDateRegex = /^\d{4}-\d{2}-\d{2}$/
+      return isoDatetimeRegex.test(val) || simpleDateRegex.test(val)
+    },
+    { message: 'Must be a valid date (YYYY-MM-DD) or ISO datetime string' }
+  )
   .optional()
   .nullable()
 

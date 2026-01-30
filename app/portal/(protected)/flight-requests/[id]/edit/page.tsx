@@ -47,7 +47,7 @@ const REQUEST_TYPES = [
   },
   {
     value: 'SDO',
-    label: 'SDO (Scheduled Day Off)',
+    label: 'SDO (Substitute Day Off)',
     description: 'Request a scheduled day off',
   },
 ] as const
@@ -262,7 +262,7 @@ export default function EditFlightRequestPage() {
         <div>
           <h1 className="text-3xl font-bold">Edit RDO/SDO Request</h1>
           <p className="mt-1 text-gray-600">
-            Update your Rostered Day Off (RDO) or Scheduled Day Off (SDO) request
+            Update your Rostered Day Off (RDO) or Substitute Day Off (SDO) request
           </p>
         </div>
       </div>

@@ -20,9 +20,16 @@ type TabValue = 'faqs' | 'feedback'
 interface HelpPageClientProps {
   initialFeedback: FeedbackWithPilot[]
   initialStats: FeedbackStats
+  currentUserId: string
+  currentUserName: string
 }
 
-export function HelpPageClient({ initialFeedback, initialStats }: HelpPageClientProps) {
+export function HelpPageClient({
+  initialFeedback,
+  initialStats,
+  currentUserId,
+  currentUserName,
+}: HelpPageClientProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -68,7 +75,12 @@ export function HelpPageClient({ initialFeedback, initialStats }: HelpPageClient
         </TabsContent>
 
         <TabsContent value="feedback" className="mt-4">
-          <FeedbackDashboardClient initialFeedback={initialFeedback} initialStats={initialStats} />
+          <FeedbackDashboardClient
+            initialFeedback={initialFeedback}
+            initialStats={initialStats}
+            currentUserId={currentUserId}
+            currentUserName={currentUserName}
+          />
         </TabsContent>
       </Tabs>
     </div>

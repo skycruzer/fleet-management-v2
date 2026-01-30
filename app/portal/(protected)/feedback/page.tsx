@@ -49,15 +49,17 @@ export default function FeedbackPage() {
 
       const result = await response.json()
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to submit feedback')
+      // Check both HTTP status and API success flag
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || result.message || 'Failed to submit feedback')
       }
 
+      // Show success and clear form
       setSubmitSuccess(true)
       setFormData({ category: '', subject: '', message: '' })
 
-      // Reset success message after 5 seconds
-      setTimeout(() => setSubmitSuccess(false), 5000)
+      // Scroll to top to show success message
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (error: any) {
       setSubmitError(error.message || 'Failed to submit feedback. Please try again.')
     } finally {
@@ -87,24 +89,33 @@ export default function FeedbackPage() {
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Success Message */}
         {submitSuccess && (
-          <div className="mb-6 flex items-center space-x-3 rounded-lg bg-green-50 p-4 text-green-700">
-            <CheckCircle className="h-6 w-6" />
-            <div>
-              <h3 className="font-semibold">Feedback Submitted Successfully!</h3>
-              <p className="text-sm">
-                Thank you for your feedback. Fleet management will review it shortly.
-              </p>
+          <div className="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 p-6 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/20">
+              <CheckCircle className="h-6 w-6 text-green-500" />
             </div>
+            <h3 className="text-lg font-semibold text-green-400">
+              Feedback Submitted Successfully!
+            </h3>
+            <p className="mt-2 text-sm text-green-300/80">
+              Thank you for your feedback. Fleet management will review it shortly.
+            </p>
+            <p className="text-muted-foreground mt-3 text-xs">
+              You can submit another feedback using the form below.
+            </p>
           </div>
         )}
 
         {/* Error Message */}
         {submitError && (
-          <div className="mb-6 flex items-center space-x-3 rounded-lg bg-red-50 p-4 text-red-700">
-            <AlertCircle className="h-6 w-6" />
-            <div>
-              <h3 className="font-semibold">Submission Failed</h3>
-              <p className="text-sm">{submitError}</p>
+          <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+            <div className="flex items-center space-x-3">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-500/20">
+                <AlertCircle className="h-5 w-5 text-red-500" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-red-400">Submission Failed</h3>
+                <p className="text-sm text-red-300/80">{submitError}</p>
+              </div>
             </div>
           </div>
         )}

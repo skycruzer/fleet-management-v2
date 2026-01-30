@@ -9,7 +9,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -35,17 +35,19 @@ export default function PilotDetailPage() {
   const [deleting, setDeleting] = useState(false)
   const [retirementAge, setRetirementAge] = useState<number>(65)
 
-  useEffect(() => {
-    if (pilotId) {
-      fetchPilotDetails()
-      fetchCertifications()
-    }
-  }, [pilotId])
+  // Fetch pilot details with useCallback for stable reference
+  const fetchPilotDetails = useCallback(async () => {
+    if (!pilotId) return
 
-  async function fetchPilotDetails() {
     try {
       setLoading(true)
       const response = await fetch(`/api/pilots/${pilotId}`)
+
+      if (!response.ok) {
+        setError('Failed to fetch pilot details')
+        return
+      }
+
       const data = await response.json()
 
       if (data.success) {
@@ -61,9 +63,12 @@ export default function PilotDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [pilotId])
 
-  async function fetchCertifications() {
+  // Fetch certifications with useCallback for stable reference
+  const fetchCertifications = useCallback(async () => {
+    if (!pilotId) return
+
     try {
       const timestamp = new Date().getTime()
       const response = await fetch(
@@ -75,15 +80,30 @@ export default function PilotDetailPage() {
           },
         }
       )
+
+      if (!response.ok) {
+        console.error('Failed to fetch certifications: HTTP error')
+        return
+      }
+
       const data = await response.json()
 
       if (data.success) {
-        setCertifications(data.data || [])
+        // API returns { data: { certifications: [...], pagination: {...} } }
+        setCertifications(data.data?.certifications || data.data || [])
       }
     } catch (err) {
       console.error('Failed to fetch certifications:', err)
     }
-  }
+  }, [pilotId])
+
+  // Fetch data when pilotId changes
+  useEffect(() => {
+    if (pilotId) {
+      fetchPilotDetails()
+      fetchCertifications()
+    }
+  }, [pilotId, fetchPilotDetails, fetchCertifications])
 
   async function handleDelete() {
     const confirmed = await confirm({
@@ -107,17 +127,25 @@ export default function PilotDetailPage() {
         credentials: 'include',
       })
 
+      // Check response status before parsing JSON
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to delete pilot`)
+      }
+
       const result = await response.json()
 
       if (result.success) {
-        router.push('/dashboard/pilots')
+        // Per CLAUDE.md: refresh first, wait, then navigate
         router.refresh()
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        router.push('/dashboard/pilots')
       } else {
-        alert(result.error || 'Failed to delete pilot')
-        setDeleting(false)
+        throw new Error(result.error || 'Failed to delete pilot')
       }
     } catch (err) {
-      alert('Failed to delete pilot')
+      const message = err instanceof Error ? err.message : 'Failed to delete pilot'
+      alert(message)
       setDeleting(false)
     }
   }

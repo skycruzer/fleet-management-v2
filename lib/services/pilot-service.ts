@@ -14,7 +14,10 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { Database } from '@/types/supabase'
+import type { Database, Json } from '@/types/supabase'
+
+// Type for licence_type enum
+type PilotLicenceType = Database['public']['Enums']['pilot_licence_type']
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
@@ -528,7 +531,7 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
           nationality: toNullIfEmpty(pilotData.nationality),
           passport_number: toNullIfEmpty(pilotData.passport_number),
           passport_expiry: toNullIfEmpty(pilotData.passport_expiry),
-          licence_type: toNullIfEmpty(pilotData.licence_type) as any,
+          licence_type: toNullIfEmpty(pilotData.licence_type) as PilotLicenceType | null,
           licence_number: toNullIfEmpty(pilotData.licence_number),
           date_of_birth: toNullIfEmpty(pilotData.date_of_birth),
           commencement_date: commencementDate,
@@ -607,8 +610,9 @@ export async function createPilotWithCertifications(
       is_active: pilotData.is_active,
     }
 
-    // Prepare certifications for PostgreSQL function
-    const certificationsJson = certifications.length > 0 ? (certifications as any) : undefined
+    // Prepare certifications for PostgreSQL function (JSON array for RPC)
+    const certificationsJson =
+      certifications.length > 0 ? (certifications as unknown as Json[]) : undefined
 
     // Use PostgreSQL function for atomic creation
     const { data, error } = await supabase.rpc('create_pilot_with_certifications', {
@@ -629,19 +633,42 @@ export async function createPilotWithCertifications(
       throw new Error(`Failed to create pilot with certifications: ${error.message}`)
     }
 
-    // Extract pilot and certification count from result
-    const result = data as any
-    if (!result || !result.pilot) {
+    // Extract pilot and certification count from RPC array result
+    type RpcResult = {
+      certifications_created: number
+      employee_id: string
+      first_name: string
+      last_name: string
+      pilot_id: string
+      role: 'Captain' | 'First Officer'
+      seniority_number: number
+    }
+
+    const results = data as RpcResult[] | null
+    if (!results || results.length === 0) {
       throw new Error('Unexpected response from database function')
+    }
+
+    const rpcResult = results[0]
+
+    // Fetch the full pilot record
+    const { data: pilotRecord, error: fetchError } = await supabase
+      .from('pilots')
+      .select('*')
+      .eq('id', rpcResult.pilot_id)
+      .single()
+
+    if (fetchError || !pilotRecord) {
+      throw new Error('Failed to fetch created pilot record')
     }
 
     logInfo('Successfully created pilot with certifications', {
       source: 'PilotService',
       metadata: {
         operation: 'createPilotWithCertifications',
-        pilotId: result.pilot.id,
-        employeeId: result.pilot.employee_id,
-        certificationCount: result.certification_count || 0,
+        pilotId: rpcResult.pilot_id,
+        employeeId: rpcResult.employee_id,
+        certificationCount: rpcResult.certifications_created || 0,
       },
     })
 
@@ -650,8 +677,8 @@ export async function createPilotWithCertifications(
     await safeRevalidate('pilot-stats')
 
     return {
-      pilot: result.pilot,
-      certificationCount: result.certification_count || 0,
+      pilot: pilotRecord,
+      certificationCount: rpcResult.certifications_created || 0,
     }
   } catch (error) {
     logError(error as Error, {

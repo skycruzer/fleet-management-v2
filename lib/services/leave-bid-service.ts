@@ -14,11 +14,16 @@
  * - priority: string (e.g., "HIGH", "MEDIUM", "LOW")
  * - reason: string
  * - status: string (PENDING, PROCESSING, APPROVED, REJECTED)
+ *
+ * @version 2.1.0
+ * @updated 2026-01 - Use central ServiceResponse type
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { notifyAllAdmins } from '@/lib/services/notification-service'
+import type { ServiceResponse } from '@/lib/types/service-response'
 
 export interface LeaveBid {
   id: string
@@ -47,11 +52,7 @@ export interface LeaveBidInput {
   notes?: string | null
 }
 
-export interface ServiceResponse<T = void> {
-  success: boolean
-  data?: T
-  error?: string
-}
+// NOTE: Using central ServiceResponse type from @/lib/types/service-response
 
 /**
  * Submit Leave Bid (Pilot Self-Service)
@@ -129,6 +130,14 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         }
       }
 
+      // Notify admins about updated leave bid
+      notifyAllAdmins(
+        'Leave Bid Updated',
+        `A pilot updated their leave bid for ${bidData.roster_period_code}`,
+        'leave_bid_submitted',
+        '/dashboard/leave-bids'
+      ).catch((err) => console.error('Failed to notify admins:', err))
+
       return {
         success: true,
         data: updatedBid as LeaveBid,
@@ -158,6 +167,14 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
           error: 'Failed to create leave bid',
         }
       }
+
+      // Notify admins about new leave bid
+      notifyAllAdmins(
+        'New Leave Bid Submitted',
+        `A pilot submitted a leave bid for ${bidData.roster_period_code}`,
+        'leave_bid_submitted',
+        '/dashboard/leave-bids'
+      ).catch((err) => console.error('Failed to notify admins:', err))
 
       return {
         success: true,
@@ -265,6 +282,108 @@ export async function getLeaveBidById(bidId: string): Promise<ServiceResponse<Le
     return {
       success: false,
       error: 'Failed to fetch leave bid',
+    }
+  }
+}
+
+/**
+ * Update Leave Bid (Pilot Self-Service)
+ *
+ * Allows authenticated pilot to update their pending leave bid.
+ * Only PENDING bids can be edited - once processed, bids are locked.
+ *
+ * @param bidId - Leave bid ID to update
+ * @param bidData - Updated leave bid data
+ * @returns Service response with updated bid
+ */
+export async function updateLeaveBid(
+  bidId: string,
+  bidData: Partial<LeaveBidInput>
+): Promise<ServiceResponse<LeaveBid>> {
+  try {
+    const supabase = createAdminClient()
+
+    // Get current authenticated pilot
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
+      return {
+        success: false,
+        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+      }
+    }
+
+    // Verify bid belongs to pilot and is pending
+    const { data: existingBid, error: fetchError } = await supabase
+      .from('leave_bids')
+      .select('*')
+      .eq('id', bidId)
+      .eq('pilot_id', pilot.pilot_id!)
+      .single()
+
+    if (fetchError || !existingBid) {
+      return {
+        success: false,
+        error: 'Leave bid not found',
+      }
+    }
+
+    if (existingBid.status !== 'PENDING') {
+      return {
+        success: false,
+        error: 'Only pending bids can be edited',
+      }
+    }
+
+    // Build update object with only provided fields
+    const updateData: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (bidData.preferred_dates !== undefined) {
+      updateData.preferred_dates = bidData.preferred_dates
+    }
+    if (bidData.alternative_dates !== undefined) {
+      updateData.alternative_dates = bidData.alternative_dates
+    }
+    if (bidData.priority !== undefined) {
+      updateData.priority = bidData.priority
+    }
+    if (bidData.reason !== undefined) {
+      updateData.reason = bidData.reason
+    }
+    if (bidData.notes !== undefined) {
+      updateData.notes = bidData.notes
+    }
+    if (bidData.roster_period_code !== undefined) {
+      updateData.roster_period_code = bidData.roster_period_code
+    }
+
+    // Update the bid
+    const { data: updatedBid, error: updateError } = await supabase
+      .from('leave_bids')
+      .update(updateData)
+      .eq('id', bidId)
+      .eq('pilot_id', pilot.pilot_id!)
+      .select()
+      .single()
+
+    if (updateError || !updatedBid) {
+      console.error('Error updating leave bid:', updateError)
+      return {
+        success: false,
+        error: 'Failed to update leave bid',
+      }
+    }
+
+    return {
+      success: true,
+      data: updatedBid as LeaveBid,
+    }
+  } catch (error) {
+    console.error('Update leave bid error:', error)
+    return {
+      success: false,
+      error: 'Failed to update leave bid',
     }
   }
 }

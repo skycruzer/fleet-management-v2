@@ -2,43 +2,66 @@
  * Feedback History Page
  *
  * Developer: Maurice Rondeau
+ * Date: January 2026
  *
- * Displays all feedback submissions from the authenticated pilot
- * Features:
- * - View past feedback with status
- * - See admin responses
- * - Filter by status/category
+ * Facebook-style feed displaying all feedback submissions from the authenticated pilot.
+ * Features threaded comments for conversations with admins.
  */
 
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, Calendar } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import { MessageSquare, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { FeedbackPost, type FeedbackPostData } from '@/components/shared/feedback-post'
+
+interface PilotSession {
+  id: string
+  pilot_id: string
+  employee_id?: string
+  first_name?: string
+  last_name?: string
+}
 
 interface Feedback {
   id: string
+  pilot_id: string
   category: string
   subject: string
   message: string
   is_anonymous: boolean
-  status?: 'SUBMITTED' | 'UNDER_REVIEW' | 'RESOLVED' | null
+  status: 'PENDING' | 'REVIEWED' | 'RESOLVED' | 'DISMISSED'
   admin_response?: string | null
+  responded_by?: string | null
+  responded_at?: string | null
   created_at: string
-  updated_at: string | null
+  updated_at: string
 }
 
 export default function FeedbackHistoryPage() {
   const [feedback, setFeedback] = useState<Feedback[]>([])
+  const [pilotSession, setPilotSession] = useState<PilotSession | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>('')
 
-  // Define fetchFeedbackHistory with useCallback before it's used in effect
+  // Fetch pilot session info
+  const fetchPilotSession = useCallback(async () => {
+    try {
+      const response = await fetch('/api/portal/session')
+      const result = await response.json()
+
+      if (response.ok && result.success && result.data) {
+        setPilotSession(result.data)
+      }
+    } catch (err) {
+      console.error('Error fetching pilot session:', err)
+    }
+  }, [])
+
+  // Fetch feedback history
   const fetchFeedbackHistory = useCallback(async () => {
     try {
       const response = await fetch('/api/portal/feedback')
@@ -59,52 +82,40 @@ export default function FeedbackHistoryPage() {
     }
   }, [])
 
-  // Fetch feedback on mount
+  // Fetch data on mount
   useEffect(() => {
-    fetchFeedbackHistory()
-  }, [fetchFeedbackHistory])
+    Promise.all([fetchPilotSession(), fetchFeedbackHistory()])
+  }, [fetchPilotSession, fetchFeedbackHistory])
 
-  const getStatusBadge = (status?: string | null) => {
-    switch (status) {
-      case 'UNDER_REVIEW':
-        return (
-          <Badge className="bg-amber-500/10 text-amber-400">
-            <Clock className="mr-1 h-3 w-3" />
-            Under Review
-          </Badge>
-        )
-      case 'RESOLVED':
-        return (
-          <Badge className="bg-emerald-500/10 text-emerald-400">
-            <CheckCircle className="mr-1 h-3 w-3" />
-            Resolved
-          </Badge>
-        )
-      case 'SUBMITTED':
-      default:
-        return (
-          <Badge className="text-foreground bg-white/[0.03]">
-            <AlertCircle className="mr-1 h-3 w-3" />
-            Submitted
-          </Badge>
-        )
+  // Convert Feedback to FeedbackPostData
+  function convertToPostData(item: Feedback): FeedbackPostData {
+    return {
+      id: item.id,
+      pilot_id: item.pilot_id,
+      category: item.category,
+      subject: item.subject,
+      message: item.message,
+      is_anonymous: item.is_anonymous,
+      status: item.status,
+      admin_response: item.admin_response,
+      responded_by: item.responded_by,
+      responded_at: item.responded_at,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      pilot: pilotSession
+        ? {
+            first_name: pilotSession.first_name || 'Unknown',
+            last_name: pilotSession.last_name || '',
+            role: 'Pilot',
+          }
+        : null,
     }
   }
 
-  const getCategoryBadge = (category: string) => {
-    const colors: Record<string, string> = {
-      Operations: 'bg-blue-500/10 text-blue-400',
-      Training: 'bg-purple-500/10 text-purple-400',
-      Scheduling: 'bg-orange-500/10 text-orange-400',
-      Safety: 'bg-red-500/10 text-red-400',
-      Equipment: 'bg-emerald-500/10 text-emerald-400',
-      System: 'bg-cyan-500/10 text-cyan-400',
-      Suggestion: 'bg-pink-500/10 text-pink-400',
-      Other: 'bg-white/[0.03] text-foreground',
-    }
-
-    return <Badge className={colors[category] || colors.Other}>{category}</Badge>
-  }
+  // Get pilot's display name
+  const pilotName = pilotSession
+    ? `${pilotSession.first_name || ''} ${pilotSession.last_name || ''}`.trim() || 'Pilot'
+    : 'Pilot'
 
   if (isLoading) {
     return (
@@ -136,7 +147,7 @@ export default function FeedbackHistoryPage() {
             <div>
               <h1 className="text-foreground text-2xl font-bold">Feedback History</h1>
               <p className="text-muted-foreground text-sm">
-                View your past feedback submissions and admin responses
+                View your feedback and conversations with fleet management
               </p>
             </div>
           </div>
@@ -168,9 +179,12 @@ export default function FeedbackHistoryPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">Under Review</p>
+                  <p className="text-muted-foreground text-sm font-medium">Pending Response</p>
                   <p className="text-foreground text-3xl font-bold">
-                    {feedback.filter((f) => f.status === 'UNDER_REVIEW').length}
+                    {
+                      feedback.filter((f) => f.status === 'PENDING' || f.status === 'REVIEWED')
+                        .length
+                    }
                   </p>
                 </div>
                 <Clock className="h-8 w-8 text-yellow-500" />
@@ -215,66 +229,15 @@ export default function FeedbackHistoryPage() {
         ) : (
           <div className="space-y-4">
             {feedback.map((item) => (
-              <Card key={item.id} className="overflow-hidden transition-shadow hover:shadow-lg">
-                <CardHeader className="bg-white/[0.03]">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        {getCategoryBadge(item.category)}
-                        {getStatusBadge(item.status)}
-                        {item.is_anonymous && (
-                          <Badge variant="outline" className="text-xs">
-                            Anonymous
-                          </Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-xl">{item.subject}</CardTitle>
-                      <CardDescription className="mt-2 flex items-center gap-2 text-xs">
-                        <Calendar className="h-3 w-3" />
-                        Submitted{' '}
-                        {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="mb-4">
-                    <h4 className="text-foreground mb-2 text-sm font-semibold">Your Feedback:</h4>
-                    <p className="text-muted-foreground text-sm whitespace-pre-wrap">
-                      {item.message}
-                    </p>
-                  </div>
-
-                  {/* Admin Response */}
-                  {item.admin_response && (
-                    <div className="border-primary-200 bg-primary-50 rounded-lg border-2 p-4">
-                      <div className="mb-2 flex items-center gap-2">
-                        <CheckCircle className="text-primary-600 h-4 w-4" />
-                        <h4 className="text-primary-900 text-sm font-semibold">Admin Response:</h4>
-                      </div>
-                      <p className="text-primary-800 text-sm whitespace-pre-wrap">
-                        {item.admin_response}
-                      </p>
-                      {item.updated_at && (
-                        <p className="text-primary-600 mt-2 text-xs">
-                          Responded{' '}
-                          {formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* No Response Yet */}
-                  {!item.admin_response && item.status !== 'RESOLVED' && (
-                    <div className="rounded-lg border border-dashed border-white/[0.1] bg-white/[0.03] p-3">
-                      <p className="text-muted-foreground text-xs">
-                        <Clock className="mr-1 inline h-3 w-3" />
-                        Waiting for admin response...
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <FeedbackPost
+                key={item.id}
+                feedback={convertToPostData(item)}
+                currentUserId={pilotSession?.id || ''}
+                currentUserName={pilotName}
+                isAdmin={false}
+                showIdentity={!item.is_anonymous}
+                commentsApiPath="/api/portal/feedback"
+              />
             ))}
           </div>
         )}

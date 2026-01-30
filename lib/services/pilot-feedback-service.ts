@@ -6,17 +6,22 @@
  *
  * @architecture Service Layer Pattern
  * @auth Pilot Portal Authentication (via an_users table)
+ *
+ * @version 2.1.0
+ * @updated 2026-01 - Use central ServiceResponse type
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { notifyAllAdmins } from '@/lib/services/notification-service'
 import type {
   PilotFeedbackInput,
   FeedbackResponseInput,
   FeedbackStatusUpdate,
   FeedbackFilters,
 } from '@/lib/validations/pilot-feedback-schema'
+import type { ServiceResponse } from '@/lib/types/service-response'
 
 export interface Feedback {
   id: string
@@ -39,11 +44,7 @@ export interface Feedback {
   }
 }
 
-export interface ServiceResponse<T = void> {
-  success: boolean
-  data?: T
-  error?: string
-}
+// NOTE: Using central ServiceResponse type from @/lib/types/service-response
 
 /**
  * Submit Feedback (Pilot)
@@ -90,6 +91,15 @@ export async function submitFeedback(
         error: 'Failed to submit feedback',
       }
     }
+
+    // Notify all admins about new feedback submission
+    // Using 'leave_request_submitted' as a general notification type since 'info' is not in the enum
+    notifyAllAdmins(
+      'New Pilot Feedback',
+      `${feedbackData.is_anonymous ? 'Anonymous pilot' : 'A pilot'} submitted feedback: "${feedbackData.subject}"`,
+      'leave_request_submitted',
+      '/dashboard/feedback'
+    ).catch((err) => console.error('Failed to notify admins:', err))
 
     return {
       success: true,

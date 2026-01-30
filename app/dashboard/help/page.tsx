@@ -49,5 +49,12 @@ export default async function HelpPage() {
         byCategory: {},
       }
 
-  return <HelpPageClient initialFeedback={initialFeedback} initialStats={initialStats} />
+  return (
+    <HelpPageClient
+      initialFeedback={initialFeedback}
+      initialStats={initialStats}
+      currentUserId={auth.userId || ''}
+      currentUserName={auth.email?.split('@')[0] || 'Admin'}
+    />
+  )
 }

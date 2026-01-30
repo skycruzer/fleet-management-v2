@@ -13,15 +13,12 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import type { Database } from '@/types/supabase'
+import type { PilotCheck, BulkDeleteResult } from '@/types/database-extensions'
 import { differenceInDays } from 'date-fns'
 import { createAuditLog } from './audit-service'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { unifiedCacheService, invalidateCacheByTag } from './unified-cache-service'
 import { getCertificationStatus, DEFAULT_THRESHOLDS } from '@/lib/utils/certification-status'
-
-// Type aliases for convenience
-type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
 
 // ===================================
 // INTERFACES
@@ -158,7 +155,7 @@ export async function getCertifications(
 
         if (error) throw error
 
-        const certificationsWithStatus = (data || []).map((cert: any) => ({
+        const certificationsWithStatus = (data || []).map((cert) => ({
           ...cert,
           status: getCertificationStatus(
             cert.expiry_date ? new Date(cert.expiry_date) : null,
@@ -277,7 +274,7 @@ export async function getCertificationsByPilotId(
 
     if (error) throw error
 
-    const certificationsWithStatus = (data || []).map((cert: any) => ({
+    const certificationsWithStatus = (data || []).map((cert) => ({
       ...cert,
       status: getCertificationStatus(
         cert.expiry_date ? new Date(cert.expiry_date) : null,
@@ -334,11 +331,12 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
     futureDate.setDate(futureDate.getDate() + daysAhead)
 
     const expiringCerts = (data || [])
-      .filter((cert: any) => {
+      .filter((cert): cert is typeof cert & { expiry_date: string } => {
+        if (!cert.expiry_date) return false
         const expiryDate = new Date(cert.expiry_date)
         return expiryDate <= futureDate
       })
-      .map((cert: any) => {
+      .map((cert) => {
         const expiryDate = new Date(cert.expiry_date)
         const daysUntilExpiry = differenceInDays(expiryDate, today)
 
@@ -545,8 +543,8 @@ export async function bulkDeleteCertifications(
       throw new Error(`Failed to bulk delete certifications: ${error.message}`)
     }
 
-    // Extract results
-    const result = data as any
+    // Extract results with proper typing
+    const result = data as BulkDeleteResult | null
     if (!result) {
       throw new Error('Unexpected response from database function')
     }
@@ -587,7 +585,7 @@ export async function batchUpdateCertifications(
   try {
     // Prepare updates for PostgreSQL function
     const updatesJson = certifications.map(({ id, updates }) => {
-      const cleanedData: any = { id }
+      const cleanedData: { id: string; expiry_date?: string | null } = { id }
 
       // Only include defined, non-empty values
       if (updates.expiry_date !== undefined) {
@@ -611,20 +609,27 @@ export async function batchUpdateCertifications(
       throw new Error(`Failed to batch update certifications: ${error.message}`)
     }
 
-    // Extract results
-    const result = data as any
-    if (!result) {
+    // Extract results from RPC array response
+    const results = data as Array<{
+      error_count: number
+      errors: string[]
+      updated_count: number
+    }> | null
+
+    if (!results || results.length === 0) {
       throw new Error('Unexpected response from database function')
     }
 
+    const result = results[0]
+
     logInfo('Batch update certifications completed', {
       source: 'certification-service:batchUpdateCertifications',
-      metadata: { message: result.message },
+      metadata: { updatedCount: result.updated_count, errorCount: result.error_count },
     })
 
     return {
       updatedCount: result.updated_count || 0,
-      totalRequested: result.total_requested || 0,
+      totalRequested: certifications.length,
     }
   } catch (error) {
     logError(error as Error, {

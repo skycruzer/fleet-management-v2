@@ -20,7 +20,7 @@ import {
   updateFeedbackStatus,
   addAdminResponse,
 } from '@/lib/services/feedback-service'
-import { verifyRequestAuthorization, ResourceType } from '@/lib/middleware/authorization-middleware'
+// Authorization handled by getAuthenticatedAdmin() - admin users can manage all feedback
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
 
@@ -100,15 +100,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       )
     }
 
-    // AUTHORIZATION: Verify user can update this feedback (Admin/Manager only)
-    const authResult = await verifyRequestAuthorization(request, ResourceType.FEEDBACK, id)
-
-    if (!authResult.authorized) {
-      return NextResponse.json(
-        { success: false, error: authResult.error },
-        { status: authResult.statusCode }
-      )
-    }
+    // NOTE: Authorization is already verified by getAuthenticatedAdmin() above
+    // Admin users can manage all feedback - no ownership check needed
 
     // Parse request body
     const body = await request.json()

@@ -184,7 +184,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="RDO">RDO (Rostered Day Off)</SelectItem>
-                <SelectItem value="SDO">SDO (Scheduled Day Off)</SelectItem>
+                <SelectItem value="SDO">SDO (Substitute Day Off)</SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -205,7 +205,7 @@ export function RdoSdoRequestForm({ csrfToken = '', onSuccess }: RdoSdoRequestFo
             </span>
           ) : (
             <span>
-              <strong>SDO (Scheduled Day Off):</strong> A scheduled day off for operational
+              <strong>SDO (Substitute Day Off):</strong> A scheduled day off for operational
               requirements.
             </span>
           )}
