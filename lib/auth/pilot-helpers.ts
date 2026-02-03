@@ -27,6 +27,9 @@ export interface PilotUser {
   registration_approved: boolean | null
   last_login_at: string | null
   middle_name?: string | null
+  // Contact fields from pilot_users table
+  phone_number?: string | null
+  address?: string | null
 }
 
 /**

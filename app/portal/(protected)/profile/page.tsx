@@ -51,8 +51,9 @@ interface PilotProfile {
   country: string | null
   date_of_birth: string | null
   commencement_date: string | null
-  license_number: string | null
-  status: string
+  licence_number: string | null // British spelling - matches DB column
+  licence_type: string | null // ATPL, CPL, PPL
+  status: string // Derived from is_active boolean
   seniority_number: number | null
   qualifications: any
   captain_qualifications: any
@@ -110,13 +111,14 @@ async function getProfile(): Promise<{
             date_of_birth: null,
             commencement_date: null,
             status: 'active',
-            phone: null,
-            address: null,
+            phone: pilot.phone_number || null, // Merge from pilot_users
+            address: pilot.address || null, // Merge from pilot_users
             city: null,
             state: null,
             postal_code: null,
             country: null,
-            license_number: null,
+            licence_number: null,
+            licence_type: null,
             qualifications: null,
             captain_qualifications: null,
             qualification_notes: null,
@@ -132,11 +134,39 @@ async function getProfile(): Promise<{
         }
       }
 
+      // Properly map pilots table data to PilotProfile interface
       return {
         profile: {
-          ...pilotData,
+          id: pilotData.id,
+          first_name: pilotData.first_name,
+          last_name: pilotData.last_name,
+          middle_name: pilotData.middle_name,
+          rank: pilotData.role, // Map 'role' from pilots table to 'rank'
           email: pilot.email,
-        } as unknown as PilotProfile,
+          employee_id: pilotData.employee_id,
+          seniority_number: pilotData.seniority_number,
+          date_of_birth: pilotData.date_of_birth,
+          commencement_date: pilotData.commencement_date,
+          status: pilotData.is_active ? 'active' : 'inactive', // Convert boolean to string
+          phone: pilot.phone_number || null, // Merge contact from pilot_users
+          address: pilot.address || null, // Merge contact from pilot_users
+          city: null, // Not in pilots table
+          state: null,
+          postal_code: null,
+          country: null,
+          licence_number: pilotData.licence_number, // British spelling from DB
+          licence_type: pilotData.licence_type, // ATPL, CPL, PPL
+          qualifications: null,
+          captain_qualifications: pilotData.captain_qualifications,
+          qualification_notes: pilotData.qualification_notes,
+          contract_type: pilotData.contract_type,
+          role: pilotData.role,
+          is_active: pilotData.is_active,
+          nationality: pilotData.nationality,
+          passport_number: pilotData.passport_number,
+          passport_expiry: pilotData.passport_expiry,
+          rhs_captain_expiry: pilotData.rhs_captain_expiry,
+        } as PilotProfile,
         retirementAge,
       }
     } else {
@@ -154,13 +184,14 @@ async function getProfile(): Promise<{
           date_of_birth: null,
           commencement_date: null,
           status: 'active',
-          phone: null,
-          address: null,
+          phone: pilot.phone_number || null, // Merge from pilot_users
+          address: pilot.address || null, // Merge from pilot_users
           city: null,
           state: null,
           postal_code: null,
           country: null,
-          license_number: null,
+          licence_number: null,
+          licence_type: null,
           qualifications: null,
           captain_qualifications: null,
           qualification_notes: null,
@@ -421,8 +452,21 @@ export default async function ProfilePage() {
               </h3>
             </div>
             <div className="space-y-4">
-              {profile.license_number && (
-                <InfoRow icon={Shield} label="License Number" value={profile.license_number} />
+              {profile.licence_number && (
+                <InfoRow icon={Shield} label="Licence Number" value={profile.licence_number} />
+              )}
+              {profile.licence_type && (
+                <div className="flex items-start gap-3">
+                  <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
+                    <Plane className="text-muted-foreground h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-muted-foreground text-xs font-medium">Licence Type</p>
+                    <Badge className="mt-1 border-0 bg-blue-100 text-blue-800">
+                      {profile.licence_type}
+                    </Badge>
+                  </div>
+                </div>
               )}
               {profile.passport_number && (
                 <InfoRow icon={Shield} label="Passport Number" value={profile.passport_number} />
@@ -434,9 +478,9 @@ export default async function ProfilePage() {
                   value={formatDate(profile.passport_expiry)}
                 />
               )}
-              {!profile.license_number && !profile.passport_number && (
+              {!profile.licence_number && !profile.passport_number && (
                 <p className="text-muted-foreground text-sm italic">
-                  No passport or license information available
+                  No passport or licence information available
                 </p>
               )}
             </div>
