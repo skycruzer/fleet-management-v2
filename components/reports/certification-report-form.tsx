@@ -37,14 +37,12 @@ import { Label } from '@/components/ui/label'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
 import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
-import { DatePresetButtons } from '@/components/reports/date-preset-buttons'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
-import { DateFilterToggle, type DateFilterMode } from '@/components/reports/date-filter-toggle'
+import { DateFilterToggle } from '@/components/reports/date-filter-toggle'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
 import type { ReportFilters } from '@/types/reports'
-import type { DateRange } from '@/lib/utils/date-presets'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
 import { generateRosterPeriods } from '@/lib/utils/roster-periods'
@@ -55,9 +53,12 @@ const formSchema = z.object({
   endDate: z.string().optional(),
   rosterPeriods: z.array(z.string()).default([]),
   expiryThreshold: z.string().optional(),
+  categories: z.array(z.string()).default([]),
   checkTypes: z.array(z.string()).default([]),
   rankCaptain: z.boolean().default(false),
   rankFirstOfficer: z.boolean().default(false),
+  // Grouping options for PDF exports
+  groupBy: z.array(z.enum(['rosterPeriod', 'rank', 'category'])).default([]),
 })
 
 interface CheckType {
@@ -73,6 +74,7 @@ export function CertificationReportForm() {
   const [showPreview, setShowPreview] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const [checkTypes, setCheckTypes] = useState<CheckType[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [loadingCheckTypes, setLoadingCheckTypes] = useState(true)
   const { toast } = useToast()
   const prefetchReport = usePrefetchReport()
@@ -98,23 +100,33 @@ export function CertificationReportForm() {
       endDate: '',
       rosterPeriods: [],
       expiryThreshold: '',
+      categories: [],
       checkTypes: [],
       rankCaptain: false,
       rankFirstOfficer: false,
+      groupBy: [],
     },
   })
 
   const filterMode = form.watch('filterMode') ?? 'dateRange'
+  const selectedCategories = form.watch('categories') ?? []
   const rosterPeriods = generateRosterPeriods()
 
-  // Fetch check types on mount
+  // Filter check types by selected categories
+  const filteredCheckTypes =
+    selectedCategories.length > 0
+      ? checkTypes.filter((ct) => ct.category && selectedCategories.includes(ct.category))
+      : checkTypes
+
+  // Fetch check types and categories on mount
   useEffect(() => {
     const fetchCheckTypes = async () => {
       try {
-        const response = await fetch('/api/check-types')
+        const response = await fetch('/api/check-types?includeCategories=true')
         if (response.ok) {
           const data = await response.json()
-          setCheckTypes(data.checkTypes || [])
+          setCheckTypes(data.data || [])
+          setCategories(data.categories || [])
         }
       } catch (error) {
         console.error('Failed to fetch check types:', error)
@@ -147,6 +159,10 @@ export function CertificationReportForm() {
       filters.expiryThreshold = parseInt(values.expiryThreshold, 10)
     }
 
+    if (values.categories && values.categories.length > 0) {
+      filters.categories = values.categories
+    }
+
     if (values.checkTypes && values.checkTypes.length > 0) {
       filters.checkTypes = values.checkTypes
     }
@@ -155,6 +171,11 @@ export function CertificationReportForm() {
     if (values.rankCaptain) ranks.push('Captain')
     if (values.rankFirstOfficer) ranks.push('First Officer')
     if (ranks.length > 0) filters.rank = ranks
+
+    // Include groupBy options for PDF exports
+    if (values.groupBy && values.groupBy.length > 0) {
+      filters.groupBy = values.groupBy
+    }
 
     return filters
   }
@@ -170,7 +191,7 @@ export function CertificationReportForm() {
       })
       setShouldFetchPreview(false)
     }
-  }, [previewError, toast])
+  }, [previewError])
 
   // Handle preview success
   useEffect(() => {
@@ -191,8 +212,9 @@ export function CertificationReportForm() {
             : 'Failed to export PDF',
         variant: 'destructive',
       })
+      exportMutation.reset()
     }
-  }, [exportMutation.isError, exportMutation.error, toast])
+  }, [exportMutation.isError])
 
   // Handle export mutation success
   useEffect(() => {
@@ -201,8 +223,9 @@ export function CertificationReportForm() {
         title: 'Report Exported',
         description: 'PDF has been downloaded successfully',
       })
+      exportMutation.reset()
     }
-  }, [exportMutation.isSuccess, toast])
+  }, [exportMutation.isSuccess])
 
   const handlePreview = async (values: z.input<typeof formSchema>) => {
     const filters = buildFilters(values)
@@ -230,13 +253,6 @@ export function CertificationReportForm() {
     if (Object.keys(filters).length > 0) {
       prefetchReport('certifications', filters)
     }
-  }
-
-  // Handle date preset selection
-  const handleDatePresetSelect = (dateRange: DateRange) => {
-    form.setValue('startDate', dateRange.startDate)
-    form.setValue('endDate', dateRange.endDate)
-    handleFormChange()
   }
 
   // Separate loading states for each button
@@ -267,6 +283,11 @@ export function CertificationReportForm() {
       form.setValue('expiryThreshold', filters.expiryThreshold.toString())
     }
 
+    // Apply categories
+    if (filters.categories) {
+      form.setValue('categories', filters.categories)
+    }
+
     // Apply check types
     if (filters.checkTypes) {
       form.setValue('checkTypes', filters.checkTypes)
@@ -275,6 +296,13 @@ export function CertificationReportForm() {
     // Apply rank filters
     form.setValue('rankCaptain', filters.rank?.includes('Captain') || false)
     form.setValue('rankFirstOfficer', filters.rank?.includes('First Officer') || false)
+
+    // Apply groupBy options
+    if (filters.groupBy) {
+      form.setValue('groupBy', filters.groupBy)
+    } else {
+      form.setValue('groupBy', [])
+    }
 
     // Trigger form change to prefetch data
     handleFormChange()
@@ -406,6 +434,85 @@ export function CertificationReportForm() {
             )}
           />
 
+          {/* Category Filter */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Categories (Optional)</Label>
+              {!loadingCheckTypes && categories.length > 0 && (
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      form.setValue('categories', categories)
+                      handleFormChange()
+                    }}
+                    className="h-7 text-xs"
+                  >
+                    Select All
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      form.setValue('categories', [])
+                      form.setValue('checkTypes', [])
+                      handleFormChange()
+                    }}
+                    className="h-7 text-xs"
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              )}
+            </div>
+            <p className="text-muted-foreground text-xs">Select categories to filter check types</p>
+            {loadingCheckTypes ? (
+              <div className="flex items-center justify-center p-4">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : categories.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No categories available</p>
+            ) : (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {categories.map((category) => {
+                  const currentCategories = form.watch('categories') ?? []
+                  const isSelected = currentCategories.includes(category)
+                  return (
+                    <Button
+                      key={category}
+                      type="button"
+                      variant={isSelected ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
+                        const newValue = isSelected
+                          ? currentCategories.filter((v) => v !== category)
+                          : [...currentCategories, category]
+                        form.setValue('categories', newValue)
+                        // Clear check types that don't match new category selection
+                        if (isSelected) {
+                          // Removing a category - clear check types from that category
+                          const currentCheckTypes = form.getValues('checkTypes') ?? []
+                          const validCheckTypes = currentCheckTypes.filter((ctId) => {
+                            const ct = checkTypes.find((c) => c.id === ctId)
+                            return ct?.category !== category
+                          })
+                          form.setValue('checkTypes', validCheckTypes)
+                        }
+                        handleFormChange()
+                      }}
+                      className="h-8"
+                    >
+                      {category}
+                    </Button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Check Types Multi-Select */}
           <FormField
             control={form.control}
@@ -414,18 +521,19 @@ export function CertificationReportForm() {
               <FormItem>
                 <div className="flex items-center justify-between">
                   <FormLabel>Check Types (Optional)</FormLabel>
-                  {!loadingCheckTypes && checkTypes.length > 0 && (
+                  {!loadingCheckTypes && filteredCheckTypes.length > 0 && (
                     <div className="flex gap-2">
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() =>
+                        onClick={() => {
                           form.setValue(
                             'checkTypes',
-                            checkTypes.map((ct) => ct.id)
+                            filteredCheckTypes.map((ct) => ct.id)
                           )
-                        }
+                          handleFormChange()
+                        }}
                         className="h-7 text-xs"
                       >
                         Select All
@@ -434,7 +542,10 @@ export function CertificationReportForm() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => form.setValue('checkTypes', [])}
+                        onClick={() => {
+                          form.setValue('checkTypes', [])
+                          handleFormChange()
+                        }}
                         className="h-7 text-xs"
                       >
                         Clear All
@@ -443,47 +554,51 @@ export function CertificationReportForm() {
                   )}
                 </div>
                 <FormDescription className="text-xs">
-                  Select one or more check types to filter by
+                  {selectedCategories.length > 0
+                    ? `Showing check types for: ${selectedCategories.join(', ')}`
+                    : 'Select one or more check types to filter by'}
                 </FormDescription>
                 {loadingCheckTypes ? (
                   <div className="flex items-center justify-center p-4">
                     <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
+                ) : filteredCheckTypes.length === 0 ? (
+                  <p className="text-muted-foreground py-4 text-center text-sm">
+                    {selectedCategories.length > 0
+                      ? 'No check types in selected categories'
+                      : 'No check types available'}
+                  </p>
                 ) : (
                   <div className="mt-2 grid max-h-48 grid-cols-2 gap-2 overflow-y-auto rounded-md border p-3">
-                    {checkTypes.map((checkType) => (
-                      <FormField
-                        key={checkType.id}
-                        control={form.control}
-                        name="checkTypes"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={checkType.id}
-                              className="flex flex-row items-center space-y-0 space-x-2"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(checkType.id)}
-                                  onCheckedChange={(checked) => {
-                                    const newValue = checked
-                                      ? [...(field.value ?? []), checkType.id]
-                                      : (field.value ?? []).filter(
-                                          (value) => value !== checkType.id
-                                        )
-                                    field.onChange(newValue)
-                                    handleFormChange()
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="cursor-pointer text-sm font-normal">
-                                {checkType.check_description || checkType.check_code}
-                              </FormLabel>
-                            </FormItem>
-                          )
-                        }}
-                      />
-                    ))}
+                    {filteredCheckTypes.map((checkType) => {
+                      const selectedCheckTypes = form.watch('checkTypes') ?? []
+                      const isChecked = selectedCheckTypes.includes(checkType.id)
+                      return (
+                        <div
+                          key={checkType.id}
+                          className="flex flex-row items-center space-y-0 space-x-2"
+                        >
+                          <Checkbox
+                            id={`checkType-${checkType.id}`}
+                            checked={isChecked}
+                            onCheckedChange={(checked) => {
+                              const currentValues = form.getValues('checkTypes') ?? []
+                              const newValue = checked
+                                ? [...currentValues, checkType.id]
+                                : currentValues.filter((value) => value !== checkType.id)
+                              form.setValue('checkTypes', newValue)
+                              handleFormChange()
+                            }}
+                          />
+                          <label
+                            htmlFor={`checkType-${checkType.id}`}
+                            className="cursor-pointer text-sm font-normal"
+                          >
+                            {checkType.check_description || checkType.check_code}
+                          </label>
+                        </div>
+                      )
+                    })}
                   </div>
                 )}
               </FormItem>
@@ -555,6 +670,93 @@ export function CertificationReportForm() {
                       />
                     </FormControl>
                     <FormLabel className="cursor-pointer font-normal">First Officer</FormLabel>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Grouping Options for PDF Export */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Group By (PDF Export)</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  form.setValue('groupBy', [])
+                  handleFormChange()
+                }}
+                className="h-7 text-xs"
+              >
+                Clear
+              </Button>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Select how to group records in the exported PDF report
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <FormField
+                control={form.control}
+                name="groupBy"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes('rosterPeriod')}
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
+                            ? [...(field.value ?? []), 'rosterPeriod']
+                            : (field.value ?? []).filter((v) => v !== 'rosterPeriod')
+                          field.onChange(newValue)
+                          handleFormChange()
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Roster Period</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="groupBy"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes('rank')}
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
+                            ? [...(field.value ?? []), 'rank']
+                            : (field.value ?? []).filter((v) => v !== 'rank')
+                          field.onChange(newValue)
+                          handleFormChange()
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Rank</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="groupBy"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes('category')}
+                        onCheckedChange={(checked) => {
+                          const newValue = checked
+                            ? [...(field.value ?? []), 'category']
+                            : (field.value ?? []).filter((v) => v !== 'category')
+                          field.onChange(newValue)
+                          handleFormChange()
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Category</FormLabel>
                   </FormItem>
                 )}
               />

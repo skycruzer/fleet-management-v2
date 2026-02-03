@@ -76,7 +76,7 @@ export function PortalToastHandler() {
       url.searchParams.delete('message')
       window.history.replaceState({}, '', url.toString())
     }
-  }, [searchParams, toast])
+  }, [searchParams])
 
   return null // This component doesn't render anything
 }

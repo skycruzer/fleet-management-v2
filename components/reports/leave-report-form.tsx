@@ -163,8 +163,9 @@ export function LeaveReportForm() {
             : 'Failed to export PDF',
         variant: 'destructive',
       })
+      exportMutation.reset()
     }
-  }, [exportMutation.isError, exportMutation.error])
+  }, [exportMutation.isError])
 
   // Handle export mutation success
   useEffect(() => {
@@ -173,6 +174,7 @@ export function LeaveReportForm() {
         title: 'Report Exported',
         description: 'PDF has been downloaded successfully',
       })
+      exportMutation.reset()
     }
   }, [exportMutation.isSuccess])
 
