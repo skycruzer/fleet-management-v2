@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Building2, Shield, ChevronLeft } from 'lucide-react'
 import { LoginForm } from './login-form'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function AdminLoginPage() {
   return (
@@ -18,13 +19,13 @@ export default function AdminLoginPage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)]" />
 
         {/* Subtle gradient orbs */}
-        <div className="absolute -top-1/4 -left-1/4 h-96 w-96 rounded-full bg-white/[0.03] blur-3xl" />
-        <div className="absolute -right-1/4 -bottom-1/4 h-96 w-96 rounded-full bg-white/[0.03] blur-3xl" />
+        <div className="bg-primary/5 absolute -top-1/4 -left-1/4 h-96 w-96 rounded-full blur-3xl" />
+        <div className="bg-primary/5 absolute -right-1/4 -bottom-1/4 h-96 w-96 rounded-full blur-3xl" />
       </div>
 
       {/* Main Card */}
       <div className="relative w-full max-w-md">
-        <Card className="bg-card border-white/[0.08] p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
           {/* Logo and Title */}
           <div className="mb-8 text-center">
             <div className="mb-4 inline-flex">
@@ -55,8 +56,9 @@ export default function AdminLoginPage() {
         </Card>
 
         {/* Footer Note */}
-        <div className="text-muted-foreground/60 mt-4 text-center text-xs">
+        <div className="text-muted-foreground/60 mt-4 flex items-center justify-center gap-3 text-xs">
           <p>Authorized Personnel Only</p>
+          <ThemeToggle />
         </div>
       </div>
     </div>

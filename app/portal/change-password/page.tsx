@@ -86,7 +86,7 @@ export default function ChangePasswordPage() {
         </div>
 
         {/* Change Password Card */}
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6">
+        <div className="bg-card border-border rounded-lg border p-6">
           {/* Info Banner */}
           <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-3 text-sm text-[var(--color-warning-400)]">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
@@ -120,7 +120,7 @@ export default function ChangePasswordPage() {
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 w-full rounded-md border border-white/[0.1] bg-white/[0.03] py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -152,7 +152,7 @@ export default function ChangePasswordPage() {
                   minLength={8}
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 w-full rounded-md border border-white/[0.1] bg-white/[0.03] py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -184,7 +184,7 @@ export default function ChangePasswordPage() {
                   minLength={8}
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 w-full rounded-md border border-white/[0.1] bg-white/[0.03] py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
                 <button
                   type="button"

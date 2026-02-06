@@ -72,7 +72,7 @@ export default function NotificationList({
         {notifications.map((notification) => (
           <div
             key={notification.id}
-            className={`bg-card rounded-lg p-4 shadow transition-colors hover:bg-white/[0.03] ${
+            className={`bg-card hover:bg-muted/30 rounded-lg p-4 shadow transition-colors ${
               !notification.is_read ? 'border-l-4 border-[var(--color-primary-500)]' : ''
             }`}
           >

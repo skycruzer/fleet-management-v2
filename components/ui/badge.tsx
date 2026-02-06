@@ -9,13 +9,13 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: 'border-transparent bg-primary/15 text-primary',
-        secondary: 'border-transparent bg-white/[0.06] text-muted-foreground',
+        secondary: 'border-transparent bg-muted/60 text-muted-foreground',
         destructive: 'border-transparent bg-destructive/15 text-destructive',
-        outline: 'border-white/[0.1] text-foreground',
+        outline: 'border-border text-foreground',
         warning: 'border-transparent bg-warning/15 text-warning',
         success: 'border-transparent bg-success/15 text-success',
         // Dot variant for minimal status indicators
-        dot: 'pl-2.5 before:mr-1.5 before:size-1.5 before:rounded-full before:bg-current border-transparent bg-white/[0.06] text-muted-foreground',
+        dot: 'pl-2.5 before:mr-1.5 before:size-1.5 before:rounded-full before:bg-current border-transparent bg-muted/60 text-muted-foreground',
       },
     },
     defaultVariants: {

@@ -38,7 +38,7 @@ export default async function PilotDashboardPage() {
 
   if (!pilotUser.registration_approved) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white/[0.03] p-6">
+      <div className="bg-muted/30 flex min-h-screen items-center justify-center p-6">
         <Card className="max-w-md p-8 text-center">
           <div className="mb-4 flex justify-center">
             <Clock className="text-primary h-16 w-16" aria-hidden="true" />
@@ -310,7 +310,7 @@ export default async function PilotDashboardPage() {
         {/* Quick Actions */}
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Link href="/portal/leave-requests/new" className="group">
-            <Card className="hover:border-primary/30 flex items-center gap-4 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+            <Card className="hover:border-primary/30 hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200">
               <div className="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
                 <Calendar className="text-primary h-6 w-6" aria-hidden="true" />
               </div>
@@ -323,7 +323,7 @@ export default async function PilotDashboardPage() {
             </Card>
           </Link>
           <Link href="/portal/flight-requests/new" className="group">
-            <Card className="hover:border-primary/30 flex items-center gap-4 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+            <Card className="hover:border-primary/30 hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200">
               <div className="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
                 <Plane className="text-primary h-6 w-6" aria-hidden="true" />
               </div>
@@ -341,7 +341,7 @@ export default async function PilotDashboardPage() {
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Pending Leave Requests */}
           <Link href="/portal/requests?tab=leave">
-            <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+            <Card className="hover:border-foreground/20 hover:bg-muted/40 p-5 transition-all duration-200">
               <div className="mb-2 flex items-center justify-between">
                 <Calendar className="text-accent h-6 w-6" aria-hidden="true" />
               </div>
@@ -359,7 +359,7 @@ export default async function PilotDashboardPage() {
 
           {/* RDO/SDO Requests */}
           <Link href="/portal/requests?tab=rdo-sdo">
-            <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+            <Card className="hover:border-foreground/20 hover:bg-muted/40 p-5 transition-all duration-200">
               <div className="mb-2 flex items-center justify-between">
                 <Plane className="text-accent h-6 w-6" aria-hidden="true" />
               </div>

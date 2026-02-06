@@ -69,7 +69,7 @@ export default function ChangePasswordPage() {
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <Card className="bg-card border-white/[0.08] p-8 shadow-sm">
+        <Card className="bg-card border-border p-8 shadow-sm">
           {/* Header */}
           <div className="mb-8 text-center">
             <div className="mb-4 inline-flex">

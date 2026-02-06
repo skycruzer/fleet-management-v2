@@ -94,7 +94,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="border-b border-white/[0.08] px-6 py-4">
+        <div className="border-border border-b px-6 py-4">
           <div className="flex items-center justify-between">
             <h2 id="modal-title" className="text-foreground text-xl font-bold">
               Submit Leave Request
@@ -143,7 +143,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
             <select
               id="modal-request-type"
               {...form.register('request_type')}
-              className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
+              className="border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
             >
               <option value="ANNUAL">Annual Leave</option>
               <option value="RDO">Rostered Day Off (RDO)</option>
@@ -174,7 +174,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
                 type="date"
                 id="modal-start-date"
                 {...form.register('start_date')}
-                className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
+                className="border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
               />
               {form.formState.errors.start_date && (
                 <p className="mt-1 text-sm text-[var(--color-danger-400)]">
@@ -194,7 +194,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
                 type="date"
                 id="modal-end-date"
                 {...form.register('end_date')}
-                className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
+                className="border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
               />
               {form.formState.errors.end_date && (
                 <p className="mt-1 text-sm text-[var(--color-danger-400)]">
@@ -214,7 +214,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
               {...form.register('reason')}
               rows={3}
               placeholder="Optional notes about your leave request..."
-              className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
+              className="border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
             />
             {form.formState.errors.reason && (
               <p className="mt-1 text-sm text-[var(--color-danger-400)]">
@@ -243,7 +243,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
             <button
               type="button"
               onClick={onClose}
-              className="text-foreground/80 rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium transition-colors hover:bg-white/[0.03] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
+              className="text-foreground/80 border-border hover:bg-muted/30 focus:ring-primary rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
             >
               Cancel
             </button>

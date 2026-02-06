@@ -93,21 +93,21 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
 
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Total Tasks</p>
           <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalTasks}</p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">To Do</p>
           <p className="text-foreground/80 mt-2 text-3xl font-bold">{stats.todoCount}</p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">In Progress</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-info)]">
             {stats.inProgressCount}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Overdue</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-danger-400)]">
             {stats.overdueCount}
@@ -123,7 +123,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               view === 'kanban'
                 ? 'bg-[var(--color-primary-600)] text-white'
-                : 'text-foreground/80 bg-white/[0.03] hover:bg-white/[0.06]'
+                : 'text-foreground/80 bg-muted/30 hover:bg-muted/60'
             }`}
           >
             Kanban Board
@@ -133,7 +133,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               view === 'list'
                 ? 'bg-[var(--color-primary-600)] text-white'
-                : 'text-foreground/80 bg-white/[0.03] hover:bg-white/[0.06]'
+                : 'text-foreground/80 bg-muted/30 hover:bg-muted/60'
             }`}
           >
             List View

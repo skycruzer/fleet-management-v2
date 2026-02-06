@@ -8,10 +8,10 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: 'border-white/[0.06] bg-card shadow-sm',
-        glass: 'border-white/[0.06] bg-[rgba(17,24,39,0.8)] backdrop-blur-xl shadow-sm',
+        default: 'border-border bg-card shadow-sm',
+        glass: 'border-border bg-card/80 backdrop-blur-xl shadow-sm',
         elevated:
-          'border-white/[0.08] bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--glow-primary)]',
+          'border-border bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--glow-primary)]',
       },
     },
     defaultVariants: {
@@ -37,8 +37,8 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         cardVariants({ variant }),
         // Interactive cards get enhanced hover effects
         interactive
-          ? 'cursor-pointer hover:-translate-y-0.5 hover:border-white/[0.1] hover:shadow-[var(--shadow-interactive-hover)]'
-          : 'hover:border-white/[0.1]',
+          ? 'hover:border-border cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--shadow-interactive-hover)]'
+          : 'hover:border-border',
         className
       )}
       {...props}

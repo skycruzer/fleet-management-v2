@@ -218,15 +218,15 @@ export function FileUpload({
       <div
         className={cn(
           'relative rounded-lg border-2 border-dashed transition-all duration-200',
-          'bg-white/[0.02]',
+          'bg-muted/20',
           // States
           isDragging && 'border-primary bg-primary/5',
           hasFile && !displayError && 'border-primary/30 bg-primary/5',
           displayError && 'border-destructive bg-destructive/5',
           uploadSuccess && 'border-[var(--color-success-500)] bg-[var(--color-success-500)]/5',
           disabled && 'cursor-not-allowed opacity-50',
-          !disabled && !hasFile && 'hover:border-primary/50 cursor-pointer hover:bg-white/[0.04]',
-          !hasFile && !displayError && 'border-white/[0.08]'
+          !disabled && !hasFile && 'hover:border-primary/50 hover:bg-muted/40 cursor-pointer',
+          !hasFile && !displayError && 'border-border'
         )}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -270,7 +270,7 @@ export function FileUpload({
               {/* Preview or icon */}
               <div className="flex-shrink-0">
                 {isImage && previewUrl ? (
-                  <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-white/[0.08]">
+                  <div className="border-border relative h-16 w-16 overflow-hidden rounded-lg border">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={previewUrl}

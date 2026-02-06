@@ -189,18 +189,18 @@ export function GlobalSearch() {
       {/* Search Trigger Button */}
       <button
         onClick={() => setOpen(true)}
-        className="text-muted-foreground flex w-full max-w-sm items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.04] px-4 py-2 text-sm transition-colors hover:bg-white/[0.06] sm:max-w-xs"
+        className="text-muted-foreground border-border bg-muted/40 hover:bg-muted/60 flex w-full max-w-sm items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors sm:max-w-xs"
       >
         <Search className="h-4 w-4" />
         <span className="flex-1 text-left">Quick search...</span>
-        <kbd className="pointer-events-none hidden rounded border border-white/[0.08] bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs sm:inline-block">
+        <kbd className="border-border bg-muted/60 pointer-events-none hidden rounded border px-1.5 py-0.5 font-mono text-xs sm:inline-block">
           ⌘K
         </kbd>
       </button>
 
       {/* Search Dialog */}
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-2xl overflow-hidden rounded-xl border-white/[0.08] bg-[rgba(17,24,39,0.95)] p-0 shadow-xl backdrop-blur-xl">
+        <DialogContent className="border-border bg-popover max-w-2xl overflow-hidden rounded-xl p-0 shadow-xl backdrop-blur-xl">
           <DialogHeader className="border-b px-4 py-3">
             <div className="flex items-center gap-3">
               <Search className="text-muted-foreground h-5 w-5" />

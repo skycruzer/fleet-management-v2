@@ -1,5 +1,7 @@
 /**
  * Dashboard Layout
+ * Developer: Maurice Rondeau
+ *
  * Professional layout with sidebar and header
  * Enhanced with aviation-inspired design
  * Includes ErrorBoundary for graceful error handling
@@ -27,6 +29,9 @@ import { ProfessionalHeader } from '@/components/layout/professional-header'
 import { MobileNav } from '@/components/navigation/mobile-nav'
 import { SkipNav } from '@/components/accessibility/skip-nav'
 import { GlobalAnnouncer } from '@/components/accessibility/announcer'
+import { SidebarCollapseProvider } from '@/components/layout/sidebar-collapse-provider'
+import { DashboardContentArea } from '@/components/layout/dashboard-content-area'
+import { PageTransition } from '@/components/ui/page-transition'
 import {
   LayoutDashboard,
   Users,
@@ -39,6 +44,7 @@ import {
   AlertCircle,
   ScrollText,
   HelpCircle,
+  MessageSquare,
   UserCircle,
 } from 'lucide-react'
 
@@ -118,7 +124,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
     {
       href: '/dashboard/help',
       icon: <HelpCircle className="h-4 w-4" aria-hidden="true" />,
-      label: 'Help & Feedback',
+      label: 'Help Center',
+    },
+    {
+      href: '/dashboard/feedback',
+      icon: <MessageSquare className="h-4 w-4" aria-hidden="true" />,
+      label: 'Feedback',
     },
     {
       href: '/dashboard/settings',
@@ -136,30 +147,32 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <MobileNav user={user ?? { email: adminUser?.email }} navLinks={navLinks} />
 
       {/* Professional Layout */}
-      <div className="bg-background flex min-h-screen overflow-x-hidden">
-        {/* Professional Sidebar - Hidden on mobile */}
-        <div className="hidden lg:block">
-          <ProfessionalSidebar />
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 overflow-x-hidden lg:ml-60">
-          {/* Professional Header - Hidden on mobile */}
+      <SidebarCollapseProvider>
+        <div className="bg-background flex min-h-screen overflow-x-hidden">
+          {/* Professional Sidebar - Hidden on mobile */}
           <div className="hidden lg:block">
-            <ProfessionalHeader />
+            <ProfessionalSidebar />
           </div>
 
-          {/* Page Content */}
-          <main
-            id="main-content"
-            className="bg-background min-h-screen w-full max-w-full overflow-x-hidden p-4 lg:p-5"
-            role="main"
-            aria-label="Main content"
-          >
-            {children}
-          </main>
+          {/* Main Content Area — margin adjusts with sidebar collapse */}
+          <DashboardContentArea>
+            {/* Professional Header - Hidden on mobile */}
+            <div className="hidden lg:block">
+              <ProfessionalHeader />
+            </div>
+
+            {/* Page Content */}
+            <main
+              id="main-content"
+              className="bg-background min-h-screen w-full max-w-full overflow-x-hidden p-4 lg:p-5"
+              role="main"
+              aria-label="Main content"
+            >
+              <PageTransition>{children}</PageTransition>
+            </main>
+          </DashboardContentArea>
         </div>
-      </div>
+      </SidebarCollapseProvider>
     </ErrorBoundary>
   )
 }

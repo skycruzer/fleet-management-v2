@@ -96,7 +96,7 @@ export default function PilotRegisterForm() {
             {...register('first_name')}
             type="text"
             id="first_name"
-            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+            className="focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           />
           {errors.first_name && (
             <p className="mt-1 text-sm text-[var(--color-danger-400)]">
@@ -114,7 +114,7 @@ export default function PilotRegisterForm() {
             {...register('last_name')}
             type="text"
             id="last_name"
-            className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+            className="focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           />
           {errors.last_name && (
             <p className="mt-1 text-sm text-[var(--color-danger-400)]">
@@ -133,7 +133,7 @@ export default function PilotRegisterForm() {
           {...register('email')}
           type="email"
           id="email"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+          className="focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.email && (
           <p className="mt-1 text-sm text-[var(--color-danger-400)]">{errors.email.message}</p>
@@ -149,7 +149,7 @@ export default function PilotRegisterForm() {
           {...register('password')}
           type="password"
           id="password"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+          className="focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.password && (
           <p className="mt-1 text-sm text-[var(--color-danger-400)]">{errors.password.message}</p>
@@ -168,7 +168,7 @@ export default function PilotRegisterForm() {
           {...register('confirmPassword')}
           type="password"
           id="confirmPassword"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+          className="focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.confirmPassword && (
           <p className="mt-1 text-sm text-[var(--color-danger-400)]">
@@ -185,7 +185,7 @@ export default function PilotRegisterForm() {
         <select
           {...register('rank')}
           id="rank"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+          className="focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         >
           <option value="">Select rank</option>
           <option value="Captain">Captain</option>
@@ -205,7 +205,7 @@ export default function PilotRegisterForm() {
           {...register('employee_id')}
           type="text"
           id="employee_id"
-          className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
+          className="focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.employee_id && (
           <p className="mt-1 text-sm text-[var(--color-danger-400)]">

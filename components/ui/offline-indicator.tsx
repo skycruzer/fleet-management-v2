@@ -92,7 +92,7 @@ export function OfflineIndicator() {
 
               <button
                 onClick={() => window.location.reload()}
-                className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium transition-colors hover:bg-white/20"
+                className="bg-muted/50 hover:bg-muted/80 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors"
                 aria-label="Retry connection"
               >
                 <RefreshCw className="h-4 w-4" />

@@ -7,13 +7,13 @@ import { cn } from '@/lib/utils'
 const inputVariants = cva(
   // Base styles - Dark premium
   [
-    'bg-white/[0.04] flex w-full rounded-lg border px-3 py-2 text-sm text-foreground',
+    'bg-muted/40 flex w-full rounded-lg border px-3 py-2 text-sm text-foreground',
     'transition-all duration-200',
     'file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-muted-foreground',
-    'border-white/[0.08]',
+    'border-border',
     'focus:ring-primary/20 focus:border-primary/50 focus:ring-2 focus:outline-none',
-    'disabled:bg-white/[0.02] disabled:cursor-not-allowed disabled:opacity-50',
+    'disabled:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50',
   ],
   {
     variants: {

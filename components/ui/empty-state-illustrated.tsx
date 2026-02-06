@@ -100,14 +100,14 @@ function PlaneIllustration({ className }: { className?: string }) {
           <stop offset="1" stopColor="#0ea5e9" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="planeGradient" x1="25" y1="60" x2="75" y2="60">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#06b6d4" />
         </linearGradient>
         <linearGradient id="horizonGradient" x1="5" y1="85" x2="115" y2="85">
           <stop stopColor="transparent" />
-          <stop offset="0.2" stopColor="#3b82f6" stopOpacity="0.3" />
+          <stop offset="0.2" stopColor="#f43f5e" stopOpacity="0.3" />
           <stop offset="0.5" stopColor="#06b6d4" stopOpacity="0.5" />
-          <stop offset="0.8" stopColor="#3b82f6" stopOpacity="0.3" />
+          <stop offset="0.8" stopColor="#f43f5e" stopOpacity="0.3" />
           <stop offset="1" stopColor="transparent" />
         </linearGradient>
       </defs>
@@ -142,7 +142,7 @@ function PilotIllustration({ className }: { className?: string }) {
 
       <defs>
         <linearGradient id="pilotBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#1e40af" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="hatGradient" x1="30" y1="40" x2="90" y2="40">
@@ -232,7 +232,7 @@ function CertificationIllustration({ className }: { className?: string }) {
           <stop offset="1" stopColor="#059669" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="certBorderGradient" x1="25" y1="25" x2="95" y2="80">
-          <stop stopColor="#3b82f6" stopOpacity="0.3" />
+          <stop stopColor="#f43f5e" stopOpacity="0.3" />
           <stop offset="1" stopColor="#06b6d4" stopOpacity="0.3" />
         </linearGradient>
         <linearGradient id="sealGradient" x1="57" y1="72" x2="93" y2="108">
@@ -312,15 +312,15 @@ function CalendarIllustration({ className }: { className?: string }) {
           <stop offset="1" stopColor="#6366f1" stopOpacity="0.3" />
         </linearGradient>
         <linearGradient id="calHeaderGradient" x1="20" y1="30" x2="100" y2="48">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#06b6d4" />
         </linearGradient>
         <linearGradient id="dayHighlightGradient" x1="58" y1="71" x2="68" y2="81">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#06b6d4" />
         </linearGradient>
         <linearGradient id="calPlaneGradient" x1="80" y1="85" x2="95" y2="92">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#06b6d4" />
         </linearGradient>
       </defs>
@@ -399,11 +399,11 @@ function SearchIllustration({ className }: { className?: string }) {
           <stop offset="1" stopColor="#4f46e5" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="searchRingGradient" x1="25" y1="25" x2="75" y2="75">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#06b6d4" />
         </linearGradient>
         <linearGradient id="searchHandleGradient" x1="68" y1="68" x2="90" y2="90">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#1e40af" />
         </linearGradient>
         <linearGradient id="sparkleGradient" x1="0" y1="0" x2="1" y2="1">
@@ -473,20 +473,20 @@ function WelcomeIllustration({ className }: { className?: string }) {
 
       <defs>
         <linearGradient id="welcomeBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#1e40af" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="globeGradient" x1="25" y1="25" x2="95" y2="95">
-          <stop stopColor="#3b82f6" stopOpacity="0.5" />
+          <stop stopColor="#f43f5e" stopOpacity="0.5" />
           <stop offset="1" stopColor="#06b6d4" stopOpacity="0.5" />
         </linearGradient>
         <linearGradient id="flightPathGradient" x1="30" y1="70" x2="90" y2="70">
           <stop stopColor="#10b981" />
-          <stop offset="0.5" stopColor="#3b82f6" />
+          <stop offset="0.5" stopColor="#f43f5e" />
           <stop offset="1" stopColor="#f59e0b" />
         </linearGradient>
         <linearGradient id="welcomePlaneGradient" x1="53" y1="40" x2="68" y2="47">
-          <stop stopColor="#3b82f6" />
+          <stop stopColor="#f43f5e" />
           <stop offset="1" stopColor="#06b6d4" />
         </linearGradient>
       </defs>
@@ -644,7 +644,7 @@ export function IllustratedEmptyState({
             initial={shouldAnimate ? { opacity: 0 } : { opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={shouldAnimate ? { delay: 0.25 } : { duration: 0 }}
-            className="mb-6 rounded-lg border border-white/[0.06] bg-white/[0.03] p-4"
+            className="border-border bg-muted/30 mb-6 rounded-lg border p-4"
           >
             <p className="text-muted-foreground mb-2 text-sm font-medium">Try this:</p>
             <ul className="text-muted-foreground space-y-1 text-sm">

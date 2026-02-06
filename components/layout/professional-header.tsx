@@ -1,3 +1,10 @@
+/**
+ * Professional Header
+ * Developer: Maurice Rondeau
+ *
+ * Sticky header for the admin dashboard with global search, notifications,
+ * theme toggle, and user menu. Uses theme-aware CSS variable colors.
+ */
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -7,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { GlobalSearch } from '@/components/search/global-search'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 interface Notification {
   id: string
@@ -159,7 +167,7 @@ export function ProfessionalHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#0d1117]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[#0d1117]/80">
+    <header className="border-border bg-background/80 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 border-b backdrop-blur-xl">
       <div className="flex h-12 items-center justify-between px-4">
         {/* Left Section - Global Search */}
         <div className="flex flex-1 items-center gap-4">
@@ -168,13 +176,16 @@ export function ProfessionalHeader() {
 
         {/* Right Section - Actions */}
         <div className="flex items-center gap-1">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* Notifications */}
           <div className="relative" data-notifications-dropdown>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowNotifications(!showNotifications)}
-              className="text-muted-foreground hover:text-foreground relative flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-white/[0.06]"
+              className="text-muted-foreground hover:text-foreground hover:bg-muted/60 relative flex h-8 w-8 items-center justify-center rounded-md transition-colors"
               aria-label={
                 unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'
               }
@@ -201,10 +212,10 @@ export function ProfessionalHeader() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.1 }}
-                  className="absolute right-0 mt-1 w-80 rounded-lg border border-white/[0.08] bg-[rgba(17,24,39,0.95)] shadow-lg backdrop-blur-xl"
+                  className="border-border bg-popover absolute right-0 mt-1 w-80 rounded-lg border shadow-lg backdrop-blur-xl"
                   style={{ willChange: 'transform, opacity' }}
                 >
-                  <div className="border-b border-white/[0.06] px-3 py-2.5">
+                  <div className="border-border border-b px-3 py-2.5">
                     <h3 className="text-foreground text-[13px] font-semibold">Notifications</h3>
                     <p className="text-muted-foreground text-xs">{unreadCount} unread</p>
                   </div>
@@ -223,7 +234,7 @@ export function ProfessionalHeader() {
                           key={notification.id}
                           onClick={() => handleNotificationClick(notification)}
                           className={cn(
-                            'w-full border-b border-white/[0.06] px-3 py-2.5 text-left transition-colors hover:bg-white/[0.04]',
+                            'border-border hover:bg-muted/50 w-full border-b px-3 py-2.5 text-left transition-colors',
                             !notification.read && 'bg-primary/5'
                           )}
                         >
@@ -253,13 +264,13 @@ export function ProfessionalHeader() {
                       ))
                     )}
                   </div>
-                  <div className="border-t border-white/[0.06] px-3 py-2">
+                  <div className="border-border border-t px-3 py-2">
                     <button
                       onClick={() => {
                         setShowNotifications(false)
                         router.push('/dashboard/notifications')
                       }}
-                      className="text-muted-foreground hover:text-foreground w-full rounded-md py-1.5 text-xs font-medium transition-colors hover:bg-white/[0.04]"
+                      className="text-muted-foreground hover:text-foreground hover:bg-muted/50 w-full rounded-md py-1.5 text-xs font-medium transition-colors"
                     >
                       View All
                     </button>
@@ -275,13 +286,13 @@ export function ProfessionalHeader() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex h-8 items-center gap-2 rounded-md px-2 transition-colors hover:bg-white/[0.06]"
+              className="hover:bg-muted/60 flex h-8 items-center gap-2 rounded-md px-2 transition-colors"
               aria-label="User menu"
               aria-expanded={showUserMenu}
               aria-haspopup="true"
               style={{ willChange: 'transform' }}
             >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/[0.06]">
+              <div className="bg-muted/60 flex h-6 w-6 items-center justify-center rounded-full">
                 <User className="text-muted-foreground h-3.5 w-3.5" aria-hidden="true" />
               </div>
               <span className="text-foreground hidden text-[13px] font-medium sm:inline">
@@ -297,23 +308,23 @@ export function ProfessionalHeader() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.1 }}
-                  className="absolute right-0 mt-1 w-52 rounded-lg border border-white/[0.08] bg-[rgba(17,24,39,0.95)] shadow-lg backdrop-blur-xl"
+                  className="border-border bg-popover absolute right-0 mt-1 w-52 rounded-lg border shadow-lg backdrop-blur-xl"
                   style={{ willChange: 'transform, opacity' }}
                 >
-                  <div className="border-b border-white/[0.06] px-3 py-2.5">
+                  <div className="border-border border-b px-3 py-2.5">
                     <p className="text-foreground text-[13px] font-medium">Admin User</p>
                     <p className="text-muted-foreground truncate text-xs">admin@fleetmgmt.com</p>
                   </div>
                   <div className="p-1" role="menu" aria-label="User options">
                     <button
-                      className="text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors hover:bg-white/[0.06]"
+                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors"
                       role="menuitem"
                     >
                       <User className="text-muted-foreground h-4 w-4" aria-hidden="true" />
                       <span>Profile</span>
                     </button>
                     <button
-                      className="text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors hover:bg-white/[0.06]"
+                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors"
                       role="menuitem"
                     >
                       <Settings className="text-muted-foreground h-4 w-4" aria-hidden="true" />
@@ -321,7 +332,7 @@ export function ProfessionalHeader() {
                     </button>
                   </div>
                   <div
-                    className="border-t border-white/[0.06] p-1"
+                    className="border-border border-t p-1"
                     role="menu"
                     aria-label="Account actions"
                   >

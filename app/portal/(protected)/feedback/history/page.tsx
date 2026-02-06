@@ -145,7 +145,7 @@ export default function FeedbackHistoryPage() {
         <PageBreadcrumbs rootPath="portal" />
       </div>
       {/* Page Header */}
-      <div className="bg-card border-b border-white/[0.08] px-8 py-6">
+      <div className="bg-card border-border border-b px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <MessageSquare className="text-primary h-8 w-8" />

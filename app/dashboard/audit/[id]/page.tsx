@@ -69,7 +69,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       </div>
 
       {/* Audit Log Metadata */}
-      <div className="bg-card mb-8 rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mb-8 rounded-lg border p-6 shadow-sm">
         <h2 className="text-foreground mb-4 text-lg font-semibold">Record Information</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
@@ -87,7 +87,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
                       ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
                       : auditLog.action === 'DELETE'
                         ? 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
-                        : 'text-foreground bg-white/[0.03]'
+                        : 'text-foreground bg-muted/30'
                 }`}
               >
                 {auditLog.action}
@@ -124,17 +124,17 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       <AuditLogDetail auditLog={auditLog} />
 
       {/* Metadata Section */}
-      <div className="bg-card mt-8 rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mt-8 rounded-lg border p-6 shadow-sm">
         <h2 className="text-foreground mb-4 text-lg font-semibold">Additional Metadata</h2>
         <div className="space-y-3 text-sm">
           {auditLog.ip_address && (
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2">
+            <div className="border-border flex items-center justify-between border-b pb-2">
               <span className="text-muted-foreground font-medium">IP Address</span>
               <span className="text-foreground font-mono">{auditLog.ip_address}</span>
             </div>
           )}
           {auditLog.user_agent && (
-            <div className="flex items-start justify-between border-b border-white/[0.08] pb-2">
+            <div className="border-border flex items-start justify-between border-b pb-2">
               <span className="text-muted-foreground font-medium">User Agent</span>
               <span className="text-foreground max-w-md truncate text-right font-mono text-xs">
                 {auditLog.user_agent}
@@ -163,7 +163,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       <div className="mt-8 flex justify-between">
         <Link
           href="/dashboard/audit"
-          className="text-foreground/80 inline-flex items-center gap-2 rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium transition-colors hover:bg-white/[0.03] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
+          className="text-foreground/80 border-border hover:bg-muted/30 inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path

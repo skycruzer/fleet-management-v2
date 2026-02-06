@@ -58,7 +58,7 @@ export function ExpiringCertificationsBanner({ actionItems }: ExpiringCertificat
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg px-1 py-2 text-sm font-medium transition-colors hover:bg-white/[0.04]">
+      <CollapsibleTrigger className="hover:bg-muted/40 flex w-full items-center justify-between rounded-lg px-1 py-2 text-sm font-medium transition-colors">
         <span className="flex items-center gap-2">
           <AlertCircle className="h-4 w-4 text-[var(--color-badge-orange)]" aria-hidden="true" />
           Certification Alerts ({actionItems.length})

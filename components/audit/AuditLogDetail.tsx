@@ -21,7 +21,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
 
   if (!hasOldValues && !hasNewValues) {
     return (
-      <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
         <h2 className="text-foreground mb-4 text-lg font-semibold">Data Changes</h2>
         <p className="text-muted-foreground text-sm">No value changes recorded for this entry.</p>
       </div>
@@ -34,7 +34,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
   ).sort()
 
   return (
-    <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+    <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
       <h2 className="text-foreground mb-4 text-lg font-semibold">Data Changes</h2>
 
       {changedFields.length > 0 && (
@@ -56,7 +56,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.08]">
+            <tr className="border-border border-b">
               <th className="text-muted-foreground px-4 py-3 text-left font-medium">Field</th>
               <th className="text-muted-foreground px-4 py-3 text-left font-medium">Old Value</th>
               <th className="text-muted-foreground px-4 py-3 text-left font-medium">New Value</th>
@@ -72,7 +72,7 @@ export default function AuditLogDetail({ auditLog }: AuditLogDetailProps) {
               return (
                 <tr
                   key={key}
-                  className={`border-b border-white/[0.04] ${isChanged ? 'bg-[var(--color-warning-muted)]' : ''}`}
+                  className={`border-border/50 border-b ${isChanged ? 'bg-[var(--color-warning-muted)]' : ''}`}
                 >
                   <td className="text-foreground px-4 py-3 font-mono text-xs font-medium">{key}</td>
                   <td className="px-4 py-3">

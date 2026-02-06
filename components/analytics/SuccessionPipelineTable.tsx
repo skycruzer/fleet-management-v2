@@ -94,7 +94,7 @@ export function SuccessionPipelineTable({
             <h3 className="text-foreground text-lg font-semibold">Succession Pipeline</h3>
           </div>
         </div>
-        <div className="rounded-lg border border-white/[0.08] bg-white/[0.03] p-8 text-center">
+        <div className="border-border bg-muted/30 rounded-lg border p-8 text-center">
           <AlertCircle className="text-muted-foreground mx-auto mb-2 h-12 w-12" />
           <p className="text-muted-foreground text-sm">No promotion candidates found</p>
           <p className="text-muted-foreground mt-1 text-xs">

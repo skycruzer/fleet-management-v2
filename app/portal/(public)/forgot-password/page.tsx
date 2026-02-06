@@ -133,7 +133,7 @@ export default function ForgotPasswordPage() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="bg-card border-white/[0.08] p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div
@@ -202,7 +202,7 @@ export default function ForgotPasswordPage() {
                   onFocus={() => setEmailFocused(true)}
                   onBlur={() => setEmailFocused(false)}
                   disabled={isLoading || success}
-                  className="focus:border-primary focus:ring-primary h-12 border-white/[0.1] bg-white/[0.03] pl-10"
+                  className="focus:border-primary focus:ring-primary border-border bg-muted/30 h-12 pl-10"
                 />
               </div>
               {form.formState.errors.email && (
@@ -239,9 +239,9 @@ export default function ForgotPasswordPage() {
 
           {/* Divider */}
           <div className="my-8 flex items-center">
-            <div className="flex-1 border-t border-white/[0.08]" />
+            <div className="border-border flex-1 border-t" />
             <span className="text-muted-foreground px-4 text-sm">or</span>
-            <div className="flex-1 border-t border-white/[0.08]" />
+            <div className="border-border flex-1 border-t" />
           </div>
 
           {/* Back to Login Link */}

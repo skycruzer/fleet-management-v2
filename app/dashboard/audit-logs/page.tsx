@@ -74,7 +74,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
       case 'RESTORE':
         return 'bg-primary/10 text-primary-foreground'
       default:
-        return 'bg-white/[0.03] text-foreground'
+        return 'bg-muted/30 text-foreground'
     }
   }
 
@@ -90,28 +90,28 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
 
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Total Logs</p>
           <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalLogs}</p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Active Users</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-primary-600)]">
             {stats.totalUsers}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
           <p className="text-primary mt-2 text-3xl font-bold">{stats.totalTables}</p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Recent Activity</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-success-600)]">{totalCount}</p>
         </div>
       </div>
 
       {/* Action Breakdown */}
-      <div className="bg-card mb-8 rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mb-8 rounded-lg border p-6 shadow-sm">
         <h2 className="text-foreground mb-4 text-lg font-semibold">Action Breakdown</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           <div>
@@ -155,10 +155,10 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
       />
 
       {/* Audit Logs Table */}
-      <div className="bg-card overflow-hidden rounded-lg border border-white/[0.08] shadow-sm">
+      <div className="bg-card border-border overflow-hidden rounded-lg border shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/[0.08]">
-            <thead className="bg-white/[0.03]">
+          <table className="divide-border min-w-full divide-y">
+            <thead className="bg-muted/30">
               <tr>
                 <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Timestamp
@@ -180,7 +180,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-card divide-y divide-white/[0.08]">
+            <tbody className="bg-card divide-border divide-y">
               {logs.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-muted-foreground px-6 py-12 text-center">
@@ -189,7 +189,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                 </tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-white/[0.03]">
+                  <tr key={log.id} className="hover:bg-muted/30">
                     <td className="text-foreground px-6 py-4 text-sm whitespace-nowrap">
                       {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
                     </td>
@@ -212,7 +212,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                       {log.table_name}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <code className="text-foreground rounded bg-white/[0.03] px-2 py-1 text-xs">
+                      <code className="text-foreground bg-muted/30 rounded px-2 py-1 text-xs">
                         {log.record_id}
                       </code>
                     </td>
@@ -228,11 +228,11 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="bg-card flex items-center justify-between border-t border-white/[0.08] px-4 py-3 sm:px-6">
+          <div className="bg-card border-border flex items-center justify-between border-t px-4 py-3 sm:px-6">
             <div className="flex flex-1 justify-between sm:hidden">
               <Link
                 href={`?${new URLSearchParams({ ...params, page: String(Math.max(1, page - 1)) }).toString()}`}
-                className={`bg-card text-foreground/80 relative inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${
+                className={`bg-card text-foreground/80 border-border hover:bg-muted/30 relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${
                   page === 1 ? 'pointer-events-none opacity-50' : ''
                 }`}
               >
@@ -240,7 +240,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
               </Link>
               <Link
                 href={`?${new URLSearchParams({ ...params, page: String(Math.min(totalPages, page + 1)) }).toString()}`}
-                className={`bg-card text-foreground/80 relative ml-3 inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${
+                className={`bg-card text-foreground/80 border-border hover:bg-muted/30 relative ml-3 inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${
                   page === totalPages ? 'pointer-events-none opacity-50' : ''
                 }`}
               >
@@ -262,7 +262,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                 >
                   <Link
                     href={`?${new URLSearchParams({ ...params, page: String(Math.max(1, page - 1)) }).toString()}`}
-                    className={`bg-card text-muted-foreground relative inline-flex items-center rounded-l-md border border-white/[0.1] px-2 py-2 text-sm font-medium hover:bg-white/[0.03] focus:z-20 ${
+                    className={`bg-card text-muted-foreground border-border hover:bg-muted/30 relative inline-flex items-center rounded-l-md border px-2 py-2 text-sm font-medium focus:z-20 ${
                       page === 1 ? 'pointer-events-none opacity-50' : ''
                     }`}
                   >
@@ -280,12 +280,12 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
                       />
                     </svg>
                   </Link>
-                  <span className="bg-card text-foreground/80 relative inline-flex items-center border border-white/[0.1] px-4 py-2 text-sm font-medium">
+                  <span className="bg-card text-foreground/80 border-border relative inline-flex items-center border px-4 py-2 text-sm font-medium">
                     {page} / {totalPages}
                   </span>
                   <Link
                     href={`?${new URLSearchParams({ ...params, page: String(Math.min(totalPages, page + 1)) }).toString()}`}
-                    className={`bg-card text-muted-foreground relative inline-flex items-center rounded-r-md border border-white/[0.1] px-2 py-2 text-sm font-medium hover:bg-white/[0.03] focus:z-20 ${
+                    className={`bg-card text-muted-foreground border-border hover:bg-muted/30 relative inline-flex items-center rounded-r-md border px-2 py-2 text-sm font-medium focus:z-20 ${
                       page === totalPages ? 'pointer-events-none opacity-50' : ''
                     }`}
                   >

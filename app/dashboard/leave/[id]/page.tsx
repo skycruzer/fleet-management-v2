@@ -57,7 +57,7 @@ export default async function LeaveRequestPage({ params }: LeaveRequestPageProps
     },
     CANCELLED: {
       variant: 'secondary' as const,
-      className: 'bg-white/[0.08] text-muted-foreground border-white/[0.1]',
+      className: 'bg-muted/60 text-muted-foreground border-border',
     },
   }
 

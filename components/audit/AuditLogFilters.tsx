@@ -207,7 +207,7 @@ export default function AuditLogFilters({ currentFilters }: AuditLogFiltersProps
                 value={recordId}
                 onChange={(e) => setRecordId(e.target.value)}
                 placeholder="Filter by record ID"
-                className="bg-card focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 font-mono text-sm shadow-sm focus:ring-1 focus:outline-none"
+                className="bg-card focus:border-primary focus:ring-primary border-border mt-1 block w-full rounded-md border px-3 py-2 font-mono text-sm shadow-sm focus:ring-1 focus:outline-none"
               />
             </div>
 

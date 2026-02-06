@@ -155,7 +155,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Logs */}
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm font-medium">Total Logs</p>
@@ -180,7 +180,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
         </div>
 
         {/* Unique Users */}
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm font-medium">Unique Users</p>
@@ -205,7 +205,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
         </div>
 
         {/* Tables Monitored */}
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
@@ -230,7 +230,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-sm font-medium">Activity (30d)</p>
@@ -259,31 +259,31 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
 
       {/* Actions Breakdown */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-card border-border rounded-lg border p-4">
           <p className="text-muted-foreground text-sm font-medium">Inserts</p>
           <p className="mt-1 text-2xl font-bold text-[var(--color-success-600)]">
             {stats.actionBreakdown.INSERT || 0}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-card border-border rounded-lg border p-4">
           <p className="text-muted-foreground text-sm font-medium">Updates</p>
           <p className="mt-1 text-2xl font-bold text-[var(--color-primary-600)]">
             {stats.actionBreakdown.UPDATE || 0}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-card border-border rounded-lg border p-4">
           <p className="text-muted-foreground text-sm font-medium">Deletes</p>
           <p className="mt-1 text-2xl font-bold text-[var(--color-danger-600)]">
             {stats.actionBreakdown.DELETE || 0}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-card border-border rounded-lg border p-4">
           <p className="text-muted-foreground text-sm font-medium">Restores</p>
           <p className="mt-1 text-2xl font-bold text-[var(--color-warning-600)]">
             {stats.actionBreakdown.RESTORE || 0}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+        <div className="bg-card border-border rounded-lg border p-4">
           <p className="text-muted-foreground text-sm font-medium">Soft Deletes</p>
           <p className="text-muted-foreground mt-1 text-2xl font-bold">
             {stats.actionBreakdown.SOFT_DELETE || 0}
@@ -317,7 +317,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
       <div className="mb-6">
         <Suspense
           fallback={
-            <div className="bg-card rounded-lg border border-white/[0.08] p-6">
+            <div className="bg-card border-border rounded-lg border p-6">
               <p className="text-muted-foreground">Loading filters...</p>
             </div>
           }
@@ -329,7 +329,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
       {/* Audit Log Table */}
       <Suspense
         fallback={
-          <div className="bg-card rounded-lg border border-white/[0.08] p-6">
+          <div className="bg-card border-border rounded-lg border p-6">
             <p className="text-muted-foreground">Loading audit logs...</p>
           </div>
         }

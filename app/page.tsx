@@ -65,7 +65,7 @@ export default function HomePage() {
           <div className="flex flex-col items-center space-y-8 text-center">
             {/* Logo & Title */}
             <div className="mb-2 flex items-center justify-center space-x-4">
-              <div className="bg-primary/10 animate-gentle-rotate rounded-2xl border border-white/10 p-3 shadow-lg backdrop-blur-sm">
+              <div className="bg-primary/10 animate-gentle-rotate border-border rounded-2xl border p-3 shadow-lg backdrop-blur-sm">
                 <Plane className="text-primary h-14 w-14" />
               </div>
               <h1
@@ -155,7 +155,7 @@ export default function HomePage() {
         </div>
 
         {/* Benefits Section */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.03] p-12 text-center">
+        <div className="border-border bg-muted/30 relative overflow-hidden rounded-3xl border p-12 text-center">
           {/* Decorative horizon line */}
           <div className="horizon-line absolute top-0 right-0 left-0" />
           <h2 className="font-display mb-8 text-3xl font-bold sm:text-4xl">
@@ -240,7 +240,7 @@ function FeatureCard({
 
   return (
     <Card
-      className={`${colors.hover} group border-white/[0.08] bg-white/[0.04] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
+      className={`${colors.hover} group border-border bg-muted/40 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
     >
       <CardHeader>
         <div

@@ -135,7 +135,7 @@ export default function SimpleAdminLogin() {
             style={{
               width: '100%',
               padding: '12px',
-              background: '#3b82f6',
+              background: 'var(--color-primary)',
               color: 'white',
               border: 'none',
               borderRadius: '4px',

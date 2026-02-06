@@ -1,3 +1,11 @@
+/**
+ * Professional Sidebar Client
+ * Developer: Maurice Rondeau
+ *
+ * Admin sidebar with collapsible behavior, section grouping, and theme-aware colors.
+ * Expanded: 240px (w-60) — shows icons + labels + section headers
+ * Collapsed: 56px (w-14) — shows icons only with tooltips on hover
+ */
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -20,12 +28,16 @@ import {
   RefreshCw,
   HelpCircle,
   ClipboardList,
+  MessageSquare,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { SidebarShell } from '@/components/layout/sidebar-shell'
 import { useSidebarBadges } from '@/lib/hooks/use-sidebar-badges'
 import { useConfirm } from '@/components/ui/confirm-dialog'
+import { useSidebarCollapse } from '@/lib/hooks/use-sidebar-collapse'
 
 interface NavItem {
   title: string
@@ -115,9 +127,14 @@ const navigationSections: NavSection[] = [
         icon: ClipboardList,
       },
       {
-        title: 'Help & Feedback',
+        title: 'Help Center',
         href: '/dashboard/help',
         icon: HelpCircle,
+      },
+      {
+        title: 'Feedback',
+        href: '/dashboard/feedback',
+        icon: MessageSquare,
       },
     ],
   },
@@ -140,6 +157,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
   const pathname = usePathname()
   const { data: badges } = useSidebarBadges()
   const { confirm, ConfirmDialog: LogoutConfirmDialog } = useConfirm()
+  const { isCollapsed, toggleCollapse } = useSidebarCollapse()
 
   // Compute navigation sections with dynamic badge data
   const dynamicNavigationSections = useMemo<NavSection[]>(() => {
@@ -169,7 +187,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
     }))
   }, [badges])
 
-  // Initialize state from localStorage
+  // Initialize state from localStorage (section collapse, not sidebar collapse)
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
     if (typeof window === 'undefined') return {}
     const saved = localStorage.getItem('sidebar-collapsed-sections')
@@ -244,35 +262,70 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       initial={{ x: -240 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
-      className="bg-card fixed top-0 left-0 z-[var(--z-sidebar)] h-screen w-60 border-r border-white/[0.06]"
+      className={cn(
+        'bg-card border-border fixed top-0 left-0 z-[var(--z-sidebar)] h-screen border-r transition-[width] duration-200',
+        isCollapsed ? 'w-14' : 'w-60'
+      )}
       style={{ willChange: 'transform' }}
       role="navigation"
       aria-label="Main navigation"
     >
       <SidebarShell
         header={
-          <div className="flex h-12 items-center gap-2 border-b border-white/[0.06] px-4">
-            <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
+          <div
+            className={cn(
+              'border-border flex h-12 items-center gap-2 border-b',
+              isCollapsed ? 'justify-center px-2' : 'px-4'
+            )}
+          >
+            <div className="bg-accent flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md">
               <Plane className="h-3.5 w-3.5 text-white" />
             </div>
-            <div className="min-w-0">
-              <h1
-                className="text-foreground truncate text-[13px] font-semibold"
-                suppressHydrationWarning
-              >
-                {appTitle}
-              </h1>
-            </div>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <h1
+                  className="text-foreground truncate text-[13px] font-semibold"
+                  suppressHydrationWarning
+                >
+                  {appTitle}
+                </h1>
+              </div>
+            )}
           </div>
         }
         footer={
-          <div className="border-t border-white/[0.06] p-2">
+          <div className="border-border border-t p-2">
+            {/* Collapse Toggle Button */}
+            <button
+              onClick={toggleCollapse}
+              className={cn(
+                'text-muted-foreground hover:bg-muted/50 hover:text-foreground mb-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors',
+                isCollapsed && 'justify-center'
+              )}
+              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {isCollapsed ? (
+                <PanelLeft className="h-4 w-4 flex-shrink-0" />
+              ) : (
+                <>
+                  <PanelLeftClose className="h-4 w-4 flex-shrink-0" />
+                  <span>Collapse</span>
+                </>
+              )}
+            </button>
+
+            {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-danger-400)]"
+              className={cn(
+                'text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-danger-400)]',
+                isCollapsed && 'justify-center'
+              )}
+              title={isCollapsed ? 'Logout' : undefined}
             >
               <LogOut className="h-4 w-4 flex-shrink-0" />
-              <span>Logout</span>
+              {!isCollapsed && <span>Logout</span>}
             </button>
           </div>
         }
@@ -281,39 +334,41 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         <nav className="space-y-0.5 p-2">
           <div className="space-y-2">
             {dynamicNavigationSections.map((section) => {
-              const isCollapsed = collapsedSections[section.title]
+              const isSectionCollapsed = collapsedSections[section.title]
 
               const sectionId = `nav-section-${section.title.toLowerCase().replace(/\s+/g, '-')}`
 
               return (
                 <div key={section.title}>
-                  {/* Section Header - Clickable to toggle */}
-                  <button
-                    onClick={() => toggleSection(section.title)}
-                    className="focus:ring-primary/20 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors hover:bg-white/[0.04] focus:ring-1 focus:outline-none"
-                    aria-expanded={!isCollapsed}
-                    aria-controls={sectionId}
-                    aria-label={`${section.title} navigation section, ${isCollapsed ? 'expand' : 'collapse'}`}
-                  >
-                    <h3 className="text-[10px] font-medium tracking-widest text-white/30 uppercase">
-                      {section.title}
-                    </h3>
-                    <motion.div
-                      animate={{ rotate: isCollapsed ? -90 : 0 }}
-                      transition={{ duration: 0.12 }}
-                      aria-hidden="true"
-                      style={{ willChange: 'transform' }}
+                  {/* Section Header - Clickable to toggle (hidden when sidebar is collapsed) */}
+                  {!isCollapsed && (
+                    <button
+                      onClick={() => toggleSection(section.title)}
+                      className="focus:ring-primary/20 hover:bg-muted/50 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors focus:ring-1 focus:outline-none"
+                      aria-expanded={!isSectionCollapsed}
+                      aria-controls={sectionId}
+                      aria-label={`${section.title} navigation section, ${isSectionCollapsed ? 'expand' : 'collapse'}`}
                     >
-                      <ChevronDown className="h-3 w-3 text-white/30" />
-                    </motion.div>
-                  </button>
+                      <h3 className="text-muted-foreground/40 text-[10px] font-medium tracking-widest uppercase">
+                        {section.title}
+                      </h3>
+                      <motion.div
+                        animate={{ rotate: isSectionCollapsed ? -90 : 0 }}
+                        transition={{ duration: 0.12 }}
+                        aria-hidden="true"
+                        style={{ willChange: 'transform' }}
+                      >
+                        <ChevronDown className="text-muted-foreground/40 h-3 w-3" />
+                      </motion.div>
+                    </button>
+                  )}
 
-                  {/* Section Items - Collapsible */}
+                  {/* Section Items - Collapsible (always shown when sidebar collapsed) */}
                   <AnimatePresence initial={false}>
-                    {!isCollapsed && (
+                    {(isCollapsed || !isSectionCollapsed) && (
                       <motion.div
                         id={sectionId}
-                        initial={{ height: 0, opacity: 0 }}
+                        initial={isCollapsed ? false : { height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.15 }}
@@ -327,13 +382,18 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                           const active = isActive(item.href)
 
                           return (
-                            <Link key={item.href} href={item.href}>
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              title={isCollapsed ? item.title : undefined}
+                            >
                               <div
                                 className={cn(
                                   'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
+                                  isCollapsed && 'justify-center px-0',
                                   active
                                     ? 'bg-primary/15 text-primary border-primary border-l-2'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                                 )}
                               >
                                 <Icon
@@ -346,10 +406,12 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                                   aria-hidden="true"
                                 />
 
-                                <span className="flex-1 truncate">{item.title}</span>
+                                {!isCollapsed && (
+                                  <span className="flex-1 truncate">{item.title}</span>
+                                )}
 
-                                {/* Badge - Linear style minimal */}
-                                {item.badge && (
+                                {/* Badge - Full text when expanded, dot when collapsed */}
+                                {item.badge && !isCollapsed && (
                                   <span
                                     className={cn(
                                       'flex-shrink-0 rounded px-1 py-0.5 text-[10px] font-medium tabular-nums',
@@ -371,6 +433,17 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                                     {item.badge}
                                   </span>
                                 )}
+                                {item.badge && isCollapsed && (
+                                  <span
+                                    className={cn(
+                                      'absolute top-1 right-1 h-2 w-2 rounded-full',
+                                      item.badgeVariant === 'warning' && 'bg-warning',
+                                      item.badgeVariant === 'danger' && 'bg-destructive',
+                                      !item.badgeVariant && 'bg-muted-foreground'
+                                    )}
+                                    aria-label={`${item.badge} items`}
+                                  />
+                                )}
                               </div>
                             </Link>
                           )
@@ -383,19 +456,23 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             })}
 
             {/* Settings (standalone) */}
-            <div className="mt-1 border-t border-white/[0.06] pt-2">
+            <div className="border-border mt-1 border-t pt-2">
               {(() => {
                 const Icon = settingsItem.icon
                 const active = isActive(settingsItem.href)
 
                 return (
-                  <Link href={settingsItem.href}>
+                  <Link
+                    href={settingsItem.href}
+                    title={isCollapsed ? settingsItem.title : undefined}
+                  >
                     <div
                       className={cn(
                         'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
+                        isCollapsed && 'justify-center px-0',
                         active
                           ? 'bg-primary/15 text-primary border-primary border-l-2'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                       )}
                     >
                       <Icon
@@ -407,7 +484,9 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                         )}
                       />
 
-                      <span className="flex-1 truncate">{settingsItem.title}</span>
+                      {!isCollapsed && (
+                        <span className="flex-1 truncate">{settingsItem.title}</span>
+                      )}
                     </div>
                   </Link>
                 )

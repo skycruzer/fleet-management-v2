@@ -205,7 +205,7 @@ export function ResetPasswordContent() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="bg-card border-white/[0.08] p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div
@@ -316,7 +316,7 @@ export function ResetPasswordContent() {
                     onFocus={() => setPasswordFocused(true)}
                     onBlur={() => setPasswordFocused(false)}
                     disabled={isLoading}
-                    className="focus:border-primary focus:ring-primary h-12 border-white/[0.1] bg-white/[0.03] pr-10 pl-10"
+                    className="focus:border-primary focus:ring-primary border-border bg-muted/30 h-12 pr-10 pl-10"
                   />
                   <button
                     type="button"
@@ -338,7 +338,7 @@ export function ResetPasswordContent() {
                         {passwordStrength.label}
                       </span>
                     </div>
-                    <div className="h-1.5 w-full rounded-full bg-white/[0.08]">
+                    <div className="bg-muted/60 h-1.5 w-full rounded-full">
                       <div
                         className={`h-full rounded-full transition-all ${passwordStrength.color}`}
                         style={{ width: `${passwordStrength.strength}%` }}
@@ -399,7 +399,7 @@ export function ResetPasswordContent() {
                     onFocus={() => setConfirmPasswordFocused(true)}
                     onBlur={() => setConfirmPasswordFocused(false)}
                     disabled={isLoading}
-                    className="focus:border-primary focus:ring-primary h-12 border-white/[0.1] bg-white/[0.03] pr-10 pl-10"
+                    className="focus:border-primary focus:ring-primary border-border bg-muted/30 h-12 pr-10 pl-10"
                   />
                   <button
                     type="button"
@@ -445,9 +445,9 @@ export function ResetPasswordContent() {
           {!isValidating && !success && (
             <>
               <div className="my-8 flex items-center">
-                <div className="flex-1 border-t border-white/[0.08]" />
+                <div className="border-border flex-1 border-t" />
                 <span className="text-muted-foreground px-4 text-sm">or</span>
-                <div className="flex-1 border-t border-white/[0.08]" />
+                <div className="border-border flex-1 border-t" />
               </div>
 
               <Link

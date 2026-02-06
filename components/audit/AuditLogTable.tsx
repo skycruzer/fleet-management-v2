@@ -53,12 +53,12 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
   }
 
   return (
-    <div className="bg-card rounded-lg border border-white/[0.08] shadow-sm">
+    <div className="bg-card border-border rounded-lg border shadow-sm">
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.08]">
+            <tr className="border-border border-b">
               <th scope="col" className="text-muted-foreground px-4 py-3 text-left font-medium">
                 Timestamp
               </th>
@@ -83,7 +83,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
             {logs.map((log) => (
               <tr
                 key={log.id}
-                className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]"
+                className="border-border hover:bg-muted/20 border-b transition-colors"
               >
                 <td className="text-foreground px-4 py-3 text-xs whitespace-nowrap">
                   {new Date(log.created_at).toLocaleString()}
@@ -91,7 +91,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
                 <td className="text-foreground px-4 py-3">{log.user_email || 'System'}</td>
                 <td className="px-4 py-3">
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${actionColors[log.action] || 'text-foreground bg-white/[0.03]'}`}
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${actionColors[log.action] || 'text-foreground bg-muted/30'}`}
                   >
                     {log.action}
                   </span>
@@ -116,7 +116,7 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-white/[0.08] px-4 py-3">
+        <div className="border-border flex items-center justify-between border-t px-4 py-3">
           <p className="text-muted-foreground text-sm">
             Showing {(pagination.page - 1) * pagination.pageSize + 1}–
             {Math.min(pagination.page * pagination.pageSize, pagination.totalCount)} of{' '}
@@ -126,14 +126,14 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
             <button
               onClick={() => navigateToPage(pagination.page - 1)}
               disabled={pagination.page <= 1}
-              className="rounded-md border border-white/[0.1] px-3 py-1 text-sm transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-50"
+              className="border-border hover:bg-muted/50 rounded-md border px-3 py-1 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               Previous
             </button>
             <button
               onClick={() => navigateToPage(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
-              className="rounded-md border border-white/[0.1] px-3 py-1 text-sm transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-50"
+              className="border-border hover:bg-muted/50 rounded-md border px-3 py-1 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               Next
             </button>

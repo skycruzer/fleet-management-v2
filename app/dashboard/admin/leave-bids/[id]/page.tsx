@@ -230,7 +230,7 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
               .map((option: any) => (
                 <div
                   key={option.id}
-                  className="bg-card rounded-lg border-2 border-white/[0.08] p-4 shadow-sm transition-shadow hover:shadow-md"
+                  className="bg-card border-border rounded-lg border-2 p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="mb-3 flex items-center gap-2">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-info-bg)] text-sm font-bold text-[var(--color-info)]">

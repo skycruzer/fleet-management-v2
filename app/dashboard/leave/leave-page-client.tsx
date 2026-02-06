@@ -114,7 +114,7 @@ export function LeavePageClient({
   return (
     <>
       {/* Tab Navigation */}
-      <div className="border-b border-white/[0.08]">
+      <div className="border-border border-b">
         <nav className="-mb-px flex gap-6">
           {tabs.map((tab) => {
             const Icon = tab.icon
@@ -126,7 +126,7 @@ export function LeavePageClient({
                   'flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
                   currentTab === tab.id
                     ? 'border-[var(--color-primary-600)] text-[var(--color-primary-600)]'
-                    : 'text-muted-foreground hover:text-foreground/80 border-transparent hover:border-white/[0.1]'
+                    : 'text-muted-foreground hover:text-foreground/80 hover:border-border border-transparent'
                 )}
               >
                 <Icon className="h-4 w-4" />

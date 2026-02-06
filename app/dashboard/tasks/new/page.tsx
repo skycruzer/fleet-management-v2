@@ -46,7 +46,7 @@ export default async function NewTaskPage() {
       </div>
 
       {/* Task Form */}
-      <div className="bg-card mx-auto max-w-3xl rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mx-auto max-w-3xl rounded-lg border p-6 shadow-sm">
         <TaskForm users={users || []} pilots={pilots || []} categories={categories} />
       </div>
     </div>

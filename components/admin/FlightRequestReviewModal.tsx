@@ -227,7 +227,7 @@ export default function FlightRequestReviewModal({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="border-border text-foreground/80 focus:ring-primary rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-white/[0.03] focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                  className="border-border text-foreground/80 focus:ring-primary hover:bg-muted/30 rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 >
                   Cancel
                 </button>

@@ -110,7 +110,7 @@ export default async function NotificationsPage() {
 
       {/* Notifications List */}
       {notifications.length === 0 ? (
-        <div className="flex min-h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/[0.1] bg-white/[0.03] p-12">
+        <div className="border-border bg-muted/30 flex min-h-[40vh] flex-col items-center justify-center rounded-lg border-2 border-dashed p-12">
           <Bell className="text-muted-foreground h-12 w-12" />
           <h3 className="text-foreground mt-4 text-lg font-medium">No notifications</h3>
           <p className="text-muted-foreground mt-2">You are all caught up!</p>
@@ -163,7 +163,7 @@ export default async function NotificationsPage() {
                 {readNotifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className="bg-card rounded-lg border border-white/[0.08] p-4 opacity-60"
+                    className="bg-card border-border rounded-lg border p-4 opacity-60"
                   >
                     <div className="flex items-start gap-3">
                       {getTypeIcon(notification.type)}

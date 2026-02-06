@@ -48,7 +48,7 @@ export default async function NewDisciplinaryMatterPage() {
       </div>
 
       {/* Form */}
-      <div className="bg-card mx-auto max-w-4xl rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mx-auto max-w-4xl rounded-lg border p-6 shadow-sm">
         <DisciplinaryMatterForm
           pilots={pilots || []}
           users={users || []}

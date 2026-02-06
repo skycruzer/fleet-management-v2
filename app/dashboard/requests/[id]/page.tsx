@@ -81,14 +81,14 @@ export default async function RequestDetailPage({ params }: PageProps) {
 
   const getStatusBadgeClass = (status: string) => {
     const classes: Record<string, string> = {
-      DRAFT: 'bg-white/[0.08] text-muted-foreground',
+      DRAFT: 'bg-muted/60 text-muted-foreground',
       SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
       IN_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
       APPROVED: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
       DENIED: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
-      WITHDRAWN: 'bg-white/[0.08] text-muted-foreground',
+      WITHDRAWN: 'bg-muted/60 text-muted-foreground',
     }
-    return classes[status] || 'bg-white/[0.08] text-muted-foreground'
+    return classes[status] || 'bg-muted/60 text-muted-foreground'
   }
 
   const getCategoryBadgeClass = (category: string) => {
@@ -97,7 +97,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
       FLIGHT: 'bg-[var(--color-badge-purple-bg)] text-[var(--color-badge-purple)]',
       LEAVE_BID: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
     }
-    return classes[category] || 'bg-white/[0.08] text-muted-foreground'
+    return classes[category] || 'bg-muted/60 text-muted-foreground'
   }
 
   return (

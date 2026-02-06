@@ -120,7 +120,7 @@ function StatCard({
 }) {
   const colorClasses = {
     blue: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
-    gray: 'bg-white/[0.03] text-muted-foreground',
+    gray: 'bg-muted/30 text-muted-foreground',
     yellow: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
     green: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
     red: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',

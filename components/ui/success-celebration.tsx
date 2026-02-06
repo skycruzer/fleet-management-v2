@@ -84,7 +84,7 @@ function FlyingPlane() {
 
 // Confetti colors matching the design system
 const confettiColors = [
-  '#3b82f6', // primary
+  '#f43f5e', // primary
   '#06b6d4', // accent
   '#10b981', // success
   '#fbbf24', // warning/gold
@@ -172,7 +172,7 @@ export function SuccessCelebration({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="bg-card relative rounded-xl border border-white/10 p-8 text-center shadow-2xl"
+            className="bg-card border-border relative rounded-xl border p-8 text-center shadow-2xl"
           >
             {/* Confetti variant */}
             {variant === 'confetti' && (

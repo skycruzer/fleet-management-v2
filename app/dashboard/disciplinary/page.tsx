@@ -89,7 +89,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       case 'MINOR':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       default:
-        return 'bg-white/[0.03] text-foreground'
+        return 'bg-muted/30 text-foreground'
     }
   }
 
@@ -105,7 +105,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       case 'APPEALED':
         return 'bg-primary/10 text-primary-foreground'
       default:
-        return 'bg-white/[0.03] text-foreground'
+        return 'bg-muted/30 text-foreground'
     }
   }
 
@@ -132,23 +132,23 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
 
       {/* Statistics Grid */}
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Total Matters</p>
           <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalMatters}</p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Open Cases</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-warning-600)]">
             {stats.openMatters}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Under Investigation</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-primary-600)]">
             {stats.underInvestigation}
           </p>
         </div>
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
+        <div className="bg-card border-border rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Overdue</p>
           <p className="mt-2 text-3xl font-bold text-[var(--color-danger-600)]">
             {stats.overdueMatters}
@@ -157,7 +157,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       </div>
 
       {/* Secondary Stats */}
-      <div className="bg-card mb-8 rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mb-8 rounded-lg border p-6 shadow-sm">
         <h2 className="text-foreground mb-4 text-lg font-semibold">Matter Breakdown</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* By Severity */}
@@ -210,10 +210,10 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
       <DisciplinaryFilters currentStatus={status} currentSeverity={severity} />
 
       {/* Matters Table */}
-      <div className="bg-card overflow-hidden rounded-lg border border-white/[0.08] shadow-sm">
+      <div className="bg-card border-border overflow-hidden rounded-lg border shadow-sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/[0.08]">
-            <thead className="bg-white/[0.03]">
+          <table className="divide-border min-w-full divide-y">
+            <thead className="bg-muted/30">
               <tr>
                 <th className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase">
                   Title
@@ -232,7 +232,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-card divide-y divide-white/[0.08]">
+            <tbody className="bg-card divide-border divide-y">
               {matters.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-muted-foreground px-6 py-8 text-center">
@@ -241,7 +241,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                 </tr>
               ) : (
                 matters.map((matter) => (
-                  <tr key={matter.id} className="transition-colors hover:bg-white/[0.03]">
+                  <tr key={matter.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4">
                       <Link
                         href={`/dashboard/disciplinary/${matter.id}`}
@@ -281,17 +281,17 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="bg-card flex items-center justify-between border-t border-white/[0.08] px-4 py-3 sm:px-6">
+          <div className="bg-card border-border flex items-center justify-between border-t px-4 py-3 sm:px-6">
             <div className="flex flex-1 justify-between sm:hidden">
               <Link
                 href={`?page=${page - 1}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
-                className={`bg-card text-foreground/80 relative inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${page === 1 ? 'pointer-events-none opacity-50' : ''}`}
+                className={`bg-card text-foreground/80 border-border hover:bg-muted/30 relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${page === 1 ? 'pointer-events-none opacity-50' : ''}`}
               >
                 Previous
               </Link>
               <Link
                 href={`?page=${page + 1}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
-                className={`bg-card text-foreground/80 relative ml-3 inline-flex items-center rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium hover:bg-white/[0.03] ${page === totalPages ? 'pointer-events-none opacity-50' : ''}`}
+                className={`bg-card text-foreground/80 border-border hover:bg-muted/30 relative ml-3 inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${page === totalPages ? 'pointer-events-none opacity-50' : ''}`}
               >
                 Next
               </Link>
@@ -316,7 +316,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                       className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                         pageNum === page
                           ? 'z-10 bg-[var(--color-primary-600)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]'
-                          : 'text-foreground ring-1 ring-white/[0.1] ring-inset hover:bg-white/[0.03] focus:outline-offset-0'
+                          : 'text-foreground ring-border hover:bg-muted/30 ring-1 ring-inset focus:outline-offset-0'
                       }`}
                     >
                       {pageNum}

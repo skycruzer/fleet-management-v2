@@ -1,6 +1,8 @@
 /**
- * Feedback Admin Dashboard
- * Admin view for reviewing pilot feedback submissions
+ * Feedback Management Page
+ * Review and manage pilot feedback
+ *
+ * @author Maurice Rondeau
  */
 
 import { Metadata } from 'next'
@@ -8,22 +10,23 @@ import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getAllFeedback, getFeedbackStats } from '@/lib/services/feedback-service'
 import { FeedbackDashboardClient } from '@/components/admin/feedback-dashboard-client'
+import { Breadcrumb } from '@/components/navigation/breadcrumb'
 
 export const metadata: Metadata = {
   title: 'Pilot Feedback | Fleet Management',
-  description: 'Review pilot feedback submissions',
+  description: 'Review and manage pilot feedback',
 }
 
-export default async function FeedbackAdminPage() {
-  // Check authentication (supports both Supabase Auth and admin-session cookie)
+export default async function FeedbackPage() {
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {
     redirect('/auth/login')
   }
 
-  // Fetch initial feedback and stats server-side
-  const feedbackResult = await getAllFeedback({ status: 'all' })
-  const statsResult = await getFeedbackStats()
+  const [feedbackResult, statsResult] = await Promise.all([
+    getAllFeedback({ status: 'all' }),
+    getFeedbackStats(),
+  ])
 
   const initialFeedback = feedbackResult.success ? feedbackResult.data || [] : []
   const initialStats = statsResult.success
@@ -45,14 +48,16 @@ export default async function FeedbackAdminPage() {
       }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Pilot Feedback Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Review and respond to pilot feedback submissions
+    <div className="space-y-6">
+      <Breadcrumb />
+      <div>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Pilot Feedback
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Review and manage pilot feedback submissions
         </p>
       </div>
-
       <FeedbackDashboardClient
         initialFeedback={initialFeedback}
         initialStats={initialStats}

@@ -67,7 +67,7 @@ export default async function AdminPage() {
               <p className="text-muted-foreground text-sm font-medium">System Status</p>
               <p className="text-foreground text-2xl font-bold">Operational</p>
             </div>
-            <div className="rounded-lg bg-white/[0.03] p-3">
+            <div className="bg-muted/30 rounded-lg p-3">
               <CheckCircle2 className="text-success h-6 w-6" />
             </div>
           </div>
@@ -84,7 +84,7 @@ export default async function AdminPage() {
                 {stats.totalAdmins + stats.totalManagers} staff, {stats.totalPilots} pilots
               </p>
             </div>
-            <div className="rounded-lg bg-white/[0.03] p-3">
+            <div className="bg-muted/30 rounded-lg p-3">
               <Users className="text-primary h-6 w-6" />
             </div>
           </div>
@@ -97,7 +97,7 @@ export default async function AdminPage() {
               <p className="text-foreground text-2xl font-bold">{stats.totalCheckTypes}</p>
               <p className="text-muted-foreground text-sm">certification types</p>
             </div>
-            <div className="rounded-lg bg-white/[0.03] p-3">
+            <div className="bg-muted/30 rounded-lg p-3">
               <FileText className="text-primary h-6 w-6" />
             </div>
           </div>
@@ -110,7 +110,7 @@ export default async function AdminPage() {
               <p className="text-foreground text-2xl font-bold">{stats.totalCertifications}</p>
               <p className="text-muted-foreground text-sm">total records</p>
             </div>
-            <div className="rounded-lg bg-white/[0.03] p-3">
+            <div className="bg-muted/30 rounded-lg p-3">
               <Database className="text-primary h-6 w-6" />
             </div>
           </div>
@@ -123,7 +123,7 @@ export default async function AdminPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link href="/dashboard/admin/users/new">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-white/[0.03] p-3">
+              <div className="bg-muted/30 rounded-lg p-3">
                 <UserPlus className="text-primary h-5 w-5" />
               </div>
               <div>
@@ -135,7 +135,7 @@ export default async function AdminPage() {
 
           <Link href="/dashboard/admin/check-types">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-white/[0.03] p-3">
+              <div className="bg-muted/30 rounded-lg p-3">
                 <List className="text-primary h-5 w-5" />
               </div>
               <div>
@@ -147,7 +147,7 @@ export default async function AdminPage() {
 
           <Link href="/dashboard/admin/settings">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-white/[0.03] p-3">
+              <div className="bg-muted/30 rounded-lg p-3">
                 <Settings className="text-primary h-5 w-5" />
               </div>
               <div>
@@ -159,7 +159,7 @@ export default async function AdminPage() {
 
           <Link href="/dashboard/admin/pilot-registrations">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
-              <div className="rounded-lg bg-white/[0.03] p-3">
+              <div className="bg-muted/30 rounded-lg p-3">
                 <UserCheck className="text-primary h-5 w-5" />
               </div>
               <div>

@@ -29,7 +29,7 @@ export default function Offline() {
   }, [])
 
   return (
-    <div className="from-background flex min-h-screen items-center justify-center bg-gradient-to-br to-white/[0.03] p-4">
+    <div className="from-background to-muted/30 flex min-h-screen items-center justify-center bg-gradient-to-br p-4">
       <div className="bg-card w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl">
         {/* Header */}
         <div className="bg-[var(--color-primary-500)] p-8">
@@ -63,7 +63,7 @@ export default function Offline() {
           </div>
 
           {/* Troubleshooting Steps */}
-          <div className="rounded-lg bg-white/[0.03] p-5">
+          <div className="bg-muted/30 rounded-lg p-5">
             <h3 className="text-foreground mb-3 flex items-center text-base font-semibold">
               <WifiOff className="mr-2 h-5 w-5 text-[var(--color-primary-500)]" />
               Troubleshooting Steps:
@@ -124,7 +124,7 @@ export default function Offline() {
 
           {/* Network Information */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+            <div className="bg-card border-border rounded-lg border p-4">
               <div className="mb-2 flex items-center gap-3">
                 <div className="rounded-lg bg-[var(--color-destructive-muted)] p-2">
                   <WifiOff className="h-5 w-5 text-[var(--color-danger-600)]" />
@@ -134,9 +134,9 @@ export default function Offline() {
               <p className="text-sm font-medium text-[var(--color-danger-600)]">Offline</p>
             </div>
 
-            <div className="bg-card rounded-lg border border-white/[0.08] p-4">
+            <div className="bg-card border-border rounded-lg border p-4">
               <div className="mb-2 flex items-center gap-3">
-                <div className="rounded-lg bg-white/[0.06] p-2">
+                <div className="bg-muted/60 rounded-lg p-2">
                   <Signal className="text-muted-foreground h-5 w-5" />
                 </div>
                 <h4 className="text-foreground font-semibold">Status</h4>
@@ -171,7 +171,7 @@ export default function Offline() {
           </div>
 
           {/* Support Contact */}
-          <div className="rounded-lg border border-white/[0.08] bg-gradient-to-r from-white/[0.06] to-white/[0.03] p-4">
+          <div className="border-border rounded-lg border bg-gradient-to-r from-white/[0.06] to-white/[0.03] p-4">
             <p className="text-muted-foreground text-center text-xs">
               Still having connection issues?{' '}
               <a
@@ -185,7 +185,7 @@ export default function Offline() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/[0.08] bg-gradient-to-r from-white/[0.06] to-white/[0.03] px-8 py-4">
+        <div className="border-border border-t bg-gradient-to-r from-white/[0.06] to-white/[0.03] px-8 py-4">
           <div className="flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
             <p className="text-muted-foreground">
               Fleet Management V2 - B767 Pilot Management System

@@ -1,3 +1,9 @@
+/**
+ * Dashboard Content — Bento Grid Layout
+ * Developer: Maurice Rondeau
+ * Warm rose-accented bento grid with varied card sizes
+ */
+
 import { memo, Suspense } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
@@ -12,7 +18,7 @@ import { Calendar, Plus, FileText } from 'lucide-react'
 
 function DashboardErrorFallback({ section }: { section: string }) {
   return (
-    <div className="border-destructive/20 bg-destructive/5 flex items-center gap-2 rounded-lg border p-4">
+    <div className="border-destructive/20 bg-destructive/5 flex items-center gap-2 rounded-xl border p-4">
       <span className="text-destructive text-sm">Failed to load {section}.</span>
       <button
         onClick={() => window.location.reload()}
@@ -27,88 +33,94 @@ function DashboardErrorFallback({ section }: { section: string }) {
 export async function DashboardContent() {
   return (
     <div className="w-full max-w-full overflow-x-hidden" style={{ minWidth: 0 }}>
-      {/* URGENT ALERT BANNER - FULL WIDTH TOP (most important info first) */}
-      <div className="mb-3">
-        <ErrorBoundary fallback={<DashboardErrorFallback section="alerts" />}>
-          <Suspense fallback={<div className="bg-muted animate-shimmer h-16 rounded-lg" />}>
-            <UrgentAlertBanner />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
-
-      {/* ROSTER PERIODS - Current + Next 13 - FULL WIDTH */}
-      <div className="mb-3">
-        <ErrorBoundary fallback={<DashboardErrorFallback section="roster periods" />}>
-          <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
-            <CompactRosterDisplay />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
-
-      {/* TWO-COLUMN LAYOUT AT xl: */}
-      <div className="grid grid-cols-1 gap-3 xl:grid-cols-12">
-        {/* LEFT COLUMN - Primary operational data */}
-        <div className="space-y-3 xl:col-span-7">
-          {/* PILOT STAFFING REQUIREMENTS - Required vs Actual */}
-          <ErrorBoundary fallback={<DashboardErrorFallback section="staffing requirements" />}>
-            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
-              <PilotRequirementsCard />
+      {/* Bento Grid */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+        {/* Alert Banner — Full Width */}
+        <div className="col-span-full">
+          <ErrorBoundary fallback={<DashboardErrorFallback section="alerts" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-16 rounded-xl" />}>
+              <UrgentAlertBanner />
             </Suspense>
           </ErrorBoundary>
+        </div>
 
-          {/* CERTIFICATIONS EXPIRING SOON - Banner */}
-          <ErrorBoundary fallback={<DashboardErrorFallback section="certifications" />}>
-            <Suspense fallback={<div className="bg-muted animate-shimmer h-48 rounded-lg" />}>
-              <ExpiringCertificationsBannerServer />
+        {/* Roster Periods — Span 2 cols */}
+        <div className="lg:col-span-2">
+          <ErrorBoundary fallback={<DashboardErrorFallback section="roster periods" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-xl" />}>
+              <CompactRosterDisplay />
             </Suspense>
           </ErrorBoundary>
+        </div>
 
-          {/* Quick Actions - Linear-inspired section header */}
-          <Card className="min-w-0 overflow-hidden p-4">
+        {/* Quick Actions — 1 col */}
+        <div>
+          <Card className="border-border h-full min-w-0 overflow-hidden rounded-xl border p-4">
             <h3 className="text-muted-foreground mb-3 text-xs font-medium tracking-wider uppercase">
               Quick Actions
             </h3>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2">
               <ActionCard
                 title="Add Pilot"
                 description="Add a new pilot to the fleet"
-                icon={<Plus className="text-primary h-6 w-6" aria-hidden="true" />}
+                icon={<Plus className="text-primary h-5 w-5" aria-hidden="true" />}
                 href="/dashboard/pilots/new"
               />
               <ActionCard
-                title="Update Certification"
+                title="Update Cert"
                 description="Record a new certification check"
-                icon={<FileText className="text-primary h-6 w-6" aria-hidden="true" />}
+                icon={<FileText className="text-primary h-5 w-5" aria-hidden="true" />}
                 href="/dashboard/certifications/new"
               />
               <ActionCard
-                title="Generate Reports"
+                title="Reports"
                 description="Create and export reports"
-                icon={<FileText className="text-primary h-6 w-6" aria-hidden="true" />}
+                icon={<FileText className="text-primary h-5 w-5" aria-hidden="true" />}
                 href="/dashboard/reports"
               />
               <ActionCard
-                title="Pilot Requests"
+                title="Requests"
                 description="Manage pilot leave and flight requests"
-                icon={<Calendar className="text-primary h-6 w-6" aria-hidden="true" />}
+                icon={<Calendar className="text-primary h-5 w-5" aria-hidden="true" />}
                 href="/dashboard/requests"
               />
             </div>
           </Card>
         </div>
 
-        {/* RIGHT COLUMN - Secondary data & forecasts */}
-        <div className="space-y-3 xl:col-span-5">
-          {/* RETIREMENT FORECAST - 2 and 5 Year Outlook */}
+        {/* Staffing Requirements — Span 2 cols */}
+        <div className="lg:col-span-2">
+          <ErrorBoundary fallback={<DashboardErrorFallback section="staffing requirements" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-xl" />}>
+              <PilotRequirementsCard />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+
+        {/* Retirement Forecast — 1 col, span 2 rows on xl */}
+        <div className="xl:row-span-2">
           <ErrorBoundary fallback={<DashboardErrorFallback section="retirement forecast" />}>
-            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
+            <Suspense
+              fallback={<div className="bg-muted animate-shimmer h-full min-h-64 rounded-xl" />}
+            >
               <RetirementForecastCard />
             </Suspense>
           </ErrorBoundary>
+        </div>
 
-          {/* UNIFIED FLEET COMPLIANCE - Single Responsive Card */}
+        {/* Expiring Certifications — 1 col */}
+        <div>
+          <ErrorBoundary fallback={<DashboardErrorFallback section="certifications" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-48 rounded-xl" />}>
+              <ExpiringCertificationsBannerServer />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+
+        {/* Fleet Compliance — 1 col */}
+        <div>
           <ErrorBoundary fallback={<DashboardErrorFallback section="fleet compliance" />}>
-            <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-48 rounded-xl" />}>
               <UnifiedComplianceCard />
             </Suspense>
           </ErrorBoundary>
@@ -118,7 +130,7 @@ export async function DashboardContent() {
   )
 }
 
-// Memoized ActionCard component for performance (Linear-inspired: clean, minimal)
+// Memoized ActionCard — 2x2 grid icon buttons with rose hover glow
 const ActionCard = memo(function ActionCard({
   title,
   description,
@@ -133,12 +145,12 @@ const ActionCard = memo(function ActionCard({
   return (
     <Link
       href={href}
-      className="group border-border bg-background hover:border-primary/30 hover:bg-primary/5 focus:ring-primary/20 block rounded-lg border p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus:ring-2 focus:ring-offset-2 focus:outline-none"
+      className="group border-border bg-card focus:ring-primary/20 block rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-glow-accent)] focus:ring-2 focus:ring-offset-2 focus:outline-none"
       aria-label={`${title}: ${description}`}
     >
       <div className="flex flex-col items-center space-y-2 text-center">
-        <div className="bg-primary/10 group-hover:bg-primary/15 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors">
-          <div className="text-primary group-hover:text-primary scale-75">{icon}</div>
+        <div className="bg-primary/10 group-hover:bg-primary/15 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg transition-colors">
+          {icon}
         </div>
         <div className="min-w-0 flex-1">
           <h4 className="text-foreground text-xs font-medium">{title}</h4>

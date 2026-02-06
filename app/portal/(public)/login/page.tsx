@@ -63,7 +63,7 @@ export default function PilotLoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-card rounded-lg border border-white/[0.08] p-6">
+        <div className="bg-card border-border rounded-lg border p-6">
           {/* Error */}
           {error && (
             <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
@@ -91,7 +91,7 @@ export default function PilotLoginPage() {
                   required
                   disabled={isLoading}
                   autoComplete="username"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 w-full rounded-md border border-white/[0.1] bg-white/[0.04] py-2 pr-3 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/40 w-full rounded-md border py-2 pr-3 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
               </div>
             </div>
@@ -114,7 +114,7 @@ export default function PilotLoginPage() {
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 w-full rounded-md border border-white/[0.1] bg-white/[0.04] py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/40 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -135,7 +135,7 @@ export default function PilotLoginPage() {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
                 disabled={isLoading}
-                className="text-primary focus:ring-primary/20 h-4 w-4 rounded border-white/[0.2] bg-white/[0.04]"
+                className="text-primary focus:ring-primary/20 border-border bg-muted/40 h-4 w-4 rounded"
               />
               <label htmlFor="rememberMe" className="text-muted-foreground text-sm">
                 Remember me for 30 days

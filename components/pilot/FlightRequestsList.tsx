@@ -57,7 +57,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
 
   if (requests.length === 0) {
     return (
-      <div className="rounded-lg border-2 border-dashed border-white/[0.1] p-8 text-center">
+      <div className="border-border rounded-lg border-2 border-dashed p-8 text-center">
         <p className="text-muted-foreground">No flight requests yet</p>
         <p className="text-muted-foreground mt-1 text-sm">
           Submit your first flight request using the form on the left
@@ -71,7 +71,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
       {requests.map((request) => (
         <div
           key={request.id}
-          className="rounded-lg border border-white/[0.08] p-4 transition-shadow hover:shadow-md"
+          className="border-border rounded-lg border p-4 transition-shadow hover:shadow-md"
         >
           <div className="flex items-start justify-between">
             {/* Request Details */}
@@ -103,7 +103,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
               {/* Admin Comments */}
               {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') &&
                 request.review_comments && (
-                  <div className="mt-3 rounded-md bg-white/[0.03] p-3">
+                  <div className="bg-muted/30 mt-3 rounded-md p-3">
                     <p className="text-foreground text-sm font-medium">Reviewer Comments:</p>
                     <p className="text-muted-foreground mt-1 text-sm">{request.review_comments}</p>
                     {request.reviewed_at && (
@@ -185,14 +185,14 @@ function StatusBadge({
     | 'WITHDRAWN'
 }) {
   const badgeStyles: Record<string, string> = {
-    DRAFT: 'bg-white/[0.03] text-muted-foreground',
+    DRAFT: 'bg-muted/30 text-muted-foreground',
     SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
-    PENDING: 'bg-white/[0.03] text-foreground',
+    PENDING: 'bg-muted/30 text-foreground',
     UNDER_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
     IN_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
     APPROVED: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
     DENIED: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
-    WITHDRAWN: 'bg-white/[0.03] text-foreground',
+    WITHDRAWN: 'bg-muted/30 text-foreground',
   }
 
   const labels: Record<string, string> = {

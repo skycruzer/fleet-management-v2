@@ -73,7 +73,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       case 'MINOR':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       default:
-        return 'bg-white/[0.03] text-foreground'
+        return 'bg-muted/30 text-foreground'
     }
   }
 
@@ -89,7 +89,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       case 'APPEALED':
         return 'bg-primary/10 text-primary-foreground'
       default:
-        return 'bg-white/[0.03] text-foreground'
+        return 'bg-muted/30 text-foreground'
     }
   }
 
@@ -138,7 +138,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       </div>
 
       {/* Matter Metadata */}
-      <div className="bg-card mb-8 rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mb-8 rounded-lg border p-6 shadow-sm">
         <h2 className="text-foreground mb-4 text-lg font-semibold">Matter Information</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div>
@@ -215,7 +215,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       {/* Actions Timeline removed - disciplinary_actions table no longer exists */}
 
       {/* Edit Form */}
-      <div className="bg-card mx-auto max-w-4xl rounded-lg border border-white/[0.08] p-6 shadow-sm">
+      <div className="bg-card border-border mx-auto max-w-4xl rounded-lg border p-6 shadow-sm">
         <h2 className="text-foreground mb-6 text-lg font-semibold">Edit Matter</h2>
         <DisciplinaryMatterForm
           matter={matter}
