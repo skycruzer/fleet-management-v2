@@ -12,7 +12,6 @@ import * as React from 'react'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useFocusTrap } from '@/lib/hooks/use-keyboard-nav'
 
 const Dialog = DialogPrimitive.Root
 
@@ -48,55 +47,38 @@ const DialogContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     onEscapeKeyDown?: (event: Event) => void
   }
->(({ className, children, onEscapeKeyDown, ...props }, ref) => {
-  const contentRef = React.useRef<HTMLDivElement>(null)
-  const [isOpen, setIsOpen] = React.useState(false)
-
-  // Merge refs
-  React.useImperativeHandle(ref, () => contentRef.current!)
-
-  // Focus trap when dialog is open
-  useFocusTrap(contentRef, isOpen)
-
-  return (
-    <DialogPortal>
-      <DialogOverlay />
-      <DialogPrimitive.Content
-        ref={contentRef}
-        className={cn(
-          // Linear-inspired: enhanced shadow, rounded-xl, clean border
-          // Uses z-modal (60) to appear above sidebars (z-40)
-          'fixed top-[50%] left-[50%] z-[var(--z-modal)] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
-          'gap-4 border border-white/[0.08] bg-[#111827] p-6 shadow-2xl',
-          'data-[state=open]:animate-in data-[state=closed]:animate-out duration-200',
-          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
-          'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
-          'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
-          'origin-[--radix-dialog-content-transform-origin] rounded-xl',
-          className
-        )}
-        onEscapeKeyDown={onEscapeKeyDown}
-        onOpenAutoFocus={(_event) => {
-          setIsOpen(true)
-        }}
-        onCloseAutoFocus={() => {
-          setIsOpen(false)
-        }}
-        {...props}
+>(({ className, children, onEscapeKeyDown, ...props }, ref) => (
+  <DialogPortal>
+    <DialogOverlay />
+    <DialogPrimitive.Content
+      ref={ref}
+      className={cn(
+        // Linear-inspired: enhanced shadow, rounded-xl, clean border
+        // Uses z-modal (60) to appear above sidebars (z-40)
+        'fixed top-[50%] left-[50%] z-[var(--z-modal)] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
+        'bg-card gap-4 border border-white/[0.08] p-6 shadow-2xl',
+        'data-[state=open]:animate-in data-[state=closed]:animate-out duration-200',
+        'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
+        'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+        'origin-[--radix-dialog-content-transform-origin] rounded-xl',
+        className
+      )}
+      onEscapeKeyDown={onEscapeKeyDown}
+      {...props}
+    >
+      {children}
+      <DialogPrimitive.Close
+        className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
+        aria-label="Close dialog"
       >
-        {children}
-        <DialogPrimitive.Close
-          className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
-          aria-label="Close dialog"
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogPrimitive.Close>
-      </DialogPrimitive.Content>
-    </DialogPortal>
-  )
-})
+        <X className="h-4 w-4" />
+        <span className="sr-only">Close</span>
+      </DialogPrimitive.Close>
+    </DialogPrimitive.Content>
+  </DialogPortal>
+))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (

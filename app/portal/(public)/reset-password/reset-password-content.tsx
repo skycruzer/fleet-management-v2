@@ -157,7 +157,7 @@ export function ResetPasswordContent() {
   const passwordStrength = getPasswordStrength(password)
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 px-4">
+    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
       {/* Aviation Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -452,7 +452,7 @@ export function ResetPasswordContent() {
         </Card>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-sm text-white/80">
+        <p className="text-muted-foreground mt-6 text-center text-sm">
           © {new Date().getFullYear()} Air Niugini · Pilot Portal
         </p>
       </motion.div>

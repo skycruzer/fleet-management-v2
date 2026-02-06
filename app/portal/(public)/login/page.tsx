@@ -50,7 +50,7 @@ export default function PilotLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a0e1a] px-4">
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo & Title */}
         <div className="mb-8 text-center">

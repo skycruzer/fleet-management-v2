@@ -9,6 +9,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Calendar, Plane, Loader2 } from 'lucide-react'
 import { FlightRequestsList } from '@/components/portal/rdo-sdo-requests-list'
@@ -23,8 +24,16 @@ const tabs = [
 
 type TabId = (typeof tabs)[number]['id']
 
+function isValidTab(value: string | null): value is TabId {
+  return value === 'leave' || value === 'rdo-sdo'
+}
+
 export default function MyRequestsPage() {
-  const [activeTab, setActiveTab] = useState<TabId>('leave')
+  const searchParams = useSearchParams()
+  const initialTab = isValidTab(searchParams.get('tab'))
+    ? (searchParams.get('tab')! as TabId)
+    : 'leave'
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab)
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([])
   const [flightRequests, setFlightRequests] = useState<FlightRequest[]>([])
   const [isLoadingLeave, setIsLoadingLeave] = useState(true)

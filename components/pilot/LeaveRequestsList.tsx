@@ -10,6 +10,16 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import type { LeaveRequest } from '@/lib/services/unified-request-service'
 
 interface LeaveRequestsListProps {
@@ -19,12 +29,9 @@ interface LeaveRequestsListProps {
 export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) {
   const router = useRouter()
   const [cancelingId, setCancelingId] = useState<string | null>(null)
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null)
 
   const handleCancel = async (requestId: string) => {
-    if (!confirm('Are you sure you want to cancel this leave request?')) {
-      return
-    }
-
     setCancelingId(requestId)
 
     try {
@@ -119,7 +126,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
             {/* Cancel Button */}
             {request.workflow_status === 'SUBMITTED' && (
               <button
-                onClick={() => handleCancel(request.id)}
+                onClick={() => setConfirmCancelId(request.id)}
                 disabled={cancelingId === request.id}
                 className="ml-4 rounded-md bg-[var(--color-status-high-bg)] px-3 py-1.5 text-sm font-medium text-[var(--color-status-high)] transition-colors hover:bg-[var(--color-status-high-bg)]/80 focus:ring-2 focus:ring-[var(--color-status-high)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -129,6 +136,35 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
           </div>
         </div>
       ))}
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog
+        open={!!confirmCancelId}
+        onOpenChange={(open) => !open && setConfirmCancelId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Leave Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this leave request? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Request</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (confirmCancelId) {
+                  handleCancel(confirmCancelId)
+                  setConfirmCancelId(null)
+                }
+              }}
+            >
+              Cancel Request
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

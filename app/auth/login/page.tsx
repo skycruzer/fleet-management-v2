@@ -11,29 +11,29 @@ import { LoginForm } from './login-form'
 
 export default function AdminLoginPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 px-4">
+    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
       {/* Minimal Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)] bg-[size:4rem_4rem] opacity-20" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)]" />
 
         {/* Subtle gradient orbs */}
-        <div className="absolute -top-1/4 -left-1/4 h-96 w-96 rounded-full bg-zinc-800/30 blur-3xl" />
-        <div className="absolute -right-1/4 -bottom-1/4 h-96 w-96 rounded-full bg-zinc-800/30 blur-3xl" />
+        <div className="absolute -top-1/4 -left-1/4 h-96 w-96 rounded-full bg-white/[0.03] blur-3xl" />
+        <div className="absolute -right-1/4 -bottom-1/4 h-96 w-96 rounded-full bg-white/[0.03] blur-3xl" />
       </div>
 
       {/* Main Card */}
       <div className="relative w-full max-w-md">
-        <Card className="border-zinc-800 bg-zinc-900/95 p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="bg-card border-white/[0.08] p-8 shadow-2xl backdrop-blur-sm">
           {/* Logo and Title */}
           <div className="mb-8 text-center">
             <div className="mb-4 inline-flex">
-              <div className="relative flex h-16 w-16 items-center justify-center rounded-xl bg-zinc-100 shadow-lg">
-                <Building2 className="h-8 w-8 text-zinc-900" />
+              <div className="bg-primary relative flex h-16 w-16 items-center justify-center rounded-xl shadow-lg">
+                <Building2 className="text-primary-foreground h-8 w-8" />
               </div>
             </div>
-            <h1 className="mb-2 text-3xl font-bold text-white">Administration</h1>
-            <div className="flex items-center justify-center gap-2 text-zinc-400">
+            <h1 className="text-foreground mb-2 text-3xl font-bold">Administration</h1>
+            <div className="text-muted-foreground flex items-center justify-center gap-2">
               <Shield className="h-4 w-4" />
               <p className="text-sm">Fleet Management System</p>
             </div>
@@ -46,7 +46,7 @@ export default function AdminLoginPage() {
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-zinc-200"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm font-medium"
             >
               <ChevronLeft className="h-4 w-4" />
               <span>Back to home</span>
@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
         </Card>
 
         {/* Footer Note */}
-        <div className="mt-4 text-center text-xs text-zinc-600">
+        <div className="text-muted-foreground/60 mt-4 text-center text-xs">
           <p>Authorized Personnel Only</p>
         </div>
       </div>

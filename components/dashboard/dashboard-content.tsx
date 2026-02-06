@@ -8,24 +8,39 @@ import { CompactRosterDisplay } from '@/components/dashboard/compact-roster-disp
 import { ExpiringCertificationsBannerServer } from '@/components/dashboard/expiring-certifications-banner-server'
 import { PilotRequirementsCard } from '@/components/dashboard/pilot-requirements-card'
 import { RetirementForecastCard } from '@/components/dashboard/retirement-forecast-card'
-import { Calendar, Plus, FileText, BarChart3 } from 'lucide-react'
+import { Calendar, Plus, FileText } from 'lucide-react'
+
+function DashboardErrorFallback({ section }: { section: string }) {
+  return (
+    <div className="border-destructive/20 bg-destructive/5 flex items-center gap-2 rounded-lg border p-4">
+      <span className="text-destructive text-sm">Failed to load {section}.</span>
+      <button
+        onClick={() => window.location.reload()}
+        className="text-primary text-xs underline hover:no-underline"
+      >
+        Reload
+      </button>
+    </div>
+  )
+}
+
 export async function DashboardContent() {
   return (
     <div className="w-full max-w-full overflow-x-hidden" style={{ minWidth: 0 }}>
-      {/* ROSTER PERIODS - Current + Next 13 - FULL WIDTH TOP */}
+      {/* URGENT ALERT BANNER - FULL WIDTH TOP (most important info first) */}
       <div className="mb-3">
-        <ErrorBoundary>
-          <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
-            <CompactRosterDisplay />
+        <ErrorBoundary fallback={<DashboardErrorFallback section="alerts" />}>
+          <Suspense fallback={<div className="bg-muted animate-shimmer h-16 rounded-lg" />}>
+            <UrgentAlertBanner />
           </Suspense>
         </ErrorBoundary>
       </div>
 
-      {/* 🚨 URGENT ALERT BANNER - FULL WIDTH */}
+      {/* ROSTER PERIODS - Current + Next 13 - FULL WIDTH */}
       <div className="mb-3">
-        <ErrorBoundary>
-          <Suspense fallback={<div className="bg-muted animate-shimmer h-16 rounded-lg" />}>
-            <UrgentAlertBanner />
+        <ErrorBoundary fallback={<DashboardErrorFallback section="roster periods" />}>
+          <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
+            <CompactRosterDisplay />
           </Suspense>
         </ErrorBoundary>
       </div>
@@ -35,14 +50,14 @@ export async function DashboardContent() {
         {/* LEFT COLUMN - Primary operational data */}
         <div className="space-y-3 xl:col-span-7">
           {/* PILOT STAFFING REQUIREMENTS - Required vs Actual */}
-          <ErrorBoundary>
+          <ErrorBoundary fallback={<DashboardErrorFallback section="staffing requirements" />}>
             <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
               <PilotRequirementsCard />
             </Suspense>
           </ErrorBoundary>
 
           {/* CERTIFICATIONS EXPIRING SOON - Banner */}
-          <ErrorBoundary>
+          <ErrorBoundary fallback={<DashboardErrorFallback section="certifications" />}>
             <Suspense fallback={<div className="bg-muted animate-shimmer h-48 rounded-lg" />}>
               <ExpiringCertificationsBannerServer />
             </Suspense>
@@ -67,10 +82,10 @@ export async function DashboardContent() {
                 href="/dashboard/certifications/new"
               />
               <ActionCard
-                title="View Reports"
-                description="Access analytics and reports"
-                icon={<BarChart3 className="text-primary h-6 w-6" aria-hidden="true" />}
-                href="/dashboard/analytics"
+                title="Generate Reports"
+                description="Create and export reports"
+                icon={<FileText className="text-primary h-6 w-6" aria-hidden="true" />}
+                href="/dashboard/reports"
               />
               <ActionCard
                 title="Pilot Requests"
@@ -85,14 +100,14 @@ export async function DashboardContent() {
         {/* RIGHT COLUMN - Secondary data & forecasts */}
         <div className="space-y-3 xl:col-span-5">
           {/* RETIREMENT FORECAST - 2 and 5 Year Outlook */}
-          <ErrorBoundary>
+          <ErrorBoundary fallback={<DashboardErrorFallback section="retirement forecast" />}>
             <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
               <RetirementForecastCard />
             </Suspense>
           </ErrorBoundary>
 
           {/* UNIFIED FLEET COMPLIANCE - Single Responsive Card */}
-          <ErrorBoundary>
+          <ErrorBoundary fallback={<DashboardErrorFallback section="fleet compliance" />}>
             <Suspense fallback={<div className="bg-muted animate-shimmer h-64 rounded-lg" />}>
               <UnifiedComplianceCard />
             </Suspense>

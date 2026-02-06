@@ -28,11 +28,12 @@ import {
   Star,
   FileText,
   Plane,
+  Phone,
 } from 'lucide-react'
 import { format, differenceInYears, differenceInMonths } from 'date-fns'
 import { ProfileAnimationWrapper } from './profile-animation-wrapper'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 
 interface PilotProfile {
@@ -88,7 +89,8 @@ async function getProfile(): Promise<{
     // Check if pilot has a linked pilots table record
     if (pilot.pilot_id) {
       // Fetch full pilot details from pilots table
-      const supabase = await createClient()
+      // Use service-role client to bypass RLS (pilot portal users are not Supabase authenticated)
+      const supabase = createServiceRoleClient()
       const { data: pilotData, error: pilotError } = await supabase
         .from('pilots')
         .select('*')
@@ -96,8 +98,10 @@ async function getProfile(): Promise<{
         .single()
 
       if (pilotError) {
-        console.error('Fetch pilot details error:', pilotError)
-        // Fall back to pilot_users data
+        console.error('Pilot lookup by pilot_id failed:', pilotError.message, {
+          pilot_id: pilot.pilot_id,
+        })
+        // Fall back to pilot_users data - use available fields from pilot_users
         return {
           profile: {
             id: pilot.id,
@@ -107,12 +111,12 @@ async function getProfile(): Promise<{
             rank: pilot.rank,
             email: pilot.email,
             employee_id: pilot.employee_id,
-            seniority_number: null,
-            date_of_birth: null,
+            seniority_number: pilot.seniority_number ?? null,
+            date_of_birth: pilot.date_of_birth ?? null,
             commencement_date: null,
             status: 'active',
-            phone: pilot.phone_number || null, // Merge from pilot_users
-            address: pilot.address || null, // Merge from pilot_users
+            phone: pilot.phone_number || null,
+            address: pilot.address || null,
             city: null,
             state: null,
             postal_code: null,
@@ -171,6 +175,62 @@ async function getProfile(): Promise<{
       }
     } else {
       // Pilot only exists in pilot_users table (no linked pilots record)
+      // Try to find matching pilots record by employee_id as fallback
+      if (pilot.employee_id) {
+        // Use service-role client to bypass RLS (pilot portal users are not Supabase authenticated)
+        const supabase = createServiceRoleClient()
+        const { data: pilotData, error: lookupError } = await supabase
+          .from('pilots')
+          .select('*')
+          .eq('employee_id', pilot.employee_id)
+          .single()
+
+        if (lookupError) {
+          console.error('Pilot lookup by employee_id failed:', lookupError.message, {
+            employee_id: pilot.employee_id,
+          })
+        }
+
+        if (pilotData) {
+          // Found matching pilots record by employee_id - return full professional data
+          return {
+            profile: {
+              id: pilotData.id,
+              first_name: pilotData.first_name,
+              last_name: pilotData.last_name,
+              middle_name: pilotData.middle_name,
+              rank: pilotData.role,
+              email: pilot.email,
+              employee_id: pilotData.employee_id,
+              seniority_number: pilotData.seniority_number,
+              date_of_birth: pilotData.date_of_birth,
+              commencement_date: pilotData.commencement_date,
+              status: pilotData.is_active ? 'active' : 'inactive',
+              phone: pilot.phone_number || null,
+              address: pilot.address || null,
+              city: null,
+              state: null,
+              postal_code: null,
+              country: null,
+              licence_number: pilotData.licence_number,
+              licence_type: pilotData.licence_type,
+              qualifications: null,
+              captain_qualifications: pilotData.captain_qualifications,
+              qualification_notes: pilotData.qualification_notes,
+              contract_type: pilotData.contract_type,
+              role: pilotData.role,
+              is_active: pilotData.is_active,
+              nationality: pilotData.nationality,
+              passport_number: pilotData.passport_number,
+              passport_expiry: pilotData.passport_expiry,
+              rhs_captain_expiry: pilotData.rhs_captain_expiry,
+            } as PilotProfile,
+            retirementAge,
+          }
+        }
+      }
+
+      // No matching pilots record found - use pilot_users data with available fields
       return {
         profile: {
           id: pilot.id,
@@ -180,12 +240,12 @@ async function getProfile(): Promise<{
           rank: pilot.rank,
           email: pilot.email,
           employee_id: pilot.employee_id,
-          seniority_number: null,
-          date_of_birth: null,
+          seniority_number: pilot.seniority_number ?? null,
+          date_of_birth: pilot.date_of_birth ?? null,
           commencement_date: null,
           status: 'active',
-          phone: pilot.phone_number || null, // Merge from pilot_users
-          address: pilot.address || null, // Merge from pilot_users
+          phone: pilot.phone_number || null,
+          address: pilot.address || null,
           city: null,
           state: null,
           postal_code: null,
@@ -332,7 +392,9 @@ export default async function ProfilePage() {
       <div className="space-y-6 pb-12">
         {/* Page Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-foreground text-3xl font-bold">My Profile</h1>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+            My Profile
+          </h1>
         </div>
 
         {/* Information Grid */}
@@ -413,9 +475,7 @@ export default async function ProfilePage() {
             </div>
             <div className="space-y-4">
               <InfoRow icon={Mail} label="Email Address" value={profile.email} />
-              {profile.phone && (
-                <InfoRow icon={Calendar} label="Phone Number" value={profile.phone} />
-              )}
+              {profile.phone && <InfoRow icon={Phone} label="Phone Number" value={profile.phone} />}
               {profile.address && (
                 <>
                   <InfoRow icon={MapPin} label="Address" value={profile.address} />

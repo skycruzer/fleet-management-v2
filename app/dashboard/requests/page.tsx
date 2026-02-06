@@ -10,6 +10,7 @@
 
 import { Suspense } from 'react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import {
@@ -56,7 +57,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
   // Check authentication (supports both Supabase Auth and admin-session cookie)
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {
-    return <div>Unauthorized</div>
+    redirect('/auth/login')
   }
 
   const supabase = await createClient()

@@ -102,10 +102,10 @@ export default function PilotRegisterPage() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-        <Card className="w-full max-w-md shadow-lg">
+      <div className="bg-background flex min-h-screen items-center justify-center px-4">
+        <Card className="bg-card w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-green-600">
+            <CardTitle className="text-2xl font-bold text-emerald-400">
               Registration Submitted!
             </CardTitle>
             <CardDescription>
@@ -121,7 +121,7 @@ export default function PilotRegisterPage() {
             </Alert>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-gray-600">Redirecting to login page...</p>
+            <p className="text-muted-foreground text-sm">Redirecting to login page...</p>
           </CardFooter>
         </Card>
       </div>
@@ -129,10 +129,10 @@ export default function PilotRegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
-      <Card className="w-full max-w-2xl shadow-lg">
+    <div className="bg-background flex min-h-screen items-center justify-center px-4 py-8">
+      <Card className="bg-card w-full max-w-2xl shadow-lg">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Pilot Registration</CardTitle>
+          <CardTitle className="text-foreground text-2xl font-bold">Pilot Registration</CardTitle>
           <CardDescription>
             Complete this form to request access to the pilot portal
           </CardDescription>
@@ -160,7 +160,7 @@ export default function PilotRegisterPage() {
                     disabled={isLoading}
                   />
                   {form.formState.errors.first_name && (
-                    <p className="text-sm text-red-500">
+                    <p className="text-destructive text-sm">
                       {form.formState.errors.first_name.message}
                     </p>
                   )}
@@ -175,7 +175,7 @@ export default function PilotRegisterPage() {
                     disabled={isLoading}
                   />
                   {form.formState.errors.last_name && (
-                    <p className="text-sm text-red-500">
+                    <p className="text-destructive text-sm">
                       {form.formState.errors.last_name.message}
                     </p>
                   )}
@@ -200,7 +200,7 @@ export default function PilotRegisterPage() {
                   </SelectContent>
                 </Select>
                 {form.formState.errors.rank && (
-                  <p className="text-sm text-red-500">{form.formState.errors.rank.message}</p>
+                  <p className="text-destructive text-sm">{form.formState.errors.rank.message}</p>
                 )}
               </div>
 
@@ -214,7 +214,7 @@ export default function PilotRegisterPage() {
                     disabled={isLoading}
                   />
                   {form.formState.errors.employee_id && (
-                    <p className="text-sm text-red-500">
+                    <p className="text-destructive text-sm">
                       {form.formState.errors.employee_id.message}
                     </p>
                   )}
@@ -229,7 +229,7 @@ export default function PilotRegisterPage() {
                     disabled={isLoading}
                   />
                   {form.formState.errors.date_of_birth && (
-                    <p className="text-sm text-red-500">
+                    <p className="text-destructive text-sm">
                       {form.formState.errors.date_of_birth.message}
                     </p>
                   )}
@@ -246,7 +246,7 @@ export default function PilotRegisterPage() {
                   disabled={isLoading}
                 />
                 {form.formState.errors.phone_number && (
-                  <p className="text-sm text-red-500">
+                  <p className="text-destructive text-sm">
                     {form.formState.errors.phone_number.message}
                   </p>
                 )}
@@ -261,7 +261,9 @@ export default function PilotRegisterPage() {
                   disabled={isLoading}
                 />
                 {form.formState.errors.address && (
-                  <p className="text-sm text-red-500">{form.formState.errors.address.message}</p>
+                  <p className="text-destructive text-sm">
+                    {form.formState.errors.address.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -280,7 +282,7 @@ export default function PilotRegisterPage() {
                   disabled={isLoading}
                 />
                 {form.formState.errors.email && (
-                  <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
+                  <p className="text-destructive text-sm">{form.formState.errors.email.message}</p>
                 )}
               </div>
 
@@ -295,7 +297,9 @@ export default function PilotRegisterPage() {
                     disabled={isLoading}
                   />
                   {form.formState.errors.password && (
-                    <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
+                    <p className="text-destructive text-sm">
+                      {form.formState.errors.password.message}
+                    </p>
                   )}
                 </div>
 
@@ -309,14 +313,14 @@ export default function PilotRegisterPage() {
                     disabled={isLoading}
                   />
                   {form.formState.errors.confirmPassword && (
-                    <p className="text-sm text-red-500">
+                    <p className="text-destructive text-sm">
                       {form.formState.errors.confirmPassword.message}
                     </p>
                   )}
                 </div>
               </div>
 
-              <p className="text-xs text-gray-600">
+              <p className="text-muted-foreground text-xs">
                 Password must contain at least one uppercase letter, one lowercase letter, one
                 number, and one special character.
               </p>
@@ -328,7 +332,7 @@ export default function PilotRegisterPage() {
               {isLoading ? 'Submitting...' : 'Submit Registration'}
             </Button>
 
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-muted-foreground text-center text-sm">
               Already have an account?{' '}
               <Link href="/portal/login" className="text-primary font-medium hover:text-blue-500">
                 Sign in here

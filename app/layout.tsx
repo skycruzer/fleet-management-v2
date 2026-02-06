@@ -17,6 +17,7 @@ import { OfflineIndicator } from '@/components/ui/offline-indicator'
 import { Providers } from './providers'
 import { SkipLinks, SkipToMainContent, SkipToNavigation } from '@/components/ui/skip-link'
 import { RouteChangeFocusManager } from '@/components/ui/route-change-focus'
+import { GlobalAnnouncer } from '@/components/accessibility/announcer'
 import './globals.css'
 
 // Geist font family — Vercel's open-source typeface for modern UI
@@ -101,6 +102,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             {/* Route Change Focus Manager */}
             <RouteChangeFocusManager />
+
+            {/* Global Screen Reader Announcer */}
+            <GlobalAnnouncer />
 
             <div className="relative flex min-h-screen flex-col">
               <div className="flex-1">{children}</div>

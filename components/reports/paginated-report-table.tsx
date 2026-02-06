@@ -38,7 +38,9 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import type { ReportType, PaginationMeta } from '@/types/reports'
+import { STATUS_COLORS } from '@/lib/constants/status-colors'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
+import { formatAustralianDate } from '@/lib/utils/date-format'
 
 interface PaginatedReportTableProps {
   data: any[]
@@ -109,14 +111,14 @@ export function PaginatedReportTable({
             </Button>
           ),
           cell: ({ getValue }) => (
-            <div className="text-sm">{new Date(getValue() as string).toLocaleDateString()}</div>
+            <div className="text-sm">{formatAustralianDate(getValue() as string)}</div>
           ),
         },
         {
           accessorKey: 'end_date',
           header: 'End Date',
           cell: ({ getValue }) => (
-            <div className="text-sm">{new Date(getValue() as string).toLocaleDateString()}</div>
+            <div className="text-sm">{formatAustralianDate(getValue() as string)}</div>
           ),
         },
         {
@@ -216,9 +218,9 @@ export function PaginatedReportTable({
             return (
               <div className="text-sm">
                 {startDate && endDate && startDate !== endDate
-                  ? `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`
+                  ? `${formatAustralianDate(startDate)} - ${formatAustralianDate(endDate)}`
                   : startDate
-                    ? new Date(startDate).toLocaleDateString()
+                    ? formatAustralianDate(startDate)
                     : 'N/A'}
               </div>
             )
@@ -334,7 +336,7 @@ export function PaginatedReportTable({
             </Button>
           ),
           cell: ({ getValue }) => (
-            <div className="text-sm">{new Date(getValue() as string).toLocaleDateString()}</div>
+            <div className="text-sm">{formatAustralianDate(getValue() as string)}</div>
           ),
         },
         {
@@ -362,7 +364,199 @@ export function PaginatedReportTable({
       ]
     }
 
-    // Certifications
+    // Pilot Info Report
+    if (reportType === 'pilot-info') {
+      return [
+        {
+          accessorKey: 'seniority_number',
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              className="h-8 px-2"
+            >
+              Seniority
+              <ArrowUpDown className="ml-2 h-3 w-3" />
+            </Button>
+          ),
+          cell: ({ getValue }) => (
+            <div className="text-sm font-medium">{(getValue() as number) || 'N/A'}</div>
+          ),
+        },
+        {
+          accessorKey: 'employee_id',
+          header: 'Employee ID',
+          cell: ({ getValue }) => (
+            <div className="font-mono text-sm">{(getValue() as string) || 'N/A'}</div>
+          ),
+        },
+        {
+          accessorKey: 'name',
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              className="h-8 px-2"
+            >
+              Name
+              <ArrowUpDown className="ml-2 h-3 w-3" />
+            </Button>
+          ),
+          cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
+        },
+        {
+          accessorKey: 'rank',
+          header: 'Rank',
+          enableGrouping: true,
+          cell: ({ getValue }) => <div className="text-sm">{(getValue() as string) || 'N/A'}</div>,
+        },
+        {
+          accessorKey: 'licence_type',
+          header: 'Licence',
+          cell: ({ getValue }) => (
+            <Badge variant="outline" className="font-mono text-xs">
+              {(getValue() as string) || 'N/A'}
+            </Badge>
+          ),
+        },
+        {
+          accessorKey: 'is_active',
+          header: 'Status',
+          cell: ({ getValue }) => {
+            const isActive = getValue() as boolean
+            return (
+              <Badge variant={isActive ? 'default' : 'secondary'}>
+                {isActive ? 'Active' : 'Inactive'}
+              </Badge>
+            )
+          },
+        },
+        {
+          accessorFn: (row) => {
+            const quals = row.qualifications || {}
+            const list = []
+            if (quals.line_captain) list.push('LC')
+            if (quals.training_captain) list.push('TC')
+            if (quals.examiner) list.push('EX')
+            return list.join(', ') || '-'
+          },
+          id: 'qualifications',
+          header: 'Qualifications',
+          cell: ({ getValue }) => <div className="text-sm">{getValue() as string}</div>,
+        },
+        {
+          accessorFn: (row) => {
+            const status = row.certificationStatus || { current: 0, expiring: 0, expired: 0 }
+            return `${status.current}/${status.expiring}/${status.expired}`
+          },
+          id: 'cert_status',
+          header: 'Certs (C/E/X)',
+          cell: ({ row }) => {
+            const status = row.original.certificationStatus || {
+              current: 0,
+              expiring: 0,
+              expired: 0,
+            }
+            return (
+              <div className="flex items-center gap-1 text-xs">
+                <span className={STATUS_COLORS.success.text}>{status.current}</span>
+                <span>/</span>
+                <span className={STATUS_COLORS.warning.text}>{status.expiring}</span>
+                <span>/</span>
+                <span className={STATUS_COLORS.danger.text}>{status.expired}</span>
+              </div>
+            )
+          },
+        },
+      ]
+    }
+
+    // Forecast Report
+    if (reportType === 'forecast') {
+      return [
+        {
+          accessorKey: 'section',
+          header: 'Section',
+          enableGrouping: true,
+          cell: ({ getValue }) => <div className="text-sm font-medium">{getValue() as string}</div>,
+        },
+        {
+          accessorKey: 'type',
+          header: 'Type',
+          cell: ({ getValue }) => {
+            const type = getValue() as string
+            return (
+              <Badge variant="outline" className="text-xs capitalize">
+                {type?.replace('_', ' ') || 'N/A'}
+              </Badge>
+            )
+          },
+        },
+        {
+          accessorFn: (row) => row.name || row.month || '-',
+          id: 'identifier',
+          header: 'Name/Month',
+          cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
+        },
+        {
+          accessorFn: (row) => row.rank || row.readiness || row.warningLevel || '-',
+          id: 'status_info',
+          header: 'Rank/Readiness/Level',
+          cell: ({ getValue }) => {
+            const value = getValue() as string
+            const variant =
+              value === 'Ready' || value === 'Captain'
+                ? 'default'
+                : value === 'critical'
+                  ? 'destructive'
+                  : value === 'high'
+                    ? 'destructive'
+                    : 'secondary'
+            return <Badge variant={variant}>{value}</Badge>
+          },
+        },
+        {
+          accessorFn: (row) => {
+            if (row.retirementDate) {
+              return formatAustralianDate(row.retirementDate)
+            }
+            if (row.monthsUntilRetirement !== undefined) {
+              return `${row.monthsUntilRetirement} months`
+            }
+            if (row.yearsOfService !== undefined) {
+              return `${row.yearsOfService} years`
+            }
+            if (row.count !== undefined) {
+              return row.count.toString()
+            }
+            return '-'
+          },
+          id: 'value',
+          header: 'Value',
+          cell: ({ getValue }) => <div className="text-sm">{getValue() as string}</div>,
+        },
+        {
+          accessorFn: (row) => {
+            if (row.qualificationGaps?.length > 0) {
+              return row.qualificationGaps.join(', ')
+            }
+            if (row.message) {
+              return row.message
+            }
+            return '-'
+          },
+          id: 'details',
+          header: 'Details',
+          cell: ({ getValue }) => (
+            <div className="text-muted-foreground max-w-xs truncate text-sm">
+              {getValue() as string}
+            </div>
+          ),
+        },
+      ]
+    }
+
+    // Certifications (default)
     return [
       {
         accessorFn: (row) => `${row.pilot?.first_name} ${row.pilot?.last_name}`,
@@ -398,7 +592,7 @@ export function PaginatedReportTable({
         accessorKey: 'completion_date',
         header: 'Completion',
         cell: ({ getValue }) => (
-          <div className="text-sm">{new Date(getValue() as string).toLocaleDateString()}</div>
+          <div className="text-sm">{formatAustralianDate(getValue() as string)}</div>
         ),
       },
       {
@@ -414,7 +608,7 @@ export function PaginatedReportTable({
           </Button>
         ),
         cell: ({ getValue }) => (
-          <div className="text-sm">{new Date(getValue() as string).toLocaleDateString()}</div>
+          <div className="text-sm">{formatAustralianDate(getValue() as string)}</div>
         ),
       },
       {

@@ -1,6 +1,8 @@
 /**
  * Analytics Dashboard Page
  * Comprehensive fleet analytics and KPI visualization
+ * Author: Maurice Rondeau
+ * Date: February 2026
  */
 
 'use client'
@@ -21,6 +23,20 @@ import {
   Download,
   FileText,
 } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts'
 
 interface AnalyticsData {
   pilot: {
@@ -105,12 +121,14 @@ interface AnalyticsData {
   }
 }
 
-export default function AnalyticsPage() {
+// Analytics page content
+function AnalyticsPageContent() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchAnalytics()
@@ -166,38 +184,560 @@ export default function AnalyticsPage() {
       document.body.removeChild(a)
     } catch (err) {
       console.error('Export error:', err)
-      alert('Failed to export analytics data')
+      toast({
+        variant: 'destructive',
+        title: 'Export Failed',
+        description: 'Failed to export analytics data',
+      })
     } finally {
       setExporting(false)
     }
   }
 
-  if (loading) {
+  // Render analytics content
+  const renderAnalyticsContent = () => {
+    if (loading) {
+      return (
+        <div className="space-y-4">
+          <Card className="p-8 text-center">
+            <div className="flex items-center justify-center space-x-2">
+              <Loader2 className="text-primary h-6 w-6 animate-spin" aria-hidden="true" />
+              <p className="text-muted-foreground text-sm">Loading analytics...</p>
+            </div>
+          </Card>
+        </div>
+      )
+    }
+
+    if (error || !analytics) {
+      return (
+        <div className="space-y-4">
+          <Card className="p-8 text-center">
+            <div className="space-y-3">
+              <span className="text-4xl">❌</span>
+              <div>
+                <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
+                <p className="text-muted-foreground text-sm">
+                  {error || 'Analytics data not available'}
+                </p>
+              </div>
+              <Button onClick={handleRefresh}>Try Again</Button>
+            </div>
+          </Card>
+        </div>
+      )
+    }
+
     return (
       <div className="space-y-4">
-        <Card className="p-8 text-center">
-          <div className="flex items-center justify-center space-x-2">
-            <Loader2 className="text-primary h-6 w-6 animate-spin" aria-hidden="true" />
-            <p className="text-muted-foreground text-sm">Loading analytics...</p>
+        {/* Analytics Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-foreground text-lg font-semibold">Fleet Analytics Dashboard</h2>
+            <p className="text-muted-foreground mt-0.5 text-sm">
+              Comprehensive analytics and key performance indicators
+            </p>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            {refreshing ? (
+              <span className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <span>Refreshing...</span>
+              </span>
+            ) : (
+              '🔄 Refresh Data'
+            )}
+          </Button>
+        </div>
+
+        {/* Critical Alerts Section */}
+        {analytics.risk.criticalAlerts.length > 0 && (
+          <Card className="border-destructive/20 bg-red-500/10 p-4">
+            <div className="flex items-start space-x-2">
+              <span className="text-2xl">🚨</span>
+              <div className="flex-1">
+                <h3 className="text-foreground mb-2 text-base font-bold">Critical Alerts</h3>
+                <div className="space-y-1.5">
+                  {analytics.risk.criticalAlerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="border-destructive/30 bg-destructive/5 rounded-lg border p-3"
+                    >
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-foreground font-medium">{alert.title}</span>
+                        <span
+                          className={`rounded px-2 py-1 text-xs font-medium ${
+                            alert.severity === 'critical'
+                              ? 'bg-red-600 text-white'
+                              : 'bg-yellow-600 text-white'
+                          }`}
+                        >
+                          {alert.severity.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground text-sm">{alert.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Fleet Readiness Overview */}
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+          <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-500/20 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <BarChart3 className="h-8 w-8 text-blue-400" aria-hidden="true" />
+              <span className="text-2xl font-bold text-blue-400">
+                {analytics.fleet.utilization}%
+              </span>
+            </div>
+            <h3 className="text-muted-foreground text-xs font-medium uppercase">
+              Fleet Utilization
+            </h3>
+            <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
+          </Card>
+
+          <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-emerald-500/20 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <Plane className="h-8 w-8 text-emerald-400" aria-hidden="true" />
+              <span className="text-2xl font-bold text-emerald-400">
+                {analytics.fleet.availability}%
+              </span>
+            </div>
+            <h3 className="text-muted-foreground text-xs font-medium uppercase">
+              Pilot Availability
+            </h3>
+            <p className="text-muted-foreground mt-0.5 text-xs">
+              {analytics.fleet.pilotAvailability.available} available,{' '}
+              {analytics.fleet.pilotAvailability.onLeave} on leave
+            </p>
+          </Card>
+
+          <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-purple-500/20 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <Target className="text-primary h-8 w-8" aria-hidden="true" />
+              <span className="text-primary-foreground text-2xl font-bold">
+                {analytics.fleet.readiness}%
+              </span>
+            </div>
+            <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Readiness</h3>
+            <p className="text-muted-foreground mt-0.5 text-xs">Overall operational readiness</p>
+          </Card>
+        </div>
+
+        {/* Pilot Analytics */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
+          <Card className="p-4">
+            <h3 className="text-foreground mb-3 border-b pb-1.5 text-base font-semibold">
+              Pilot Distribution
+            </h3>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="text-foreground text-2xl font-bold">{analytics.pilot.total}</div>
+                <div className="text-muted-foreground text-xs">Total Pilots</div>
+              </div>
+              <div className="rounded-lg bg-emerald-500/10 p-3">
+                <div className="text-2xl font-bold text-emerald-400">{analytics.pilot.active}</div>
+                <div className="text-muted-foreground text-xs">Active</div>
+              </div>
+              <div className="bg-primary/5 rounded-lg p-3">
+                <div className="text-2xl font-bold text-blue-400">{analytics.pilot.captains}</div>
+                <div className="text-muted-foreground text-xs">Captains</div>
+              </div>
+              <div className="rounded-lg bg-indigo-500/10 p-3">
+                <div className="text-2xl font-bold text-indigo-400">
+                  {analytics.pilot.firstOfficers}
+                </div>
+                <div className="text-muted-foreground text-xs">First Officers</div>
+              </div>
+            </div>
+            {/* Pilot Rank Bar Chart */}
+            <div className="mt-4 h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={[
+                    { name: 'Captains', count: analytics.pilot.captains },
+                    { name: 'First Officers', count: analytics.pilot.firstOfficers },
+                    { name: 'Inactive', count: analytics.pilot.inactive },
+                  ]}
+                  margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="name" tick={{ fill: '#a1a1aa', fontSize: 11 }} />
+                  <YAxis tick={{ fill: '#a1a1aa', fontSize: 11 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1c1c1e',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '8px',
+                      color: '#e4e4e7',
+                    }}
+                  />
+                  <Bar dataKey="count" fill="#60a5fa" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
+              Retirement Planning
+            </h3>
+            <div className="space-y-4">
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-muted-foreground text-sm">Retiring in 2 Years</div>
+                    <div className="mt-1 text-2xl font-bold text-amber-400">
+                      {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
+                    </div>
+                    {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.map((pilot) => (
+                          <div
+                            key={pilot.id}
+                            className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                          >
+                            <span className="font-medium text-amber-400">
+                              {pilot.rank} {pilot.name}
+                            </span>
+                            <span className="text-xs text-amber-400/80">
+                              {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <AlertTriangle
+                    className="h-8 w-8 flex-shrink-0 text-red-600"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+              <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-muted-foreground text-sm">Retiring in 3-5 Years</div>
+                    <div className="mt-1 text-2xl font-bold text-orange-400">
+                      {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length} pilots
+                    </div>
+                    {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.map((pilot) => (
+                          <div
+                            key={pilot.id}
+                            className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                          >
+                            <span className="font-medium text-orange-400">
+                              {pilot.rank} {pilot.name}
+                            </span>
+                            <span className="text-xs text-orange-400/80">
+                              {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Calendar className="h-8 w-8 flex-shrink-0 text-yellow-600" aria-hidden="true" />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Certification Analytics */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
+          <Card className="p-6">
+            <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+              <CheckCircle className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+              Certification Status
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted/50 rounded-lg p-4">
+                <div className="text-foreground text-3xl font-bold">
+                  {analytics.certification.total}
+                </div>
+                <div className="text-muted-foreground text-sm">Total Certifications</div>
+              </div>
+              <div className="rounded-lg bg-emerald-500/10 p-4">
+                <div className="text-3xl font-bold text-emerald-400">
+                  {analytics.certification.current}
+                </div>
+                <div className="text-muted-foreground text-sm">Current</div>
+              </div>
+              <div className="rounded-lg bg-amber-500/10 p-4">
+                <div className="text-3xl font-bold text-amber-400">
+                  {analytics.certification.expiring}
+                </div>
+                <div className="text-muted-foreground text-sm">Expiring (≤30 days)</div>
+              </div>
+              <div className="rounded-lg bg-red-500/10 p-4">
+                <div className="text-3xl font-bold text-red-400">
+                  {analytics.certification.expired}
+                </div>
+                <div className="text-muted-foreground text-sm">Expired</div>
+              </div>
+            </div>
+            <div className="bg-primary/5 mt-4 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
+                <span className="text-2xl font-bold text-blue-400">
+                  {analytics.certification.complianceRate}%
+                </span>
+              </div>
+            </div>
+            {/* Certification Status Pie Chart */}
+            <div className="mt-4 h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Current', value: analytics.certification.current },
+                      { name: 'Expiring', value: analytics.certification.expiring },
+                      { name: 'Expired', value: analytics.certification.expired },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={70}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    <Cell fill="#34d399" />
+                    <Cell fill="#fbbf24" />
+                    <Cell fill="#f87171" />
+                  </Pie>
+                  <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1c1c1e',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '8px',
+                      color: '#e4e4e7',
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
+              Category Breakdown
+            </h3>
+            <div className="max-h-64 space-y-3 overflow-y-auto">
+              {analytics.certification.categoryBreakdown.map((category) => (
+                <div key={category.category} className="bg-muted/50 rounded-lg p-3">
+                  <div className="text-foreground mb-2 font-medium">{category.category}</div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="text-center">
+                      <div className="font-bold text-emerald-400">{category.current}</div>
+                      <div className="text-muted-foreground">Current</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-amber-400">{category.expiring}</div>
+                      <div className="text-muted-foreground">Expiring</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-red-400">{category.expired}</div>
+                      <div className="text-muted-foreground">Expired</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Leave Analytics */}
+        <Card className="p-6">
+          <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+            <Palmtree className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+            Leave Request Analytics
+          </h3>
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="bg-muted/50 rounded-lg p-4">
+              <div className="text-foreground text-3xl font-bold">{analytics.leave.total}</div>
+              <div className="text-muted-foreground text-sm">Total Requests</div>
+            </div>
+            <div className="rounded-lg bg-amber-500/10 p-4">
+              <div className="text-3xl font-bold text-amber-400">{analytics.leave.pending}</div>
+              <div className="text-muted-foreground text-sm">Pending</div>
+            </div>
+            <div className="rounded-lg bg-emerald-500/10 p-4">
+              <div className="text-3xl font-bold text-emerald-400">{analytics.leave.approved}</div>
+              <div className="text-muted-foreground text-sm">Approved</div>
+            </div>
+            <div className="rounded-lg bg-red-500/10 p-4">
+              <div className="text-3xl font-bold text-red-400">{analytics.leave.denied}</div>
+              <div className="text-muted-foreground text-sm">Denied</div>
+            </div>
+          </div>
+
+          <h4 className="text-foreground mb-3 font-medium">Leave Types Breakdown</h4>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+            {analytics.leave.byType.map((type) => (
+              <div key={type.type} className="bg-muted/50 rounded-lg p-3">
+                <div className="text-foreground font-medium">{type.type}</div>
+                <div className="text-muted-foreground mt-1 text-sm">
+                  {type.count} requests • {type.totalDays} days
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Leave by Type Bar Chart */}
+          {analytics.leave.byType.length > 0 && (
+            <div className="mt-6 h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={analytics.leave.byType.map((t) => ({
+                    name: t.type,
+                    requests: t.count,
+                    days: t.totalDays,
+                  }))}
+                  margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="name" tick={{ fill: '#a1a1aa', fontSize: 11 }} />
+                  <YAxis tick={{ fill: '#a1a1aa', fontSize: 11 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1c1c1e',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '8px',
+                      color: '#e4e4e7',
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
+                  <Bar dataKey="requests" fill="#818cf8" radius={[4, 4, 0, 0]} name="Requests" />
+                  <Bar dataKey="days" fill="#34d399" radius={[4, 4, 0, 0]} name="Total Days" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </Card>
+
+        {/* Risk Analytics */}
+        <Card className="p-6">
+          <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+            <AlertTriangle className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
+            Risk Assessment
+          </h3>
+          <div className="mb-6">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-card-foreground text-sm font-medium">Overall Risk Score</span>
+              <span
+                className={`text-3xl font-bold ${
+                  analytics.risk.overallRiskScore > 50
+                    ? 'text-red-400'
+                    : analytics.risk.overallRiskScore > 25
+                      ? 'text-amber-400'
+                      : 'text-emerald-400'
+                }`}
+              >
+                {analytics.risk.overallRiskScore}/100
+              </span>
+            </div>
+            <div className="bg-muted h-3 w-full rounded-full">
+              <div
+                className={`h-3 rounded-full ${
+                  analytics.risk.overallRiskScore > 50
+                    ? 'bg-destructive'
+                    : analytics.risk.overallRiskScore > 25
+                      ? 'bg-warning'
+                      : 'bg-success'
+                }`}
+                style={{ width: `${analytics.risk.overallRiskScore}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {analytics.risk.riskFactors.map((factor, index) => (
+              <div key={index} className="bg-muted/50 rounded-lg p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-foreground font-medium">{factor.factor}</span>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      factor.severity === 'critical'
+                        ? 'bg-red-600 text-white'
+                        : factor.severity === 'high'
+                          ? 'bg-orange-500 text-white'
+                          : factor.severity === 'medium'
+                            ? 'bg-yellow-500 text-white'
+                            : 'bg-green-500 text-white'
+                    }`}
+                  >
+                    {factor.severity.toUpperCase()}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-sm">{factor.description}</p>
+                <div className="text-muted-foreground mt-2 text-xs">
+                  Impact: {factor.impact.toFixed(1)}%
+                </div>
+              </div>
+            ))}
           </div>
         </Card>
-      </div>
-    )
-  }
 
-  if (error || !analytics) {
-    return (
-      <div className="space-y-4">
-        <Card className="p-8 text-center">
-          <div className="space-y-3">
-            <span className="text-4xl">❌</span>
-            <div>
-              <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
-              <p className="text-muted-foreground text-sm">
-                {error || 'Analytics data not available'}
-              </p>
+        {/* Export Section */}
+        <Card className="bg-primary/5 border-primary/20 p-6">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start space-x-3">
+              <Info className="h-6 w-6 text-blue-600" aria-hidden="true" />
+              <div className="flex-1">
+                <p className="text-foreground text-sm font-medium">Analytics Dashboard</p>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  Data refreshes automatically. Export your analytics data for offline analysis and
+                  reporting.
+                </p>
+              </div>
             </div>
-            <Button onClick={handleRefresh}>Try Again</Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => handleExport('csv')}
+                disabled={exporting}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                {exporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                )}
+                Export CSV
+              </Button>
+              <Button
+                onClick={() => handleExport('pdf')}
+                disabled={exporting}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                {exporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <FileText className="h-4 w-4" aria-hidden="true" />
+                )}
+                Export Report
+              </Button>
+            </div>
           </div>
         </Card>
       </div>
@@ -205,421 +745,22 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Page Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-foreground text-xl font-bold">Fleet Analytics Dashboard</h2>
-          <p className="text-muted-foreground mt-0.5 text-sm">
-            Comprehensive analytics and key performance indicators
-          </p>
-        </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          variant="outline"
-          className="w-full sm:w-auto"
-        >
-          {refreshing ? (
-            <span className="flex items-center space-x-2">
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              <span>Refreshing...</span>
-            </span>
-          ) : (
-            '🔄 Refresh Data'
-          )}
-        </Button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Analytics
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          View fleet analytics and key performance indicators
+        </p>
       </div>
 
-      {/* Critical Alerts Section */}
-      {analytics.risk.criticalAlerts.length > 0 && (
-        <Card className="border-destructive/20 bg-red-500/10 p-4">
-          <div className="flex items-start space-x-2">
-            <span className="text-2xl">🚨</span>
-            <div className="flex-1">
-              <h3 className="text-foreground mb-2 text-base font-bold">Critical Alerts</h3>
-              <div className="space-y-1.5">
-                {analytics.risk.criticalAlerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="border-destructive/30 bg-destructive/5 rounded-lg border p-3"
-                  >
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="text-foreground font-medium">{alert.title}</span>
-                      <span
-                        className={`rounded px-2 py-1 text-xs font-medium ${
-                          alert.severity === 'critical'
-                            ? 'bg-red-600 text-white'
-                            : 'bg-yellow-600 text-white'
-                        }`}
-                      >
-                        {alert.severity.toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-muted-foreground text-sm">{alert.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Fleet Readiness Overview */}
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-        <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-500/20 p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <BarChart3 className="h-8 w-8 text-blue-400" aria-hidden="true" />
-            <span className="text-2xl font-bold text-blue-400">{analytics.fleet.utilization}%</span>
-          </div>
-          <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Utilization</h3>
-          <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
-        </Card>
-
-        <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-emerald-500/20 p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <Plane className="h-8 w-8 text-emerald-400" aria-hidden="true" />
-            <span className="text-2xl font-bold text-emerald-400">
-              {analytics.fleet.availability}%
-            </span>
-          </div>
-          <h3 className="text-muted-foreground text-xs font-medium uppercase">
-            Pilot Availability
-          </h3>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            {analytics.fleet.pilotAvailability.available} available,{' '}
-            {analytics.fleet.pilotAvailability.onLeave} on leave
-          </p>
-        </Card>
-
-        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-purple-500/20 p-4">
-          <div className="mb-2 flex items-center justify-between">
-            <Target className="text-primary h-8 w-8" aria-hidden="true" />
-            <span className="text-primary-foreground text-2xl font-bold">
-              {analytics.fleet.readiness}%
-            </span>
-          </div>
-          <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Readiness</h3>
-          <p className="text-muted-foreground mt-0.5 text-xs">Overall operational readiness</p>
-        </Card>
-      </div>
-
-      {/* Pilot Analytics */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
-        <Card className="p-4">
-          <h3 className="text-foreground mb-3 border-b pb-1.5 text-base font-semibold">
-            👥 Pilot Distribution
-          </h3>
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className="bg-muted/50 rounded-lg p-3">
-              <div className="text-foreground text-2xl font-bold">{analytics.pilot.total}</div>
-              <div className="text-muted-foreground text-xs">Total Pilots</div>
-            </div>
-            <div className="rounded-lg bg-emerald-500/10 p-3">
-              <div className="text-2xl font-bold text-emerald-400">{analytics.pilot.active}</div>
-              <div className="text-muted-foreground text-xs">Active</div>
-            </div>
-            <div className="bg-primary/5 rounded-lg p-3">
-              <div className="text-2xl font-bold text-blue-400">{analytics.pilot.captains}</div>
-              <div className="text-muted-foreground text-xs">Captains</div>
-            </div>
-            <div className="rounded-lg bg-indigo-500/10 p-3">
-              <div className="text-2xl font-bold text-indigo-400">
-                {analytics.pilot.firstOfficers}
-              </div>
-              <div className="text-muted-foreground text-xs">First Officers</div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            ⏰ Retirement Planning
-          </h3>
-          <div className="space-y-4">
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="text-muted-foreground text-sm">Retiring in 2 Years</div>
-                  <div className="mt-1 text-2xl font-bold text-amber-400">
-                    {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
-                  </div>
-                  {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.map((pilot) => (
-                        <div
-                          key={pilot.id}
-                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
-                        >
-                          <span className="font-medium text-amber-400">
-                            {pilot.rank} {pilot.name}
-                          </span>
-                          <span className="text-xs text-amber-400/80">
-                            {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <AlertTriangle className="h-8 w-8 flex-shrink-0 text-red-600" aria-hidden="true" />
-              </div>
-            </div>
-            <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="text-muted-foreground text-sm">Retiring in 3-5 Years</div>
-                  <div className="mt-1 text-2xl font-bold text-orange-400">
-                    {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length} pilots
-                  </div>
-                  {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.map((pilot) => (
-                        <div
-                          key={pilot.id}
-                          className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
-                        >
-                          <span className="font-medium text-orange-400">
-                            {pilot.rank} {pilot.name}
-                          </span>
-                          <span className="text-xs text-orange-400/80">
-                            {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <Calendar className="h-8 w-8 flex-shrink-0 text-yellow-600" aria-hidden="true" />
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Certification Analytics */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
-            <CheckCircle className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
-            Certification Status
-          </h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-muted/50 rounded-lg p-4">
-              <div className="text-foreground text-3xl font-bold">
-                {analytics.certification.total}
-              </div>
-              <div className="text-muted-foreground text-sm">Total Certifications</div>
-            </div>
-            <div className="rounded-lg bg-emerald-500/10 p-4">
-              <div className="text-3xl font-bold text-emerald-400">
-                {analytics.certification.current}
-              </div>
-              <div className="text-muted-foreground text-sm">Current</div>
-            </div>
-            <div className="rounded-lg bg-amber-500/10 p-4">
-              <div className="text-3xl font-bold text-amber-400">
-                {analytics.certification.expiring}
-              </div>
-              <div className="text-muted-foreground text-sm">Expiring (≤30 days)</div>
-            </div>
-            <div className="rounded-lg bg-red-500/10 p-4">
-              <div className="text-3xl font-bold text-red-400">
-                {analytics.certification.expired}
-              </div>
-              <div className="text-muted-foreground text-sm">Expired</div>
-            </div>
-          </div>
-          <div className="bg-primary/5 mt-4 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
-              <span className="text-2xl font-bold text-blue-400">
-                {analytics.certification.complianceRate}%
-              </span>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
-            📂 Category Breakdown
-          </h3>
-          <div className="max-h-64 space-y-3 overflow-y-auto">
-            {analytics.certification.categoryBreakdown.map((category) => (
-              <div key={category.category} className="bg-muted/50 rounded-lg p-3">
-                <div className="text-foreground mb-2 font-medium">{category.category}</div>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="text-center">
-                    <div className="font-bold text-emerald-400">{category.current}</div>
-                    <div className="text-muted-foreground">Current</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-amber-400">{category.expiring}</div>
-                    <div className="text-muted-foreground">Expiring</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-bold text-red-400">{category.expired}</div>
-                    <div className="text-muted-foreground">Expired</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* Leave Analytics */}
-      <Card className="p-6">
-        <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
-          <Palmtree className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
-          Leave Request Analytics
-        </h3>
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="bg-muted/50 rounded-lg p-4">
-            <div className="text-foreground text-3xl font-bold">{analytics.leave.total}</div>
-            <div className="text-muted-foreground text-sm">Total Requests</div>
-          </div>
-          <div className="rounded-lg bg-amber-500/10 p-4">
-            <div className="text-3xl font-bold text-amber-400">{analytics.leave.pending}</div>
-            <div className="text-muted-foreground text-sm">Pending</div>
-          </div>
-          <div className="rounded-lg bg-emerald-500/10 p-4">
-            <div className="text-3xl font-bold text-emerald-400">{analytics.leave.approved}</div>
-            <div className="text-muted-foreground text-sm">Approved</div>
-          </div>
-          <div className="rounded-lg bg-red-500/10 p-4">
-            <div className="text-3xl font-bold text-red-400">{analytics.leave.denied}</div>
-            <div className="text-muted-foreground text-sm">Denied</div>
-          </div>
-        </div>
-
-        <h4 className="text-foreground mb-3 font-medium">Leave Types Breakdown</h4>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
-          {analytics.leave.byType.map((type) => (
-            <div key={type.type} className="bg-muted/50 rounded-lg p-3">
-              <div className="text-foreground font-medium">{type.type}</div>
-              <div className="text-muted-foreground mt-1 text-sm">
-                {type.count} requests • {type.totalDays} days
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Risk Analytics */}
-      <Card className="p-6">
-        <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
-          <AlertTriangle className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
-          Risk Assessment
-        </h3>
-        <div className="mb-6">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-card-foreground text-sm font-medium">Overall Risk Score</span>
-            <span
-              className={`text-3xl font-bold ${
-                analytics.risk.overallRiskScore > 50
-                  ? 'text-red-400'
-                  : analytics.risk.overallRiskScore > 25
-                    ? 'text-amber-400'
-                    : 'text-emerald-400'
-              }`}
-            >
-              {analytics.risk.overallRiskScore}/100
-            </span>
-          </div>
-          <div className="bg-muted h-3 w-full rounded-full">
-            <div
-              className={`h-3 rounded-full ${
-                analytics.risk.overallRiskScore > 50
-                  ? 'bg-destructive'
-                  : analytics.risk.overallRiskScore > 25
-                    ? 'bg-warning'
-                    : 'bg-success'
-              }`}
-              style={{ width: `${analytics.risk.overallRiskScore}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {analytics.risk.riskFactors.map((factor, index) => (
-            <div key={index} className="bg-muted/50 rounded-lg p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-foreground font-medium">{factor.factor}</span>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    factor.severity === 'critical'
-                      ? 'bg-red-600 text-white'
-                      : factor.severity === 'high'
-                        ? 'bg-orange-500 text-white'
-                        : factor.severity === 'medium'
-                          ? 'bg-yellow-500 text-white'
-                          : 'bg-green-500 text-white'
-                  }`}
-                >
-                  {factor.severity.toUpperCase()}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-sm">{factor.description}</p>
-              <div className="text-muted-foreground mt-2 text-xs">
-                Impact: {factor.impact.toFixed(1)}%
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Export Section */}
-      <Card className="bg-primary/5 border-primary/20 p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3">
-            <Info className="h-6 w-6 text-blue-600" aria-hidden="true" />
-            <div className="flex-1">
-              <p className="text-foreground text-sm font-medium">Analytics Dashboard</p>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Data refreshes automatically. Export your analytics data for offline analysis and
-                reporting.
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => handleExport('csv')}
-              disabled={exporting}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              {exporting ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              ) : (
-                <Download className="h-4 w-4" aria-hidden="true" />
-              )}
-              Export CSV
-            </Button>
-            <Button
-              onClick={() => handleExport('pdf')}
-              disabled={exporting}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              {exporting ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-              ) : (
-                <FileText className="h-4 w-4" aria-hidden="true" />
-              )}
-              Export Report
-            </Button>
-          </div>
-        </div>
-      </Card>
+      {renderAnalyticsContent()}
     </div>
   )
+}
+
+// Main page component
+export default function AnalyticsPage() {
+  return <AnalyticsPageContent />
 }

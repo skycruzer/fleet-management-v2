@@ -6,7 +6,7 @@
  * Eliminates horizontal scrolling on mobile
  *
  * @author Maurice (Skycruzer)
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 import * as React from 'react'
@@ -20,25 +20,9 @@ import {
   DropdownMenuTrigger,
 } from './dropdown-menu'
 
-// Types
-export interface Column<T> {
-  /** Unique key for the column */
-  key: string
-  /** Display header */
-  header: string
-  /** Accessor function or key path */
-  accessor: keyof T | ((row: T) => React.ReactNode)
-  /** Priority for mobile display (1 = always visible, higher = hidden on mobile) */
-  priority?: number
-  /** Custom cell renderer */
-  cell?: (value: unknown, row: T) => React.ReactNode
-  /** Enable sorting */
-  sortable?: boolean
-  /** Column width class */
-  width?: string
-  /** Align content */
-  align?: 'left' | 'center' | 'right'
-}
+// Types — use shared Column definition
+export type { Column } from './table-types'
+import type { Column } from './table-types'
 
 export interface Action<T> {
   label: string
@@ -79,10 +63,19 @@ type SortDirection = 'asc' | 'desc' | null
 
 // Helper to get cell value
 function getCellValue<T>(row: T, accessor: Column<T>['accessor']): unknown {
+  if (!accessor) return ''
   if (typeof accessor === 'function') {
     return accessor(row)
   }
-  return row[accessor]
+  return (row as Record<string, unknown>)[accessor as string]
+}
+
+// Helper to render cell — handles the two-arg (value, row) signature
+function renderCell<T>(col: Column<T>, value: unknown, row: T): React.ReactNode {
+  if (col.cell) {
+    return (col.cell as (value: unknown, row: T) => React.ReactNode)(value, row)
+  }
+  return String(value ?? '')
 }
 
 // Table View Component
@@ -103,7 +96,7 @@ function TableView<T>({
   onRowClick?: (row: T) => void
   sortColumn: string | null
   sortDirection: SortDirection
-  onSort: (key: string) => void
+  onSort: (id: string) => void
 }) {
   return (
     <div className="border-border overflow-hidden rounded-xl border">
@@ -112,7 +105,7 @@ function TableView<T>({
           <tr>
             {columns.map((col) => (
               <th
-                key={col.key}
+                key={col.id}
                 className={cn(
                   'text-muted-foreground px-4 py-3 text-left text-xs font-semibold tracking-wider uppercase tabular-nums',
                   col.width,
@@ -120,12 +113,12 @@ function TableView<T>({
                   col.align === 'right' && 'text-right',
                   col.sortable && 'cursor-pointer transition-colors hover:bg-white/[0.04]'
                 )}
-                onClick={() => col.sortable && onSort(col.key)}
+                onClick={() => col.sortable && onSort(col.id)}
               >
                 <div className="flex items-center gap-1">
                   {col.header}
                   {col.sortable &&
-                    sortColumn === col.key &&
+                    sortColumn === col.id &&
                     (sortDirection === 'asc' ? (
                       <ChevronUp className="h-4 w-4" />
                     ) : (
@@ -151,14 +144,14 @@ function TableView<T>({
                 const value = getCellValue(row, col.accessor)
                 return (
                   <td
-                    key={col.key}
+                    key={col.id}
                     className={cn(
                       'px-4 py-3 text-sm',
                       col.align === 'center' && 'text-center',
                       col.align === 'right' && 'text-right'
                     )}
                   >
-                    {col.cell ? col.cell(value, row) : String(value ?? '')}
+                    {renderCell(col, value, row)}
                   </td>
                 )
               })}
@@ -233,14 +226,14 @@ function CardView<T>({
               {primaryColumns.map((col) => {
                 const value = getCellValue(row, col.accessor)
                 return (
-                  <div key={col.key}>
+                  <div key={col.id}>
                     {col.priority === 1 ? (
                       <span className="text-foreground font-medium">
-                        {col.cell ? col.cell(value, row) : String(value ?? '')}
+                        {renderCell(col, value, row)}
                       </span>
                     ) : (
                       <span className="text-muted-foreground text-sm">
-                        {col.cell ? col.cell(value, row) : String(value ?? '')}
+                        {renderCell(col, value, row)}
                       </span>
                     )}
                   </div>
@@ -282,11 +275,9 @@ function CardView<T>({
                 {secondaryColumns.map((col) => {
                   const value = getCellValue(row, col.accessor)
                   return (
-                    <div key={col.key} className="text-xs">
+                    <div key={col.id} className="text-xs">
                       <span className="text-muted-foreground">{col.header}: </span>
-                      <span className="font-medium">
-                        {col.cell ? col.cell(value, row) : String(value ?? '')}
-                      </span>
+                      <span className="font-medium">{renderCell(col, value, row)}</span>
                     </div>
                   )
                 })}
@@ -332,14 +323,14 @@ export function ResponsiveTable<T>({
   const [sortColumn, setSortColumn] = React.useState<string | null>(null)
   const [sortDirection, setSortDirection] = React.useState<SortDirection>(null)
 
-  const handleSort = (key: string) => {
-    if (sortColumn === key) {
+  const handleSort = (id: string) => {
+    if (sortColumn === id) {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : prev === 'desc' ? null : 'asc'))
       if (sortDirection === 'desc') {
         setSortColumn(null)
       }
     } else {
-      setSortColumn(key)
+      setSortColumn(id)
       setSortDirection('asc')
     }
   }
@@ -348,7 +339,7 @@ export function ResponsiveTable<T>({
   const sortedData = React.useMemo(() => {
     if (!sortColumn || !sortDirection) return data
 
-    const col = columns.find((c) => c.key === sortColumn)
+    const col = columns.find((c) => c.id === sortColumn)
     if (!col) return data
 
     return [...data].sort((a, b) => {

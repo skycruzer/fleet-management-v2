@@ -238,7 +238,7 @@ export default function CertificationsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="bg-background flex min-h-screen items-center justify-center">
         <Card className="p-12">
           <p className="text-gray-600">Loading certifications...</p>
         </Card>
@@ -247,7 +247,7 @@ export default function CertificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="bg-background min-h-screen">
       {/* Header */}
       <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -260,7 +260,9 @@ export default function CertificationsPage() {
                 <FileText className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">My Certifications</h1>
+                <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+                  My Certifications
+                </h1>
                 <p className="text-muted-foreground text-xs">{stats.total} total certifications</p>
               </div>
             </div>

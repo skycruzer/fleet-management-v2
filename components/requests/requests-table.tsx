@@ -91,6 +91,8 @@ export interface PilotRequest {
     first_name: string
     last_name: string
     seniority_number: number
+    role?: 'Captain' | 'First Officer'
+    employee_id?: string
   }
 }
 
@@ -209,8 +211,13 @@ export function RequestsTable({
 
     switch (sortColumn) {
       case 'name':
-        aValue = a.name.toLowerCase()
-        bValue = b.name.toLowerCase()
+        // Use fallback to pilot data for older records without denormalized fields
+        aValue = (
+          a.name || (a.pilot ? `${a.pilot.first_name} ${a.pilot.last_name}` : 'Unknown')
+        ).toLowerCase()
+        bValue = (
+          b.name || (b.pilot ? `${b.pilot.first_name} ${b.pilot.last_name}` : 'Unknown')
+        ).toLowerCase()
         break
       case 'submission_date':
         aValue = new Date(a.submission_date).getTime()
@@ -322,15 +329,27 @@ export function RequestsTable({
   }
 
   const getChannelIcon = (channel: PilotRequest['submission_channel']) => {
+    const labels: Record<PilotRequest['submission_channel'], string> = {
+      PILOT_PORTAL: 'Pilot Portal',
+      EMAIL: 'Email',
+      PHONE: 'Phone',
+      ORACLE: 'Oracle',
+      ADMIN_PORTAL: 'Admin Portal',
+    }
     const icons: Record<PilotRequest['submission_channel'], any> = {
-      PILOT_PORTAL: <User className="h-4 w-4" />,
-      EMAIL: <Mail className="h-4 w-4" />,
-      PHONE: <Phone className="h-4 w-4" />,
-      ORACLE: <Globe className="h-4 w-4" />,
-      ADMIN_PORTAL: <User className="h-4 w-4" />,
+      PILOT_PORTAL: <User className="h-4 w-4" aria-hidden="true" />,
+      EMAIL: <Mail className="h-4 w-4" aria-hidden="true" />,
+      PHONE: <Phone className="h-4 w-4" aria-hidden="true" />,
+      ORACLE: <Globe className="h-4 w-4" aria-hidden="true" />,
+      ADMIN_PORTAL: <User className="h-4 w-4" aria-hidden="true" />,
     }
 
-    return icons[channel]
+    return (
+      <>
+        {icons[channel]}
+        <span className="sr-only">{labels[channel]}</span>
+      </>
+    )
   }
 
   const formatDate = (dateString: string) => {
@@ -410,10 +429,19 @@ export function RequestsTable({
                   <Checkbox
                     checked={selectedIds.size === requests.length && requests.length > 0}
                     onCheckedChange={handleSelectAll}
+                    aria-label="Select all requests"
                   />
                 </TableHead>
               )}
-              <TableHead>
+              <TableHead
+                aria-sort={
+                  sortColumn === 'name'
+                    ? sortDirection === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : undefined
+                }
+              >
                 <Button
                   variant="ghost"
                   size="sm"
@@ -426,7 +454,15 @@ export function RequestsTable({
               </TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>
+              <TableHead
+                aria-sort={
+                  sortColumn === 'roster_period'
+                    ? sortDirection === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : undefined
+                }
+              >
                 <Button
                   variant="ghost"
                   size="sm"
@@ -437,7 +473,15 @@ export function RequestsTable({
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>
+              <TableHead
+                aria-sort={
+                  sortColumn === 'start_date'
+                    ? sortDirection === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : undefined
+                }
+              >
                 <Button
                   variant="ghost"
                   size="sm"
@@ -471,11 +515,13 @@ export function RequestsTable({
                       size="sm"
                       onClick={() => toggleExpand(request.id)}
                       className="h-8 w-8 p-0"
+                      aria-expanded={expandedRequest === request.id}
+                      aria-label={`${expandedRequest === request.id ? 'Collapse' : 'Expand'} details for ${request.name || 'request'}`}
                     >
                       {expandedRequest === request.id ? (
-                        <ChevronUp className="h-4 w-4" />
+                        <ChevronUp className="h-4 w-4" aria-hidden="true" />
                       ) : (
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-4 w-4" aria-hidden="true" />
                       )}
                     </Button>
                   </TableCell>
@@ -486,14 +532,21 @@ export function RequestsTable({
                         onCheckedChange={(checked) =>
                           handleSelectRequest(request.id, checked as boolean)
                         }
+                        aria-label={`Select request from ${request.name || 'unknown pilot'}`}
                       />
                     </TableCell>
                   )}
                   <TableCell>
                     <div className="space-y-1">
-                      <p className="font-medium">{request.name}</p>
+                      <p className="font-medium">
+                        {request.name ||
+                          (request.pilot
+                            ? `${request.pilot.first_name} ${request.pilot.last_name}`
+                            : 'Unknown')}
+                      </p>
                       <p className="text-muted-foreground text-xs">
-                        {request.rank} • #{request.employee_number}
+                        {request.rank || request.pilot?.role || 'Unknown'} • #
+                        {request.employee_number || request.pilot?.employee_id || ''}
                       </p>
                     </div>
                   </TableCell>

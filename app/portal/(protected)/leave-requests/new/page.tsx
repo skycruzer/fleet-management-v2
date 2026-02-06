@@ -3,13 +3,16 @@
 /**
  * Leave Request Submission Page
  *
+ * Developer: Maurice Rondeau
+ *
  * Allows pilots to submit new leave requests with date selection
  * and automatic late request flag calculation.
+ * For SICK leave, pilots can optionally attach a medical certificate.
  *
  * @spec 001-missing-core-features (US2)
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
@@ -38,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FileUpload } from '@/components/ui/file-upload'
 import { ArrowLeft, Calendar, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
@@ -60,6 +64,11 @@ export default function NewLeaveRequestPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isLateRequest, setIsLateRequest] = useState(false)
 
+  // Medical certificate upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string>('')
+
   const form = useForm<PilotLeaveRequestInput>({
     resolver: zodResolver(PilotLeaveRequestSchema),
     defaultValues: {
@@ -67,8 +76,12 @@ export default function NewLeaveRequestPage() {
       start_date: '',
       end_date: '',
       reason: '',
+      source_attachment_url: null,
     },
   })
+
+  // Watch leave type to show/hide file upload
+  const watchRequestType = form.watch('request_type')
 
   // Check if request is late (less than 21 days advance notice)
   const checkLateRequest = (startDate: string) => {
@@ -83,15 +96,81 @@ export default function NewLeaveRequestPage() {
     setIsLateRequest(daysDiff < 21)
   }
 
+  // Handle file selection
+  const handleFileSelect = useCallback((file: File | null) => {
+    setSelectedFile(file)
+    setUploadError('')
+  }, [])
+
+  // Handle file removal
+  const handleFileRemove = useCallback(() => {
+    setSelectedFile(null)
+    setUploadError('')
+    form.setValue('source_attachment_url', null)
+  }, [form])
+
+  // Upload medical certificate to storage
+  const uploadMedicalCertificate = async (file: File): Promise<string | null> => {
+    setIsUploading(true)
+    setUploadError('')
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/portal/upload/medical-certificate', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        const errorMessage =
+          typeof result.error === 'string'
+            ? result.error
+            : 'Failed to upload medical certificate. Please try again.'
+        setUploadError(errorMessage)
+        return null
+      }
+
+      return result.data?.url || null
+    } catch {
+      setUploadError('Failed to upload medical certificate. Please try again.')
+      return null
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const onSubmit = async (data: PilotLeaveRequestInput) => {
     setIsLoading(true)
     setError('')
+    setUploadError('')
 
     try {
+      // If sick leave with a file selected, upload it first
+      let attachmentUrl: string | null = null
+      if (data.request_type === 'SICK' && selectedFile) {
+        attachmentUrl = await uploadMedicalCertificate(selectedFile)
+        if (!attachmentUrl && uploadError) {
+          // Upload failed, stop submission
+          setIsLoading(false)
+          return
+        }
+      }
+
+      // Submit leave request with attachment URL if available
+      const submitData = {
+        ...data,
+        source_attachment_url: attachmentUrl,
+      }
+
       const response = await fetch('/api/portal/leave-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
         credentials: 'include',
       })
 
@@ -159,8 +238,10 @@ export default function NewLeaveRequestPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Submit Leave Request</h1>
-          <p className="mt-1 text-gray-600">Request time off from your roster</p>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+            Submit Leave Request
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">Request time off from your roster</p>
         </div>
       </div>
 
@@ -264,6 +345,22 @@ export default function NewLeaveRequestPage() {
                 <p className="text-sm text-red-500">{form.formState.errors.reason.message}</p>
               )}
             </div>
+
+            {/* Medical Certificate Upload (Only for Sick Leave) */}
+            {watchRequestType === 'SICK' && (
+              <div className="space-y-2">
+                <FileUpload
+                  label="Medical Certificate (Optional)"
+                  helperText="You can attach a medical certificate to support your sick leave request. Admins may request this during review if needed."
+                  value={selectedFile}
+                  onFileSelect={handleFileSelect}
+                  onFileRemove={handleFileRemove}
+                  disabled={isLoading || isUploading}
+                  isUploading={isUploading}
+                  error={uploadError}
+                />
+              </div>
+            )}
 
             <Alert>
               <AlertCircle className="h-4 w-4" />

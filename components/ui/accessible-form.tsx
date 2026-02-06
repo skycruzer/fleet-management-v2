@@ -200,7 +200,7 @@ interface FormFieldProps {
   className?: string
 }
 
-export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
+export const AccessibleFormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
   ({ children, isFirst = false, className }, ref) => {
     const localRef = React.useRef<HTMLDivElement>(null)
     const fieldRef = (ref as React.RefObject<HTMLDivElement>) || localRef
@@ -225,4 +225,4 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
   }
 )
 
-FormField.displayName = 'FormField'
+AccessibleFormField.displayName = 'AccessibleFormField'

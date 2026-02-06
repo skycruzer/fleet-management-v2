@@ -10,10 +10,10 @@ const badgeVariants = cva(
       variant: {
         default: 'border-transparent bg-primary/15 text-primary',
         secondary: 'border-transparent bg-white/[0.06] text-muted-foreground',
-        destructive: 'border-transparent bg-red-500/15 text-red-400',
+        destructive: 'border-transparent bg-destructive/15 text-destructive',
         outline: 'border-white/[0.1] text-foreground',
-        warning: 'border-transparent bg-amber-500/15 text-amber-400',
-        success: 'border-transparent bg-emerald-500/15 text-emerald-400',
+        warning: 'border-transparent bg-warning/15 text-warning',
+        success: 'border-transparent bg-success/15 text-success',
         // Dot variant for minimal status indicators
         dot: 'pl-2.5 before:mr-1.5 before:size-1.5 before:rounded-full before:bg-current border-transparent bg-white/[0.06] text-muted-foreground',
       },

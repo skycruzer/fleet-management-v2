@@ -23,7 +23,7 @@ export default function PortalError({
   }, [error])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[var(--color-accent-50)] via-white to-[var(--color-primary-50)] px-4">
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-lg">
         {/* Error Card */}
         <div className="border-destructive/20 rounded-lg border p-8 shadow-lg">
@@ -81,8 +81,8 @@ export default function PortalError({
         {/* Help Text */}
         <p className="text-muted-foreground mt-6 text-center text-sm">
           If this problem persists, please contact{' '}
-          <a href="mailto:support@example.com" className="text-primary hover:underline">
-            support@example.com
+          <a href="mailto:support@fleetmanagement.com" className="text-primary hover:underline">
+            support@fleetmanagement.com
           </a>
         </p>
       </div>

@@ -283,7 +283,7 @@ export function ForecastReportForm() {
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel className="flex cursor-pointer items-center gap-2 font-normal">
-                        <TrendingUp className="h-4 w-4 text-red-500" />
+                        <TrendingUp className="h-4 w-4 text-[var(--color-danger-500)]" />
                         Retirement Forecast
                       </FormLabel>
                       <FormDescription className="text-muted-foreground text-xs">
@@ -309,7 +309,7 @@ export function ForecastReportForm() {
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel className="flex cursor-pointer items-center gap-2 font-normal">
-                        <Users className="h-4 w-4 text-green-500" />
+                        <Users className="h-4 w-4 text-[var(--color-success-500)]" />
                         Succession Planning
                       </FormLabel>
                       <FormDescription className="text-muted-foreground text-xs">
@@ -335,7 +335,7 @@ export function ForecastReportForm() {
                     </FormControl>
                     <div className="space-y-1 leading-none">
                       <FormLabel className="flex cursor-pointer items-center gap-2 font-normal">
-                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                        <AlertTriangle className="h-4 w-4 text-[var(--color-warning-500)]" />
                         Crew Shortages
                       </FormLabel>
                       <FormDescription className="text-muted-foreground text-xs">
@@ -347,7 +347,7 @@ export function ForecastReportForm() {
               />
             </div>
             {!hasSectionSelected && (
-              <p className="text-sm text-red-500">Please select at least one section</p>
+              <p className="text-destructive text-sm">Please select at least one section</p>
             )}
           </div>
 

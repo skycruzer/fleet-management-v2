@@ -10,6 +10,16 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 
 interface FlightRequestsListProps {
@@ -19,12 +29,9 @@ interface FlightRequestsListProps {
 export default function FlightRequestsList({ requests }: FlightRequestsListProps) {
   const router = useRouter()
   const [cancelingId, setCancelingId] = useState<string | null>(null)
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null)
 
   const handleCancel = async (requestId: string) => {
-    if (!confirm('Are you sure you want to cancel this flight request?')) {
-      return
-    }
-
     setCancelingId(requestId)
 
     try {
@@ -112,7 +119,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
             {(request.workflow_status === 'SUBMITTED' ||
               request.workflow_status === 'UNDER_REVIEW') && (
               <button
-                onClick={() => handleCancel(request.id)}
+                onClick={() => setConfirmCancelId(request.id)}
                 disabled={cancelingId === request.id}
                 className="ml-4 rounded-md bg-red-500/10 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -122,6 +129,35 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
           </div>
         </div>
       ))}
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog
+        open={!!confirmCancelId}
+        onOpenChange={(open) => !open && setConfirmCancelId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Flight Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this flight request? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Request</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (confirmCancelId) {
+                  handleCancel(confirmCancelId)
+                  setConfirmCancelId(null)
+                }
+              }}
+            >
+              Cancel Request
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

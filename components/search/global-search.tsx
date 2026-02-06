@@ -54,9 +54,15 @@ const searchablePages: SearchResult[] = [
     category: 'Planning',
   },
   {
-    title: 'Analytics & Reports',
+    title: 'Analytics',
     href: '/dashboard/analytics',
     icon: TrendingUp,
+    category: 'Planning',
+  },
+  {
+    title: 'Reports',
+    href: '/dashboard/reports',
+    icon: FileText,
     category: 'Planning',
   },
 

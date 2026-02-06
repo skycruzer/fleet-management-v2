@@ -43,7 +43,7 @@ export interface FormFieldProps {
  *   <Input id="email" {...getFieldProps('email')} />
  * </FormField>
  */
-export function FormField({
+export function SimpleFormField({
   label,
   fieldId,
   required = false,

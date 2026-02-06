@@ -7,14 +7,22 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
+import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 // Use z.input for form types (before transforms/defaults are applied)
@@ -41,6 +49,7 @@ export default function NewLeaveRequestPage() {
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm<LeaveRequestFormData>({
     resolver: zodResolver(LeaveRequestCreateSchema),
@@ -93,7 +102,7 @@ export default function NewLeaveRequestPage() {
       const data = await response.json()
 
       if (data.success) {
-        setPilots(data.data)
+        setPilots(data.data.pilots || data.data || [])
       }
     } catch (err) {
       setError('Failed to load form data')
@@ -106,12 +115,13 @@ export default function NewLeaveRequestPage() {
     setIsSubmitting(true)
     setError(null)
 
-    // Convert date strings to ISO datetime strings for API
+    // Send dates as YYYY-MM-DD format (validation expects this format)
     const formattedData = {
       ...data,
-      start_date: new Date(data.start_date + 'T00:00:00Z').toISOString(),
-      end_date: new Date(data.end_date + 'T23:59:59Z').toISOString(),
-      request_date: new Date(data.request_date + 'T00:00:00Z').toISOString(),
+      // Dates are already in YYYY-MM-DD format from HTML date inputs
+      start_date: data.start_date,
+      end_date: data.end_date,
+      request_date: data.request_date,
     }
     setConflicts([])
 
@@ -158,7 +168,7 @@ export default function NewLeaveRequestPage() {
       <div className="space-y-6">
         <Card className="p-12 text-center">
           <div className="flex items-center justify-center space-x-2">
-            <span className="animate-spin text-3xl">⏳</span>
+            <Loader2 className="text-primary h-6 w-6 animate-spin" aria-hidden="true" />
             <p className="text-muted-foreground">Loading form data...</p>
           </div>
         </Card>
@@ -184,18 +194,21 @@ export default function NewLeaveRequestPage() {
         <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div
+              role="alert"
+              className="border-destructive/20 bg-destructive/5 rounded-lg border p-4"
+            >
+              <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
 
           {/* Validation Errors Summary */}
           {Object.keys(errors).length > 0 && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-              <p className="mb-2 text-sm font-medium text-red-900">
+            <div className="border-destructive/20 bg-destructive/5 rounded-lg border p-4">
+              <p className="text-destructive mb-2 text-sm font-medium">
                 ⚠️ Please fix the following errors:
               </p>
-              <ul className="list-inside list-disc space-y-1 text-sm text-red-700">
+              <ul className="text-destructive/80 list-inside list-disc space-y-1 text-sm">
                 {errors.pilot_id && <li>Pilot selection is required</li>}
                 {errors.request_type && <li>Leave type is required</li>}
                 {errors.start_date && <li>{errors.start_date.message}</li>}
@@ -209,9 +222,9 @@ export default function NewLeaveRequestPage() {
 
           {/* Conflict Warning */}
           {conflicts.length > 0 && (
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-              <p className="mb-2 text-sm font-medium text-yellow-900">⚠️ Date Conflict Detected</p>
-              <p className="text-sm text-yellow-700">
+            <div className="border-warning/20 bg-warning/5 rounded-lg border p-4">
+              <p className="text-warning mb-2 text-sm font-medium">⚠️ Date Conflict Detected</p>
+              <p className="text-warning/80 text-sm">
                 You have existing leave requests that overlap with these dates. Manager approval
                 required.
               </p>
@@ -226,51 +239,72 @@ export default function NewLeaveRequestPage() {
               {/* Pilot Selection */}
               <div className="space-y-2">
                 <Label htmlFor="pilot_id">
-                  Pilot <span className="text-red-500">*</span>
+                  Pilot <span className="text-destructive">*</span>
                 </Label>
-                <select
-                  id="pilot_id"
-                  {...register('pilot_id')}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.pilot_id ? 'border-red-500' : 'border-border'
-                  }`}
-                >
-                  <option value="">Select a pilot...</option>
-                  {pilots.map((pilot) => (
-                    <option key={pilot.id} value={pilot.id}>
-                      {pilot.employee_id} - {pilot.first_name} {pilot.last_name} ({pilot.role})
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  name="pilot_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger
+                        id="pilot_id"
+                        aria-invalid={!!errors.pilot_id}
+                        aria-describedby={errors.pilot_id ? 'pilot_id-error' : undefined}
+                        className={errors.pilot_id ? 'border-destructive' : ''}
+                      >
+                        <SelectValue placeholder="Select a pilot..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {pilots.map((pilot) => (
+                          <SelectItem key={pilot.id} value={pilot.id}>
+                            {pilot.employee_id} - {pilot.first_name} {pilot.last_name} ({pilot.role}
+                            )
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.pilot_id && (
-                  <p className="text-sm text-red-600">{errors.pilot_id.message}</p>
+                  <p id="pilot_id-error" className="text-destructive text-sm">
+                    {errors.pilot_id.message}
+                  </p>
                 )}
               </div>
 
               {/* Leave Type Selection */}
               <div className="space-y-2">
                 <Label htmlFor="request_type">
-                  Leave Type <span className="text-red-500">*</span>
+                  Leave Type <span className="text-destructive">*</span>
                 </Label>
-                <select
-                  id="request_type"
-                  {...register('request_type')}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.request_type ? 'border-red-500' : 'border-border'
-                  }`}
-                >
-                  <option value="">Select leave type...</option>
-                  <option value="RDO">RDO (Regular Day Off)</option>
-                  <option value="SDO">SDO (Substitute Day Off)</option>
-                  <option value="ANNUAL">Annual Leave</option>
-                  <option value="SICK">Sick Leave</option>
-                  <option value="LSL">Long Service Leave</option>
-                  <option value="LWOP">Leave Without Pay</option>
-                  <option value="MATERNITY">Maternity Leave</option>
-                  <option value="COMPASSIONATE">Compassionate Leave</option>
-                </select>
+                <Controller
+                  name="request_type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger
+                        id="request_type"
+                        aria-invalid={!!errors.request_type}
+                        aria-describedby={errors.request_type ? 'request_type-error' : undefined}
+                        className={errors.request_type ? 'border-destructive' : ''}
+                      >
+                        <SelectValue placeholder="Select leave type..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ANNUAL">Annual Leave</SelectItem>
+                        <SelectItem value="SICK">Sick Leave</SelectItem>
+                        <SelectItem value="LSL">Long Service Leave</SelectItem>
+                        <SelectItem value="LWOP">Leave Without Pay</SelectItem>
+                        <SelectItem value="MATERNITY">Maternity Leave</SelectItem>
+                        <SelectItem value="COMPASSIONATE">Compassionate Leave</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.request_type && (
-                  <p className="text-sm text-red-600">{errors.request_type.message}</p>
+                  <p id="request_type-error" className="text-destructive text-sm">
+                    {errors.request_type.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -286,33 +320,41 @@ export default function NewLeaveRequestPage() {
               {/* Start Date */}
               <div className="space-y-2">
                 <Label htmlFor="start_date">
-                  Start Date <span className="text-red-500">*</span>
+                  Start Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="start_date"
                   type="date"
                   {...register('start_date')}
-                  className={`h-11 ${errors.start_date ? 'border-red-500' : ''}`}
+                  aria-invalid={!!errors.start_date}
+                  aria-describedby={errors.start_date ? 'start_date-error' : undefined}
+                  className={`h-11 ${errors.start_date ? 'border-destructive' : ''}`}
                 />
                 {errors.start_date && (
-                  <p className="text-sm text-red-600">{errors.start_date.message}</p>
+                  <p id="start_date-error" className="text-destructive text-sm">
+                    {errors.start_date.message}
+                  </p>
                 )}
               </div>
 
               {/* End Date */}
               <div className="space-y-2">
                 <Label htmlFor="end_date">
-                  End Date <span className="text-red-500">*</span>
+                  End Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="end_date"
                   type="date"
                   {...register('end_date')}
                   min={startDate || undefined}
-                  className={`h-11 ${errors.end_date ? 'border-red-500' : ''}`}
+                  aria-invalid={!!errors.end_date}
+                  aria-describedby={errors.end_date ? 'end_date-error' : undefined}
+                  className={`h-11 ${errors.end_date ? 'border-destructive' : ''}`}
                 />
                 {errors.end_date && (
-                  <p className="text-sm text-red-600">{errors.end_date.message}</p>
+                  <p id="end_date-error" className="text-destructive text-sm">
+                    {errors.end_date.message}
+                  </p>
                 )}
               </div>
 
@@ -331,16 +373,20 @@ export default function NewLeaveRequestPage() {
               {/* Request Date */}
               <div className="space-y-2">
                 <Label htmlFor="request_date">
-                  Request Date <span className="text-red-500">*</span>
+                  Request Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="request_date"
                   type="date"
                   {...register('request_date')}
-                  className={`h-11 ${errors.request_date ? 'border-red-500' : ''}`}
+                  aria-invalid={!!errors.request_date}
+                  aria-describedby={errors.request_date ? 'request_date-error' : undefined}
+                  className={`h-11 ${errors.request_date ? 'border-destructive' : ''}`}
                 />
                 {errors.request_date && (
-                  <p className="text-sm text-red-600">{errors.request_date.message}</p>
+                  <p id="request_date-error" className="text-destructive text-sm">
+                    {errors.request_date.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">
                   Date you are submitting this request
@@ -350,22 +396,37 @@ export default function NewLeaveRequestPage() {
               {/* Request Method */}
               <div className="space-y-2">
                 <Label htmlFor="request_method">
-                  Request Method <span className="text-red-500">*</span>
+                  Request Method <span className="text-destructive">*</span>
                 </Label>
-                <select
-                  id="request_method"
-                  {...register('request_method')}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.request_method ? 'border-red-500' : 'border-border'
-                  }`}
-                >
-                  <option value="EMAIL">Email</option>
-                  <option value="ORACLE">Oracle</option>
-                  <option value="LEAVE_BIDS">Leave Bids</option>
-                  <option value="SYSTEM">System (Online Form)</option>
-                </select>
+                <Controller
+                  name="request_method"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger
+                        id="request_method"
+                        aria-invalid={!!errors.request_method}
+                        aria-describedby={
+                          errors.request_method ? 'request_method-error' : undefined
+                        }
+                        className={errors.request_method ? 'border-destructive' : ''}
+                      >
+                        <SelectValue placeholder="Select method..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EMAIL">Email</SelectItem>
+                        <SelectItem value="PHONE">Phone</SelectItem>
+                        <SelectItem value="ORACLE">Oracle</SelectItem>
+                        <SelectItem value="PILOT_PORTAL">Pilot Portal</SelectItem>
+                        <SelectItem value="ADMIN_PORTAL">Admin Portal (This Form)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.request_method && (
-                  <p className="text-sm text-red-600">{errors.request_method.message}</p>
+                  <p id="request_method-error" className="text-destructive text-sm">
+                    {errors.request_method.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -384,11 +445,17 @@ export default function NewLeaveRequestPage() {
                 {...register('reason')}
                 rows={4}
                 placeholder="Provide any additional details about this leave request..."
+                aria-invalid={!!errors.reason}
+                aria-describedby={errors.reason ? 'reason-error' : undefined}
                 className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors.reason ? 'border-red-500' : 'border-border'
+                  errors.reason ? 'border-destructive' : 'border-border'
                 }`}
               />
-              {errors.reason && <p className="text-sm text-red-600">{errors.reason.message}</p>}
+              {errors.reason && (
+                <p id="reason-error" className="text-destructive text-sm">
+                  {errors.reason.message}
+                </p>
+              )}
               <p className="text-muted-foreground text-xs">Maximum 500 characters</p>
             </div>
           </div>
@@ -407,7 +474,7 @@ export default function NewLeaveRequestPage() {
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
-                  <span className="animate-spin">⏳</span>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   <span>Submitting...</span>
                 </span>
               ) : (

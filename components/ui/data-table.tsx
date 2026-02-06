@@ -18,15 +18,8 @@ import {
 } from '@/components/ui/table'
 import { Pagination, usePagination } from '@/components/ui/pagination'
 
-export interface Column<T> {
-  id: string
-  header: string
-  accessorKey?: keyof T
-  accessorFn?: (row: T) => any
-  cell?: (row: T) => React.ReactNode
-  sortable?: boolean
-  filterable?: boolean
-}
+export type { Column } from './table-types'
+import type { Column } from './table-types'
 
 interface DataTableProps<T> {
   data: T[]
@@ -75,8 +68,8 @@ export function DataTable<T extends Record<string, any>>({
     }
   }
 
-  // Get value from row for sorting
-  const getValue = (row: T, column: Column<T>) => {
+  // Get value from row for sorting/display
+  const getValue = (row: T, column: Column<T>): unknown => {
     if (column.accessorFn) {
       return column.accessorFn(row)
     }
@@ -103,7 +96,7 @@ export function DataTable<T extends Record<string, any>>({
 
       if (aValue === bValue) return 0
 
-      const comparison = aValue < bValue ? -1 : 1
+      const comparison = String(aValue ?? '').localeCompare(String(bValue ?? ''))
       return sortDirection === 'asc' ? comparison : -comparison
     })
   }, [dataToSort, sortColumn, sortDirection, columns])
@@ -126,7 +119,17 @@ export function DataTable<T extends Record<string, any>>({
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column.id} className="whitespace-nowrap">
+                <TableHead
+                  key={column.id}
+                  className="whitespace-nowrap"
+                  aria-sort={
+                    column.sortable && sortColumn === column.id
+                      ? sortDirection === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : undefined
+                  }
+                >
                   {column.sortable ? (
                     <Button
                       variant="ghost"
@@ -175,7 +178,9 @@ export function DataTable<T extends Record<string, any>>({
                 >
                   {columns.map((column) => (
                     <TableCell key={column.id} className="whitespace-nowrap">
-                      {column.cell ? column.cell(row) : getValue(row, column)?.toString() || '-'}
+                      {column.cell
+                        ? (column.cell as (row: T) => React.ReactNode)(row)
+                        : String(getValue(row, column) ?? '-')}
                     </TableCell>
                   ))}
                 </TableRow>

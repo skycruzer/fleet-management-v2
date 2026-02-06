@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationBell } from '@/components/portal/notification-bell'
+import { SidebarShell } from '@/components/layout/sidebar-shell'
 
 interface NavItem {
   title: string
@@ -41,16 +42,10 @@ const navigationItems: NavItem[] = [
     description: 'View your certifications',
   },
   {
-    title: 'Leave Requests',
-    href: '/portal/leave-requests',
+    title: 'My Requests',
+    href: '/portal/requests',
     icon: Calendar,
-    description: 'Manage leave requests',
-  },
-  {
-    title: 'RDO/SDO Requests',
-    href: '/portal/flight-requests',
-    icon: Plane,
-    description: 'Submit RDO/SDO requests',
+    description: 'Leave & RDO/SDO requests',
   },
   {
     title: 'Feedback',
@@ -179,149 +174,153 @@ export function PilotPortalSidebar({
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="border-border bg-background fixed top-0 left-0 z-[var(--z-modal)] h-screen w-60 border-r lg:z-[var(--z-sidebar)]"
       >
-        {/* Logo Header */}
-        <div className="border-border bg-card flex h-16 items-center gap-3 border-b px-6">
-          <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
-            <Plane className="text-primary-foreground h-5 w-5" />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-foreground text-lg font-bold">Pilot Portal</h1>
-            <p className="text-muted-foreground text-xs">Crew Access</p>
-          </div>
-          {/* Notification Bell */}
-          <NotificationBell />
-        </div>
-
-        {/* Pilot Info */}
-        {(pilotName || pilotRank) && (
-          <div className="border-border bg-card border-b p-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
-                <UserCircle className="text-primary h-7 w-7" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-foreground font-semibold">{pilotRank || 'Pilot'}</p>
-                <p className="text-muted-foreground text-sm">{pilotName || 'Welcome'}</p>
-                {employeeId && (
-                  <p className="text-muted-foreground mt-1 text-xs">ID: {employeeId}</p>
-                )}
-                {mounted && email && (
-                  <p className="text-muted-foreground truncate text-xs">{email}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4">
-          <div className="space-y-1">
-            {/* Dashboard Link */}
-            <Link href="/portal/dashboard" onClick={closeMobileMenu}>
-              <div
-                className={cn(
-                  'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
-                  isActive('/portal/dashboard')
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-muted'
-                )}
-              >
-                <Cloud
-                  className={cn(
-                    'h-5 w-5 transition-colors',
-                    isActive('/portal/dashboard')
-                      ? 'text-primary-foreground'
-                      : 'text-muted-foreground group-hover:text-foreground'
-                  )}
-                />
-
+        <SidebarShell
+          header={
+            <>
+              {/* Logo Header */}
+              <div className="border-border bg-card flex h-16 items-center gap-3 border-b px-6">
+                <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
+                  <Plane className="text-primary-foreground h-5 w-5" />
+                </div>
                 <div className="flex-1">
-                  <div className="font-semibold">Dashboard</div>
-                  <div
-                    className={cn(
-                      'text-sm',
-                      isActive('/portal/dashboard')
-                        ? 'text-primary-foreground/80'
-                        : 'text-muted-foreground'
-                    )}
-                  >
-                    Home & overview
+                  <h1 className="text-foreground text-lg font-bold">Pilot Portal</h1>
+                  <p className="text-muted-foreground text-xs">Crew Access</p>
+                </div>
+                {/* Notification Bell */}
+                <NotificationBell />
+              </div>
+
+              {/* Pilot Info */}
+              {(pilotName || pilotRank) && (
+                <div className="border-border bg-card border-b p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
+                      <UserCircle className="text-primary h-7 w-7" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-foreground font-semibold">{pilotRank || 'Pilot'}</p>
+                      <p className="text-muted-foreground text-sm">{pilotName || 'Welcome'}</p>
+                      {employeeId && (
+                        <p className="text-muted-foreground mt-1 text-xs">ID: {employeeId}</p>
+                      )}
+                      {mounted && email && (
+                        <p className="text-muted-foreground truncate text-xs">{email}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                <ChevronRight
+              )}
+            </>
+          }
+          footer={
+            <div className="border-border bg-card border-t p-4">
+              <button
+                onClick={handleLogout}
+                className="bg-destructive hover:bg-destructive/90 flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          }
+        >
+          {/* Navigation */}
+          <nav className="p-4">
+            <div className="space-y-1">
+              {/* Dashboard Link */}
+              <Link href="/portal/dashboard" onClick={closeMobileMenu}>
+                <div
                   className={cn(
-                    'h-4 w-4 opacity-0 transition-opacity',
-                    'group-hover:opacity-100',
-                    isActive('/portal/dashboard') && 'opacity-100'
+                    'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
+                    isActive('/portal/dashboard')
+                      ? 'bg-primary/15 text-primary border-primary border-l-2'
+                      : 'text-foreground hover:bg-accent/50'
                   )}
-                />
-              </div>
-            </Link>
-
-            {/* Divider */}
-            <div className="border-border my-3 border-t"></div>
-
-            {/* Navigation Items */}
-            {navigationItems.map((item) => {
-              const Icon = item.icon
-              const active = isActive(item.href)
-
-              return (
-                <Link key={item.href} href={item.href} onClick={closeMobileMenu}>
-                  <div
+                >
+                  <Cloud
                     className={cn(
-                      'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
-                      active
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-foreground hover:bg-muted'
+                      'h-5 w-5 transition-colors',
+                      isActive('/portal/dashboard')
+                        ? 'text-primary'
+                        : 'text-muted-foreground group-hover:text-foreground'
                     )}
-                  >
-                    <Icon
-                      className={cn(
-                        'h-5 w-5 transition-colors',
-                        active
-                          ? 'text-primary-foreground'
-                          : 'text-muted-foreground group-hover:text-foreground'
-                      )}
-                    />
+                  />
 
-                    <div className="flex-1">
-                      <div className="font-semibold">{item.title}</div>
-                      <div
-                        className={cn(
-                          'text-sm',
-                          active ? 'text-primary-foreground/80' : 'text-muted-foreground'
-                        )}
-                      >
-                        {item.description}
-                      </div>
+                  <div className="flex-1">
+                    <div className="font-semibold">Dashboard</div>
+                    <div
+                      className={cn(
+                        'text-sm',
+                        isActive('/portal/dashboard') ? 'text-primary/80' : 'text-muted-foreground'
+                      )}
+                    >
+                      Home & overview
                     </div>
-
-                    <ChevronRight
-                      className={cn(
-                        'h-4 w-4 opacity-0 transition-opacity',
-                        'group-hover:opacity-100',
-                        active && 'opacity-100'
-                      )}
-                    />
                   </div>
-                </Link>
-              )
-            })}
-          </div>
-        </nav>
 
-        {/* Bottom Section - Logout */}
-        <div className="border-border bg-card border-t p-4">
-          <button
-            onClick={handleLogout}
-            className="bg-destructive hover:bg-destructive/90 flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors"
-          >
-            <LogOut className="h-5 w-5" />
-            <span>Logout</span>
-          </button>
-        </div>
+                  <ChevronRight
+                    className={cn(
+                      'h-4 w-4 opacity-0 transition-opacity',
+                      'group-hover:opacity-100',
+                      isActive('/portal/dashboard') && 'opacity-100'
+                    )}
+                  />
+                </div>
+              </Link>
+
+              {/* Divider */}
+              <div className="border-border my-3 border-t"></div>
+
+              {/* Navigation Items */}
+              {navigationItems.map((item) => {
+                const Icon = item.icon
+                const active = isActive(item.href)
+
+                return (
+                  <Link key={item.href} href={item.href} onClick={closeMobileMenu}>
+                    <div
+                      className={cn(
+                        'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
+                        active
+                          ? 'bg-primary/15 text-primary border-primary border-l-2'
+                          : 'text-foreground hover:bg-accent/50'
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          'h-5 w-5 transition-colors',
+                          active
+                            ? 'text-primary'
+                            : 'text-muted-foreground group-hover:text-foreground'
+                        )}
+                      />
+
+                      <div className="flex-1">
+                        <div className="font-semibold">{item.title}</div>
+                        <div
+                          className={cn(
+                            'text-sm',
+                            active ? 'text-primary/80' : 'text-muted-foreground'
+                          )}
+                        >
+                          {item.description}
+                        </div>
+                      </div>
+
+                      <ChevronRight
+                        className={cn(
+                          'h-4 w-4 opacity-0 transition-opacity',
+                          'group-hover:opacity-100',
+                          active && 'opacity-100'
+                        )}
+                      />
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </nav>
+        </SidebarShell>
       </motion.aside>
     </>
   )

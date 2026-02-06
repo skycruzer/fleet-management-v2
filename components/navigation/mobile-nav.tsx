@@ -1,15 +1,18 @@
 /**
  * Mobile Navigation Component
- * Enhanced mobile menu with swipe gestures and touch-optimized interactions
+ * Developer: Maurice Rondeau
+ *
+ * Uses Sheet (Radix Dialog) for accessible mobile drawer with focus trapping,
+ * scroll lock, and overlay dismiss. Visible only on screens below lg breakpoint.
  */
 
 'use client'
 
 import * as React from 'react'
-import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { Menu, Plane } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { DashboardNavLink } from './dashboard-nav-link'
 
 interface MobileNavProps {
@@ -24,159 +27,41 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ user, navLinks }: MobileNavProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragX, setDragX] = useState(0)
-  const drawerRef = useRef<HTMLDivElement>(null)
-  const startXRef = useRef(0)
-  const currentXRef = useRef(0)
-
-  // Close menu and lock body scroll
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
-
-  // Keyboard navigation: Close drawer on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false)
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown)
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen])
-
-  // Swipe gesture handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startXRef.current = e.touches[0].clientX
-    currentXRef.current = e.touches[0].clientX
-    setIsDragging(true)
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return
-
-    currentXRef.current = e.touches[0].clientX
-    const diff = currentXRef.current - startXRef.current
-
-    // Only allow dragging to close (swipe left when open)
-    if (isOpen && diff < 0) {
-      setDragX(diff)
-    }
-    // Allow dragging to open (swipe right from edge)
-    else if (!isOpen && startXRef.current < 20 && diff > 0) {
-      setDragX(Math.min(diff, 288)) // 288px = w-72
-    }
-  }
-
-  const handleTouchEnd = () => {
-    if (!isDragging) return
-
-    const diff = currentXRef.current - startXRef.current
-    const threshold = 100 // Minimum swipe distance
-
-    if (isOpen && diff < -threshold) {
-      setIsOpen(false)
-    } else if (!isOpen && diff > threshold) {
-      setIsOpen(true)
-    }
-
-    setIsDragging(false)
-    setDragX(0)
-  }
-
-  // Calculate drawer transform based on drag or open state
-  const getDrawerTransform = () => {
-    if (isDragging && dragX !== 0) {
-      if (isOpen) {
-        return `translateX(${Math.min(0, dragX)}px)`
-      } else {
-        return `translateX(${Math.max(-288, -288 + dragX)}px)`
-      }
-    }
-    return isOpen ? 'translateX(0)' : 'translateX(-100%)'
-  }
+  const [isOpen, setIsOpen] = React.useState(false)
 
   return (
-    <>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       {/* Mobile Header - Touch-optimized */}
       <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-40 border-b backdrop-blur lg:hidden">
         <div className="flex h-12 items-center justify-between px-3">
           <Link href="/dashboard" className="flex items-center gap-2">
             <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
-              <span className="text-xs font-semibold text-white">FM</span>
+              <Plane className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="text-foreground text-[13px] font-semibold">Fleet Management</span>
           </Link>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label={isOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isOpen}
-            className="text-muted-foreground hover:text-foreground h-9 w-9"
-          >
-            {isOpen ? (
-              <X className="h-5 w-5" aria-hidden="true" />
-            ) : (
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Open menu"
+              className="text-muted-foreground hover:text-foreground h-9 w-9"
+            >
               <Menu className="h-5 w-5" aria-hidden="true" />
-            )}
-          </Button>
+            </Button>
+          </SheetTrigger>
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm transition-opacity duration-200 lg:hidden"
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Mobile Menu Drawer - With swipe support */}
-      <div
-        ref={drawerRef}
-        className="bg-background border-border/40 fixed inset-y-0 left-0 z-50 w-64 border-r shadow-lg transition-transform duration-200 ease-out lg:hidden"
-        style={{
-          transform: getDrawerTransform(),
-          transition: isDragging ? 'none' : 'transform 200ms ease-out',
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Navigation menu"
-      >
-        {/* Logo */}
-        <div className="border-border/40 flex h-12 items-center border-b px-4">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2"
-            onClick={() => setIsOpen(false)}
-          >
-            <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">
-              <span className="text-xs font-semibold text-white">FM</span>
-            </div>
-            <span className="text-foreground text-[13px] font-semibold">Fleet Management</span>
-          </Link>
-        </div>
+      {/* Sheet Drawer - slides in from left */}
+      <SheetContent side="left" className="w-64 p-0">
+        <SheetHeader className="border-border/40 flex h-12 flex-row items-center gap-2 border-b px-4 py-0">
+          <div className="bg-accent flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
+            <Plane className="h-3.5 w-3.5 text-white" />
+          </div>
+          <SheetTitle className="text-[13px] font-semibold">Fleet Management</SheetTitle>
+        </SheetHeader>
 
         {/* Navigation - Touch-optimized */}
         <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
@@ -216,20 +101,7 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
             </div>
           </div>
         </div>
-
-        {/* Swipe indicator (visual hint) */}
-        <div className="bg-border absolute top-1/2 right-0 h-10 w-0.5 -translate-y-1/2 rounded-l-full" />
-      </div>
-
-      {/* Edge swipe detection zone */}
-      {!isOpen && (
-        <div
-          className="fixed inset-y-0 left-0 z-40 w-5 lg:hidden"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        />
-      )}
-    </>
+      </SheetContent>
+    </Sheet>
   )
 }

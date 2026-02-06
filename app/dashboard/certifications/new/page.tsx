@@ -7,15 +7,24 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Loader2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { CertificationCreateSchema } from '@/lib/validations/certification-validation'
 import Link from 'next/link'
+import { PilotCombobox } from '@/components/ui/pilot-combobox'
 
 type CertificationFormData = z.infer<typeof CertificationCreateSchema>
 
@@ -45,6 +54,7 @@ export default function NewCertificationPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<CertificationFormData>({
     resolver: zodResolver(CertificationCreateSchema),
@@ -123,7 +133,7 @@ export default function NewCertificationPage() {
       <div className="space-y-6">
         <Card className="p-12 text-center">
           <div className="flex items-center justify-center space-x-2">
-            <span className="animate-spin text-3xl">⏳</span>
+            <Loader2 className="text-primary h-6 w-6 animate-spin" aria-hidden="true" />
             <p className="text-muted-foreground">Loading form data...</p>
           </div>
         </Card>
@@ -149,8 +159,8 @@ export default function NewCertificationPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="border-destructive/20 bg-destructive/5 rounded-lg border p-4">
+              <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
 
@@ -164,49 +174,63 @@ export default function NewCertificationPage() {
               {/* Pilot Selection */}
               <div className="space-y-2">
                 <Label htmlFor="pilot_id">
-                  Pilot <span className="text-red-500">*</span>
+                  Pilot <span className="text-destructive">*</span>
                 </Label>
-                <select
-                  id="pilot_id"
-                  {...register('pilot_id')}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.pilot_id ? 'border-red-500' : 'border-border'
-                  }`}
-                >
-                  <option value="">Select a pilot...</option>
-                  {pilots.map((pilot) => (
-                    <option key={pilot.id} value={pilot.id}>
-                      {pilot.employee_id} - {pilot.first_name} {pilot.last_name} ({pilot.role})
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  name="pilot_id"
+                  control={control}
+                  render={({ field }) => (
+                    <PilotCombobox
+                      pilots={pilots}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Search for a pilot..."
+                      aria-invalid={!!errors.pilot_id}
+                      aria-describedby={errors.pilot_id ? 'pilot_id-error' : undefined}
+                      className={errors.pilot_id ? 'border-destructive' : ''}
+                    />
+                  )}
+                />
                 {errors.pilot_id && (
-                  <p className="text-sm text-red-600">{errors.pilot_id.message}</p>
+                  <p id="pilot_id-error" className="text-destructive text-sm">
+                    {errors.pilot_id.message}
+                  </p>
                 )}
               </div>
 
               {/* Check Type Selection */}
               <div className="space-y-2">
                 <Label htmlFor="check_type_id">
-                  Check Type <span className="text-red-500">*</span>
+                  Check Type <span className="text-destructive">*</span>
                 </Label>
-                <select
-                  id="check_type_id"
-                  {...register('check_type_id')}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.check_type_id ? 'border-red-500' : 'border-border'
-                  }`}
-                >
-                  <option value="">Select a check type...</option>
-                  {checkTypes.map((checkType) => (
-                    <option key={checkType.id} value={checkType.id}>
-                      {checkType.check_code} - {checkType.check_description}
-                      {checkType.category && ` (${checkType.category})`}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  name="check_type_id"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger
+                        id="check_type_id"
+                        aria-invalid={!!errors.check_type_id}
+                        aria-describedby={errors.check_type_id ? 'check_type_id-error' : undefined}
+                        className={errors.check_type_id ? 'border-destructive' : ''}
+                      >
+                        <SelectValue placeholder="Select a check type..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {checkTypes.map((checkType) => (
+                          <SelectItem key={checkType.id} value={checkType.id}>
+                            {checkType.check_code} - {checkType.check_description}
+                            {checkType.category && ` (${checkType.category})`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.check_type_id && (
-                  <p className="text-sm text-red-600">{errors.check_type_id.message}</p>
+                  <p id="check_type_id-error" className="text-destructive text-sm">
+                    {errors.check_type_id.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -226,10 +250,14 @@ export default function NewCertificationPage() {
                   id="completion_date"
                   type="date"
                   {...register('completion_date')}
-                  className={errors.completion_date ? 'border-red-500' : ''}
+                  aria-invalid={!!errors.completion_date}
+                  aria-describedby={errors.completion_date ? 'completion_date-error' : undefined}
+                  className={errors.completion_date ? 'border-destructive' : ''}
                 />
                 {errors.completion_date && (
-                  <p className="text-sm text-red-600">{errors.completion_date.message}</p>
+                  <p id="completion_date-error" className="text-destructive text-sm">
+                    {errors.completion_date.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Cannot be in the future</p>
               </div>
@@ -241,10 +269,14 @@ export default function NewCertificationPage() {
                   id="expiry_date"
                   type="date"
                   {...register('expiry_date')}
-                  className={errors.expiry_date ? 'border-red-500' : ''}
+                  aria-invalid={!!errors.expiry_date}
+                  aria-describedby={errors.expiry_date ? 'expiry_date-error' : undefined}
+                  className={errors.expiry_date ? 'border-destructive' : ''}
                 />
                 {errors.expiry_date && (
-                  <p className="text-sm text-red-600">{errors.expiry_date.message}</p>
+                  <p id="expiry_date-error" className="text-destructive text-sm">
+                    {errors.expiry_date.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Must be after completion date</p>
               </div>
@@ -257,10 +289,16 @@ export default function NewCertificationPage() {
                   type="text"
                   placeholder="e.g., RP12/2025"
                   {...register('expiry_roster_period')}
-                  className={errors.expiry_roster_period ? 'border-red-500' : ''}
+                  aria-invalid={!!errors.expiry_roster_period}
+                  aria-describedby={
+                    errors.expiry_roster_period ? 'expiry_roster_period-error' : undefined
+                  }
+                  className={errors.expiry_roster_period ? 'border-destructive' : ''}
                 />
                 {errors.expiry_roster_period && (
-                  <p className="text-sm text-red-600">{errors.expiry_roster_period.message}</p>
+                  <p id="expiry_roster_period-error" className="text-destructive text-sm">
+                    {errors.expiry_roster_period.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Format: RP1-13/YYYY</p>
               </div>
@@ -280,11 +318,17 @@ export default function NewCertificationPage() {
                 {...register('notes')}
                 rows={4}
                 placeholder="Add any additional notes about this certification..."
+                aria-invalid={!!errors.notes}
+                aria-describedby={errors.notes ? 'notes-error' : undefined}
                 className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors.notes ? 'border-red-500' : 'border-border'
+                  errors.notes ? 'border-destructive' : 'border-border'
                 }`}
               />
-              {errors.notes && <p className="text-sm text-red-600">{errors.notes.message}</p>}
+              {errors.notes && (
+                <p id="notes-error" className="text-destructive text-sm">
+                  {errors.notes.message}
+                </p>
+              )}
               <p className="text-muted-foreground text-xs">Maximum 500 characters</p>
             </div>
           </div>
@@ -303,7 +347,7 @@ export default function NewCertificationPage() {
             >
               {isSubmitting ? (
                 <span className="flex items-center space-x-2">
-                  <span className="animate-spin">⏳</span>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   <span>Creating...</span>
                 </span>
               ) : (

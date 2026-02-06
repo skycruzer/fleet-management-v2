@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function PublicPortalLayout({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#0a0e1a]">
+      <div className="bg-background min-h-screen">
         <main id="main-content" suppressHydrationWarning>
           {children}
         </main>

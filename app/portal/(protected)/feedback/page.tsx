@@ -68,7 +68,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="bg-background min-h-screen">
       {/* Header */}
       <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -76,7 +76,9 @@ export default function FeedbackPage() {
             <div className="flex items-center space-x-3">
               <MessageSquare className="text-primary h-8 w-8" />
               <div>
-                <h1 className="text-foreground text-xl font-bold">Submit Feedback</h1>
+                <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+                  Submit Feedback
+                </h1>
                 <p className="text-muted-foreground text-xs">
                   Share your suggestions and report issues
                 </p>

@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Pagination, usePagination } from '@/components/ui/pagination'
 import {
   Table,
   TableBody,
@@ -47,7 +48,18 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { CertificationFormDialog } from '@/components/certifications/certification-form-dialog'
-import { Plus, Search, Download, AlertCircle, CheckCircle, Clock, Trash2 } from 'lucide-react'
+import {
+  Plus,
+  Search,
+  Download,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Trash2,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react'
 import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
@@ -96,6 +108,13 @@ interface Certification {
 }
 
 // ===================================
+// SORTING TYPES
+// ===================================
+
+type CertSortColumn = 'pilot' | 'check_type' | 'status' | 'expiry_date' | 'days_remaining'
+type SortDirection = 'asc' | 'desc'
+
+// ===================================
 // COMPONENT
 // ===================================
 
@@ -108,6 +127,10 @@ export default function CertificationsPage() {
   const [filteredCertifications, setFilteredCertifications] = useState<Certification[]>([])
   const [pilots, setPilots] = useState<Pilot[]>([])
   const [checkTypes, setCheckTypes] = useState<CheckType[]>([])
+
+  // Sort state
+  const [sortColumn, setSortColumn] = useState<CertSortColumn>('pilot')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
   // UI state
   const [searchQuery, setSearchQuery] = useState('')
@@ -237,6 +260,67 @@ export default function CertificationsPage() {
 
     setFilteredCertifications(filtered)
   }, [searchQuery, statusFilter, certifications])
+
+  // Sort handler
+  const handleSort = (column: CertSortColumn) => {
+    if (column === sortColumn) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+  }
+
+  // Sort icon helper
+  const getSortIcon = (column: CertSortColumn) => {
+    if (sortColumn !== column) return <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
+    return sortDirection === 'asc' ? (
+      <ArrowUp className="ml-1 h-3.5 w-3.5" />
+    ) : (
+      <ArrowDown className="ml-1 h-3.5 w-3.5" />
+    )
+  }
+
+  // Sort the filtered data
+  const sortedCertifications = [...filteredCertifications].sort((a, b) => {
+    let aValue: string | number
+    let bValue: string | number
+
+    switch (sortColumn) {
+      case 'pilot':
+        aValue = `${a.pilot.first_name} ${a.pilot.last_name}`.toLowerCase()
+        bValue = `${b.pilot.first_name} ${b.pilot.last_name}`.toLowerCase()
+        break
+      case 'check_type':
+        aValue = a.check_type.check_description.toLowerCase()
+        bValue = b.check_type.check_description.toLowerCase()
+        break
+      case 'status': {
+        const statusOrder: Record<string, number> = { red: 0, yellow: 1, green: 2, gray: 3 }
+        aValue = statusOrder[a.status.color] ?? 4
+        bValue = statusOrder[b.status.color] ?? 4
+        break
+      }
+      case 'expiry_date':
+        aValue = a.expiry_date ? new Date(a.expiry_date).getTime() : 0
+        bValue = b.expiry_date ? new Date(b.expiry_date).getTime() : 0
+        break
+      case 'days_remaining':
+        aValue = a.status.daysUntilExpiry ?? -9999
+        bValue = b.status.daysUntilExpiry ?? -9999
+        break
+      default:
+        return 0
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
+    return 0
+  })
+
+  // Client-side pagination of sorted + filtered results
+  const { currentPage, pageSize, totalPages, paginatedData, setCurrentPage, setPageSize } =
+    usePagination<Certification>(sortedCertifications, 25)
 
   // Get status badge variant
   const getStatusBadgeVariant = (color: string) => {
@@ -534,36 +618,65 @@ export default function CertificationsPage() {
         </div>
       </Card>
 
-      {/* Results Info */}
-      <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">
-          Showing {filteredCertifications.length} of {certifications.length} certifications
-        </p>
-      </div>
-
       {/* Certifications Table */}
       <Card>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Pilot</TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('pilot')}
+                    className="-ml-3"
+                  >
+                    Pilot {getSortIcon('pilot')}
+                  </Button>
+                </TableHead>
                 <TableHead>Employee ID</TableHead>
-                <TableHead>Check Type</TableHead>
-                <TableHead>Expiry Date</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('check_type')}
+                    className="-ml-3"
+                  >
+                    Check Type {getSortIcon('check_type')}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('expiry_date')}
+                    className="-ml-3"
+                  >
+                    Expiry Date {getSortIcon('expiry_date')}
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('status')}
+                    className="-ml-3"
+                  >
+                    Status {getSortIcon('status')}
+                  </Button>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCertifications.length === 0 ? (
+              {paginatedData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="py-8 text-center">
                     <p className="text-muted-foreground">No certifications found</p>
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredCertifications.map((cert) => (
+                paginatedData.map((cert) => (
                   <TableRow key={cert.id}>
                     <TableCell className="text-foreground font-medium">
                       {cert.pilot.first_name} {cert.pilot.last_name}
@@ -615,6 +728,21 @@ export default function CertificationsPage() {
             </TableBody>
           </Table>
         </div>
+
+        {/* Pagination */}
+        {filteredCertifications.length > 0 && (
+          <div className="border-t p-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={filteredCertifications.length}
+              pageSize={pageSize}
+              pageSizeOptions={[10, 25, 50, 100]}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
+          </div>
+        )}
       </Card>
 
       {/* Certification Form Dialog */}

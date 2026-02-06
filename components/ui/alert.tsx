@@ -12,12 +12,12 @@ const alertVariants = cva(
         default:
           'bg-white/[0.03] border-l-white/20 border-white/[0.06] text-foreground [&>svg]:text-foreground',
         destructive:
-          'bg-red-500/10 border-l-red-500 border-red-500/20 text-red-400 [&>svg]:text-red-400',
+          'bg-destructive/10 border-l-destructive border-destructive/20 text-destructive [&>svg]:text-destructive',
         warning:
-          'bg-amber-500/10 border-l-amber-500 border-amber-500/20 text-amber-400 [&>svg]:text-amber-400',
+          'bg-warning/10 border-l-warning border-warning/20 text-warning [&>svg]:text-warning',
         success:
-          'bg-emerald-500/10 border-l-emerald-500 border-emerald-500/20 text-emerald-400 [&>svg]:text-emerald-400',
-        info: 'bg-sky-500/10 border-l-sky-500 border-sky-500/20 text-sky-400 [&>svg]:text-sky-400',
+          'bg-success/10 border-l-success border-success/20 text-success [&>svg]:text-success',
+        info: 'bg-[var(--color-info)]/10 border-l-[var(--color-info)] border-[var(--color-info)]/20 text-[var(--color-info-foreground)] [&>svg]:text-[var(--color-info-foreground)]',
       },
     },
     defaultVariants: {

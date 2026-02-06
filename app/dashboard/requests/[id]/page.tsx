@@ -14,7 +14,7 @@ import { ArrowLeft, Calendar, User, Clock, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { redirect } from 'next/navigation'
 import { RequestDetailActions } from '@/components/requests/request-detail-actions'
@@ -32,7 +32,8 @@ export default async function RequestDetailPage({ params }: PageProps) {
     redirect('/auth/login')
   }
 
-  const supabase = await createClient()
+  // Use admin client to bypass RLS (auth already verified above)
+  const supabase = createAdminClient()
 
   // Fetch request details
   const { data: request, error } = await supabase

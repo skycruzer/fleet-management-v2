@@ -127,9 +127,9 @@ export default async function PilotDashboardPage() {
                 <div className="flex items-start space-x-4">
                   <XCircle className="h-8 w-8 text-red-400" aria-hidden="true" />
                   <div className="flex-1">
-                    <h2 className="text-foreground mb-2 text-xl font-semibold text-red-400">
-                      ⚠️ Expired Certifications
-                    </h2>
+                    <h3 className="text-foreground mb-2 text-lg font-semibold text-red-400">
+                      Expired Certifications
+                    </h3>
                     <p className="mb-4 text-red-400/80">
                       You have {stats?.expired_certifications || 0} expired certification
                       {(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew
@@ -186,9 +186,9 @@ export default async function PilotDashboardPage() {
                 <div className="flex items-start space-x-4">
                   <AlertTriangle className="h-8 w-8 text-orange-400" aria-hidden="true" />
                   <div className="flex-1">
-                    <h2 className="text-foreground mb-2 text-xl font-semibold text-orange-400">
-                      🚨 Critical: Certifications Expiring Soon
-                    </h2>
+                    <h3 className="text-foreground mb-2 text-lg font-semibold text-orange-400">
+                      Critical: Certifications Expiring Soon
+                    </h3>
                     <p className="mb-4 text-orange-400/80">
                       You have {stats?.critical_certifications || 0} certification
                       {(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring within the
@@ -245,9 +245,9 @@ export default async function PilotDashboardPage() {
                 <div className="flex items-start space-x-3">
                   <AlertTriangle className="h-8 w-8 text-yellow-400" aria-hidden="true" />
                   <div className="flex-1">
-                    <h2 className="text-foreground mb-2 text-xl font-semibold text-yellow-400">
-                      ⚠️ Warning: Upcoming Certifications
-                    </h2>
+                    <h3 className="text-foreground mb-2 text-lg font-semibold text-yellow-400">
+                      Warning: Upcoming Certifications
+                    </h3>
                     <p className="mb-4 text-yellow-400/80">
                       You have {stats?.upcoming_checks || 0} certification
                       {(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring within the next 60
@@ -297,39 +297,73 @@ export default async function PilotDashboardPage() {
           </div>
         )}
 
+        {/* Quick Actions */}
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Link href="/portal/leave-requests/new" className="group">
+            <Card className="hover:border-primary/30 flex items-center gap-4 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+              <div className="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
+                <Calendar className="text-primary h-6 w-6" aria-hidden="true" />
+              </div>
+              <div>
+                <h3 className="text-foreground group-hover:text-primary font-semibold">
+                  Submit Leave Request
+                </h3>
+                <p className="text-muted-foreground text-sm">Request time off</p>
+              </div>
+            </Card>
+          </Link>
+          <Link href="/portal/flight-requests/new" className="group">
+            <Card className="hover:border-primary/30 flex items-center gap-4 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+              <div className="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
+                <Plane className="text-primary h-6 w-6" aria-hidden="true" />
+              </div>
+              <div>
+                <h3 className="text-foreground group-hover:text-primary font-semibold">
+                  Submit RDO/SDO Request
+                </h3>
+                <p className="text-muted-foreground text-sm">Request rest day changes</p>
+              </div>
+            </Card>
+          </Link>
+        </div>
+
         {/* Statistics Cards - Linear-inspired: clean, minimal */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Pending Leave Requests */}
-          <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
-            <div className="mb-2 flex items-center justify-between">
-              <Calendar className="text-accent h-6 w-6" aria-hidden="true" />
-            </div>
-            <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-              Leave Requests
-            </h3>
-            <div className="mt-2 space-y-1">
-              <p className="text-foreground text-2xl font-semibold">
-                {stats?.pending_leave_requests || 0}
-              </p>
-              <p className="text-muted-foreground text-xs">Pending requests</p>
-            </div>
-          </Card>
+          <Link href="/portal/requests?tab=leave">
+            <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+              <div className="mb-2 flex items-center justify-between">
+                <Calendar className="text-accent h-6 w-6" aria-hidden="true" />
+              </div>
+              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                Leave Requests
+              </h3>
+              <div className="mt-2 space-y-1">
+                <p className="text-foreground text-2xl font-semibold">
+                  {stats?.pending_leave_requests || 0}
+                </p>
+                <p className="text-muted-foreground text-xs">Pending requests</p>
+              </div>
+            </Card>
+          </Link>
 
           {/* RDO/SDO Requests */}
-          <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
-            <div className="mb-2 flex items-center justify-between">
-              <Plane className="text-accent h-6 w-6" aria-hidden="true" />
-            </div>
-            <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-              RDO/SDO Requests
-            </h3>
-            <div className="mt-2 space-y-1">
-              <p className="text-foreground text-2xl font-semibold">
-                {stats?.pending_flight_requests || 0}
-              </p>
-              <p className="text-muted-foreground text-xs">Pending requests</p>
-            </div>
-          </Card>
+          <Link href="/portal/requests?tab=rdo-sdo">
+            <Card className="hover:border-foreground/20 p-5 transition-all duration-200 hover:bg-white/[0.04]">
+              <div className="mb-2 flex items-center justify-between">
+                <Plane className="text-accent h-6 w-6" aria-hidden="true" />
+              </div>
+              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                RDO/SDO Requests
+              </h3>
+              <div className="mt-2 space-y-1">
+                <p className="text-foreground text-2xl font-semibold">
+                  {stats?.pending_flight_requests || 0}
+                </p>
+                <p className="text-muted-foreground text-xs">Pending requests</p>
+              </div>
+            </Card>
+          </Link>
         </div>
       </main>
     </div>

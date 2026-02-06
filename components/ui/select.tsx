@@ -82,8 +82,8 @@ const SelectContent = React.forwardRef<
       ref={ref}
       className={cn(
         // Theme-aware: uses CSS variables for theming
-        // z-[100] ensures dropdown appears above modals (z-60)
-        'relative z-[100] max-h-[--radix-select-content-available-height] min-w-[8rem]',
+        // z-[var(--z-select)] ensures dropdown appears above modals (z-60)
+        'relative z-[var(--z-select)] max-h-[--radix-select-content-available-height] min-w-[8rem]',
         'bg-popover text-popover-foreground overflow-x-hidden overflow-y-auto rounded-lg border shadow-lg',
         'origin-[--radix-select-content-transform-origin]',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
