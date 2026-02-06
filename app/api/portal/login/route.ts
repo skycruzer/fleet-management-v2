@@ -134,7 +134,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
       undefined
     const userAgent = request.headers.get('user-agent') || undefined
 
-    const { staffId } = validation.data
+    const { staffId, rememberMe } = validation.data
 
     // SECURITY: Check if account is locked (brute force protection)
     const lockoutStatus = await checkAccountLockout(staffId)
@@ -183,6 +183,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     const result = await pilotLogin(validation.data, {
       ipAddress,
       userAgent,
+      rememberMe,
     })
 
     if (!result.success) {

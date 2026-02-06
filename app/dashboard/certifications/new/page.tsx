@@ -320,7 +320,7 @@ export default function NewCertificationPage() {
                 placeholder="Add any additional notes about this certification..."
                 aria-invalid={!!errors.notes}
                 aria-describedby={errors.notes ? 'notes-error' : undefined}
-                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none ${
                   errors.notes ? 'border-destructive' : 'border-border'
                 }`}
               />

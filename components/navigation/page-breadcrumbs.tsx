@@ -56,6 +56,9 @@ function pathToLabel(segment: string): string {
     users: 'Users',
     flights: 'Flight Requests',
     feedback: 'Feedback',
+    history: 'History',
+    requests: 'My Requests',
+    profile: 'My Profile',
     new: 'New',
     edit: 'Edit',
   }

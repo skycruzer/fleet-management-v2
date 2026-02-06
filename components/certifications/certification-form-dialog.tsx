@@ -44,6 +44,8 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
+import { PilotCombobox } from '@/components/ui/pilot-combobox'
+import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 
 // ===================================
 // TYPES
@@ -161,6 +163,9 @@ export function CertificationFormDialog({
     }
   }, [open, certification, form])
 
+  // Warn about unsaved changes when navigating away
+  useFormUnsavedChanges(form, { skipWarning: isSubmitting })
+
   const onSubmit = async (data: CertificationFormData) => {
     // Additional validation check before submission (only if both dates provided)
     if (data.completion_date && data.expiry_date) {
@@ -273,24 +278,15 @@ export function CertificationFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pilot</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={mode === 'edit'} // Can't change pilot after creation
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a pilot" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="max-h-[300px] overflow-y-auto">
-                      {pilots.map((pilot) => (
-                        <SelectItem key={pilot.id} value={pilot.id}>
-                          {pilot.first_name} {pilot.last_name} ({pilot.employee_number})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <PilotCombobox
+                      pilots={pilots}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={mode === 'edit'} // Can't change pilot after creation
+                      placeholder="Search for a pilot..."
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -309,7 +305,7 @@ export function CertificationFormDialog({
                         <SelectValue placeholder="Select a check type" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="max-h-[300px] overflow-y-auto">
                       {checkTypes.map((checkType) => (
                         <SelectItem key={checkType.id} value={checkType.id}>
                           {checkType.check_code} - {checkType.check_description}

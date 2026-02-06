@@ -286,7 +286,7 @@ export function getCertificationStatus(expiryDate: string | Date | null): Certif
     return {
       color: 'gray',
       label: 'No Date',
-      className: 'bg-gray-100 text-gray-800',
+      className: 'bg-muted text-muted-foreground',
       daysUntilExpiry: 0,
     }
   }
@@ -301,7 +301,8 @@ export function getCertificationStatus(expiryDate: string | Date | null): Certif
     return {
       color: 'red',
       label: 'Expired',
-      className: 'bg-red-100 text-red-800 border-red-200',
+      className:
+        'bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)] border-[var(--color-status-high-border)]',
       daysUntilExpiry,
     }
   }
@@ -311,7 +312,8 @@ export function getCertificationStatus(expiryDate: string | Date | null): Certif
     return {
       color: 'yellow',
       label: 'Expiring Soon',
-      className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      className:
+        'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)] border-[var(--color-status-medium-border)]',
       daysUntilExpiry,
     }
   }
@@ -320,7 +322,8 @@ export function getCertificationStatus(expiryDate: string | Date | null): Certif
   return {
     color: 'green',
     label: 'Current',
-    className: 'bg-green-100 text-green-800 border-green-200',
+    className:
+      'bg-[var(--color-success-muted)] text-[var(--color-success-500)] border-[var(--color-status-low-border)]',
     daysUntilExpiry,
   }
 }
@@ -590,26 +593,26 @@ export function getCategoryIcon(category: string | null): string {
  * @returns Tailwind CSS classes for category badge
  */
 export function getCategoryColor(category: string | null): string {
-  if (!category) return 'bg-gray-100 text-gray-800'
+  if (!category) return 'bg-muted text-muted-foreground'
 
   switch (category) {
     case 'Flight Checks':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-[var(--color-category-flight-bg)] text-[var(--color-category-flight)]'
     case 'Pilot Medical':
-      return 'bg-green-100 text-green-800'
+      return 'bg-[var(--color-category-medical-bg)] text-[var(--color-category-medical)]'
     case 'Simulator Checks':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]'
     case 'ID Cards':
-      return 'bg-red-100 text-red-800'
+      return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)]'
     case 'Travel Visa':
-      return 'bg-orange-100 text-orange-800'
+      return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
     case 'Ground Courses Refresher':
-      return 'bg-indigo-100 text-indigo-800'
+      return 'bg-[var(--color-badge-indigo-bg)] text-[var(--color-badge-indigo)]'
     case 'Foreign Pilot Work Permit':
-      return 'bg-purple-100 text-purple-800'
+      return 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]'
     case 'Non-renewal':
-      return 'bg-slate-100 text-slate-800'
+      return 'bg-muted text-muted-foreground'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-muted text-muted-foreground'
   }
 }

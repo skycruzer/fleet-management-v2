@@ -14,6 +14,8 @@ export type ReportType =
   | 'flight-requests'
   | 'certifications'
   | 'leave-bids'
+  | 'pilot-info'
+  | 'forecast'
 
 export interface ReportFilters {
   dateRange?: {
@@ -28,10 +30,20 @@ export interface ReportFilters {
   requestType?: string[] // Phase 3.0: Filter by request type (RDO, SDO, ANNUAL, SICK, etc.)
   checkType?: string
   checkTypes?: string[] // Multiple check types/categories
+  categories?: string[] // Filter by certification category (Medical, Training, etc.)
   expiryThreshold?: number // days
   // Phase 2.3: Pagination support
   page?: number // Current page (1-indexed)
   pageSize?: number // Records per page (default: 50)
+  // Pilot Info Report filters
+  activeStatus?: 'active' | 'inactive' | 'all'
+  qualifications?: string[] // 'line_captain', 'training_captain', 'examiner'
+  licenceType?: ('ATPL' | 'CPL')[]
+  // Forecast Report filters
+  timeHorizon?: '2yr' | '5yr' | '10yr'
+  forecastSections?: ('retirement' | 'succession' | 'shortage')[]
+  // Phase 5.1: Grouping support for PDF exports and previews
+  groupBy?: ('rosterPeriod' | 'rank' | 'category')[]
 }
 
 export interface PaginationMeta {

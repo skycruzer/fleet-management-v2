@@ -168,14 +168,7 @@ export const dashboardMetadata = {
     path: '/dashboard/leave',
   }),
 
-  leaveNew: generateMetadata({
-    title: 'Submit Leave Request',
-    description:
-      'Submit a new leave request - check availability, roster periods, and leave eligibility.',
-    keywords: ['leave request', 'submit leave', 'roster periods'],
-    path: '/dashboard/leave/new',
-    noIndex: true,
-  }),
+  // leaveNew: Removed - leave requests now created via Quick Entry modal on /dashboard/requests
 
   analytics: generateMetadata({
     title: 'Analytics',

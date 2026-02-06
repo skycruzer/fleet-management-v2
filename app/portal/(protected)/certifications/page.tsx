@@ -25,6 +25,8 @@ import {
   LayoutGrid,
   List,
 } from 'lucide-react'
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { CardGridSkeleton } from '@/components/ui/skeleton'
 
 interface Certification {
   id: string
@@ -60,9 +62,9 @@ export default function CertificationsPage() {
       return {
         status: 'No Expiry',
         color: 'gray',
-        bgColor: 'bg-gray-100',
-        textColor: 'text-gray-800',
-        borderColor: 'border-gray-300',
+        bgColor: 'bg-muted',
+        textColor: 'text-foreground',
+        borderColor: 'border-border',
         icon: Clock,
         filterKey: 'current' as StatusFilter,
         daysRemaining: null,
@@ -84,9 +86,9 @@ export default function CertificationsPage() {
       return {
         status: 'Expired',
         color: 'red',
-        bgColor: 'bg-red-100',
-        textColor: 'text-red-800',
-        borderColor: 'border-red-300',
+        bgColor: 'bg-[var(--color-destructive-muted)]',
+        textColor: 'text-[var(--color-danger-500)]',
+        borderColor: 'border-[var(--color-status-high-border)]',
         icon: XCircle,
         filterKey: 'expired' as StatusFilter,
         daysRemaining: Math.abs(daysUntilExpiry),
@@ -96,9 +98,9 @@ export default function CertificationsPage() {
       return {
         status: 'Critical',
         color: 'orange',
-        bgColor: 'bg-orange-100',
-        textColor: 'text-orange-800',
-        borderColor: 'border-orange-300',
+        bgColor: 'bg-[var(--color-badge-orange-bg)]',
+        textColor: 'text-[var(--color-badge-orange)]',
+        borderColor: 'border-[var(--color-badge-orange-border)]',
         icon: AlertTriangle,
         filterKey: 'critical' as StatusFilter,
         daysRemaining: daysUntilExpiry,
@@ -108,9 +110,9 @@ export default function CertificationsPage() {
       return {
         status: 'Warning',
         color: 'yellow',
-        bgColor: 'bg-yellow-100',
-        textColor: 'text-yellow-800',
-        borderColor: 'border-yellow-300',
+        bgColor: 'bg-[var(--color-warning-muted)]',
+        textColor: 'text-[var(--color-warning-500)]',
+        borderColor: 'border-[var(--color-status-medium-border)]',
         icon: AlertTriangle,
         filterKey: 'warning' as StatusFilter,
         daysRemaining: daysUntilExpiry,
@@ -120,9 +122,9 @@ export default function CertificationsPage() {
       return {
         status: 'Current',
         color: 'green',
-        bgColor: 'bg-green-100',
-        textColor: 'text-green-800',
-        borderColor: 'border-green-300',
+        bgColor: 'bg-[var(--color-success-muted)]',
+        textColor: 'text-[var(--color-success-500)]',
+        borderColor: 'border-[var(--color-status-low-border)]',
         icon: CheckCircle,
         filterKey: 'current' as StatusFilter,
         daysRemaining: daysUntilExpiry,
@@ -238,10 +240,8 @@ export default function CertificationsPage() {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex min-h-screen items-center justify-center">
-        <Card className="p-12">
-          <p className="text-gray-600">Loading certifications...</p>
-        </Card>
+      <div className="bg-background min-h-screen p-6">
+        <CardGridSkeleton count={6} />
       </div>
     )
   }
@@ -254,7 +254,7 @@ export default function CertificationsPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-green-600 to-emerald-600"
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-success-600)] to-[var(--color-success-500)]"
                 aria-hidden="true"
               >
                 <FileText className="h-6 w-6 text-white" aria-hidden="true" />
@@ -271,6 +271,7 @@ export default function CertificationsPage() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <PageBreadcrumbs rootPath="portal" />
         {/* Statistics Cards */}
         <div
           className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5"
@@ -279,12 +280,12 @@ export default function CertificationsPage() {
         >
           <Card className="p-4 transition-shadow hover:shadow-md">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="mt-1 text-xs text-gray-600">Total</p>
+              <p className="text-foreground text-2xl font-bold">{stats.total}</p>
+              <p className="text-muted-foreground mt-1 text-xs">Total</p>
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-[var(--color-danger-500)] focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('expired')}
             onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('expired')}
             tabIndex={0}
@@ -293,12 +294,12 @@ export default function CertificationsPage() {
             aria-pressed={statusFilter === 'expired'}
           >
             <div className="text-center">
-              <p className="text-2xl font-bold text-red-600">{stats.expired}</p>
-              <p className="mt-1 text-xs text-gray-600">Expired</p>
+              <p className="text-2xl font-bold text-[var(--color-danger-600)]">{stats.expired}</p>
+              <p className="text-muted-foreground mt-1 text-xs">Expired</p>
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:outline-none"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-[var(--color-badge-orange)] focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('critical')}
             onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('critical')}
             tabIndex={0}
@@ -307,12 +308,14 @@ export default function CertificationsPage() {
             aria-pressed={statusFilter === 'critical'}
           >
             <div className="text-center">
-              <p className="text-2xl font-bold text-orange-600">{stats.critical}</p>
-              <p className="mt-1 text-xs text-gray-600">Critical</p>
+              <p className="text-2xl font-bold text-[var(--color-badge-orange)]">
+                {stats.critical}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">Critical</p>
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:outline-none"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-[var(--color-warning-500)] focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('warning')}
             onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('warning')}
             tabIndex={0}
@@ -321,12 +324,12 @@ export default function CertificationsPage() {
             aria-pressed={statusFilter === 'warning'}
           >
             <div className="text-center">
-              <p className="text-2xl font-bold text-yellow-600">{stats.warning}</p>
-              <p className="mt-1 text-xs text-gray-600">Warning</p>
+              <p className="text-2xl font-bold text-[var(--color-warning-600)]">{stats.warning}</p>
+              <p className="text-muted-foreground mt-1 text-xs">Warning</p>
             </div>
           </Card>
           <Card
-            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
+            className="cursor-pointer p-4 transition-shadow hover:shadow-md focus:ring-2 focus:ring-[var(--color-success-500)] focus:ring-offset-2 focus:outline-none"
             onClick={() => setStatusFilter('current')}
             onKeyDown={(e) => e.key === 'Enter' && setStatusFilter('current')}
             tabIndex={0}
@@ -335,8 +338,8 @@ export default function CertificationsPage() {
             aria-pressed={statusFilter === 'current'}
           >
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">{stats.current}</p>
-              <p className="mt-1 text-xs text-gray-600">Current</p>
+              <p className="text-2xl font-bold text-[var(--color-success-600)]">{stats.current}</p>
+              <p className="text-muted-foreground mt-1 text-xs">Current</p>
             </div>
           </Card>
         </div>
@@ -351,7 +354,7 @@ export default function CertificationsPage() {
             {/* Search */}
             <div className="relative flex-1">
               <Search
-                className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400"
+                className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform"
                 aria-hidden="true"
               />
               <Input
@@ -365,7 +368,7 @@ export default function CertificationsPage() {
             </div>
 
             {/* View Toggle */}
-            <div className="flex gap-1 rounded-lg border border-gray-200 p-1">
+            <div className="border-border flex gap-1 rounded-lg border p-1">
               <Button
                 variant={viewMode === 'card' ? 'default' : 'ghost'}
                 size="sm"
@@ -399,7 +402,11 @@ export default function CertificationsPage() {
                 variant={statusFilter === 'expired' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setStatusFilter('expired')}
-                className={statusFilter === 'expired' ? 'bg-red-600 hover:bg-red-700' : ''}
+                className={
+                  statusFilter === 'expired'
+                    ? 'bg-[var(--color-danger-600)] hover:bg-[var(--color-danger-600)]'
+                    : ''
+                }
               >
                 Expired
               </Button>
@@ -407,7 +414,11 @@ export default function CertificationsPage() {
                 variant={statusFilter === 'critical' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setStatusFilter('critical')}
-                className={statusFilter === 'critical' ? 'bg-orange-600 hover:bg-orange-700' : ''}
+                className={
+                  statusFilter === 'critical'
+                    ? 'bg-[var(--color-badge-orange)] hover:bg-[var(--color-badge-orange)]'
+                    : ''
+                }
               >
                 Critical
               </Button>
@@ -415,7 +426,11 @@ export default function CertificationsPage() {
                 variant={statusFilter === 'warning' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setStatusFilter('warning')}
-                className={statusFilter === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}
+                className={
+                  statusFilter === 'warning'
+                    ? 'bg-[var(--color-warning-600)] hover:bg-[var(--color-warning-600)]'
+                    : ''
+                }
               >
                 Warning
               </Button>
@@ -423,7 +438,11 @@ export default function CertificationsPage() {
                 variant={statusFilter === 'current' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setStatusFilter('current')}
-                className={statusFilter === 'current' ? 'bg-green-600 hover:bg-green-700' : ''}
+                className={
+                  statusFilter === 'current'
+                    ? 'bg-[var(--color-success-600)] hover:bg-[var(--color-success-600)]'
+                    : ''
+                }
               >
                 Current
               </Button>
@@ -433,8 +452,8 @@ export default function CertificationsPage() {
 
         {/* Error Alert */}
         {error && (
-          <Card className="mb-6 border-red-200 bg-red-50 p-4">
-            <p className="text-red-700">{error}</p>
+          <Card className="mb-6 border-[var(--color-status-high-border)] bg-[var(--color-destructive-muted)] p-4">
+            <p className="text-[var(--color-danger-500)]">{error}</p>
           </Card>
         )}
 
@@ -442,8 +461,8 @@ export default function CertificationsPage() {
         {filteredCerts.length === 0 ? (
           <Card className="p-12">
             <div className="text-center">
-              <FileText className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
+              <FileText className="text-muted-foreground mx-auto h-12 w-12" aria-hidden="true" />
+              <h3 className="text-foreground mt-4 text-lg font-medium">
                 {searchQuery || statusFilter !== 'all'
                   ? 'No matching certifications'
                   : 'No Certifications Found'}
@@ -472,7 +491,7 @@ export default function CertificationsPage() {
             {sortedCategories.map((category) => (
               <div key={category}>
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="inline-block border-b-2 border-blue-600 pb-2 text-lg font-semibold text-gray-900">
+                  <h3 className="text-foreground inline-block border-b-2 border-[var(--color-primary-600)] pb-2 text-lg font-semibold">
                     {category}
                   </h3>
                   <Badge variant="outline" className="text-xs">
@@ -500,7 +519,7 @@ export default function CertificationsPage() {
                             </div>
                           </div>
 
-                          <h4 className="mb-1 text-lg font-bold text-gray-900">
+                          <h4 className="text-foreground mb-1 text-lg font-bold">
                             {cert.check_types?.check_code || 'Unknown'}
                           </h4>
                           <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
@@ -509,13 +528,13 @@ export default function CertificationsPage() {
 
                           {cert.expiry_date && (
                             <>
-                              <div className="mb-3 flex items-center space-x-2 text-sm text-gray-600">
+                              <div className="text-muted-foreground mb-3 flex items-center space-x-2 text-sm">
                                 <Calendar className="h-4 w-4" aria-hidden="true" />
                                 <span>
                                   {status.daysRemaining !== null &&
                                   status.status !== 'No Expiry' ? (
                                     status.status === 'Expired' ? (
-                                      <span className="font-semibold text-red-600">
+                                      <span className="font-semibold text-[var(--color-danger-600)]">
                                         Expired {status.daysRemaining} days ago
                                       </span>
                                     ) : (
@@ -531,14 +550,14 @@ export default function CertificationsPage() {
 
                               {status.status !== 'Expired' && status.progressPercent !== null && (
                                 <div className="mb-2">
-                                  <div className="h-2 w-full rounded-full bg-gray-200">
+                                  <div className="bg-muted h-2 w-full rounded-full">
                                     <div
                                       className={`h-2 rounded-full transition-all ${
                                         status.filterKey === 'critical'
-                                          ? 'bg-orange-600'
+                                          ? 'bg-[var(--color-badge-orange)]'
                                           : status.filterKey === 'warning'
-                                            ? 'bg-yellow-600'
-                                            : 'bg-green-600'
+                                            ? 'bg-[var(--color-warning-600)]'
+                                            : 'bg-[var(--color-success-600)]'
                                       }`}
                                       style={{ width: `${status.progressPercent}%` }}
                                     />
@@ -546,7 +565,7 @@ export default function CertificationsPage() {
                                 </div>
                               )}
 
-                              <p className="text-xs text-gray-500">
+                              <p className="text-muted-foreground text-xs">
                                 Expires:{' '}
                                 {new Date(cert.expiry_date).toLocaleDateString('en-US', {
                                   month: 'short',
@@ -576,7 +595,7 @@ export default function CertificationsPage() {
                             <div className="flex flex-1 items-center gap-4">
                               <StatusIcon className={`h-5 w-5 flex-shrink-0 ${status.textColor}`} />
                               <div className="min-w-0 flex-1">
-                                <h4 className="truncate font-bold text-gray-900">
+                                <h4 className="text-foreground truncate font-bold">
                                   {cert.check_types?.check_code || 'Unknown'}
                                 </h4>
                                 <p className="text-muted-foreground truncate text-sm">
@@ -597,11 +616,11 @@ export default function CertificationsPage() {
                               {cert.expiry_date ? (
                                 <>
                                   <div className="text-right">
-                                    <p className="text-sm font-semibold text-gray-700">
+                                    <p className="text-foreground text-sm font-semibold">
                                       {status.daysRemaining !== null &&
                                       status.status !== 'No Expiry' ? (
                                         status.status === 'Expired' ? (
-                                          <span className="text-red-600">
+                                          <span className="text-[var(--color-danger-600)]">
                                             Expired {status.daysRemaining} days ago
                                           </span>
                                         ) : (
@@ -611,7 +630,7 @@ export default function CertificationsPage() {
                                         'No expiry'
                                       )}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-muted-foreground text-xs">
                                       Expires:{' '}
                                       {new Date(cert.expiry_date).toLocaleDateString('en-US', {
                                         month: 'short',
@@ -663,7 +682,7 @@ export default function CertificationsPage() {
                                     )}
                                 </>
                               ) : (
-                                <div className="flex items-center gap-2 text-sm text-gray-500">
+                                <div className="text-muted-foreground flex items-center gap-2 text-sm">
                                   <Clock className="h-4 w-4" aria-hidden="true" />
                                   <span>No expiry date</span>
                                 </div>

@@ -131,12 +131,12 @@ export function getUtilizationColorClass(statusOrPercentage: UtilizationStatus |
       : statusOrPercentage
 
   const colorMap: Record<UtilizationStatus, string> = {
-    low: 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20',
-    normal: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20',
-    medium: 'text-yellow-500 bg-yellow-50 dark:text-yellow-400 dark:bg-yellow-900/20',
-    high: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-900/20',
-    critical: 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20',
-    over: 'text-red-700 bg-red-100 dark:text-red-300 dark:bg-red-900/30',
+    low: 'text-[var(--color-success-600)] bg-[var(--color-success-muted)]',
+    normal: 'text-[var(--color-primary-600)] bg-[var(--color-info-bg)]',
+    medium: 'text-[var(--color-warning-500)] bg-[var(--color-warning-muted)]',
+    high: 'text-[var(--color-badge-orange)] bg-[var(--color-badge-orange-bg)]',
+    critical: 'text-[var(--color-danger-600)] bg-[var(--color-destructive-muted)]',
+    over: 'text-[var(--color-danger-500)] bg-[var(--color-destructive-muted)]',
   }
   return colorMap[status]
 }

@@ -63,7 +63,7 @@ export const PilotCard: Story = {
           </div>
           <div className="flex justify-between">
             <span className="text-sm font-medium">Status:</span>
-            <span className="text-sm text-green-600">Active</span>
+            <span className="text-sm text-[var(--color-success-600)]">Active</span>
           </div>
           <div className="flex justify-between">
             <span className="text-sm font-medium">Certifications:</span>
@@ -80,17 +80,21 @@ export const PilotCard: Story = {
 
 export const CertificationAlert: Story = {
   render: () => (
-    <Card className="w-[350px] border-yellow-500 bg-yellow-50">
+    <Card className="w-[350px] border-[var(--color-warning-500)] bg-[var(--color-warning-muted)]">
       <CardHeader>
-        <CardTitle className="text-yellow-900">Certification Expiring Soon</CardTitle>
-        <CardDescription className="text-yellow-700">
+        <CardTitle className="text-[var(--color-warning-500)]">
+          Certification Expiring Soon
+        </CardTitle>
+        <CardDescription className="text-[var(--color-warning-500)]/80">
           Action required within 30 days
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <p className="text-sm text-yellow-900">Line Check - Captain</p>
-          <p className="text-sm text-yellow-700">Expires: December 15, 2025 (28 days)</p>
+          <p className="text-sm text-[var(--color-warning-500)]">Line Check - Captain</p>
+          <p className="text-sm text-[var(--color-warning-500)]/80">
+            Expires: December 15, 2025 (28 days)
+          </p>
         </div>
       </CardContent>
       <CardFooter>

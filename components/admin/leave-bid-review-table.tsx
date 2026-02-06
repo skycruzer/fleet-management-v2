@@ -22,6 +22,8 @@ import { CheckCircle, XCircle, Clock, Eye, Edit, ChevronDown, ChevronUp } from '
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { useConfirm } from '@/components/ui/confirm-dialog'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface LeaveBidOption {
   id: string
@@ -58,6 +60,7 @@ interface LeaveBidReviewTableProps {
 export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
   const { csrfToken } = useCsrfToken()
   const router = useRouter()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [expandedBid, setExpandedBid] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [error, setError] = useState<string>('')
@@ -114,9 +117,13 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
   }
 
   const handleApprove = async (bidId: string) => {
-    if (!confirm('Are you sure you want to approve this leave bid?')) {
-      return
-    }
+    const confirmed = await confirm({
+      title: 'Approve Leave Bid',
+      description: 'Are you sure you want to approve this leave bid? The pilot will be notified.',
+      confirmText: 'Approve',
+      variant: 'default',
+    })
+    if (!confirmed) return
 
     setActionLoading(bidId)
     setError('')
@@ -150,9 +157,13 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
   }
 
   const handleReject = async (bidId: string) => {
-    if (!confirm('Are you sure you want to reject this leave bid?')) {
-      return
-    }
+    const confirmed = await confirm({
+      title: 'Reject Leave Bid',
+      description: 'Are you sure you want to reject this leave bid? The pilot will be notified.',
+      confirmText: 'Reject',
+      variant: 'destructive',
+    })
+    if (!confirmed) return
 
     setActionLoading(bidId)
     setError('')
@@ -191,6 +202,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
 
   return (
     <div className="space-y-4">
+      <ConfirmDialog />
       {/* Alerts */}
       {error && (
         <Alert variant="destructive">
@@ -244,9 +256,12 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
         </CardHeader>
         <CardContent>
           {filteredBids.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center">
-              No {filter.toLowerCase()} leave bids found
-            </p>
+            <EmptyState
+              icon={Clock}
+              title={`No ${filter.toLowerCase()} leave bids found`}
+              description="Try changing the filter to see other leave bids."
+              variant="compact"
+            />
           ) : (
             <Table>
               <TableHeader>

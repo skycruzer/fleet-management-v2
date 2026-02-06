@@ -117,7 +117,7 @@ export default async function LeaveApprovalPage() {
               <p className="text-muted-foreground text-sm font-medium">Pending</p>
               <p className="text-3xl font-bold">{requests.length}</p>
             </div>
-            <div className="text-blue-500">
+            <div className="text-[var(--color-primary-500)]">
               <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -130,39 +130,41 @@ export default async function LeaveApprovalPage() {
           </div>
         </Card>
 
-        <Card className="border-red-500/20 bg-red-500/10 p-4">
+        <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-red-400">Critical</p>
-              <p className="text-3xl font-bold text-red-400">{criticalCount}</p>
+              <p className="text-sm font-medium text-[var(--color-danger-400)]">Critical</p>
+              <p className="text-3xl font-bold text-[var(--color-danger-400)]">{criticalCount}</p>
             </div>
-            <AlertTriangle className="h-12 w-12 text-red-500" />
+            <AlertTriangle className="h-12 w-12 text-[var(--color-danger-500)]" />
           </div>
-          <p className="mt-2 text-xs text-red-400">Conflicts or below minimum crew</p>
+          <p className="mt-2 text-xs text-[var(--color-danger-400)]">
+            Conflicts or below minimum crew
+          </p>
         </Card>
 
-        <Card className="border-amber-500/20 bg-amber-500/10 p-4">
+        <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-500)]/10 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-amber-400">Warnings</p>
-              <p className="text-3xl font-bold text-amber-400">{warningCount}</p>
+              <p className="text-sm font-medium text-[var(--color-warning-400)]">Warnings</p>
+              <p className="text-3xl font-bold text-[var(--color-warning-400)]">{warningCount}</p>
             </div>
-            <AlertTriangle className="h-12 w-12 text-yellow-500" />
+            <AlertTriangle className="h-12 w-12 text-[var(--color-warning-500)]" />
           </div>
-          <p className="mt-2 text-xs text-amber-400">Late or past deadline</p>
+          <p className="mt-2 text-xs text-[var(--color-warning-400)]">Late or past deadline</p>
         </Card>
 
-        <Card className="border-emerald-500/20 bg-emerald-500/10 p-4">
+        <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-500)]/10 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-emerald-400">Clean</p>
-              <p className="text-3xl font-bold text-emerald-400">
+              <p className="text-sm font-medium text-[var(--color-success-400)]">Clean</p>
+              <p className="text-3xl font-bold text-[var(--color-success-400)]">
                 {requests.length - criticalCount - warningCount}
               </p>
             </div>
-            <CheckCircle className="h-12 w-12 text-green-500" />
+            <CheckCircle className="h-12 w-12 text-[var(--color-success-500)]" />
           </div>
-          <p className="mt-2 text-xs text-emerald-400">No issues detected</p>
+          <p className="mt-2 text-xs text-[var(--color-success-400)]">No issues detected</p>
         </Card>
       </div>
 
@@ -170,7 +172,7 @@ export default async function LeaveApprovalPage() {
       {requests.length === 0 && (
         <Card className="p-12 text-center">
           <div className="flex flex-col items-center justify-center space-y-4">
-            <CheckCircle className="h-24 w-24 text-green-500" />
+            <CheckCircle className="h-24 w-24 text-[var(--color-success-500)]" />
             <div>
               <h3 className="text-foreground text-xl font-semibold">All Caught Up!</h3>
               <p className="text-muted-foreground mt-2">
@@ -190,10 +192,16 @@ export default async function LeaveApprovalPage() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Pending Requests ({requests.length})</h2>
             <div className="flex gap-2">
-              <Badge variant="outline" className="border-red-600 text-red-600">
+              <Badge
+                variant="outline"
+                className="border-[var(--color-danger-600)] text-[var(--color-danger-600)]"
+              >
                 {criticalCount} Critical
               </Badge>
-              <Badge variant="outline" className="border-yellow-600 text-yellow-600">
+              <Badge
+                variant="outline"
+                className="border-[var(--color-warning-600)] text-[var(--color-warning-600)]"
+              >
                 {warningCount} Warnings
               </Badge>
             </div>
@@ -294,12 +302,14 @@ export default async function LeaveApprovalPage() {
       )}
 
       {/* Help Text */}
-      <Card className="border-blue-500/20 bg-blue-500/10 p-6">
+      <Card className="border-[var(--color-primary-500)]/20 bg-[var(--color-primary-500)]/10 p-6">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-blue-400" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 text-[var(--color-primary-400)]" />
           <div>
-            <h3 className="mb-2 font-semibold text-blue-400">Approval Guidelines</h3>
-            <ul className="space-y-1 text-sm text-blue-400/80">
+            <h3 className="mb-2 font-semibold text-[var(--color-primary-400)]">
+              Approval Guidelines
+            </h3>
+            <ul className="space-y-1 text-sm text-[var(--color-primary-400)]/80">
               <li>
                 • <strong>Critical Alerts</strong>: Conflicts or approving would drop crew below
                 minimum (10 per rank)

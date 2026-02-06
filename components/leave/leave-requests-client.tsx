@@ -162,8 +162,8 @@ export function LeaveRequestsClient({ requests, availablePeriods }: LeaveRequest
           action={
             selectedPeriod === 'all'
               ? {
-                  label: 'Submit Leave Request',
-                  href: '/dashboard/leave/new',
+                  label: 'Go to Request Management',
+                  href: '/dashboard/requests?tab=leave',
                 }
               : undefined
           }

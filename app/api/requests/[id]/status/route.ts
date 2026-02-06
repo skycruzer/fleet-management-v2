@@ -3,13 +3,18 @@
  *
  * PATCH /api/requests/[id]/status - Update workflow status of a pilot request
  *
+ * CSRF PROTECTION: PATCH method validates CSRF token for defense-in-depth
+ * RATE LIMITING: Inherits from admin API rate limits
+ *
  * @author Maurice Rondeau
  * @date November 11, 2025
+ * @version 2.0.0 - Added explicit CSRF validation
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { updateRequestStatus, type WorkflowStatus } from '@/lib/services/unified-request-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { logger } from '@/lib/services/logging-service'
 import { revalidatePath } from 'next/cache'
 
@@ -19,8 +24,14 @@ interface RouteContext {
   }
 }
 
-export async function PATCH(request: Request, context: RouteContext) {
+export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
+    // SECURITY: Validate CSRF token (defense-in-depth)
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // Check authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {

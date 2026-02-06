@@ -62,7 +62,7 @@ export default function NotificationList({
       {/* Header */}
       <div className="bg-card flex items-center justify-between rounded-lg p-4 shadow">
         <h2 className="text-foreground text-lg font-medium">All Notifications</h2>
-        <span className="rounded-full bg-blue-500/10 px-3 py-1 text-sm font-medium text-blue-400">
+        <span className="rounded-full bg-[var(--color-info-bg)] px-3 py-1 text-sm font-medium text-[var(--color-info)]">
           {unreadCount} unread
         </span>
       </div>
@@ -73,7 +73,7 @@ export default function NotificationList({
           <div
             key={notification.id}
             className={`bg-card rounded-lg p-4 shadow transition-colors hover:bg-white/[0.03] ${
-              !notification.is_read ? 'border-l-4 border-blue-500' : ''
+              !notification.is_read ? 'border-l-4 border-[var(--color-primary-500)]' : ''
             }`}
           >
             <div className="flex items-start justify-between">
@@ -81,7 +81,7 @@ export default function NotificationList({
                 <div className="flex items-center gap-2">
                   <h3 className="text-foreground font-medium">{notification.title}</h3>
                   {!notification.is_read && (
-                    <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs font-medium text-white">
+                    <span className="rounded-full bg-[var(--color-primary-500)] px-2 py-0.5 text-xs font-medium text-white">
                       New
                     </span>
                   )}
@@ -96,7 +96,7 @@ export default function NotificationList({
               {!notification.is_read && (
                 <button
                   onClick={() => markAsRead(notification.id)}
-                  className="ml-4 text-sm text-blue-600 hover:text-blue-500"
+                  className="ml-4 text-sm text-[var(--color-primary-600)] hover:text-[var(--color-primary-500)]"
                 >
                   Mark as read
                 </button>

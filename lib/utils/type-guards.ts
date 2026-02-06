@@ -61,7 +61,9 @@ export function isCaptainQualifications(value: unknown): value is CaptainQualifi
  * Validates and parses captain qualifications from unknown data
  *
  * This function ensures that the data is valid and returns a properly typed
- * CaptainQualifications object or null.
+ * CaptainQualifications object or null. It handles both:
+ * - Object format: {line_captain: true, training_captain: false, examiner: true}
+ * - Array format: ["line_captain", "training_captain", "examiner"]
  *
  * @param value - The value to validate and parse
  * @returns A valid CaptainQualifications object or null
@@ -78,7 +80,31 @@ export function parseCaptainQualifications(value: unknown): CaptainQualification
     return null
   }
 
-  // Validate the structure
+  // Handle array format from database: ["line_captain", "training_captain", "examiner"]
+  if (Array.isArray(value)) {
+    const result: CaptainQualifications = {
+      line_captain: false,
+      training_captain: false,
+      examiner: false,
+    }
+
+    for (const item of value) {
+      if (typeof item === 'string') {
+        const key = item.toLowerCase().trim()
+        if (key === 'line_captain') {
+          result.line_captain = true
+        } else if (key === 'training_captain') {
+          result.training_captain = true
+        } else if (key === 'examiner') {
+          result.examiner = true
+        }
+      }
+    }
+
+    return result
+  }
+
+  // Validate the object structure
   if (!isCaptainQualifications(value)) {
     logWarning('Invalid captain qualifications structure', {
       source: 'TypeGuards',

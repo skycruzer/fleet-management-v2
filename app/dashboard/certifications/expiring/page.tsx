@@ -60,8 +60,11 @@ export default async function CertificationsPage() {
           </div>
         </div>
 
-        <Card className="border-destructive/20 bg-red-500/10 p-8 text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-red-400" aria-hidden="true" />
+        <Card className="border-destructive/20 bg-[var(--color-destructive-muted)] p-8 text-center">
+          <AlertCircle
+            className="mx-auto h-12 w-12 text-[var(--color-danger-400)]"
+            aria-hidden="true"
+          />
           <h3 className="text-foreground mt-4 text-lg font-semibold">
             Failed to Load Certifications
           </h3>
@@ -112,9 +115,9 @@ export default async function CertificationsPage() {
         </Card>
 
         {/* Expired */}
-        <Card className="border-destructive/20 bg-red-500/10 p-6">
+        <Card className="border-destructive/20 bg-[var(--color-destructive-muted)] p-6">
           <div className="flex items-center space-x-3">
-            <AlertCircle className="h-8 w-8 text-red-400" aria-hidden="true" />
+            <AlertCircle className="h-8 w-8 text-[var(--color-danger-400)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{expiredCount}</p>
               <p className="text-muted-foreground text-sm font-medium">Expired</p>
@@ -123,9 +126,12 @@ export default async function CertificationsPage() {
         </Card>
 
         {/* Critical (14 Days) */}
-        <Card className="border-orange-500/20 bg-orange-500/10 p-6">
+        <Card className="border-[var(--color-badge-orange)]/20 bg-[var(--color-badge-orange-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <AlertTriangle className="h-8 w-8 text-orange-400" aria-hidden="true" />
+            <AlertTriangle
+              className="h-8 w-8 text-[var(--color-badge-orange)]"
+              aria-hidden="true"
+            />
             <div>
               <p className="text-foreground text-2xl font-bold">{critical14DaysCount}</p>
               <p className="text-muted-foreground text-sm font-medium">Critical (≤14 Days)</p>
@@ -136,9 +142,12 @@ export default async function CertificationsPage() {
 
       {/* Priority Alert */}
       {mostCritical && (
-        <Card className="border-destructive/20 bg-red-500/10 p-4">
+        <Card className="border-destructive/20 bg-[var(--color-destructive-muted)] p-4">
           <div className="flex items-start space-x-3">
-            <AlertTriangle className="mt-1 h-6 w-6 text-red-400" aria-hidden="true" />
+            <AlertTriangle
+              className="mt-1 h-6 w-6 text-[var(--color-danger-400)]"
+              aria-hidden="true"
+            />
             <div>
               <h3 className="text-foreground font-semibold">Priority Action Required</h3>
               <p className="text-muted-foreground mt-1 text-sm">
@@ -153,8 +162,11 @@ export default async function CertificationsPage() {
 
       {/* No Issues Message */}
       {totalExpiring === 0 && (
-        <Card className="border-emerald-500/20 bg-emerald-500/10 p-8 text-center">
-          <CheckCircle className="mx-auto h-12 w-12 text-emerald-400" aria-hidden="true" />
+        <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-8 text-center">
+          <CheckCircle
+            className="mx-auto h-12 w-12 text-[var(--color-success-400)]"
+            aria-hidden="true"
+          />
           <h3 className="text-foreground mt-4 text-lg font-semibold">All Certifications Current</h3>
           <p className="text-muted-foreground mt-2">
             No certifications are expiring within 90 days or have expired. Excellent compliance!

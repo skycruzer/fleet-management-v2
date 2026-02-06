@@ -26,7 +26,7 @@ const buttonVariants = cva(
         aviation:
           'bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] text-white shadow-md hover:shadow-[0_0_25px_rgba(59,130,246,0.3)] hover:bg-[position:right_center] transition-all duration-500',
         critical:
-          'bg-gradient-to-r from-destructive to-red-600 text-white shadow-md hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:from-red-600 hover:to-destructive',
+          'bg-gradient-to-r from-destructive to-[var(--color-danger-600)] text-white shadow-md hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:from-[var(--color-danger-600)] hover:to-destructive',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

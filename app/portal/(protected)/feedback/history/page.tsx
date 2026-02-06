@@ -16,6 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { MessageSquare, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 import { FeedbackPost, type FeedbackPostData } from '@/components/shared/feedback-post'
 
 interface PilotSession {
@@ -139,6 +140,10 @@ export default function FeedbackHistoryPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Breadcrumbs */}
+      <div className="px-8 pt-6">
+        <PageBreadcrumbs rootPath="portal" />
+      </div>
       {/* Page Header */}
       <div className="bg-card border-b border-white/[0.08] px-8 py-6">
         <div className="flex items-center justify-between">
@@ -170,7 +175,7 @@ export default function FeedbackHistoryPage() {
                   <p className="text-muted-foreground text-sm font-medium">Total Feedback</p>
                   <p className="text-foreground text-3xl font-bold">{feedback.length}</p>
                 </div>
-                <MessageSquare className="h-8 w-8 text-blue-500" />
+                <MessageSquare className="h-8 w-8 text-[var(--color-primary-500)]" />
               </div>
             </CardContent>
           </Card>
@@ -187,7 +192,7 @@ export default function FeedbackHistoryPage() {
                     }
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-yellow-500" />
+                <Clock className="h-8 w-8 text-[var(--color-warning-500)]" />
               </div>
             </CardContent>
           </Card>
@@ -201,7 +206,7 @@ export default function FeedbackHistoryPage() {
                     {feedback.filter((f) => f.status === 'RESOLVED').length}
                   </p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-500" />
+                <CheckCircle className="h-8 w-8 text-[var(--color-success-500)]" />
               </div>
             </CardContent>
           </Card>

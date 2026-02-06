@@ -42,15 +42,18 @@ export default async function LeaveRequestPage({ params }: LeaveRequestPageProps
   const statusConfig = {
     PENDING: {
       variant: 'secondary' as const,
-      className: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+      className:
+        'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)] border-[var(--color-warning-500)]/20',
     },
     APPROVED: {
       variant: 'default' as const,
-      className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      className:
+        'bg-[var(--color-success-muted)] text-[var(--color-success-400)] border-[var(--color-success-500)]/20',
     },
     DENIED: {
       variant: 'destructive' as const,
-      className: 'bg-red-500/10 text-red-400 border-red-500/20',
+      className:
+        'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)] border-[var(--color-danger-500)]/20',
     },
     CANCELLED: {
       variant: 'secondary' as const,

@@ -50,7 +50,7 @@ async function resetAdminPassword() {
     .in('role', ['admin', 'manager'])
 
   // If `users` table doesn't exist, try `an_users`
-  if (fetchError && fetchError.message.includes("Could not find the table")) {
+  if (fetchError && fetchError.message.includes('Could not find the table')) {
     console.log('ℹ️  Using an_users table (unified auth migration not yet applied)\n')
     tableName = 'an_users'
     const result = await supabase
@@ -198,7 +198,7 @@ async function resetPilotPassword(staffId: string) {
     .from('pilot_users')
     .update({
       password_hash: passwordHash,
-      must_change_password: true  // Require password change on next login
+      must_change_password: true, // Require password change on next login
     })
     .eq('id', pilotUser.id)
 
@@ -254,7 +254,7 @@ async function resetAllPilotPasswords() {
       .from('pilot_users')
       .update({
         password_hash: passwordHash,
-        must_change_password: true
+        must_change_password: true,
       })
       .eq('id', pilot.id)
 
@@ -282,7 +282,9 @@ async function main() {
     const staffId = args[pilotIndex + 1]
 
     if (!staffId) {
-      console.error('❌ Please provide a Staff ID: npx tsx scripts/reset-admin-password.ts --pilot <staffId>')
+      console.error(
+        '❌ Please provide a Staff ID: npx tsx scripts/reset-admin-password.ts --pilot <staffId>'
+      )
       process.exit(1)
     }
 

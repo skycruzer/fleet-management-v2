@@ -12,7 +12,6 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportExportRequestSchema } from '@/lib/validations/reports-schema'
-import { z } from 'zod'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 
@@ -94,8 +93,8 @@ export async function POST(request: Request) {
     // Use empty object if filters is undefined
     const report = await generateReport(reportType, filters ?? {}, true, auth.email || auth.userId!)
 
-    // Generate PDF
-    const pdfBuffer = await generatePDF(report, reportType)
+    // Generate PDF (pass groupBy for grouped report rendering)
+    const pdfBuffer = await generatePDF(report, reportType, filters?.groupBy)
 
     const executionTime = Date.now() - startTime
 

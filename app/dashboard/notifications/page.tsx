@@ -50,26 +50,26 @@ export default async function NotificationsPage() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'success':
-        return <CheckCircle className="h-5 w-5 text-green-500" />
+        return <CheckCircle className="h-5 w-5 text-[var(--color-success-500)]" />
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />
+        return <AlertTriangle className="h-5 w-5 text-[var(--color-warning-500)]" />
       case 'error':
-        return <XCircle className="h-5 w-5 text-red-500" />
+        return <XCircle className="h-5 w-5 text-[var(--color-danger-500)]" />
       default:
-        return <Info className="h-5 w-5 text-blue-500" />
+        return <Info className="h-5 w-5 text-[var(--color-primary-500)]" />
     }
   }
 
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'success':
-        return 'bg-emerald-500/10 border-emerald-500/20'
+        return 'bg-[var(--color-success-muted)] border-[var(--color-success-500)]/20'
       case 'warning':
-        return 'bg-amber-500/10 border-amber-500/20'
+        return 'bg-[var(--color-warning-muted)] border-[var(--color-warning-500)]/20'
       case 'error':
-        return 'bg-red-500/10 border-red-500/20'
+        return 'bg-[var(--color-destructive-muted)] border-[var(--color-danger-500)]/20'
       default:
-        return 'bg-blue-500/10 border-blue-500/20'
+        return 'bg-[var(--color-info-bg)] border-[var(--color-primary-500)]/20'
     }
   }
 
@@ -91,7 +91,7 @@ export default async function NotificationsPage() {
             <input type="hidden" name="userId" value={userId} />
             <button
               type="submit"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+              className="rounded-lg bg-[var(--color-primary-600)] px-4 py-2 text-white hover:bg-[var(--color-primary-700)]"
             >
               Mark All as Read
             </button>
@@ -139,7 +139,7 @@ export default async function NotificationsPage() {
                           {notification.link && (
                             <Link
                               href={notification.link}
-                              className="text-sm font-medium text-blue-400 hover:text-blue-300"
+                              className="text-sm font-medium text-[var(--color-info)] hover:text-[var(--color-primary-300)]"
                             >
                               View Details →
                             </Link>
@@ -177,7 +177,7 @@ export default async function NotificationsPage() {
                           {notification.link && (
                             <Link
                               href={notification.link}
-                              className="text-sm font-medium text-blue-400 hover:text-blue-300"
+                              className="text-sm font-medium text-[var(--color-info)] hover:text-[var(--color-primary-300)]"
                             >
                               View Details →
                             </Link>

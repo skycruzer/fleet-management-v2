@@ -266,7 +266,7 @@ export function RenewalPlanPreviewModal({
             </TabsTrigger>
             {pairingData && (
               <TabsTrigger value="pairing" className="flex items-center gap-1.5">
-                <Link2 className="h-3.5 w-3.5 text-cyan-500" />
+                <Link2 className="h-3.5 w-3.5 text-[var(--color-info)]" />
                 <span className="hidden sm:inline">Pairing</span>
                 {pairingData.statistics.totalUnpaired > 0 && (
                   <Badge

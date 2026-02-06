@@ -17,6 +17,7 @@ export const PilotLoginSchema = z.object({
     .string()
     .min(1, 'Password is required')
     .max(100, 'Password must be less than 100 characters'),
+  rememberMe: z.boolean().optional().default(false),
 })
 
 export type PilotLoginInput = z.infer<typeof PilotLoginSchema>

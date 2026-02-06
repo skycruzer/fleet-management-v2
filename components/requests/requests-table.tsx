@@ -55,7 +55,10 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
+  ClipboardList,
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import { TableSkeleton } from '@/components/ui/skeleton'
 
 // ============================================================================
 // Type Definitions
@@ -365,26 +368,16 @@ export function RequestsTable({
   // ============================================================================
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="space-y-3 text-center">
-          <div className="border-primary mx-auto h-8 w-8 animate-spin rounded-full border-b-2" />
-          <p className="text-muted-foreground text-sm">Loading requests...</p>
-        </div>
-      </div>
-    )
+    return <TableSkeleton rows={8} columns={7} />
   }
 
   if (requests.length === 0) {
     return (
-      <div className="flex items-center justify-center rounded-lg border border-dashed py-12">
-        <div className="space-y-3 text-center">
-          <p className="text-lg font-medium">No requests found</p>
-          <p className="text-muted-foreground text-sm">
-            Try adjusting your filters or create a new request.
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        icon={ClipboardList}
+        title="No requests found"
+        description="Try adjusting your filters or create a new request."
+      />
     )
   }
 

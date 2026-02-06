@@ -192,7 +192,9 @@ export default function AnalyticsContent() {
           <span className="text-4xl">❌</span>
           <div>
             <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
-            <p className="text-muted-foreground text-sm">{error || 'Analytics data not available'}</p>
+            <p className="text-muted-foreground text-sm">
+              {error || 'Analytics data not available'}
+            </p>
           </div>
           <Button onClick={handleRefresh}>Try Again</Button>
         </div>
@@ -229,9 +231,9 @@ export default function AnalyticsContent() {
 
       {/* Critical Alerts Section */}
       {analytics.risk.criticalAlerts.length > 0 && (
-        <Card className="border-destructive/20 bg-red-500/10 p-4">
+        <Card className="border-destructive/20 bg-[var(--color-destructive-muted)] p-4">
           <div className="flex items-start space-x-2">
-            <AlertTriangle className="mt-0.5 h-5 w-5 text-red-500" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-[var(--color-danger-500)]" />
             <div className="flex-1">
               <h3 className="text-foreground mb-2 text-base font-bold">Critical Alerts</h3>
               <div className="space-y-1.5">
@@ -245,8 +247,8 @@ export default function AnalyticsContent() {
                       <span
                         className={`rounded px-2 py-1 text-xs font-medium ${
                           alert.severity === 'critical'
-                            ? 'bg-red-600 text-white'
-                            : 'bg-yellow-600 text-white'
+                            ? 'bg-[var(--color-danger-600)] text-white'
+                            : 'bg-[var(--color-warning-600)] text-white'
                         }`}
                       >
                         {alert.severity.toUpperCase()}
@@ -263,30 +265,34 @@ export default function AnalyticsContent() {
 
       {/* Fleet Readiness Overview */}
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-500/20 p-4">
+        <Card className="border-[var(--color-primary-500)]/20 bg-gradient-to-br from-[var(--color-primary-500)]/10 to-[var(--color-primary-500)]/20 p-4">
           <div className="mb-2 flex items-center justify-between">
-            <BarChart3 className="h-8 w-8 text-blue-400" aria-hidden="true" />
-            <span className="text-2xl font-bold text-blue-400">{analytics.fleet.utilization}%</span>
+            <BarChart3 className="h-8 w-8 text-[var(--color-primary-400)]" aria-hidden="true" />
+            <span className="text-2xl font-bold text-[var(--color-primary-400)]">
+              {analytics.fleet.utilization}%
+            </span>
           </div>
           <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Utilization</h3>
           <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
         </Card>
 
-        <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-emerald-500/20 p-4">
+        <Card className="border-[var(--color-success-500)]/20 bg-gradient-to-br from-[var(--color-success-500)]/10 to-[var(--color-success-500)]/20 p-4">
           <div className="mb-2 flex items-center justify-between">
-            <Plane className="h-8 w-8 text-emerald-400" aria-hidden="true" />
-            <span className="text-2xl font-bold text-emerald-400">
+            <Plane className="h-8 w-8 text-[var(--color-success-500)]" aria-hidden="true" />
+            <span className="text-2xl font-bold text-[var(--color-success-500)]">
               {analytics.fleet.availability}%
             </span>
           </div>
-          <h3 className="text-muted-foreground text-xs font-medium uppercase">Pilot Availability</h3>
+          <h3 className="text-muted-foreground text-xs font-medium uppercase">
+            Pilot Availability
+          </h3>
           <p className="text-muted-foreground mt-0.5 text-xs">
             {analytics.fleet.pilotAvailability.available} available,{' '}
             {analytics.fleet.pilotAvailability.onLeave} on leave
           </p>
         </Card>
 
-        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-purple-500/20 p-4">
+        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-[var(--color-category-simulator)]/20 p-4">
           <div className="mb-2 flex items-center justify-between">
             <Target className="text-primary h-8 w-8" aria-hidden="true" />
             <span className="text-primary-foreground text-2xl font-bold">
@@ -309,16 +315,20 @@ export default function AnalyticsContent() {
               <div className="text-foreground text-2xl font-bold">{analytics.pilot.total}</div>
               <div className="text-muted-foreground text-xs">Total Pilots</div>
             </div>
-            <div className="rounded-lg bg-emerald-500/10 p-3">
-              <div className="text-2xl font-bold text-emerald-400">{analytics.pilot.active}</div>
+            <div className="rounded-lg bg-[var(--color-success-muted)] p-3">
+              <div className="text-2xl font-bold text-[var(--color-success-500)]">
+                {analytics.pilot.active}
+              </div>
               <div className="text-muted-foreground text-xs">Active</div>
             </div>
             <div className="bg-primary/5 rounded-lg p-3">
-              <div className="text-2xl font-bold text-blue-400">{analytics.pilot.captains}</div>
+              <div className="text-2xl font-bold text-[var(--color-primary-400)]">
+                {analytics.pilot.captains}
+              </div>
               <div className="text-muted-foreground text-xs">Captains</div>
             </div>
-            <div className="rounded-lg bg-indigo-500/10 p-3">
-              <div className="text-2xl font-bold text-indigo-400">
+            <div className="rounded-lg bg-[var(--color-badge-indigo-bg)] p-3">
+              <div className="text-2xl font-bold text-[var(--color-badge-indigo)]">
                 {analytics.pilot.firstOfficers}
               </div>
               <div className="text-muted-foreground text-xs">First Officers</div>
@@ -331,26 +341,29 @@ export default function AnalyticsContent() {
             Retirement Planning
           </h3>
           <div className="space-y-3">
-            <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3">
+            <div className="rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-warning-muted)] p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-muted-foreground text-xs">Retiring in 2 Years</div>
-                  <div className="text-xl font-bold text-amber-400">
+                  <div className="text-xl font-bold text-[var(--color-warning-500)]">
                     {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
                   </div>
                 </div>
-                <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
+                <AlertTriangle
+                  className="h-6 w-6 text-[var(--color-danger-600)]"
+                  aria-hidden="true"
+                />
               </div>
             </div>
-            <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-3">
+            <div className="rounded-lg border border-[var(--color-badge-orange-border)] bg-[var(--color-badge-orange-bg)] p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-muted-foreground text-xs">Retiring in 3-5 Years</div>
-                  <div className="text-xl font-bold text-orange-400">
+                  <div className="text-xl font-bold text-[var(--color-badge-orange)]">
                     {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length} pilots
                   </div>
                 </div>
-                <Calendar className="h-6 w-6 text-yellow-600" aria-hidden="true" />
+                <Calendar className="h-6 w-6 text-[var(--color-warning-600)]" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -361,28 +374,33 @@ export default function AnalyticsContent() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Card className="p-4">
           <h3 className="text-foreground mb-3 flex items-center border-b pb-1.5 text-base font-semibold">
-            <CheckCircle className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+            <CheckCircle
+              className="mr-2 h-5 w-5 text-[var(--color-success-600)]"
+              aria-hidden="true"
+            />
             Certification Status
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-muted/50 rounded-lg p-3">
-              <div className="text-foreground text-2xl font-bold">{analytics.certification.total}</div>
+              <div className="text-foreground text-2xl font-bold">
+                {analytics.certification.total}
+              </div>
               <div className="text-muted-foreground text-xs">Total</div>
             </div>
-            <div className="rounded-lg bg-emerald-500/10 p-3">
-              <div className="text-2xl font-bold text-emerald-400">
+            <div className="rounded-lg bg-[var(--color-success-muted)] p-3">
+              <div className="text-2xl font-bold text-[var(--color-success-500)]">
                 {analytics.certification.current}
               </div>
               <div className="text-muted-foreground text-xs">Current</div>
             </div>
-            <div className="rounded-lg bg-amber-500/10 p-3">
-              <div className="text-2xl font-bold text-amber-400">
+            <div className="rounded-lg bg-[var(--color-warning-muted)] p-3">
+              <div className="text-2xl font-bold text-[var(--color-warning-500)]">
                 {analytics.certification.expiring}
               </div>
               <div className="text-muted-foreground text-xs">Expiring</div>
             </div>
-            <div className="rounded-lg bg-red-500/10 p-3">
-              <div className="text-2xl font-bold text-red-400">
+            <div className="rounded-lg bg-[var(--color-destructive-muted)] p-3">
+              <div className="text-2xl font-bold text-[var(--color-danger-500)]">
                 {analytics.certification.expired}
               </div>
               <div className="text-muted-foreground text-xs">Expired</div>
@@ -391,7 +409,7 @@ export default function AnalyticsContent() {
           <div className="bg-primary/5 mt-3 rounded-lg p-3">
             <div className="flex items-center justify-between">
               <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
-              <span className="text-xl font-bold text-blue-400">
+              <span className="text-xl font-bold text-[var(--color-primary-400)]">
                 {analytics.certification.complianceRate}%
               </span>
             </div>
@@ -408,15 +426,21 @@ export default function AnalyticsContent() {
                 <div className="text-foreground mb-1 text-sm font-medium">{category.category}</div>
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <div className="text-center">
-                    <div className="font-bold text-emerald-400">{category.current}</div>
+                    <div className="font-bold text-[var(--color-success-500)]">
+                      {category.current}
+                    </div>
                     <div className="text-muted-foreground">Current</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-bold text-amber-400">{category.expiring}</div>
+                    <div className="font-bold text-[var(--color-warning-500)]">
+                      {category.expiring}
+                    </div>
                     <div className="text-muted-foreground">Expiring</div>
                   </div>
                   <div className="text-center">
-                    <div className="font-bold text-red-400">{category.expired}</div>
+                    <div className="font-bold text-[var(--color-danger-500)]">
+                      {category.expired}
+                    </div>
                     <div className="text-muted-foreground">Expired</div>
                   </div>
                 </div>
@@ -429,7 +453,7 @@ export default function AnalyticsContent() {
       {/* Leave Analytics */}
       <Card className="p-4">
         <h3 className="text-foreground mb-3 flex items-center border-b pb-1.5 text-base font-semibold">
-          <Palmtree className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+          <Palmtree className="mr-2 h-5 w-5 text-[var(--color-success-600)]" aria-hidden="true" />
           Leave Request Analytics
         </h3>
         <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -437,16 +461,22 @@ export default function AnalyticsContent() {
             <div className="text-foreground text-2xl font-bold">{analytics.leave.total}</div>
             <div className="text-muted-foreground text-xs">Total</div>
           </div>
-          <div className="rounded-lg bg-amber-500/10 p-3">
-            <div className="text-2xl font-bold text-amber-400">{analytics.leave.pending}</div>
+          <div className="rounded-lg bg-[var(--color-warning-muted)] p-3">
+            <div className="text-2xl font-bold text-[var(--color-warning-500)]">
+              {analytics.leave.pending}
+            </div>
             <div className="text-muted-foreground text-xs">Pending</div>
           </div>
-          <div className="rounded-lg bg-emerald-500/10 p-3">
-            <div className="text-2xl font-bold text-emerald-400">{analytics.leave.approved}</div>
+          <div className="rounded-lg bg-[var(--color-success-muted)] p-3">
+            <div className="text-2xl font-bold text-[var(--color-success-500)]">
+              {analytics.leave.approved}
+            </div>
             <div className="text-muted-foreground text-xs">Approved</div>
           </div>
-          <div className="rounded-lg bg-red-500/10 p-3">
-            <div className="text-2xl font-bold text-red-400">{analytics.leave.denied}</div>
+          <div className="rounded-lg bg-[var(--color-destructive-muted)] p-3">
+            <div className="text-2xl font-bold text-[var(--color-danger-500)]">
+              {analytics.leave.denied}
+            </div>
             <div className="text-muted-foreground text-xs">Denied</div>
           </div>
         </div>
@@ -467,7 +497,10 @@ export default function AnalyticsContent() {
       {/* Risk Assessment */}
       <Card className="p-4">
         <h3 className="text-foreground mb-3 flex items-center border-b pb-1.5 text-base font-semibold">
-          <AlertTriangle className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
+          <AlertTriangle
+            className="mr-2 h-5 w-5 text-[var(--color-danger-600)]"
+            aria-hidden="true"
+          />
           Risk Assessment
         </h3>
         <div className="mb-4">
@@ -476,10 +509,10 @@ export default function AnalyticsContent() {
             <span
               className={`text-2xl font-bold ${
                 analytics.risk.overallRiskScore > 50
-                  ? 'text-red-400'
+                  ? 'text-[var(--color-danger-500)]'
                   : analytics.risk.overallRiskScore > 25
-                    ? 'text-amber-400'
-                    : 'text-emerald-400'
+                    ? 'text-[var(--color-warning-500)]'
+                    : 'text-[var(--color-success-500)]'
               }`}
             >
               {analytics.risk.overallRiskScore}/100
@@ -507,12 +540,12 @@ export default function AnalyticsContent() {
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     factor.severity === 'critical'
-                      ? 'bg-red-600 text-white'
+                      ? 'bg-[var(--color-danger-600)] text-white'
                       : factor.severity === 'high'
-                        ? 'bg-orange-500 text-white'
+                        ? 'bg-[var(--color-badge-orange)] text-white'
                         : factor.severity === 'medium'
-                          ? 'bg-yellow-500 text-white'
-                          : 'bg-green-500 text-white'
+                          ? 'bg-[var(--color-warning-500)] text-white'
+                          : 'bg-[var(--color-success-500)] text-white'
                   }`}
                 >
                   {factor.severity.toUpperCase()}
@@ -528,7 +561,7 @@ export default function AnalyticsContent() {
       <Card className="bg-primary/5 border-primary/20 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Info className="h-5 w-5 text-blue-600" aria-hidden="true" />
+            <Info className="h-5 w-5 text-[var(--color-primary-600)]" aria-hidden="true" />
             <p className="text-muted-foreground text-sm">
               Export your analytics data for offline analysis and reporting.
             </p>

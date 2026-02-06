@@ -32,7 +32,7 @@ export default function Offline() {
     <div className="from-background flex min-h-screen items-center justify-center bg-gradient-to-br to-white/[0.03] p-4">
       <div className="bg-card w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl">
         {/* Header */}
-        <div className="bg-sky-500 p-8">
+        <div className="bg-[var(--color-primary-500)] p-8">
           <div className="mb-4 flex items-center justify-center">
             <div className="rounded-full bg-white/10 p-4 backdrop-blur-sm">
               <WifiOff className="h-16 w-16 text-white" />
@@ -47,12 +47,14 @@ export default function Offline() {
         {/* Content */}
         <div className="space-y-6 p-8">
           {/* Connection Status */}
-          <div className="rounded-r border-l-4 border-amber-400 bg-amber-500/10 p-5">
+          <div className="rounded-r border-l-4 border-[var(--color-warning-400)] bg-[var(--color-warning-muted)] p-5">
             <div className="flex items-start">
-              <Signal className="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-amber-400" />
+              <Signal className="mt-0.5 mr-3 h-5 w-5 flex-shrink-0 text-[var(--color-warning-400)]" />
               <div className="flex-1">
-                <h3 className="mb-1 text-sm font-semibold text-amber-400">Connection Status</h3>
-                <p className="text-sm text-amber-400">
+                <h3 className="mb-1 text-sm font-semibold text-[var(--color-warning-400)]">
+                  Connection Status
+                </h3>
+                <p className="text-sm text-[var(--color-warning-400)]">
                   The Fleet Management System requires an active internet connection to function
                   properly.
                 </p>
@@ -63,12 +65,12 @@ export default function Offline() {
           {/* Troubleshooting Steps */}
           <div className="rounded-lg bg-white/[0.03] p-5">
             <h3 className="text-foreground mb-3 flex items-center text-base font-semibold">
-              <WifiOff className="mr-2 h-5 w-5 text-sky-500" />
+              <WifiOff className="mr-2 h-5 w-5 text-[var(--color-primary-500)]" />
               Troubleshooting Steps:
             </h3>
             <ul className="text-foreground/80 space-y-3 text-sm">
               <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky-500 text-xs font-bold text-white">
+                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
                   1
                 </span>
                 <div>
@@ -81,7 +83,7 @@ export default function Offline() {
                 </div>
               </li>
               <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky-500 text-xs font-bold text-white">
+                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
                   2
                 </span>
                 <div>
@@ -92,7 +94,7 @@ export default function Offline() {
                 </div>
               </li>
               <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky-500 text-xs font-bold text-white">
+                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
                   3
                 </span>
                 <div>
@@ -105,7 +107,7 @@ export default function Offline() {
                 </div>
               </li>
               <li className="flex items-start">
-                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-sky-500 text-xs font-bold text-white">
+                <span className="mt-0.5 mr-3 flex inline-block h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-500)] text-xs font-bold text-white">
                   4
                 </span>
                 <div>
@@ -124,12 +126,12 @@ export default function Offline() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="bg-card rounded-lg border border-white/[0.08] p-4">
               <div className="mb-2 flex items-center gap-3">
-                <div className="rounded-lg bg-red-500/10 p-2">
-                  <WifiOff className="h-5 w-5 text-red-600" />
+                <div className="rounded-lg bg-[var(--color-destructive-muted)] p-2">
+                  <WifiOff className="h-5 w-5 text-[var(--color-danger-600)]" />
                 </div>
                 <h4 className="text-foreground font-semibold">Connection</h4>
               </div>
-              <p className="text-sm font-medium text-red-600">Offline</p>
+              <p className="text-sm font-medium text-[var(--color-danger-600)]">Offline</p>
             </div>
 
             <div className="bg-card rounded-lg border border-white/[0.08] p-4">
@@ -147,14 +149,14 @@ export default function Offline() {
           <div className="flex flex-col gap-3 pt-2 sm:flex-row">
             <button
               onClick={() => window.location.reload()}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-sky-500 px-6 py-3.5 font-semibold text-white shadow-md transition-all duration-200 hover:bg-sky-600 hover:shadow-lg active:scale-95"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-[var(--color-primary-500)] px-6 py-3.5 font-semibold text-white shadow-md transition-all duration-200 hover:bg-[var(--color-primary-600)] hover:shadow-lg active:scale-95"
             >
               <RefreshCw className="h-5 w-5" />
               Try Again
             </button>
             <button
               onClick={() => (window.location.href = '/dashboard')}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-neutral-800 px-6 py-3.5 font-semibold text-white shadow-md transition-all duration-200 hover:bg-black hover:shadow-lg active:scale-95"
+              className="bg-muted flex flex-1 items-center justify-center gap-2 rounded-lg px-6 py-3.5 font-semibold text-white shadow-md transition-all duration-200 hover:bg-black hover:shadow-lg active:scale-95"
             >
               <Home className="h-5 w-5" />
               Go to Dashboard
@@ -162,8 +164,8 @@ export default function Offline() {
           </div>
 
           {/* Auto-Retry Notice */}
-          <div className="rounded-lg border border-blue-500/20 bg-gradient-to-r from-blue-500/10 to-blue-500/5 p-4">
-            <p className="text-center text-xs text-blue-400">
+          <div className="rounded-lg border border-[var(--color-primary-500)]/20 bg-gradient-to-r from-[var(--color-primary-500)]/10 to-[var(--color-primary-500)]/5 p-4">
+            <p className="text-center text-xs text-[var(--color-info)]">
               The application will automatically retry connecting once your internet is restored
             </p>
           </div>
@@ -174,7 +176,7 @@ export default function Offline() {
               Still having connection issues?{' '}
               <a
                 href="mailto:support@example.com"
-                className="font-semibold text-sky-500 hover:underline"
+                className="font-semibold text-[var(--color-primary-500)] hover:underline"
               >
                 Contact IT Support
               </a>
@@ -188,7 +190,7 @@ export default function Offline() {
             <p className="text-muted-foreground">
               Fleet Management V2 - B767 Pilot Management System
             </p>
-            <p className="font-bold text-sky-500">Powered by Serwist PWA</p>
+            <p className="font-bold text-[var(--color-primary-500)]">Powered by Serwist PWA</p>
           </div>
         </div>
       </div>

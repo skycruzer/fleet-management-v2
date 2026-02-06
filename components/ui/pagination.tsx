@@ -141,7 +141,7 @@ export function Pagination({
       )}
 
       {/* Page Navigation */}
-      <div className="flex items-center gap-1">
+      <nav className="flex items-center gap-1" aria-label="Pagination">
         {/* First Page */}
         {showFirstLast && (
           <Button
@@ -223,7 +223,7 @@ export function Pagination({
             <ChevronsRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         )}
-      </div>
+      </nav>
     </div>
   )
 }

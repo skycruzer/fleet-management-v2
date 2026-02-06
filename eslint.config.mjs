@@ -12,6 +12,7 @@ const eslintConfig = tseslint.config(
       '**/build/**',
       '**/next-env.d.ts',
       '**/node_modules/**',
+      '**/node_modules_old/**',
       '**/.storybook/**',
       '**/storybook-static/**',
       '**/.worktrees/**',

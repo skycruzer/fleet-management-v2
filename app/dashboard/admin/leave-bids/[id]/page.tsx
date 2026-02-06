@@ -72,28 +72,28 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
     switch (status) {
       case 'PENDING':
         return (
-          <Badge className="border-amber-500/20 bg-amber-500/10 text-amber-400">
+          <Badge className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]">
             <Clock className="mr-1 h-3 w-3" />
             Pending Review
           </Badge>
         )
       case 'PROCESSING':
         return (
-          <Badge className="border-blue-500/20 bg-blue-500/10 text-blue-400">
+          <Badge className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] text-[var(--color-info)]">
             <Clock className="mr-1 h-3 w-3" />
             Processing
           </Badge>
         )
       case 'APPROVED':
         return (
-          <Badge className="border-emerald-500/20 bg-emerald-500/10 text-emerald-400">
+          <Badge className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] text-[var(--color-success-400)]">
             <CheckCircle className="mr-1 h-3 w-3" />
             Approved
           </Badge>
         )
       case 'REJECTED':
         return (
-          <Badge className="border-red-500/20 bg-red-500/10 text-red-400">
+          <Badge className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]">
             <XCircle className="mr-1 h-3 w-3" />
             Rejected
           </Badge>
@@ -233,7 +233,7 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
                   className="bg-card rounded-lg border-2 border-white/[0.08] p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500/10 text-sm font-bold text-cyan-400">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-info-bg)] text-sm font-bold text-[var(--color-info)]">
                       {option.priority}
                     </span>
                     <span className="text-muted-foreground text-sm font-medium">
@@ -258,7 +258,7 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
                     </div>
                     <div>
                       <p className="text-muted-foreground text-xs font-medium">Duration</p>
-                      <p className="text-base font-semibold text-cyan-400">
+                      <p className="text-base font-semibold text-[var(--color-info)]">
                         {Math.ceil(
                           (new Date(option.end_date).getTime() -
                             new Date(option.start_date).getTime()) /

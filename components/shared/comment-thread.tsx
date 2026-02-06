@@ -115,7 +115,8 @@ export function CommentThread({
   }
 
   // Determine avatar color based on user type
-  const avatarColorClass = comment.user_type === 'admin' ? 'bg-primary' : 'bg-emerald-600'
+  const avatarColorClass =
+    comment.user_type === 'admin' ? 'bg-primary' : 'bg-[var(--color-success-600)]'
 
   return (
     <div className={cn('flex gap-2', depth > 0 && 'ml-10')}>

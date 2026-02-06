@@ -85,7 +85,7 @@ export default function ChangePasswordPage() {
 
           {/* Error */}
           {error && (
-            <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+            <div className="mb-6 flex items-center gap-2 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>

@@ -20,6 +20,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, CheckCircle2, Users } from 'lucide-react'
 import type { RosterPeriodReport } from '@/lib/services/roster-report-service'
+import { formatAustralianDateTime } from '@/lib/utils/date-format'
 
 interface RosterReportPreviewDialogProps {
   report: RosterPeriodReport
@@ -57,7 +58,7 @@ export function RosterReportPreviewDialog({
               <div>
                 <p className="text-muted-foreground text-sm">Generated</p>
                 <p className="font-medium">
-                  {new Date(report.metadata.generatedAt).toLocaleDateString()}
+                  {formatAustralianDateTime(report.metadata.generatedAt)}
                 </p>
               </div>
             </div>

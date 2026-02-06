@@ -70,6 +70,8 @@ interface CreateSessionMetadata {
   dbTable?: string
   /** Column name for user ID in the DB table */
   dbUserIdColumn?: string
+  /** Custom TTL in seconds (overrides default 24h; used for "remember me") */
+  ttlSeconds?: number
 }
 
 // ============================================================================
@@ -128,11 +130,12 @@ export async function createRedisSession(
   const cookieName = metadata.cookieName || DEFAULT_COOKIE_NAME
   const dbTable = metadata.dbTable || 'sessions'
   const dbUserIdColumn = metadata.dbUserIdColumn || 'user_id'
+  const ttl = metadata.ttlSeconds || SESSION_TTL_SECONDS
 
   try {
     const sessionToken = generateSessionToken()
     const now = new Date()
-    const expiresAt = new Date(now.getTime() + SESSION_TTL_SECONDS * 1000)
+    const expiresAt = new Date(now.getTime() + ttl * 1000)
 
     // Write to DB first (audit log — must succeed)
     const supabase = createServiceRoleClient()
@@ -179,10 +182,10 @@ export async function createRedisSession(
       try {
         const pipeline = redis.pipeline()
         pipeline.set(sessionKey(sessionToken), JSON.stringify(sessionData), {
-          ex: SESSION_TTL_SECONDS,
+          ex: ttl,
         })
         pipeline.sadd(userSessionsKey(userData.userId), sessionToken)
-        pipeline.expire(userSessionsKey(userData.userId), SESSION_TTL_SECONDS)
+        pipeline.expire(userSessionsKey(userData.userId), ttl)
         await pipeline.exec()
       } catch {
         logWarning('Redis write failed during session creation, DB is still authoritative', {
@@ -199,7 +202,7 @@ export async function createRedisSession(
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
-      maxAge: SESSION_TTL_SECONDS,
+      maxAge: ttl,
     })
 
     return { success: true, sessionToken }

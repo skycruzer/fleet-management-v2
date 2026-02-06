@@ -267,7 +267,7 @@ export function FeedbackPost({
         return (
           <Badge
             variant="outline"
-            className="border-yellow-500/30 bg-yellow-500/10 text-yellow-500"
+            className="border-[var(--color-warning-500)]/30 bg-[var(--color-warning-500)]/10 text-[var(--color-warning-500)]"
           >
             <Clock className="mr-1 h-3 w-3" />
             Pending
@@ -275,7 +275,10 @@ export function FeedbackPost({
         )
       case 'REVIEWED':
         return (
-          <Badge variant="outline" className="border-blue-500/30 bg-blue-500/10 text-blue-500">
+          <Badge
+            variant="outline"
+            className="border-[var(--color-primary-500)]/30 bg-[var(--color-info-bg)] text-[var(--color-primary-500)]"
+          >
             <AlertCircle className="mr-1 h-3 w-3" />
             Reviewed
           </Badge>
@@ -284,7 +287,7 @@ export function FeedbackPost({
         return (
           <Badge
             variant="outline"
-            className="border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+            className="border-[var(--color-success-500)]/30 bg-[var(--color-success-muted)] text-[var(--color-success-500)]"
           >
             <CheckCircle className="mr-1 h-3 w-3" />
             Resolved
@@ -292,7 +295,10 @@ export function FeedbackPost({
         )
       case 'DISMISSED':
         return (
-          <Badge variant="outline" className="border-red-500/30 bg-red-500/10 text-red-500">
+          <Badge
+            variant="outline"
+            className="border-[var(--color-danger-500)]/30 bg-[var(--color-danger-500)]/10 text-[var(--color-danger-500)]"
+          >
             Dismissed
           </Badge>
         )
@@ -304,13 +310,18 @@ export function FeedbackPost({
   // Get category badge color
   function getCategoryBadge(category: string) {
     const colors: Record<string, string> = {
-      GENERAL: 'bg-gray-500/10 text-gray-500 border-gray-500/30',
-      OPERATIONS: 'bg-blue-500/10 text-blue-500 border-blue-500/30',
-      SAFETY: 'bg-red-500/10 text-red-500 border-red-500/30',
-      TRAINING: 'bg-purple-500/10 text-purple-500 border-purple-500/30',
-      SCHEDULING: 'bg-orange-500/10 text-orange-500 border-orange-500/30',
-      SYSTEM_IT: 'bg-cyan-500/10 text-cyan-500 border-cyan-500/30',
-      OTHER: 'bg-gray-500/10 text-gray-500 border-gray-500/30',
+      GENERAL: 'bg-muted text-muted-foreground border-border',
+      OPERATIONS:
+        'bg-[var(--color-info-bg)] text-[var(--color-primary-500)] border-[var(--color-primary-500)]/30',
+      SAFETY:
+        'bg-[var(--color-danger-500)]/10 text-[var(--color-danger-500)] border-[var(--color-danger-500)]/30',
+      TRAINING:
+        'bg-[var(--color-badge-purple-bg)] text-[var(--color-badge-purple)] border-[var(--color-badge-purple)]/30',
+      SCHEDULING:
+        'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)] border-[var(--color-badge-orange)]/30',
+      SYSTEM_IT:
+        'bg-[var(--color-badge-cyan-bg)] text-[var(--color-badge-cyan)] border-[var(--color-badge-cyan)]/30',
+      OTHER: 'bg-muted text-muted-foreground border-border',
     }
     const colorClass = colors[category.toUpperCase()] || colors.OTHER
     return (
@@ -419,7 +430,7 @@ export function FeedbackPost({
             <div className="mt-3 space-y-4">
               {/* Error Message */}
               {commentError && (
-                <div className="rounded border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-500">
+                <div className="rounded border border-[var(--color-danger-500)]/30 bg-[var(--color-danger-500)]/10 px-3 py-2 text-sm text-[var(--color-danger-500)]">
                   {commentError}
                 </div>
               )}

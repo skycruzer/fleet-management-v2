@@ -2024,6 +2024,20 @@ export type Database = {
             referencedRelation: 'pilot_users'
             referencedColumns: ['id']
           },
+          {
+            foreignKeyName: 'pilot_requests_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'an_users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_requests_submitted_by_admin_id_fkey'
+            columns: ['submitted_by_admin_id']
+            isOneToOne: false
+            referencedRelation: 'an_users'
+            referencedColumns: ['id']
+          },
         ]
       }
       pilot_sessions: {
@@ -3003,6 +3017,13 @@ export type Database = {
             referencedRelation: 'pilots_with_contract_details'
             referencedColumns: ['id']
           },
+          {
+            foreignKeyName: 'pilot_requests_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'an_users'
+            referencedColumns: ['id']
+          },
         ]
       }
       active_leave_requests: {
@@ -3147,6 +3168,13 @@ export type Database = {
             columns: ['pilot_id']
             isOneToOne: false
             referencedRelation: 'pilots_with_contract_details'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_requests_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'an_users'
             referencedColumns: ['id']
           },
         ]
@@ -3332,6 +3360,13 @@ export type Database = {
             columns: ['pilot_user_id']
             isOneToOne: false
             referencedRelation: 'pilot_users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'pilot_requests_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'an_users'
             referencedColumns: ['id']
           },
         ]
@@ -4266,7 +4301,7 @@ export type Database = {
       pilot_position: 'captain' | 'first_officer' | 'second_officer' | 'cadet'
       pilot_role: 'Captain' | 'First Officer'
       request_status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'EXPIRED'
-      visa_type: 'Australia' | 'China' | 'New Zealand' | 'Japan' | 'Canada'
+      visa_type: 'Australia' | 'New Zealand' | 'Japan' | 'Canada'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4466,7 +4501,7 @@ export const Constants = {
       pilot_position: ['captain', 'first_officer', 'second_officer', 'cadet'],
       pilot_role: ['Captain', 'First Officer'],
       request_status: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'EXPIRED'],
-      visa_type: ['Australia', 'China', 'New Zealand', 'Japan', 'Canada'],
+      visa_type: ['Australia', 'New Zealand', 'Japan', 'Canada'],
     },
   },
 } as const

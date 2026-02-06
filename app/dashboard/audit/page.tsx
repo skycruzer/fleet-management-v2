@@ -135,8 +135,8 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
   if (fetchError) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-500/10 p-6">
-          <p className="text-red-400">Failed to load audit data: {fetchError}</p>
+        <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
+          <p className="text-[var(--color-danger-400)]">Failed to load audit data: {fetchError}</p>
         </div>
       </div>
     )
@@ -161,9 +161,9 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
               <p className="text-muted-foreground text-sm font-medium">Total Logs</p>
               <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalLogs}</p>
             </div>
-            <div className="rounded-full bg-blue-500/10 p-3">
+            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
               <svg
-                className="h-6 w-6 text-blue-600"
+                className="h-6 w-6 text-[var(--color-primary-600)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -186,9 +186,9 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
               <p className="text-muted-foreground text-sm font-medium">Unique Users</p>
               <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalUsers}</p>
             </div>
-            <div className="rounded-full bg-emerald-500/10 p-3">
+            <div className="rounded-full bg-[var(--color-success-muted)] p-3">
               <svg
-                className="h-6 w-6 text-green-600"
+                className="h-6 w-6 text-[var(--color-success-600)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -238,9 +238,9 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
                 {stats.recentActivity.reduce((sum, day) => sum + day.count, 0)}
               </p>
             </div>
-            <div className="rounded-full bg-orange-500/10 p-3">
+            <div className="rounded-full bg-[var(--color-badge-orange-bg)] p-3">
               <svg
-                className="h-6 w-6 text-orange-600"
+                className="h-6 w-6 text-[var(--color-badge-orange)]"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -261,25 +261,25 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <div className="bg-card rounded-lg border border-white/[0.08] p-4">
           <p className="text-muted-foreground text-sm font-medium">Inserts</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">
+          <p className="mt-1 text-2xl font-bold text-[var(--color-success-600)]">
             {stats.actionBreakdown.INSERT || 0}
           </p>
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-4">
           <p className="text-muted-foreground text-sm font-medium">Updates</p>
-          <p className="mt-1 text-2xl font-bold text-blue-600">
+          <p className="mt-1 text-2xl font-bold text-[var(--color-primary-600)]">
             {stats.actionBreakdown.UPDATE || 0}
           </p>
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-4">
           <p className="text-muted-foreground text-sm font-medium">Deletes</p>
-          <p className="mt-1 text-2xl font-bold text-red-600">
+          <p className="mt-1 text-2xl font-bold text-[var(--color-danger-600)]">
             {stats.actionBreakdown.DELETE || 0}
           </p>
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-4">
           <p className="text-muted-foreground text-sm font-medium">Restores</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600">
+          <p className="mt-1 text-2xl font-bold text-[var(--color-warning-600)]">
             {stats.actionBreakdown.RESTORE || 0}
           </p>
         </div>
@@ -299,7 +299,7 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
               Object.entries(searchParams).filter(([_, v]) => v != null) as [string, string][]
             )
           ).toString()}`}
-          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path

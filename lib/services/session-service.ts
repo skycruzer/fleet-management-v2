@@ -59,6 +59,7 @@ export async function createPilotSession(
   metadata?: {
     ipAddress?: string
     userAgent?: string
+    rememberMe?: boolean
   }
 ): Promise<{ success: boolean; sessionToken?: string; error?: string }> {
   try {
@@ -73,6 +74,9 @@ export async function createPilotSession(
     if (userError || !pilotUser) {
       return { success: false, error: 'Pilot user not found' }
     }
+
+    // 30 days for "remember me", otherwise 24 hours
+    const ttlSeconds = metadata?.rememberMe ? 30 * 24 * 60 * 60 : undefined
 
     return await createRedisSession(
       {
@@ -90,6 +94,7 @@ export async function createPilotSession(
         cookieName: SESSION_COOKIE_NAME,
         dbTable: 'pilot_sessions',
         dbUserIdColumn: 'pilot_user_id',
+        ttlSeconds,
       }
     )
   } catch (error) {

@@ -72,8 +72,8 @@ export async function getCaptainPromotionCandidates(
 
     if (error) {
       // If materialized view doesn't exist yet, fall back to direct query
-      if (error.code === '42P01') {
-        // Table doesn't exist
+      // PGRST205 = PostgREST "table not in schema cache", 42P01 = PostgreSQL "table doesn't exist"
+      if (error.code === '42P01' || error.code === 'PGRST205') {
         console.warn('Succession pipeline materialized view not found. Using fallback query.')
         return await getFallbackPromotionCandidates(readinessFilter)
       }
@@ -156,10 +156,10 @@ async function getFallbackPromotionCandidates(
   const { data: pilots, error } = await supabase
     .from('pilots')
     .select(
-      'id, first_name, last_name, rank, seniority_number, commencement_date, date_of_birth, status'
+      'id, first_name, last_name, role, seniority_number, commencement_date, date_of_birth, is_active'
     )
-    .eq('rank', 'First Officer')
-    .eq('status', 'active')
+    .eq('role', 'First Officer')
+    .eq('is_active', true)
     .order('seniority_number', { ascending: true })
 
   if (error) throw error
@@ -290,8 +290,8 @@ export async function getSuccessionReadinessScore(): Promise<{
     // Get upcoming captain retirements (next 5 years)
     const { data: pilots, error } = await supabase
       .from('pilots')
-      .select('id, rank, date_of_birth')
-      .eq('status', 'active')
+      .select('id, role, date_of_birth')
+      .eq('is_active', true)
 
     if (error) throw error
 
@@ -302,7 +302,7 @@ export async function getSuccessionReadinessScore(): Promise<{
     let upcomingCaptainRetirements = 0
 
     pilots?.forEach((pilot: any) => {
-      if (pilot.rank !== 'Captain' || !pilot.date_of_birth) return
+      if (pilot.role !== 'Captain' || !pilot.date_of_birth) return
 
       const birthDate = new Date(pilot.date_of_birth)
       const retirementDate = new Date(birthDate)

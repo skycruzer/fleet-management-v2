@@ -13,7 +13,6 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportEmailRequestSchema } from '@/lib/validations/reports-schema'
-import { z } from 'zod'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -77,13 +76,15 @@ export async function POST(request: Request) {
       )
     }
 
-    const { reportType, filters, recipients, subject, message } = validationResult.data
+    const { reportType, filters, recipients, cc, bcc, subject, message } = validationResult.data
 
     log?.info('Email report requested', {
       userId: auth.userId!,
       email: auth.email,
       reportType,
       recipientCount: recipients.length,
+      ccCount: cc?.length ?? 0,
+      bccCount: bcc?.length ?? 0,
       timestamp: new Date().toISOString(),
     })
 
@@ -91,8 +92,8 @@ export async function POST(request: Request) {
     // Use empty object if filters is undefined
     const report = await generateReport(reportType, filters ?? {}, true, auth.email || auth.userId!)
 
-    // Generate PDF
-    const pdfBuffer = await generatePDF(report, reportType)
+    // Generate PDF (pass groupBy for grouped report rendering)
+    const pdfBuffer = await generatePDF(report, reportType, filters?.groupBy)
 
     // Create filename
     const timestamp = new Date().toISOString().split('T')[0]
@@ -133,10 +134,12 @@ export async function POST(request: Request) {
 
     const startTime = Date.now()
 
-    // Send email via Resend
+    // Send email via Resend (with optional CC/BCC)
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'reports@fleetmanagement.com',
       to: recipients,
+      ...(cc && cc.length > 0 ? { cc } : {}),
+      ...(bcc && bcc.length > 0 ? { bcc } : {}),
       subject: emailSubject,
       html: emailBody,
       attachments: [

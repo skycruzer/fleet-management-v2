@@ -68,7 +68,7 @@ export const DesignSpecs: Story = {
     <div className="space-y-8 p-8">
       <div>
         <h3 className="mb-4 text-lg font-semibold">Offline State (Yellow)</h3>
-        <div className="fixed top-0 right-0 left-0 bg-yellow-500 px-4 py-2 text-center text-sm font-medium text-black">
+        <div className="fixed top-0 right-0 left-0 bg-[var(--color-warning-500)] px-4 py-2 text-center text-sm font-medium text-black">
           <div className="flex items-center justify-center gap-2">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -85,7 +85,7 @@ export const DesignSpecs: Story = {
 
       <div className="mt-16">
         <h3 className="mb-4 text-lg font-semibold">Online State (Green)</h3>
-        <div className="bg-green-500 px-4 py-2 text-center text-sm font-medium text-white">
+        <div className="bg-[var(--color-success-500)] px-4 py-2 text-center text-sm font-medium text-white">
           <div className="flex items-center justify-center gap-2">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

@@ -63,8 +63,8 @@ export default async function AdminPage() {
                 Operational
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 transition-all group-hover:scale-105 group-hover:bg-emerald-500/20 sm:size-12 lg:size-14">
-              <CheckCircle2 className="size-5 text-emerald-400 sm:size-6 lg:size-7" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-success-muted)] transition-all group-hover:scale-105 group-hover:bg-[var(--color-success-500)]/20 sm:size-12 lg:size-14">
+              <CheckCircle2 className="size-5 text-[var(--color-success-400)] sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
@@ -82,8 +82,8 @@ export default async function AdminPage() {
                 {stats.totalAdmins + stats.totalManagers} staff, {stats.totalPilots} pilots
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-500/10 transition-all group-hover:scale-105 group-hover:bg-blue-500/20 sm:size-12 lg:size-14">
-              <Users className="size-5 text-blue-400 sm:size-6 lg:size-7" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-info-bg)] transition-all group-hover:scale-105 group-hover:bg-[var(--color-info)]/20 sm:size-12 lg:size-14">
+              <Users className="size-5 text-[var(--color-info)] sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
@@ -120,8 +120,8 @@ export default async function AdminPage() {
                 total records
               </p>
             </div>
-            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-orange-500/10 transition-all group-hover:scale-105 group-hover:bg-orange-500/20 sm:size-12 lg:size-14">
-              <Database className="size-5 text-orange-400 sm:size-6 lg:size-7" />
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[var(--color-badge-orange-bg)] transition-all group-hover:scale-105 group-hover:bg-[var(--color-badge-orange)]/20 sm:size-12 lg:size-14">
+              <Database className="size-5 text-[var(--color-badge-orange)] sm:size-6 lg:size-7" />
             </div>
           </div>
         </Card>
@@ -138,8 +138,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 transition-all group-hover:scale-105 group-hover:bg-blue-500/20 sm:size-11 lg:size-12">
-                <UserPlus className="size-4 text-blue-400 sm:size-5" />
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-info-bg)] transition-all group-hover:scale-105 group-hover:bg-[var(--color-info)]/20 sm:size-11 lg:size-12">
+                <UserPlus className="size-4 text-[var(--color-info)] sm:size-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">Add New User</p>
@@ -172,8 +172,8 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 transition-all group-hover:scale-105 group-hover:bg-emerald-500/20 sm:size-11 lg:size-12">
-                <Settings className="size-4 text-emerald-400 sm:size-5" />
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--color-success-muted)] transition-all group-hover:scale-105 group-hover:bg-[var(--color-success-500)]/20 sm:size-11 lg:size-12">
+                <Settings className="size-4 text-[var(--color-success-400)] sm:size-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold sm:text-base">System Settings</p>

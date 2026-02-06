@@ -67,7 +67,7 @@ export function PlanningPageClient({ activeTab, children }: PlanningPageClientPr
   return (
     <>
       {/* Tab Navigation */}
-      <div className="border-b border-slate-200 dark:border-white/[0.08]">
+      <div className="border-border border-b">
         <nav className="-mb-px flex gap-6">
           {tabs.map((tab) => {
             const Icon = tab.icon
@@ -78,8 +78,8 @@ export function PlanningPageClient({ activeTab, children }: PlanningPageClientPr
                 className={cn(
                   'flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
                   currentTab === tab.id
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'dark:text-muted-foreground dark:hover:text-foreground/80 border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:hover:border-white/[0.1]'
+                    ? 'border-[var(--color-primary-600)] text-[var(--color-primary-600)]'
+                    : 'text-muted-foreground hover:text-foreground/80 border-transparent hover:border-white/[0.1]'
                 )}
               >
                 <Icon className="h-4 w-4" />

@@ -1,7 +1,7 @@
 import { getDashboardMetrics } from '@/lib/services/dashboard-service-v4'
 import { getExpiringCertifications } from '@/lib/services/expiring-certifications-service'
 import { ComplianceOverviewClient } from './compliance-overview-client'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 
 /**
  * Server Component - Fetches real compliance data and passes to client component
@@ -13,7 +13,7 @@ export async function ComplianceOverviewServer() {
     getExpiringCertifications(60), // Get certs expiring in next 60 days
   ])
 
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   // Get all certification checks grouped by category for breakdown
   const { data: allChecks } = await supabase

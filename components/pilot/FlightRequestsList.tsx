@@ -121,7 +121,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
               <button
                 onClick={() => setConfirmCancelId(request.id)}
                 disabled={cancelingId === request.id}
-                className="ml-4 rounded-md bg-red-500/10 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="ml-4 rounded-md bg-[var(--color-destructive-muted)] px-3 py-1.5 text-sm font-medium text-[var(--color-danger-400)] transition-colors hover:bg-[var(--color-danger-500)]/20 focus:ring-2 focus:ring-[var(--color-danger-500)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {cancelingId === request.id ? 'Canceling...' : 'Cancel'}
               </button>
@@ -186,12 +186,12 @@ function StatusBadge({
 }) {
   const badgeStyles: Record<string, string> = {
     DRAFT: 'bg-white/[0.03] text-muted-foreground',
-    SUBMITTED: 'bg-blue-500/10 text-blue-400',
+    SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
     PENDING: 'bg-white/[0.03] text-foreground',
-    UNDER_REVIEW: 'bg-amber-500/10 text-amber-400',
-    IN_REVIEW: 'bg-amber-500/10 text-amber-400',
-    APPROVED: 'bg-emerald-500/10 text-emerald-400',
-    DENIED: 'bg-red-500/10 text-red-400',
+    UNDER_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
+    IN_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
+    APPROVED: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
+    DENIED: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
     WITHDRAWN: 'bg-white/[0.03] text-foreground',
   }
 

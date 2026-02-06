@@ -65,13 +65,15 @@ export default function PilotRegisterForm() {
 
   if (success) {
     return (
-      <div className="rounded-md bg-emerald-500/10 p-4">
-        <h3 className="text-lg font-medium text-emerald-400">Registration Submitted!</h3>
-        <p className="mt-2 text-sm text-emerald-400">
+      <div className="rounded-md bg-[var(--color-success-muted)] p-4">
+        <h3 className="text-lg font-medium text-[var(--color-success-400)]">
+          Registration Submitted!
+        </h3>
+        <p className="mt-2 text-sm text-[var(--color-success-400)]">
           Your registration has been submitted successfully. An administrator will review your
           application shortly. You'll receive an email notification once approved.
         </p>
-        <p className="mt-2 text-sm text-emerald-400">Redirecting to login...</p>
+        <p className="mt-2 text-sm text-[var(--color-success-400)]">Redirecting to login...</p>
       </div>
     )
   }
@@ -79,8 +81,8 @@ export default function PilotRegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-500/10 p-4">
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="rounded-md bg-[var(--color-destructive-muted)] p-4">
+          <p className="text-sm text-[var(--color-danger-400)]">{error}</p>
         </div>
       )}
 
@@ -97,7 +99,9 @@ export default function PilotRegisterForm() {
             className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           />
           {errors.first_name && (
-            <p className="mt-1 text-sm text-red-400">{errors.first_name.message}</p>
+            <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+              {errors.first_name.message}
+            </p>
           )}
         </div>
 
@@ -113,7 +117,9 @@ export default function PilotRegisterForm() {
             className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
           />
           {errors.last_name && (
-            <p className="mt-1 text-sm text-red-400">{errors.last_name.message}</p>
+            <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+              {errors.last_name.message}
+            </p>
           )}
         </div>
       </div>
@@ -129,7 +135,9 @@ export default function PilotRegisterForm() {
           id="email"
           className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
-        {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
+        {errors.email && (
+          <p className="mt-1 text-sm text-[var(--color-danger-400)]">{errors.email.message}</p>
+        )}
       </div>
 
       {/* Password */}
@@ -143,7 +151,9 @@ export default function PilotRegisterForm() {
           id="password"
           className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
-        {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password.message}</p>}
+        {errors.password && (
+          <p className="mt-1 text-sm text-[var(--color-danger-400)]">{errors.password.message}</p>
+        )}
         <p className="text-muted-foreground mt-1 text-xs">
           Must contain uppercase, lowercase, number, and special character
         </p>
@@ -161,7 +171,9 @@ export default function PilotRegisterForm() {
           className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.confirmPassword && (
-          <p className="mt-1 text-sm text-red-400">{errors.confirmPassword.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+            {errors.confirmPassword.message}
+          </p>
         )}
       </div>
 
@@ -179,7 +191,9 @@ export default function PilotRegisterForm() {
           <option value="Captain">Captain</option>
           <option value="First Officer">First Officer</option>
         </select>
-        {errors.rank && <p className="mt-1 text-sm text-red-400">{errors.rank.message}</p>}
+        {errors.rank && (
+          <p className="mt-1 text-sm text-[var(--color-danger-400)]">{errors.rank.message}</p>
+        )}
       </div>
 
       {/* Employee ID (Optional) */}
@@ -194,7 +208,9 @@ export default function PilotRegisterForm() {
           className="focus:border-primary focus:ring-primary mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:outline-none sm:text-sm"
         />
         {errors.employee_id && (
-          <p className="mt-1 text-sm text-red-400">{errors.employee_id.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+            {errors.employee_id.message}
+          </p>
         )}
       </div>
 

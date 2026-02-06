@@ -35,6 +35,7 @@ import {
   User,
   AlertCircle,
 } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface FlightRequestsTableProps {
   requests: FlightRequest[]
@@ -137,10 +138,12 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
   if (requests.length === 0) {
     return (
-      <div className="border-border rounded-lg border-2 border-dashed p-8 text-center">
-        <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-        <p className="text-muted-foreground">No RDO/SDO requests yet</p>
-      </div>
+      <EmptyState
+        icon={Calendar}
+        title="No RDO/SDO requests yet"
+        description="RDO/SDO requests will appear here once submitted."
+        variant="compact"
+      />
     )
   }
 

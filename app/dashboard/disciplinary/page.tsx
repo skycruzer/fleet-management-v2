@@ -52,8 +52,10 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   if (!mattersResult.success) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-500/10 p-6">
-          <p className="text-red-400">Failed to load disciplinary matters: {mattersResult.error}</p>
+        <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
+          <p className="text-[var(--color-danger-400)]">
+            Failed to load disciplinary matters: {mattersResult.error}
+          </p>
         </div>
       </div>
     )
@@ -62,8 +64,10 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   if (!statsResult.success) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-500/10 p-6">
-          <p className="text-red-400">Failed to load statistics: {statsResult.error}</p>
+        <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
+          <p className="text-[var(--color-danger-400)]">
+            Failed to load statistics: {statsResult.error}
+          </p>
         </div>
       </div>
     )
@@ -77,13 +81,13 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   const getSeverityBadgeColor = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'bg-red-500/10 text-red-400'
+        return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
       case 'SERIOUS':
-        return 'bg-orange-500/10 text-orange-400'
+        return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
       case 'MODERATE':
-        return 'bg-amber-500/10 text-amber-400'
+        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
       case 'MINOR':
-        return 'bg-blue-500/10 text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       default:
         return 'bg-white/[0.03] text-foreground'
     }
@@ -93,11 +97,11 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
     switch (status) {
       case 'RESOLVED':
       case 'CLOSED':
-        return 'bg-emerald-500/10 text-emerald-400'
+        return 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
       case 'UNDER_INVESTIGATION':
-        return 'bg-amber-500/10 text-amber-400'
+        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
       case 'ACTION_TAKEN':
-        return 'bg-blue-500/10 text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       case 'APPEALED':
         return 'bg-primary/10 text-primary-foreground'
       default:
@@ -117,7 +121,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
         </div>
         <Link
           href="/dashboard/disciplinary/new"
-          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -134,15 +138,21 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Open Cases</p>
-          <p className="mt-2 text-3xl font-bold text-yellow-600">{stats.openMatters}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-warning-600)]">
+            {stats.openMatters}
+          </p>
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Under Investigation</p>
-          <p className="mt-2 text-3xl font-bold text-blue-600">{stats.underInvestigation}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-primary-600)]">
+            {stats.underInvestigation}
+          </p>
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Overdue</p>
-          <p className="mt-2 text-3xl font-bold text-red-600">{stats.overdueMatters}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-danger-600)]">
+            {stats.overdueMatters}
+          </p>
         </div>
       </div>
 
@@ -156,19 +166,27 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">Critical</span>
-                <span className="font-semibold text-red-600">{stats.bySeverity.critical}</span>
+                <span className="font-semibold text-[var(--color-danger-600)]">
+                  {stats.bySeverity.critical}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">Serious</span>
-                <span className="font-semibold text-orange-600">{stats.bySeverity.serious}</span>
+                <span className="font-semibold text-[var(--color-badge-orange)]">
+                  {stats.bySeverity.serious}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">Moderate</span>
-                <span className="font-semibold text-yellow-600">{stats.bySeverity.moderate}</span>
+                <span className="font-semibold text-[var(--color-warning-600)]">
+                  {stats.bySeverity.moderate}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">Minor</span>
-                <span className="font-semibold text-blue-600">{stats.bySeverity.minor}</span>
+                <span className="font-semibold text-[var(--color-primary-600)]">
+                  {stats.bySeverity.minor}
+                </span>
               </div>
             </div>
           </div>
@@ -227,7 +245,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                     <td className="px-6 py-4">
                       <Link
                         href={`/dashboard/disciplinary/${matter.id}`}
-                        className="font-medium text-blue-600 hover:text-blue-700"
+                        className="font-medium text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
                       >
                         {matter.title}
                       </Link>
@@ -297,7 +315,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                       href={`?page=${pageNum}${status ? `&status=${status}` : ''}${severity ? `&severity=${severity}` : ''}`}
                       className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                         pageNum === page
-                          ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                          ? 'z-10 bg-[var(--color-primary-600)] text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary-600)]'
                           : 'text-foreground ring-1 ring-white/[0.1] ring-inset hover:bg-white/[0.03] focus:outline-offset-0'
                       }`}
                     >

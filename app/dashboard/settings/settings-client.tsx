@@ -84,8 +84,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
               <p className="text-muted-foreground text-sm font-medium">Account Status</p>
               <p className="text-foreground text-2xl font-bold">Active</p>
             </div>
-            <div className="rounded-full bg-green-100 p-3">
-              <CheckCircle2 className="h-6 w-6 text-green-600" />
+            <div className="rounded-full bg-[var(--color-success-muted)] p-3">
+              <CheckCircle2 className="h-6 w-6 text-[var(--color-success-600)]" />
             </div>
           </div>
         </Card>
@@ -100,8 +100,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
                   : 'Never'}
               </p>
             </div>
-            <div className="rounded-full bg-blue-100 p-3">
-              <User className="h-6 w-6 text-blue-600" />
+            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
+              <User className="h-6 w-6 text-[var(--color-primary-600)]" />
             </div>
           </div>
         </Card>

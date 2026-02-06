@@ -68,7 +68,7 @@ export default async function PilotRegistrationsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Card className="border-amber-500/20 bg-amber-500/10">
+        <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)]">
           <CardHeader className="pb-3">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Pending Review
@@ -80,7 +80,7 @@ export default async function PilotRegistrationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-emerald-500/20 bg-emerald-500/10">
+        <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)]">
           <CardHeader className="pb-3">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Quick Action
@@ -95,7 +95,7 @@ export default async function PilotRegistrationsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-500/20 bg-blue-500/10">
+        <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)]">
           <CardHeader className="pb-3">
             <CardTitle className="text-muted-foreground text-sm font-medium">
               Registration Link
@@ -104,7 +104,7 @@ export default async function PilotRegistrationsPage() {
           <CardContent>
             <Link
               href="/portal/register"
-              className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+              className="text-sm text-[var(--color-info)] hover:text-[var(--color-info)]/80 hover:underline"
             >
               /portal/register
             </Link>
@@ -116,7 +116,7 @@ export default async function PilotRegistrationsPage() {
       <RegistrationApprovalClient initialRegistrations={pendingRegistrations} />
 
       {/* Help Text */}
-      <Card className="border-blue-500/20 bg-blue-500/10">
+      <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)]">
         <CardContent className="pt-6">
           <div className="flex items-start space-x-3">
             <span className="text-2xl">ℹ️</span>

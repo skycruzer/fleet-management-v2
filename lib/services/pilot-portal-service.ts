@@ -84,7 +84,7 @@ interface PortalStats {
  */
 export async function pilotLogin(
   credentials: PilotLoginInput,
-  metadata?: { ipAddress?: string; userAgent?: string }
+  metadata?: { ipAddress?: string; userAgent?: string; rememberMe?: boolean }
 ): Promise<ServiceResponse<{ user: any; session: any; mustChangePassword?: boolean }>> {
   try {
     const supabase = createAdminClient()
@@ -139,7 +139,11 @@ export async function pilotLogin(
       .eq('id', pilotUser.id)
 
     // Create secure server-side session
-    const sessionResult = await createPilotSession(pilotUser.id, metadata)
+    const sessionResult = await createPilotSession(pilotUser.id, {
+      ipAddress: metadata?.ipAddress,
+      userAgent: metadata?.userAgent,
+      rememberMe: metadata?.rememberMe,
+    })
 
     if (!sessionResult.success || !sessionResult.sessionToken) {
       console.error('Failed to create pilot session:', sessionResult.error)

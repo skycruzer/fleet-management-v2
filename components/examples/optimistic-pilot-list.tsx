@@ -20,6 +20,8 @@ import { generateTempId } from '@/lib/utils/optimistic-utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, UserPlus, Trash2, Edit2, AlertCircle } from 'lucide-react'
+import { useConfirm } from '@/components/ui/confirm-dialog'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface Pilot {
   id: string
@@ -35,6 +37,7 @@ interface OptimisticPilotListProps {
 
 export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps) {
   const [editingId, setEditingId] = useState<string | null>(null)
+  const { confirm, ConfirmDialog } = useConfirm()
 
   // Mutation function that calls the API
   const performMutation = async (update: OptimisticUpdate<Pilot>): Promise<Pilot> => {
@@ -148,9 +151,13 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
 
   // Handle delete pilot
   const handleDelete = async (pilot: Pilot) => {
-    if (!confirm(`Delete ${pilot.first_name} ${pilot.last_name}?`)) {
-      return
-    }
+    const confirmed = await confirm({
+      title: 'Delete Pilot',
+      description: `Are you sure you want to delete ${pilot.first_name} ${pilot.last_name}? This action cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'destructive',
+    })
+    if (!confirmed) return
 
     await mutate(
       {
@@ -170,6 +177,7 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
 
   return (
     <div className="space-y-6">
+      <ConfirmDialog />
       {/* Header */}
       <Card>
         <CardHeader>
@@ -200,13 +208,15 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
 
       {/* Error Alert */}
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)]">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className="mt-0.5 h-5 w-5 text-red-600" />
+              <AlertCircle className="mt-0.5 h-5 w-5 text-[var(--color-danger-600)]" />
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-red-900">Operation Failed</h4>
-                <p className="mt-1 text-sm text-red-700">{error.message}</p>
+                <h4 className="text-sm font-semibold text-[var(--color-danger-500)]">
+                  Operation Failed
+                </h4>
+                <p className="mt-1 text-sm text-[var(--color-danger-500)]">{error.message}</p>
                 <Button variant="outline" size="sm" onClick={reset} className="mt-2">
                   Dismiss
                 </Button>
@@ -224,7 +234,11 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
           return (
             <Card
               key={pilot.id}
-              className={isTemp ? 'border-dashed border-blue-300 bg-blue-50' : ''}
+              className={
+                isTemp
+                  ? 'border-dashed border-[var(--color-info)]/30 bg-[var(--color-info-bg)]'
+                  : ''
+              }
             >
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
@@ -235,16 +249,18 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
                       </h4>
                       <p className="text-muted-foreground text-sm">{pilot.rank}</p>
                       {isTemp && (
-                        <p className="mt-1 text-xs text-blue-600">Creating (optimistic)...</p>
+                        <p className="mt-1 text-xs text-[var(--color-primary-600)]">
+                          Creating (optimistic)...
+                        </p>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
                       {pilot.is_active ? (
-                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                        <span className="rounded-full bg-[var(--color-success-muted)] px-2 py-1 text-xs font-medium text-[var(--color-success-500)]">
                           Active
                         </span>
                       ) : (
-                        <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
+                        <span className="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs font-medium">
                           Inactive
                         </span>
                       )}
@@ -280,11 +296,12 @@ export function OptimisticPilotList({ initialPilots }: OptimisticPilotListProps)
 
       {/* Empty State */}
       {pilots.length === 0 && (
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-muted-foreground">No pilots found. Add one to get started.</p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={UserPlus}
+          title="No pilots found"
+          description="Add one to get started."
+          variant="compact"
+        />
       )}
 
       {/* Stats */}

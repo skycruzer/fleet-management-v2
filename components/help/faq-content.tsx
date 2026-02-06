@@ -278,7 +278,7 @@ export function FaqContent() {
       )}
 
       {/* Still Need Help */}
-      <Card className="border-blue-200 bg-blue-50 p-6">
+      <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-6">
         <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
           <div className="flex-1">
             <h3 className="text-foreground mb-2 text-lg font-semibold">Still Need Help?</h3>

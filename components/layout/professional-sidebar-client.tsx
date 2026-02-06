@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -24,6 +24,8 @@ import {
 import { cn } from '@/lib/utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { SidebarShell } from '@/components/layout/sidebar-shell'
+import { useSidebarBadges } from '@/lib/hooks/use-sidebar-badges'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 interface NavItem {
   title: string
@@ -136,6 +138,36 @@ interface ProfessionalSidebarClientProps {
 export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClientProps) {
   const { csrfToken } = useCsrfToken()
   const pathname = usePathname()
+  const { data: badges } = useSidebarBadges()
+  const { confirm, ConfirmDialog: LogoutConfirmDialog } = useConfirm()
+
+  // Compute navigation sections with dynamic badge data
+  const dynamicNavigationSections = useMemo<NavSection[]>(() => {
+    return navigationSections.map((section) => ({
+      ...section,
+      items: section.items.map((item) => {
+        if (item.title === 'Requests' && badges?.pendingRequests) {
+          return {
+            ...item,
+            badge: String(badges.pendingRequests),
+            badgeVariant: 'default' as const,
+          }
+        }
+        if (item.title === 'Certifications' && badges) {
+          const total = badges.expiredCertifications + badges.expiringCertifications
+          if (total > 0) {
+            return {
+              ...item,
+              badge: String(total),
+              badgeVariant:
+                badges.expiredCertifications > 0 ? ('danger' as const) : ('warning' as const),
+            }
+          }
+        }
+        return item
+      }),
+    }))
+  }, [badges])
 
   // Initialize state from localStorage
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
@@ -171,7 +203,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
     return pathname.startsWith(href)
   }
 
-  const handleLogout = async () => {
+  const performLogout = async () => {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
@@ -183,17 +215,27 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       })
 
       if (response.ok || response.redirected) {
-        // Redirect to login page
         window.location.href = '/auth/login'
       } else {
         console.error('Logout failed')
-        // Redirect to login anyway
         window.location.href = '/auth/login'
       }
     } catch (error) {
       console.error('Logout error:', error)
-      // Redirect to login anyway
       window.location.href = '/auth/login'
+    }
+  }
+
+  const handleLogout = async () => {
+    const confirmed = await confirm({
+      title: 'Confirm Logout',
+      description: 'Are you sure you want to log out?',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+      variant: 'default',
+    })
+    if (confirmed) {
+      performLogout()
     }
   }
 
@@ -204,6 +246,8 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       transition={{ duration: 0.25, ease: 'easeOut' }}
       className="bg-card fixed top-0 left-0 z-[var(--z-sidebar)] h-screen w-60 border-r border-white/[0.06]"
       style={{ willChange: 'transform' }}
+      role="navigation"
+      aria-label="Main navigation"
     >
       <SidebarShell
         header={
@@ -225,7 +269,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           <div className="border-t border-white/[0.06] p-2">
             <button
               onClick={handleLogout}
-              className="text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors hover:bg-red-500/10 hover:text-red-400"
+              className="text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-danger-400)]"
             >
               <LogOut className="h-4 w-4 flex-shrink-0" />
               <span>Logout</span>
@@ -236,7 +280,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         {/* Navigation */}
         <nav className="space-y-0.5 p-2">
           <div className="space-y-2">
-            {navigationSections.map((section) => {
+            {dynamicNavigationSections.map((section) => {
               const isCollapsed = collapsedSections[section.title]
 
               const sectionId = `nav-section-${section.title.toLowerCase().replace(/\s+/g, '-')}`
@@ -372,6 +416,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           </div>
         </nav>
       </SidebarShell>
+      <LogoutConfirmDialog />
     </motion.aside>
   )
 }

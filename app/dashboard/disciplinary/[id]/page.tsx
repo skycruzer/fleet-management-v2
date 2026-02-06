@@ -65,13 +65,13 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
   const getSeverityBadgeColor = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'bg-red-500/10 text-red-400'
+        return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
       case 'SERIOUS':
-        return 'bg-orange-500/10 text-orange-400'
+        return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
       case 'MODERATE':
-        return 'bg-amber-500/10 text-amber-400'
+        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
       case 'MINOR':
-        return 'bg-blue-500/10 text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       default:
         return 'bg-white/[0.03] text-foreground'
     }
@@ -81,11 +81,11 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
     switch (status) {
       case 'RESOLVED':
       case 'CLOSED':
-        return 'bg-emerald-500/10 text-emerald-400'
+        return 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
       case 'UNDER_INVESTIGATION':
-        return 'bg-amber-500/10 text-amber-400'
+        return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]'
       case 'ACTION_TAKEN':
-        return 'bg-blue-500/10 text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       case 'APPEALED':
         return 'bg-primary/10 text-primary-foreground'
       default:
@@ -99,7 +99,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       <div className="mb-6">
         <Link
           href="/dashboard/disciplinary"
-          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-2 text-sm text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path

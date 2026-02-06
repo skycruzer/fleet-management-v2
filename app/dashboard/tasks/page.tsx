@@ -40,8 +40,10 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   if (!tasksResult.success) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-500/10 p-6">
-          <p className="text-red-400">Failed to load tasks: {tasksResult.error}</p>
+        <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
+          <p className="text-[var(--color-danger-400)]">
+            Failed to load tasks: {tasksResult.error}
+          </p>
         </div>
       </div>
     )
@@ -50,8 +52,10 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   if (!statsResult.success) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-lg bg-red-500/10 p-6">
-          <p className="text-red-400">Failed to load statistics: {statsResult.error}</p>
+        <div className="rounded-lg bg-[var(--color-destructive-muted)] p-6">
+          <p className="text-[var(--color-danger-400)]">
+            Failed to load statistics: {statsResult.error}
+          </p>
         </div>
       </div>
     )
@@ -78,7 +82,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
         </div>
         <Link
           href="/dashboard/tasks/new"
-          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -99,11 +103,15 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">In Progress</p>
-          <p className="mt-2 text-3xl font-bold text-blue-400">{stats.inProgressCount}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-info)]">
+            {stats.inProgressCount}
+          </p>
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Overdue</p>
-          <p className="mt-2 text-3xl font-bold text-red-400">{stats.overdueCount}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-danger-400)]">
+            {stats.overdueCount}
+          </p>
         </div>
       </div>
 
@@ -114,7 +122,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             href="/dashboard/tasks?view=kanban"
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               view === 'kanban'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[var(--color-primary-600)] text-white'
                 : 'text-foreground/80 bg-white/[0.03] hover:bg-white/[0.06]'
             }`}
           >
@@ -124,7 +132,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
             href="/dashboard/tasks?view=list"
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               view === 'list'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-[var(--color-primary-600)] text-white'
                 : 'text-foreground/80 bg-white/[0.03] hover:bg-white/[0.06]'
             }`}
           >
@@ -137,7 +145,7 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
       <Suspense
         fallback={
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-primary-600)] border-t-transparent" />
           </div>
         }
       >

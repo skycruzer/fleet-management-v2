@@ -78,9 +78,9 @@ export default async function PilotRegisterPage() {
         </div>
 
         {/* Info Box */}
-        <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-4">
-          <h3 className="text-sm font-medium text-blue-400">Registration Process</h3>
-          <ul className="mt-2 space-y-1 text-sm text-blue-400">
+        <div className="rounded-lg border border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-4">
+          <h3 className="text-sm font-medium text-[var(--color-info)]">Registration Process</h3>
+          <ul className="mt-2 space-y-1 text-sm text-[var(--color-info)]">
             <li>• Submit your registration with valid Air Niugini credentials</li>
             <li>• An administrator will review your application</li>
             <li>• You'll receive an email notification once approved</li>

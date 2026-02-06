@@ -8,7 +8,7 @@ import { Skeleton, MetricCardSkeleton } from '@/components/ui/skeleton'
 
 export default function PortalDashboardLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="via-background min-h-screen bg-gradient-to-br from-[var(--color-info-bg)] to-[var(--color-info-bg)]">
       {/* Header Skeleton */}
       <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
@@ -25,7 +25,7 @@ export default function PortalDashboardLoading() {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="space-y-6">
           {/* Welcome Card Skeleton */}
-          <Card className="to-primary-foreground bg-gradient-to-r from-blue-500 p-6">
+          <Card className="to-primary-foreground bg-gradient-to-r from-[var(--color-primary-500)] p-6">
             <div className="space-y-3">
               <Skeleton className="bg-muted/20 h-8 w-64" />
               <Skeleton className="bg-muted/20 h-4 w-48" />

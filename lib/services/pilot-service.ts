@@ -1087,3 +1087,223 @@ export async function getPilotsNearingRetirementForDashboard(): Promise<PilotWit
     return []
   }
 }
+
+// ===================================
+// AUTOMATED RETIREMENT PROCESSING
+// ===================================
+
+/**
+ * Result for individual pilot retirement processing
+ */
+export interface PilotRetirementResult {
+  pilotId: string
+  pilotName: string
+  employeeId: string
+  email: string | null
+  age: number
+  success: boolean
+  error?: string
+}
+
+/**
+ * Summary of retirement processing batch
+ */
+export interface RetirementProcessingSummary {
+  totalChecked: number
+  retired: number
+  skippedNoDOB: number
+  skippedNoEmail: number
+  emailsSent: number
+  emailsFailed: number
+  results: PilotRetirementResult[]
+}
+
+/**
+ * Calculate age from date of birth
+ */
+function calculateAge(dateOfBirth: Date, referenceDate: Date = new Date()): number {
+  let age = referenceDate.getFullYear() - dateOfBirth.getFullYear()
+  const monthDiff = referenceDate.getMonth() - dateOfBirth.getMonth()
+
+  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < dateOfBirth.getDate())) {
+    age--
+  }
+
+  return age
+}
+
+/**
+ * Process pilots who have reached retirement age
+ *
+ * This function:
+ * 1. Fetches retirement age from settings (default 65)
+ * 2. Queries all active pilots with date_of_birth
+ * 3. Calculates which pilots have reached retirement age
+ * 4. Sets is_active = false for retired pilots
+ * 5. Creates audit log entries for each update
+ *
+ * @returns Promise<RetirementProcessingSummary> - Summary of processing results
+ */
+export async function processRetiredPilots(): Promise<RetirementProcessingSummary> {
+  const supabase = createAdminClient()
+  const today = new Date()
+
+  const summary: RetirementProcessingSummary = {
+    totalChecked: 0,
+    retired: 0,
+    skippedNoDOB: 0,
+    skippedNoEmail: 0,
+    emailsSent: 0,
+    emailsFailed: 0,
+    results: [],
+  }
+
+  try {
+    // Fetch retirement age from settings dynamically
+    const pilotReqs = await getPilotRequirements()
+    const retirementAge = pilotReqs.pilot_retirement_age
+
+    logInfo('Starting automated retirement processing', {
+      source: 'PilotService',
+      metadata: {
+        operation: 'processRetiredPilots',
+        retirementAge,
+        processDate: today.toISOString(),
+      },
+    })
+
+    // Query all active pilots (email is in pilot_users table, not pilots)
+    const { data: activePilots, error: fetchError } = await supabase
+      .from('pilots')
+      .select('id, employee_id, first_name, last_name, role, date_of_birth, is_active')
+      .eq('is_active', true)
+
+    if (fetchError) {
+      throw new Error(`Failed to fetch active pilots: ${fetchError.message}`)
+    }
+
+    if (!activePilots || activePilots.length === 0) {
+      logInfo('No active pilots found for retirement check', {
+        source: 'PilotService',
+        metadata: { operation: 'processRetiredPilots' },
+      })
+      return summary
+    }
+
+    summary.totalChecked = activePilots.length
+
+    // Process each pilot
+    for (const pilot of activePilots) {
+      // Skip pilots without date of birth
+      if (!pilot.date_of_birth) {
+        summary.skippedNoDOB++
+        continue
+      }
+
+      const birthDate = new Date(pilot.date_of_birth)
+      const age = calculateAge(birthDate, today)
+
+      // Check if pilot has reached retirement age
+      if (age >= retirementAge) {
+        const pilotName = `${pilot.first_name} ${pilot.last_name}`
+
+        // Look up pilot's email from pilot_users table
+        const { data: pilotUser } = await supabase
+          .from('pilot_users')
+          .select('email')
+          .eq('pilot_id', pilot.id)
+          .single()
+
+        const pilotEmail = pilotUser?.email || null
+
+        const result: PilotRetirementResult = {
+          pilotId: pilot.id,
+          pilotName,
+          employeeId: pilot.employee_id || 'N/A',
+          email: pilotEmail,
+          age,
+          success: false,
+        }
+
+        try {
+          // Update pilot to inactive
+          const { error: updateError } = await supabase
+            .from('pilots')
+            .update({ is_active: false })
+            .eq('id', pilot.id)
+
+          if (updateError) {
+            throw new Error(updateError.message)
+          }
+
+          // Create audit log entry
+          await createAuditLog({
+            action: 'UPDATE',
+            tableName: 'pilots',
+            recordId: pilot.id,
+            oldData: { is_active: true },
+            newData: { is_active: false },
+            description: `Automated retirement: ${pilotName} (${pilot.employee_id}) reached retirement age of ${retirementAge}. Current age: ${age}`,
+          })
+
+          result.success = true
+          summary.retired++
+
+          logInfo('Pilot automatically retired', {
+            source: 'PilotService',
+            metadata: {
+              operation: 'processRetiredPilots',
+              pilotId: pilot.id,
+              pilotName,
+              employeeId: pilot.employee_id,
+              age,
+              retirementAge,
+            },
+          })
+        } catch (error) {
+          result.error = error instanceof Error ? error.message : 'Unknown error'
+          logError(error as Error, {
+            source: 'PilotService',
+            severity: ErrorSeverity.HIGH,
+            metadata: {
+              operation: 'processRetiredPilots',
+              pilotId: pilot.id,
+              pilotName,
+            },
+          })
+        }
+
+        summary.results.push(result)
+      }
+    }
+
+    // Invalidate pilot-related caches if any retirements occurred
+    if (summary.retired > 0) {
+      await safeRevalidate('pilots')
+      await safeRevalidate('pilot-stats')
+    }
+
+    logInfo('Automated retirement processing completed', {
+      source: 'PilotService',
+      metadata: {
+        operation: 'processRetiredPilots',
+        summary: {
+          totalChecked: summary.totalChecked,
+          retired: summary.retired,
+          skippedNoDOB: summary.skippedNoDOB,
+        },
+      },
+    })
+
+    return summary
+  } catch (error) {
+    logError(error as Error, {
+      source: 'PilotService',
+      severity: ErrorSeverity.HIGH,
+      metadata: {
+        operation: 'processRetiredPilots',
+      },
+    })
+    throw error
+  }
+}

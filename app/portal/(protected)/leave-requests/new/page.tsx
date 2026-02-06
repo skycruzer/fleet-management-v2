@@ -210,7 +210,9 @@ export default function NewLeaveRequestPage() {
       <div className="container mx-auto p-6">
         <Card className="mx-auto max-w-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-green-600">Request Submitted!</CardTitle>
+            <CardTitle className="text-2xl font-bold text-[var(--color-success-600)]">
+              Request Submitted!
+            </CardTitle>
             <CardDescription>Your leave request has been submitted for review.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -222,7 +224,7 @@ export default function NewLeaveRequestPage() {
             </Alert>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-gray-600">Redirecting to your leave requests...</p>
+            <p className="text-muted-foreground text-sm">Redirecting to your leave requests...</p>
           </CardFooter>
         </Card>
       </div>
@@ -261,9 +263,12 @@ export default function NewLeaveRequestPage() {
             )}
 
             {isLateRequest && (
-              <Alert variant="default" className="border-yellow-500 bg-yellow-50">
-                <AlertCircle className="h-4 w-4 text-yellow-600" />
-                <AlertDescription className="text-yellow-800">
+              <Alert
+                variant="default"
+                className="border-[var(--color-warning-500)] bg-[var(--color-warning-muted)]"
+              >
+                <AlertCircle className="h-4 w-4 text-[var(--color-warning-600)]" />
+                <AlertDescription className="text-[var(--color-warning-600)]">
                   This is a late request (less than 21 days advance notice). Approval is subject to
                   operational requirements.
                 </AlertDescription>
@@ -290,7 +295,9 @@ export default function NewLeaveRequestPage() {
                 </SelectContent>
               </Select>
               {form.formState.errors.request_type && (
-                <p className="text-sm text-red-500">{form.formState.errors.request_type.message}</p>
+                <p className="text-sm text-[var(--color-danger-500)]">
+                  {form.formState.errors.request_type.message}
+                </p>
               )}
             </div>
 
@@ -309,7 +316,9 @@ export default function NewLeaveRequestPage() {
                   disabled={isLoading}
                 />
                 {form.formState.errors.start_date && (
-                  <p className="text-sm text-red-500">{form.formState.errors.start_date.message}</p>
+                  <p className="text-sm text-[var(--color-danger-500)]">
+                    {form.formState.errors.start_date.message}
+                  </p>
                 )}
               </div>
 
@@ -322,7 +331,9 @@ export default function NewLeaveRequestPage() {
                   disabled={isLoading}
                 />
                 {form.formState.errors.end_date && (
-                  <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
+                  <p className="text-sm text-[var(--color-danger-500)]">
+                    {form.formState.errors.end_date.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -338,11 +349,13 @@ export default function NewLeaveRequestPage() {
                 {...form.register('reason')}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-muted-foreground text-xs">
                 {form.watch('reason')?.length || 0}/500 characters
               </p>
               {form.formState.errors.reason && (
-                <p className="text-sm text-red-500">{form.formState.errors.reason.message}</p>
+                <p className="text-sm text-[var(--color-danger-500)]">
+                  {form.formState.errors.reason.message}
+                </p>
               )}
             </div>
 

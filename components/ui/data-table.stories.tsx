@@ -148,12 +148,18 @@ const certificationColumns: Column<Certification>[] = [
     sortable: true,
     cell: (row) => {
       if (row.daysUntil < 0) {
-        return <span className="font-semibold text-red-600">{row.daysUntil} (Expired)</span>
+        return (
+          <span className="font-semibold text-[var(--color-danger-600)]">
+            {row.daysUntil} (Expired)
+          </span>
+        )
       }
       if (row.daysUntil <= 30) {
-        return <span className="font-semibold text-yellow-600">{row.daysUntil}</span>
+        return (
+          <span className="font-semibold text-[var(--color-warning-600)]">{row.daysUntil}</span>
+        )
       }
-      return <span className="text-green-600">{row.daysUntil}</span>
+      return <span className="text-[var(--color-success-600)]">{row.daysUntil}</span>
     },
   },
   {
@@ -163,10 +169,10 @@ const certificationColumns: Column<Certification>[] = [
     cell: (row) => {
       const className =
         row.status === 'current'
-          ? 'bg-green-100 text-green-800'
+          ? 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]'
           : row.status === 'expiring'
-            ? 'bg-yellow-100 text-yellow-800'
-            : 'bg-red-100 text-red-800'
+            ? 'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]'
+            : 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)]'
       return <Badge className={className}>{row.status}</Badge>
     },
   },

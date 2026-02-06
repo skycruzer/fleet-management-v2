@@ -191,7 +191,7 @@ export default function EditFlightRequestPage() {
           <CardContent className="flex items-center justify-center py-12">
             <div className="text-center">
               <Loader2 className="text-primary mx-auto h-12 w-12 animate-spin" />
-              <p className="mt-4 text-gray-600">Loading request data...</p>
+              <p className="text-muted-foreground mt-4">Loading request data...</p>
             </div>
           </CardContent>
         </Card>
@@ -205,7 +205,7 @@ export default function EditFlightRequestPage() {
       <div className="container mx-auto p-6">
         <Card className="mx-auto max-w-2xl">
           <CardHeader>
-            <CardTitle className="text-red-600">Unable to Edit Request</CardTitle>
+            <CardTitle className="text-[var(--color-danger-600)]">Unable to Edit Request</CardTitle>
           </CardHeader>
           <CardContent>
             <Alert variant="destructive">
@@ -231,8 +231,10 @@ export default function EditFlightRequestPage() {
       <div className="container mx-auto p-6">
         <Card className="mx-auto max-w-2xl">
           <CardHeader className="text-center">
-            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-600" />
-            <CardTitle className="text-2xl font-bold text-green-600">Request Updated!</CardTitle>
+            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-[var(--color-success-600)]" />
+            <CardTitle className="text-2xl font-bold text-[var(--color-success-600)]">
+              Request Updated!
+            </CardTitle>
             <CardDescription>Your RDO/SDO request has been updated successfully.</CardDescription>
           </CardHeader>
           <CardContent>
@@ -244,7 +246,7 @@ export default function EditFlightRequestPage() {
             </Alert>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-gray-600">Redirecting to your RDO/SDO requests...</p>
+            <p className="text-muted-foreground text-sm">Redirecting to your RDO/SDO requests...</p>
           </CardFooter>
         </Card>
       </div>
@@ -261,7 +263,7 @@ export default function EditFlightRequestPage() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold">Edit RDO/SDO Request</h1>
-          <p className="mt-1 text-gray-600">
+          <p className="text-muted-foreground mt-1">
             Update your Rostered Day Off (RDO) or Substitute Day Off (SDO) request
           </p>
         </div>
@@ -300,14 +302,16 @@ export default function EditFlightRequestPage() {
                     <SelectItem key={type.value} value={type.value}>
                       <div>
                         <div className="font-medium">{type.label}</div>
-                        <div className="text-xs text-gray-500">{type.description}</div>
+                        <div className="text-muted-foreground text-xs">{type.description}</div>
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {form.formState.errors.request_type && (
-                <p className="text-sm text-red-500">{form.formState.errors.request_type.message}</p>
+                <p className="text-sm text-[var(--color-danger-500)]">
+                  {form.formState.errors.request_type.message}
+                </p>
               )}
             </div>
 
@@ -320,9 +324,13 @@ export default function EditFlightRequestPage() {
                 {...form.register('start_date')}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">Select the start date of your RDO/SDO request</p>
+              <p className="text-muted-foreground text-xs">
+                Select the start date of your RDO/SDO request
+              </p>
               {form.formState.errors.start_date && (
-                <p className="text-sm text-red-500">{form.formState.errors.start_date.message}</p>
+                <p className="text-sm text-[var(--color-danger-500)]">
+                  {form.formState.errors.start_date.message}
+                </p>
               )}
             </div>
 
@@ -335,12 +343,14 @@ export default function EditFlightRequestPage() {
                 {...form.register('end_date')}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-muted-foreground text-xs">
                 Leave blank for single-day request. For multi-day requests, select the end date (max
                 90 days)
               </p>
               {form.formState.errors.end_date && (
-                <p className="text-sm text-red-500">{form.formState.errors.end_date.message}</p>
+                <p className="text-sm text-[var(--color-danger-500)]">
+                  {form.formState.errors.end_date.message}
+                </p>
               )}
             </div>
 
@@ -355,7 +365,7 @@ export default function EditFlightRequestPage() {
                 {...form.register('description')}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-muted-foreground text-xs">
                 {form.watch('description')?.length || 0}/2000 characters
                 {form.watch('description') &&
                 (form.watch('description')?.length ?? 0) < 10 &&
@@ -364,7 +374,9 @@ export default function EditFlightRequestPage() {
                   : ''}
               </p>
               {form.formState.errors.description && (
-                <p className="text-sm text-red-500">{form.formState.errors.description.message}</p>
+                <p className="text-sm text-[var(--color-danger-500)]">
+                  {form.formState.errors.description.message}
+                </p>
               )}
             </div>
 
@@ -379,11 +391,13 @@ export default function EditFlightRequestPage() {
                 {...form.register('reason')}
                 disabled={isLoading}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-muted-foreground text-xs">
                 {form.watch('reason')?.length || 0}/1000 characters
               </p>
               {form.formState.errors.reason && (
-                <p className="text-sm text-red-500">{form.formState.errors.reason.message}</p>
+                <p className="text-sm text-[var(--color-danger-500)]">
+                  {form.formState.errors.reason.message}
+                </p>
               )}
             </div>
 

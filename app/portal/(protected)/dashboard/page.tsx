@@ -123,14 +123,14 @@ export default async function PilotDashboardPage() {
             </h2>
             {/* Expired Certifications Alert */}
             {(stats?.expired_certifications || 0) > 0 && (
-              <Card className="border-red-500/20 bg-red-500/10 p-6">
+              <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-6">
                 <div className="flex items-start space-x-4">
-                  <XCircle className="h-8 w-8 text-red-400" aria-hidden="true" />
+                  <XCircle className="h-8 w-8 text-[var(--color-danger-400)]" aria-hidden="true" />
                   <div className="flex-1">
-                    <h3 className="text-foreground mb-2 text-lg font-semibold text-red-400">
+                    <h3 className="text-foreground mb-2 text-lg font-semibold text-[var(--color-danger-400)]">
                       Expired Certifications
                     </h3>
-                    <p className="mb-4 text-red-400/80">
+                    <p className="mb-4 text-[var(--color-danger-400)]/80">
                       You have {stats?.expired_certifications || 0} expired certification
                       {(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew
                       immediately.
@@ -150,19 +150,21 @@ export default async function PilotDashboardPage() {
                             return (
                               <div
                                 key={check.id}
-                                className="bg-card flex items-start justify-between rounded border border-red-500/20 p-3"
+                                className="bg-card flex items-start justify-between rounded border border-[var(--color-danger-500)]/20 p-3"
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-red-400">{check.check_code}</p>
-                                  <p className="text-sm text-red-400/80">
+                                  <p className="font-semibold text-[var(--color-danger-400)]">
+                                    {check.check_code}
+                                  </p>
+                                  <p className="text-sm text-[var(--color-danger-400)]/80">
                                     {check.check_description}
                                   </p>
                                 </div>
                                 <div className="ml-2 text-right">
-                                  <p className="font-bold text-red-400">
+                                  <p className="font-bold text-[var(--color-danger-400)]">
                                     Expired {daysExpired} days ago
                                   </p>
-                                  <p className="text-sm text-red-400/70">
+                                  <p className="text-sm text-[var(--color-danger-400)]/70">
                                     {expiryDate.toLocaleDateString('en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -182,14 +184,17 @@ export default async function PilotDashboardPage() {
 
             {/* Critical Certifications Alert (< 2 weeks) */}
             {(stats?.critical_certifications || 0) > 0 && (
-              <Card className="border-orange-500/20 bg-orange-500/10 p-6">
+              <Card className="border-[var(--color-badge-orange)]/20 bg-[var(--color-badge-orange)]/10 p-6">
                 <div className="flex items-start space-x-4">
-                  <AlertTriangle className="h-8 w-8 text-orange-400" aria-hidden="true" />
+                  <AlertTriangle
+                    className="h-8 w-8 text-[var(--color-badge-orange)]"
+                    aria-hidden="true"
+                  />
                   <div className="flex-1">
-                    <h3 className="text-foreground mb-2 text-lg font-semibold text-orange-400">
+                    <h3 className="text-foreground mb-2 text-lg font-semibold text-[var(--color-badge-orange)]">
                       Critical: Certifications Expiring Soon
                     </h3>
-                    <p className="mb-4 text-orange-400/80">
+                    <p className="mb-4 text-[var(--color-badge-orange)]/80">
                       You have {stats?.critical_certifications || 0} certification
                       {(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring within the
                       next 2 weeks. Action required.
@@ -207,21 +212,21 @@ export default async function PilotDashboardPage() {
                             return (
                               <div
                                 key={check.id}
-                                className="bg-card flex items-start justify-between rounded border border-orange-500/20 p-3"
+                                className="bg-card flex items-start justify-between rounded border border-[var(--color-badge-orange)]/20 p-3"
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-orange-400">
+                                  <p className="font-semibold text-[var(--color-badge-orange)]">
                                     {check.check_code}
                                   </p>
-                                  <p className="text-sm text-orange-400/80">
+                                  <p className="text-sm text-[var(--color-badge-orange)]/80">
                                     {check.check_description}
                                   </p>
                                 </div>
                                 <div className="ml-2 text-right">
-                                  <p className="font-bold text-orange-400">
+                                  <p className="font-bold text-[var(--color-badge-orange)]">
                                     {daysUntil} days remaining
                                   </p>
-                                  <p className="text-sm text-orange-400/70">
+                                  <p className="text-sm text-[var(--color-badge-orange)]/70">
                                     {expiryDate.toLocaleDateString('en-US', {
                                       month: 'short',
                                       day: 'numeric',
@@ -241,14 +246,17 @@ export default async function PilotDashboardPage() {
 
             {/* Warning Certifications Alert (upcoming checks within 60 days) */}
             {(stats?.upcoming_checks || 0) > 0 && (
-              <Card className="border-yellow-500/20 bg-yellow-500/10 p-6">
+              <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-500)]/10 p-6">
                 <div className="flex items-start space-x-3">
-                  <AlertTriangle className="h-8 w-8 text-yellow-400" aria-hidden="true" />
+                  <AlertTriangle
+                    className="h-8 w-8 text-[var(--color-warning-400)]"
+                    aria-hidden="true"
+                  />
                   <div className="flex-1">
-                    <h3 className="text-foreground mb-2 text-lg font-semibold text-yellow-400">
+                    <h3 className="text-foreground mb-2 text-lg font-semibold text-[var(--color-warning-400)]">
                       Warning: Upcoming Certifications
                     </h3>
-                    <p className="mb-4 text-yellow-400/80">
+                    <p className="mb-4 text-[var(--color-warning-400)]/80">
                       You have {stats?.upcoming_checks || 0} certification
                       {(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring within the next 60
                       days. Plan renewals accordingly.
@@ -265,19 +273,21 @@ export default async function PilotDashboardPage() {
                           return (
                             <div
                               key={check.id}
-                              className="bg-card flex items-start justify-between rounded border border-yellow-500/20 p-3"
+                              className="bg-card flex items-start justify-between rounded border border-[var(--color-warning-500)]/20 p-3"
                             >
                               <div className="flex-1">
-                                <p className="font-semibold text-yellow-400">{check.check_code}</p>
-                                <p className="text-sm text-yellow-400/80">
+                                <p className="font-semibold text-[var(--color-warning-400)]">
+                                  {check.check_code}
+                                </p>
+                                <p className="text-sm text-[var(--color-warning-400)]/80">
                                   {check.check_description}
                                 </p>
                               </div>
                               <div className="ml-2 text-right">
-                                <p className="font-bold text-yellow-400">
+                                <p className="font-bold text-[var(--color-warning-400)]">
                                   {daysUntil} days remaining
                                 </p>
-                                <p className="text-sm text-yellow-400/70">
+                                <p className="text-sm text-[var(--color-warning-400)]/70">
                                   {expiryDate.toLocaleDateString('en-US', {
                                     month: 'short',
                                     day: 'numeric',

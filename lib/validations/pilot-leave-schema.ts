@@ -50,6 +50,8 @@ export const PilotLeaveRequestSchema = z
       .regex(/^\d{4}-\d{2}-\d{2}$/, 'End date must be in format YYYY-MM-DD'),
     // Note: Empty string to null conversion handled in service layer
     reason: z.string().max(500, 'Reason cannot exceed 500 characters').optional(),
+    // Medical certificate attachment URL (optional, only for SICK leave)
+    source_attachment_url: z.string().url('Invalid attachment URL').nullable().optional(),
   })
   .refine(
     (data) => {

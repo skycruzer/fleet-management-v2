@@ -43,9 +43,11 @@ export default async function PilotFlightRequestsPage() {
   if (!pilotUser.registration_approved) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
-        <div className="rounded-lg bg-amber-500/10 p-6 text-center shadow">
-          <h1 className="text-2xl font-bold text-amber-400">Registration Pending Approval</h1>
-          <p className="mt-2 text-amber-400">
+        <div className="rounded-lg bg-[var(--color-warning-muted)] p-6 text-center shadow">
+          <h1 className="text-2xl font-bold text-[var(--color-warning-400)]">
+            Registration Pending Approval
+          </h1>
+          <p className="mt-2 text-[var(--color-warning-400)]">
             Your pilot registration is pending approval by the fleet management team. You will be
             able to submit flight requests once your registration is approved.
           </p>
@@ -117,11 +119,11 @@ function StatCard({
   color: 'blue' | 'gray' | 'yellow' | 'green' | 'red'
 }) {
   const colorClasses = {
-    blue: 'bg-blue-500/10 text-blue-400',
+    blue: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
     gray: 'bg-white/[0.03] text-muted-foreground',
-    yellow: 'bg-amber-500/10 text-amber-400',
-    green: 'bg-emerald-500/10 text-emerald-400',
-    red: 'bg-red-500/10 text-red-400',
+    yellow: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
+    green: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
+    red: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
   }
 
   return (

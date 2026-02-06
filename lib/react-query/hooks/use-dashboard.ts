@@ -3,10 +3,24 @@
  *
  * Hooks for dashboard metrics, stats, and compliance data with intelligent
  * caching strategies based on data criticality.
+ * Pauses polling when the browser tab is hidden to save API calls.
  */
 
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys, queryPresets } from '../query-client'
+
+function useTabVisible() {
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const handler = () => setVisible(document.visibilityState === 'visible')
+    document.addEventListener('visibilitychange', handler)
+    return () => document.removeEventListener('visibilitychange', handler)
+  }, [])
+
+  return visible
+}
 
 /**
  * Dashboard Metrics Type
@@ -66,11 +80,13 @@ async function fetchComplianceStats(): Promise<ComplianceStats> {
  * Automatically refetches on window focus to keep data current.
  */
 export function useDashboardMetrics() {
+  const isTabVisible = useTabVisible()
+
   return useQuery({
     queryKey: queryKeys.dashboard.metrics,
     queryFn: fetchDashboardMetrics,
     ...queryPresets.realtime, // 30 second stale time (real-time critical)
-    refetchInterval: 5 * 60 * 1000, // Auto-refetch every 5 minutes
+    refetchInterval: isTabVisible ? 5 * 60 * 1000 : false, // Pause when tab hidden
   })
 }
 

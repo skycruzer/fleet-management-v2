@@ -101,7 +101,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
             </h2>
             <button
               onClick={onClose}
-              className="rounded-md text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="text-muted-foreground hover:text-muted-foreground rounded-md focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none"
               aria-label="Close modal"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,11 +117,11 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
 
           {/* Current Roster Period Info */}
           {currentRosterPeriod && (
-            <div className="mt-3 rounded-md bg-blue-500/10 p-3">
-              <p className="text-sm text-blue-400">
+            <div className="mt-3 rounded-md bg-[var(--color-info-bg)] p-3">
+              <p className="text-sm text-[var(--color-info)]">
                 <strong>Current Roster Period:</strong> {currentRosterPeriod.code}
               </p>
-              <p className="mt-1 text-xs text-blue-400">
+              <p className="mt-1 text-xs text-[var(--color-info)]">
                 {currentRosterPeriod.startDate.toLocaleDateString()} -{' '}
                 {currentRosterPeriod.endDate.toLocaleDateString()} (
                 {currentRosterPeriod.daysRemaining} days remaining)
@@ -138,12 +138,12 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
               htmlFor="modal-request-type"
               className="text-foreground/80 block text-sm font-medium"
             >
-              Leave Type <span className="text-red-500">*</span>
+              Leave Type <span className="text-[var(--color-danger-500)]">*</span>
             </label>
             <select
               id="modal-request-type"
               {...form.register('request_type')}
-              className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
             >
               <option value="ANNUAL">Annual Leave</option>
               <option value="RDO">Rostered Day Off (RDO)</option>
@@ -155,7 +155,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
               <option value="COMPASSIONATE">Compassionate Leave</option>
             </select>
             {form.formState.errors.request_type && (
-              <p className="mt-1 text-sm text-red-400">
+              <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                 {form.formState.errors.request_type.message}
               </p>
             )}
@@ -168,16 +168,16 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
                 htmlFor="modal-start-date"
                 className="text-foreground/80 block text-sm font-medium"
               >
-                Start Date <span className="text-red-500">*</span>
+                Start Date <span className="text-[var(--color-danger-500)]">*</span>
               </label>
               <input
                 type="date"
                 id="modal-start-date"
                 {...form.register('start_date')}
-                className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
               />
               {form.formState.errors.start_date && (
-                <p className="mt-1 text-sm text-red-400">
+                <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                   {form.formState.errors.start_date.message}
                 </p>
               )}
@@ -188,16 +188,16 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
                 htmlFor="modal-end-date"
                 className="text-foreground/80 block text-sm font-medium"
               >
-                End Date <span className="text-red-500">*</span>
+                End Date <span className="text-[var(--color-danger-500)]">*</span>
               </label>
               <input
                 type="date"
                 id="modal-end-date"
                 {...form.register('end_date')}
-                className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
               />
               {form.formState.errors.end_date && (
-                <p className="mt-1 text-sm text-red-400">
+                <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                   {form.formState.errors.end_date.message}
                 </p>
               )}
@@ -214,23 +214,25 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
               {...form.register('reason')}
               rows={3}
               placeholder="Optional notes about your leave request..."
-              className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="mt-1 block w-full rounded-md border border-white/[0.1] px-3 py-2 shadow-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
             />
             {form.formState.errors.reason && (
-              <p className="mt-1 text-sm text-red-400">{form.formState.errors.reason.message}</p>
+              <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+                {form.formState.errors.reason.message}
+              </p>
             )}
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="rounded-md bg-red-500/10 p-3">
-              <p className="text-sm text-red-400">{error}</p>
+            <div className="rounded-md bg-[var(--color-destructive-muted)] p-3">
+              <p className="text-sm text-[var(--color-danger-400)]">{error}</p>
             </div>
           )}
 
           {/* Help Text */}
-          <div className="rounded-md bg-blue-500/10 p-3">
-            <p className="text-xs text-blue-400">
+          <div className="rounded-md bg-[var(--color-info-bg)] p-3">
+            <p className="text-xs text-[var(--color-info)]">
               <strong>Note:</strong> Leave requests must fall within roster period boundaries.
               Requests with less than 21 days advance notice will be flagged as late requests.
             </p>
@@ -241,14 +243,14 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
             <button
               type="button"
               onClick={onClose}
-              className="text-foreground/80 rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium transition-colors hover:bg-white/[0.03] focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+              className="text-foreground/80 rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium transition-colors hover:bg-white/[0.03] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Request'}
             </button>

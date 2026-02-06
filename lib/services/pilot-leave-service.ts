@@ -59,11 +59,31 @@ export async function submitPilotLeaveRequest(
       }
     }
 
-    // Prepare leave request data
+    // Fetch pilot details from pilots table for denormalized fields
+    // These fields are required for the pilot_requests table and admin display
+    const supabase = createServiceRoleClient()
+    const { data: pilotDetails, error: pilotError } = await supabase
+      .from('pilots')
+      .select('first_name, last_name, role, employee_id')
+      .eq('id', pilot.pilot_id!)
+      .single()
+
+    if (pilotError || !pilotDetails) {
+      console.error('Failed to fetch pilot details:', pilotError)
+      return {
+        success: false,
+        error: 'Unable to fetch pilot details',
+      }
+    }
+
+    // Prepare leave request data with denormalized pilot fields
     // IMPORTANT: Use pilot.pilot_id (foreign key to pilots table), NOT pilot.id (pilot_users table ID)
     // Database uses DATE type for start_date/end_date, so send YYYY-MM-DD format only
     const leaveRequestData = {
       pilot_id: pilot.pilot_id!,
+      name: `${pilotDetails.first_name} ${pilotDetails.last_name}`,
+      rank: (pilotDetails.role as 'Captain' | 'First Officer') || 'Captain',
+      employee_number: pilotDetails.employee_id || '',
       request_type: request.request_type as
         | 'ANNUAL'
         | 'SICK'
@@ -78,9 +98,11 @@ export async function submitPilotLeaveRequest(
       submission_channel: 'PILOT_PORTAL' as const,
       reason: request.reason || undefined,
       is_late_request: isLateRequest(request.start_date),
+      // Medical certificate attachment URL (optional, only for SICK leave)
+      source_attachment_url: request.source_attachment_url || undefined,
     }
 
-    // Create leave request using core service (which now handles denormalized fields)
+    // Create leave request using core service
     const result = await createLeaveRequestServer(leaveRequestData)
 
     if (!result.success || !result.data) {

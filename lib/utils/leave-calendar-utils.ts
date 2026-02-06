@@ -78,13 +78,13 @@ export function calculateDayAvailability(
  */
 export function getEventBgColor(event: CalendarEvent): string {
   const statusColors: Record<string, string> = {
-    APPROVED: 'bg-green-100 dark:bg-green-900/30',
-    PENDING: 'bg-yellow-100 dark:bg-yellow-900/30',
-    DENIED: 'bg-red-100 dark:bg-red-900/30',
-    CANCELLED: 'bg-gray-100 dark:bg-gray-900/30',
+    APPROVED: 'bg-[var(--color-success-muted)]',
+    PENDING: 'bg-[var(--color-warning-muted)]',
+    DENIED: 'bg-[var(--color-destructive-muted)]',
+    CANCELLED: 'bg-muted',
   }
 
-  return statusColors[event.status] || 'bg-blue-100 dark:bg-blue-900/30'
+  return statusColors[event.status] || 'bg-[var(--color-info-bg)]'
 }
 
 /**
@@ -92,13 +92,13 @@ export function getEventBgColor(event: CalendarEvent): string {
  */
 export function getEventTextColor(event: CalendarEvent): string {
   const statusColors: Record<string, string> = {
-    APPROVED: 'text-green-800 dark:text-green-200',
-    PENDING: 'text-yellow-800 dark:text-yellow-200',
-    DENIED: 'text-red-800 dark:text-red-200',
-    CANCELLED: 'text-gray-800 dark:text-gray-200',
+    APPROVED: 'text-[var(--color-success-500)]',
+    PENDING: 'text-[var(--color-warning-500)]',
+    DENIED: 'text-[var(--color-danger-500)]',
+    CANCELLED: 'text-muted-foreground',
   }
 
-  return statusColors[event.status] || 'text-blue-800 dark:text-blue-200'
+  return statusColors[event.status] || 'text-[var(--color-info)]'
 }
 
 /**
@@ -115,12 +115,12 @@ export function getDayStatusColor(
 
   // Critical: Less than 10 available
   if (captainsAvailable < 10 || fosAvailable < 10) {
-    return 'bg-red-50 dark:bg-red-950'
+    return 'bg-[var(--color-destructive-muted)]'
   }
 
   // Warning: Exactly 10 or 11 available
   if (captainsAvailable <= 11 || fosAvailable <= 11) {
-    return 'bg-yellow-50 dark:bg-yellow-950'
+    return 'bg-[var(--color-warning-muted)]'
   }
 
   // Good: More than 11 available

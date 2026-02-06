@@ -26,11 +26,14 @@ npm run dev                 # Start dev server
 npm run build               # Production build
 npm run validate            # type-check + lint + format:check (pre-commit)
 npm run validate:naming     # Validate naming conventions
+npm run lint:fix            # Auto-fix ESLint issues
+npm run format              # Format code with Prettier
 
 # Testing
 npm test                    # Run all Playwright E2E tests
 npm run test:ui             # Playwright UI mode
 npm run test:headed         # Run with browser visible
+npm run test:debug          # Debug mode for Playwright
 npx playwright test e2e/auth.spec.ts        # Single test file
 npx playwright test --grep "leave request"  # Pattern match
 npx playwright test --project=chromium      # Specific browser
@@ -38,6 +41,8 @@ npx playwright test --reporter=html         # Generate HTML report
 
 # Database
 npm run db:types            # Regenerate types after schema changes (REQUIRED)
+npm run db:migration        # Create new database migration
+npm run db:deploy           # Deploy migrations to production
 
 # Storybook
 npm run storybook           # http://localhost:6006
@@ -60,7 +65,7 @@ const pilots = await getPilots()
 const { data } = await supabase.from('pilots').select('*')
 ```
 
-### Key Services (50 total in `lib/services/`)
+### Key Services (50+ in `lib/services/`)
 
 | Category    | Services                                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------------- |
@@ -68,6 +73,8 @@ const { data } = await supabase.from('pilots').select('*')
 | Dashboard   | `dashboard-service-v4` (production, Redis-cached), `analytics-service`                                         |
 | Auth        | `pilot-portal-service`, `session-service`, `account-lockout-service`                                           |
 | Reports     | `pdf-service`, `reports-service` (19 reports), `export-service`                                                |
+
+**Central Service**: `unified-request-service.ts` handles ALL leave and flight requests through the unified `pilot_requests` table. This is the primary service for request management.
 
 ### Dual Authentication Architecture
 
@@ -108,10 +115,11 @@ Pilot portal sessions use Redis-backed sessions via `redis-session-service.ts`:
 | Sessions      | `redis-session-service.ts`     | Pilot portal auth                 |
 | Invalidation  | `cache-invalidation-helper.ts` | Clear stale data after mutations  |
 
-### Middleware Architecture
+### Supabase Session Helper
 
-Middleware is at `lib/supabase/middleware.ts` (not root):
+`lib/supabase/middleware.ts` contains the `updateSession()` helper for refreshing Supabase auth tokens:
 
+- Called from Next.js middleware (if exists) or server components
 - Admin auth via Supabase session validation
 - Pilot portal session validation via Redis
 - Route protection and redirects for unauthenticated users
@@ -231,8 +239,8 @@ WHERE request_category = 'FLIGHT'
 
 ### 1. Roster Periods (28-Day Cycles)
 
-- RP1-RP13 annual cycle
-- Anchor: **RP12/2025 starts 2025-10-11**
+- RP1-RP13 annual cycle (13 × 28 = 364 days)
+- Anchor: **RP13/2025 starts 2025-11-08**
 - Utils: `lib/utils/roster-utils.ts`
 
 ### 2. Certification Compliance (FAA)
@@ -328,20 +336,53 @@ Enforced by `npm run validate:naming`:
 
 ## Technology Stack
 
-| Tech            | Version | Purpose                        |
-| --------------- | ------- | ------------------------------ |
-| Next.js         | 16.1.6  | App framework                  |
-| React           | 19.2.4  | UI library                     |
-| TypeScript      | 5.9.3   | Type safety (strict)           |
-| Tailwind CSS    | 4.1.18  | Styling                        |
-| Supabase        | 2.93.2  | PostgreSQL + Auth              |
-| TanStack Query  | 5.90.20 | Server state                   |
-| Zod             | 4.3.6   | Schema validation              |
-| Playwright      | 1.58.0  | E2E testing                    |
-| Redis (Upstash) | -       | Session storage, rate limiting |
+| Tech            | Purpose                        |
+| --------------- | ------------------------------ |
+| Next.js 16+     | App framework (App Router)     |
+| React 19+       | UI library                     |
+| TypeScript      | Type safety (strict mode)      |
+| Tailwind CSS v4 | Styling                        |
+| Supabase        | PostgreSQL + Auth + RLS        |
+| TanStack Query  | Server state management        |
+| Zod             | Schema validation              |
+| Playwright      | E2E testing                    |
+| Redis (Upstash) | Sessions, caching, rate limits |
+
+See `package.json` for exact versions.
 
 ---
 
-**Version**: 3.2.0
-**Last Updated**: January 2026
+## Environment Variables
+
+| Variable                        | Required | Description                     |
+| ------------------------------- | -------- | ------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Supabase project URL            |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Supabase anonymous key          |
+| `NEXT_PUBLIC_APP_URL`           | Yes      | Application base URL            |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Server   | Service role key (bypasses RLS) |
+| `UPSTASH_REDIS_REST_URL`        | Yes      | Redis URL for sessions/cache    |
+| `UPSTASH_REDIS_REST_TOKEN`      | Yes      | Redis authentication token      |
+| `RESEND_API_KEY`                | Server   | Email service (Resend) API key  |
+| `LOGTAIL_SOURCE_TOKEN`          | Server   | Better Stack logging token      |
+
+Copy `.env.example` to `.env.local` and configure values from Supabase dashboard.
+
+---
+
+## API Routes Structure
+
+| Path             | Purpose                             |
+| ---------------- | ----------------------------------- |
+| `/api/*`         | Admin portal API endpoints          |
+| `/api/portal/*`  | Pilot portal API endpoints          |
+| `/api/reports/*` | Report generation (19 report types) |
+| `/api/cron/*`    | Scheduled job endpoints             |
+| `/api/auth/*`    | Authentication endpoints            |
+
+**Note**: Admin and pilot portal APIs use different auth systems. Never mix authentication methods between these route groups.
+
+---
+
+**Version**: 3.4.0
+**Last Updated**: February 2026
 **Maintainer**: Maurice (Skycruzer)

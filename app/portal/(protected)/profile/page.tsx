@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import { format, differenceInYears, differenceInMonths } from 'date-fns'
 import { ProfileAnimationWrapper } from './profile-animation-wrapper'
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getPilotRequirements } from '@/lib/services/admin-service'
@@ -284,10 +285,19 @@ const formatDate = (dateString: string | null) => {
 
 const getStatusBadge = (status: string) => {
   const statusConfig = {
-    active: { color: 'bg-green-100 text-green-800', label: 'Active' },
-    inactive: { color: 'bg-gray-100 text-gray-800', label: 'Inactive' },
-    on_leave: { color: 'bg-yellow-100 text-yellow-800', label: 'On Leave' },
-    suspended: { color: 'bg-red-100 text-red-800', label: 'Suspended' },
+    active: {
+      color: 'bg-[var(--color-success-muted)] text-[var(--color-success-600)]',
+      label: 'Active',
+    },
+    inactive: { color: 'bg-muted text-muted-foreground', label: 'Inactive' },
+    on_leave: {
+      color: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-600)]',
+      label: 'On Leave',
+    },
+    suspended: {
+      color: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-600)]',
+      label: 'Suspended',
+    },
   }
 
   const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.inactive
@@ -375,7 +385,7 @@ export default async function ProfilePage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Card className="max-w-md p-12 text-center">
-          <XCircle className="mx-auto mb-4 h-16 w-16 text-red-600" />
+          <XCircle className="mx-auto mb-4 h-16 w-16 text-[var(--color-danger-600)]" />
           <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
           <p className="text-muted-foreground mb-6">{error || 'Profile not found'}</p>
         </Card>
@@ -390,6 +400,7 @@ export default async function ProfilePage() {
   return (
     <ProfileAnimationWrapper>
       <div className="space-y-6 pb-12">
+        <PageBreadcrumbs rootPath="portal" />
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
@@ -430,8 +441,8 @@ export default async function ProfilePage() {
           {/* Employment Information */}
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
-                <Briefcase className="h-5 w-5 text-green-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-success-muted)]">
+                <Briefcase className="h-5 w-5 text-[var(--color-success-600)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">Employment Details</h3>
             </div>
@@ -468,8 +479,8 @@ export default async function ProfilePage() {
           {/* Contact Information */}
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-                <Mail className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
+                <Mail className="h-5 w-5 text-[var(--color-primary-600)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">Contact Information</h3>
             </div>
@@ -504,8 +515,8 @@ export default async function ProfilePage() {
           {/* Passport Information */}
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-                <Shield className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
+                <Shield className="h-5 w-5 text-[var(--color-primary-600)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">
                 Passport & License Information
@@ -522,7 +533,7 @@ export default async function ProfilePage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-muted-foreground text-xs font-medium">Licence Type</p>
-                    <Badge className="mt-1 border-0 bg-blue-100 text-blue-800">
+                    <Badge className="mt-1 border-0 bg-[var(--color-info-bg)] text-[var(--color-info)]">
                       {profile.licence_type}
                     </Badge>
                   </div>
@@ -588,8 +599,8 @@ export default async function ProfilePage() {
         {(profile.role === 'Captain' || profile.rank === 'Captain') && (
           <Card className="p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/10">
-                <Award className="h-5 w-5 text-yellow-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-warning-muted)]">
+                <Award className="h-5 w-5 text-[var(--color-warning-600)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">Captain Qualifications</h3>
             </div>
@@ -598,7 +609,7 @@ export default async function ProfilePage() {
                 parseCaptainQualifications(profile.captain_qualifications).map((qual, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow-500 to-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-md"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-warning-500)] to-[var(--color-warning-400)] px-4 py-2 text-sm font-semibold text-white shadow-md"
                   >
                     <Star className="h-4 w-4" />
                     {qual}
@@ -612,7 +623,7 @@ export default async function ProfilePage() {
         )}
 
         {/* Info Notice */}
-        <Card className="border-blue-200 bg-blue-50 p-6">
+        <Card className="border-[var(--color-primary-500)]/20 bg-[var(--color-info-bg)] p-6">
           <div className="flex items-start space-x-3">
             <Clock className="text-primary mt-0.5 h-5 w-5" />
             <div>

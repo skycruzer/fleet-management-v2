@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Calendar, Plane, Loader2 } from 'lucide-react'
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 import { FlightRequestsList } from '@/components/portal/rdo-sdo-requests-list'
 import LeaveRequestsList from '@/components/pilot/LeaveRequestsList'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
@@ -82,6 +83,7 @@ export default function MyRequestsPage() {
 
   return (
     <div className="space-y-6 p-6">
+      <PageBreadcrumbs rootPath="portal" />
       <div>
         <h1 className="text-foreground text-2xl font-semibold">My Requests</h1>
         <p className="text-muted-foreground mt-1 text-sm">
@@ -101,7 +103,7 @@ export default function MyRequestsPage() {
                 className={cn(
                   'flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
                   activeTab === tab.id
-                    ? 'border-indigo-600 text-indigo-600'
+                    ? 'border-[var(--color-primary-600)] text-[var(--color-primary-600)]'
                     : 'text-muted-foreground hover:text-foreground/80 border-transparent hover:border-white/[0.1]'
                 )}
               >

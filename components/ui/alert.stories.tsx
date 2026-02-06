@@ -46,7 +46,7 @@ export const Destructive: Story = {
 
 export const Success: Story = {
   render: () => (
-    <Alert className="border-green-200 bg-green-50 text-green-900">
+    <Alert className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] text-[var(--color-success-500)]">
       <CheckCircle2 className="h-4 w-4" />
       <AlertTitle>Success</AlertTitle>
       <AlertDescription>Your changes have been saved successfully.</AlertDescription>
@@ -56,7 +56,7 @@ export const Success: Story = {
 
 export const Warning: Story = {
   render: () => (
-    <Alert className="border-yellow-200 bg-yellow-50 text-yellow-900">
+    <Alert className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]">
       <AlertTriangle className="h-4 w-4" />
       <AlertTitle>Warning</AlertTitle>
       <AlertDescription>
@@ -107,12 +107,12 @@ export const Multiple: Story = {
         <AlertTitle>Info</AlertTitle>
         <AlertDescription>This is an informational alert.</AlertDescription>
       </Alert>
-      <Alert className="border-green-200 bg-green-50 text-green-900">
+      <Alert className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] text-[var(--color-success-500)]">
         <CheckCircle2 className="h-4 w-4" />
         <AlertTitle>Success</AlertTitle>
         <AlertDescription>Operation completed successfully.</AlertDescription>
       </Alert>
-      <Alert className="border-yellow-200 bg-yellow-50 text-yellow-900">
+      <Alert className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
         <AlertDescription>Please review before proceeding.</AlertDescription>

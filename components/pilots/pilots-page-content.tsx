@@ -29,7 +29,7 @@ export async function PilotsPageContent() {
         </Card>
         <Card className="p-6">
           <div className="flex items-center space-x-3">
-            <Star className="h-8 w-8 text-yellow-500" aria-hidden="true" />
+            <Star className="h-8 w-8 text-[var(--color-warning-500)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{captains}</p>
               <p className="text-muted-foreground text-sm font-medium">Captains</p>

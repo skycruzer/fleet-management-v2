@@ -57,9 +57,9 @@ export default async function PilotDashboardPage() {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center px-4">
         <div className="bg-card max-w-md rounded-lg p-8 text-center shadow-lg">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-warning-muted)]">
             <svg
-              className="h-6 w-6 text-amber-400"
+              className="h-6 w-6 text-[var(--color-warning-400)]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -80,7 +80,7 @@ export default async function PilotDashboardPage() {
           <form action="/api/pilot/logout" method="POST" className="mt-6">
             <button
               type="submit"
-              className="rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+              className="bg-muted-foreground/60 hover:bg-muted-foreground/70 rounded-md px-4 py-2 text-sm font-medium text-white"
             >
               Sign Out
             </button>
@@ -97,7 +97,9 @@ export default async function PilotDashboardPage() {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center px-4">
         <div className="bg-card max-w-md rounded-lg p-8 text-center shadow-lg">
-          <h2 className="mb-2 text-xl font-bold text-red-600">Error Loading Dashboard</h2>
+          <h2 className="mb-2 text-xl font-bold text-[var(--color-danger-600)]">
+            Error Loading Dashboard
+          </h2>
           <p className="text-muted-foreground text-sm">
             {dashboardResult.error || 'Unable to load dashboard data. Please try again later.'}
           </p>
@@ -122,7 +124,7 @@ export default async function PilotDashboardPage() {
             <form action="/api/pilot/logout" method="POST">
               <button
                 type="submit"
-                className="rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+                className="bg-muted-foreground/60 hover:bg-muted-foreground/70 rounded-md px-4 py-2 text-sm font-medium text-white"
               >
                 Sign Out
               </button>

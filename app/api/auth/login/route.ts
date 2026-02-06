@@ -4,12 +4,18 @@
  *
  * POST /api/auth/login — Authenticate with staff_id + password
  * Handles admin, manager, and pilot login via single endpoint.
+ *
+ * RATE LIMITING: 5 login attempts per minute per IP (prevents brute force attacks)
+ *
+ * @version 2.0.0 - Added rate limiting protection
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { login } from '@/lib/services/auth-service'
+import { withAuthRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { getClientIp } from '@/lib/rate-limit'
 
-export async function POST(request: NextRequest) {
+export const POST = withAuthRateLimit(async (request: NextRequest) => {
   try {
     const body = await request.json()
     const { staffId, password } = body
@@ -21,8 +27,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const ipAddress =
-      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const ipAddress = getClientIp(request)
     const userAgent = request.headers.get('user-agent') || undefined
 
     const result = await login(staffId, password, { ipAddress, userAgent })
@@ -50,4 +55,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

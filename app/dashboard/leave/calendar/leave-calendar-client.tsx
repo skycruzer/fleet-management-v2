@@ -159,12 +159,12 @@ export function LeaveCalendarClient({
         {/* Filter Summary */}
         <div className="mt-4 border-t pt-4">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
+            <div className="text-muted-foreground text-sm">
               Showing {filteredRequests.length} of {leaveRequests.length} leave requests
             </div>
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600">
+              <Users className="text-muted-foreground/80 h-4 w-4" />
+              <span className="text-muted-foreground text-sm">
                 Captains: {totalCaptains} | First Officers: {totalFirstOfficers}
               </span>
             </div>
@@ -197,7 +197,7 @@ export function LeaveCalendarClient({
           </div>
 
           <div className="space-y-2">
-            <div className="mb-4 text-sm text-gray-600">
+            <div className="text-muted-foreground mb-4 text-sm">
               {selectedDay.events.length} leave request
               {selectedDay.events.length !== 1 ? 's' : ''}
             </div>
@@ -213,7 +213,7 @@ export function LeaveCalendarClient({
                   <Badge variant="outline">{event.rank}</Badge>
                 </div>
 
-                <div className="space-y-1 text-sm text-gray-600">
+                <div className="text-muted-foreground space-y-1 text-sm">
                   <div className="flex items-center justify-between">
                     <span>Type:</span>
                     <Badge className="text-xs">{event.leaveType}</Badge>
@@ -224,10 +224,10 @@ export function LeaveCalendarClient({
                     <Badge
                       className={
                         event.status === 'APPROVED'
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]'
                           : event.status === 'PENDING'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
+                            : 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)]'
                       }
                     >
                       {event.status}
@@ -241,7 +241,7 @@ export function LeaveCalendarClient({
                     </span>
                   </div>
 
-                  <div className="mt-2 border-t pt-2 text-xs text-gray-500">
+                  <div className="text-muted-foreground/80 mt-2 border-t pt-2 text-xs">
                     {format(event.startDate, 'MMM d')} - {format(event.endDate, 'MMM d, yyyy')}
                   </div>
                 </div>

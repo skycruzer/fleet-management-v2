@@ -401,8 +401,8 @@ export default function GeneratePlanPage() {
             })}
           </div>
           <Separator className="my-4" />
-          <div className="rounded-md border border-amber-500/20 bg-amber-500/10 p-3">
-            <p className="text-sm text-amber-400">
+          <div className="rounded-md border border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-3">
+            <p className="text-sm text-[var(--color-warning-400)]">
               <strong>Note:</strong> Pilot Medical certifications have a 28-day grace period, which
               is too short for advance planning. Medical renewals should be scheduled through urgent
               scheduling.
@@ -434,12 +434,14 @@ export default function GeneratePlanPage() {
 
         {/* Warning */}
         {clearExisting && (
-          <Card className="border-red-500/20 bg-red-500/10 p-6">
+          <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-6">
             <div className="flex items-start space-x-3">
-              <AlertTriangle className="mt-1 h-6 w-6 text-red-400" />
+              <AlertTriangle className="mt-1 h-6 w-6 text-[var(--color-danger-400)]" />
               <div>
-                <h3 className="font-semibold text-red-400">Warning: Destructive Action</h3>
-                <p className="mt-1 text-sm text-red-400">
+                <h3 className="font-semibold text-[var(--color-danger-400)]">
+                  Warning: Destructive Action
+                </h3>
+                <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                   This will permanently delete all existing renewal plans. This action cannot be
                   undone.
                 </p>
@@ -452,9 +454,9 @@ export default function GeneratePlanPage() {
       {/* Right sidebar */}
       <div className="space-y-6">
         {/* Quick Stats */}
-        <Card className="bg-blue-500/10 p-6">
-          <h3 className="mb-3 font-semibold text-blue-400">How It Works</h3>
-          <ul className="space-y-2 text-sm text-blue-400">
+        <Card className="bg-[var(--color-info-bg)] p-6">
+          <h3 className="mb-3 font-semibold text-[var(--color-info)]">How It Works</h3>
+          <ul className="space-y-2 text-sm text-[var(--color-info)]">
             <li>• Fetches expiring checks for selected categories</li>
             <li>• Pairs Captains with First Officers (Flight/Simulator)</li>
             <li>• Assigns to all 13 roster periods (RP1-RP13)</li>
@@ -498,11 +500,13 @@ export default function GeneratePlanPage() {
               <p className="text-muted-foreground text-sm">Total Renewals</p>
             </Card>
             <Card className="p-4 text-center">
-              <p className="text-3xl font-bold text-green-600">{preview.pairingStats.totalPairs}</p>
+              <p className="text-3xl font-bold text-[var(--color-success-600)]">
+                {preview.pairingStats.totalPairs}
+              </p>
               <p className="text-muted-foreground text-sm">Paired Crews</p>
             </Card>
             <Card className="p-4 text-center">
-              <p className="text-3xl font-bold text-orange-600">
+              <p className="text-3xl font-bold text-[var(--color-badge-orange)]">
                 {preview.pairingStats.totalUnpaired}
               </p>
               <p className="text-muted-foreground text-sm">Unpaired Pilots</p>
@@ -531,14 +535,14 @@ export default function GeneratePlanPage() {
 
         {/* Warnings */}
         {preview && preview.warnings.length > 0 && (
-          <Card className="border-orange-500/20 bg-orange-500/10 p-4">
-            <h3 className="mb-2 flex items-center font-semibold text-orange-400">
+          <Card className="border-[var(--color-badge-orange)]/20 bg-[var(--color-badge-orange-bg)] p-4">
+            <h3 className="mb-2 flex items-center font-semibold text-[var(--color-badge-orange)]">
               <AlertTriangle className="mr-2 h-5 w-5" />
               Warnings ({preview.warnings.length})
             </h3>
             <ul className="space-y-1">
               {preview.warnings.map((w, idx) => (
-                <li key={idx} className="text-sm text-orange-400">
+                <li key={idx} className="text-sm text-[var(--color-badge-orange)]">
                   <Badge
                     variant={w.severity === 'critical' ? 'destructive' : 'outline'}
                     className="mr-2"
@@ -559,8 +563,10 @@ export default function GeneratePlanPage() {
             <p className="text-muted-foreground">Loading preview with pairing information...</p>
           </Card>
         ) : previewQuery.isError ? (
-          <Card className="border-red-500/20 bg-red-500/10 p-6 text-center">
-            <p className="text-red-400">Failed to load preview. Please try again.</p>
+          <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-6 text-center">
+            <p className="text-[var(--color-danger-400)]">
+              Failed to load preview. Please try again.
+            </p>
             <Button
               onClick={() => previewQuery.refetch()}
               variant="outline"
@@ -614,8 +620,8 @@ export default function GeneratePlanPage() {
       <div className="space-y-6">
         {/* Success Header */}
         <div className="flex items-center space-x-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10">
-            <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-success-muted)]">
+            <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
           </div>
           <div>
             <h2 className="text-foreground text-2xl font-bold">Generation Complete!</h2>
@@ -627,9 +633,11 @@ export default function GeneratePlanPage() {
 
         {/* Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="border-emerald-500/20 bg-emerald-500/10 p-6 text-center">
-            <p className="text-4xl font-bold text-emerald-400">{generationResult.totalPlans}</p>
-            <p className="text-sm text-emerald-400">Total Plans Generated</p>
+          <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-6 text-center">
+            <p className="text-4xl font-bold text-[var(--color-success-400)]">
+              {generationResult.totalPlans}
+            </p>
+            <p className="text-sm text-[var(--color-success-400)]">Total Plans Generated</p>
           </Card>
           <Card className="p-6 text-center">
             <p className="text-foreground text-4xl font-bold">
@@ -704,7 +712,7 @@ export default function GeneratePlanPage() {
                     </div>
                     <div className="bg-secondary h-2 w-full overflow-hidden rounded-full">
                       <div
-                        className="h-full bg-blue-500 transition-all"
+                        className="h-full bg-[var(--color-primary-500)] transition-all"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>

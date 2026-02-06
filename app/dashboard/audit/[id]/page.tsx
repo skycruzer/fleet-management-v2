@@ -46,7 +46,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       <div className="mb-6">
         <Link
           href="/dashboard/audit"
-          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-2 text-sm text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -82,11 +82,11 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
               <span
                 className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
                   auditLog.action === 'INSERT'
-                    ? 'bg-emerald-500/10 text-emerald-400'
+                    ? 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
                     : auditLog.action === 'UPDATE'
-                      ? 'bg-blue-500/10 text-blue-400'
+                      ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
                       : auditLog.action === 'DELETE'
-                        ? 'bg-red-500/10 text-red-400'
+                        ? 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
                         : 'text-foreground bg-white/[0.03]'
                 }`}
               >
@@ -163,7 +163,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       <div className="mt-8 flex justify-between">
         <Link
           href="/dashboard/audit"
-          className="text-foreground/80 inline-flex items-center gap-2 rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium transition-colors hover:bg-white/[0.03] focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+          className="text-foreground/80 inline-flex items-center gap-2 rounded-md border border-white/[0.1] px-4 py-2 text-sm font-medium transition-colors hover:bg-white/[0.03] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -179,7 +179,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
         {auditLog.record_id && (
           <Link
             href={`/dashboard/audit?recordId=${auditLog.record_id}`}
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
           >
             View All Changes to This Record
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -176,7 +176,7 @@ export function OptimisticFeedbackExample({ initialFeedback }: OptimisticFeedbac
 
                 {/* Vote Status Indicator */}
                 {item.userVote && (
-                  <div className="mt-3 flex items-center gap-2 text-sm text-green-600">
+                  <div className="mt-3 flex items-center gap-2 text-sm text-[var(--color-success-600)]">
                     <CheckCircle2 className="h-4 w-4" />
                     You voted {item.userVote === 'up' ? 'up' : 'down'}
                   </div>

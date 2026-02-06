@@ -18,8 +18,8 @@ const contactChannels = [
     description: 'Send us an email for detailed inquiries',
     action: 'mailto:support@fleetmanagement.com',
     actionLabel: 'Send Email',
-    color: 'text-blue-400',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-[var(--color-info)]',
+    bgColor: 'bg-[var(--color-info-bg)]',
   },
   {
     icon: Phone,
@@ -27,8 +27,8 @@ const contactChannels = [
     description: 'Call us during business hours',
     action: 'tel:+1-800-FLEET',
     actionLabel: 'Call Now',
-    color: 'text-emerald-400',
-    bgColor: 'bg-emerald-500/10',
+    color: 'text-[var(--color-success-400)]',
+    bgColor: 'bg-[var(--color-success-muted)]',
   },
   {
     icon: MessageCircle,
@@ -36,8 +36,8 @@ const contactChannels = [
     description: 'Chat with our support team in real-time',
     action: '#',
     actionLabel: 'Start Chat',
-    color: 'text-purple-400',
-    bgColor: 'bg-purple-500/10',
+    color: 'text-[var(--color-badge-purple)]',
+    bgColor: 'bg-[var(--color-badge-purple-bg)]',
   },
 ]
 

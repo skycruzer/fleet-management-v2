@@ -82,10 +82,10 @@ export default async function RequestDetailPage({ params }: PageProps) {
   const getStatusBadgeClass = (status: string) => {
     const classes: Record<string, string> = {
       DRAFT: 'bg-white/[0.08] text-muted-foreground',
-      SUBMITTED: 'bg-blue-500/10 text-blue-400',
-      IN_REVIEW: 'bg-amber-500/10 text-amber-400',
-      APPROVED: 'bg-emerald-500/10 text-emerald-400',
-      DENIED: 'bg-red-500/10 text-red-400',
+      SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+      IN_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
+      APPROVED: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
+      DENIED: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
       WITHDRAWN: 'bg-white/[0.08] text-muted-foreground',
     }
     return classes[status] || 'bg-white/[0.08] text-muted-foreground'
@@ -93,9 +93,9 @@ export default async function RequestDetailPage({ params }: PageProps) {
 
   const getCategoryBadgeClass = (category: string) => {
     const classes: Record<string, string> = {
-      LEAVE: 'bg-blue-500/10 text-blue-400',
-      FLIGHT: 'bg-purple-500/10 text-purple-400',
-      LEAVE_BID: 'bg-emerald-500/10 text-emerald-400',
+      LEAVE: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+      FLIGHT: 'bg-[var(--color-badge-purple-bg)] text-[var(--color-badge-purple)]',
+      LEAVE_BID: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
     }
     return classes[category] || 'bg-white/[0.08] text-muted-foreground'
   }
@@ -129,13 +129,19 @@ export default async function RequestDetailPage({ params }: PageProps) {
           {request.request_category}
         </Badge>
         {request.is_late_request && (
-          <Badge variant="outline" className="border-amber-500/20 bg-amber-500/10 text-amber-400">
+          <Badge
+            variant="outline"
+            className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]"
+          >
             <Clock className="mr-1 h-3 w-3" />
             Late Request
           </Badge>
         )}
         {request.is_past_deadline && (
-          <Badge variant="outline" className="border-red-500/20 bg-red-500/10 text-red-400">
+          <Badge
+            variant="outline"
+            className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]"
+          >
             <AlertTriangle className="mr-1 h-3 w-3" />
             Past Deadline
           </Badge>
@@ -299,7 +305,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                   {request.is_late_request && (
                     <Badge
                       variant="outline"
-                      className="w-full justify-start border-amber-500/20 bg-amber-500/10 text-amber-400"
+                      className="w-full justify-start border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]"
                     >
                       <Clock className="mr-1 h-3 w-3" />
                       Late Request (&lt;21 days notice)
@@ -308,7 +314,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                   {request.is_past_deadline && (
                     <Badge
                       variant="outline"
-                      className="w-full justify-start border-red-500/20 bg-red-500/10 text-red-400"
+                      className="w-full justify-start border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]"
                     >
                       <AlertTriangle className="mr-1 h-3 w-3" />
                       Past Deadline (After 22-day cutoff)

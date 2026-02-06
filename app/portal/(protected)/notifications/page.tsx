@@ -134,19 +134,19 @@ export default function NotificationsPage() {
 
   const getNotificationBadgeColor = (type: string) => {
     const colors: Record<string, string> = {
-      leave_approved: 'bg-green-500',
-      leave_denied: 'bg-red-500',
-      flight_approved: 'bg-blue-500',
-      flight_denied: 'bg-orange-500',
-      certification_expiring: 'bg-yellow-500',
-      certification_expired: 'bg-red-600',
+      leave_approved: 'bg-[var(--color-success-500)]',
+      leave_denied: 'bg-[var(--color-danger-500)]',
+      flight_approved: 'bg-[var(--color-primary-500)]',
+      flight_denied: 'bg-[var(--color-badge-orange)]',
+      certification_expiring: 'bg-[var(--color-warning-500)]',
+      certification_expired: 'bg-[var(--color-danger-600)]',
       task_assigned: 'bg-primary/50',
-      registration_approved: 'bg-green-600',
-      registration_denied: 'bg-red-600',
-      system_alert: 'bg-gray-500',
-      general: 'bg-gray-400',
+      registration_approved: 'bg-[var(--color-success-600)]',
+      registration_denied: 'bg-[var(--color-danger-600)]',
+      system_alert: 'bg-muted-foreground',
+      general: 'bg-muted-foreground',
     }
-    return colors[type] || 'bg-gray-400'
+    return colors[type] || 'bg-muted-foreground'
   }
 
   const unreadCount = notifications.filter((n) => !n.read).length
@@ -168,7 +168,7 @@ export default function NotificationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Notifications</h1>
-          <p className="mt-1 text-gray-600">
+          <p className="text-muted-foreground mt-1">
             {unreadCount > 0
               ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
               : 'All caught up!'}
@@ -191,7 +191,7 @@ export default function NotificationsPage() {
       {notifications.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <p className="text-gray-500">No notifications yet</p>
+            <p className="text-muted-foreground">No notifications yet</p>
           </CardContent>
         </Card>
       ) : (
@@ -199,7 +199,9 @@ export default function NotificationsPage() {
           {notifications.map((notification) => (
             <Card
               key={notification.id}
-              className={notification.read ? 'opacity-70' : 'border-l-4 border-l-blue-500'}
+              className={
+                notification.read ? 'opacity-70' : 'border-l-4 border-l-[var(--color-primary-500)]'
+              }
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -209,7 +211,7 @@ export default function NotificationsPage() {
                         {notification.notification_type.replace(/_/g, ' ')}
                       </Badge>
                       {!notification.read && (
-                        <Badge variant="outline" className="bg-blue-100">
+                        <Badge variant="outline" className="bg-[var(--color-info-bg)]">
                           New
                         </Badge>
                       )}
@@ -244,7 +246,7 @@ export default function NotificationsPage() {
               </CardHeader>
 
               <CardContent>
-                <p className="text-gray-700">{notification.message}</p>
+                <p className="text-muted-foreground">{notification.message}</p>
 
                 {notification.link && (
                   <Button

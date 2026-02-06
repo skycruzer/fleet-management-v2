@@ -20,7 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ReportData, ReportType } from '@/types/reports'
-import { Calendar, Plane, Award, BarChart3 } from 'lucide-react'
+import { Calendar, Plane, Award, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { PaginatedReportTable } from './paginated-report-table'
 
 interface ReportPreviewDialogProps {
@@ -50,6 +50,10 @@ export function ReportPreviewDialog({
         return <Award className="h-5 w-5" />
       case 'leave-bids':
         return <Calendar className="h-5 w-5" />
+      case 'pilot-info':
+        return <Users className="h-5 w-5" />
+      case 'forecast':
+        return <TrendingUp className="h-5 w-5" />
       default:
         return <BarChart3 className="h-5 w-5" />
     }

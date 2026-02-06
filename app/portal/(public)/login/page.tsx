@@ -18,6 +18,7 @@ export default function PilotLoginPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -32,7 +33,7 @@ export default function PilotLoginPage() {
       const response = await fetch('/api/portal/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ staffId, password }),
+        body: JSON.stringify({ staffId, password, rememberMe }),
       })
 
       const result = await response.json()
@@ -65,7 +66,7 @@ export default function PilotLoginPage() {
         <div className="bg-card rounded-lg border border-white/[0.08] p-6">
           {/* Error */}
           {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -124,6 +125,21 @@ export default function PilotLoginPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+            </div>
+
+            {/* Remember Me */}
+            <div className="flex items-center gap-2">
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                disabled={isLoading}
+                className="text-primary focus:ring-primary/20 h-4 w-4 rounded border-white/[0.2] bg-white/[0.04]"
+              />
+              <label htmlFor="rememberMe" className="text-muted-foreground text-sm">
+                Remember me for 30 days
+              </label>
             </div>
 
             {/* Submit */}

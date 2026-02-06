@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { TableSkeleton } from '@/components/ui/skeleton'
 import {
   Select,
   SelectContent,
@@ -335,11 +336,8 @@ export function PilotCertificationsTab({
 
       {/* Loading State */}
       {loading && safeCertifications.length === 0 && (
-        <Card className="p-12">
-          <div className="flex flex-col items-center justify-center">
-            <Loader2 className="text-primary mb-4 h-8 w-8 animate-spin" />
-            <p className="text-muted-foreground">Loading certifications...</p>
-          </div>
+        <Card className="p-6">
+          <TableSkeleton rows={5} columns={4} />
         </Card>
       )}
 

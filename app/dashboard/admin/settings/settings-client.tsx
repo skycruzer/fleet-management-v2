@@ -282,7 +282,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                       <div className="flex items-center space-x-2">
                         <p className="text-foreground text-sm font-medium">{setting.key}</p>
                         {(setting as any).is_system && (
-                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-800">
+                          <span className="rounded-full bg-[var(--color-destructive-muted)] px-2 py-0.5 text-xs text-[var(--color-danger-500)]">
                             Protected
                           </span>
                         )}
@@ -360,14 +360,14 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                       <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                           (setting as any).is_active !== false
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]'
                             : 'bg-muted text-foreground'
                         }`}
                       >
                         {(setting as any).is_active !== false ? 'ACTIVE' : 'INACTIVE'}
                       </span>
                       {(setting as any).is_system && (
-                        <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                        <span className="inline-flex items-center rounded-full bg-[var(--color-destructive-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-danger-500)]">
                           PROTECTED
                         </span>
                       )}

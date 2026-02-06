@@ -24,7 +24,7 @@ export const metadata = {
 
 export default function DocsPage() {
   return (
-    <div className="via-background min-h-screen bg-gradient-to-br from-blue-500/5 to-indigo-500/5">
+    <div className="via-background min-h-screen bg-gradient-to-br from-[var(--color-info-bg)] to-[var(--color-info-bg)]">
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-8">
@@ -41,10 +41,10 @@ export default function DocsPage() {
         </div>
 
         {/* Quick Start */}
-        <Card className="mb-8 border-blue-500/20 bg-blue-500/10">
+        <Card className="mb-8 border-[var(--color-info)]/20 bg-[var(--color-info-bg)]">
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Book className="mr-2 h-6 w-6 text-blue-600" />
+              <Book className="mr-2 h-6 w-6 text-[var(--color-primary-600)]" />
               Quick Start Guide
             </CardTitle>
             <CardDescription>Get started with Fleet Management V2 in minutes</CardDescription>

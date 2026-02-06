@@ -73,10 +73,12 @@ export const CustomFallback: Story = {
   render: () => (
     <ErrorBoundary
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[var(--color-destructive-muted)] to-[var(--color-badge-orange-bg)]">
           <div className="space-y-4 p-8 text-center">
-            <h1 className="text-4xl font-bold text-red-600">Oops!</h1>
-            <p className="text-lg text-gray-600">Something went wrong with this component.</p>
+            <h1 className="text-4xl font-bold text-[var(--color-danger-600)]">Oops!</h1>
+            <p className="text-muted-foreground text-lg">
+              Something went wrong with this component.
+            </p>
             <Button onClick={() => window.location.reload()}>Reload Page</Button>
           </div>
         </div>
@@ -117,8 +119,8 @@ export const NestedComponents: Story = {
             <p>This section also works</p>
           </div>
         </div>
-        <div className="rounded-lg border border-red-300 p-4">
-          <h3 className="mb-2 font-semibold text-red-600">Broken Section</h3>
+        <div className="rounded-lg border border-[var(--color-danger-500)]/30 p-4">
+          <h3 className="mb-2 font-semibold text-[var(--color-danger-600)]">Broken Section</h3>
           <BuggyComponent shouldThrow={true} />
         </div>
       </div>

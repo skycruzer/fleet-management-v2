@@ -136,6 +136,8 @@ export interface PilotRequest {
     first_name: string
     last_name: string
     seniority_number: number
+    role?: 'Captain' | 'First Officer'
+    employee_id?: string
   }
   reviewer?: {
     name: string
@@ -481,7 +483,9 @@ export async function getAllPilotRequests(
         pilot:pilots!pilot_id (
           first_name,
           last_name,
-          seniority_number
+          seniority_number,
+          role,
+          employee_id
         )
       `
     )

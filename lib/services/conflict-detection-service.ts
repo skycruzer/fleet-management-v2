@@ -240,12 +240,12 @@ export async function checkCrewAvailability(
   const warnings: string[] = []
 
   try {
-    // Get all active pilots of the same rank
+    // Get all active pilots of the same role (Captain or First Officer)
     const { data: pilots, error: pilotsError } = await supabase
       .from('pilots')
-      .select('id, rank')
-      .eq('rank', requestInput.rank)
-      .eq('status', 'Active')
+      .select('id, role')
+      .eq('role', requestInput.rank)
+      .eq('is_active', true)
 
     if (pilotsError || !pilots) {
       logger.error('Error fetching pilots for availability check', { error: pilotsError })
@@ -441,10 +441,10 @@ export function getConflictSeverityDisplay(severity: ConflictSeverity): {
   label: string
 } {
   const displays = {
-    LOW: { color: 'text-blue-600', icon: 'ℹ️', label: 'Info' },
-    MEDIUM: { color: 'text-yellow-600', icon: '⚠️', label: 'Warning' },
-    HIGH: { color: 'text-orange-600', icon: '⚠️', label: 'High' },
-    CRITICAL: { color: 'text-red-600', icon: '🚨', label: 'Critical' },
+    LOW: { color: 'text-[var(--color-primary-600)]', icon: 'ℹ️', label: 'Info' },
+    MEDIUM: { color: 'text-[var(--color-warning-600)]', icon: '⚠️', label: 'Warning' },
+    HIGH: { color: 'text-[var(--color-badge-orange)]', icon: '⚠️', label: 'High' },
+    CRITICAL: { color: 'text-[var(--color-danger-600)]', icon: '🚨', label: 'Critical' },
   }
 
   return displays[severity]

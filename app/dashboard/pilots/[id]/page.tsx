@@ -177,7 +177,7 @@ export default function PilotDetailPage() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <Card className="max-w-md p-12 text-center">
-          <XCircle className="mx-auto mb-4 h-16 w-16 text-red-600" />
+          <XCircle className="mx-auto mb-4 h-16 w-16 text-[var(--color-danger-600)]" />
           <h3 className="text-foreground mb-2 text-xl font-bold">Error</h3>
           <p className="text-muted-foreground mb-6">{error || 'Pilot not found'}</p>
           <Link href="/dashboard/pilots">

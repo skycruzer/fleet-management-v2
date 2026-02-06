@@ -67,7 +67,7 @@ export interface FormLabelProps {
 }
 
 export function getFormLabelClasses(): string {
-  return 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
+  return 'block text-sm font-medium text-foreground mb-2'
 }
 
 export function formatFormLabel({
@@ -89,34 +89,34 @@ export function formatFormLabel({
  * Standard form validation error classes
  */
 export const formErrorClasses = {
-  message: 'mt-1 text-sm text-red-600',
-  input: 'border-red-500 focus:ring-red-500',
-  textarea: 'border-red-500 focus:ring-red-500',
-  select: 'border-red-500 focus:ring-red-500',
+  message: 'mt-1 text-sm text-[var(--color-danger-600)]',
+  input: 'border-[var(--color-danger-500)] focus:ring-[var(--color-danger-500)]',
+  textarea: 'border-[var(--color-danger-500)] focus:ring-[var(--color-danger-500)]',
+  select: 'border-[var(--color-danger-500)] focus:ring-[var(--color-danger-500)]',
 } as const
 
 /**
  * Standard form success classes
  */
 export const formSuccessClasses = {
-  input: 'border-green-500 focus:ring-green-500',
-  textarea: 'border-green-500 focus:ring-green-500',
-  select: 'border-green-500 focus:ring-green-500',
+  input: 'border-[var(--color-success-500)] focus:ring-[var(--color-success-500)]',
+  textarea: 'border-[var(--color-success-500)] focus:ring-[var(--color-success-500)]',
+  select: 'border-[var(--color-success-500)] focus:ring-[var(--color-success-500)]',
 } as const
 
 /**
  * Standard form field description classes
  */
-export const formDescriptionClasses = 'mt-1 text-xs text-gray-500 dark:text-gray-400'
+export const formDescriptionClasses = 'mt-1 text-xs text-muted-foreground'
 
 /**
  * Standard portal form select classes
  */
 export const portalSelectClasses =
-  'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
+  'w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-transparent'
 
 /**
  * Standard portal cancel button classes
  */
 export const portalCancelButtonClasses =
-  'px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700'
+  'px-6 py-3 border border-border rounded-lg font-medium text-muted-foreground hover:bg-muted transition-colors'

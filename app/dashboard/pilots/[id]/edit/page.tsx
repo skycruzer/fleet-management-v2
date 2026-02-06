@@ -270,8 +270,8 @@ export default function EditPilotPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="border-destructive/20 rounded-lg border bg-[var(--color-destructive-muted)] p-4">
+              <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
             </div>
           )}
 
@@ -285,7 +285,7 @@ export default function EditPilotPage() {
               {/* Employee ID */}
               <div className="space-y-2">
                 <Label htmlFor="employee_id">
-                  Employee ID <span className="text-red-500">*</span>
+                  Employee ID <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="employee_id"
@@ -294,10 +294,12 @@ export default function EditPilotPage() {
                   {...register('employee_id', {
                     setValueAs: (v) => (v ? v.trim() : v),
                   })}
-                  className={errors.employee_id ? 'border-red-500' : ''}
+                  className={errors.employee_id ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.employee_id && (
-                  <p className="text-sm text-red-600">{errors.employee_id.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.employee_id.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Must be exactly 6 digits</p>
               </div>
@@ -305,19 +307,21 @@ export default function EditPilotPage() {
               {/* Role */}
               <div className="space-y-2">
                 <Label htmlFor="role">
-                  Rank <span className="text-red-500">*</span>
+                  Rank <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <select
                   id="role"
                   {...register('role')}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    errors.role ? 'border-red-500' : 'border-border'
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none ${
+                    errors.role ? 'border-[var(--color-danger-500)]' : 'border-border'
                   }`}
                 >
                   <option value="Captain">Captain</option>
                   <option value="First Officer">First Officer</option>
                 </select>
-                {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
+                {errors.role && (
+                  <p className="text-sm text-[var(--color-danger-600)]">{errors.role.message}</p>
+                )}
               </div>
             </div>
 
@@ -325,17 +329,19 @@ export default function EditPilotPage() {
               {/* First Name */}
               <div className="space-y-2">
                 <Label htmlFor="first_name">
-                  First Name <span className="text-red-500">*</span>
+                  First Name <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="first_name"
                   type="text"
                   placeholder="John"
                   {...register('first_name')}
-                  className={errors.first_name ? 'border-red-500' : ''}
+                  className={errors.first_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.first_name && (
-                  <p className="text-sm text-red-600">{errors.first_name.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.first_name.message}
+                  </p>
                 )}
               </div>
 
@@ -349,27 +355,31 @@ export default function EditPilotPage() {
                   {...register('middle_name', {
                     setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                   })}
-                  className={errors.middle_name ? 'border-red-500' : ''}
+                  className={errors.middle_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.middle_name && (
-                  <p className="text-sm text-red-600">{errors.middle_name.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.middle_name.message}
+                  </p>
                 )}
               </div>
 
               {/* Last Name */}
               <div className="space-y-2">
                 <Label htmlFor="last_name">
-                  Last Name <span className="text-red-500">*</span>
+                  Last Name <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="last_name"
                   type="text"
                   placeholder="Doe"
                   {...register('last_name')}
-                  className={errors.last_name ? 'border-red-500' : ''}
+                  className={errors.last_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.last_name && (
-                  <p className="text-sm text-red-600">{errors.last_name.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.last_name.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -391,7 +401,7 @@ export default function EditPilotPage() {
                     setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                   })}
                   disabled={loadingContractTypes}
-                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">
                     {loadingContractTypes ? 'Loading...' : 'Select contract type...'}
@@ -403,7 +413,9 @@ export default function EditPilotPage() {
                   ))}
                 </select>
                 {errors.contract_type && (
-                  <p className="text-sm text-red-600">{errors.contract_type.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.contract_type.message}
+                  </p>
                 )}
               </div>
 
@@ -416,10 +428,12 @@ export default function EditPilotPage() {
                   {...register('commencement_date', {
                     setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
                   })}
-                  className={errors.commencement_date ? 'border-red-500' : ''}
+                  className={errors.commencement_date ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.commencement_date && (
-                  <p className="text-sm text-red-600">{errors.commencement_date.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.commencement_date.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Used to calculate seniority</p>
               </div>
@@ -433,7 +447,7 @@ export default function EditPilotPage() {
                       type="radio"
                       value="true"
                       {...register('is_active')}
-                      className="h-4 w-4 text-blue-600"
+                      className="h-4 w-4 text-[var(--color-primary-600)]"
                     />
                     <span className="text-card-foreground text-sm font-medium">Active</span>
                   </label>
@@ -442,7 +456,7 @@ export default function EditPilotPage() {
                       type="radio"
                       value="false"
                       {...register('is_active')}
-                      className="h-4 w-4 text-blue-600"
+                      className="h-4 w-4 text-[var(--color-primary-600)]"
                     />
                     <span className="text-card-foreground text-sm font-medium">Inactive</span>
                   </label>
@@ -467,10 +481,12 @@ export default function EditPilotPage() {
                   {...register('date_of_birth', {
                     setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
                   })}
-                  className={errors.date_of_birth ? 'border-red-500' : ''}
+                  className={errors.date_of_birth ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.date_of_birth && (
-                  <p className="text-sm text-red-600">{errors.date_of_birth.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.date_of_birth.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Must be at least 18 years old</p>
               </div>
@@ -485,10 +501,12 @@ export default function EditPilotPage() {
                   {...register('nationality', {
                     setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                   })}
-                  className={errors.nationality ? 'border-red-500' : ''}
+                  className={errors.nationality ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.nationality && (
-                  <p className="text-sm text-red-600">{errors.nationality.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.nationality.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -511,10 +529,12 @@ export default function EditPilotPage() {
                   {...register('passport_number', {
                     setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                   })}
-                  className={errors.passport_number ? 'border-red-500' : ''}
+                  className={errors.passport_number ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.passport_number && (
-                  <p className="text-sm text-red-600">{errors.passport_number.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.passport_number.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Uppercase letters and numbers only</p>
               </div>
@@ -528,10 +548,12 @@ export default function EditPilotPage() {
                   {...register('passport_expiry', {
                     setValueAs: (v) => (v && v.trim() !== '' ? new Date(v).toISOString() : null),
                   })}
-                  className={errors.passport_expiry ? 'border-red-500' : ''}
+                  className={errors.passport_expiry ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.passport_expiry && (
-                  <p className="text-sm text-red-600">{errors.passport_expiry.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.passport_expiry.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">
                   Required if passport number is provided
@@ -555,14 +577,16 @@ export default function EditPilotPage() {
                   {...register('licence_type', {
                     setValueAs: (v) => (v && v.trim() !== '' ? v : null),
                   })}
-                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none"
                 >
                   <option value="">Select licence type...</option>
                   <option value="ATPL">ATPL - Airline Transport Pilot</option>
                   <option value="CPL">CPL - Commercial Pilot</option>
                 </select>
                 {errors.licence_type && (
-                  <p className="text-sm text-red-600">{errors.licence_type.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.licence_type.message}
+                  </p>
                 )}
               </div>
 
@@ -576,10 +600,12 @@ export default function EditPilotPage() {
                   {...register('licence_number', {
                     setValueAs: (v) => (v && v.trim() !== '' ? v.toUpperCase() : null),
                   })}
-                  className={errors.licence_number ? 'border-red-500' : ''}
+                  className={errors.licence_number ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {errors.licence_number && (
-                  <p className="text-sm text-red-600">{errors.licence_number.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {errors.licence_number.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">
                   5-20 uppercase letters, numbers, or hyphens
@@ -602,7 +628,7 @@ export default function EditPilotPage() {
                     id="qual_line_captain"
                     value="line_captain"
                     {...register('captain_qualifications')}
-                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                   />
                   <Label htmlFor="qual_line_captain" className="cursor-pointer">
                     Line Captain
@@ -615,7 +641,7 @@ export default function EditPilotPage() {
                     id="qual_training_captain"
                     value="training_captain"
                     {...register('captain_qualifications')}
-                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                   />
                   <Label htmlFor="qual_training_captain" className="cursor-pointer">
                     Training Captain
@@ -628,7 +654,7 @@ export default function EditPilotPage() {
                     id="qual_examiner"
                     value="examiner"
                     {...register('captain_qualifications')}
-                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                   />
                   <Label htmlFor="qual_examiner" className="cursor-pointer">
                     Examiner
@@ -637,7 +663,9 @@ export default function EditPilotPage() {
               </div>
 
               {errors.captain_qualifications && (
-                <p className="text-sm text-red-600">{errors.captain_qualifications.message}</p>
+                <p className="text-sm text-[var(--color-danger-600)]">
+                  {errors.captain_qualifications.message}
+                </p>
               )}
             </div>
           )}

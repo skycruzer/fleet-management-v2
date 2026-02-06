@@ -131,12 +131,6 @@ const nextConfig = {
         destination: '/dashboard/requests?tab=leave-bids',
         permanent: true,
       },
-      // Analytics & Reports: Reports merged into Analytics
-      {
-        source: '/dashboard/reports',
-        destination: '/dashboard/analytics?tab=reports',
-        permanent: true,
-      },
       // System Admin: Sub-pages merged into Admin
       {
         source: '/dashboard/admin/settings',

@@ -447,7 +447,7 @@ export default function NewLeaveRequestPage() {
                 placeholder="Provide any additional details about this leave request..."
                 aria-invalid={!!errors.reason}
                 aria-describedby={errors.reason ? 'reason-error' : undefined}
-                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
+                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none ${
                   errors.reason ? 'border-destructive' : 'border-border'
                 }`}
               />

@@ -53,8 +53,12 @@ export const StatusBadges: Story = {
       <Badge variant="default">Active</Badge>
       <Badge variant="secondary">Inactive</Badge>
       <Badge variant="destructive">Expired</Badge>
-      <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Current</Badge>
-      <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Expiring Soon</Badge>
+      <Badge className="bg-[var(--color-success-muted)] text-[var(--color-success-500)] hover:bg-[var(--color-success-muted)]">
+        Current
+      </Badge>
+      <Badge className="bg-[var(--color-warning-muted)] text-[var(--color-warning-500)] hover:bg-[var(--color-warning-muted)]">
+        Expiring Soon
+      </Badge>
     </div>
   ),
 }
@@ -114,14 +118,24 @@ export const AllVariants: Story = {
       <div>
         <h3 className="mb-2 font-semibold">Custom Colors</h3>
         <div className="flex flex-wrap gap-2">
-          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Blue</Badge>
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Green</Badge>
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Yellow</Badge>
-          <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Red</Badge>
+          <Badge className="bg-[var(--color-info-bg)] text-[var(--color-primary-600)] hover:bg-[var(--color-info-bg)]">
+            Blue
+          </Badge>
+          <Badge className="bg-[var(--color-success-muted)] text-[var(--color-success-500)] hover:bg-[var(--color-success-muted)]">
+            Green
+          </Badge>
+          <Badge className="bg-[var(--color-warning-muted)] text-[var(--color-warning-500)] hover:bg-[var(--color-warning-muted)]">
+            Yellow
+          </Badge>
+          <Badge className="bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)] hover:bg-[var(--color-destructive-muted)]">
+            Red
+          </Badge>
           <Badge className="bg-primary/10 text-primary-foreground hover:bg-primary/10">
             Purple
           </Badge>
-          <Badge className="bg-pink-100 text-pink-800 hover:bg-pink-100">Pink</Badge>
+          <Badge className="bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)]">
+            Pink
+          </Badge>
         </div>
       </div>
     </div>

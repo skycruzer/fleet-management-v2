@@ -30,6 +30,9 @@ export interface PilotUser {
   // Contact fields from pilot_users table
   phone_number?: string | null
   address?: string | null
+  // Additional profile fields from pilot_users table
+  date_of_birth?: string | null
+  seniority_number?: number | null
 }
 
 /**

@@ -63,17 +63,17 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
 
   const utilizationColor =
     summary.utilizationPercentage > 80
-      ? 'bg-red-500/10 border-red-500/20'
+      ? 'bg-[var(--color-danger-500)]/10 border-[var(--color-danger-500)]/20'
       : summary.utilizationPercentage > 60
-        ? 'bg-amber-500/10 border-amber-500/20'
-        : 'bg-emerald-500/10 border-emerald-500/20'
+        ? 'bg-[var(--color-warning-500)]/10 border-[var(--color-warning-500)]/20'
+        : 'bg-[var(--color-success-muted)] border-[var(--color-success-500)]/20'
 
   const badgeColor =
     summary.utilizationPercentage > 80
-      ? 'bg-red-600 text-white'
+      ? 'bg-[var(--color-danger-600)] text-white'
       : summary.utilizationPercentage > 60
-        ? 'bg-yellow-600 text-white'
-        : 'bg-green-600 text-white'
+        ? 'bg-[var(--color-warning-600)] text-white'
+        : 'bg-[var(--color-success-600)] text-white'
 
   return (
     <div className="space-y-6 p-8">
@@ -135,19 +135,21 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
                 {Object.keys(renewalsByCategory).length}
               </p>
             </div>
-            <Users className="h-8 w-8 text-blue-600" />
+            <Users className="h-8 w-8 text-[var(--color-primary-600)]" />
           </div>
         </Card>
       </div>
 
       {/* High Utilization Warning */}
       {summary.utilizationPercentage > 80 && (
-        <Card className="border-red-500/20 bg-red-500/10 p-6">
+        <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-6">
           <div className="flex items-start space-x-3">
-            <AlertCircle className="mt-1 h-6 w-6 text-red-400" />
+            <AlertCircle className="mt-1 h-6 w-6 text-[var(--color-danger-400)]" />
             <div>
-              <h3 className="font-semibold text-red-400">High Capacity Utilization</h3>
-              <p className="mt-1 text-sm text-red-400">
+              <h3 className="font-semibold text-[var(--color-danger-400)]">
+                High Capacity Utilization
+              </h3>
+              <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                 This roster period has {Math.round(summary.utilizationPercentage)}% utilization.
                 Consider rescheduling some renewals to other periods to avoid bottlenecks.
               </p>
@@ -165,10 +167,10 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
               data.capacity > 0 ? (data.plannedCount / data.capacity) * 100 : 0
             const categoryColor =
               categoryUtilization > 80
-                ? 'bg-red-500/10 border-red-500/20'
+                ? 'bg-[var(--color-danger-500)]/10 border-[var(--color-danger-500)]/20'
                 : categoryUtilization > 60
-                  ? 'bg-amber-500/10 border-amber-500/20'
-                  : 'bg-emerald-500/10 border-emerald-500/20'
+                  ? 'bg-[var(--color-warning-500)]/10 border-[var(--color-warning-500)]/20'
+                  : 'bg-[var(--color-success-muted)] border-[var(--color-success-500)]/20'
 
             return (
               <Card key={category} className={`border-2 p-4 ${categoryColor}`}>
@@ -184,10 +186,10 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
                     <div
                       className={`h-full ${
                         categoryUtilization > 80
-                          ? 'bg-red-600'
+                          ? 'bg-[var(--color-danger-600)]'
                           : categoryUtilization > 60
-                            ? 'bg-yellow-600'
-                            : 'bg-green-600'
+                            ? 'bg-[var(--color-warning-600)]'
+                            : 'bg-[var(--color-success-600)]'
                       }`}
                       style={{ width: `${Math.min(categoryUtilization, 100)}%` }}
                     />

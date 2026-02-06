@@ -120,13 +120,13 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
     <div className="space-y-4">
       {/* Success/Error Messages */}
       {success && (
-        <Alert className="border-green-200 bg-green-50">
-          <AlertDescription className="text-green-800">{success}</AlertDescription>
+        <Alert className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)]">
+          <AlertDescription className="text-[var(--color-success-500)]">{success}</AlertDescription>
         </Alert>
       )}
       {error && (
-        <Alert className="border-red-200 bg-red-50">
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
+        <Alert className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)]">
+          <AlertDescription className="text-[var(--color-danger-500)]">{error}</AlertDescription>
         </Alert>
       )}
 
@@ -160,7 +160,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
                     <TableCell>
                       <a
                         href={`mailto:${registration.email}`}
-                        className="text-blue-600 hover:text-blue-500 hover:underline"
+                        className="text-[var(--color-primary-600)] hover:text-[var(--color-primary-500)] hover:underline"
                       >
                         {registration.email}
                       </a>
@@ -183,7 +183,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
                         <Button
                           size="sm"
                           variant="default"
-                          className="bg-green-600 text-white hover:bg-green-700"
+                          className="bg-[var(--color-success-600)] text-white hover:bg-[var(--color-success-700)]"
                           onClick={() => handleApproval(registration.id, true)}
                           disabled={isProcessing === registration.id}
                         >

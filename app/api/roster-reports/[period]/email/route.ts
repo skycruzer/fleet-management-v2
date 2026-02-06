@@ -22,6 +22,8 @@ import { z } from 'zod'
 
 const EmailRequestSchema = z.object({
   recipients: z.array(z.string().email()).min(1, 'At least one recipient required'),
+  cc: z.array(z.string().email()).max(10, 'Maximum 10 CC recipients').optional(),
+  bcc: z.array(z.string().email()).max(10, 'Maximum 10 BCC recipients').optional(),
   subject: z.string().min(1, 'Subject required').optional(),
   message: z.string().optional(),
   reportType: z.enum(['PREVIEW', 'FINAL']).default('FINAL'),
@@ -75,6 +77,8 @@ export async function POST(request: NextRequest, { params }: { params: { period:
       period,
       reportType: validated.reportType,
       recipientCount: validated.recipients.length,
+      ccCount: validated.cc?.length ?? 0,
+      bccCount: validated.bcc?.length ?? 0,
     })
 
     // Step 1: Generate report data
@@ -114,14 +118,9 @@ export async function POST(request: NextRequest, { params }: { params: { period:
       )
     }
 
-    // NOTE: PDF generation with jsPDF requires client-side execution
-    // For server-side, we need to use a different approach
-    // Option 1: Use puppeteer to generate PDF
-    // Option 2: Use pdfkit
-    // Option 3: Generate PDF on client and upload to storage, then send email with link
-
-    // For this implementation, we'll send an email with a link to download the report
-    // The actual PDF can be generated client-side when needed
+    // TODO: Attach server-generated PDF using jsPDF (proven to work server-side
+    // in reports-service.ts). For now, email includes an HTML summary and a
+    // link to the dashboard where the PDF can be downloaded.
 
     const { Resend } = await import('resend')
     const resend = new Resend(resendApiKey)
@@ -235,10 +234,12 @@ export async function POST(request: NextRequest, { params }: { params: { period:
 </html>
     `
 
-    // Send email
+    // Send email (with optional CC/BCC)
     const emailResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <noreply@fleetmanagement.com>',
       to: validated.recipients,
+      ...(validated.cc && validated.cc.length > 0 ? { cc: validated.cc } : {}),
+      ...(validated.bcc && validated.bcc.length > 0 ? { bcc: validated.bcc } : {}),
       subject: emailSubject,
       html: emailBody,
     })
@@ -259,7 +260,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
 
     // Update roster_reports table with sent_at timestamp
     const supabase = createAdminClient()
-    await supabase
+    const { error: updateError } = await supabase
       .from('roster_reports')
       .update({
         sent_at: new Date().toISOString(),
@@ -269,6 +270,14 @@ export async function POST(request: NextRequest, { params }: { params: { period:
       .eq('report_type', validated.reportType)
       .order('generated_at', { ascending: false })
       .limit(1)
+
+    if (updateError) {
+      logger.warn('Failed to update roster report sent timestamp', {
+        period,
+        reportType: validated.reportType,
+        error: updateError.message,
+      })
+    }
 
     logger.info('Roster report email sent successfully', {
       userId: auth.userId!,

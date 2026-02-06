@@ -143,7 +143,7 @@ export function PilotOverviewTab({
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="via-primary relative overflow-hidden rounded-2xl bg-gradient-to-br from-sky-600 to-sky-800 p-8 text-white shadow-2xl"
+        className="via-primary relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-accent-600)] to-[var(--color-accent-800)] p-8 text-white shadow-2xl"
       >
         {/* Background pattern */}
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
@@ -154,7 +154,7 @@ export function PilotOverviewTab({
               {/* Avatar placeholder */}
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 ring-4 ring-white/30 backdrop-blur-sm">
                 {pilot.role === 'Captain' ? (
-                  <Star className="h-10 w-10 text-yellow-300" />
+                  <Star className="h-10 w-10 text-[var(--color-warning-500)]" />
                 ) : (
                   <User className="h-10 w-10 text-white" />
                 )}
@@ -176,7 +176,7 @@ export function PilotOverviewTab({
                     {pilot.is_active ? 'Active' : 'Inactive'}
                   </span>
                   {pilot.seniority_number && (
-                    <span className="rounded-full bg-yellow-500/30 px-4 py-1.5 text-sm font-semibold ring-1 ring-yellow-300/50 backdrop-blur-sm">
+                    <span className="rounded-full bg-[var(--color-warning-muted)] px-4 py-1.5 text-sm font-semibold ring-1 ring-[var(--color-warning-500)]/50 backdrop-blur-sm">
                       Seniority #{pilot.seniority_number}
                     </span>
                   )}
@@ -233,7 +233,7 @@ export function PilotOverviewTab({
       >
         <motion.div variants={fadeIn}>
           <Card className="group relative overflow-hidden border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-low)]/10" />
+            <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-low)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="mb-1 text-sm font-medium text-[var(--color-status-low)]">Current</p>
@@ -251,7 +251,7 @@ export function PilotOverviewTab({
 
         <motion.div variants={fadeIn}>
           <Card className="group relative overflow-hidden border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-medium)]/10" />
+            <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-medium)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="mb-1 text-sm font-medium text-[var(--color-status-medium)]">
@@ -271,7 +271,7 @@ export function PilotOverviewTab({
 
         <motion.div variants={fadeIn}>
           <Card className="group relative overflow-hidden border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-high)]/10" />
+            <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-high)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="mb-1 text-sm font-medium text-[var(--color-status-high)]">Expired</p>
@@ -298,7 +298,7 @@ export function PilotOverviewTab({
         <Button
           onClick={onViewCertifications}
           size="lg"
-          className="to-primary hover:to-primary/90 bg-gradient-to-r from-sky-600 text-white shadow-lg transition-all hover:from-sky-700 hover:shadow-xl"
+          className="to-primary hover:to-primary/90 bg-gradient-to-r from-[var(--color-accent-600)] text-white shadow-lg transition-all hover:from-[var(--color-accent-700)] hover:shadow-xl"
         >
           <FileText className="mr-2 h-5 w-5" />
           View & Edit All Certifications

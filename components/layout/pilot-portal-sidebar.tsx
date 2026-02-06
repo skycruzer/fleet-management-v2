@@ -20,6 +20,7 @@ import {
 import { cn } from '@/lib/utils'
 import { NotificationBell } from '@/components/portal/notification-bell'
 import { SidebarShell } from '@/components/layout/sidebar-shell'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 interface NavItem {
   title: string
@@ -80,6 +81,7 @@ export function PilotPortalSidebar({
   const [isDesktop, setIsDesktop] = useState(false)
   // Track mount status for hydration
   const [mounted, setMounted] = useState(false)
+  const { confirm, ConfirmDialog: LogoutConfirmDialog } = useConfirm()
 
   // Track screen size for responsive sidebar positioning - update after mount
   // Uses lg breakpoint (1024px) for consistency with admin portal
@@ -100,7 +102,7 @@ export function PilotPortalSidebar({
     return pathname.startsWith(href)
   }
 
-  const handleLogout = async () => {
+  const performLogout = async () => {
     try {
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
@@ -119,6 +121,19 @@ export function PilotPortalSidebar({
     } catch (error) {
       console.error('Logout error:', error)
       window.location.href = '/portal/login'
+    }
+  }
+
+  const handleLogout = async () => {
+    const confirmed = await confirm({
+      title: 'Confirm Logout',
+      description: 'Are you sure you want to log out?',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+      variant: 'default',
+    })
+    if (confirmed) {
+      performLogout()
     }
   }
 
@@ -173,6 +188,8 @@ export function PilotPortalSidebar({
         }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="border-border bg-background fixed top-0 left-0 z-[var(--z-modal)] h-screen w-60 border-r lg:z-[var(--z-sidebar)]"
+        role="navigation"
+        aria-label="Pilot portal navigation"
       >
         <SidebarShell
           header={
@@ -322,6 +339,7 @@ export function PilotPortalSidebar({
           </nav>
         </SidebarShell>
       </motion.aside>
+      <LogoutConfirmDialog />
     </>
   )
 }

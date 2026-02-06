@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
+import { FormSkeleton } from '@/components/ui/skeleton'
 
 interface Pilot {
   id: string
@@ -130,11 +131,7 @@ export default function EditCertificationPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Loading certification...</p>
-      </div>
-    )
+    return <FormSkeleton fields={5} />
   }
 
   if (!certification) {
@@ -170,8 +167,8 @@ export default function EditCertificationPage() {
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="border-destructive/20 rounded-lg border bg-[var(--color-destructive-muted)] p-4">
+              <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
             </div>
           )}
 
@@ -224,7 +221,7 @@ export default function EditCertificationPage() {
           {/* Editable Expiry Date */}
           <div>
             <Label htmlFor="expiry_date" className="text-foreground mb-2 block text-sm font-medium">
-              Expiry Date <span className="text-red-500">*</span>
+              Expiry Date <span className="text-[var(--color-danger-500)]">*</span>
             </Label>
             <Input
               id="expiry_date"

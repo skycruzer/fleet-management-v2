@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Pagination, usePagination } from '@/components/ui/pagination'
+import { TableSkeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -469,13 +470,7 @@ export default function CertificationsPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <div className="text-center">
-          <div className="text-muted-foreground">Loading certifications...</div>
-        </div>
-      </div>
-    )
+    return <TableSkeleton rows={8} columns={5} />
   }
 
   if (error) {
@@ -490,8 +485,8 @@ export default function CertificationsPage() {
           </div>
         </div>
 
-        <Card className="border-destructive/20 bg-red-500/10 p-8 text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-red-600" />
+        <Card className="border-destructive/20 bg-[var(--color-destructive-muted)] p-8 text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-[var(--color-danger-600)]" />
           <h3 className="text-foreground mt-4 text-lg font-semibold">
             Failed to Load Certifications
           </h3>
@@ -549,8 +544,8 @@ export default function CertificationsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
-              <CheckCircle className="h-5 w-5 text-emerald-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-success-muted)]">
+              <CheckCircle className="h-5 w-5 text-[var(--color-success-400)]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.current}</p>
@@ -561,8 +556,8 @@ export default function CertificationsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10">
-              <Clock className="h-5 w-5 text-amber-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-warning-muted)]">
+              <Clock className="h-5 w-5 text-[var(--color-warning-400)]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.expiring}</p>
@@ -573,8 +568,8 @@ export default function CertificationsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10">
-              <AlertCircle className="h-5 w-5 text-red-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-destructive-muted)]">
+              <AlertCircle className="h-5 w-5 text-[var(--color-danger-400)]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.expired}</p>
@@ -715,7 +710,7 @@ export default function CertificationsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteClick(cert)}
-                          className="text-red-400 hover:text-red-300"
+                          className="text-[var(--color-danger-400)] hover:text-[var(--color-danger-300)]"
                           aria-label={`Delete certification for ${cert.pilot.first_name} ${cert.pilot.last_name}`}
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -779,7 +774,7 @@ export default function CertificationsPage() {
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-[var(--color-danger-600)] hover:bg-[var(--color-danger-700)]"
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>

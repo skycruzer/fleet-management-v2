@@ -117,16 +117,18 @@ test.describe('Phase 0 - Complete Functionality Test', () => {
       }
     })
 
-    test('should show create leave request form', async ({ page }) => {
-      await page.goto('/dashboard/leave/new')
+    test('should show Quick Entry button for leave requests', async ({ page }) => {
+      await page.goto('/dashboard/requests?tab=leave')
 
-      // Check for form
-      const formVisible = await page.locator('form').isVisible({ timeout: 5000 })
+      // Check for Quick Entry button (leave requests now use modal)
+      const quickEntryButton = await page
+        .getByRole('button', { name: /quick.*entry/i })
+        .isVisible({ timeout: 5000 })
 
-      if (formVisible) {
-        console.log('✓ Create leave request form accessible')
+      if (quickEntryButton) {
+        console.log('✓ Quick Entry button visible for creating leave requests')
       } else {
-        console.log('⚠ Leave request form not found or requires auth')
+        console.log('⚠ Quick Entry button not found or requires auth')
       }
     })
   })

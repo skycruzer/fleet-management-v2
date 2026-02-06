@@ -327,7 +327,7 @@ export function ProfessionalHeader() {
                   >
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-red-400 transition-colors hover:bg-red-500/10"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-[var(--color-danger-400)] transition-colors hover:bg-[var(--color-destructive-muted)]"
                       role="menuitem"
                     >
                       <LogOut className="h-4 w-4" aria-hidden="true" />

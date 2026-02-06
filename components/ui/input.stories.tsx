@@ -179,32 +179,34 @@ export const ValidationStates: Story = {
         <Label htmlFor="valid">Valid Input</Label>
         <Input
           id="valid"
-          className="border-green-500 focus-visible:ring-green-500"
+          className="border-[var(--color-success-500)] focus-visible:ring-[var(--color-success-500)]"
           placeholder="Valid input"
           defaultValue="John Doe"
         />
-        <p className="text-sm text-green-600">Looks good!</p>
+        <p className="text-sm text-[var(--color-success-600)]">Looks good!</p>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="invalid">Invalid Input</Label>
         <Input
           id="invalid"
-          className="border-red-500 focus-visible:ring-red-500"
+          className="border-[var(--color-danger-500)] focus-visible:ring-[var(--color-danger-500)]"
           placeholder="Invalid input"
         />
-        <p className="text-sm text-red-600">This field is required</p>
+        <p className="text-sm text-[var(--color-danger-600)]">This field is required</p>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="warning">Warning Input</Label>
         <Input
           id="warning"
-          className="border-yellow-500 focus-visible:ring-yellow-500"
+          className="border-[var(--color-warning-500)] focus-visible:ring-[var(--color-warning-500)]"
           placeholder="Warning input"
           defaultValue="check@gmail.com"
         />
-        <p className="text-sm text-yellow-600">Personal email detected. Use company email.</p>
+        <p className="text-sm text-[var(--color-warning-600)]">
+          Personal email detected. Use company email.
+        </p>
       </div>
     </div>
   ),

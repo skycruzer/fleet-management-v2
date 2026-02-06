@@ -105,7 +105,7 @@ export default function PilotRegisterPage() {
       <div className="bg-background flex min-h-screen items-center justify-center px-4">
         <Card className="bg-card w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-emerald-400">
+            <CardTitle className="text-2xl font-bold text-[var(--color-success-400)]">
               Registration Submitted!
             </CardTitle>
             <CardDescription>
@@ -334,7 +334,10 @@ export default function PilotRegisterPage() {
 
             <div className="text-muted-foreground text-center text-sm">
               Already have an account?{' '}
-              <Link href="/portal/login" className="text-primary font-medium hover:text-blue-500">
+              <Link
+                href="/portal/login"
+                className="text-primary font-medium hover:text-[var(--color-primary-500)]"
+              >
                 Sign in here
               </Link>
             </div>

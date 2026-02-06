@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { CardGridSkeleton } from '@/components/ui/skeleton'
 import { Pencil, Plus } from 'lucide-react'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 
@@ -162,11 +163,7 @@ export function CertificationCategoryManager() {
       </div>
 
       {/* Loading State */}
-      {loading && (
-        <Card className="p-8 text-center">
-          <p className="text-muted-foreground">Loading certification categories...</p>
-        </Card>
-      )}
+      {loading && <CardGridSkeleton count={4} />}
 
       {/* Categories Grid */}
       {!loading && (

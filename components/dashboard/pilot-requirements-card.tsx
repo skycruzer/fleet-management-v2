@@ -23,7 +23,7 @@ import {
   UserPlus,
 } from 'lucide-react'
 import { getPilotRequirements } from '@/lib/services/admin-service'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import Link from 'next/link'
 
 interface PilotCounts {
@@ -35,7 +35,7 @@ interface PilotCounts {
 }
 
 async function getPilotCounts(): Promise<PilotCounts> {
-  const supabase = await createClient()
+  const supabase = createServiceRoleClient()
 
   // Get all active pilots
   const { data: pilots } = await supabase
@@ -193,10 +193,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               captainsStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
                 : captainsStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`Captains staffing: ${counts.totalCaptains} of ${requiredCaptains}, ${getStatusLabel(captainsPercentage)}`}
@@ -267,10 +267,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               firstOfficersStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
                 : firstOfficersStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`First Officers staffing: ${counts.totalFirstOfficers} of ${requiredFirstOfficers}, ${getStatusLabel(firstOfficersPercentage)}`}
@@ -341,10 +341,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               examinersStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
                 : examinersStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`Examiners staffing: ${counts.totalExaminers} of ${requiredExaminers}, ${getStatusLabel(examinersPercentage)}`}
@@ -413,10 +413,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               trainingCaptainsStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-emerald-50'
+                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
                 : trainingCaptainsStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-orange-50'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-red-50'
+                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
+                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`Training Captains staffing: ${counts.totalTrainingCaptains} of ${requiredTrainingCaptains}, ${getStatusLabel(trainingCaptainsPercentage)}`}

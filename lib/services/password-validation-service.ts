@@ -485,11 +485,11 @@ export function getPasswordStrengthLabel(score: PasswordStrength): string {
  */
 export function getPasswordStrengthColor(score: PasswordStrength): string {
   const colors: Record<PasswordStrength, string> = {
-    [PasswordStrength.VERY_WEAK]: 'text-red-600',
-    [PasswordStrength.WEAK]: 'text-orange-600',
-    [PasswordStrength.FAIR]: 'text-yellow-600',
-    [PasswordStrength.STRONG]: 'text-green-600',
-    [PasswordStrength.VERY_STRONG]: 'text-emerald-600',
+    [PasswordStrength.VERY_WEAK]: 'text-[var(--color-danger-600)]',
+    [PasswordStrength.WEAK]: 'text-[var(--color-badge-orange)]',
+    [PasswordStrength.FAIR]: 'text-[var(--color-warning-600)]',
+    [PasswordStrength.STRONG]: 'text-[var(--color-success-600)]',
+    [PasswordStrength.VERY_STRONG]: 'text-[var(--color-success-500)]',
   }
 
   return colors[score]

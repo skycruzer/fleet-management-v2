@@ -37,7 +37,7 @@ export default async function SystemSettingsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <Card className="border-emerald-500/20 bg-emerald-500/10 p-6">
+        <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">⚙️</span>
             <div>
@@ -46,7 +46,7 @@ export default async function SystemSettingsPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-blue-500/20 bg-blue-500/10 p-6">
+        <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
@@ -74,7 +74,7 @@ export default async function SystemSettingsPage() {
       <SettingsClient settings={settings} />
 
       {/* Help Text */}
-      <Card className="border-amber-500/20 bg-amber-500/10 p-4">
+      <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">⚠️</span>
           <div className="space-y-1">

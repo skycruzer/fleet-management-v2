@@ -1,261 +1,111 @@
-'use client'
-
 /**
  * Audit Log Table Component
+ * Displays paginated audit log entries in a table format
  *
- * Displays audit logs in a sortable/filterable table with pagination.
- *
- * @spec 001-missing-core-features (US4, T074)
+ * @author Maurice Rondeau
+ * @version 1.0.0
  */
 
-import { useState } from 'react'
+'use client'
+
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-
-interface AuditLog {
-  id: string
-  user_id: string | null
-  user_email: string | null
-  action: string
-  table_name: string
-  record_id: string | null
-  old_values: any
-  new_values: any
-  description: string | null
-  ip_address: string | null
-  user_agent: string | null
-  created_at: string
-}
-
-interface Pagination {
-  page: number
-  pageSize: number
-  totalCount: number
-  totalPages: number
-}
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ScrollText } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import type { AuditLog } from '@/lib/services/audit-service'
 
 interface AuditLogTableProps {
   logs: AuditLog[]
-  pagination: Pagination
+  pagination: {
+    page: number
+    pageSize: number
+    totalCount: number
+    totalPages: number
+  }
 }
 
 export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) {
   const router = useRouter()
-  const [sortBy, setSortBy] = useState<string>('created_at')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const searchParams = useSearchParams()
 
-  const handleSort = (column: string) => {
-    const newOrder = sortBy === column && sortOrder === 'desc' ? 'asc' : 'desc'
-    setSortBy(column)
-    setSortOrder(newOrder)
-
-    const url = new URL(window.location.href)
-    url.searchParams.set('sortBy', column)
-    url.searchParams.set('sortOrder', newOrder)
-    url.searchParams.set('page', '1') // Reset to page 1
-    router.push(url.toString())
+  function navigateToPage(page: number) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('page', String(page))
+    router.push(`/dashboard/audit?${params.toString()}`)
   }
 
-  const handlePageChange = (newPage: number) => {
-    const url = new URL(window.location.href)
-    url.searchParams.set('page', newPage.toString())
-    router.push(url.toString())
-  }
-
-  const getActionBadgeColor = (action: string) => {
-    switch (action) {
-      case 'INSERT':
-        return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
-      case 'UPDATE':
-        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
-      case 'DELETE':
-        return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
-      case 'LOGIN':
-        return 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]'
-      case 'LOGOUT':
-        return 'bg-muted text-muted-foreground'
-      default:
-        return 'bg-muted text-muted-foreground'
-    }
+  const actionColors: Record<string, string> = {
+    INSERT: 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]',
+    UPDATE: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+    DELETE: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)]',
+    RESTORE: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]',
+    SOFT_DELETE: 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]',
   }
 
   if (logs.length === 0) {
     return (
-      <div className="border-border bg-card rounded-lg border p-8 text-center">
-        <svg
-          className="text-muted-foreground mx-auto h-12 w-12"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-          />
-        </svg>
-        <h3 className="text-foreground mt-2 text-lg font-medium">No audit logs found</h3>
-        <p className="text-muted-foreground mt-1 text-sm">
-          No audit logs match your current filters. Try adjusting your search criteria.
-        </p>
-      </div>
+      <EmptyState
+        icon={ScrollText}
+        title="No audit logs found"
+        description="Try adjusting your filter criteria or date range."
+      />
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="bg-card rounded-lg border border-white/[0.08] shadow-sm">
       {/* Table */}
-      <div className="border-border bg-card overflow-x-auto rounded-lg border shadow-sm">
-        <table className="divide-border min-w-full divide-y">
-          <thead className="bg-muted/50">
-            <tr>
-              <th
-                scope="col"
-                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
-                onClick={() => handleSort('created_at')}
-              >
-                <div className="flex items-center gap-1">
-                  Timestamp
-                  {sortBy === 'created_at' && (
-                    <svg
-                      className={`h-4 w-4 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  )}
-                </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-white/[0.08]">
+              <th scope="col" className="text-muted-foreground px-4 py-3 text-left font-medium">
+                Timestamp
               </th>
-              <th
-                scope="col"
-                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
-                onClick={() => handleSort('user_email')}
-              >
-                <div className="flex items-center gap-1">
-                  User
-                  {sortBy === 'user_email' && (
-                    <svg
-                      className={`h-4 w-4 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  )}
-                </div>
+              <th scope="col" className="text-muted-foreground px-4 py-3 text-left font-medium">
+                User
               </th>
-              <th
-                scope="col"
-                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
-                onClick={() => handleSort('action')}
-              >
-                <div className="flex items-center gap-1">
-                  Action
-                  {sortBy === 'action' && (
-                    <svg
-                      className={`h-4 w-4 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  )}
-                </div>
+              <th scope="col" className="text-muted-foreground px-4 py-3 text-left font-medium">
+                Action
               </th>
-              <th
-                scope="col"
-                className="text-muted-foreground hover:bg-muted cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
-                onClick={() => handleSort('table_name')}
-              >
-                <div className="flex items-center gap-1">
-                  Table
-                  {sortBy === 'table_name' && (
-                    <svg
-                      className={`h-4 w-4 transition-transform ${sortOrder === 'asc' ? 'rotate-180' : ''}`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  )}
-                </div>
+              <th scope="col" className="text-muted-foreground px-4 py-3 text-left font-medium">
+                Table
               </th>
-              <th
-                scope="col"
-                className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
-              >
-                Record ID
-              </th>
-              <th
-                scope="col"
-                className="text-muted-foreground px-6 py-3 text-left text-xs font-medium tracking-wider uppercase"
-              >
+              <th scope="col" className="text-muted-foreground px-4 py-3 text-left font-medium">
                 Description
               </th>
-              <th scope="col" className="relative px-6 py-3">
-                <span className="sr-only">Actions</span>
+              <th scope="col" className="text-muted-foreground px-4 py-3 text-left font-medium">
+                Details
               </th>
             </tr>
           </thead>
-          <tbody className="divide-border bg-card divide-y">
+          <tbody>
             {logs.map((log) => (
-              <tr key={log.id} className="hover:bg-muted">
-                <td className="text-foreground px-6 py-4 text-sm whitespace-nowrap">
+              <tr
+                key={log.id}
+                className="border-b border-white/[0.04] transition-colors hover:bg-white/[0.02]"
+              >
+                <td className="text-foreground px-4 py-3 text-xs whitespace-nowrap">
                   {new Date(log.created_at).toLocaleString()}
                 </td>
-                <td className="text-foreground px-6 py-4 text-sm">{log.user_email || 'System'}</td>
-                <td className="px-6 py-4 text-sm whitespace-nowrap">
+                <td className="text-foreground px-4 py-3">{log.user_email || 'System'}</td>
+                <td className="px-4 py-3">
                   <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getActionBadgeColor(log.action)}`}
+                    className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${actionColors[log.action] || 'text-foreground bg-white/[0.03]'}`}
                   >
                     {log.action}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm">
-                  <code className="bg-muted text-foreground rounded px-2 py-1 font-mono text-xs">
-                    {log.table_name}
-                  </code>
+                <td className="text-foreground px-4 py-3 font-mono text-xs">{log.table_name}</td>
+                <td className="text-muted-foreground max-w-[200px] truncate px-4 py-3 text-xs">
+                  {log.description || '—'}
                 </td>
-                <td className="px-6 py-4 text-sm">
-                  <code className="text-muted-foreground font-mono text-xs">
-                    {log.record_id ? log.record_id.slice(0, 8) + '...' : 'N/A'}
-                  </code>
-                </td>
-                <td className="text-muted-foreground max-w-xs truncate px-6 py-4 text-sm">
-                  {log.description || '-'}
-                </td>
-                <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
+                <td className="px-4 py-3">
                   <Link
                     href={`/dashboard/audit/${log.id}`}
-                    className="text-[var(--color-info)] hover:text-[var(--color-info)]/80"
+                    className="text-xs text-[var(--color-primary-500)] hover:text-[var(--color-primary-400)] hover:underline"
                   >
-                    View Details
+                    View
                   </Link>
                 </td>
               </tr>
@@ -265,60 +115,31 @@ export default function AuditLogTable({ logs, pagination }: AuditLogTableProps) 
       </div>
 
       {/* Pagination */}
-      <div className="border-border bg-card flex items-center justify-between rounded-lg border px-6 py-4">
-        <div className="text-foreground text-sm">
-          Showing{' '}
-          <span className="font-medium">{(pagination.page - 1) * pagination.pageSize + 1}</span> to{' '}
-          <span className="font-medium">
-            {Math.min(pagination.page * pagination.pageSize, pagination.totalCount)}
-          </span>{' '}
-          of <span className="font-medium">{pagination.totalCount.toLocaleString()}</span> results
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page <= 1}
-            className="border-border text-foreground hover:bg-muted rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <div className="flex items-center gap-2">
-            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-              let pageNum
-              if (pagination.totalPages <= 5) {
-                pageNum = i + 1
-              } else if (pagination.page <= 3) {
-                pageNum = i + 1
-              } else if (pagination.page >= pagination.totalPages - 2) {
-                pageNum = pagination.totalPages - 4 + i
-              } else {
-                pageNum = pagination.page - 2 + i
-              }
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                    pagination.page === pageNum
-                      ? 'bg-[var(--color-info)] text-white'
-                      : 'border-border text-foreground hover:bg-muted border'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              )
-            })}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-white/[0.08] px-4 py-3">
+          <p className="text-muted-foreground text-sm">
+            Showing {(pagination.page - 1) * pagination.pageSize + 1}–
+            {Math.min(pagination.page * pagination.pageSize, pagination.totalCount)} of{' '}
+            {pagination.totalCount}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigateToPage(pagination.page - 1)}
+              disabled={pagination.page <= 1}
+              className="rounded-md border border-white/[0.1] px-3 py-1 text-sm transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => navigateToPage(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages}
+              className="rounded-md border border-white/[0.1] px-3 py-1 text-sm transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
-          <button
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page >= pagination.totalPages}
-            className="border-border text-foreground hover:bg-muted rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Next
-          </button>
         </div>
-      </div>
+      )}
     </div>
   )
 }

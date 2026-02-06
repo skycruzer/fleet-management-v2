@@ -140,7 +140,9 @@ export function RetryWithOfflineExample() {
         )}
 
         {/* Data display */}
-        {data && <div className="text-sm text-green-600">Data loaded successfully!</div>}
+        {data && (
+          <div className="text-sm text-[var(--color-success-600)]">Data loaded successfully!</div>
+        )}
 
         {/* Action button */}
         <Button onClick={fetchData} disabled={!isOnline || isRetrying}>
@@ -205,7 +207,9 @@ export function AutoReconnectExample() {
               Last refreshed: {new Date(lastFetch).toLocaleTimeString()}
             </p>
           )}
-          {isLoading && <p className="text-sm text-blue-600">Refreshing data...</p>}
+          {isLoading && (
+            <p className="text-sm text-[var(--color-primary-600)]">Refreshing data...</p>
+          )}
         </div>
 
         <Button onClick={refreshData} disabled={!isOnline || isLoading}>
@@ -305,8 +309,10 @@ export function FormWithConnectionHandling() {
 
         {/* Success message */}
         {submitted && (
-          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4">
-            <p className="text-sm font-medium text-emerald-400">Form submitted successfully!</p>
+          <div className="rounded-lg border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-4">
+            <p className="text-sm font-medium text-[var(--color-success-400)]">
+              Form submitted successfully!
+            </p>
           </div>
         )}
 

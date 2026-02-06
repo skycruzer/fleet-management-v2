@@ -27,11 +27,11 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   if (!taskResult.success || !taskResult.data) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold text-gray-900">Task Not Found</h1>
-        <p className="mt-2 text-gray-600">The task you are looking for does not exist.</p>
+        <h1 className="text-foreground text-2xl font-bold">Task Not Found</h1>
+        <p className="text-muted-foreground mt-2">The task you are looking for does not exist.</p>
         <Link
           href="/dashboard/tasks"
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary-600)] px-4 py-2 text-white hover:bg-[var(--color-primary-700)]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Tasks
@@ -43,17 +43,17 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
   const task = taskResult.data
 
   const statusColors: Record<string, string> = {
-    PENDING: 'bg-yellow-100 text-yellow-800',
-    IN_PROGRESS: 'bg-blue-100 text-blue-800',
-    COMPLETED: 'bg-green-100 text-green-800',
-    CANCELLED: 'bg-gray-100 text-gray-800',
+    PENDING: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]',
+    IN_PROGRESS: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+    COMPLETED: 'bg-[var(--color-success-muted)] text-[var(--color-success-500)]',
+    CANCELLED: 'bg-muted text-muted-foreground',
   }
 
   const priorityColors: Record<string, string> = {
-    LOW: 'bg-gray-100 text-gray-800',
-    MEDIUM: 'bg-yellow-100 text-yellow-800',
-    HIGH: 'bg-orange-100 text-orange-800',
-    CRITICAL: 'bg-red-100 text-red-800',
+    LOW: 'bg-muted text-muted-foreground',
+    MEDIUM: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]',
+    HIGH: 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]',
+    CRITICAL: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)]',
   }
 
   const isOverdue =
@@ -64,23 +64,23 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
       <div className="mb-6 flex items-center justify-between">
         <Link
           href="/dashboard/tasks"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Tasks
         </Link>
         <Link
           href={`/dashboard/tasks/${task.id}/edit`}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="rounded-lg bg-[var(--color-primary-600)] px-4 py-2 text-white hover:bg-[var(--color-primary-700)]"
         >
           Edit Task
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-lg bg-white shadow">
-        <div className="border-b border-gray-200 bg-gray-50 p-6">
+      <div className="bg-card overflow-hidden rounded-lg shadow">
+        <div className="border-border bg-muted border-b p-6">
           <div className="mb-4 flex items-start justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">{task.title}</h1>
+            <h1 className="text-foreground text-3xl font-bold">{task.title}</h1>
             <div className="flex gap-2">
               <span
                 className={`rounded-full px-3 py-1 text-sm font-medium ${statusColors[task.status] || statusColors.PENDING}`}
@@ -96,23 +96,25 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 border-b border-gray-200 p-6 md:grid-cols-2">
+        <div className="border-border grid grid-cols-1 gap-6 border-b p-6 md:grid-cols-2">
           {task.assigned_to && (
             <div className="flex items-center gap-3">
-              <User className="h-5 w-5 text-gray-400" />
+              <User className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm text-gray-500">Assigned To</p>
-                <p className="font-medium text-gray-900">{task.assigned_to}</p>
+                <p className="text-muted-foreground text-sm">Assigned To</p>
+                <p className="text-foreground font-medium">{task.assigned_to}</p>
               </div>
             </div>
           )}
 
           {task.due_date && (
             <div className="flex items-center gap-3">
-              <Calendar className="h-5 w-5 text-gray-400" />
+              <Calendar className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm text-gray-500">Due Date</p>
-                <p className={`font-medium ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
+                <p className="text-muted-foreground text-sm">Due Date</p>
+                <p
+                  className={`font-medium ${isOverdue ? 'text-[var(--color-danger-600)]' : 'text-foreground'}`}
+                >
                   {new Date(task.due_date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -126,10 +128,10 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
 
           {task.created_at && (
             <div className="flex items-center gap-3">
-              <Clock className="h-5 w-5 text-gray-400" />
+              <Clock className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-sm text-gray-500">Created</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-muted-foreground text-sm">Created</p>
+                <p className="text-foreground font-medium">
                   {new Date(task.created_at).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -142,10 +144,10 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
 
           {task.completed_date && (
             <div className="flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-green-500" />
+              <CheckCircle className="h-5 w-5 text-[var(--color-success-500)]" />
               <div>
-                <p className="text-sm text-gray-500">Completed</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-muted-foreground text-sm">Completed</p>
+                <p className="text-foreground font-medium">
                   {new Date(task.completed_date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
@@ -158,25 +160,25 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
         </div>
 
         <div className="p-6">
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">Description</h2>
+          <h2 className="text-foreground mb-3 text-lg font-semibold">Description</h2>
           {task.description ? (
-            <div className="prose max-w-none text-gray-700">
+            <div className="prose text-muted-foreground max-w-none">
               <p className="whitespace-pre-wrap">{task.description}</p>
             </div>
           ) : (
-            <p className="text-gray-500 italic">No description provided</p>
+            <p className="text-muted-foreground italic">No description provided</p>
           )}
         </div>
 
         {task.tags && Object.keys(task.tags as object).length > 0 && (
-          <div className="border-t border-gray-200 bg-gray-50 p-6">
-            <h2 className="mb-3 text-lg font-semibold text-gray-900">Tags</h2>
+          <div className="border-border bg-muted border-t p-6">
+            <h2 className="text-foreground mb-3 text-lg font-semibold">Tags</h2>
             <div className="flex flex-wrap gap-2">
               {Array.isArray(task.tags)
                 ? (task.tags as string[]).map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
+                      className="rounded-full bg-[var(--color-info-bg)] px-3 py-1 text-sm text-[var(--color-info)]"
                     >
                       {tag}
                     </span>
@@ -184,7 +186,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                 : Object.entries(task.tags as object).map(([key, value]) => (
                     <span
                       key={key}
-                      className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-800"
+                      className="rounded-full bg-[var(--color-info-bg)] px-3 py-1 text-sm text-[var(--color-info)]"
                     >
                       {key}: {String(value)}
                     </span>

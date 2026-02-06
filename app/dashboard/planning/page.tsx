@@ -31,8 +31,12 @@ async function getRosterPeriodSummariesForYear(year: number) {
   // Get capacity summaries for each period
   const summaries = await Promise.all(
     periods.map(async (p) => {
-      const summary = await getRosterPeriodCapacity(p.roster_period)
-      return summary
+      try {
+        return await getRosterPeriodCapacity(p.roster_period)
+      } catch (error) {
+        console.error(`Failed to get capacity for ${p.roster_period}:`, error)
+        return null
+      }
     })
   )
 
@@ -55,13 +59,18 @@ export default async function PlanningPage({
   const activeTab = params.tab || 'renewals'
 
   // Fetch renewal summaries server-side
-  const summaries = await getRosterPeriodSummariesForYear(selectedYear)
+  let summaries: Awaited<ReturnType<typeof getRosterPeriodSummariesForYear>> = []
+  try {
+    summaries = await getRosterPeriodSummariesForYear(selectedYear)
+  } catch (error) {
+    console.error('Failed to load roster period summaries:', error)
+  }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-foreground">Planning</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-muted-foreground">
+        <h1 className="text-foreground text-2xl font-semibold">Planning</h1>
+        <p className="text-muted-foreground mt-1 text-sm">
           Certification renewal planning and fleet analytics.
         </p>
       </div>

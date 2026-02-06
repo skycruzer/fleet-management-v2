@@ -110,13 +110,15 @@ export default async function AdminLeaveBidsPage() {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card className="border-amber-500/20 bg-amber-500/10 p-4">
+        <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-amber-400">Pending Review</p>
-              <p className="text-3xl font-bold text-amber-400">{pendingBids.length}</p>
+              <p className="text-sm font-medium text-[var(--color-warning-400)]">Pending Review</p>
+              <p className="text-3xl font-bold text-[var(--color-warning-400)]">
+                {pendingBids.length}
+              </p>
             </div>
-            <div className="text-amber-400">
+            <div className="text-[var(--color-warning-400)]">
               <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -129,13 +131,15 @@ export default async function AdminLeaveBidsPage() {
           </div>
         </Card>
 
-        <Card className="border-emerald-500/20 bg-emerald-500/10 p-4">
+        <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-emerald-400">Approved</p>
-              <p className="text-3xl font-bold text-emerald-400">{approvedBids.length}</p>
+              <p className="text-sm font-medium text-[var(--color-success-400)]">Approved</p>
+              <p className="text-3xl font-bold text-[var(--color-success-400)]">
+                {approvedBids.length}
+              </p>
             </div>
-            <div className="text-emerald-400">
+            <div className="text-[var(--color-success-400)]">
               <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -148,13 +152,15 @@ export default async function AdminLeaveBidsPage() {
           </div>
         </Card>
 
-        <Card className="border-red-500/20 bg-red-500/10 p-4">
+        <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-red-400">Rejected</p>
-              <p className="text-3xl font-bold text-red-400">{rejectedBids.length}</p>
+              <p className="text-sm font-medium text-[var(--color-danger-400)]">Rejected</p>
+              <p className="text-3xl font-bold text-[var(--color-danger-400)]">
+                {rejectedBids.length}
+              </p>
             </div>
-            <div className="text-red-400">
+            <div className="text-[var(--color-danger-400)]">
               <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"

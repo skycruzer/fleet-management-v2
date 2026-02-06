@@ -19,21 +19,32 @@ export const ReportTypeSchema = z.enum([
   'flight-requests',
   'certifications',
   'leave-bids',
+  'pilot-info',
+  'forecast',
 ])
 
 /**
  * Date Range Schema
+ *
+ * Accepts both ISO 8601 datetime strings (e.g., "2025-01-01T00:00:00Z")
+ * and date-only strings (e.g., "2025-01-01"). The dual format supports
+ * both API clients sending full timestamps and UI date pickers sending
+ * date-only values.
  */
 export const DateRangeSchema = z
   .object({
     startDate: z
       .string()
-      .datetime()
-      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+      .datetime({ message: 'startDate must be a valid ISO 8601 datetime' })
+      .or(
+        z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'startDate must be YYYY-MM-DD format' })
+      ),
     endDate: z
       .string()
-      .datetime()
-      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+      .datetime({ message: 'endDate must be a valid ISO 8601 datetime' })
+      .or(
+        z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'endDate must be YYYY-MM-DD format' })
+      ),
   })
   .refine(
     (data) => {
@@ -71,10 +82,20 @@ export const ReportFiltersSchema = z.object({
   rosterPeriod: z.string().optional(),
   rosterPeriods: z.array(z.string()).optional(),
   checkTypes: z.array(z.string().uuid()).optional(),
+  categories: z.array(z.string()).optional(), // Filter by certification category
   expiryThreshold: z.number().int().min(0).max(365).optional(),
   // Pagination parameters (used by service layer)
   page: z.number().int().min(1).optional(),
   pageSize: z.number().int().min(1).max(200).optional(),
+  // Pilot Info Report filters
+  activeStatus: z.enum(['active', 'inactive', 'all']).optional(),
+  qualifications: z.array(z.enum(['line_captain', 'training_captain', 'examiner'])).optional(),
+  licenceType: z.array(z.enum(['ATPL', 'CPL'])).optional(),
+  // Forecast Report filters
+  timeHorizon: z.enum(['2yr', '5yr', '10yr']).optional(),
+  forecastSections: z.array(z.enum(['retirement', 'succession', 'shortage'])).optional(),
+  // Grouping support for PDF exports and previews
+  groupBy: z.array(z.enum(['rosterPeriod', 'rank', 'category'])).optional(),
 })
 
 /**
@@ -96,7 +117,7 @@ export const ReportExportRequestSchema = z.object({
 })
 
 /**
- * Email Recipients Schema
+ * Email Recipients Schema (To field)
  */
 export const EmailRecipientsSchema = z
   .array(z.string().email({ message: 'Invalid email address format' }))
@@ -104,13 +125,32 @@ export const EmailRecipientsSchema = z
   .max(20, 'Maximum 20 recipients allowed')
 
 /**
+ * CC Recipients Schema (optional, max 10 recipients)
+ */
+export const CCRecipientsSchema = z
+  .array(z.string().email({ message: 'Invalid CC email address format' }))
+  .max(10, 'Maximum 10 CC recipients allowed')
+  .optional()
+
+/**
+ * BCC Recipients Schema (optional, max 10 recipients)
+ */
+export const BCCRecipientsSchema = z
+  .array(z.string().email({ message: 'Invalid BCC email address format' }))
+  .max(10, 'Maximum 10 BCC recipients allowed')
+  .optional()
+
+/**
  * Report Email Request Schema
  * Phase 2.7: Removed problematic .default({}) that conflicted with validation
+ * Phase 5.1: Added CC and BCC support
  */
 export const ReportEmailRequestSchema = z.object({
   reportType: ReportTypeSchema,
   filters: ReportFiltersSchema.optional(),
   recipients: EmailRecipientsSchema,
+  cc: CCRecipientsSchema,
+  bcc: BCCRecipientsSchema,
   subject: z.string().max(200).optional(),
   message: z.string().max(5000).optional(),
 })

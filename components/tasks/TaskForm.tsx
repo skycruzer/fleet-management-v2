@@ -13,12 +13,8 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
-import {
-  TaskInputSchema,
-  TaskUpdateSchema,
-  type TaskInput,
-  type TaskUpdate,
-} from '@/lib/validations/task-schema'
+import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
+import { TaskFormSchema, type TaskFormData } from '@/lib/validations/task-schema'
 import type { TaskWithRelations } from '@/lib/services/task-service'
 import type { Database } from '@/types/supabase'
 
@@ -48,25 +44,14 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
 
   const isEdit = !!task
 
-  const form = useForm<TaskInput | TaskUpdate>({
-    resolver: async (data, context, options) => {
-      // Transform empty strings to undefined before validation
-      const transformedData = {
-        ...data,
-        assigned_to: data.assigned_to === '' ? undefined : data.assigned_to,
-        due_date: data.due_date === '' ? undefined : data.due_date,
-      }
-
-      // Use the appropriate schema based on edit mode
-      const schema = isEdit ? TaskUpdateSchema : TaskInputSchema
-      return zodResolver(schema)(transformedData, context, options)
-    },
+  const form = useForm<TaskFormData>({
+    resolver: zodResolver(TaskFormSchema),
     defaultValues: isEdit
       ? {
           title: task.title,
           description: task.description || '',
-          status: task.status as any,
-          priority: task.priority as any,
+          status: task.status as TaskFormData['status'],
+          priority: task.priority as TaskFormData['priority'],
           assigned_to: task.assigned_to || undefined,
           due_date: task.due_date ? task.due_date.split('T')[0] : undefined,
           tags: (task.tags as string[]) || [],
@@ -74,14 +59,17 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
       : {
           title: '',
           description: '',
-          priority: 'MEDIUM' as any,
+          priority: 'MEDIUM',
           assigned_to: undefined,
           due_date: undefined,
           tags: [],
         },
   })
 
-  const onSubmit = async (data: TaskInput | TaskUpdate) => {
+  // Warn about unsaved changes when navigating away
+  useFormUnsavedChanges(form, { skipWarning: isSubmitting })
+
+  const onSubmit = async (data: TaskFormData) => {
     setIsSubmitting(true)
     setError(null)
 

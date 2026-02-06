@@ -80,8 +80,8 @@ export default function NewUserPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Error Message */}
           {error && (
-            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="border-destructive/20 rounded-lg border bg-[var(--color-destructive-muted)] p-4">
+              <p className="text-sm text-[var(--color-danger-600)]">{error}</p>
             </div>
           )}
 
@@ -95,32 +95,36 @@ export default function NewUserPage() {
               {/* Full Name */}
               <div className="space-y-2 md:col-span-1">
                 <Label htmlFor="name">
-                  Full Name <span className="text-red-500">*</span>
+                  Full Name <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="name"
                   type="text"
                   placeholder="e.g., John Smith"
                   {...register('name')}
-                  className={errors.name ? 'border-red-500' : ''}
+                  className={errors.name ? 'border-[var(--color-danger-500)]' : ''}
                 />
-                {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+                {errors.name && (
+                  <p className="text-sm text-[var(--color-danger-600)]">{errors.name.message}</p>
+                )}
                 <p className="text-muted-foreground text-xs">Minimum 2 characters</p>
               </div>
 
               {/* Email Address */}
               <div className="space-y-2 md:col-span-1">
                 <Label htmlFor="email">
-                  Email Address <span className="text-red-500">*</span>
+                  Email Address <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="e.g., john.smith@example.com"
                   {...register('email')}
-                  className={errors.email ? 'border-red-500' : ''}
+                  className={errors.email ? 'border-[var(--color-danger-500)]' : ''}
                 />
-                {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="text-sm text-[var(--color-danger-600)]">{errors.email.message}</p>
+                )}
                 <p className="text-muted-foreground text-xs">Must be a valid email address</p>
               </div>
             </div>
@@ -132,42 +136,44 @@ export default function NewUserPage() {
 
             <div className="space-y-2">
               <Label htmlFor="role">
-                User Role <span className="text-red-500">*</span>
+                User Role <span className="text-[var(--color-danger-500)]">*</span>
               </Label>
               <select
                 id="role"
                 {...register('role')}
-                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                  errors.role ? 'border-red-500' : 'border-border'
+                className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none ${
+                  errors.role ? 'border-[var(--color-danger-500)]' : 'border-border'
                 }`}
               >
                 <option value="User">User (Read-only access)</option>
                 <option value="Manager">Manager (View and approve requests)</option>
                 <option value="Admin">Admin (Full system access)</option>
               </select>
-              {errors.role && <p className="text-sm text-red-600">{errors.role.message}</p>}
+              {errors.role && (
+                <p className="text-sm text-[var(--color-danger-600)]">{errors.role.message}</p>
+              )}
             </div>
 
             {/* Role Descriptions */}
-            <div className="bg-primary/5 space-y-3 rounded-lg border border-blue-200 p-4">
+            <div className="bg-primary/5 space-y-3 rounded-lg border border-[var(--color-primary-500)]/20 p-4">
               <p className="text-foreground text-sm font-medium">Role Permissions:</p>
               <ul className="text-card-foreground space-y-2 text-sm">
                 <li className="flex items-start space-x-2">
-                  <span className="font-bold text-blue-600">•</span>
+                  <span className="font-bold text-[var(--color-primary-600)]">•</span>
                   <div>
                     <span className="font-medium">User:</span> View pilot data, certifications, and
                     leave requests. Cannot make changes.
                   </div>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="font-bold text-blue-600">•</span>
+                  <span className="font-bold text-[var(--color-primary-600)]">•</span>
                   <div>
                     <span className="font-medium">Manager:</span> All User permissions, plus
                     approve/deny leave requests and submit forms.
                   </div>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <span className="font-bold text-blue-600">•</span>
+                  <span className="font-bold text-[var(--color-primary-600)]">•</span>
                   <div>
                     <span className="font-medium">Admin:</span> Full system access, including user
                     management, pilot CRUD, and system configuration.
@@ -203,7 +209,7 @@ export default function NewUserPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="border-yellow-200 bg-yellow-50 p-4">
+      <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">⚠️</span>
           <div className="space-y-1">

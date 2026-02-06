@@ -257,7 +257,7 @@ function AnalyticsPageContent() {
 
         {/* Critical Alerts Section */}
         {analytics.risk.criticalAlerts.length > 0 && (
-          <Card className="border-destructive/20 bg-red-500/10 p-4">
+          <Card className="border-destructive/20 bg-[var(--color-destructive-muted)] p-4">
             <div className="flex items-start space-x-2">
               <span className="text-2xl">🚨</span>
               <div className="flex-1">
@@ -273,8 +273,8 @@ function AnalyticsPageContent() {
                         <span
                           className={`rounded px-2 py-1 text-xs font-medium ${
                             alert.severity === 'critical'
-                              ? 'bg-red-600 text-white'
-                              : 'bg-yellow-600 text-white'
+                              ? 'bg-[var(--color-danger-600)] text-white'
+                              : 'bg-[var(--color-warning-600)] text-white'
                           }`}
                         >
                           {alert.severity.toUpperCase()}
@@ -291,10 +291,10 @@ function AnalyticsPageContent() {
 
         {/* Fleet Readiness Overview */}
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-          <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-blue-500/20 p-4">
+          <Card className="border-[var(--color-primary-500)]/20 bg-gradient-to-br from-[var(--color-primary-500)]/10 to-[var(--color-primary-500)]/20 p-4">
             <div className="mb-2 flex items-center justify-between">
-              <BarChart3 className="h-8 w-8 text-blue-400" aria-hidden="true" />
-              <span className="text-2xl font-bold text-blue-400">
+              <BarChart3 className="h-8 w-8 text-[var(--color-primary-400)]" aria-hidden="true" />
+              <span className="text-2xl font-bold text-[var(--color-primary-400)]">
                 {analytics.fleet.utilization}%
               </span>
             </div>
@@ -304,10 +304,10 @@ function AnalyticsPageContent() {
             <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
           </Card>
 
-          <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 to-emerald-500/20 p-4">
+          <Card className="border-[var(--color-success-500)]/20 bg-gradient-to-br from-[var(--color-success-500)]/10 to-[var(--color-success-500)]/20 p-4">
             <div className="mb-2 flex items-center justify-between">
-              <Plane className="h-8 w-8 text-emerald-400" aria-hidden="true" />
-              <span className="text-2xl font-bold text-emerald-400">
+              <Plane className="h-8 w-8 text-[var(--color-success-500)]" aria-hidden="true" />
+              <span className="text-2xl font-bold text-[var(--color-success-500)]">
                 {analytics.fleet.availability}%
               </span>
             </div>
@@ -320,7 +320,7 @@ function AnalyticsPageContent() {
             </p>
           </Card>
 
-          <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-purple-500/20 p-4">
+          <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-[var(--color-category-simulator)]/20 p-4">
             <div className="mb-2 flex items-center justify-between">
               <Target className="text-primary h-8 w-8" aria-hidden="true" />
               <span className="text-primary-foreground text-2xl font-bold">
@@ -343,16 +343,20 @@ function AnalyticsPageContent() {
                 <div className="text-foreground text-2xl font-bold">{analytics.pilot.total}</div>
                 <div className="text-muted-foreground text-xs">Total Pilots</div>
               </div>
-              <div className="rounded-lg bg-emerald-500/10 p-3">
-                <div className="text-2xl font-bold text-emerald-400">{analytics.pilot.active}</div>
+              <div className="rounded-lg bg-[var(--color-success-muted)] p-3">
+                <div className="text-2xl font-bold text-[var(--color-success-500)]">
+                  {analytics.pilot.active}
+                </div>
                 <div className="text-muted-foreground text-xs">Active</div>
               </div>
               <div className="bg-primary/5 rounded-lg p-3">
-                <div className="text-2xl font-bold text-blue-400">{analytics.pilot.captains}</div>
+                <div className="text-2xl font-bold text-[var(--color-primary-400)]">
+                  {analytics.pilot.captains}
+                </div>
                 <div className="text-muted-foreground text-xs">Captains</div>
               </div>
-              <div className="rounded-lg bg-indigo-500/10 p-3">
-                <div className="text-2xl font-bold text-indigo-400">
+              <div className="rounded-lg bg-[var(--color-badge-indigo-bg)] p-3">
+                <div className="text-2xl font-bold text-[var(--color-badge-indigo)]">
                   {analytics.pilot.firstOfficers}
                 </div>
                 <div className="text-muted-foreground text-xs">First Officers</div>
@@ -391,11 +395,11 @@ function AnalyticsPageContent() {
               Retirement Planning
             </h3>
             <div className="space-y-4">
-              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+              <div className="rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-warning-muted)] p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="text-muted-foreground text-sm">Retiring in 2 Years</div>
-                    <div className="mt-1 text-2xl font-bold text-amber-400">
+                    <div className="mt-1 text-2xl font-bold text-[var(--color-warning-500)]">
                       {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
                     </div>
                     {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.length > 0 && (
@@ -405,10 +409,10 @@ function AnalyticsPageContent() {
                             key={pilot.id}
                             className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
                           >
-                            <span className="font-medium text-amber-400">
+                            <span className="font-medium text-[var(--color-warning-500)]">
                               {pilot.rank} {pilot.name}
                             </span>
-                            <span className="text-xs text-amber-400/80">
+                            <span className="text-xs text-[var(--color-warning-500)]/80">
                               {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
                                 month: 'short',
                                 year: 'numeric',
@@ -420,16 +424,16 @@ function AnalyticsPageContent() {
                     )}
                   </div>
                   <AlertTriangle
-                    className="h-8 w-8 flex-shrink-0 text-red-600"
+                    className="h-8 w-8 flex-shrink-0 text-[var(--color-danger-600)]"
                     aria-hidden="true"
                   />
                 </div>
               </div>
-              <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-4">
+              <div className="rounded-lg border border-[var(--color-badge-orange-border)] bg-[var(--color-badge-orange-bg)] p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="text-muted-foreground text-sm">Retiring in 3-5 Years</div>
-                    <div className="mt-1 text-2xl font-bold text-orange-400">
+                    <div className="mt-1 text-2xl font-bold text-[var(--color-badge-orange)]">
                       {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length} pilots
                     </div>
                     {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length > 0 && (
@@ -439,10 +443,10 @@ function AnalyticsPageContent() {
                             key={pilot.id}
                             className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
                           >
-                            <span className="font-medium text-orange-400">
+                            <span className="font-medium text-[var(--color-badge-orange)]">
                               {pilot.rank} {pilot.name}
                             </span>
-                            <span className="text-xs text-orange-400/80">
+                            <span className="text-xs text-[var(--color-badge-orange)]/80">
                               {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
                                 month: 'short',
                                 year: 'numeric',
@@ -453,7 +457,10 @@ function AnalyticsPageContent() {
                       </div>
                     )}
                   </div>
-                  <Calendar className="h-8 w-8 flex-shrink-0 text-yellow-600" aria-hidden="true" />
+                  <Calendar
+                    className="h-8 w-8 flex-shrink-0 text-[var(--color-warning-600)]"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             </div>
@@ -464,7 +471,10 @@ function AnalyticsPageContent() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
           <Card className="p-6">
             <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
-              <CheckCircle className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+              <CheckCircle
+                className="mr-2 h-5 w-5 text-[var(--color-success-600)]"
+                aria-hidden="true"
+              />
               Certification Status
             </h3>
             <div className="grid grid-cols-2 gap-4">
@@ -474,20 +484,20 @@ function AnalyticsPageContent() {
                 </div>
                 <div className="text-muted-foreground text-sm">Total Certifications</div>
               </div>
-              <div className="rounded-lg bg-emerald-500/10 p-4">
-                <div className="text-3xl font-bold text-emerald-400">
+              <div className="rounded-lg bg-[var(--color-success-muted)] p-4">
+                <div className="text-3xl font-bold text-[var(--color-success-500)]">
                   {analytics.certification.current}
                 </div>
                 <div className="text-muted-foreground text-sm">Current</div>
               </div>
-              <div className="rounded-lg bg-amber-500/10 p-4">
-                <div className="text-3xl font-bold text-amber-400">
+              <div className="rounded-lg bg-[var(--color-warning-muted)] p-4">
+                <div className="text-3xl font-bold text-[var(--color-warning-500)]">
                   {analytics.certification.expiring}
                 </div>
                 <div className="text-muted-foreground text-sm">Expiring (≤30 days)</div>
               </div>
-              <div className="rounded-lg bg-red-500/10 p-4">
-                <div className="text-3xl font-bold text-red-400">
+              <div className="rounded-lg bg-[var(--color-destructive-muted)] p-4">
+                <div className="text-3xl font-bold text-[var(--color-danger-500)]">
                   {analytics.certification.expired}
                 </div>
                 <div className="text-muted-foreground text-sm">Expired</div>
@@ -496,7 +506,7 @@ function AnalyticsPageContent() {
             <div className="bg-primary/5 mt-4 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
-                <span className="text-2xl font-bold text-blue-400">
+                <span className="text-2xl font-bold text-[var(--color-primary-400)]">
                   {analytics.certification.complianceRate}%
                 </span>
               </div>
@@ -546,15 +556,21 @@ function AnalyticsPageContent() {
                   <div className="text-foreground mb-2 font-medium">{category.category}</div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
-                      <div className="font-bold text-emerald-400">{category.current}</div>
+                      <div className="font-bold text-[var(--color-success-500)]">
+                        {category.current}
+                      </div>
                       <div className="text-muted-foreground">Current</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-bold text-amber-400">{category.expiring}</div>
+                      <div className="font-bold text-[var(--color-warning-500)]">
+                        {category.expiring}
+                      </div>
                       <div className="text-muted-foreground">Expiring</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-bold text-red-400">{category.expired}</div>
+                      <div className="font-bold text-[var(--color-danger-500)]">
+                        {category.expired}
+                      </div>
                       <div className="text-muted-foreground">Expired</div>
                     </div>
                   </div>
@@ -567,7 +583,7 @@ function AnalyticsPageContent() {
         {/* Leave Analytics */}
         <Card className="p-6">
           <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
-            <Palmtree className="mr-2 h-5 w-5 text-green-600" aria-hidden="true" />
+            <Palmtree className="mr-2 h-5 w-5 text-[var(--color-success-600)]" aria-hidden="true" />
             Leave Request Analytics
           </h3>
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -575,16 +591,22 @@ function AnalyticsPageContent() {
               <div className="text-foreground text-3xl font-bold">{analytics.leave.total}</div>
               <div className="text-muted-foreground text-sm">Total Requests</div>
             </div>
-            <div className="rounded-lg bg-amber-500/10 p-4">
-              <div className="text-3xl font-bold text-amber-400">{analytics.leave.pending}</div>
+            <div className="rounded-lg bg-[var(--color-warning-muted)] p-4">
+              <div className="text-3xl font-bold text-[var(--color-warning-500)]">
+                {analytics.leave.pending}
+              </div>
               <div className="text-muted-foreground text-sm">Pending</div>
             </div>
-            <div className="rounded-lg bg-emerald-500/10 p-4">
-              <div className="text-3xl font-bold text-emerald-400">{analytics.leave.approved}</div>
+            <div className="rounded-lg bg-[var(--color-success-muted)] p-4">
+              <div className="text-3xl font-bold text-[var(--color-success-500)]">
+                {analytics.leave.approved}
+              </div>
               <div className="text-muted-foreground text-sm">Approved</div>
             </div>
-            <div className="rounded-lg bg-red-500/10 p-4">
-              <div className="text-3xl font-bold text-red-400">{analytics.leave.denied}</div>
+            <div className="rounded-lg bg-[var(--color-destructive-muted)] p-4">
+              <div className="text-3xl font-bold text-[var(--color-danger-500)]">
+                {analytics.leave.denied}
+              </div>
               <div className="text-muted-foreground text-sm">Denied</div>
             </div>
           </div>
@@ -635,7 +657,10 @@ function AnalyticsPageContent() {
         {/* Risk Analytics */}
         <Card className="p-6">
           <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
-            <AlertTriangle className="mr-2 h-5 w-5 text-red-600" aria-hidden="true" />
+            <AlertTriangle
+              className="mr-2 h-5 w-5 text-[var(--color-danger-600)]"
+              aria-hidden="true"
+            />
             Risk Assessment
           </h3>
           <div className="mb-6">
@@ -644,10 +669,10 @@ function AnalyticsPageContent() {
               <span
                 className={`text-3xl font-bold ${
                   analytics.risk.overallRiskScore > 50
-                    ? 'text-red-400'
+                    ? 'text-[var(--color-danger-500)]'
                     : analytics.risk.overallRiskScore > 25
-                      ? 'text-amber-400'
-                      : 'text-emerald-400'
+                      ? 'text-[var(--color-warning-500)]'
+                      : 'text-[var(--color-success-500)]'
                 }`}
               >
                 {analytics.risk.overallRiskScore}/100
@@ -675,12 +700,12 @@ function AnalyticsPageContent() {
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
                       factor.severity === 'critical'
-                        ? 'bg-red-600 text-white'
+                        ? 'bg-[var(--color-danger-600)] text-white'
                         : factor.severity === 'high'
-                          ? 'bg-orange-500 text-white'
+                          ? 'bg-[var(--color-badge-orange)] text-white'
                           : factor.severity === 'medium'
-                            ? 'bg-yellow-500 text-white'
-                            : 'bg-green-500 text-white'
+                            ? 'bg-[var(--color-warning-500)] text-white'
+                            : 'bg-[var(--color-success-500)] text-white'
                     }`}
                   >
                     {factor.severity.toUpperCase()}
@@ -699,7 +724,7 @@ function AnalyticsPageContent() {
         <Card className="bg-primary/5 border-primary/20 p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3">
-              <Info className="h-6 w-6 text-blue-600" aria-hidden="true" />
+              <Info className="h-6 w-6 text-[var(--color-primary-600)]" aria-hidden="true" />
               <div className="flex-1">
                 <p className="text-foreground text-sm font-medium">Analytics Dashboard</p>
                 <p className="text-muted-foreground mt-1 text-sm">

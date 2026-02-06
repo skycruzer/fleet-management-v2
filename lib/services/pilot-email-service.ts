@@ -1168,3 +1168,161 @@ Please do not reply to this email.
     }
   }
 }
+
+/**
+ * Retirement notification data for email templates
+ */
+interface RetirementNotificationData {
+  firstName: string
+  lastName: string
+  email: string
+  rank: string
+  employeeId: string
+  retirementAge: number
+  currentAge: number
+  effectiveDate: string
+}
+
+/**
+ * Send retirement notification email to pilot
+ *
+ * Notifies pilots when their status has been automatically changed to inactive
+ * due to reaching the mandatory retirement age.
+ *
+ * @param data - Retirement notification information
+ * @returns Promise resolving to email send result
+ */
+export async function sendRetirementNotificationEmail(
+  data: RetirementNotificationData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supportEmail = process.env.SUPPORT_EMAIL || 'support@fleetmanagement.com'
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retirement Status Update</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+  <div style="background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #0066cc;">
+      <h1 style="color: #0066cc; margin: 0; font-size: 28px;">${EMAIL_CONFIG.appName}</h1>
+      <p style="color: #666; margin: 10px 0 0 0; font-size: 14px;">Retirement Status Notification</p>
+    </div>
+
+    <!-- Main content -->
+    <div style="margin-bottom: 30px;">
+      <h2 style="color: #0066cc; margin: 0 0 20px 0; font-size: 24px;">Dear ${data.rank} ${data.lastName},</h2>
+
+      <p style="margin: 0 0 15px 0; font-size: 16px;">
+        We are writing to inform you that your pilot status in ${EMAIL_CONFIG.appName} has been updated to <strong>inactive</strong> as you have reached the mandatory retirement age of <strong>${data.retirementAge}</strong>.
+      </p>
+
+      <div style="background-color: #f0f9ff; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #555;"><strong>Name:</strong> ${data.firstName} ${data.lastName}</p>
+        <p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Employee ID:</strong> ${data.employeeId}</p>
+        <p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Rank:</strong> ${data.rank}</p>
+        <p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Current Age:</strong> ${data.currentAge}</p>
+        <p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Retirement Age:</strong> ${data.retirementAge}</p>
+        <p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Effective Date:</strong> ${data.effectiveDate}</p>
+      </div>
+
+      <div style="background-color: #e7f3ff; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #0c5460;">
+          <strong>Thank You for Your Service</strong>
+        </p>
+        <p style="margin: 10px 0 0 0; font-size: 14px; color: #0c5460;">
+          We deeply appreciate your dedication and contributions to our flight operations over the years. Your professionalism and commitment to safety have been invaluable.
+        </p>
+      </div>
+
+      <div style="background-color: #f8f9fa; border-left: 4px solid #6c757d; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #333;">
+          <strong>Next Steps:</strong>
+        </p>
+        <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 14px; color: #555;">
+          <li style="margin-bottom: 8px;">Your certifications and records will be maintained in the system for reference</li>
+          <li style="margin-bottom: 8px;">Please contact HR for information about retirement benefits</li>
+          <li style="margin-bottom: 8px;">Return any company equipment and badges as per company policy</li>
+        </ul>
+      </div>
+
+      <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
+        If you have any questions or believe this status change was made in error, please contact us at <a href="mailto:${supportEmail}" style="color: #0066cc; text-decoration: none;">${supportEmail}</a>.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+      <p style="margin: 0; font-size: 12px; color: #999;">
+        This is an automated message from ${EMAIL_CONFIG.appName}.<br>
+        Please do not reply to this email.
+      </p>
+      <p style="margin: 10px 0 0 0; font-size: 12px; color: #999;">
+        © ${new Date().getFullYear()} ${EMAIL_CONFIG.appName}. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim()
+
+    const textContent = `
+Retirement Status Notification
+
+Dear ${data.rank} ${data.lastName},
+
+We are writing to inform you that your pilot status in ${EMAIL_CONFIG.appName} has been updated to inactive as you have reached the mandatory retirement age of ${data.retirementAge}.
+
+Details:
+- Name: ${data.firstName} ${data.lastName}
+- Employee ID: ${data.employeeId}
+- Rank: ${data.rank}
+- Current Age: ${data.currentAge}
+- Retirement Age: ${data.retirementAge}
+- Effective Date: ${data.effectiveDate}
+
+Thank You for Your Service
+We deeply appreciate your dedication and contributions to our flight operations over the years. Your professionalism and commitment to safety have been invaluable.
+
+Next Steps:
+- Your certifications and records will be maintained in the system for reference
+- Please contact HR for information about retirement benefits
+- Return any company equipment and badges as per company policy
+
+If you have any questions or believe this status change was made in error, please contact us at ${supportEmail}.
+
+---
+This is an automated message from ${EMAIL_CONFIG.appName}.
+Please do not reply to this email.
+    `.trim()
+
+    const { error } = await resend.emails.send({
+      from: EMAIL_CONFIG.from,
+      to: data.email,
+      subject: `Retirement Status Update - ${EMAIL_CONFIG.appName}`,
+      html: htmlContent,
+      text: textContent,
+    })
+
+    if (error) {
+      console.error('Failed to send retirement notification email:', error)
+      return {
+        success: false,
+        error: error.message || 'Failed to send retirement notification email',
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error sending retirement notification email:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+}

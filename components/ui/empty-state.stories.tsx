@@ -161,7 +161,7 @@ export const DarkMode: Story = {
     backgrounds: { default: 'dark' },
   },
   render: () => (
-    <div className="dark rounded-lg bg-slate-900 p-8">
+    <div className="dark bg-background rounded-lg p-8">
       <EmptyState
         icon={Users}
         title="No pilots found"

@@ -4,6 +4,7 @@
  * Date: November 4, 2025
  *
  * Modal dialog for emailing reports to recipients
+ * Phase 5.1: Added CC and BCC support
  */
 
 'use client'
@@ -20,6 +21,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   Form,
   FormControl,
@@ -32,11 +34,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { Mail, Loader2 } from 'lucide-react'
+import { Mail, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
 import type { ReportType, ReportFilters } from '@/types/reports'
 
 const formSchema = z.object({
   recipients: z.string().min(1, 'At least one recipient is required'),
+  cc: z.string().optional(),
+  bcc: z.string().optional(),
   subject: z.string().optional(),
   message: z.string().optional(),
 })
@@ -55,12 +59,15 @@ export function ReportEmailDialog({
   filters,
 }: ReportEmailDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [showCcBcc, setShowCcBcc] = useState(false)
   const { toast } = useToast()
 
   const form = useForm<z.input<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       recipients: '',
+      cc: '',
+      bcc: '',
       subject: '',
       message: '',
     },
@@ -69,7 +76,23 @@ export function ReportEmailDialog({
   const onSubmit = async (values: z.input<typeof formSchema>) => {
     setIsLoading(true)
     try {
-      const recipients = values.recipients.split(',').map((email) => email.trim())
+      // Split by comma or semicolon to support both formats (Outlook uses semicolons)
+      const recipients = values.recipients
+        .split(/[,;]/)
+        .map((email) => email.trim())
+        .filter(Boolean)
+      const cc = values.cc
+        ? values.cc
+            .split(/[,;]/)
+            .map((email) => email.trim())
+            .filter(Boolean)
+        : undefined
+      const bcc = values.bcc
+        ? values.bcc
+            .split(/[,;]/)
+            .map((email) => email.trim())
+            .filter(Boolean)
+        : undefined
 
       const response = await fetch('/api/reports/email', {
         method: 'POST',
@@ -78,6 +101,8 @@ export function ReportEmailDialog({
           reportType,
           filters,
           recipients,
+          cc: cc?.length ? cc : undefined,
+          bcc: bcc?.length ? bcc : undefined,
           subject: values.subject,
           message: values.message,
         }),
@@ -125,17 +150,66 @@ export function ReportEmailDialog({
               name="recipients"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Recipients</FormLabel>
+                  <FormLabel>To</FormLabel>
                   <FormControl>
                     <Input placeholder="email@example.com, another@example.com" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Enter one or more email addresses separated by commas
+                    Enter one or more email addresses separated by commas or semicolons
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* CC/BCC Collapsible Section */}
+            <Collapsible open={showCcBcc} onOpenChange={setShowCcBcc}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground -ml-2 flex items-center gap-1"
+                >
+                  {showCcBcc ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  Add CC/BCC
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-2">
+                <FormField
+                  control={form.control}
+                  name="cc"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CC</FormLabel>
+                      <FormControl>
+                        <Input placeholder="cc@example.com, another@example.com" {...field} />
+                      </FormControl>
+                      <FormDescription>Carbon copy recipients (visible to all)</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="bcc"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>BCC</FormLabel>
+                      <FormControl>
+                        <Input placeholder="bcc@example.com, another@example.com" {...field} />
+                      </FormControl>
+                      <FormDescription>Blind carbon copy recipients (hidden)</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CollapsibleContent>
+            </Collapsible>
 
             <FormField
               control={form.control}

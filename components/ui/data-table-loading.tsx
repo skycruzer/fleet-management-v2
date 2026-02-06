@@ -85,9 +85,8 @@ export function DataTableLoading({
 export function SimpleTableLoading() {
   return (
     <Card className="overflow-hidden">
-      <div className="p-8 text-center">
-        <div className="border-primary mb-4 inline-block h-8 w-8 animate-spin rounded-full border-b-2"></div>
-        <p className="text-muted-foreground">Loading data...</p>
+      <div className="p-6">
+        <TableSkeleton rows={5} columns={4} />
       </div>
     </Card>
   )
@@ -96,11 +95,17 @@ export function SimpleTableLoading() {
 /**
  * Inline table loading state (for tables already rendered with loading prop)
  */
-export function InlineTableLoading({ message = 'Loading...' }: { message?: string }) {
+export function InlineTableLoading({
+  rows = 3,
+  columns = 4,
+}: {
+  rows?: number
+  columns?: number
+  message?: string
+}) {
   return (
-    <div className="p-8 text-center">
-      <div className="border-primary inline-block h-8 w-8 animate-spin rounded-full border-b-2"></div>
-      <p className="text-muted-foreground mt-2">{message}</p>
+    <div className="p-6">
+      <TableSkeleton rows={rows} columns={columns} />
     </div>
   )
 }

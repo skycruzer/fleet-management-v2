@@ -88,14 +88,14 @@ export default function ChangePasswordPage() {
         {/* Change Password Card */}
         <div className="bg-card rounded-lg border border-white/[0.08] p-6">
           {/* Info Banner */}
-          <div className="mb-4 flex items-center gap-2 rounded-md border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-400">
+          <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-3 text-sm text-[var(--color-warning-400)]">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
             <span>For security, please set a new personal password.</span>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-md border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>

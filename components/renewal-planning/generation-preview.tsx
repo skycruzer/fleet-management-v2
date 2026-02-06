@@ -244,7 +244,8 @@ export function GenerationPreview({ monthsAhead, categories, enabled }: Generati
               <strong className="text-primary">{preview.totalPlans}</strong> renewals
             </span>
             <span>
-              <strong className="text-purple-600">{preview.periodsAffected}</strong> periods
+              <strong className="text-[var(--color-info)]">{preview.periodsAffected}</strong>{' '}
+              periods
             </span>
             <span className={getUtilizationColor(preview.avgUtilization)}>
               <strong>{Math.round(preview.avgUtilization)}%</strong> avg util

@@ -64,13 +64,13 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
   const getActionBadgeColor = (action: string) => {
     switch (action) {
       case 'INSERT':
-        return 'bg-emerald-500/10 text-emerald-400'
+        return 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
       case 'UPDATE':
-        return 'bg-blue-500/10 text-blue-400'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       case 'DELETE':
-        return 'bg-red-500/10 text-red-400'
+        return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
       case 'SOFT_DELETE':
-        return 'bg-orange-500/10 text-orange-400'
+        return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
       case 'RESTORE':
         return 'bg-primary/10 text-primary-foreground'
       default:
@@ -96,7 +96,9 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Active Users</p>
-          <p className="mt-2 text-3xl font-bold text-blue-600">{stats.totalUsers}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-primary-600)]">
+            {stats.totalUsers}
+          </p>
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
@@ -104,7 +106,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
         </div>
         <div className="bg-card rounded-lg border border-white/[0.08] p-6 shadow-sm">
           <p className="text-muted-foreground text-sm font-medium">Recent Activity</p>
-          <p className="mt-2 text-3xl font-bold text-green-600">{totalCount}</p>
+          <p className="mt-2 text-3xl font-bold text-[var(--color-success-600)]">{totalCount}</p>
         </div>
       </div>
 
@@ -114,19 +116,25 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           <div>
             <p className="text-muted-foreground text-sm">Inserts</p>
-            <p className="text-2xl font-bold text-green-600">{stats.actionBreakdown.INSERT}</p>
+            <p className="text-2xl font-bold text-[var(--color-success-600)]">
+              {stats.actionBreakdown.INSERT}
+            </p>
           </div>
           <div>
             <p className="text-muted-foreground text-sm">Updates</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.actionBreakdown.UPDATE}</p>
+            <p className="text-2xl font-bold text-[var(--color-primary-600)]">
+              {stats.actionBreakdown.UPDATE}
+            </p>
           </div>
           <div>
             <p className="text-muted-foreground text-sm">Deletes</p>
-            <p className="text-2xl font-bold text-red-600">{stats.actionBreakdown.DELETE}</p>
+            <p className="text-2xl font-bold text-[var(--color-danger-600)]">
+              {stats.actionBreakdown.DELETE}
+            </p>
           </div>
           <div>
             <p className="text-muted-foreground text-sm">Soft Deletes</p>
-            <p className="text-2xl font-bold text-orange-600">
+            <p className="text-2xl font-bold text-[var(--color-badge-orange)]">
               {stats.actionBreakdown.SOFT_DELETE}
             </p>
           </div>

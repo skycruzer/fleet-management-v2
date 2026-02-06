@@ -125,14 +125,14 @@ export function LeavePageClient({
                 className={cn(
                   'flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors',
                   currentTab === tab.id
-                    ? 'border-indigo-600 text-indigo-600'
+                    ? 'border-[var(--color-primary-600)] text-[var(--color-primary-600)]'
                     : 'text-muted-foreground hover:text-foreground/80 border-transparent hover:border-white/[0.1]'
                 )}
               >
                 <Icon className="h-4 w-4" />
                 {tab.label}
                 {tab.id === 'approvals' && pendingRequests.length > 0 && (
-                  <span className="ml-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs text-amber-400">
+                  <span className="ml-1 rounded-full bg-[var(--color-warning-muted)] px-2 py-0.5 text-xs text-[var(--color-warning-400)]">
                     {pendingRequests.length}
                   </span>
                 )}

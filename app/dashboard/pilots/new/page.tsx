@@ -166,18 +166,20 @@ export default function NewPilotPage() {
         <form onSubmit={handleSubmit(onSubmit, onValidationError)} className="space-y-6">
           {/* Error Messages */}
           {(error || formState.errors.root) && (
-            <div className="border-destructive/20 rounded-lg border bg-red-50 p-4">
-              <p className="text-sm text-red-600">{error || formState.errors.root?.message}</p>
+            <div className="border-destructive/20 rounded-lg border bg-[var(--color-destructive-muted)] p-4">
+              <p className="text-sm text-[var(--color-danger-600)]">
+                {error || formState.errors.root?.message}
+              </p>
             </div>
           )}
 
           {/* Show all validation errors summary */}
           {submitAttempted && Object.keys(formState.errors).length > 0 && (
-            <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4">
-              <p className="text-sm font-medium text-yellow-800">
+            <div className="rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-warning-muted)] p-4">
+              <p className="text-sm font-medium text-[var(--color-warning-500)]">
                 Please fix the following errors:
               </p>
-              <ul className="mt-2 list-inside list-disc text-sm text-yellow-700">
+              <ul className="mt-2 list-inside list-disc text-sm text-[var(--color-warning-500)]">
                 {Object.entries(formState.errors).map(([field, err]) => (
                   <li key={field}>
                     <strong>{field.replace(/_/g, ' ')}:</strong>{' '}
@@ -198,17 +200,19 @@ export default function NewPilotPage() {
               {/* Employee ID */}
               <div className="space-y-2">
                 <Label htmlFor="employee_id">
-                  Employee ID <span className="text-red-500">*</span>
+                  Employee ID <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="employee_id"
                   type="text"
                   placeholder="e.g., 100001"
                   {...register('employee_id')}
-                  className={formState.errors.employee_id ? 'border-red-500' : ''}
+                  className={formState.errors.employee_id ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.employee_id && (
-                  <p className="text-sm text-red-600">{formState.errors.employee_id.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.employee_id.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Must be 4-6 digits</p>
               </div>
@@ -216,20 +220,22 @@ export default function NewPilotPage() {
               {/* Role */}
               <div className="space-y-2">
                 <Label htmlFor="role">
-                  Rank <span className="text-red-500">*</span>
+                  Rank <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <select
                   id="role"
                   {...register('role')}
-                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none ${
-                    formState.errors.role ? 'border-red-500' : 'border-border'
+                  className={`w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none ${
+                    formState.errors.role ? 'border-[var(--color-danger-500)]' : 'border-border'
                   }`}
                 >
                   <option value="Captain">Captain</option>
                   <option value="First Officer">First Officer</option>
                 </select>
                 {formState.errors.role && (
-                  <p className="text-sm text-red-600">{formState.errors.role.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.role.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -238,17 +244,19 @@ export default function NewPilotPage() {
               {/* First Name */}
               <div className="space-y-2">
                 <Label htmlFor="first_name">
-                  First Name <span className="text-red-500">*</span>
+                  First Name <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="first_name"
                   type="text"
                   placeholder="John"
                   {...register('first_name')}
-                  className={formState.errors.first_name ? 'border-red-500' : ''}
+                  className={formState.errors.first_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.first_name && (
-                  <p className="text-sm text-red-600">{formState.errors.first_name.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.first_name.message}
+                  </p>
                 )}
               </div>
 
@@ -260,27 +268,31 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="Michael (optional)"
                   {...register('middle_name')}
-                  className={formState.errors.middle_name ? 'border-red-500' : ''}
+                  className={formState.errors.middle_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.middle_name && (
-                  <p className="text-sm text-red-600">{formState.errors.middle_name.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.middle_name.message}
+                  </p>
                 )}
               </div>
 
               {/* Last Name */}
               <div className="space-y-2">
                 <Label htmlFor="last_name">
-                  Last Name <span className="text-red-500">*</span>
+                  Last Name <span className="text-[var(--color-danger-500)]">*</span>
                 </Label>
                 <Input
                   id="last_name"
                   type="text"
                   placeholder="Doe"
                   {...register('last_name')}
-                  className={formState.errors.last_name ? 'border-red-500' : ''}
+                  className={formState.errors.last_name ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.last_name && (
-                  <p className="text-sm text-red-600">{formState.errors.last_name.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.last_name.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -300,7 +312,7 @@ export default function NewPilotPage() {
                   id="contract_type"
                   {...register('contract_type')}
                   disabled={loadingContractTypes}
-                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                  className="border-border w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">
                     {loadingContractTypes ? 'Loading...' : 'Select contract type...'}
@@ -312,7 +324,9 @@ export default function NewPilotPage() {
                   ))}
                 </select>
                 {formState.errors.contract_type && (
-                  <p className="text-sm text-red-600">{formState.errors.contract_type.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.contract_type.message}
+                  </p>
                 )}
               </div>
 
@@ -323,10 +337,12 @@ export default function NewPilotPage() {
                   id="commencement_date"
                   type="date"
                   {...register('commencement_date')}
-                  className={formState.errors.commencement_date ? 'border-red-500' : ''}
+                  className={
+                    formState.errors.commencement_date ? 'border-[var(--color-danger-500)]' : ''
+                  }
                 />
                 {formState.errors.commencement_date && (
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-[var(--color-danger-600)]">
                     {formState.errors.commencement_date.message}
                   </p>
                 )}
@@ -345,7 +361,7 @@ export default function NewPilotPage() {
                         setValueAs: (v) => v === 'true',
                       })}
                       defaultChecked
-                      className="h-4 w-4 text-blue-600"
+                      className="h-4 w-4 text-[var(--color-primary-600)]"
                     />
                     <span className="text-card-foreground text-sm font-medium">Active</span>
                   </label>
@@ -356,7 +372,7 @@ export default function NewPilotPage() {
                       {...register('is_active', {
                         setValueAs: (v) => v === 'true',
                       })}
-                      className="h-4 w-4 text-blue-600"
+                      className="h-4 w-4 text-[var(--color-primary-600)]"
                     />
                     <span className="text-card-foreground text-sm font-medium">Inactive</span>
                   </label>
@@ -379,10 +395,14 @@ export default function NewPilotPage() {
                   id="date_of_birth"
                   type="date"
                   {...register('date_of_birth')}
-                  className={formState.errors.date_of_birth ? 'border-red-500' : ''}
+                  className={
+                    formState.errors.date_of_birth ? 'border-[var(--color-danger-500)]' : ''
+                  }
                 />
                 {formState.errors.date_of_birth && (
-                  <p className="text-sm text-red-600">{formState.errors.date_of_birth.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.date_of_birth.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Must be at least 18 years old</p>
               </div>
@@ -395,10 +415,12 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="e.g., Papua New Guinean"
                   {...register('nationality')}
-                  className={formState.errors.nationality ? 'border-red-500' : ''}
+                  className={formState.errors.nationality ? 'border-[var(--color-danger-500)]' : ''}
                 />
                 {formState.errors.nationality && (
-                  <p className="text-sm text-red-600">{formState.errors.nationality.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.nationality.message}
+                  </p>
                 )}
               </div>
             </div>
@@ -419,10 +441,14 @@ export default function NewPilotPage() {
                   type="text"
                   placeholder="e.g., P1234567"
                   {...register('passport_number')}
-                  className={formState.errors.passport_number ? 'border-red-500' : ''}
+                  className={
+                    formState.errors.passport_number ? 'border-[var(--color-danger-500)]' : ''
+                  }
                 />
                 {formState.errors.passport_number && (
-                  <p className="text-sm text-red-600">{formState.errors.passport_number.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.passport_number.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">Uppercase letters and numbers only</p>
               </div>
@@ -434,10 +460,14 @@ export default function NewPilotPage() {
                   id="passport_expiry"
                   type="date"
                   {...register('passport_expiry')}
-                  className={formState.errors.passport_expiry ? 'border-red-500' : ''}
+                  className={
+                    formState.errors.passport_expiry ? 'border-[var(--color-danger-500)]' : ''
+                  }
                 />
                 {formState.errors.passport_expiry && (
-                  <p className="text-sm text-red-600">{formState.errors.passport_expiry.message}</p>
+                  <p className="text-sm text-[var(--color-danger-600)]">
+                    {formState.errors.passport_expiry.message}
+                  </p>
                 )}
                 <p className="text-muted-foreground text-xs">
                   Required if passport number is provided
@@ -460,7 +490,7 @@ export default function NewPilotPage() {
                     id="qual_line_captain"
                     value="line_captain"
                     {...register('captain_qualifications')}
-                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                   />
                   <Label htmlFor="qual_line_captain" className="cursor-pointer">
                     Line Captain
@@ -473,7 +503,7 @@ export default function NewPilotPage() {
                     id="qual_training_captain"
                     value="training_captain"
                     {...register('captain_qualifications')}
-                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                   />
                   <Label htmlFor="qual_training_captain" className="cursor-pointer">
                     Training Captain
@@ -486,7 +516,7 @@ export default function NewPilotPage() {
                     id="qual_examiner"
                     value="examiner"
                     {...register('captain_qualifications')}
-                    className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded text-[var(--color-primary-600)] focus:ring-[var(--color-primary-500)]"
                   />
                   <Label htmlFor="qual_examiner" className="cursor-pointer">
                     Examiner
@@ -495,7 +525,7 @@ export default function NewPilotPage() {
               </div>
 
               {formState.errors.captain_qualifications && (
-                <p className="text-sm text-red-600">
+                <p className="text-sm text-[var(--color-danger-600)]">
                   {formState.errors.captain_qualifications.message}
                 </p>
               )}
@@ -542,7 +572,8 @@ export default function NewPilotPage() {
             <p className="text-foreground text-sm font-medium">Form Tips</p>
             <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>
-                Fields marked with <span className="text-red-500">*</span> are required
+                Fields marked with <span className="text-[var(--color-danger-500)]">*</span> are
+                required
               </li>
               <li>Employee ID must be 4-6 digits</li>
               <li>Seniority number will be calculated automatically from commencement date</li>

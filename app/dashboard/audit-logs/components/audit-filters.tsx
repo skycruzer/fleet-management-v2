@@ -43,7 +43,7 @@ export function AuditFilters({
           id="user-filter"
           value={currentUserEmail || ''}
           onChange={(e) => handleFilterChange('userEmail', e.target.value)}
-          className="rounded-md border border-white/[0.1] px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          className="rounded-md border border-white/[0.1] px-3 py-2 text-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
         >
           <option value="">All Users</option>
           {users.map((user) => (
@@ -63,7 +63,7 @@ export function AuditFilters({
           id="table-filter"
           value={currentTableName || ''}
           onChange={(e) => handleFilterChange('tableName', e.target.value)}
-          className="rounded-md border border-white/[0.1] px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          className="rounded-md border border-white/[0.1] px-3 py-2 text-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
         >
           <option value="">All Tables</option>
           {tables.map((table) => (
@@ -83,7 +83,7 @@ export function AuditFilters({
           id="action-filter"
           value={currentAction || ''}
           onChange={(e) => handleFilterChange('action', e.target.value)}
-          className="rounded-md border border-white/[0.1] px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          className="rounded-md border border-white/[0.1] px-3 py-2 text-sm focus:border-[var(--color-primary-500)] focus:ring-1 focus:ring-[var(--color-primary-500)] focus:outline-none"
         >
           <option value="">All Actions</option>
           <option value="INSERT">Insert</option>

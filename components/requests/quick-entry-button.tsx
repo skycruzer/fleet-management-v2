@@ -1,26 +1,17 @@
 /**
  * Quick Entry Button Component
  *
- * Button component that opens the quick entry form modal for creating pilot requests
- * from alternative submission channels (email, phone, Oracle).
+ * Button component that navigates to the leave request form page.
  *
  * @author Maurice Rondeau
- * @date November 11, 2025
+ * @date February 2, 2026 - Updated to use simple form navigation
  */
 
 'use client'
 
-import { useState } from 'react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Plus, Mail, Phone, Globe } from 'lucide-react'
-import { QuickEntryForm } from './quick-entry-form'
+import { Plus } from 'lucide-react'
 
 // ============================================================================
 // Type Definitions
@@ -28,9 +19,9 @@ import { QuickEntryForm } from './quick-entry-form'
 
 export interface QuickEntryButtonProps {
   /**
-   * List of pilots for selection
+   * List of pilots for selection (kept for backward compatibility)
    */
-  pilots: Array<{
+  pilots?: Array<{
     id: string
     first_name: string
     last_name: string
@@ -40,7 +31,7 @@ export interface QuickEntryButtonProps {
   }>
 
   /**
-   * Callback when request is successfully created
+   * Callback when request is successfully created (kept for backward compatibility)
    */
   onSuccess?: (request: any) => void
 
@@ -70,98 +61,18 @@ export interface QuickEntryButtonProps {
 // ============================================================================
 
 export function QuickEntryButton({
-  pilots,
-  onSuccess,
   variant = 'default',
   size = 'default',
   compact = false,
   className = '',
 }: QuickEntryButtonProps) {
-  const [open, setOpen] = useState(false)
-
-  // ============================================================================
-  // Data Normalization
-  // ============================================================================
-
-  // Normalize pilots to match QuickEntryForm's expected type
-  // Convert Training Captain, Relief Pilot, etc. to Captain or First Officer
-  const normalizedPilots = pilots.map((p) => {
-    let normalizedRole: 'Captain' | 'First Officer' = 'First Officer'
-    if (p.role === 'Captain' || (p.role as string).includes('Captain')) {
-      normalizedRole = 'Captain'
-    }
-
-    return {
-      id: p.id,
-      first_name: p.first_name,
-      last_name: p.last_name,
-      employee_id: p.employee_id,
-      role: normalizedRole,
-    }
-  })
-
-  // ============================================================================
-  // Handlers
-  // ============================================================================
-
-  const handleSuccess = () => {
-    setOpen(false)
-    // Note: QuickEntryForm doesn't pass the created request back
-    onSuccess?.(undefined as any)
-  }
-
-  const handleCancel = () => {
-    setOpen(false)
-  }
-
-  // ============================================================================
-  // Render
-  // ============================================================================
-
   return (
-    <>
-      {/* Trigger Button */}
-      <Button variant={variant} size={size} onClick={() => setOpen(true)} className={className}>
+    <Link href="/dashboard/leave/new">
+      <Button variant={variant} size={size} className={className}>
         <Plus className="h-4 w-4" />
         {!compact && <span className="ml-2">Quick Entry</span>}
       </Button>
-
-      {/* Modal Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl">Quick Entry - Manual Request Creation</DialogTitle>
-            <DialogDescription>
-              Create pilot requests received through alternative channels (email, phone, Oracle
-              system).
-            </DialogDescription>
-            <div className="text-muted-foreground flex gap-4 pt-2 text-sm">
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-[var(--color-info)]" />
-                <span>Email</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-[var(--color-status-low)]" />
-                <span>Phone</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-[var(--color-category-simulator)]" />
-                <span>Oracle System</span>
-              </div>
-            </div>
-          </DialogHeader>
-
-          {/* Quick Entry Form */}
-          <div className="pt-4">
-            <QuickEntryForm
-              pilots={normalizedPilots}
-              onSuccess={handleSuccess}
-              onCancel={handleCancel}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    </Link>
   )
 }
 

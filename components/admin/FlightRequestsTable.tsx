@@ -10,6 +10,8 @@
 
 import { useState, useMemo } from 'react'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
+import { Plane } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
 import FlightRequestReviewModal from './FlightRequestReviewModal'
 
 interface FlightRequestsTableProps {
@@ -41,9 +43,12 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
 
   if (requests.length === 0) {
     return (
-      <div className="border-border rounded-lg border-2 border-dashed p-8 text-center">
-        <p className="text-muted-foreground">No flight requests yet</p>
-      </div>
+      <EmptyState
+        icon={Plane}
+        title="No flight requests yet"
+        description="Flight requests will appear here once submitted."
+        variant="compact"
+      />
     )
   }
 

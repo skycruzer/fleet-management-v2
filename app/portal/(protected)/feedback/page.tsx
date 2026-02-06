@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { MessageSquare, ArrowLeft, Send, CheckCircle, AlertCircle } from 'lucide-react'
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 
 export default function FeedbackPage() {
   const [formData, setFormData] = useState({
@@ -89,16 +90,17 @@ export default function FeedbackPage() {
       </header>
 
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+        <PageBreadcrumbs rootPath="portal" />
         {/* Success Message */}
         {submitSuccess && (
-          <div className="mb-6 rounded-xl border border-green-500/30 bg-green-500/10 p-6 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/20">
-              <CheckCircle className="h-6 w-6 text-green-500" />
+          <div className="mb-6 rounded-xl border border-[var(--color-success-500)]/30 bg-[var(--color-success-muted)] p-6 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-success-500)]/20">
+              <CheckCircle className="h-6 w-6 text-[var(--color-success-500)]" />
             </div>
-            <h3 className="text-lg font-semibold text-green-400">
+            <h3 className="text-lg font-semibold text-[var(--color-success-400)]">
               Feedback Submitted Successfully!
             </h3>
-            <p className="mt-2 text-sm text-green-300/80">
+            <p className="mt-2 text-sm text-[var(--color-success-400)]/80">
               Thank you for your feedback. Fleet management will review it shortly.
             </p>
             <p className="text-muted-foreground mt-3 text-xs">
@@ -109,14 +111,14 @@ export default function FeedbackPage() {
 
         {/* Error Message */}
         {submitError && (
-          <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+          <div className="mb-6 rounded-xl border border-[var(--color-danger-500)]/30 bg-[var(--color-destructive-muted)] p-4">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-500/20">
-                <AlertCircle className="h-5 w-5 text-red-500" />
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-danger-500)]/20">
+                <AlertCircle className="h-5 w-5 text-[var(--color-danger-500)]" />
               </div>
               <div>
-                <h3 className="font-semibold text-red-400">Submission Failed</h3>
-                <p className="text-sm text-red-300/80">{submitError}</p>
+                <h3 className="font-semibold text-[var(--color-danger-400)]">Submission Failed</h3>
+                <p className="text-sm text-[var(--color-danger-400)]/80">{submitError}</p>
               </div>
             </div>
           </div>

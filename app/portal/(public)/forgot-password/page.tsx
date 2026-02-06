@@ -156,12 +156,12 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4"
+              className="mb-6 flex items-start gap-3 rounded-lg border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-4"
             >
-              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-400" />
+              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-success-400)]" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-emerald-400">Email Sent!</p>
-                <p className="mt-1 text-sm text-emerald-400/80">
+                <p className="text-sm font-medium text-[var(--color-success-400)]">Email Sent!</p>
+                <p className="mt-1 text-sm text-[var(--color-success-400)]/80">
                   If an account exists with this email, you'll receive password reset instructions
                   shortly. Please check your inbox and spam folder.
                 </p>
@@ -174,10 +174,10 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4"
+              className="mb-6 flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-4"
             >
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
-              <p className="flex-1 text-sm text-red-400">{error}</p>
+              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
+              <p className="flex-1 text-sm text-[var(--color-danger-400)]">{error}</p>
             </motion.div>
           )}
 
@@ -206,7 +206,9 @@ export default function ForgotPasswordPage() {
                 />
               </div>
               {form.formState.errors.email && (
-                <p className="text-sm text-red-400">{form.formState.errors.email.message}</p>
+                <p className="text-sm text-[var(--color-danger-400)]">
+                  {form.formState.errors.email.message}
+                </p>
               )}
             </div>
 

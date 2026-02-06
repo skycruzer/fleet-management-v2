@@ -59,7 +59,11 @@ interface CenteredSpinnerProps {
 
 export function CenteredSpinner({ size = 'lg', text, minHeight = '200px' }: CenteredSpinnerProps) {
   return (
-    <div className="flex flex-col items-center justify-center space-y-4" style={{ minHeight }}>
+    <div
+      className="flex flex-col items-center justify-center space-y-4"
+      aria-live="polite"
+      style={{ minHeight }}
+    >
       <Spinner size={size} variant="primary" />
       {text && <p className="text-muted-foreground text-sm">{text}</p>}
     </div>

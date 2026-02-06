@@ -149,9 +149,10 @@ export function ResetPasswordContent() {
     if (/[0-9]/.test(pwd)) strength++
     if (/[^A-Za-z0-9]/.test(pwd)) strength++
 
-    if (strength <= 2) return { strength: 33, label: 'Weak', color: 'bg-red-500' }
-    if (strength === 3) return { strength: 66, label: 'Good', color: 'bg-yellow-500' }
-    return { strength: 100, label: 'Strong', color: 'bg-green-500' }
+    if (strength <= 2) return { strength: 33, label: 'Weak', color: 'bg-[var(--color-danger-500)]' }
+    if (strength === 3)
+      return { strength: 66, label: 'Good', color: 'bg-[var(--color-warning-500)]' }
+    return { strength: 100, label: 'Strong', color: 'bg-[var(--color-success-500)]' }
   }
 
   const passwordStrength = getPasswordStrength(password)
@@ -235,11 +236,13 @@ export function ResetPasswordContent() {
           {/* Invalid Token */}
           {!isValidating && !tokenValid && (
             <div className="space-y-6">
-              <div className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4">
-                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
+              <div className="flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-4">
+                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-red-400">Invalid Reset Link</p>
-                  <p className="mt-1 text-sm text-red-400/80">{error}</p>
+                  <p className="text-sm font-medium text-[var(--color-danger-400)]">
+                    Invalid Reset Link
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--color-danger-400)]/80">{error}</p>
                 </div>
               </div>
 
@@ -264,9 +267,9 @@ export function ResetPasswordContent() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10"
+                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-success-muted)]"
                 >
-                  <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+                  <CheckCircle2 className="h-8 w-8 text-[var(--color-success-400)]" />
                 </motion.div>
 
                 <p className="text-foreground text-lg font-semibold">
@@ -287,10 +290,10 @@ export function ResetPasswordContent() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 rounded-lg border border-red-500/20 bg-red-500/10 p-4"
+                  className="flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-4"
                 >
-                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
-                  <p className="flex-1 text-sm text-red-400">{error}</p>
+                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
+                  <p className="flex-1 text-sm text-[var(--color-danger-400)]">{error}</p>
                 </motion.div>
               )}
 
@@ -330,7 +333,7 @@ export function ResetPasswordContent() {
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Password strength:</span>
                       <span
-                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-emerald-400' : passwordStrength.strength === 66 ? 'text-amber-400' : 'text-red-400'}`}
+                        className={`font-medium ${passwordStrength.strength === 100 ? 'text-[var(--color-success-400)]' : passwordStrength.strength === 66 ? 'text-[var(--color-warning-400)]' : 'text-[var(--color-danger-400)]'}`}
                       >
                         {passwordStrength.label}
                       </span>
@@ -345,26 +348,32 @@ export function ResetPasswordContent() {
                 )}
 
                 {form.formState.errors.password && (
-                  <p className="text-sm text-red-400">{form.formState.errors.password.message}</p>
+                  <p className="text-sm text-[var(--color-danger-400)]">
+                    {form.formState.errors.password.message}
+                  </p>
                 )}
 
                 {/* Password Requirements */}
                 <div className="text-muted-foreground space-y-1 text-xs">
                   <p className="font-medium">Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
-                    <li className={password.length >= 8 ? 'text-emerald-400' : ''}>
+                    <li className={password.length >= 8 ? 'text-[var(--color-success-400)]' : ''}>
                       • At least 8 characters
                     </li>
-                    <li className={/[A-Z]/.test(password) ? 'text-emerald-400' : ''}>
+                    <li className={/[A-Z]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
                       • One uppercase letter
                     </li>
-                    <li className={/[a-z]/.test(password) ? 'text-emerald-400' : ''}>
+                    <li className={/[a-z]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
                       • One lowercase letter
                     </li>
-                    <li className={/[0-9]/.test(password) ? 'text-emerald-400' : ''}>
+                    <li className={/[0-9]/.test(password) ? 'text-[var(--color-success-400)]' : ''}>
                       • One number
                     </li>
-                    <li className={/[^A-Za-z0-9]/.test(password) ? 'text-emerald-400' : ''}>
+                    <li
+                      className={
+                        /[^A-Za-z0-9]/.test(password) ? 'text-[var(--color-success-400)]' : ''
+                      }
+                    >
                       • One special character
                     </li>
                   </ul>
@@ -405,7 +414,7 @@ export function ResetPasswordContent() {
                   </button>
                 </div>
                 {form.formState.errors.confirmPassword && (
-                  <p className="text-sm text-red-400">
+                  <p className="text-sm text-[var(--color-danger-400)]">
                     {form.formState.errors.confirmPassword.message}
                   </p>
                 )}

@@ -16,7 +16,6 @@ export default async function CheckTypesPage() {
   const [checkTypes, categories] = await Promise.all([getCheckTypes(), getCheckTypeCategories()])
 
   // Calculate stats - compute once before render for React Compiler compliance
-  // eslint-disable-next-line react-hooks/purity -- Date.now() is safe in Server Components (runs once per request)
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   const recentlyUpdatedCount = checkTypes.filter(
     (ct) => new Date(ct.updated_at) > thirtyDaysAgo
@@ -67,7 +66,7 @@ export default async function CheckTypesPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-emerald-500/20 bg-emerald-500/10 p-6">
+        <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">✅</span>
             <div>
@@ -76,7 +75,7 @@ export default async function CheckTypesPage() {
             </div>
           </div>
         </Card>
-        <Card className="border-orange-500/20 bg-orange-500/10 p-6">
+        <Card className="border-[var(--color-badge-orange)]/20 bg-[var(--color-badge-orange-bg)] p-6">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">📅</span>
             <div>
@@ -105,7 +104,7 @@ export default async function CheckTypesPage() {
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-foreground text-lg font-semibold">All Check Types</h3>
           <div className="flex items-center space-x-2">
-            <select className="border-border rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <select className="border-border rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none">
               <option value="">All Categories</option>
               {categories.map((category) => (
                 <option key={category} value={category}>
@@ -156,7 +155,7 @@ export default async function CheckTypesPage() {
                     {checkType.category || 'N/A'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
+                    <span className="inline-flex items-center rounded-full bg-[var(--color-success-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-success-400)]">
                       ACTIVE
                     </span>
                   </td>
@@ -188,7 +187,7 @@ export default async function CheckTypesPage() {
       </Card>
 
       {/* Help Text */}
-      <Card className="border-blue-500/20 bg-blue-500/10 p-4">
+      <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-4">
         <div className="flex items-start space-x-3">
           <span className="text-2xl">💡</span>
           <div className="space-y-1">
