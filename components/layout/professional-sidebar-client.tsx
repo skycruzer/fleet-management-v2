@@ -323,6 +323,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                 isCollapsed && 'justify-center'
               )}
               title={isCollapsed ? 'Logout' : undefined}
+              aria-label="Logout"
             >
               <LogOut className="h-4 w-4 flex-shrink-0" />
               {!isCollapsed && <span>Logout</span>}
@@ -482,6 +483,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                             ? 'text-primary'
                             : 'text-muted-foreground/70 group-hover:text-foreground'
                         )}
+                        aria-hidden="true"
                       />
 
                       {!isCollapsed && (

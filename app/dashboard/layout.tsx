@@ -28,7 +28,6 @@ import { ProfessionalSidebar } from '@/components/layout/professional-sidebar'
 import { ProfessionalHeader } from '@/components/layout/professional-header'
 import { MobileNav } from '@/components/navigation/mobile-nav'
 import { SkipNav } from '@/components/accessibility/skip-nav'
-import { GlobalAnnouncer } from '@/components/accessibility/announcer'
 import { SidebarCollapseProvider } from '@/components/layout/sidebar-collapse-provider'
 import { DashboardContentArea } from '@/components/layout/dashboard-content-area'
 import { PageTransition } from '@/components/ui/page-transition'
@@ -99,7 +98,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
     {
       href: '/dashboard/analytics',
       icon: <BarChart3 className="h-4 w-4" aria-hidden="true" />,
-      label: 'Analytics & Reports',
+      label: 'Analytics',
+    },
+    {
+      href: '/dashboard/reports',
+      icon: <ScrollText className="h-4 w-4" aria-hidden="true" />,
+      label: 'Reports',
     },
     {
       href: '/dashboard/admin',
@@ -141,7 +145,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <ErrorBoundary>
       <SkipNav />
-      <GlobalAnnouncer />
 
       {/* Mobile Navigation */}
       <MobileNav user={user ?? { email: adminUser?.email }} navLinks={navLinks} />

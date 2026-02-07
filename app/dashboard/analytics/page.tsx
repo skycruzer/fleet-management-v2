@@ -407,7 +407,7 @@ function AnalyticsPageContent() {
                         {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.map((pilot) => (
                           <div
                             key={pilot.id}
-                            className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                            className="bg-foreground/5 flex items-center justify-between rounded-md px-3 py-2 text-sm"
                           >
                             <span className="font-medium text-[var(--color-warning-500)]">
                               {pilot.rank} {pilot.name}
@@ -441,7 +441,7 @@ function AnalyticsPageContent() {
                         {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.map((pilot) => (
                           <div
                             key={pilot.id}
-                            className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2 text-sm"
+                            className="bg-foreground/5 flex items-center justify-between rounded-md px-3 py-2 text-sm"
                           >
                             <span className="font-medium text-[var(--color-badge-orange)]">
                               {pilot.rank} {pilot.name}

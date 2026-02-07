@@ -29,6 +29,8 @@ const pathLabels: Record<string, string> = {
   disciplinary: 'Disciplinary',
   'audit-logs': 'Audit Logs',
   'check-types': 'Check Types',
+  reports: 'Reports',
+  requests: 'Requests',
   settings: 'My Settings',
   new: 'New',
   edit: 'Edit',

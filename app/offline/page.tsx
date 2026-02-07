@@ -156,7 +156,7 @@ export default function Offline() {
             </button>
             <button
               onClick={() => (window.location.href = '/dashboard')}
-              className="bg-muted flex flex-1 items-center justify-center gap-2 rounded-lg px-6 py-3.5 font-semibold text-white shadow-md transition-all duration-200 hover:bg-black hover:shadow-lg active:scale-95"
+              className="bg-muted hover:bg-muted/80 flex flex-1 items-center justify-center gap-2 rounded-lg px-6 py-3.5 font-semibold text-white shadow-md transition-all duration-200 hover:shadow-lg active:scale-95"
             >
               <Home className="h-5 w-5" />
               Go to Dashboard
