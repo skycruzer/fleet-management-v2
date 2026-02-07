@@ -89,8 +89,8 @@ const searchablePages: SearchResult[] = [
   },
 
   // Support
-  { title: 'Help Center', href: '/dashboard/help', icon: FileText, category: 'Support' },
   { title: 'Feedback', href: '/dashboard/feedback', icon: FileText, category: 'Support' },
+  { title: 'Help Center', href: '/dashboard/help', icon: FileText, category: 'Support' },
 
   // Settings
   { title: 'My Settings', href: '/dashboard/settings', icon: Settings, category: 'Settings' },

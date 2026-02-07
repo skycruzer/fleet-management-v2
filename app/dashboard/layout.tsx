@@ -126,14 +126,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
       label: 'Audit Logs',
     },
     {
-      href: '/dashboard/help',
-      icon: <HelpCircle className="h-4 w-4" aria-hidden="true" />,
-      label: 'Help Center',
-    },
-    {
       href: '/dashboard/feedback',
       icon: <MessageSquare className="h-4 w-4" aria-hidden="true" />,
       label: 'Feedback',
+    },
+    {
+      href: '/dashboard/help',
+      icon: <HelpCircle className="h-4 w-4" aria-hidden="true" />,
+      label: 'Help Center',
     },
     {
       href: '/dashboard/settings',

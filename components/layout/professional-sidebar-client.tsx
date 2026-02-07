@@ -127,14 +127,14 @@ const navigationSections: NavSection[] = [
         icon: ClipboardList,
       },
       {
-        title: 'Help Center',
-        href: '/dashboard/help',
-        icon: HelpCircle,
-      },
-      {
         title: 'Feedback',
         href: '/dashboard/feedback',
         icon: MessageSquare,
+      },
+      {
+        title: 'Help Center',
+        href: '/dashboard/help',
+        icon: HelpCircle,
       },
     ],
   },
