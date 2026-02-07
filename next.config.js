@@ -147,15 +147,10 @@ const nextConfig = {
         destination: '/dashboard/admin?tab=registrations',
         permanent: true,
       },
-      // Help & Feedback: FAQs and Feedback merged into Help
+      // Legacy FAQs redirect to Help Center
       {
         source: '/dashboard/faqs',
-        destination: '/dashboard/help?tab=faqs',
-        permanent: true,
-      },
-      {
-        source: '/dashboard/feedback',
-        destination: '/dashboard/help?tab=feedback',
+        destination: '/dashboard/help',
         permanent: true,
       },
     ]
