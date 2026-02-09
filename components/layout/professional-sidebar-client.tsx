@@ -28,6 +28,7 @@ import {
   ScrollText,
   RefreshCw,
   ClipboardList,
+  MessageSquare,
   PanelLeftClose,
   PanelLeft,
 } from 'lucide-react'
@@ -63,6 +64,7 @@ const moreNavItems: NavItem[] = [
   { title: 'System Admin', href: '/dashboard/admin', icon: Shield },
   { title: 'Disciplinary', href: '/dashboard/disciplinary', icon: AlertCircle },
   { title: 'Audit Logs', href: '/dashboard/audit-logs', icon: ClipboardList },
+  { title: 'Feedback', href: '/dashboard/feedback', icon: MessageSquare },
 ]
 
 interface ProfessionalSidebarClientProps {
