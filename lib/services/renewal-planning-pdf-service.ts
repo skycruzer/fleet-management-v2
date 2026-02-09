@@ -5,11 +5,13 @@
  * Reports are organized BY CATEGORY for easy distribution to respective teams.
  */
 
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+import type JsPDF from 'jspdf'
 import { formatDate } from '@/lib/utils/date-utils'
 import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
 // jsPDF type augmentation for lastAutoTable is in types/jspdf-autotable.d.ts
+
+// Module-level reference for dynamically-loaded autoTable (assigned in generateRenewalPlanPDF before use)
+let autoTable: any
 
 interface PilotInfo {
   first_name: string
@@ -90,6 +92,9 @@ const CATEGORIES = [
  * Generate complete renewal planning PDF - organized BY CATEGORY
  */
 export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<Blob> {
+  const { default: jsPDF } = await import('jspdf')
+  const autoTableMod = await import('jspdf-autotable')
+  autoTable = autoTableMod.default
   const doc = new jsPDF()
 
   // Page 1: Cover Page
@@ -125,7 +130,7 @@ export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<
 /**
  * Cover Page
  */
-function addCoverPage(doc: jsPDF, data: RenewalPlanPDFData) {
+function addCoverPage(doc: JsPDF, data: RenewalPlanPDFData) {
   const pageWidth = doc.internal.pageSize.getWidth()
 
   // Title
@@ -197,7 +202,7 @@ function addCoverPage(doc: jsPDF, data: RenewalPlanPDFData) {
 /**
  * Executive Summary Page - Category Focused
  */
-function addExecutiveSummary(doc: jsPDF, data: RenewalPlanPDFData) {
+function addExecutiveSummary(doc: JsPDF, data: RenewalPlanPDFData) {
   doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
   doc.text('Executive Summary', 15, 20)
@@ -311,7 +316,7 @@ function addExecutiveSummary(doc: jsPDF, data: RenewalPlanPDFData) {
  * Category Detail Page
  */
 function addCategoryPage(
-  doc: jsPDF,
+  doc: JsPDF,
   category: { id: string; label: string; color: [number, number, number] },
   data: RenewalPlanPDFData,
   categoryRenewals: RenewalItem[]
@@ -439,7 +444,7 @@ function addCategoryPage(
 /**
  * Pilot Schedules Page - All categories combined
  */
-function addPilotSchedules(doc: jsPDF, data: RenewalPlanPDFData) {
+function addPilotSchedules(doc: JsPDF, data: RenewalPlanPDFData) {
   doc.setFontSize(18)
   doc.setFont('helvetica', 'bold')
   doc.text('Complete Pilot Schedules', 15, 20)
@@ -522,7 +527,7 @@ function getUtilizationStatus(utilization: number): string {
 /**
  * Pairing Summary Page - Captain/FO Pairing for Flight and Simulator Checks
  */
-function addPairingSummaryPage(doc: jsPDF, data: RenewalPlanPDFData) {
+function addPairingSummaryPage(doc: JsPDF, data: RenewalPlanPDFData) {
   if (!data.pairingData) return
 
   const { pairs, unpaired, statistics } = data.pairingData

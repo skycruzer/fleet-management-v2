@@ -1,94 +1,73 @@
 /**
  * Request Filters Wrapper Component
  *
- * Server component wrapper that converts URL searchParams to RequestFilters props
- * and manages URL updates when filters change.
+ * Client component that uses nuqs for URL state management of request filters.
+ * Replaces manual useSearchParams + URLSearchParams + router.push() pattern.
  *
  * @author Maurice Rondeau
  * @date November 11, 2025
+ * @updated February 2026 - Migrated to nuqs for URL state management
  */
 
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useQueryState, parseAsString, parseAsBoolean } from 'nuqs'
 import { RequestFilters, RequestFiltersClient } from './request-filters-client'
 
-interface RequestFiltersWrapperProps {
-  searchParams: {
-    roster_period?: string
-    pilot_id?: string
-    status?: string
-    category?: string
-    channel?: string
-    is_late?: string
-    is_past_deadline?: string
-  }
-}
+export function RequestFiltersWrapper() {
+  // nuqs manages URL sync automatically for each filter param
+  const [rosterPeriod, setRosterPeriod] = useQueryState(
+    'roster_period',
+    parseAsString.withDefault('')
+  )
+  const [status, setStatus] = useQueryState('status', parseAsString.withDefault(''))
+  const [category] = useQueryState('category', parseAsString.withDefault(''))
+  const [channel, setChannel] = useQueryState('channel', parseAsString.withDefault(''))
+  const [isLate, setIsLate] = useQueryState('is_late', parseAsBoolean.withDefault(false))
+  const [isPastDeadline, setIsPastDeadline] = useQueryState(
+    'is_past_deadline',
+    parseAsBoolean.withDefault(false)
+  )
 
-export function RequestFiltersWrapper({ searchParams }: RequestFiltersWrapperProps) {
-  const router = useRouter()
-  const currentSearchParams = useSearchParams()
-
-  // Convert searchParams to filters
+  // Convert nuqs state to RequestFilters for the child component
   const filters: RequestFilters = {
-    roster_period: searchParams.roster_period?.split(',').filter(Boolean) || undefined,
-    status: searchParams.status?.split(',').filter(Boolean) || [],
-    category: searchParams.category?.split(',').filter(Boolean) || [],
-    channel: searchParams.channel?.split(',').filter(Boolean) || [],
-    is_late: searchParams.is_late === 'true',
-    is_past_deadline: searchParams.is_past_deadline === 'true',
+    roster_period: rosterPeriod ? rosterPeriod.split(',').filter(Boolean) : undefined,
+    status: status ? status.split(',').filter(Boolean) : [],
+    category: category ? category.split(',').filter(Boolean) : [],
+    channel: channel ? channel.split(',').filter(Boolean) : [],
+    is_late: isLate,
+    is_past_deadline: isPastDeadline,
   }
 
-  // Handle filter changes
+  // Handle filter changes — nuqs automatically syncs URL
   const handleFiltersChange = (newFilters: RequestFilters) => {
-    const params = new URLSearchParams(currentSearchParams.toString())
-
     // Update roster period (comma-separated for multiple)
     if (newFilters.roster_period) {
       const periods = Array.isArray(newFilters.roster_period)
         ? newFilters.roster_period
         : [newFilters.roster_period]
-      params.set('roster_period', periods.join(','))
+      setRosterPeriod(periods.join(',') || null)
     } else {
-      params.delete('roster_period')
+      setRosterPeriod(null)
     }
 
     // Update status (comma-separated)
     if (newFilters.status && newFilters.status.length > 0) {
-      params.set('status', newFilters.status.join(','))
+      setStatus(newFilters.status.join(','))
     } else {
-      params.delete('status')
-    }
-
-    // Update category (comma-separated)
-    if (newFilters.category && newFilters.category.length > 0) {
-      params.set('category', newFilters.category.join(','))
-    } else {
-      params.delete('category')
+      setStatus(null)
     }
 
     // Update channel (comma-separated)
     if (newFilters.channel && newFilters.channel.length > 0) {
-      params.set('channel', newFilters.channel.join(','))
+      setChannel(newFilters.channel.join(','))
     } else {
-      params.delete('channel')
+      setChannel(null)
     }
 
-    // Update boolean flags
-    if (newFilters.is_late) {
-      params.set('is_late', 'true')
-    } else {
-      params.delete('is_late')
-    }
-
-    if (newFilters.is_past_deadline) {
-      params.set('is_past_deadline', 'true')
-    } else {
-      params.delete('is_past_deadline')
-    }
-
-    // Update URL
-    router.push(`/dashboard/requests?${params.toString()}`)
+    // Update boolean flags — set to null to remove from URL when false
+    setIsLate(newFilters.is_late || null)
+    setIsPastDeadline(newFilters.is_past_deadline || null)
   }
 
   return <RequestFiltersClient filters={filters} onFiltersChange={handleFiltersChange} />

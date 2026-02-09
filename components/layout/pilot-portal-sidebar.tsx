@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import {
   Plane,
   UserCircle,
@@ -76,6 +77,7 @@ export function PilotPortalSidebar({
   email,
 }: PilotPortalSidebarProps) {
   const pathname = usePathname()
+  const { shouldAnimate } = useAnimationSettings()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   // Initialize isDesktop as false to match server render, then update after hydration
   const [isDesktop, setIsDesktop] = useState(false)
@@ -170,7 +172,7 @@ export function PilotPortalSidebar({
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={shouldAnimate ? { opacity: 0 } : { opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
@@ -182,11 +184,15 @@ export function PilotPortalSidebar({
 
       {/* Sidebar - Desktop (always visible) and Mobile (slide in) */}
       <motion.aside
-        initial={{ x: isDesktop ? 0 : -240 }}
+        initial={
+          shouldAnimate
+            ? { x: isDesktop ? 0 : -240 }
+            : { x: isDesktop ? 0 : mobileMenuOpen ? 0 : -240 }
+        }
         animate={{
           x: isDesktop ? 0 : mobileMenuOpen ? 0 : -240,
         }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        transition={shouldAnimate ? { duration: 0.3, ease: 'easeOut' } : { duration: 0 }}
         className="border-border bg-background fixed top-0 left-0 z-[var(--z-modal)] h-screen w-60 border-r lg:z-[var(--z-sidebar)]"
         role="navigation"
         aria-label="Pilot portal navigation"

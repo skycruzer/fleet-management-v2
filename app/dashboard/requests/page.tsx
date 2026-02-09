@@ -223,17 +223,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
           {viewMode === 'table' && (
             <>
               <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-                <RequestFiltersWrapper
-                  searchParams={{
-                    roster_period: searchParams.roster_period,
-                    pilot_id: searchParams.pilot_id,
-                    status: searchParams.status,
-                    category: 'LEAVE',
-                    channel: searchParams.channel,
-                    is_late: searchParams.is_late,
-                    is_past_deadline: searchParams.is_past_deadline,
-                  }}
-                />
+                <RequestFiltersWrapper />
               </Suspense>
               <Suspense fallback={<Skeleton className="h-96 w-full" />}>
                 <RequestsTableWrapper
@@ -254,17 +244,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
           {viewMode === 'cards' && (
             <>
               <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-                <RequestFiltersWrapper
-                  searchParams={{
-                    roster_period: searchParams.roster_period,
-                    pilot_id: searchParams.pilot_id,
-                    status: searchParams.status,
-                    category: 'LEAVE',
-                    channel: searchParams.channel,
-                    is_late: searchParams.is_late,
-                    is_past_deadline: searchParams.is_past_deadline,
-                  }}
-                />
+                <RequestFiltersWrapper />
               </Suspense>
               <RequestCardsGrid
                 requests={filteredRequests.filter((r) => r.request_category === 'LEAVE')}
@@ -289,17 +269,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
           {viewMode === 'table' && (
             <>
               <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-                <RequestFiltersWrapper
-                  searchParams={{
-                    roster_period: searchParams.roster_period,
-                    pilot_id: searchParams.pilot_id,
-                    status: searchParams.status,
-                    category: 'FLIGHT',
-                    channel: searchParams.channel,
-                    is_late: searchParams.is_late,
-                    is_past_deadline: searchParams.is_past_deadline,
-                  }}
-                />
+                <RequestFiltersWrapper />
               </Suspense>
               <Suspense fallback={<Skeleton className="h-96 w-full" />}>
                 <RequestsTableWrapper
@@ -320,17 +290,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
           {viewMode === 'cards' && (
             <>
               <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-                <RequestFiltersWrapper
-                  searchParams={{
-                    roster_period: searchParams.roster_period,
-                    pilot_id: searchParams.pilot_id,
-                    status: searchParams.status,
-                    category: 'FLIGHT',
-                    channel: searchParams.channel,
-                    is_late: searchParams.is_late,
-                    is_past_deadline: searchParams.is_past_deadline,
-                  }}
-                />
+                <RequestFiltersWrapper />
               </Suspense>
               <RequestCardsGrid
                 requests={filteredRequests.filter((r) => r.request_category === 'FLIGHT')}

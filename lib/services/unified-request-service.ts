@@ -195,6 +195,7 @@ export interface PilotRequestFilters {
   start_date_to?: string
   is_late_request?: boolean
   is_past_deadline?: boolean
+  limit?: number
 }
 
 /**
@@ -526,6 +527,10 @@ export async function getAllPilotRequests(
 
     // Order by submission date (most recent first)
     query = query.order('submission_date', { ascending: false })
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit)
+    }
 
     const { data, error } = await query
 

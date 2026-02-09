@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { Users, FileCheck, Calendar, TrendingUp, TrendingDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -46,11 +47,13 @@ const item = {
 }
 
 export function HeroStatsClient({ stats }: HeroStatsClientProps) {
+  const { shouldAnimate, getVariants } = useAnimationSettings()
+
   return (
     <motion.div
-      variants={container}
+      variants={getVariants(container)}
       initial="hidden"
-      animate="show"
+      animate={shouldAnimate ? 'show' : 'visible'}
       className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
     >
       {stats.map((stat) => {
@@ -60,8 +63,8 @@ export function HeroStatsClient({ stats }: HeroStatsClientProps) {
         return (
           <motion.div
             key={stat.title}
-            variants={item}
-            whileHover={{ y: -4, scale: 1.02 }}
+            variants={getVariants(item)}
+            whileHover={shouldAnimate ? { y: -4, scale: 1.02 } : undefined}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="group border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
           >

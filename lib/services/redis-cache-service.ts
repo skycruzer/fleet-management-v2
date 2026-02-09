@@ -99,6 +99,12 @@ export const CACHE_KEYS = {
 
   // Pilots list cache
   PILOTS_LIST: 'pilots:list',
+
+  // Recent activity
+  RECENT_ACTIVITY: 'dashboard:recent_activity',
+
+  // Today's priorities
+  TODAY_PRIORITIES: 'dashboard:priorities',
 } as const
 
 /**
@@ -125,6 +131,9 @@ export const CACHE_TTL = {
 
   // Pilot lists - 5 minutes (moderate update frequency)
   PILOTS_LIST: 5 * 60,
+
+  // Today's priorities - 2 minutes (near real-time for urgent items)
+  TODAY_PRIORITIES: 2 * 60,
 } as const
 
 /**
@@ -241,6 +250,69 @@ class RedisCacheService {
   }
 
   /**
+   * Cache a value with tag associations for targeted invalidation.
+   * Tags allow invalidating groups of related cache keys with a single call.
+   *
+   * @template T
+   * @param key - Cache key
+   * @param value - Value to cache
+   * @param ttlSeconds - TTL in seconds
+   * @param tags - Array of tag names to associate with this key
+   */
+  async setWithTags<T>(key: string, value: T, ttlSeconds: number, tags: string[]): Promise<void> {
+    if (!this.redis) return
+    try {
+      const pipeline = this.redis.pipeline()
+      pipeline.setex(key, ttlSeconds, JSON.stringify(value))
+      for (const tag of tags) {
+        pipeline.sadd(`tag:${tag}`, key)
+        pipeline.expire(`tag:${tag}`, 24 * 60 * 60)
+      }
+      await pipeline.exec()
+      this.metrics.sets++
+    } catch (error) {
+      this.metrics.errors++
+      logError(error as Error, {
+        source: 'RedisCacheService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'setWithTags', key, tags: tags.join(',') },
+      })
+    }
+  }
+
+  /**
+   * Invalidate all cache keys associated with a tag.
+   * Deletes every key in the tag set, then removes the tag set itself.
+   *
+   * @param tag - Tag name to invalidate
+   * @returns Number of keys invalidated
+   */
+  async invalidateByTag(tag: string): Promise<number> {
+    if (!this.redis) return 0
+    try {
+      const tagKey = `tag:${tag}`
+      const keys = (await this.redis.smembers(tagKey)) as string[]
+      if (keys.length === 0) return 0
+      const pipeline = this.redis.pipeline()
+      for (const key of keys) {
+        pipeline.del(key)
+      }
+      pipeline.del(tagKey)
+      await pipeline.exec()
+      this.metrics.deletes += keys.length
+      return keys.length
+    } catch (error) {
+      this.metrics.errors++
+      logError(error as Error, {
+        source: 'RedisCacheService',
+        severity: ErrorSeverity.MEDIUM,
+        metadata: { operation: 'invalidateByTag', tag },
+      })
+      return 0
+    }
+  }
+
+  /**
    * Get or compute and cache
    * @template T
    * @param key - Cache key
@@ -285,10 +357,16 @@ class RedisCacheService {
   async delPattern(pattern: string): Promise<void> {
     if (!this.redis) return
     try {
-      const keys = await this.redis.keys(pattern)
-      if (keys.length > 0) {
-        await this.redis.del(...keys)
-      }
+      let cursor = 0
+      do {
+        const result = await this.redis.scan(cursor, { match: pattern, count: 100 })
+        cursor = Number(result[0])
+        const keys = result[1] as string[]
+        if (keys.length > 0) {
+          await this.redis.del(...keys)
+          this.metrics.deletes += keys.length
+        }
+      } while (cursor !== 0)
     } catch (error) {
       logError(error as Error, {
         source: 'RedisCacheService',
@@ -470,11 +548,11 @@ class RedisCacheService {
       }
     }
     try {
-      const keys = await this.redis.keys('*')
+      const keyCount = await this.redis.dbsize()
 
       return {
         connected: true,
-        keyCount: keys.length,
+        keyCount,
         memory: 'N/A',
       }
     } catch (error) {
@@ -521,10 +599,12 @@ export async function invalidateFleetStatsCache(): Promise<void> {
 }
 
 /**
- * Invalidate dashboard cache
+ * Invalidate dashboard cache (metrics, recent activity, and priorities)
  */
 export async function invalidateDashboardCache(): Promise<void> {
   await redisCacheService.del(CACHE_KEYS.DASHBOARD_METRICS)
+  await redisCacheService.del(CACHE_KEYS.RECENT_ACTIVITY)
+  await redisCacheService.del(CACHE_KEYS.TODAY_PRIORITIES)
 }
 
 /**
@@ -538,12 +618,20 @@ export async function invalidateReferenceDataCache(): Promise<void> {
  * Warm up cache with frequently accessed data
  */
 export async function warmUpCache(): Promise<void> {
-  // This will be called during application startup
-  // Pre-load frequently accessed data to improve cold start performance
-  logWarning('Cache warming initiated', {
-    source: 'RedisCacheService',
-    metadata: { operation: 'warmUpCache' },
-  })
+  try {
+    // Import services dynamically to avoid circular dependencies
+    const { getDashboardMetrics } = await import('./dashboard-service-v4')
+
+    // Warm up dashboard metrics (most frequently accessed)
+    await getDashboardMetrics(false) // false = bypass cache, force refresh
+
+    console.log('[Cache Warming] Dashboard metrics warmed')
+  } catch (error) {
+    logWarning('Cache warming failed', {
+      source: 'RedisCacheService',
+      metadata: { error: String(error) },
+    })
+  }
 }
 
 /**

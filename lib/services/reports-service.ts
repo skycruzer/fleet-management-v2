@@ -15,8 +15,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { unifiedCacheService, invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
 import { rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import { generateLeaveBidsPDF } from '@/lib/services/leave-bids-pdf-service'
 import {
   getRetirementForecastByRank,
@@ -758,6 +756,8 @@ export async function generatePDF(
   reportType: ReportType,
   grouping?: string[]
 ): Promise<Buffer> {
+  const { default: jsPDF } = await import('jspdf')
+  const { default: autoTable } = await import('jspdf-autotable')
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
 

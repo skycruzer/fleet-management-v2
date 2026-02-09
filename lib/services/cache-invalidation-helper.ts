@@ -124,6 +124,9 @@ export async function invalidatePilotCaches(pilotId?: string): Promise<void> {
 
   // Invalidate Redis pilot list cache
   await redisCacheService.delPattern(`${CACHE_KEYS.PILOTS_LIST}:*`)
+
+  // Invalidate all cache keys tagged with 'pilots'
+  await redisCacheService.invalidateByTag('pilots')
 }
 
 /**
@@ -139,6 +142,9 @@ export async function invalidateCertificationCaches(): Promise<void> {
 
   // Invalidate Redis analytics caches (certification changes affect analytics)
   await invalidateCertificationAnalyticsCaches()
+
+  // Invalidate all cache keys tagged with 'certifications'
+  await redisCacheService.invalidateByTag('certifications')
 }
 
 /**
@@ -159,6 +165,9 @@ export async function invalidateLeaveCaches(): Promise<void> {
 
   // Invalidate Redis analytics caches (leave changes affect analytics)
   await invalidateLeaveAnalyticsCaches()
+
+  // Invalidate all cache keys tagged with 'leave'
+  await redisCacheService.invalidateByTag('leave')
 }
 
 /**

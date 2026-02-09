@@ -17,10 +17,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PilotLoginSchema, type PilotLoginInput } from '@/lib/validations/pilot-portal-schema'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { Loader2, ArrowRight } from 'lucide-react'
 
 export default function PilotLoginForm() {
   const router = useRouter()
+  const { shouldAnimate } = useAnimationSettings()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -110,22 +112,26 @@ export default function PilotLoginForm() {
       <motion.button
         type="submit"
         disabled={isSubmitting}
-        whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-        whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+        whileHover={shouldAnimate ? { scale: isSubmitting ? 1 : 1.02 } : undefined}
+        whileTap={shouldAnimate ? { scale: isSubmitting ? 1 : 0.98 } : undefined}
         className="bg-primary hover:bg-primary/90 focus:ring-primary relative w-full overflow-hidden rounded-md px-4 py-3 text-sm font-medium text-white shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {/* Animated progress bar */}
         <AnimatePresence>
           {isSubmitting && (
             <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: '100%' }}
+              initial={shouldAnimate ? { x: '-100%' } : { x: '100%' }}
+              animate={shouldAnimate ? { x: '100%' } : { x: '100%' }}
               exit={{ x: '100%' }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
+              transition={
+                shouldAnimate
+                  ? {
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }
+                  : { duration: 0 }
+              }
               className="via-primary/30 absolute inset-0 bg-gradient-to-r from-transparent to-transparent"
             />
           )}
@@ -136,18 +142,22 @@ export default function PilotLoginForm() {
             {isSubmitting ? (
               <motion.span
                 key="loading"
-                initial={{ opacity: 0, y: 10 }}
+                initial={shouldAnimate ? { opacity: 0, y: 10 } : { opacity: 1 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={shouldAnimate ? { opacity: 0, y: -10 } : { opacity: 0 }}
                 className="flex items-center gap-2"
               >
                 <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: 'linear',
-                  }}
+                  animate={shouldAnimate ? { rotate: 360 } : undefined}
+                  transition={
+                    shouldAnimate
+                      ? {
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }
+                      : { duration: 0 }
+                  }
                 >
                   <Loader2 className="h-5 w-5" />
                 </motion.div>
@@ -156,19 +166,23 @@ export default function PilotLoginForm() {
             ) : (
               <motion.span
                 key="signin"
-                initial={{ opacity: 0, y: 10 }}
+                initial={shouldAnimate ? { opacity: 0, y: 10 } : { opacity: 1 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={shouldAnimate ? { opacity: 0, y: -10 } : { opacity: 0 }}
                 className="flex items-center gap-2"
               >
                 <span>Sign In</span>
                 <motion.div
-                  animate={{ x: [0, 4, 0] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
+                  animate={shouldAnimate ? { x: [0, 4, 0] } : undefined}
+                  transition={
+                    shouldAnimate
+                      ? {
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: 'easeInOut',
+                        }
+                      : { duration: 0 }
+                  }
                 >
                   <ArrowRight className="h-5 w-5" />
                 </motion.div>

@@ -12,7 +12,7 @@
 import * as React from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
-import { fadeInUp, reducedMotionVariants } from '@/lib/animations'
+import { fadeInUp, reducedMotionVariants } from '@/lib/animations/motion-variants'
 import { cn } from '@/lib/utils'
 
 // Pre-create motion components outside render to prevent state resets

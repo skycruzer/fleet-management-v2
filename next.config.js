@@ -27,6 +27,7 @@ const nextConfig = {
     ],
   },
 
+  reactCompiler: true,
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -42,6 +43,7 @@ const nextConfig = {
       '@radix-ui/react-toast',
       '@dnd-kit/core',
       '@dnd-kit/sortable',
+      'date-fns',
     ],
     serverActions: {
       bodySizeLimit: '2mb',

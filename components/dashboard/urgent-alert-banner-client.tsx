@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import { AlertCircle, X, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { cn } from '@/lib/utils'
 
 interface UrgentAlertBannerClientProps {
@@ -27,6 +28,7 @@ export function UrgentAlertBannerClient({
   notice,
   urgencyLevel,
 }: UrgentAlertBannerClientProps) {
+  const { shouldAnimate } = useAnimationSettings()
   // Initialize as not dismissed to match server render, update after hydration
   const [isDismissed, setIsDismissed] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -85,9 +87,9 @@ export function UrgentAlertBannerClient({
     <AnimatePresence>
       {!isDismissed && (
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={shouldAnimate ? { opacity: 0, y: -20 } : { opacity: 1 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
+          exit={shouldAnimate ? { opacity: 0, y: -20 } : { opacity: 0 }}
           transition={{ duration: 0.3 }}
           className={cn('relative overflow-hidden rounded-lg border p-4', colors.bg, colors.border)}
         >

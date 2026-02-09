@@ -137,7 +137,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                     {this.state.error.stack && (
                       <div>
                         <p className="text-muted-foreground text-xs font-semibold">Stack Trace:</p>
-                        <pre className="text-foreground/80 mt-1 max-h-40 overflow-auto text-[10px] leading-tight">
+                        <pre className="text-foreground/80 mt-1 max-h-40 overflow-auto text-xs leading-tight">
                           {this.state.error.stack}
                         </pre>
                       </div>
@@ -147,7 +147,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                         <p className="text-muted-foreground text-xs font-semibold">
                           Component Stack:
                         </p>
-                        <pre className="text-foreground/80 mt-1 max-h-40 overflow-auto text-[10px] leading-tight">
+                        <pre className="text-foreground/80 mt-1 max-h-40 overflow-auto text-xs leading-tight">
                           {this.state.errorInfo.componentStack}
                         </pre>
                       </div>

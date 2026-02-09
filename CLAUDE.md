@@ -15,38 +15,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm install
 cp .env.example .env.local  # Add Supabase credentials
 npm run db:types            # Generate TypeScript types
-npm run dev                 # http://localhost:3000
+npm run dev                 # http://localhost:3000 (uses Webpack, not Turbopack)
+```
+
+## Build & Validation Commands
+
+**IMPORTANT: After every code change, validate the build succeeds.**
+
+```bash
+npm run build               # Production build — run this to catch SSR/import errors
+npm run validate            # type-check + lint + format:check (pre-commit gate)
+npm run validate:naming     # Validate file naming conventions
+npm run lint:fix            # Auto-fix ESLint issues
+npm run format              # Format code with Prettier
 ```
 
 ## Key Commands
 
 ```bash
 # Development
-npm run dev                 # Start dev server
+npm run dev                 # Start dev server (Webpack mode, port 3000)
 npm run build               # Production build
-npm run validate            # type-check + lint + format:check (pre-commit)
-npm run validate:naming     # Validate naming conventions
-npm run lint:fix            # Auto-fix ESLint issues
-npm run format              # Format code with Prettier
+npm run storybook           # Component dev at http://localhost:6006
 
-# Testing
-npm test                    # Run all Playwright E2E tests
+# Testing (Playwright E2E — uses port 3005, NOT 3000)
+npm test                    # Run all tests (auto-starts dev server on :3005)
 npm run test:ui             # Playwright UI mode
 npm run test:headed         # Run with browser visible
-npm run test:debug          # Debug mode for Playwright
+npm run test:debug          # Debug mode
 npx playwright test e2e/auth.spec.ts        # Single test file
 npx playwright test --grep "leave request"  # Pattern match
-npx playwright test --project=chromium      # Specific browser
-npx playwright test --reporter=html         # Generate HTML report
 
 # Database
 npm run db:types            # Regenerate types after schema changes (REQUIRED)
 npm run db:migration        # Create new database migration
 npm run db:deploy           # Deploy migrations to production
-
-# Storybook
-npm run storybook           # http://localhost:6006
 ```
+
+### Testing Notes
+
+- Playwright config: `playwright.config.ts`
+- Tests run on **port 3005** (separate from dev server on 3000)
+- Test env vars loaded from `.env.test.local` (not `.env.local`)
+- Only Chromium enabled by default; other browsers commented out
+- Workers set to 1 (sequential) to avoid database overload
 
 ---
 
@@ -57,28 +69,68 @@ npm run storybook           # http://localhost:6006
 **All database operations MUST go through `lib/services/`**. Never make direct Supabase calls.
 
 ```typescript
-// ✅ CORRECT
+// CORRECT
 import { getPilots } from '@/lib/services/pilot-service'
 const pilots = await getPilots()
 
-// ❌ WRONG - bypasses service layer
+// WRONG - bypasses service layer
 const { data } = await supabase.from('pilots').select('*')
 ```
 
-### Key Services (50+ in `lib/services/`)
+### Key Services (55+ in `lib/services/`)
 
 | Category    | Services                                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------------- |
 | Core Domain | `pilot-service`, `certification-service`, `leave-service`, `flight-request-service`, `unified-request-service` |
 | Dashboard   | `dashboard-service-v4` (production, Redis-cached), `analytics-service`                                         |
-| Auth        | `pilot-portal-service`, `session-service`, `account-lockout-service`                                           |
+| Auth        | `pilot-portal-service`, `session-service`, `account-lockout-service`, `admin-auth-service`                     |
 | Reports     | `pdf-service`, `reports-service` (19 reports), `export-service`                                                |
+| Planning    | `retirement-forecast-service`, `succession-planning-service`, `certification-renewal-planning-service`         |
+| Roster      | `roster-period-service`, `roster-report-service`, `roster-deadline-alert-service`                              |
 
 **Central Service**: `unified-request-service.ts` handles ALL leave and flight requests through the unified `pilot_requests` table. This is the primary service for request management.
 
+### Component Architecture
+
+Components are organized by domain with shared infrastructure:
+
+| Directory                    | Purpose                                     |
+| ---------------------------- | ------------------------------------------- |
+| `components/ui/`             | shadcn/ui primitives (Button, Dialog, etc.) |
+| `components/layout/`         | App shell: sidebar, header, breadcrumbs     |
+| `components/dashboard/`      | Dashboard widgets and metrics               |
+| `components/pilots/`         | Pilot profile, list, and management views   |
+| `components/certifications/` | Certification tracking and compliance UI    |
+| `components/requests/`       | Unified leave/flight request management     |
+| `components/portal/`         | Pilot portal (separate auth context)        |
+| `components/forms/`          | Reusable form components                    |
+| `components/skeletons/`      | Loading state placeholders for all pages    |
+| `components/shared/`         | Cross-domain shared components              |
+
+### Custom Hooks (`lib/hooks/`)
+
+Reusable hooks to leverage before writing new state logic:
+
+| Hook                           | Purpose                                      |
+| ------------------------------ | -------------------------------------------- |
+| `use-optimistic-mutation`      | Generic optimistic update with rollback      |
+| `use-optimistic-pilot`         | Pilot-specific optimistic mutations          |
+| `use-optimistic-certification` | Certification optimistic mutations           |
+| `use-optimistic-leave-request` | Leave request optimistic mutations           |
+| `use-csrf-token`               | CSRF token management                        |
+| `use-keyboard-shortcuts`       | Global keyboard shortcut registration        |
+| `use-keyboard-nav`             | Arrow-key navigation in lists/tables         |
+| `use-unsaved-changes`          | Warn before navigating away from dirty forms |
+| `use-sidebar-badges`           | Badge counts for sidebar navigation items    |
+| `use-filter-presets`           | Saved/restorable filter configurations       |
+| `use-table-state`              | Table sorting, pagination, and filter state  |
+| `use-report-query`             | TanStack Query wrapper for report generation |
+| `use-online-status`            | Network connectivity detection               |
+| `use-reduced-motion`           | Respect `prefers-reduced-motion`             |
+
 ### Dual Authentication Architecture
 
-**Two completely separate auth systems - never mix them:**
+**Two completely separate auth systems — never mix them:**
 
 |             | Admin Portal             | Pilot Portal              |
 | ----------- | ------------------------ | ------------------------- |
@@ -115,15 +167,6 @@ Pilot portal sessions use Redis-backed sessions via `redis-session-service.ts`:
 | Sessions      | `redis-session-service.ts`     | Pilot portal auth                 |
 | Invalidation  | `cache-invalidation-helper.ts` | Clear stale data after mutations  |
 
-### Supabase Session Helper
-
-`lib/supabase/middleware.ts` contains the `updateSession()` helper for refreshing Supabase auth tokens:
-
-- Called from Next.js middleware (if exists) or server components
-- Admin auth via Supabase session validation
-- Pilot portal session validation via Redis
-- Route protection and redirects for unauthenticated users
-
 ### Validation Schemas
 
 All Zod schemas in `lib/validations/`. Always validate API inputs:
@@ -135,16 +178,11 @@ const validated = PilotRequestSchema.parse(body)
 
 ### Error Handling Contract (Standardized Jan 2026)
 
-**Goal**: Consistent error handling across all services and API routes.
-
-#### Service Layer Pattern
-
 Services should return `ServiceResponse<T>` for new/migrated code:
 
 ```typescript
 import { ServiceResponse } from '@/lib/types/service-response'
 
-// ✅ PREFERRED - Returns ServiceResponse
 async function getItem(id: string): Promise<ServiceResponse<Item>> {
   try {
     const item = await fetchItem(id)
@@ -156,23 +194,14 @@ async function getItem(id: string): Promise<ServiceResponse<Item>> {
 }
 ```
 
-#### API Route Pattern
-
-Use `api-response-helper.ts` utilities for consistent responses:
+API routes use `api-response-helper.ts` utilities:
 
 ```typescript
-import {
-  executeAndRespond,
-  unauthorizedResponse,
-  validationErrorResponse,
-  HTTP_STATUS,
-} from '@/lib/utils/api-response-helper'
+import { executeAndRespond, unauthorizedResponse } from '@/lib/utils/api-response-helper'
 
 export async function GET(request: NextRequest) {
   const auth = await getAuthenticatedAdmin()
-  if (!auth.authenticated) {
-    return unauthorizedResponse()
-  }
+  if (!auth.authenticated) return unauthorizedResponse()
 
   return executeAndRespond(async () => await getData(), {
     operation: 'getData',
@@ -180,8 +209,6 @@ export async function GET(request: NextRequest) {
   })
 }
 ```
-
-#### Key Utilities
 
 | Utility                                | Purpose                             |
 | -------------------------------------- | ----------------------------------- |
@@ -191,13 +218,26 @@ export async function GET(request: NextRequest) {
 | `executeAndRespond(fn, opts)`          | Wrap legacy services for API routes |
 | `unauthorizedResponse()`               | 401 response helper                 |
 | `validationErrorResponse(msg, errors)` | 400 validation error                |
-| `notFoundResponse(msg)`                | 404 response helper                 |
 
-#### Migration Status
+**Migration status**: New services must use `ServiceResponse<T>`. Existing services may throw errors (wrapped by `executeAndRespond`).
 
-- **New services**: Must use `ServiceResponse<T>`
-- **Existing services**: May throw errors (wrapped by `executeAndRespond` in API routes)
-- **Priority services migrated**: `certification-service`, `pilot-service`, `analytics-service`, `leave-eligibility-service`
+---
+
+## Route Consolidation (Redirects)
+
+Several old routes have been consolidated into tabbed views. When building navigation or links, use the **new** paths:
+
+| Old Route                              | Redirects To                                  |
+| -------------------------------------- | --------------------------------------------- |
+| `/dashboard/certifications/expiring`   | `/dashboard/certifications?tab=attention`     |
+| `/dashboard/leave/approve`             | `/dashboard/requests?tab=leave`               |
+| `/dashboard/leave/calendar`            | `/dashboard/requests?tab=leave&view=calendar` |
+| `/dashboard/leave`                     | `/dashboard/requests?tab=leave`               |
+| `/dashboard/admin/leave-bids`          | `/dashboard/requests?tab=leave-bids`          |
+| `/dashboard/admin/settings`            | `/dashboard/admin?tab=settings`               |
+| `/dashboard/admin/check-types`         | `/dashboard/admin?tab=check-types`            |
+| `/dashboard/admin/pilot-registrations` | `/dashboard/admin?tab=registrations`          |
+| `/dashboard/faqs`                      | `/dashboard/help`                             |
 
 ---
 
@@ -207,14 +247,14 @@ export async function GET(request: NextRequest) {
 
 ### Primary Tables
 
-| Table               | Purpose                                                     |
-| ------------------- | ----------------------------------------------------------- |
-| `pilots`            | Pilot profiles, qualifications, seniority                   |
-| `pilot_checks`      | Certification records                                       |
-| `check_types`       | Check type definitions                                      |
-| `pilot_requests` ⭐ | **UNIFIED** - ALL leave and flight requests                 |
-| `leave_bids`        | Annual leave bidding (separate system)                      |
-| `an_users`          | Pilot portal authentication (also aliased as `pilot_users`) |
+| Table            | Purpose                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| `pilots`         | Pilot profiles, qualifications, seniority                   |
+| `pilot_checks`   | Certification records                                       |
+| `check_types`    | Check type definitions                                      |
+| `pilot_requests` | **UNIFIED** — ALL leave and flight requests                 |
+| `leave_bids`     | Annual leave bidding (separate system)                      |
+| `an_users`       | Pilot portal authentication (also aliased as `pilot_users`) |
 
 ### Unified Requests Table (`pilot_requests`)
 
@@ -230,8 +270,8 @@ WHERE request_category = 'FLIGHT'
 
 ### Deprecated Tables (Read-Only)
 
-- `leave_requests` - Use `pilot_requests` instead
-- `flight_requests` - Use `pilot_requests` instead
+- `leave_requests` — Use `pilot_requests` instead
+- `flight_requests` — Use `pilot_requests` instead
 
 ---
 
@@ -239,16 +279,16 @@ WHERE request_category = 'FLIGHT'
 
 ### 1. Roster Periods (28-Day Cycles)
 
-- RP1-RP13 annual cycle (13 × 28 = 364 days)
+- RP1-RP13 annual cycle (13 x 28 = 364 days)
 - Anchor: **RP13/2025 starts 2025-11-08**
 - Utils: `lib/utils/roster-utils.ts`
 
 ### 2. Certification Compliance (FAA)
 
 ```
-🔴 Red:    Expired (days < 0)
-🟡 Yellow: Expiring (days ≤ 30)
-🟢 Green:  Current (days > 30)
+Red:    Expired (days < 0)
+Yellow: Expiring (days <= 30)
+Green:  Current (days > 30)
 ```
 
 ### 3. Leave Eligibility (Rank-Separated)
@@ -263,7 +303,7 @@ WHERE request_category = 'FLIGHT'
 | Leave Requests            | Leave Bids                   |
 | ------------------------- | ---------------------------- |
 | Immediate time-off needs  | Annual preference planning   |
-| Submit → Review → Approve | Batch processed by seniority |
+| Submit > Review > Approve | Batch processed by seniority |
 | `pilot_requests` table    | `leave_bids` table           |
 
 ---
@@ -273,17 +313,16 @@ WHERE request_category = 'FLIGHT'
 ### Next.js 16 Async Cookies
 
 ```typescript
-// ❌ WRONG
+// WRONG
 const cookieStore = cookies()
 
-// ✅ CORRECT
+// CORRECT
 const cookieStore = await cookies()
 ```
 
 ### Cache Invalidation After Mutations
 
 ```typescript
-// ✅ CORRECT - revalidate after update
 import { revalidatePath } from 'next/cache'
 
 export async function PUT(request: Request) {
@@ -296,28 +335,23 @@ export async function PUT(request: Request) {
 ### Navigation Order
 
 ```typescript
-// ❌ WRONG - navigate before refresh
+// WRONG - navigate before refresh
 router.push('/dashboard/certifications')
 router.refresh()
 
-// ✅ CORRECT - refresh first
+// CORRECT - refresh first, then navigate
 router.refresh()
 await new Promise((resolve) => setTimeout(resolve, 100))
 router.push('/dashboard/certifications')
 ```
 
-### Validation Required
+### Dev Server Uses Webpack (Not Turbopack)
 
-```typescript
-// ✅ CORRECT - always validate with Zod
-import { MySchema } from '@/lib/validations/my-schema'
+The `dev` script runs `next dev --webpack`. Turbopack is disabled due to path alias resolution issues in production builds. The `next.config.js` has a `turbopack.root` workaround but Webpack remains the default.
 
-export async function POST(request: Request) {
-  const body = await request.json()
-  const validated = MySchema.parse(body)
-  // Use validated data
-}
-```
+### Server Actions Body Limit
+
+`serverActions.bodySizeLimit` is set to `2mb` in `next.config.js`. File uploads exceeding this will fail silently.
 
 ---
 
@@ -336,19 +370,22 @@ Enforced by `npm run validate:naming`:
 
 ## Technology Stack
 
-| Tech            | Purpose                        |
-| --------------- | ------------------------------ |
-| Next.js 16+     | App framework (App Router)     |
-| React 19+       | UI library                     |
-| TypeScript      | Type safety (strict mode)      |
-| Tailwind CSS v4 | Styling                        |
-| Supabase        | PostgreSQL + Auth + RLS        |
-| TanStack Query  | Server state management        |
-| Zod             | Schema validation              |
-| Playwright      | E2E testing                    |
-| Redis (Upstash) | Sessions, caching, rate limits |
+| Tech            | Purpose                         |
+| --------------- | ------------------------------- |
+| Next.js 16+     | App framework (App Router)      |
+| React 19+       | UI library                      |
+| TypeScript 5.9  | Type safety (strict mode)       |
+| Tailwind CSS v4 | Styling                         |
+| Supabase        | PostgreSQL + Auth + RLS         |
+| TanStack Query  | Server state management         |
+| Zod             | Schema validation               |
+| Playwright      | E2E testing                     |
+| Redis (Upstash) | Sessions, caching, rate limits  |
+| shadcn/ui       | Component library (Radix-based) |
+| Framer Motion   | Animations                      |
+| Storybook       | Component development           |
 
-See `package.json` for exact versions.
+Path alias: `@/*` maps to project root (configured in `tsconfig.json`).
 
 ---
 
@@ -365,7 +402,7 @@ See `package.json` for exact versions.
 | `RESEND_API_KEY`                | Server   | Email service (Resend) API key  |
 | `LOGTAIL_SOURCE_TOKEN`          | Server   | Better Stack logging token      |
 
-Copy `.env.example` to `.env.local` and configure values from Supabase dashboard.
+Copy `.env.example` to `.env.local` for development. Tests use `.env.test.local`.
 
 ---
 
@@ -379,10 +416,10 @@ Copy `.env.example` to `.env.local` and configure values from Supabase dashboard
 | `/api/cron/*`    | Scheduled job endpoints             |
 | `/api/auth/*`    | Authentication endpoints            |
 
-**Note**: Admin and pilot portal APIs use different auth systems. Never mix authentication methods between these route groups.
+Admin and pilot portal APIs use different auth systems. Never mix authentication methods between these route groups.
 
 ---
 
-**Version**: 3.4.0
+**Version**: 3.5.0
 **Last Updated**: February 2026
 **Maintainer**: Maurice (Skycruzer)

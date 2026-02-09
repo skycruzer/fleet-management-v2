@@ -30,6 +30,16 @@ export interface UserWithStats extends User {
   lastLogin?: string | null
 }
 
+export interface AdminProfile {
+  id: string
+  email: string
+  name: string
+  displayName: string
+  role: string
+  avatarUrl: string | null
+  initials: string
+}
+
 /**
  * Get all users
  */
@@ -335,6 +345,51 @@ export async function getUserStats(): Promise<{
       source: 'user-service:getUserStats',
       severity: ErrorSeverity.LOW,
       metadata: { operation: 'calculateStats' },
+    })
+    throw error
+  }
+}
+
+/**
+ * Get admin profile for personalized dashboard
+ */
+export async function getAdminProfile(userId: string): Promise<AdminProfile> {
+  const supabase = createAdminClient()
+
+  try {
+    // Note: display_name and avatar_url are new columns added via migration
+    // 20260209000001_add_user_profile_fields.sql — not yet in generated types
+    const { data, error } = await supabase
+      .from('an_users')
+      .select('id, email, name, role, display_name, avatar_url')
+      .eq('id', userId)
+      .single()
+
+    if (error) throw error
+
+    const row = data as any
+    const displayName = row.display_name || row.name || row.email.split('@')[0]
+    const initials = displayName
+      .split(' ')
+      .map((word: string) => word[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase()
+
+    return {
+      id: row.id,
+      email: row.email,
+      name: row.name,
+      displayName,
+      role: row.role,
+      avatarUrl: row.avatar_url || null,
+      initials,
+    }
+  } catch (error) {
+    logError(error as Error, {
+      source: 'user-service:getAdminProfile',
+      severity: ErrorSeverity.MEDIUM,
+      metadata: { userId },
     })
     throw error
   }

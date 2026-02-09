@@ -97,10 +97,7 @@ export function LeaveBidAnnualCalendar({ bids, initialYear }: LeaveBidAnnualCale
           {/* Day headers */}
           <div className="mb-1 grid grid-cols-7 gap-1">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div
-                key={day}
-                className="text-muted-foreground text-center text-[10px] font-semibold"
-              >
+              <div key={day} className="text-muted-foreground text-center text-xs font-semibold">
                 {day}
               </div>
             ))}
@@ -119,7 +116,7 @@ export function LeaveBidAnnualCalendar({ bids, initialYear }: LeaveBidAnnualCale
                   className={`relative min-h-[50px] rounded border p-1 text-xs ${isCurrentMonth ? 'bg-card' : 'bg-muted'} ${isCurrentDay ? 'border-primary border-2' : 'border-border'} ${bidsOnDate.length > 0 ? 'bg-[var(--color-info-bg)]' : ''} `}
                 >
                   <div
-                    className={`text-[10px] font-semibold ${!isCurrentMonth ? 'text-muted-foreground/50' : 'text-foreground'}`}
+                    className={`text-xs font-semibold ${!isCurrentMonth ? 'text-muted-foreground/50' : 'text-foreground'}`}
                   >
                     {format(day, 'd')}
                   </div>

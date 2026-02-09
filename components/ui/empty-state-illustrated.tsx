@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
-import { EASING } from '@/lib/animations'
+import { EASING } from '@/lib/animations/motion-variants'
 
 interface IllustratedEmptyStateProps {
   variant:
@@ -96,18 +96,18 @@ function PlaneIllustration({ className }: { className?: string }) {
 
       <defs>
         <linearGradient id="skyGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#38bdf8" />
-          <stop offset="1" stopColor="#0ea5e9" stopOpacity="0" />
+          <stop stopColor="#4e96d4" />
+          <stop offset="1" stopColor="#3a82c0" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="planeGradient" x1="25" y1="60" x2="75" y2="60">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#06b6d4" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2ba8a8" />
         </linearGradient>
         <linearGradient id="horizonGradient" x1="5" y1="85" x2="115" y2="85">
           <stop stopColor="transparent" />
-          <stop offset="0.2" stopColor="#f43f5e" stopOpacity="0.3" />
-          <stop offset="0.5" stopColor="#06b6d4" stopOpacity="0.5" />
-          <stop offset="0.8" stopColor="#f43f5e" stopOpacity="0.3" />
+          <stop offset="0.2" stopColor="#4361b8" stopOpacity="0.3" />
+          <stop offset="0.5" stopColor="#2ba8a8" stopOpacity="0.5" />
+          <stop offset="0.8" stopColor="#4361b8" stopOpacity="0.3" />
           <stop offset="1" stopColor="transparent" />
         </linearGradient>
       </defs>
@@ -131,28 +131,28 @@ function PilotIllustration({ className }: { className?: string }) {
       <rect x="30" y="45" width="60" height="8" rx="2" fill="url(#hatGradient)" />
 
       {/* Hat badge */}
-      <circle cx="60" cy="40" r="5" fill="#fbbf24" opacity="0.8" />
+      <circle cx="60" cy="40" r="5" fill="#d4a017" opacity="0.8" />
 
       {/* Face */}
       <circle cx="60" cy="70" r="20" fill="currentColor" opacity="0.15" />
 
       {/* Wings badge */}
       <path d="M45 95L60 90L75 95L60 88L45 95Z" fill="url(#wingsGradient)" />
-      <circle cx="60" cy="92" r="3" fill="#fbbf24" opacity="0.8" />
+      <circle cx="60" cy="92" r="3" fill="#d4a017" opacity="0.8" />
 
       <defs>
         <linearGradient id="pilotBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#1e40af" stopOpacity="0" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2d3f7a" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="hatGradient" x1="30" y1="40" x2="90" y2="40">
-          <stop stopColor="#1e3a8a" />
-          <stop offset="1" stopColor="#1e40af" />
+          <stop stopColor="#253368" />
+          <stop offset="1" stopColor="#2d3f7a" />
         </linearGradient>
         <linearGradient id="wingsGradient" x1="45" y1="92" x2="75" y2="92">
-          <stop stopColor="#fbbf24" />
-          <stop offset="0.5" stopColor="#f59e0b" />
-          <stop offset="1" stopColor="#fbbf24" />
+          <stop stopColor="#d4a017" />
+          <stop offset="0.5" stopColor="#c4900a" />
+          <stop offset="1" stopColor="#d4a017" />
         </linearGradient>
       </defs>
     </svg>
@@ -228,16 +228,16 @@ function CertificationIllustration({ className }: { className?: string }) {
 
       <defs>
         <linearGradient id="certBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#10b981" />
-          <stop offset="1" stopColor="#059669" stopOpacity="0" />
+          <stop stopColor="#2db87d" />
+          <stop offset="1" stopColor="#1fa06b" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="certBorderGradient" x1="25" y1="25" x2="95" y2="80">
-          <stop stopColor="#f43f5e" stopOpacity="0.3" />
-          <stop offset="1" stopColor="#06b6d4" stopOpacity="0.3" />
+          <stop stopColor="#4361b8" stopOpacity="0.3" />
+          <stop offset="1" stopColor="#2ba8a8" stopOpacity="0.3" />
         </linearGradient>
         <linearGradient id="sealGradient" x1="57" y1="72" x2="93" y2="108">
-          <stop stopColor="#10b981" />
-          <stop offset="1" stopColor="#059669" />
+          <stop stopColor="#2db87d" />
+          <stop offset="1" stopColor="#1fa06b" />
         </linearGradient>
       </defs>
     </svg>
@@ -304,24 +304,24 @@ function CalendarIllustration({ className }: { className?: string }) {
 
       <defs>
         <linearGradient id="calBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#8b5cf6" />
-          <stop offset="1" stopColor="#6366f1" stopOpacity="0" />
+          <stop stopColor="#7c6cc8" />
+          <stop offset="1" stopColor="#4361b8" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="calBorderGradient" x1="20" y1="30" x2="100" y2="100">
-          <stop stopColor="#8b5cf6" stopOpacity="0.3" />
-          <stop offset="1" stopColor="#6366f1" stopOpacity="0.3" />
+          <stop stopColor="#7c6cc8" stopOpacity="0.3" />
+          <stop offset="1" stopColor="#4361b8" stopOpacity="0.3" />
         </linearGradient>
         <linearGradient id="calHeaderGradient" x1="20" y1="30" x2="100" y2="48">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#06b6d4" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2ba8a8" />
         </linearGradient>
         <linearGradient id="dayHighlightGradient" x1="58" y1="71" x2="68" y2="81">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#06b6d4" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2ba8a8" />
         </linearGradient>
         <linearGradient id="calPlaneGradient" x1="80" y1="85" x2="95" y2="92">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#06b6d4" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2ba8a8" />
         </linearGradient>
       </defs>
     </svg>
@@ -395,20 +395,20 @@ function SearchIllustration({ className }: { className?: string }) {
 
       <defs>
         <linearGradient id="searchBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#6366f1" />
-          <stop offset="1" stopColor="#4f46e5" stopOpacity="0" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#3a52a0" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="searchRingGradient" x1="25" y1="25" x2="75" y2="75">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#06b6d4" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2ba8a8" />
         </linearGradient>
         <linearGradient id="searchHandleGradient" x1="68" y1="68" x2="90" y2="90">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#1e40af" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2d3f7a" />
         </linearGradient>
         <linearGradient id="sparkleGradient" x1="0" y1="0" x2="1" y2="1">
-          <stop stopColor="#fbbf24" />
-          <stop offset="1" stopColor="#f59e0b" />
+          <stop stopColor="#d4a017" />
+          <stop offset="1" stopColor="#c4900a" />
         </linearGradient>
       </defs>
     </svg>
@@ -468,26 +468,26 @@ function WelcomeIllustration({ className }: { className?: string }) {
       </g>
 
       {/* Location markers */}
-      <circle cx="35" cy="68" r="3" fill="#10b981" />
-      <circle cx="85" cy="68" r="3" fill="#f59e0b" />
+      <circle cx="35" cy="68" r="3" fill="#2db87d" />
+      <circle cx="85" cy="68" r="3" fill="#c4900a" />
 
       <defs>
         <linearGradient id="welcomeBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#1e40af" stopOpacity="0" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2d3f7a" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="globeGradient" x1="25" y1="25" x2="95" y2="95">
-          <stop stopColor="#f43f5e" stopOpacity="0.5" />
-          <stop offset="1" stopColor="#06b6d4" stopOpacity="0.5" />
+          <stop stopColor="#4361b8" stopOpacity="0.5" />
+          <stop offset="1" stopColor="#2ba8a8" stopOpacity="0.5" />
         </linearGradient>
         <linearGradient id="flightPathGradient" x1="30" y1="70" x2="90" y2="70">
-          <stop stopColor="#10b981" />
-          <stop offset="0.5" stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#f59e0b" />
+          <stop stopColor="#2db87d" />
+          <stop offset="0.5" stopColor="#4361b8" />
+          <stop offset="1" stopColor="#c4900a" />
         </linearGradient>
         <linearGradient id="welcomePlaneGradient" x1="53" y1="40" x2="68" y2="47">
-          <stop stopColor="#f43f5e" />
-          <stop offset="1" stopColor="#06b6d4" />
+          <stop stopColor="#4361b8" />
+          <stop offset="1" stopColor="#2ba8a8" />
         </linearGradient>
       </defs>
     </svg>
@@ -547,16 +547,16 @@ function ErrorIllustration({ className }: { className?: string }) {
 
       <defs>
         <linearGradient id="errorBgGradient" x1="60" y1="5" x2="60" y2="115">
-          <stop stopColor="#ef4444" />
-          <stop offset="1" stopColor="#dc2626" stopOpacity="0" />
+          <stop stopColor="#d44040" />
+          <stop offset="1" stopColor="#c22828" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="errorStrokeGradient" x1="25" y1="85" x2="95" y2="25">
-          <stop stopColor="#f59e0b" />
-          <stop offset="1" stopColor="#ef4444" />
+          <stop stopColor="#c4900a" />
+          <stop offset="1" stopColor="#d44040" />
         </linearGradient>
         <linearGradient id="errorExclamationGradient" x1="60" y1="45" x2="60" y2="75">
-          <stop stopColor="#f59e0b" />
-          <stop offset="1" stopColor="#ef4444" />
+          <stop stopColor="#c4900a" />
+          <stop offset="1" stopColor="#d44040" />
         </linearGradient>
       </defs>
     </svg>

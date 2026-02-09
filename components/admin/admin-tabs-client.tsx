@@ -3,16 +3,18 @@
  * Tabbed interface for System Admin: Overview | Settings | Check Types | Registrations
  *
  * @author Maurice Rondeau
- * @version 1.0.0
+ * @version 1.1.0
+ * @updated 2026-02 - Migrated to nuqs for URL state management
  */
 
 'use client'
 
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useQueryState, parseAsStringLiteral } from 'nuqs'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { LayoutDashboard, Settings, FileType, UserCheck } from 'lucide-react'
 
-type TabValue = 'overview' | 'settings' | 'check-types' | 'registrations'
+const TAB_VALUES = ['overview', 'settings', 'check-types', 'registrations'] as const
+type TabValue = (typeof TAB_VALUES)[number]
 
 interface AdminTabsClientProps {
   overviewContent: React.ReactNode
@@ -29,25 +31,14 @@ export function AdminTabsClient({
   registrationsContent,
   pendingRegistrationCount,
 }: AdminTabsClientProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const currentTab = (searchParams.get('tab') as TabValue) || 'overview'
-
-  const handleTabChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (value === 'overview') {
-      params.delete('tab')
-    } else {
-      params.set('tab', value)
-    }
-    const queryString = params.toString()
-    router.push(`${pathname}${queryString ? `?${queryString}` : ''}`, { scroll: false })
-  }
+  // nuqs manages URL sync automatically — replaces manual useSearchParams + router.push
+  const [currentTab, setCurrentTab] = useQueryState(
+    'tab',
+    parseAsStringLiteral(TAB_VALUES).withDefault('overview')
+  )
 
   return (
-    <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+    <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as TabValue)} className="w-full">
       <TabsList className="grid w-full grid-cols-4 lg:inline-grid lg:w-auto">
         <TabsTrigger value="overview" className="gap-2">
           <LayoutDashboard className="h-4 w-4" />

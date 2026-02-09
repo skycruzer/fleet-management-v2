@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import {
   User,
   Briefcase,
@@ -112,6 +113,7 @@ export function PilotOverviewTab({
   onViewCertifications,
   isDeleting,
 }: PilotOverviewTabProps) {
+  const { shouldAnimate, getVariants } = useAnimationSettings()
   const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name].filter(Boolean).join(' ')
 
   // Parse captain qualifications
@@ -141,7 +143,7 @@ export function PilotOverviewTab({
     <div className="space-y-6">
       {/* Hero Section with Gradient Background */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={shouldAnimate ? { opacity: 0, y: -20 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
         className="via-primary relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-accent-600)] to-[var(--color-accent-800)] p-8 text-white shadow-2xl"
       >
@@ -226,12 +228,12 @@ export function PilotOverviewTab({
 
       {/* Certification Status Cards */}
       <motion.div
-        variants={staggerContainer}
+        variants={getVariants(staggerContainer)}
         initial="hidden"
         animate="visible"
         className="grid grid-cols-1 gap-4 md:grid-cols-3"
       >
-        <motion.div variants={fadeIn}>
+        <motion.div variants={getVariants(fadeIn)}>
           <Card className="group relative overflow-hidden border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 transition-all hover:shadow-lg">
             <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-low)]/10" />
             <div className="relative flex items-center justify-between">
@@ -249,7 +251,7 @@ export function PilotOverviewTab({
           </Card>
         </motion.div>
 
-        <motion.div variants={fadeIn}>
+        <motion.div variants={getVariants(fadeIn)}>
           <Card className="group relative overflow-hidden border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-6 transition-all hover:shadow-lg">
             <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-medium)]/10" />
             <div className="relative flex items-center justify-between">
@@ -269,7 +271,7 @@ export function PilotOverviewTab({
           </Card>
         </motion.div>
 
-        <motion.div variants={fadeIn}>
+        <motion.div variants={getVariants(fadeIn)}>
           <Card className="group relative overflow-hidden border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6 transition-all hover:shadow-lg">
             <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-high)]/10" />
             <div className="relative flex items-center justify-between">
@@ -290,9 +292,9 @@ export function PilotOverviewTab({
 
       {/* View Certifications Button */}
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={shouldAnimate ? { opacity: 0 } : { opacity: 1 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
+        transition={shouldAnimate ? { delay: 0.3 } : { duration: 0 }}
         className="flex justify-center"
       >
         <Button
@@ -307,9 +309,9 @@ export function PilotOverviewTab({
 
       {/* Retirement Information Card */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
+        transition={shouldAnimate ? { delay: 0.35 } : { duration: 0 }}
       >
         <RetirementInformationCard
           dateOfBirth={pilot.date_of_birth}
@@ -321,13 +323,13 @@ export function PilotOverviewTab({
 
       {/* Information Grid */}
       <motion.div
-        variants={staggerContainer}
+        variants={getVariants(staggerContainer)}
         initial="hidden"
         animate="visible"
         className="grid grid-cols-1 gap-6 lg:grid-cols-2"
       >
         {/* Personal Information */}
-        <motion.div variants={fadeIn}>
+        <motion.div variants={getVariants(fadeIn)}>
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
               <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
@@ -353,7 +355,7 @@ export function PilotOverviewTab({
         </motion.div>
 
         {/* Employment Information */}
-        <motion.div variants={fadeIn}>
+        <motion.div variants={getVariants(fadeIn)}>
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-status-low)]/10">
@@ -386,9 +388,9 @@ export function PilotOverviewTab({
 
       {/* Passport Information */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={shouldAnimate ? { delay: 0.4 } : { duration: 0 }}
       >
         <Card className="p-6 transition-all hover:shadow-md">
           <div className="mb-4 flex items-center gap-3 border-b pb-3">
@@ -414,9 +416,9 @@ export function PilotOverviewTab({
 
       {/* Licence Information */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.42 }}
+        transition={shouldAnimate ? { delay: 0.42 } : { duration: 0 }}
       >
         <Card className="p-6 transition-all hover:shadow-md">
           <div className="mb-4 flex items-center gap-3 border-b pb-3">
@@ -443,9 +445,9 @@ export function PilotOverviewTab({
       {/* Captain Qualifications (only for Captains) */}
       {pilot.role === 'Captain' && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
+          transition={shouldAnimate ? { delay: 0.45 } : { duration: 0 }}
         >
           <Card className="p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
@@ -489,9 +491,9 @@ export function PilotOverviewTab({
 
       {/* System Information */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={shouldAnimate ? { delay: 0.5 } : { duration: 0 }}
       >
         <Card className="p-6 transition-all hover:shadow-md">
           <div className="mb-4 flex items-center gap-3 border-b pb-3">

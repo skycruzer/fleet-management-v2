@@ -256,7 +256,7 @@ export async function CompactRosterDisplay() {
                           .map(([type, count]) => (
                             <span
                               key={type}
-                              className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-[9px] font-medium"
+                              className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs font-medium"
                             >
                               {type}: {count}
                             </span>

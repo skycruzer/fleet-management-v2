@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { CheckCircle2, FileCheck, ClipboardPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -28,6 +29,8 @@ export function ComplianceOverviewClient({
   categories,
   actionItems,
 }: ComplianceOverviewProps) {
+  const { shouldAnimate } = useAnimationSettings()
+
   const getComplianceColor = () => {
     if (overallCompliance >= 95) return 'success'
     if (overallCompliance >= 85) return 'warning'
@@ -56,9 +59,9 @@ export function ComplianceOverviewClient({
     return (
       <div className="grid w-full gap-6 md:grid-cols-2">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={shouldAnimate ? { delay: 0.1 } : { duration: 0 }}
           className="group border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm md:col-span-2"
         >
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -99,9 +102,9 @@ export function ComplianceOverviewClient({
     <div className="grid w-full gap-6 md:grid-cols-2">
       {/* Main Compliance Card */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        transition={shouldAnimate ? { delay: 0.1 } : { duration: 0 }}
         className="group border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
       >
         <div className="relative">
@@ -152,11 +155,15 @@ export function ComplianceOverviewClient({
                     complianceColor === 'warning' && 'text-warning-500',
                     complianceColor === 'danger' && 'text-danger-500'
                   )}
-                  initial={{ strokeDasharray: '0 440' }}
+                  initial={
+                    shouldAnimate
+                      ? { strokeDasharray: '0 440' }
+                      : { strokeDasharray: `${(overallCompliance / 100) * 440} 440` }
+                  }
                   animate={{
                     strokeDasharray: `${(overallCompliance / 100) * 440} 440`,
                   }}
-                  transition={{ duration: 1.5, ease: 'easeOut' }}
+                  transition={shouldAnimate ? { duration: 1.5, ease: 'easeOut' } : { duration: 0 }}
                   aria-hidden="true"
                 />
               </svg>
@@ -164,9 +171,9 @@ export function ComplianceOverviewClient({
               {/* Center text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <motion.span
-                  initial={{ opacity: 0, scale: 0.5 }}
+                  initial={shouldAnimate ? { opacity: 0, scale: 0.5 } : { opacity: 1, scale: 1 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
+                  transition={shouldAnimate ? { delay: 0.5, duration: 0.5 } : { duration: 0 }}
                   className={cn(
                     'text-4xl font-bold',
                     complianceColor === 'success' && 'text-success-600',
@@ -219,9 +226,9 @@ export function ComplianceOverviewClient({
 
       {/* Categories Breakdown */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={shouldAnimate ? { delay: 0.2 } : { duration: 0 }}
         className="border-border bg-card overflow-hidden rounded-lg border shadow-sm"
       >
         <div className="border-border border-b p-6">
@@ -238,9 +245,9 @@ export function ComplianceOverviewClient({
               return (
                 <motion.div
                   key={category.name}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={shouldAnimate ? { opacity: 0, x: -20 } : { opacity: 1 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
+                  transition={shouldAnimate ? { delay: 0.3 + index * 0.1 } : { duration: 0 }}
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-foreground text-sm font-medium">{category.name}</span>
@@ -250,9 +257,13 @@ export function ComplianceOverviewClient({
                   </div>
                   <div className="bg-muted h-2 overflow-hidden rounded-full">
                     <motion.div
-                      initial={{ width: 0 }}
+                      initial={shouldAnimate ? { width: 0 } : { width: `${percentage}%` }}
                       animate={{ width: `${percentage}%` }}
-                      transition={{ duration: 0.8, delay: 0.3 + index * 0.1 }}
+                      transition={
+                        shouldAnimate
+                          ? { duration: 0.8, delay: 0.3 + index * 0.1 }
+                          : { duration: 0 }
+                      }
                       className={cn(
                         'h-full rounded-full',
                         color === 'success' && 'bg-success-500',

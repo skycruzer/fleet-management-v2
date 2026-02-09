@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { User, Star, Calendar, FileCheck, TrendingUp, MoreVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +29,7 @@ interface PilotCardProps {
 }
 
 export function PremiumPilotCard({ pilot }: PilotCardProps) {
+  const { shouldAnimate } = useAnimationSettings()
   const {
     firstName,
     lastName,
@@ -62,9 +64,9 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, scale: 1.02 }}
+      whileHover={shouldAnimate ? { y: -4, scale: 1.02 } : undefined}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className="group hover:border-primary border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
     >
@@ -98,8 +100,8 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
 
           {/* More options button */}
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
             className="text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg p-2 transition-colors"
             aria-label="More options"
           >
@@ -192,9 +194,9 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
           {/* Progress bar */}
           <div className="bg-muted h-2 overflow-hidden rounded-full">
             <motion.div
-              initial={{ width: 0 }}
+              initial={shouldAnimate ? { width: 0 } : { width: `${complianceRate}%` }}
               animate={{ width: `${complianceRate}%` }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              transition={shouldAnimate ? { duration: 0.8, ease: 'easeOut' } : { duration: 0 }}
               className={cn(
                 'h-full rounded-full',
                 complianceColor === 'success' && 'bg-[var(--color-status-low)]',
@@ -215,8 +217,8 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
             })}
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
+            whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
             className="bg-primary-600 hover:bg-primary-700 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
           >
             View Profile

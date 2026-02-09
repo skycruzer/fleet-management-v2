@@ -40,7 +40,13 @@ const KANBAN_COLUMNS: { status: KanbanStatus; title: string; color: string }[] =
 ]
 
 // Sortable Task Card wrapper
-function SortableTaskCard({ task }: { task: TaskWithRelations }) {
+function SortableTaskCard({
+  task,
+  onStatusChange,
+}: {
+  task: TaskWithRelations
+  onStatusChange: (taskId: string, newStatus: KanbanStatus) => void
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
   })
@@ -53,6 +59,22 @@ function SortableTaskCard({ task }: { task: TaskWithRelations }) {
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <TaskCard task={task} isDragging={isDragging} />
+      <select
+        aria-label="Change task status"
+        value={task.status}
+        onChange={(e) => {
+          e.stopPropagation()
+          onStatusChange(task.id, e.target.value as KanbanStatus)
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="text-muted-foreground bg-muted border-border mt-1 w-full rounded border px-1.5 py-0.5 text-xs"
+      >
+        {KANBAN_COLUMNS.map((col) => (
+          <option key={col.status} value={col.status}>
+            {col.title}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }
@@ -91,21 +113,10 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
     }
   }
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event
-
-    setActiveTask(null)
-
-    if (!over) return
-
-    const taskId = active.id as string
-    const newStatus = over.id as KanbanStatus
-
-    // Find the task
+  const updateTaskStatus = async (taskId: string, newStatus: KanbanStatus) => {
     const task = kanbanTasks.find((t) => t.id === taskId)
     if (!task || task.status === newStatus) return
 
-    // Optimistically update UI
     setIsUpdating(true)
 
     try {
@@ -120,16 +131,27 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
 
       if (!response.ok || !result.success) {
         console.error('Failed to update task:', result.error)
-        // Revert will happen on router.refresh()
       }
 
-      // Refresh to get updated data
       router.refresh()
     } catch (error) {
       console.error('Error updating task:', error)
     } finally {
       setIsUpdating(false)
     }
+  }
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    setActiveTask(null)
+
+    if (!over) return
+
+    const taskId = active.id as string
+    const newStatus = over.id as KanbanStatus
+
+    await updateTaskStatus(taskId, newStatus)
   }
 
   return (
@@ -168,7 +190,13 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
                       No tasks in {column.title.toLowerCase()}
                     </div>
                   ) : (
-                    columnTasks.map((task) => <SortableTaskCard key={task.id} task={task} />)
+                    columnTasks.map((task) => (
+                      <SortableTaskCard
+                        key={task.id}
+                        task={task}
+                        onStatusChange={updateTaskStatus}
+                      />
+                    ))
                   )}
                 </div>
               </SortableContext>

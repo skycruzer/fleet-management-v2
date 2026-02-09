@@ -3,6 +3,7 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Space_Grotesk } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 // Space Grotesk — Geometric display font for headlines
 // Provides visual distinction from body text with technical precision feel
@@ -113,6 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="flex-1">{children}</div>
             </div>
             <Toaster />
+            <SpeedInsights />
           </Providers>
         </ErrorBoundary>
       </body>

@@ -12,7 +12,7 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
 import { RenewalPlanningDashboard } from '@/components/renewal-planning/renewal-planning-dashboard'
-import { RenewalPlanningSkeleton } from '@/components/skeletons'
+import { RenewalPlanningSkeleton } from '@/components/skeletons/renewal-planning-skeleton'
 import { PlanningPageClient } from './planning-page-client'
 
 async function getRosterPeriodSummariesForYear(year: number) {

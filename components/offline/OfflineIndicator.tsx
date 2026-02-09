@@ -17,8 +17,10 @@
 import { useState, useEffect } from 'react'
 import { WifiOff, Wifi, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 
 export function OfflineIndicator() {
+  const { shouldAnimate } = useAnimationSettings()
   // Initialize with actual navigator state (only works client-side)
   const [isOnline, setIsOnline] = useState(() =>
     typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -59,10 +61,12 @@ export function OfflineIndicator() {
       {/* Offline Banner */}
       {!isOnline && (
         <motion.div
-          initial={{ y: -100, opacity: 0 }}
+          initial={shouldAnimate ? { y: -100, opacity: 0 } : { opacity: 1 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          exit={shouldAnimate ? { y: -100, opacity: 0 } : { opacity: 0 }}
+          transition={
+            shouldAnimate ? { type: 'spring', stiffness: 300, damping: 30 } : { duration: 0 }
+          }
           className="fixed top-0 right-0 left-0 z-50 bg-[var(--color-status-high)] text-white shadow-lg"
           role="alert"
           aria-live="assertive"
@@ -97,10 +101,12 @@ export function OfflineIndicator() {
       {/* Back Online Banner */}
       {isOnline && wasOffline && (
         <motion.div
-          initial={{ y: -100, opacity: 0 }}
+          initial={shouldAnimate ? { y: -100, opacity: 0 } : { opacity: 1 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          exit={shouldAnimate ? { y: -100, opacity: 0 } : { opacity: 0 }}
+          transition={
+            shouldAnimate ? { type: 'spring', stiffness: 300, damping: 30 } : { duration: 0 }
+          }
           className="fixed top-0 right-0 left-0 z-50 bg-[var(--color-status-low)] text-white shadow-lg"
           role="alert"
           aria-live="polite"
@@ -131,6 +137,7 @@ export function OfflineIndicator() {
  * Alternative to the full banner for compact spaces.
  */
 export function OfflineBadge() {
+  const { shouldAnimate } = useAnimationSettings()
   // Initialize with actual navigator state (only works client-side)
   const [isOnline, setIsOnline] = useState(() =>
     typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -153,9 +160,9 @@ export function OfflineBadge() {
 
   return (
     <motion.div
-      initial={{ scale: 0 }}
+      initial={shouldAnimate ? { scale: 0 } : { scale: 1 }}
       animate={{ scale: 1 }}
-      exit={{ scale: 0 }}
+      exit={shouldAnimate ? { scale: 0 } : { scale: 0 }}
       className="flex items-center gap-2 rounded-full bg-[var(--color-status-high-bg)] px-3 py-1.5 text-xs font-medium text-[var(--color-status-high-foreground)]"
     >
       <div className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-status-high)]" />

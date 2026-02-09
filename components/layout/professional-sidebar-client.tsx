@@ -2,8 +2,9 @@
  * Professional Sidebar Client
  * Developer: Maurice Rondeau
  *
- * Admin sidebar with collapsible behavior, section grouping, and theme-aware colors.
- * Expanded: 240px (w-60) — shows icons + labels + section headers
+ * Admin sidebar with two-tier navigation: primary items always visible
+ * + "More" expander for secondary items. Settings/Help/Feedback moved to header.
+ * Expanded: 240px (w-60) — shows icons + labels
  * Collapsed: 56px (w-14) — shows icons only with tooltips on hover
  */
 'use client'
@@ -12,6 +13,7 @@ import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import {
   LayoutDashboard,
   Users,
@@ -24,11 +26,8 @@ import {
   CheckSquare,
   Shield,
   ScrollText,
-  UserCircle,
   RefreshCw,
-  HelpCircle,
   ClipboardList,
-  MessageSquare,
   PanelLeftClose,
   PanelLeft,
 } from 'lucide-react'
@@ -47,105 +46,24 @@ interface NavItem {
   badgeVariant?: 'default' | 'warning' | 'danger'
 }
 
-interface NavSection {
-  title: string
-  items: NavItem[]
-}
-
-const navigationSections: NavSection[] = [
-  {
-    title: 'Core',
-    items: [
-      {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutDashboard,
-      },
-      {
-        title: 'Pilots',
-        href: '/dashboard/pilots',
-        icon: Users,
-      },
-      {
-        title: 'Certifications',
-        href: '/dashboard/certifications',
-        icon: FileCheck,
-      },
-    ],
-  },
-  {
-    title: 'Operations',
-    items: [
-      {
-        title: 'Requests',
-        href: '/dashboard/requests',
-        icon: ClipboardList,
-      },
-      {
-        title: 'Renewal Planning',
-        href: '/dashboard/renewal-planning',
-        icon: RefreshCw,
-      },
-    ],
-  },
-  {
-    title: 'Insights',
-    items: [
-      {
-        title: 'Analytics',
-        href: '/dashboard/analytics',
-        icon: BarChart3,
-      },
-      {
-        title: 'Reports',
-        href: '/dashboard/reports',
-        icon: ScrollText,
-      },
-    ],
-  },
-  {
-    title: 'Administration',
-    items: [
-      {
-        title: 'System Admin',
-        href: '/dashboard/admin',
-        icon: Shield,
-      },
-      {
-        title: 'Tasks',
-        href: '/dashboard/tasks',
-        icon: CheckSquare,
-      },
-      {
-        title: 'Disciplinary',
-        href: '/dashboard/disciplinary',
-        icon: AlertCircle,
-      },
-      {
-        title: 'Audit Logs',
-        href: '/dashboard/audit-logs',
-        icon: ClipboardList,
-      },
-      {
-        title: 'Feedback',
-        href: '/dashboard/feedback',
-        icon: MessageSquare,
-      },
-      {
-        title: 'Help Center',
-        href: '/dashboard/help',
-        icon: HelpCircle,
-      },
-    ],
-  },
+// Primary nav items — always visible, no section headers
+const primaryNavItems: NavItem[] = [
+  { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { title: 'Pilots', href: '/dashboard/pilots', icon: Users },
+  { title: 'Certifications', href: '/dashboard/certifications', icon: FileCheck },
+  { title: 'Requests', href: '/dashboard/requests', icon: ClipboardList },
+  { title: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
 ]
 
-// Standalone settings item (not in a section)
-const settingsItem: NavItem = {
-  title: 'My Settings',
-  href: '/dashboard/settings',
-  icon: UserCircle,
-}
+// Secondary nav items — under "More" expander
+const moreNavItems: NavItem[] = [
+  { title: 'Renewal Planning', href: '/dashboard/renewal-planning', icon: RefreshCw },
+  { title: 'Reports', href: '/dashboard/reports', icon: ScrollText },
+  { title: 'Tasks', href: '/dashboard/tasks', icon: CheckSquare },
+  { title: 'System Admin', href: '/dashboard/admin', icon: Shield },
+  { title: 'Disciplinary', href: '/dashboard/disciplinary', icon: AlertCircle },
+  { title: 'Audit Logs', href: '/dashboard/audit-logs', icon: ClipboardList },
+]
 
 interface ProfessionalSidebarClientProps {
   appTitle: string
@@ -154,16 +72,16 @@ interface ProfessionalSidebarClientProps {
 
 export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClientProps) {
   const { csrfToken } = useCsrfToken()
+  const { shouldAnimate } = useAnimationSettings()
   const pathname = usePathname()
   const { data: badges } = useSidebarBadges()
   const { confirm, ConfirmDialog: LogoutConfirmDialog } = useConfirm()
   const { isCollapsed, toggleCollapse } = useSidebarCollapse()
 
-  // Compute navigation sections with dynamic badge data
-  const dynamicNavigationSections = useMemo<NavSection[]>(() => {
-    return navigationSections.map((section) => ({
-      ...section,
-      items: section.items.map((item) => {
+  // Enrich nav items with dynamic badge data
+  const enrichedItems = useMemo(() => {
+    const enrich = (items: NavItem[]): NavItem[] =>
+      items.map((item) => {
         if (item.title === 'Requests' && badges?.pendingRequests) {
           return {
             ...item,
@@ -183,43 +101,32 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
           }
         }
         return item
-      }),
-    }))
+      })
+    return { primary: enrich(primaryNavItems), more: enrich(moreNavItems) }
   }, [badges])
 
-  // Initialize state from localStorage (section collapse, not sidebar collapse)
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
-    if (typeof window === 'undefined') return {}
-    const saved = localStorage.getItem('sidebar-collapsed-sections')
-    if (saved) {
-      try {
-        return JSON.parse(saved)
-      } catch (e) {
-        console.error('Failed to parse sidebar state:', e)
-        return {}
-      }
-    }
-    return {}
+  // "More" section collapse state (persisted in localStorage)
+  const [moreExpanded, setMoreExpanded] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('sidebar-more-expanded') === 'true'
   })
 
-  // Save collapsed state to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('sidebar-collapsed-sections', JSON.stringify(collapsedSections))
-  }, [collapsedSections])
-
-  const toggleSection = (sectionTitle: string) => {
-    setCollapsedSections((prev) => ({
-      ...prev,
-      [sectionTitle]: !prev[sectionTitle],
-    }))
-  }
+    localStorage.setItem('sidebar-more-expanded', String(moreExpanded))
+  }, [moreExpanded])
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === href
-    }
+    if (href === '/dashboard') return pathname === href
     return pathname.startsWith(href)
   }
+
+  // Auto-expand "More" if user is on a secondary page
+  useEffect(() => {
+    const isOnMorePage = moreNavItems.some((item) => isActive(item.href))
+    if (isOnMorePage && !moreExpanded) {
+      setMoreExpanded(true)
+    }
+  }, [pathname, moreExpanded])
 
   const performLogout = async () => {
     try {
@@ -235,11 +142,9 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
       if (response.ok || response.redirected) {
         window.location.href = '/auth/login'
       } else {
-        console.error('Logout failed')
         window.location.href = '/auth/login'
       }
-    } catch (error) {
-      console.error('Logout error:', error)
+    } catch {
       window.location.href = '/auth/login'
     }
   }
@@ -257,9 +162,71 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
     }
   }
 
+  // Render a single nav item (shared between primary and more sections)
+  const renderNavItem = (item: NavItem) => {
+    const Icon = item.icon
+    const active = isActive(item.href)
+
+    return (
+      <Link key={item.href} href={item.href} title={isCollapsed ? item.title : undefined}>
+        <div
+          className={cn(
+            'group relative flex min-h-[32px] items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors duration-100',
+            isCollapsed && 'justify-center px-0',
+            active
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+          )}
+        >
+          <Icon
+            className={cn(
+              'h-4 w-4 flex-shrink-0 transition-colors',
+              active ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground'
+            )}
+            aria-hidden="true"
+          />
+
+          {!isCollapsed && <span className="flex-1 truncate">{item.title}</span>}
+
+          {/* Badge - Full text when expanded, dot when collapsed */}
+          {item.badge && !isCollapsed && (
+            <span
+              className={cn(
+                'flex-shrink-0 rounded px-1 py-0.5 text-xs font-medium tabular-nums',
+                item.badgeVariant === 'warning' && 'bg-warning/10 text-warning',
+                item.badgeVariant === 'danger' && 'bg-destructive/10 text-destructive',
+                !item.badgeVariant && 'bg-muted-foreground/10 text-muted-foreground'
+              )}
+              aria-label={
+                item.badgeVariant === 'danger'
+                  ? `${item.badge} items requiring attention`
+                  : item.badgeVariant === 'warning'
+                    ? `${item.badge} items expiring soon`
+                    : `${item.badge} new items`
+              }
+            >
+              {item.badge}
+            </span>
+          )}
+          {item.badge && isCollapsed && (
+            <span
+              className={cn(
+                'absolute top-1 right-1 h-2 w-2 rounded-full',
+                item.badgeVariant === 'warning' && 'bg-warning',
+                item.badgeVariant === 'danger' && 'bg-destructive',
+                !item.badgeVariant && 'bg-muted-foreground'
+              )}
+              aria-label={`${item.badge} items`}
+            />
+          )}
+        </div>
+      </Link>
+    )
+  }
+
   return (
     <motion.aside
-      initial={{ x: -240 }}
+      initial={shouldAnimate ? { x: -240 } : { x: 0 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
       className={cn(
@@ -284,7 +251,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             {!isCollapsed && (
               <div className="min-w-0">
                 <h1
-                  className="text-foreground truncate text-[13px] font-semibold"
+                  className="text-foreground truncate text-sm font-semibold"
                   suppressHydrationWarning
                 >
                   {appTitle}
@@ -299,7 +266,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             <button
               onClick={toggleCollapse}
               className={cn(
-                'text-muted-foreground hover:bg-muted/50 hover:text-foreground mb-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors',
+                'text-muted-foreground hover:bg-muted/50 hover:text-foreground mb-1 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors',
                 isCollapsed && 'justify-center'
               )}
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -319,7 +286,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             <button
               onClick={handleLogout}
               className={cn(
-                'text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-danger-400)]',
+                'text-muted-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium transition-colors hover:bg-[var(--color-destructive-muted)] hover:text-[var(--color-danger-400)]',
                 isCollapsed && 'justify-center'
               )}
               title={isCollapsed ? 'Logout' : undefined}
@@ -332,168 +299,62 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         }
       >
         {/* Navigation */}
-        <nav className="space-y-0.5 p-2">
-          <div className="space-y-2">
-            {dynamicNavigationSections.map((section) => {
-              const isSectionCollapsed = collapsedSections[section.title]
+        <nav className="space-y-0.5 p-2" aria-label="Main navigation">
+          {/* Primary nav items — always visible */}
+          <div className="space-y-0.5" role="group" aria-label="Primary navigation">
+            {enrichedItems.primary.map(renderNavItem)}
+          </div>
 
-              const sectionId = `nav-section-${section.title.toLowerCase().replace(/\s+/g, '-')}`
+          {/* Separator */}
+          <div className="border-border my-1.5 border-t" />
 
-              return (
-                <div key={section.title}>
-                  {/* Section Header - Clickable to toggle (hidden when sidebar is collapsed) */}
-                  {!isCollapsed && (
-                    <button
-                      onClick={() => toggleSection(section.title)}
-                      className="focus:ring-primary/20 hover:bg-muted/50 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors focus:ring-1 focus:outline-none"
-                      aria-expanded={!isSectionCollapsed}
-                      aria-controls={sectionId}
-                      aria-label={`${section.title} navigation section, ${isSectionCollapsed ? 'expand' : 'collapse'}`}
-                    >
-                      <h3 className="text-muted-foreground/40 text-[10px] font-medium tracking-widest uppercase">
-                        {section.title}
-                      </h3>
-                      <motion.div
-                        animate={{ rotate: isSectionCollapsed ? -90 : 0 }}
-                        transition={{ duration: 0.12 }}
-                        aria-hidden="true"
-                        style={{ willChange: 'transform' }}
-                      >
-                        <ChevronDown className="text-muted-foreground/40 h-3 w-3" />
-                      </motion.div>
-                    </button>
-                  )}
+          {/* "More" collapsible section */}
+          <div>
+            {!isCollapsed && (
+              <button
+                onClick={() => setMoreExpanded(!moreExpanded)}
+                className="focus:ring-primary/20 hover:bg-muted/50 mb-0.5 flex w-full items-center justify-between rounded px-2 py-1 transition-colors focus:ring-1 focus:outline-none"
+                aria-expanded={moreExpanded}
+                aria-controls="nav-section-more"
+                aria-label={`More navigation items, ${moreExpanded ? 'collapse' : 'expand'}`}
+              >
+                <h3 className="text-muted-foreground/40 text-xs font-medium tracking-widest uppercase">
+                  More
+                </h3>
+                <motion.div
+                  animate={shouldAnimate ? { rotate: moreExpanded ? 0 : -90 } : undefined}
+                  transition={{ duration: 0.12 }}
+                  aria-hidden="true"
+                  style={{ willChange: 'transform' }}
+                >
+                  <ChevronDown className="text-muted-foreground/40 h-3 w-3" />
+                </motion.div>
+              </button>
+            )}
 
-                  {/* Section Items - Collapsible (always shown when sidebar collapsed) */}
-                  <AnimatePresence initial={false}>
-                    {(isCollapsed || !isSectionCollapsed) && (
-                      <motion.div
-                        id={sectionId}
-                        initial={isCollapsed ? false : { height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="space-y-0.5 overflow-hidden"
-                        role="group"
-                        aria-label={`${section.title} navigation links`}
-                        style={{ willChange: 'height, opacity' }}
-                      >
-                        {section.items.map((item) => {
-                          const Icon = item.icon
-                          const active = isActive(item.href)
-
-                          return (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              title={isCollapsed ? item.title : undefined}
-                            >
-                              <div
-                                className={cn(
-                                  'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
-                                  isCollapsed && 'justify-center px-0',
-                                  active
-                                    ? 'bg-primary/15 text-primary border-primary border-l-2'
-                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                                )}
-                              >
-                                <Icon
-                                  className={cn(
-                                    'h-4 w-4 flex-shrink-0 transition-colors',
-                                    active
-                                      ? 'text-primary'
-                                      : 'text-muted-foreground/70 group-hover:text-foreground'
-                                  )}
-                                  aria-hidden="true"
-                                />
-
-                                {!isCollapsed && (
-                                  <span className="flex-1 truncate">{item.title}</span>
-                                )}
-
-                                {/* Badge - Full text when expanded, dot when collapsed */}
-                                {item.badge && !isCollapsed && (
-                                  <span
-                                    className={cn(
-                                      'flex-shrink-0 rounded px-1 py-0.5 text-[10px] font-medium tabular-nums',
-                                      item.badgeVariant === 'warning' &&
-                                        'bg-warning/10 text-warning',
-                                      item.badgeVariant === 'danger' &&
-                                        'bg-destructive/10 text-destructive',
-                                      !item.badgeVariant &&
-                                        'bg-muted-foreground/10 text-muted-foreground'
-                                    )}
-                                    aria-label={
-                                      item.badgeVariant === 'danger'
-                                        ? `${item.badge} items requiring attention`
-                                        : item.badgeVariant === 'warning'
-                                          ? `${item.badge} items expiring soon`
-                                          : `${item.badge} new items`
-                                    }
-                                  >
-                                    {item.badge}
-                                  </span>
-                                )}
-                                {item.badge && isCollapsed && (
-                                  <span
-                                    className={cn(
-                                      'absolute top-1 right-1 h-2 w-2 rounded-full',
-                                      item.badgeVariant === 'warning' && 'bg-warning',
-                                      item.badgeVariant === 'danger' && 'bg-destructive',
-                                      !item.badgeVariant && 'bg-muted-foreground'
-                                    )}
-                                    aria-label={`${item.badge} items`}
-                                  />
-                                )}
-                              </div>
-                            </Link>
-                          )
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )
-            })}
-
-            {/* Settings (standalone) */}
-            <div className="border-border mt-1 border-t pt-2">
-              {(() => {
-                const Icon = settingsItem.icon
-                const active = isActive(settingsItem.href)
-
-                return (
-                  <Link
-                    href={settingsItem.href}
-                    title={isCollapsed ? settingsItem.title : undefined}
-                  >
-                    <div
-                      className={cn(
-                        'group relative flex min-h-[32px] items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium transition-colors duration-100',
-                        isCollapsed && 'justify-center px-0',
-                        active
-                          ? 'bg-primary/15 text-primary border-primary border-l-2'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                      )}
-                    >
-                      <Icon
-                        className={cn(
-                          'h-4 w-4 flex-shrink-0 transition-colors',
-                          active
-                            ? 'text-primary'
-                            : 'text-muted-foreground/70 group-hover:text-foreground'
-                        )}
-                        aria-hidden="true"
-                      />
-
-                      {!isCollapsed && (
-                        <span className="flex-1 truncate">{settingsItem.title}</span>
-                      )}
-                    </div>
-                  </Link>
-                )
-              })()}
-            </div>
+            <AnimatePresence initial={false}>
+              {(isCollapsed || moreExpanded) && (
+                <motion.div
+                  id="nav-section-more"
+                  initial={
+                    isCollapsed
+                      ? false
+                      : shouldAnimate
+                        ? { height: 0, opacity: 0 }
+                        : { height: 'auto', opacity: 1 }
+                  }
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={shouldAnimate ? { height: 0, opacity: 0 } : { height: 'auto', opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="space-y-0.5 overflow-hidden"
+                  role="group"
+                  aria-label="More navigation links"
+                  style={{ willChange: 'height, opacity' }}
+                >
+                  {enrichedItems.more.map(renderNavItem)}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </nav>
       </SidebarShell>

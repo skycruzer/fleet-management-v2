@@ -8,6 +8,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -24,19 +25,23 @@ import {
   FileText,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from 'recharts'
+
+const ChartLoadingFallback = () => <div className="bg-muted animate-shimmer h-64 rounded-xl" />
+
+const PilotRankChart = dynamic(
+  () => import('@/components/dashboard/analytics-charts').then((mod) => mod.PilotRankChart),
+  { ssr: false, loading: ChartLoadingFallback }
+)
+
+const CertificationPieChart = dynamic(
+  () => import('@/components/dashboard/analytics-charts').then((mod) => mod.CertificationPieChart),
+  { ssr: false, loading: ChartLoadingFallback }
+)
+
+const LeaveTypeChart = dynamic(
+  () => import('@/components/dashboard/analytics-charts').then((mod) => mod.LeaveTypeChart),
+  { ssr: false, loading: ChartLoadingFallback }
+)
 
 interface AnalyticsData {
   pilot: {
@@ -364,29 +369,11 @@ function AnalyticsPageContent() {
             </div>
             {/* Pilot Rank Bar Chart */}
             <div className="mt-4 h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={[
-                    { name: 'Captains', count: analytics.pilot.captains },
-                    { name: 'First Officers', count: analytics.pilot.firstOfficers },
-                    { name: 'Inactive', count: analytics.pilot.inactive },
-                  ]}
-                  margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                  <XAxis dataKey="name" tick={{ fill: '#a1a1aa', fontSize: 11 }} />
-                  <YAxis tick={{ fill: '#a1a1aa', fontSize: 11 }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1c1c1e',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                      color: '#e4e4e7',
-                    }}
-                  />
-                  <Bar dataKey="count" fill="#60a5fa" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <PilotRankChart
+                captains={analytics.pilot.captains}
+                firstOfficers={analytics.pilot.firstOfficers}
+                inactive={analytics.pilot.inactive}
+              />
             </div>
           </Card>
 
@@ -513,36 +500,11 @@ function AnalyticsPageContent() {
             </div>
             {/* Certification Status Pie Chart */}
             <div className="mt-4 h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: 'Current', value: analytics.certification.current },
-                      { name: 'Expiring', value: analytics.certification.expiring },
-                      { name: 'Expired', value: analytics.certification.expired },
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={70}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    <Cell fill="#34d399" />
-                    <Cell fill="#fbbf24" />
-                    <Cell fill="#f87171" />
-                  </Pie>
-                  <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1c1c1e',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                      color: '#e4e4e7',
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              <CertificationPieChart
+                current={analytics.certification.current}
+                expiring={analytics.certification.expiring}
+                expired={analytics.certification.expired}
+              />
             </div>
           </Card>
 
@@ -625,31 +587,7 @@ function AnalyticsPageContent() {
           {/* Leave by Type Bar Chart */}
           {analytics.leave.byType.length > 0 && (
             <div className="mt-6 h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={analytics.leave.byType.map((t) => ({
-                    name: t.type,
-                    requests: t.count,
-                    days: t.totalDays,
-                  }))}
-                  margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                  <XAxis dataKey="name" tick={{ fill: '#a1a1aa', fontSize: 11 }} />
-                  <YAxis tick={{ fill: '#a1a1aa', fontSize: 11 }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1c1c1e',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                      color: '#e4e4e7',
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
-                  <Bar dataKey="requests" fill="#818cf8" radius={[4, 4, 0, 0]} name="Requests" />
-                  <Bar dataKey="days" fill="#34d399" radius={[4, 4, 0, 0]} name="Total Days" />
-                </BarChart>
-              </ResponsiveContainer>
+              <LeaveTypeChart data={analytics.leave.byType} />
             </div>
           )}
         </Card>

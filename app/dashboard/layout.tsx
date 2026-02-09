@@ -68,7 +68,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect('/auth/login')
   }
 
-  // Navigation links for mobile navigation
+  // Compute display name and email for header
+  const userName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.display_name ||
+    (adminUser as Record<string, string> | null)?.display_name ||
+    (adminUser as Record<string, string> | null)?.name ||
+    'Admin'
+  const userEmail = user?.email || (adminUser as Record<string, string> | null)?.email || ''
+
+  // Navigation links for mobile navigation (includes all items since header is hidden on mobile)
   const navLinks = [
     {
       href: '/dashboard',
@@ -161,13 +170,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <DashboardContentArea>
             {/* Professional Header - Hidden on mobile */}
             <div className="hidden lg:block">
-              <ProfessionalHeader />
+              <ProfessionalHeader userName={userName} userEmail={userEmail} />
             </div>
 
             {/* Page Content */}
             <main
               id="main-content"
-              className="bg-background min-h-screen w-full max-w-full overflow-x-hidden p-4 lg:p-5"
+              className="dashboard-layout bg-background min-h-screen w-full max-w-full overflow-x-hidden p-4 lg:p-5"
               role="main"
               aria-label="Main content"
             >

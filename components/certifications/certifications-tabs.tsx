@@ -3,13 +3,14 @@
  * Tab-based navigation for different certification views with URL sync
  *
  * @author Maurice Rondeau
- * @version 1.0.0
+ * @version 1.1.0
  * @created 2025-12-19
+ * @updated 2026-02 - Migrated to nuqs for URL state management
  */
 
 'use client'
 
-import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useQueryState, parseAsStringLiteral } from 'nuqs'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { CertificationsTable } from './certifications-table'
@@ -18,7 +19,8 @@ import { CategoryView } from './category-view'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
 import { List, AlertTriangle, FolderTree } from 'lucide-react'
 
-type TabValue = 'all' | 'attention' | 'category'
+const TAB_VALUES = ['all', 'attention', 'category'] as const
+type TabValue = (typeof TAB_VALUES)[number]
 
 interface CertificationsTabsProps {
   certifications: CertificationWithDetails[]
@@ -31,27 +33,14 @@ export function CertificationsTabs({
   attentionCount,
   onEditCertification,
 }: CertificationsTabsProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  // Get tab from URL or default to 'all'
-  const currentTab = (searchParams.get('tab') as TabValue) || 'all'
-
-  // Update URL when tab changes
-  const handleTabChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (value === 'all') {
-      params.delete('tab')
-    } else {
-      params.set('tab', value)
-    }
-    const queryString = params.toString()
-    router.push(`${pathname}${queryString ? `?${queryString}` : ''}`, { scroll: false })
-  }
+  // nuqs manages URL sync automatically — replaces manual useSearchParams + router.push
+  const [currentTab, setCurrentTab] = useQueryState(
+    'tab',
+    parseAsStringLiteral(TAB_VALUES).withDefault('all')
+  )
 
   return (
-    <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
+    <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as TabValue)} className="w-full">
       <TabsList className="grid w-full grid-cols-3 lg:inline-grid lg:w-auto">
         <TabsTrigger value="all" className="gap-2">
           <List className="h-4 w-4" />

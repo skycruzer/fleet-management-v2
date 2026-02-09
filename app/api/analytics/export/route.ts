@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     const analyticsData: AnalyticsExportData = data
 
     // Use service layer to generate export
-    const exportResult = exportAnalyticsData(analyticsData, {
+    const exportResult = await exportAnalyticsData(analyticsData, {
       format: exportFormat as ExportFormat,
       includeTimestamp: true,
       title: 'Fleet Analytics Report',

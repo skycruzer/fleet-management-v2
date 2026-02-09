@@ -6,7 +6,7 @@
 import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { PilotListSkeleton } from '@/components/skeletons'
+import { PilotListSkeleton } from '@/components/skeletons/pilot-list-skeleton'
 import { PilotsPageContent } from '@/components/pilots/pilots-page-content'
 import { Plus } from 'lucide-react'
 

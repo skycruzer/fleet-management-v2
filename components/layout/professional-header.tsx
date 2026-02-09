@@ -3,14 +3,16 @@
  * Developer: Maurice Rondeau
  *
  * Sticky header for the admin dashboard with global search, notifications,
- * theme toggle, and user menu. Uses theme-aware CSS variable colors.
+ * theme toggle, and user menu. User dropdown includes Settings, Help Center,
+ * and Feedback links (moved from sidebar for cleaner navigation).
  */
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, User, Settings, LogOut } from 'lucide-react'
+import { Bell, User, Settings, LogOut, HelpCircle, MessageSquare } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { cn } from '@/lib/utils'
 import { GlobalSearch } from '@/components/search/global-search'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
@@ -28,9 +30,15 @@ interface Notification {
   updated_at?: string | null
 }
 
-export function ProfessionalHeader() {
+interface ProfessionalHeaderProps {
+  userName?: string
+  userEmail?: string
+}
+
+export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderProps) {
   const { csrfToken } = useCsrfToken()
   const router = useRouter()
+  const { shouldAnimate } = useAnimationSettings()
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
@@ -166,6 +174,14 @@ export function ProfessionalHeader() {
     }
   }
 
+  const navigateAndClose = (href: string) => {
+    setShowUserMenu(false)
+    router.push(href)
+  }
+
+  const displayName = userName || 'Admin'
+  const displayEmail = userEmail || ''
+
   return (
     <header className="border-border bg-background/80 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 border-b backdrop-blur-xl">
       <div className="flex h-12 items-center justify-between px-4">
@@ -182,8 +198,8 @@ export function ProfessionalHeader() {
           {/* Notifications */}
           <div className="relative" data-notifications-dropdown>
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+              whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
               onClick={() => setShowNotifications(!showNotifications)}
               className="text-muted-foreground hover:text-foreground hover:bg-muted/60 relative flex h-8 w-8 items-center justify-center rounded-md transition-colors"
               aria-label={
@@ -196,7 +212,7 @@ export function ProfessionalHeader() {
               <Bell className="h-4 w-4" aria-hidden="true" />
               {unreadCount > 0 && (
                 <span
-                  className="bg-accent absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-medium text-white"
+                  className="bg-accent absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-xs font-medium text-white"
                   aria-hidden="true"
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -208,15 +224,15 @@ export function ProfessionalHeader() {
             <AnimatePresence>
               {showNotifications && (
                 <motion.div
-                  initial={{ opacity: 0, y: 4 }}
+                  initial={shouldAnimate ? { opacity: 0, y: 4 } : { opacity: 1 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
+                  exit={shouldAnimate ? { opacity: 0, y: 4 } : { opacity: 0 }}
                   transition={{ duration: 0.1 }}
                   className="border-border bg-popover absolute right-0 mt-1 w-80 rounded-lg border shadow-lg backdrop-blur-xl"
                   style={{ willChange: 'transform, opacity' }}
                 >
                   <div className="border-border border-b px-3 py-2.5">
-                    <h3 className="text-foreground text-[13px] font-semibold">Notifications</h3>
+                    <h3 className="text-foreground text-sm font-semibold">Notifications</h3>
                     <p className="text-muted-foreground text-xs">{unreadCount} unread</p>
                   </div>
                   <div className="max-h-72 overflow-y-auto">
@@ -249,13 +265,13 @@ export function ProfessionalHeader() {
                               )}
                             />
                             <div className="min-w-0 flex-1">
-                              <p className="text-foreground text-[13px] font-medium">
+                              <p className="text-foreground text-sm font-medium">
                                 {notification.title}
                               </p>
                               <p className="text-muted-foreground line-clamp-2 text-xs">
                                 {notification.message}
                               </p>
-                              <p className="text-muted-foreground/70 mt-0.5 text-[10px]">
+                              <p className="text-muted-foreground/70 mt-0.5 text-xs">
                                 {formatTimeAgo(notification.created_at)}
                               </p>
                             </div>
@@ -283,8 +299,8 @@ export function ProfessionalHeader() {
           {/* User Menu */}
           <div className="relative ml-1" data-user-menu>
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+              whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="hover:bg-muted/60 flex h-8 items-center gap-2 rounded-md px-2 transition-colors"
               aria-label="User menu"
@@ -295,8 +311,8 @@ export function ProfessionalHeader() {
               <div className="bg-muted/60 flex h-6 w-6 items-center justify-center rounded-full">
                 <User className="text-muted-foreground h-3.5 w-3.5" aria-hidden="true" />
               </div>
-              <span className="text-foreground hidden text-[13px] font-medium sm:inline">
-                Admin
+              <span className="text-foreground hidden text-sm font-medium sm:inline">
+                {displayName}
               </span>
             </motion.button>
 
@@ -304,27 +320,31 @@ export function ProfessionalHeader() {
             <AnimatePresence>
               {showUserMenu && (
                 <motion.div
-                  initial={{ opacity: 0, y: 4 }}
+                  initial={shouldAnimate ? { opacity: 0, y: 4 } : { opacity: 1 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
+                  exit={shouldAnimate ? { opacity: 0, y: 4 } : { opacity: 0 }}
                   transition={{ duration: 0.1 }}
                   className="border-border bg-popover absolute right-0 mt-1 w-52 rounded-lg border shadow-lg backdrop-blur-xl"
                   style={{ willChange: 'transform, opacity' }}
                 >
                   <div className="border-border border-b px-3 py-2.5">
-                    <p className="text-foreground text-[13px] font-medium">Admin User</p>
-                    <p className="text-muted-foreground truncate text-xs">admin@fleetmgmt.com</p>
+                    <p className="text-foreground text-sm font-medium">{displayName}</p>
+                    {displayEmail && (
+                      <p className="text-muted-foreground truncate text-xs">{displayEmail}</p>
+                    )}
                   </div>
                   <div className="p-1" role="menu" aria-label="User options">
                     <button
-                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors"
+                      onClick={() => navigateAndClose('/dashboard/settings')}
+                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
                       role="menuitem"
                     >
                       <User className="text-muted-foreground h-4 w-4" aria-hidden="true" />
                       <span>Profile</span>
                     </button>
                     <button
-                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors"
+                      onClick={() => navigateAndClose('/dashboard/settings')}
+                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
                       role="menuitem"
                     >
                       <Settings className="text-muted-foreground h-4 w-4" aria-hidden="true" />
@@ -334,11 +354,33 @@ export function ProfessionalHeader() {
                   <div
                     className="border-border border-t p-1"
                     role="menu"
+                    aria-label="Help & support"
+                  >
+                    <button
+                      onClick={() => navigateAndClose('/dashboard/help')}
+                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+                      role="menuitem"
+                    >
+                      <HelpCircle className="text-muted-foreground h-4 w-4" aria-hidden="true" />
+                      <span>Help Center</span>
+                    </button>
+                    <button
+                      onClick={() => navigateAndClose('/dashboard/feedback')}
+                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
+                      role="menuitem"
+                    >
+                      <MessageSquare className="text-muted-foreground h-4 w-4" aria-hidden="true" />
+                      <span>Feedback</span>
+                    </button>
+                  </div>
+                  <div
+                    className="border-border border-t p-1"
+                    role="menu"
                     aria-label="Account actions"
                   >
                     <button
                       onClick={handleLogout}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-[var(--color-danger-400)] transition-colors hover:bg-[var(--color-destructive-muted)]"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[var(--color-danger-400)] transition-colors hover:bg-[var(--color-destructive-muted)]"
                       role="menuitem"
                     >
                       <LogOut className="h-4 w-4" aria-hidden="true" />

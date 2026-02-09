@@ -84,12 +84,12 @@ function FlyingPlane() {
 
 // Confetti colors matching the design system
 const confettiColors = [
-  '#f43f5e', // primary
-  '#06b6d4', // accent
-  '#10b981', // success
-  '#fbbf24', // warning/gold
-  '#f472b6', // pink
-  '#a78bfa', // purple
+  '#4361b8', // primary — navy
+  '#2ba8a8', // accent — teal
+  '#2db87d', // success — green
+  '#d4a017', // warning — amber
+  '#c45e8f', // pink
+  '#7c6cc8', // purple
 ]
 
 // Pre-generate confetti particle data (stable across renders)

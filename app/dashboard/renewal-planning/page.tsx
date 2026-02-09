@@ -12,7 +12,7 @@
 
 import { Suspense } from 'react'
 import { RenewalPlanningDashboard } from '@/components/renewal-planning/renewal-planning-dashboard'
-import { RenewalPlanningSkeleton } from '@/components/skeletons'
+import { RenewalPlanningSkeleton } from '@/components/skeletons/renewal-planning-skeleton'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
 

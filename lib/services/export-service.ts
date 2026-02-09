@@ -10,8 +10,6 @@
  */
 
 import { format } from 'date-fns'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 
 /**
  * Export format types
@@ -143,12 +141,14 @@ export function generateAnalyticsCSV(
  * @param options - Export options
  * @returns PDF as Buffer
  */
-export function generateAnalyticsPDF(
+export async function generateAnalyticsPDF(
   data: AnalyticsExportData,
   options: Partial<ExportOptions> = {}
-): Buffer {
+): Promise<Buffer> {
   const { title = 'Fleet Analytics Report', includeTimestamp = true } = options
 
+  const { default: jsPDF } = await import('jspdf')
+  const { default: autoTable } = await import('jspdf-autotable')
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
 
@@ -339,14 +339,14 @@ export function generateExportFilename(
  * @param options - Export options
  * @returns Export content and metadata
  */
-export function exportAnalyticsData(
+export async function exportAnalyticsData(
   data: AnalyticsExportData,
   options: ExportOptions
-): {
+): Promise<{
   content: string | Buffer
   filename: string
   mimeType: string
-} {
+}> {
   const { format, filename, includeTimestamp = true, title, description } = options
 
   const basename = filename || 'fleet-analytics'
@@ -362,7 +362,7 @@ export function exportAnalyticsData(
       break
 
     case 'pdf':
-      content = generateAnalyticsPDF(data, { title, includeTimestamp })
+      content = await generateAnalyticsPDF(data, { title, includeTimestamp })
       mimeType = 'application/pdf'
       break
 

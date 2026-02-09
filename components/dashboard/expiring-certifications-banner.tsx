@@ -12,6 +12,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { AlertCircle, ChevronRight, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
@@ -29,6 +30,7 @@ interface ExpiringCertificationsBannerProps {
 }
 
 export function ExpiringCertificationsBanner({ actionItems }: ExpiringCertificationsBannerProps) {
+  const { getVariants } = useAnimationSettings()
   const highPriorityCount = actionItems.filter((item) => item.priority === 'high').length
   const mediumPriorityCount = actionItems.filter((item) => item.priority === 'medium').length
   const lowPriorityCount = actionItems.filter((item) => item.priority === 'low').length
@@ -40,7 +42,7 @@ export function ExpiringCertificationsBanner({ actionItems }: ExpiringCertificat
   if (actionItems.length === 0) {
     return (
       <motion.div
-        variants={fadeInUp}
+        variants={getVariants(fadeInUp)}
         initial="hidden"
         animate="visible"
         className="border-success-200 from-success-50 overflow-hidden rounded-xl border-2 bg-gradient-to-br to-[var(--color-success-muted)] shadow-sm"
@@ -71,7 +73,7 @@ export function ExpiringCertificationsBanner({ actionItems }: ExpiringCertificat
       <CollapsibleContent>
         <Link href="/dashboard/certifications/expiring">
           <motion.div
-            variants={fadeInUp}
+            variants={getVariants(fadeInUp)}
             initial="hidden"
             animate="visible"
             className="group border-warning-300 from-warning-50 hover:border-warning-400 cursor-pointer overflow-hidden rounded-xl border-2 bg-gradient-to-br via-[var(--color-badge-orange-bg)] to-[var(--color-destructive-muted)] shadow-md transition-all hover:scale-[1.02] hover:shadow-xl"

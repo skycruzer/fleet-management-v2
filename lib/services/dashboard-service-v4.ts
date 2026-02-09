@@ -27,6 +27,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { logError, logWarning, ErrorSeverity } from '@/lib/error-logger'
 import { redisCacheService, CACHE_KEYS, CACHE_TTL, checkRedisHealth } from './redis-cache-service'
+import { getExpiringCertifications } from './expiring-certifications-service'
+import { getPendingRequests } from './unified-request-service'
+import { getCurrentRosterPeriodObject } from '@/lib/utils/roster-utils'
 import type { PilotDashboardMetrics } from '@/types/database-views'
 
 /**
@@ -79,6 +82,29 @@ export interface DashboardMetrics {
       compliance_rate: number
     }
   >
+}
+
+/**
+ * Interface for today's priority items aggregation
+ * Used by the TodaysPriorities dashboard widget
+ * @interface TodaysPriorities
+ */
+export interface TodaysPriorities {
+  expiringCerts: {
+    count: number
+    critical: number
+    items: Array<{ pilotName: string; checkType: string; daysLeft: number }>
+  }
+  pendingRequests: {
+    total: number
+    leave: number
+    flight: number
+  }
+  rosterAlert: {
+    currentPeriod: string
+    daysRemaining: number
+    nextPeriod: string
+  }
 }
 
 /**
@@ -142,7 +168,12 @@ export async function getDashboardMetrics(useCache: boolean = true): Promise<Das
   // Cache in Redis for next request
   if (useCache) {
     try {
-      await redisCacheService.set(CACHE_KEYS.DASHBOARD_METRICS, metrics, CACHE_TTL.DASHBOARD)
+      await redisCacheService.setWithTags(
+        CACHE_KEYS.DASHBOARD_METRICS,
+        metrics,
+        CACHE_TTL.DASHBOARD,
+        ['dashboard', 'pilots', 'certifications']
+      )
     } catch (error) {
       logWarning('Failed to cache metrics in Redis', {
         source: 'DashboardServiceV4',
@@ -305,12 +336,87 @@ export async function refreshDashboardMetrics(): Promise<void> {
 }
 
 /**
+ * Get today's priority items for the dashboard widget
+ * Aggregates expiring certs, pending requests, and roster period info
+ * Cached in Redis with 2-minute TTL for near real-time updates
+ *
+ * @returns {Promise<TodaysPriorities>} Aggregated priority data
+ */
+export async function getTodaysPriorities(): Promise<TodaysPriorities> {
+  // Try cache first
+  const cached = await redisCacheService.get<TodaysPriorities>(CACHE_KEYS.TODAY_PRIORITIES)
+  if (cached !== null) return cached
+
+  // Fetch all data in parallel
+  const [expiringCertsRaw, pendingRequestsResult, currentRP] = await Promise.all([
+    getExpiringCertifications(7),
+    getPendingRequests(),
+    Promise.resolve(getCurrentRosterPeriodObject()),
+  ])
+
+  // Process expiring certs — adapt to ExpiringCertification interface
+  const critical = expiringCertsRaw.filter((c) => c.status.daysUntilExpiry <= 3).length
+  const items = expiringCertsRaw
+    .sort((a, b) => a.status.daysUntilExpiry - b.status.daysUntilExpiry)
+    .slice(0, 3)
+    .map((c) => ({
+      pilotName: c.pilotName,
+      checkType: c.checkDescription,
+      daysLeft: c.status.daysUntilExpiry,
+    }))
+
+  // Process pending requests
+  const pendingData = pendingRequestsResult.data || []
+  const leave = pendingData.filter((r) => r.request_category === 'LEAVE').length
+  const flight = pendingData.filter((r) => r.request_category === 'FLIGHT').length
+
+  // Roster period info
+  const now = new Date()
+  const rpEnd = currentRP.endDate
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil((rpEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  )
+
+  // Calculate next period
+  let nextNum = currentRP.number + 1
+  let nextYear = currentRP.year
+  if (nextNum > 13) {
+    nextNum = 1
+    nextYear++
+  }
+  const nextPeriod = `RP${String(nextNum).padStart(2, '0')}/${nextYear}`
+
+  const result: TodaysPriorities = {
+    expiringCerts: { count: expiringCertsRaw.length, critical, items },
+    pendingRequests: { total: pendingData.length, leave, flight },
+    rosterAlert: {
+      currentPeriod: currentRP.code,
+      daysRemaining,
+      nextPeriod,
+    },
+  }
+
+  // Cache with tags for targeted invalidation
+  await redisCacheService.setWithTags(
+    CACHE_KEYS.TODAY_PRIORITIES,
+    result,
+    CACHE_TTL.TODAY_PRIORITIES,
+    ['dashboard', 'priorities']
+  )
+
+  return result
+}
+
+/**
  * Invalidate dashboard cache (call after data updates)
  * In v4.0, this invalidates both Redis and materialized view
  */
 export async function invalidateDashboardCache(): Promise<void> {
   // Invalidate Redis cache
   await redisCacheService.del(CACHE_KEYS.DASHBOARD_METRICS)
+  await redisCacheService.del(CACHE_KEYS.RECENT_ACTIVITY)
+  await redisCacheService.del(CACHE_KEYS.TODAY_PRIORITIES)
 
   // Note: Materialized view refresh is manual via refreshDashboardMetrics()
 }
@@ -328,9 +434,28 @@ export async function getRecentActivity(): Promise<
     color: 'amber' | 'blue' | 'green' | 'red'
   }>
 > {
-  const supabase = createAdminClient()
-
   try {
+    type ActivityItem = {
+      id: string
+      title: string
+      description: string
+      timestamp: string
+      color: 'amber' | 'blue' | 'green' | 'red'
+    }
+
+    // Try cache first
+    const cachedActivity = await redisCacheService.get<ActivityItem[]>(CACHE_KEYS.RECENT_ACTIVITY)
+
+    if (cachedActivity !== null) {
+      return cachedActivity.map((item) => ({
+        ...item,
+        timestamp: new Date(item.timestamp),
+      }))
+    }
+
+    // Cache miss — compute fresh data
+    const supabase = createAdminClient()
+
     // Get recent pilot updates and leave requests for activity feed
     const [recentPilotUpdates, recentLeaveRequests] = await Promise.all([
       supabase
@@ -348,7 +473,7 @@ export async function getRecentActivity(): Promise<
         .limit(3),
     ])
 
-    const activity: Array<any> = []
+    const activity: ActivityItem[] = []
 
     // Add pilot update activities
     if (recentPilotUpdates.data) {
@@ -357,7 +482,7 @@ export async function getRecentActivity(): Promise<
           id: `pilot-update-${pilot.id}`,
           title: 'Pilot Record Updated',
           description: `${pilot.first_name} ${pilot.last_name} profile updated`,
-          timestamp: new Date(pilot.updated_at),
+          timestamp: new Date(pilot.updated_at).toISOString(),
           color: 'blue',
         })
       })
@@ -377,14 +502,33 @@ export async function getRecentActivity(): Promise<
           id: `leave-${request.id}`,
           title: `${request.request_type} Request ${request.workflow_status}`,
           description: `Leave request ${request.workflow_status.toLowerCase()}`,
-          timestamp: new Date(request.created_at),
+          timestamp: new Date(request.created_at).toISOString(),
           color,
         })
       })
     }
 
     // Sort by timestamp and return most recent
-    return activity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 5)
+    const sortedActivity = activity
+      .sort(
+        (a: ActivityItem, b: ActivityItem) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
+      .slice(0, 5)
+
+    // Cache with tags for targeted invalidation
+    await redisCacheService.setWithTags(
+      CACHE_KEYS.RECENT_ACTIVITY,
+      sortedActivity,
+      CACHE_TTL.DASHBOARD,
+      ['dashboard', 'activity']
+    )
+
+    // Reconstruct Date objects from ISO strings
+    return sortedActivity.map((item) => ({
+      ...item,
+      timestamp: new Date(item.timestamp),
+    }))
   } catch (error) {
     logError(error as Error, {
       source: 'DashboardServiceV4',

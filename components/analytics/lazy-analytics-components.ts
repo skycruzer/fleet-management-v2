@@ -44,3 +44,14 @@ export const LazySuccessionPipelineTable = lazyLoadChart(() =>
     default: mod.SuccessionPipelineTable,
   }))
 )
+
+/**
+ * Timeline Visualization (Tremor AreaChart)
+ * Monthly retirement timeline with interactive click handling
+ * ~150KB minified (Tremor + Recharts)
+ */
+export const LazyTimelineVisualization = lazyLoadChart(() =>
+  import('@/components/retirement/TimelineVisualization').then((mod) => ({
+    default: mod.TimelineVisualization,
+  }))
+)

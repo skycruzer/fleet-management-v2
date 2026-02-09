@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
-import { EASING } from '@/lib/animations'
+import { EASING } from '@/lib/animations/motion-variants'
 
 interface EmptyStateProps {
   icon?: LucideIcon
