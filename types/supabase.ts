@@ -186,6 +186,67 @@ export type Database = {
         }
         Relationships: []
       }
+      certification_email_log: {
+        Row: {
+          id: string
+          pilot_id: string
+          pilot_check_id: string
+          check_type_id: string
+          notification_level: Database['public']['Enums']['notification_level']
+          notification_status: Database['public']['Enums']['notification_status']
+          email_address: string
+          sent_at: string | null
+          error_message: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          pilot_id: string
+          pilot_check_id: string
+          check_type_id: string
+          notification_level: Database['public']['Enums']['notification_level']
+          notification_status?: Database['public']['Enums']['notification_status']
+          email_address: string
+          sent_at?: string | null
+          error_message?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          pilot_id?: string
+          pilot_check_id?: string
+          check_type_id?: string
+          notification_level?: Database['public']['Enums']['notification_level']
+          notification_status?: Database['public']['Enums']['notification_status']
+          email_address?: string
+          sent_at?: string | null
+          error_message?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'certification_email_log_pilot_id_fkey'
+            columns: ['pilot_id']
+            isOneToOne: false
+            referencedRelation: 'pilots'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'certification_email_log_pilot_check_id_fkey'
+            columns: ['pilot_check_id']
+            isOneToOne: false
+            referencedRelation: 'pilot_checks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'certification_email_log_check_type_id_fkey'
+            columns: ['check_type_id']
+            isOneToOne: false
+            referencedRelation: 'check_types'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       certification_renewal_plans: {
         Row: {
           check_type_id: string
@@ -407,7 +468,9 @@ export type Database = {
           check_code: string
           check_description: string
           created_at: string
+          email_notifications_enabled: boolean
           id: string
+          reminder_days: number[] | null
           updated_at: string
         }
         Insert: {
@@ -415,7 +478,9 @@ export type Database = {
           check_code: string
           check_description: string
           created_at?: string
+          email_notifications_enabled?: boolean
           id?: string
+          reminder_days?: number[] | null
           updated_at?: string
         }
         Update: {
@@ -423,7 +488,9 @@ export type Database = {
           check_code?: string
           check_description?: string
           created_at?: string
+          email_notifications_enabled?: boolean
           id?: string
+          reminder_days?: number[] | null
           updated_at?: string
         }
         Relationships: []
@@ -2262,6 +2329,7 @@ export type Database = {
           contract_type_id: string | null
           created_at: string
           date_of_birth: string | null
+          email: string | null
           employee_id: string
           first_name: string
           id: string
@@ -2287,6 +2355,7 @@ export type Database = {
           contract_type_id?: string | null
           created_at?: string
           date_of_birth?: string | null
+          email?: string | null
           employee_id: string
           first_name: string
           id?: string
@@ -2312,6 +2381,7 @@ export type Database = {
           contract_type_id?: string | null
           created_at?: string
           date_of_birth?: string | null
+          email?: string | null
           employee_id?: string
           first_name?: string
           id?: string
@@ -4070,17 +4140,21 @@ export type Database = {
       get_expiring_certifications_with_email: {
         Args: { days_threshold?: number }
         Returns: {
-          check_code: string
-          check_description: string
+          pilot_id: string
           check_type_id: string
-          days_until_expiry: number
-          email: string
-          employee_id: string
+          pilot_check_id: string
           expiry_date: string
+          days_until_expiry: number
           first_name: string
           last_name: string
-          pilot_id: string
           rank: string
+          employee_id: string
+          email: string
+          check_code: string
+          check_description: string
+          check_category: string | null
+          reminder_days: number[] | null
+          email_notifications_enabled: boolean
         }[]
       }
       get_expiry_statistics: {
@@ -4297,11 +4371,12 @@ export type Database = {
         | 'flight_request_submitted'
         | 'flight_request_approved'
         | 'flight_request_rejected'
+        | 'certification_expiring'
+        | 'certification_expired'
       pilot_licence_type: 'ATPL' | 'CPL'
       pilot_position: 'captain' | 'first_officer' | 'second_officer' | 'cadet'
       pilot_role: 'Captain' | 'First Officer'
       request_status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'EXPIRED'
-      visa_type: 'Australia' | 'New Zealand' | 'Japan' | 'Canada'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4501,7 +4576,6 @@ export const Constants = {
       pilot_position: ['captain', 'first_officer', 'second_officer', 'cadet'],
       pilot_role: ['Captain', 'First Officer'],
       request_status: ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'EXPIRED'],
-      visa_type: ['Australia', 'New Zealand', 'Japan', 'Canada'],
     },
   },
 } as const

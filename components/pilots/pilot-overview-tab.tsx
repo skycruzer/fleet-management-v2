@@ -5,14 +5,13 @@
  * Extracted from pilot detail page for tabbed interface.
  *
  * Developer: Maurice Rondeau
- * @date December 6, 2025
+ * @version 5.0.0 - Refactored to use PilotInfoCard, hero moved to PilotProfileHeader
+ * @date February 2026
  */
 
 'use client'
 
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import {
@@ -27,24 +26,20 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
-  ArrowLeft,
-  Edit,
-  Trash2,
   FileText,
   Plane,
   Star,
+  Mail,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { RetirementCountdownBadge } from '@/components/pilots/RetirementCountdownBadge'
+import { Card } from '@/components/ui/card'
 import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
+import { PilotInfoCard } from '@/components/pilots/pilot-info-card'
 import type { Pilot } from './pilot-detail-tabs'
 
 interface PilotOverviewTabProps {
   pilot: Pilot
   retirementAge: number
-  onPilotDelete: () => Promise<void>
   onViewCertifications: () => void
-  isDeleting: boolean
 }
 
 const fadeIn = {
@@ -84,34 +79,10 @@ function calculateAge(dateOfBirth: string | null): string {
   return `${age} years`
 }
 
-function InfoRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string | number
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
-        <Icon className="text-muted-foreground h-4 w-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-muted-foreground text-xs font-medium">{label}</p>
-        <p className="text-foreground mt-0.5 truncate text-sm font-semibold">{value}</p>
-      </div>
-    </div>
-  )
-}
-
 export function PilotOverviewTab({
   pilot,
   retirementAge,
-  onPilotDelete,
   onViewCertifications,
-  isDeleting,
 }: PilotOverviewTabProps) {
   const { shouldAnimate, getVariants } = useAnimationSettings()
   const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name].filter(Boolean).join(' ')
@@ -141,91 +112,6 @@ export function PilotOverviewTab({
 
   return (
     <div className="space-y-6">
-      {/* Hero Section with Gradient Background */}
-      <motion.div
-        initial={shouldAnimate ? { opacity: 0, y: -20 } : { opacity: 1 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="via-primary relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-accent-600)] to-[var(--color-accent-800)] p-8 text-white shadow-2xl"
-      >
-        {/* Background pattern */}
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-
-        <div className="relative">
-          <div className="mb-6 flex items-start justify-between">
-            <div className="flex items-center gap-4">
-              {/* Avatar placeholder */}
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/20 ring-4 ring-white/30 backdrop-blur-sm">
-                {pilot.role === 'Captain' ? (
-                  <Star className="h-10 w-10 text-[var(--color-warning-500)]" />
-                ) : (
-                  <User className="h-10 w-10 text-white" />
-                )}
-              </div>
-              <div>
-                <h1 className="mb-2 text-4xl font-bold">{fullName}</h1>
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full bg-white/20 px-4 py-1.5 text-sm font-semibold backdrop-blur-sm">
-                    {pilot.role}
-                  </span>
-                  <span
-                    className={cn(
-                      'rounded-full px-4 py-1.5 text-sm font-semibold backdrop-blur-sm',
-                      pilot.is_active
-                        ? 'bg-[var(--color-status-low)]/30 ring-1 ring-[var(--color-status-low)]/50'
-                        : 'bg-white/20 ring-1 ring-white/30'
-                    )}
-                  >
-                    {pilot.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                  {pilot.seniority_number && (
-                    <span className="rounded-full bg-[var(--color-warning-muted)] px-4 py-1.5 text-sm font-semibold ring-1 ring-[var(--color-warning-500)]/50 backdrop-blur-sm">
-                      Seniority #{pilot.seniority_number}
-                    </span>
-                  )}
-                  <RetirementCountdownBadge
-                    dateOfBirth={pilot.date_of_birth}
-                    retirementAge={retirementAge}
-                    compact={false}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
-              <Link href="/dashboard/pilots">
-                <Button variant="secondary" size="sm">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Button>
-              </Link>
-              <Link href={`/dashboard/pilots/${pilot.id}/edit`}>
-                <Button variant="secondary" size="sm">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
-              </Link>
-              <Button variant="destructive" size="sm" onClick={onPilotDelete} disabled={isDeleting}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </Button>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
-            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
-              <div className="mb-1 text-sm font-medium text-white/80">Employee ID</div>
-              <div className="text-2xl font-bold">{pilot.employee_id}</div>
-            </div>
-            <div className="rounded-lg bg-white/10 p-4 backdrop-blur-sm">
-              <div className="mb-1 text-sm font-medium text-white/80">Contract Type</div>
-              <div className="text-2xl font-bold">{pilot.contract_type || 'Not Set'}</div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Certification Status Cards */}
       <motion.div
         variants={getVariants(staggerContainer)}
@@ -330,59 +216,56 @@ export function PilotOverviewTab({
       >
         {/* Personal Information */}
         <motion.div variants={getVariants(fadeIn)}>
-          <Card className="h-full p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
-                <User className="text-primary h-5 w-5" />
-              </div>
-              <h3 className="text-foreground text-lg font-semibold">Personal Information</h3>
-            </div>
-            <div className="space-y-4">
-              <InfoRow icon={User} label="Full Name" value={fullName} />
-              <InfoRow
-                icon={Calendar}
-                label="Date of Birth"
-                value={formatDate(pilot.date_of_birth)}
-              />
-              <InfoRow icon={TrendingUp} label="Age" value={calculateAge(pilot.date_of_birth)} />
-              <InfoRow
-                icon={MapPin}
-                label="Nationality"
-                value={pilot.nationality || 'Not specified'}
-              />
-            </div>
-          </Card>
+          <PilotInfoCard
+            title="Personal Information"
+            icon={User}
+            iconBg="bg-primary/10"
+            iconColor="text-primary"
+            items={[
+              { icon: User, label: 'Full Name', value: fullName },
+              { icon: Calendar, label: 'Date of Birth', value: formatDate(pilot.date_of_birth) },
+              { icon: TrendingUp, label: 'Age', value: calculateAge(pilot.date_of_birth) },
+              {
+                icon: MapPin,
+                label: 'Nationality',
+                value: pilot.nationality || 'Not specified',
+              },
+              {
+                icon: Mail,
+                label: 'Email',
+                value: pilot.email || 'No email on file',
+              },
+            ]}
+          />
         </motion.div>
 
-        {/* Employment Information */}
+        {/* Employment Details */}
         <motion.div variants={getVariants(fadeIn)}>
-          <Card className="h-full p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-status-low)]/10">
-                <Briefcase className="h-5 w-5 text-[var(--color-status-low)]" />
-              </div>
-              <h3 className="text-foreground text-lg font-semibold">Employment Details</h3>
-            </div>
-            <div className="space-y-4">
-              <InfoRow icon={Shield} label="Employee ID" value={pilot.employee_id} />
-              <InfoRow icon={Award} label="Rank" value={pilot.role} />
-              <InfoRow
-                icon={Star}
-                label="Seniority Number"
-                value={pilot.seniority_number ? `#${pilot.seniority_number}` : 'Not assigned'}
-              />
-              <InfoRow
-                icon={Briefcase}
-                label="Contract Type"
-                value={pilot.contract_type || 'Not specified'}
-              />
-              <InfoRow
-                icon={Calendar}
-                label="Commencement Date"
-                value={formatDate(pilot.commencement_date)}
-              />
-            </div>
-          </Card>
+          <PilotInfoCard
+            title="Employment Details"
+            icon={Briefcase}
+            iconBg="bg-[var(--color-status-low)]/10"
+            iconColor="text-[var(--color-status-low)]"
+            items={[
+              { icon: Shield, label: 'Employee ID', value: pilot.employee_id },
+              { icon: Award, label: 'Rank', value: pilot.role },
+              {
+                icon: Star,
+                label: 'Seniority Number',
+                value: pilot.seniority_number ? `#${pilot.seniority_number}` : 'Not assigned',
+              },
+              {
+                icon: Briefcase,
+                label: 'Contract Type',
+                value: pilot.contract_type || 'Not specified',
+              },
+              {
+                icon: Calendar,
+                label: 'Commencement Date',
+                value: formatDate(pilot.commencement_date),
+              },
+            ]}
+          />
         </motion.div>
       </motion.div>
 
@@ -392,26 +275,25 @@ export function PilotOverviewTab({
         animate={{ opacity: 1, y: 0 }}
         transition={shouldAnimate ? { delay: 0.4 } : { duration: 0 }}
       >
-        <Card className="p-6 transition-all hover:shadow-md">
-          <div className="mb-4 flex items-center gap-3 border-b pb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info)]/10">
-              <FileText className="h-5 w-5 text-[var(--color-info)]" />
-            </div>
-            <h3 className="text-foreground text-lg font-semibold">Passport Information</h3>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <InfoRow
-              icon={FileText}
-              label="Passport Number"
-              value={pilot.passport_number || 'Not specified'}
-            />
-            <InfoRow
-              icon={Calendar}
-              label="Passport Expiry"
-              value={formatDate(pilot.passport_expiry)}
-            />
-          </div>
-        </Card>
+        <PilotInfoCard
+          title="Passport Information"
+          icon={FileText}
+          iconBg="bg-[var(--color-info)]/10"
+          iconColor="text-[var(--color-info)]"
+          columns={2}
+          items={[
+            {
+              icon: FileText,
+              label: 'Passport Number',
+              value: pilot.passport_number || 'Not specified',
+            },
+            {
+              icon: Calendar,
+              label: 'Passport Expiry',
+              value: formatDate(pilot.passport_expiry),
+            },
+          ]}
+        />
       </motion.div>
 
       {/* Licence Information */}
@@ -420,26 +302,25 @@ export function PilotOverviewTab({
         animate={{ opacity: 1, y: 0 }}
         transition={shouldAnimate ? { delay: 0.42 } : { duration: 0 }}
       >
-        <Card className="p-6 transition-all hover:shadow-md">
-          <div className="mb-4 flex items-center gap-3 border-b pb-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-category-simulator)]/10">
-              <Plane className="h-5 w-5 text-[var(--color-category-simulator)]" />
-            </div>
-            <h3 className="text-foreground text-lg font-semibold">Licence Information</h3>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <InfoRow
-              icon={Award}
-              label="Licence Type"
-              value={pilot.licence_type || 'Not specified'}
-            />
-            <InfoRow
-              icon={FileText}
-              label="Licence Number"
-              value={pilot.licence_number || 'Not specified'}
-            />
-          </div>
-        </Card>
+        <PilotInfoCard
+          title="Licence Information"
+          icon={Plane}
+          iconBg="bg-[var(--color-category-simulator)]/10"
+          iconColor="text-[var(--color-category-simulator)]"
+          columns={2}
+          items={[
+            {
+              icon: Award,
+              label: 'Licence Type',
+              value: pilot.licence_type || 'Not specified',
+            },
+            {
+              icon: FileText,
+              label: 'Licence Number',
+              value: pilot.licence_number || 'Not specified',
+            },
+          ]}
+        />
       </motion.div>
 
       {/* Captain Qualifications (only for Captains) */}
@@ -449,43 +330,46 @@ export function PilotOverviewTab({
           animate={{ opacity: 1, y: 0 }}
           transition={shouldAnimate ? { delay: 0.45 } : { duration: 0 }}
         >
-          <Card className="p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-status-medium)]/10">
-                <Award className="h-5 w-5 text-[var(--color-status-medium)]" />
+          <PilotInfoCard
+            title="Captain Qualifications"
+            icon={Award}
+            iconBg="bg-[var(--color-status-medium)]/10"
+            iconColor="text-[var(--color-status-medium)]"
+          >
+            {captainQualifications.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {captainQualifications.map((qual, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-status-medium-bg)] px-3 py-1.5 text-sm font-medium text-[var(--color-status-medium)]"
+                  >
+                    <Star className="h-3.5 w-3.5" />
+                    {qual}
+                  </span>
+                ))}
               </div>
-              <h3 className="text-foreground text-lg font-semibold">Captain Qualifications</h3>
-            </div>
-            <div className="space-y-4">
-              {captainQualifications.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {captainQualifications.map((qual, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-status-medium-bg)] px-3 py-1.5 text-sm font-medium text-[var(--color-status-medium)]"
-                    >
-                      <Star className="h-3.5 w-3.5" />
-                      {qual}
-                    </span>
-                  ))}
+            ) : (
+              <p className="text-muted-foreground">No qualifications recorded</p>
+            )}
+            {pilot.qualification_notes && (
+              <div className="bg-muted/50 mt-4 rounded-lg p-3">
+                <p className="text-muted-foreground text-sm">{pilot.qualification_notes}</p>
+              </div>
+            )}
+            {pilot.rhs_captain_expiry && (
+              <div className="mt-4 flex items-start gap-3">
+                <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
+                  <Calendar className="text-muted-foreground h-4 w-4" />
                 </div>
-              ) : (
-                <p className="text-muted-foreground">No qualifications recorded</p>
-              )}
-              {pilot.qualification_notes && (
-                <div className="bg-muted/50 mt-4 rounded-lg p-3">
-                  <p className="text-muted-foreground text-sm">{pilot.qualification_notes}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-muted-foreground text-xs font-medium">RHS Captain Expiry</p>
+                  <p className="text-foreground mt-0.5 truncate text-sm font-semibold">
+                    {formatDate(pilot.rhs_captain_expiry)}
+                  </p>
                 </div>
-              )}
-              {pilot.rhs_captain_expiry && (
-                <InfoRow
-                  icon={Calendar}
-                  label="RHS Captain Expiry"
-                  value={formatDate(pilot.rhs_captain_expiry)}
-                />
-              )}
-            </div>
-          </Card>
+              </div>
+            )}
+          </PilotInfoCard>
         </motion.div>
       )}
 
@@ -495,18 +379,17 @@ export function PilotOverviewTab({
         animate={{ opacity: 1, y: 0 }}
         transition={shouldAnimate ? { delay: 0.5 } : { duration: 0 }}
       >
-        <Card className="p-6 transition-all hover:shadow-md">
-          <div className="mb-4 flex items-center gap-3 border-b pb-3">
-            <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
-              <Clock className="text-muted-foreground h-5 w-5" />
-            </div>
-            <h3 className="text-foreground text-lg font-semibold">System Information</h3>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <InfoRow icon={Calendar} label="Record Created" value={formatDate(pilot.created_at)} />
-            <InfoRow icon={Calendar} label="Last Updated" value={formatDate(pilot.updated_at)} />
-          </div>
-        </Card>
+        <PilotInfoCard
+          title="System Information"
+          icon={Clock}
+          iconBg="bg-muted"
+          iconColor="text-muted-foreground"
+          columns={2}
+          items={[
+            { icon: Calendar, label: 'Record Created', value: formatDate(pilot.created_at) },
+            { icon: Calendar, label: 'Last Updated', value: formatDate(pilot.updated_at) },
+          ]}
+        />
       </motion.div>
     </div>
   )

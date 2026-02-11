@@ -23,6 +23,8 @@ export interface CheckType {
   check_code: string
   check_description: string
   category: string | null
+  reminder_days: number[] | null
+  email_notifications_enabled: boolean
   created_at: string
   updated_at: string
 }

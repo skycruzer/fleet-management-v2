@@ -1,6 +1,8 @@
 /**
  * Check Types Management Page
- * Manage certification check types and categories
+ * Manage certification check types, categories, and reminder settings
+ *
+ * Developer: Maurice Rondeau
  */
 
 import { dashboardMetadata } from '@/lib/utils/metadata'
@@ -10,7 +12,8 @@ export const metadata = dashboardMetadata.adminCheckTypes
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { getCheckTypes, getCheckTypeCategories } from '@/lib/services/admin-service'
-import { format } from 'date-fns'
+import { ClipboardList, Tag, CheckCircle2, Calendar, Lightbulb } from 'lucide-react'
+import { CheckTypesTable } from '@/components/admin/check-types-table'
 
 export default async function CheckTypesPage() {
   const [checkTypes, categories] = await Promise.all([getCheckTypes(), getCheckTypeCategories()])
@@ -31,26 +34,23 @@ export default async function CheckTypesPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-foreground text-2xl font-bold">Check Types Management</h2>
+          <h2 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+            Check Types Management
+          </h2>
           <p className="text-muted-foreground mt-1">
             Manage certification check types and categories
           </p>
         </div>
-        <div className="flex items-center space-x-3">
-          <Link href="/dashboard/admin">
-            <Button variant="outline">← Back to Admin</Button>
-          </Link>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-            Add Check Type
-          </Button>
-        </div>
+        <Link href="/dashboard/admin">
+          <Button variant="outline">← Back to Admin</Button>
+        </Link>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">📋</span>
+            <ClipboardList className="text-primary h-8 w-8" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{checkTypes.length}</p>
               <p className="text-muted-foreground text-sm font-medium">Total Check Types</p>
@@ -59,7 +59,7 @@ export default async function CheckTypesPage() {
         </Card>
         <Card className="border-primary/20 bg-primary/5 p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">🏷️</span>
+            <Tag className="text-primary h-8 w-8" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{categories.length}</p>
               <p className="text-muted-foreground text-sm font-medium">Categories</p>
@@ -68,7 +68,7 @@ export default async function CheckTypesPage() {
         </Card>
         <Card className="border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">✅</span>
+            <CheckCircle2 className="h-8 w-8 text-[var(--color-success-500)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{checkTypes.length}</p>
               <p className="text-muted-foreground text-sm font-medium">Active Types</p>
@@ -77,7 +77,7 @@ export default async function CheckTypesPage() {
         </Card>
         <Card className="border-[var(--color-badge-orange)]/20 bg-[var(--color-badge-orange-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <span className="text-3xl">📅</span>
+            <Calendar className="h-8 w-8 text-[var(--color-badge-orange)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{recentlyUpdatedCount}</p>
               <p className="text-muted-foreground text-sm font-medium">Updated (30d)</p>
@@ -103,84 +103,10 @@ export default async function CheckTypesPage() {
       <Card className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-foreground text-lg font-semibold">All Check Types</h3>
-          <div className="flex items-center space-x-2">
-            <select className="border-border rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-[var(--color-primary-500)] focus:outline-none">
-              <option value="">All Categories</option>
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            <Button variant="outline" size="sm">
-              Filter
-            </Button>
-          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="divide-border min-w-full divide-y">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Code
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Description
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Category
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Status
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Updated
-                </th>
-                <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-border divide-y">
-              {checkTypes.map((checkType) => (
-                <tr key={checkType.id} className="hover:bg-muted/50">
-                  <td className="text-foreground px-4 py-4 text-sm font-medium whitespace-nowrap">
-                    {checkType.check_code}
-                  </td>
-                  <td className="text-foreground px-4 py-4 text-sm">
-                    {checkType.check_description}
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {checkType.category || 'N/A'}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center rounded-full bg-[var(--color-success-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-success-400)]">
-                      ACTIVE
-                    </span>
-                  </td>
-                  <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                    {format(new Date(checkType.updated_at), 'MMM dd, yyyy')}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      <Button variant="ghost" size="sm">
-                        View
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="hover:bg-primary hover:text-primary-foreground"
-                      >
-                        Edit
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <CheckTypesTable checkTypes={checkTypes} />
+
         <div className="text-muted-foreground mt-4 text-sm">
           Showing {checkTypes.length} check types
         </div>
@@ -189,7 +115,10 @@ export default async function CheckTypesPage() {
       {/* Help Text */}
       <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-4">
         <div className="flex items-start space-x-3">
-          <span className="text-2xl">💡</span>
+          <Lightbulb
+            className="h-6 w-6 flex-shrink-0 text-[var(--color-info)]"
+            aria-hidden="true"
+          />
           <div className="space-y-1">
             <p className="text-foreground text-sm font-medium">About Check Types</p>
             <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
@@ -198,7 +127,9 @@ export default async function CheckTypesPage() {
               <li>
                 Categories help organize check types by their purpose or regulatory requirement
               </li>
-              <li>Check types can be marked inactive if no longer in use</li>
+              <li>
+                Use the Reminders button to configure email notification schedules per check type
+              </li>
               <li>Changes to check types affect all certifications using that type</li>
             </ul>
           </div>

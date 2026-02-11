@@ -646,3 +646,343 @@ React 19.2.4 + Next.js 16.1.6 are fully compatible with React Compiler. Zero `Re
 Full review reports: `tasks/ux-review/01-05`
 Redesign proposal: `tasks/ux-architecture-redesign-proposal.md`
 Comprehensive upgrade prompt: `tasks/upgrade-prompt.md`
+
+---
+
+## Remove Non-Renewal Check Types (February 10, 2026)
+
+**Scope**: Remove all 7 non-renewal check types from database and codebase.
+**Check types**: B767_PE_CNS, PBN, EFB_CBT, B767_PERF, LICENCES, OPT, B767_WB
+**Risk**: LOW — FK constraints use ON DELETE CASCADE; only 3 code files have hardcoded 'Non-renewal' refs
+
+### Phase 1: Database Migration
+
+- [ ] NR1.1 Create `supabase/migrations/20260210000002_remove_non_renewal_check_types.sql`
+  - Delete `pilot_checks` referencing Non-renewal check types (explicit, before CASCADE)
+  - Delete `check_types` where `category = 'Non-renewal'` (removes all 7)
+  - ALTER `roster_period_capacity.max_pilots_per_category` default to remove `"Non-renewal": 2`
+  - UPDATE existing `roster_period_capacity` rows to strip `"Non-renewal"` from JSONB columns
+
+### Phase 2: Code Cleanup (3 files + 1 doc)
+
+- [ ] NR2.1 `lib/utils/grace-period-utils.ts` — Remove `'Non-renewal': 0` from GRACE_PERIODS (line 25)
+- [ ] NR2.2 `lib/utils/certification-utils.ts` — Remove `case 'Non-renewal':` from getCategoryIcon() (lines 576-577) and getCategoryColor() (lines 609-610)
+- [ ] NR2.3 `docs/RENEWAL_PLANNING_TECHNICAL.md` — Remove `'Non-renewal': 0` from code snippet (line 392)
+
+### Phase 3: Validation
+
+- [ ] NR3.1 Run `npm run build` — verify no SSR/import errors
+- [ ] NR3.2 Run `npm run validate` — type-check + lint + format
+
+---
+
+## Comprehensive UI/UX Consistency Review (February 10, 2026)
+
+**Scope**: 116 issues identified across 5 parallel reviews (Dashboard, Pilots, Certs/Requests, Admin/Reports, Portal)
+**Approach**: Grouped by theme, ordered by impact. Quick wins first, then structural fixes.
+
+---
+
+### Phase 1: Dead Code & Architecture Cleanup
+
+Remove unused files and resolve competing architectures before making UI changes.
+
+- [ ] UX1.1 **Delete dead dashboard components** — `hero-stats.tsx`, `hero-stats-server.tsx`, `hero-stats-client.tsx`, `critical-stats-strip.tsx` (not imported in dashboard-content.tsx, contain hardcoded mock data)
+- [ ] UX1.2 **Delete dead admin components** — `page-improved.tsx`, `admin-dashboard-client.tsx` (neither used by live routes)
+- [ ] UX1.3 **Delete unused portal component** — `components/portal/dashboard-stats.tsx` (never imported)
+- [ ] UX1.4 **Remove hidden skeleton dead code** — `components/skeletons/pilot-list-skeleton.tsx` lines 96-134 (hidden table skeleton) and lines 137-164 (duplicate mobile cards skeleton)
+
+### Phase 2: Security & Data Integrity Fixes
+
+Critical fixes that prevent data loss or security issues.
+
+- [ ] UX2.1 **Add CSRF token to rank group delete** — `components/pilots/pilot-rank-group.tsx:66-67` — add CSRF header and `credentials: 'include'`
+- [ ] UX2.2 **Add unsaved changes warning to edit form** — `app/dashboard/pilots/[id]/edit/page.tsx` — add `useFormUnsavedChanges` hook (new form already has it)
+- [ ] UX2.3 **Fix Cancel link clickable during submission** — `app/dashboard/pilots/[id]/edit/page.tsx:731-734` — add `pointer-events-none` to Link wrapper when `isSubmitting`
+- [ ] UX2.4 **Move Delete button to "More Actions" dropdown** — `components/pilots/pilot-profile-header.tsx:122-125` — reduce accidental deletion risk
+
+### Phase 3: Cross-Cutting Consistency — Page Headers
+
+Standardize the single most visible inconsistency across the entire app.
+
+- [ ] UX3.1 **Standardize all page headings to `text-xl font-semibold tracking-tight lg:text-2xl`**
+  - Admin main page (page.tsx:51): `text-3xl font-bold` → standardize
+  - Admin sub-pages (settings:24, check-types:34): `text-2xl font-bold` → standardize
+  - Audit Logs (page.tsx:85): `text-3xl font-bold` → standardize
+  - Request Detail (requests/[id]/page.tsx:115): `text-3xl font-bold` → standardize
+  - Portal Notifications (page.tsx:170): `text-3xl font-bold` → standardize
+  - Portal Leave Bids (page.tsx:38): `text-3xl font-bold` → standardize
+- [ ] UX3.2 **Fix Audit Logs unique container wrapper** — Change `container mx-auto px-4 py-8` to `space-y-6` to match all other pages
+
+### Phase 4: Replace alert() with Toast System
+
+Every `alert()` call breaks the visual language and blocks the UI.
+
+- [ ] UX4.1 `app/dashboard/pilots/[id]/page.tsx:151` — replace `alert(message)` with `toast`
+- [ ] UX4.2 `app/dashboard/admin/settings/settings-client.tsx:55,58,82,86` — replace all `alert()` with `toast`
+- [ ] UX4.3 `components/certifications/certifications-view-toggle.tsx:48-54` — replace `alert()` with `toast`
+
+### Phase 5: Replace Emoji with Lucide Icons
+
+Emoji render inconsistently across platforms and break the professional design language.
+
+- [ ] UX5.1 **Admin Settings page** — `settings/page.tsx:41-68` — replace ⚙️ ✅ 🔒 with `Settings`, `CheckCircle2`, `Lock` icons
+- [ ] UX5.2 **Check-types page** — `check-types/page.tsx:54-85` — replace 📋 🏷️ ✅ 📅 with Lucide equivalents
+- [ ] UX5.3 **Settings client** — `settings-client.tsx:143,186,230,273` — replace ⚓ 📋 🏖️ 🔧 with Lucide equivalents
+- [ ] UX5.4 **Analytics page** — `page.tsx:222,258,267` — replace ❌ 🔄 🚨 with Lucide equivalents
+- [ ] UX5.5 **New User page** — `users/new/page.tsx:199` — replace ⏳ with `Loader2` spinner
+- [ ] UX5.6 **New certification page** — `certifications/new/page.tsx:364` — replace ℹ️ with `Info` icon
+
+### Phase 6: Component Consistency — Tables & Forms
+
+Replace native HTML elements with shadcn/ui components for visual consistency.
+
+- [ ] UX6.1 **Replace native `<select>` with shadcn Select** across:
+  - `check-types/page.tsx:107-114`
+  - `audit-logs/components/audit-filters.tsx:42-94`
+  - `users/new/page.tsx:141-151`
+  - `components/portal/flight-request-form.tsx:106-114`
+  - `app/portal/(protected)/feedback/page.tsx:141-157`
+- [ ] UX6.2 **Replace native `<table>` with shadcn Table** across admin pages:
+  - `admin/page.tsx:184-211`
+  - `check-types/page.tsx:121-182`
+  - `settings-client.tsx:320-398`
+  - `audit-logs/page.tsx:159-225`
+  - `pilot-rank-group.tsx:127-209`
+- [ ] UX6.3 **Replace native `<textarea>` with shadcn Textarea** — `certifications/new/page.tsx:316-325`
+- [ ] UX6.4 **Replace raw `<button>` with shadcn Button** in portal forms — `leave-request-form.tsx:362-368`, `flight-request-form.tsx:262-268`
+
+### Phase 7: Accessibility Fixes
+
+- [ ] UX7.1 **Add ARIA tab pattern to pilots view toggle** — `pilots-view-toggle.tsx:111-142` — add `role="tablist"`, `role="tab"`, `aria-selected`
+- [ ] UX7.2 **Fix pilot detail tab labels on mobile** — `pilot-detail-tabs.tsx:104,108` — add `aria-label` to TabsTrigger when text is hidden
+- [ ] UX7.3 **Add aria-labels to inline edit buttons** — `pilot-certifications-tab.tsx:426-433` — add `aria-label="Save"` / `aria-label="Cancel"`, add Enter/Escape keyboard shortcuts
+- [ ] UX7.4 **Fix category group header keyboard access** — `certification-category-group.tsx:83-86` — change `<div>` with `onClick` to `<button>` with `aria-expanded`
+- [ ] UX7.5 **Add table accessibility** — add `caption` or `aria-label` to tables in admin pages, add `scope="col"` to `<th>` elements
+
+### Phase 8: Dashboard Layout Improvements
+
+- [ ] UX8.1 **Fix Zone 4 grid when UrgentAlertBanner is null** — `dashboard-content.tsx:81-108` — collapse to 2-col or add fallback placeholder
+- [ ] UX8.2 **Add `h-full` to Zone 4 cards** — `roster-calendar-widget.tsx:76`, `pending-approvals-widget.tsx:51`
+- [ ] UX8.3 **Fix Suspense fallback height** — `dashboard-content.tsx:104` — match `h-16` to sibling `h-64`
+- [ ] UX8.4 **Standardize widget header styles** — align RetirementForecastCard and CompactRosterDisplay headers with Pattern A (subtle uppercase labels)
+- [ ] UX8.5 **Remove duplicate container styles** — `app/dashboard/page.tsx:20` duplicates `dashboard-content.tsx:32`
+- [ ] UX8.6 **Replace inline `style={{ minWidth: 0 }}` with `min-w-0`** — page.tsx and dashboard-content.tsx
+- [ ] UX8.7 **Fix breadcrumb Home link** — `breadcrumb.tsx:72` — change `href="/"` to `href="/dashboard"`
+- [ ] UX8.8 **Fix breadcrumb stacking margin** — remove `mb-4` from Breadcrumb since parent `space-y-6` provides rhythm
+
+### Phase 9: Status Badge & Color Standardization
+
+- [ ] UX9.1 **Standardize status badges** — use `destructive` for expired/red, `warning` for expiring/yellow, `success` for current/green across ALL certification components: `certifications-table.tsx`, `certification-category-group.tsx`, `category-view.tsx`, `expiry-groups-accordion.tsx`
+- [ ] UX9.2 **Standardize delete button styling** — use `bg-destructive text-destructive-foreground hover:bg-destructive/90` everywhere (replace `--color-danger-600`, `--color-status-high` variants)
+- [ ] UX9.3 **Create shared `<RankBadge>` component** — standardize Captain/FO badge across `pilots-table.tsx`, `pilot-card.tsx`, `pilot-profile-header.tsx`, `pilot-rank-group.tsx`
+- [ ] UX9.4 **Standardize date formatting** — use `formatDate()` utility consistently, standardize on `MMM d, yyyy` format
+
+### Phase 10: Portal-Specific Fixes
+
+- [ ] UX10.1 **Unify auth page visual style** — bring login page up to match forgot-password/reset-password styling (or simplify those to match login)
+- [ ] UX10.2 **Add Leave Bids to portal sidebar nav** — `pilot-portal-sidebar.tsx` — key functionality currently unreachable
+- [ ] UX10.3 **Fix certifications sticky header overlap on mobile** — `portal/certifications/page.tsx:252-271` — adjust `top` to `top-16` on mobile
+- [ ] UX10.4 **Fix conflicting CSS classes on dashboard headings** — `portal/dashboard/page.tsx:130,194,256` — remove duplicate `text-foreground`
+- [ ] UX10.5 **Standardize portal page padding** — unify to `px-6 lg:px-8` across all portal pages
+- [ ] UX10.6 **Replace native form elements in portal feedback page** — `feedback/page.tsx` — use shadcn components
+
+### Phase 11: Navigation & Layout Fixes
+
+- [ ] UX11.1 **Fix duplicate sidebar icon** — `professional-sidebar-client.tsx:66` — change Audit Logs from `ClipboardList` to `ScrollText`
+- [ ] UX11.2 **Fix duplicate user menu items** — `professional-header.tsx:337-352` — Profile and Settings both go to `/dashboard/settings`
+- [ ] UX11.3 **Unify logout endpoints** — MobileNav uses `/api/auth/signout`, sidebar/header use `/api/auth/logout` — pick one
+- [ ] UX11.4 **Change notification badge to `bg-destructive`** — `professional-header.tsx:215` — standard red dot pattern
+- [ ] UX11.5 **Fix Help "Contact Support" broken link** — `faq-content.tsx:289` — links to non-existent `/dashboard/support`
+- [ ] UX11.6 **Consolidate portal Feedback/Feedback History** into single nav item with tabs
+
+### Phase 12: Non-Functional Button Cleanup (Admin)
+
+- [ ] UX12.1 **Remove or wire up non-functional buttons**:
+  - Check-types filter button (`check-types/page.tsx:115-117`) — no handler
+  - Check-types View/Edit buttons (`check-types/page.tsx:167-177`) — no handler
+  - Settings "Add Setting" button (`settings/page.tsx:32-34`) — no handler
+  - Check-types "Add Check Type" button (`check-types/page.tsx:43-45`) — no handler
+
+### Phase 13: Validation
+
+- [ ] UX13.1 Run `npm run build` — verify no SSR/import errors
+- [ ] UX13.2 Run `npm run validate` — type-check + lint + format
+
+---
+
+## Email Notifications for Certification Expiry (February 11, 2026)
+
+**Scope**: Add email to pilot records + configurable per-check-type reminder notifications
+**Goal**: Automatic email notifications based on certification type and admin-configurable reminder settings
+
+### Research Summary
+
+**What already exists (no changes needed):**
+
+- Resend email integration via `pilot-email-service.ts` with `sendCertificationExpiryAlert()`
+- Cron job at `/api/cron/certification-expiry-alerts/route.ts` (daily 6 AM)
+- DB function `get_expiring_certifications_with_email` joining pilots with emails from `pilot_users`
+- `notification_level` enum: 90_DAYS, 60_DAYS, 30_DAYS, 14_DAYS, 7_DAYS, EXPIRED, CRITICAL
+- `notification_status` enum: PENDING, SENT, ACKNOWLEDGED, FAILED, CANCELLED
+- In-app notification system (CRUD + bell icon + unread counts)
+- User notification preferences with `certification_reminders` toggle
+- `alert_thresholds` system setting (7/14/30/60/90 day thresholds)
+
+**What's missing (this plan):**
+
+1. Email field directly on `pilots` table (not all pilots have portal accounts)
+2. Per-check-type reminder day configuration (currently all use same 90-day threshold)
+3. Email notification tracking (prevent duplicate daily emails)
+4. Admin UI for managing per-check-type reminder settings
+5. Updated cron job to respect per-check-type settings + track sent notifications
+6. Pilot form updates to capture email
+
+---
+
+### Phase 1: Database Schema Changes
+
+#### 1.1 Add Email to Pilots Table
+
+- [ ] EN1.1 Create migration `supabase/migrations/20260211000001_add_pilot_email_and_reminders.sql`
+  - `ALTER TABLE pilots ADD COLUMN email TEXT;`
+  - Add index: `CREATE INDEX idx_pilots_email ON pilots(email);`
+  - Comment: `COMMENT ON COLUMN pilots.email IS 'Direct email for notifications. Falls back to pilot_users.email if null.';`
+
+#### 1.2 Add Reminder Configuration to Check Types
+
+- [ ] EN1.2 Same migration — add per-check-type reminder settings
+  - `ALTER TABLE check_types ADD COLUMN reminder_days INTEGER[] DEFAULT '{90,60,30,14,7}';`
+  - `ALTER TABLE check_types ADD COLUMN email_notifications_enabled BOOLEAN DEFAULT true;`
+  - Comment: `COMMENT ON COLUMN check_types.reminder_days IS 'Array of days-before-expiry to send email reminders. e.g., {90,60,30,14,7}';`
+  - Comment: `COMMENT ON COLUMN check_types.email_notifications_enabled IS 'Whether email notifications are enabled for this check type';`
+
+#### 1.3 Create Notification Log Table
+
+- [ ] EN1.3 Same migration — create email notification tracking table
+  ```sql
+  CREATE TABLE certification_email_log (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    pilot_id UUID NOT NULL REFERENCES pilots(id) ON DELETE CASCADE,
+    pilot_check_id UUID NOT NULL REFERENCES pilot_checks(id) ON DELETE CASCADE,
+    notification_level notification_level NOT NULL,
+    notification_status notification_status NOT NULL DEFAULT 'PENDING',
+    email_address TEXT NOT NULL,
+    sent_at TIMESTAMPTZ DEFAULT NOW(),
+    error_message TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  );
+  CREATE INDEX idx_cert_email_log_pilot ON certification_email_log(pilot_id);
+  CREATE INDEX idx_cert_email_log_dedup ON certification_email_log(pilot_check_id, notification_level);
+  ```
+
+#### 1.4 Update DB Function
+
+- [ ] EN1.4 Same migration — update `get_expiring_certifications_with_email` to also check `pilots.email`
+  - Change email source: `COALESCE(p.email, pu.email) AS email` (prefer pilots.email, fallback to pilot_users.email)
+  - Add `ct.reminder_days` and `ct.email_notifications_enabled` to SELECT output
+  - Add `WHERE ct.email_notifications_enabled = true` filter
+
+#### 1.5 Regenerate Types
+
+- [ ] EN1.5 Run `npm run db:types` after migration is applied
+
+---
+
+### Phase 2: Service Layer Updates
+
+#### 2.1 Update Pilot Service
+
+- [ ] EN2.1 Add `email` to `PilotFormData` interface in `lib/services/pilot-service.ts`
+  - Add `email?: string | null` to the interface
+  - Include `email` in `createPilot()` and `updatePilot()` operations
+
+#### 2.2 Create Certification Notification Service
+
+- [ ] EN2.2 Create `lib/services/certification-notification-service.ts`
+  - `getCheckTypeReminderSettings()` — fetch reminder config for all check types
+  - `updateCheckTypeReminderSettings(checkTypeId, settings)` — update reminder days + enabled flag
+  - `hasNotificationBeenSent(pilotCheckId, level)` — check dedup log
+  - `logNotificationSent(pilotId, pilotCheckId, level, email, status)` — write to log
+  - `getNotificationHistory(pilotId?)` — admin view of sent notifications
+
+---
+
+### Phase 3: Cron Job Enhancement
+
+#### 3.1 Update Certification Expiry Alerts Cron
+
+- [ ] EN3.1 Update `app/api/cron/certification-expiry-alerts/route.ts`
+  - Use per-check-type `reminder_days` instead of hardcoded 90-day threshold
+  - Determine `notification_level` from days-until-expiry (match `notification_level` enum)
+  - Check dedup: skip if same (pilot_check_id, level) already sent
+  - Respect `email_notifications_enabled` per check type
+  - Respect user `certification_reminders` preference (check `pilot_users.notification_settings`)
+  - Log all sent emails to `certification_email_log`
+  - Also create in-app notifications via `notification-service.ts`
+
+---
+
+### Phase 4: Admin UI — Check Type Reminder Settings
+
+#### 4.1 Update Check Types Admin Page
+
+- [ ] EN4.1 Update `app/dashboard/admin/check-types/page.tsx`
+  - Display `reminder_days` and `email_notifications_enabled` per check type
+  - Add Edit dialog to configure reminder days (multi-select checkboxes: 90, 60, 30, 14, 7 days)
+  - Add toggle for email notifications enabled/disabled per check type
+  - Show notification history/stats per check type
+
+#### 4.2 Create API Route for Check Type Reminder Settings
+
+- [ ] EN4.2 Create `app/api/check-types/[id]/reminders/route.ts`
+  - `PUT` — update reminder_days and email_notifications_enabled
+  - Auth: require admin session
+  - Validate with Zod schema
+
+---
+
+### Phase 5: Pilot Form Updates
+
+#### 5.1 Add Email Field to New Pilot Form
+
+- [ ] EN5.1 Update `app/dashboard/pilots/new/page.tsx`
+  - Add email input field in the Personal Information section
+  - Update Zod validation schema to include optional email
+
+#### 5.2 Add Email Field to Edit Pilot Form
+
+- [ ] EN5.2 Update `app/dashboard/pilots/[id]/edit/page.tsx`
+  - Add email input field
+  - Pre-populate from `pilots.email` or fall back to `pilot_users.email`
+
+#### 5.3 Show Email in Pilot Detail View
+
+- [ ] EN5.3 Update `app/dashboard/pilots/[id]/page.tsx`
+  - Display email in pilot overview tab
+  - Show notification preference status (if pilot has portal account)
+
+---
+
+### Phase 6: Pilot Validation Schema Updates
+
+- [ ] EN6.1 Update `lib/validations/pilot-validation.ts`
+  - Add `email: z.string().email().optional().nullable()` to `PilotCreateSchema` and `PilotUpdateSchema`
+
+---
+
+### Phase 7: Notification History View (Admin)
+
+- [ ] EN7.1 Add notification history tab/section to admin dashboard or settings
+  - Table showing: pilot name, check type, notification level, email, sent date, status
+  - Filters by: check type category, notification level, date range, status
+  - Useful for auditing that notifications are working correctly
+
+---
+
+### Phase 8: Validation
+
+- [ ] EN8.1 Run `npm run build` — verify no SSR/import errors
+- [ ] EN8.2 Run `npm run validate` — type-check + lint + format
+- [ ] EN8.3 Test cron job endpoint manually with Bearer token
+- [ ] EN8.4 Verify email delivery via Resend dashboard

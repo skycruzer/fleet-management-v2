@@ -3,8 +3,8 @@
  * Displays comprehensive pilot information with tabs for Overview and Certifications.
  *
  * Developer: Maurice Rondeau
- * @version 4.0.0 - Tabbed interface replacing modal-based editing
- * @date December 6, 2025
+ * @version 5.0.0 - Added breadcrumbs and PilotProfileHeader above tabs
+ * @date February 2026
  */
 
 'use client'
@@ -17,9 +17,13 @@ import { useConfirm } from '@/components/ui/confirm-dialog'
 import Link from 'next/link'
 import { PilotDetailTabs } from '@/components/pilots/pilot-detail-tabs'
 import type { Pilot, Certification } from '@/components/pilots/pilot-detail-tabs'
+import { PilotProfileHeader } from '@/components/pilots/pilot-profile-header'
+import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { Spinner } from '@/components/ui/spinner'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { useToast } from '@/hooks/use-toast'
 import { motion } from 'framer-motion'
-import { XCircle, ArrowLeft, Plane } from 'lucide-react'
+import { XCircle, ArrowLeft } from 'lucide-react'
 
 export default function PilotDetailPage() {
   const router = useRouter()
@@ -27,6 +31,7 @@ export default function PilotDetailPage() {
   const pilotId = params.id as string
   const { confirm, ConfirmDialog } = useConfirm()
   const { csrfToken } = useCsrfToken()
+  const { toast } = useToast()
 
   const [pilot, setPilot] = useState<Pilot | null>(null)
   const [certifications, setCertifications] = useState<Certification[]>([])
@@ -108,7 +113,7 @@ export default function PilotDetailPage() {
   async function handleDelete() {
     const confirmed = await confirm({
       title: 'Delete Pilot',
-      description: `Are you sure you want to delete ${pilot?.first_name} ${pilot?.last_name}? This action cannot be undone and will also delete all associated certifications and records.`,
+      description: `Are you sure you want to delete ${pilot?.first_name} ${pilot?.last_name}?\n\nThis will permanently remove:\n• All certifications and check records\n• All leave and flight requests\n• Leave bids and renewal plans\n• Feedback and assessment records\n• Disciplinary records\n• Related tasks\n• Pilot portal account\n\nThis action cannot be undone.`,
       confirmText: 'Delete',
       cancelText: 'Cancel',
       variant: 'destructive',
@@ -145,7 +150,7 @@ export default function PilotDetailPage() {
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete pilot'
-      alert(message)
+      toast({ title: 'Delete Failed', description: message, variant: 'destructive' })
       setDeleting(false)
     }
   }
@@ -165,7 +170,7 @@ export default function PilotDetailPage() {
           className="text-center"
         >
           <div className="mb-4 flex justify-center">
-            <Plane className="text-primary h-12 w-12 animate-pulse" />
+            <Spinner size="lg" />
           </div>
           <p className="text-muted-foreground text-lg">Loading pilot details...</p>
         </motion.div>
@@ -191,16 +196,31 @@ export default function PilotDetailPage() {
     )
   }
 
+  const fullName = [pilot.first_name, pilot.middle_name, pilot.last_name].filter(Boolean).join(' ')
+
   return (
     <div className="space-y-6 pb-12">
+      <PageBreadcrumbs
+        items={[
+          { label: 'Admin Dashboard', href: '/dashboard' },
+          { label: 'Pilots', href: '/dashboard/pilots' },
+          { label: fullName },
+        ]}
+      />
+
+      <PilotProfileHeader
+        pilot={pilot}
+        retirementAge={retirementAge}
+        onPilotDelete={handleDelete}
+        isDeleting={deleting}
+      />
+
       <PilotDetailTabs
         pilot={pilot}
         initialCertifications={certifications}
         retirementAge={retirementAge}
-        onPilotDelete={handleDelete}
         onCertificationUpdate={handleCertificationUpdate}
         csrfToken={csrfToken}
-        isDeleting={deleting}
       />
 
       {/* Confirmation Dialog */}

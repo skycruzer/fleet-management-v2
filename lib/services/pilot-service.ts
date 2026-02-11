@@ -71,6 +71,7 @@ export interface PilotFormData {
   first_name: string
   middle_name?: string | null
   last_name: string
+  email?: string | null
   role: 'Captain' | 'First Officer'
   contract_type?: string | null
   nationality?: string | null
@@ -526,6 +527,7 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
           first_name: pilotData.first_name,
           middle_name: toNullIfEmpty(pilotData.middle_name),
           last_name: pilotData.last_name,
+          email: toNullIfEmpty(pilotData.email),
           role: pilotData.role,
           contract_type: toNullIfEmpty(pilotData.contract_type),
           nationality: toNullIfEmpty(pilotData.nationality),
@@ -778,55 +780,187 @@ export async function deletePilot(pilotId: string): Promise<void> {
       throw new Error('Pilot not found')
     }
 
-    // Delete related records manually (avoiding deprecated leave_requests table in DB function)
-    // Step 1: Delete from pilot_requests (unified request table)
-    const { error: requestsError } = await supabase
+    // Track deletion counts for audit log
+    const deletedCounts = {
+      requests: 0,
+      checks: 0,
+      leaveBids: 0,
+      renewalPlans: 0,
+      feedback: 0,
+      ebtAssessments: 0,
+      disciplinary: 0,
+      tasks: 0,
+      portalUsers: 0,
+    }
+
+    // Step 1: Delete from pilot_requests (leave + flight requests)
+    const { data: deletedRequests, error: requestsError } = await supabase
       .from('pilot_requests')
       .delete()
       .eq('pilot_id', pilotId)
+      .select('id')
 
     if (requestsError) {
       logWarning('Failed to delete pilot requests', {
         source: 'PilotService',
         metadata: { pilotId, error: requestsError.message },
       })
+    } else {
+      deletedCounts.requests = deletedRequests?.length ?? 0
     }
 
-    // Step 2: Delete certifications
-    const { error: certsError } = await supabase
+    // Step 2: Delete certifications (pilot_checks)
+    const { data: deletedChecks, error: certsError } = await supabase
       .from('pilot_checks')
       .delete()
       .eq('pilot_id', pilotId)
+      .select('id')
 
     if (certsError) {
       logWarning('Failed to delete pilot certifications', {
         source: 'PilotService',
         metadata: { pilotId, error: certsError.message },
       })
+    } else {
+      deletedCounts.checks = deletedChecks?.length ?? 0
     }
 
-    // Step 3: Delete the pilot record
+    // Step 3: Delete leave bids
+    const { data: deletedBids, error: bidsError } = await supabase
+      .from('leave_bids')
+      .delete()
+      .eq('pilot_id', pilotId)
+      .select('id')
+
+    if (bidsError) {
+      logWarning('Failed to delete pilot leave bids', {
+        source: 'PilotService',
+        metadata: { pilotId, error: bidsError.message },
+      })
+    } else {
+      deletedCounts.leaveBids = deletedBids?.length ?? 0
+    }
+
+    // Step 4: Delete certification renewal plans
+    const { data: deletedPlans, error: plansError } = await supabase
+      .from('certification_renewal_plans')
+      .delete()
+      .eq('pilot_id', pilotId)
+      .select('id')
+
+    if (plansError) {
+      logWarning('Failed to delete certification renewal plans', {
+        source: 'PilotService',
+        metadata: { pilotId, error: plansError.message },
+      })
+    } else {
+      deletedCounts.renewalPlans = deletedPlans?.length ?? 0
+    }
+
+    // Step 5: Delete pilot feedback
+    const { data: deletedFeedback, error: feedbackError } = await supabase
+      .from('pilot_feedback')
+      .delete()
+      .eq('pilot_id', pilotId)
+      .select('id')
+
+    if (feedbackError) {
+      logWarning('Failed to delete pilot feedback', {
+        source: 'PilotService',
+        metadata: { pilotId, error: feedbackError.message },
+      })
+    } else {
+      deletedCounts.feedback = deletedFeedback?.length ?? 0
+    }
+
+    // Step 6: Delete EBT assessments
+    const { data: deletedEbt, error: ebtError } = await supabase
+      .from('pilot_ebt_assessments')
+      .delete()
+      .eq('pilot_id', pilotId)
+      .select('id')
+
+    if (ebtError) {
+      logWarning('Failed to delete pilot EBT assessments', {
+        source: 'PilotService',
+        metadata: { pilotId, error: ebtError.message },
+      })
+    } else {
+      deletedCounts.ebtAssessments = deletedEbt?.length ?? 0
+    }
+
+    // Step 7: Delete disciplinary matters
+    const { data: deletedDisciplinary, error: disciplinaryError } = await supabase
+      .from('disciplinary_matters')
+      .delete()
+      .eq('pilot_id', pilotId)
+      .select('id')
+
+    if (disciplinaryError) {
+      logWarning('Failed to delete disciplinary matters', {
+        source: 'PilotService',
+        metadata: { pilotId, error: disciplinaryError.message },
+      })
+    } else {
+      deletedCounts.disciplinary = deletedDisciplinary?.length ?? 0
+    }
+
+    // Step 8: Delete related tasks
+    const { data: deletedTasks, error: tasksError } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('related_pilot_id', pilotId)
+      .select('id')
+
+    if (tasksError) {
+      logWarning('Failed to delete related tasks', {
+        source: 'PilotService',
+        metadata: { pilotId, error: tasksError.message },
+      })
+    } else {
+      deletedCounts.tasks = deletedTasks?.length ?? 0
+    }
+
+    // Step 9: Delete pilot portal account
+    const { data: deletedUsers, error: usersError } = await supabase
+      .from('pilot_users')
+      .delete()
+      .eq('pilot_id', pilotId)
+      .select('id')
+
+    if (usersError) {
+      logWarning('Failed to delete pilot portal account', {
+        source: 'PilotService',
+        metadata: { pilotId, error: usersError.message },
+      })
+    } else {
+      deletedCounts.portalUsers = deletedUsers?.length ?? 0
+    }
+
+    // Step 10: Delete the pilot record itself
     const { error: pilotError } = await supabase.from('pilots').delete().eq('id', pilotId)
 
     if (pilotError) {
       throw new Error(`Failed to delete pilot: ${pilotError.message}`)
     }
 
-    // Audit log the deletion
+    // Audit log the deletion with full cascade summary
     await createAuditLog({
       action: 'DELETE',
       tableName: 'pilots',
       recordId: pilotId,
       oldData,
-      description: `Deleted pilot: ${oldData.first_name} ${oldData.last_name} (${oldData.employee_id})`,
+      description: `Deleted pilot: ${oldData.first_name} ${oldData.last_name} (${oldData.employee_id}) — cascaded: ${deletedCounts.requests} requests, ${deletedCounts.checks} certifications, ${deletedCounts.leaveBids} leave bids, ${deletedCounts.renewalPlans} renewal plans, ${deletedCounts.feedback} feedback records, ${deletedCounts.ebtAssessments} EBT assessments, ${deletedCounts.disciplinary} disciplinary matters, ${deletedCounts.tasks} tasks, ${deletedCounts.portalUsers} portal accounts`,
     })
 
-    logInfo('Successfully deleted pilot with cascading records', {
+    logInfo('Successfully deleted pilot with all cascading records', {
       source: 'PilotService',
       metadata: {
         operation: 'deletePilot',
         pilotId,
         employeeId: oldData?.employee_id,
+        pilotName: `${oldData.first_name} ${oldData.last_name}`,
+        deletedCounts,
       },
     })
 

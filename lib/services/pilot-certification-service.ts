@@ -41,14 +41,7 @@ export async function getPilotCertifications(
     .select(
       `
       *,
-      check_types (
-        id,
-        check_code,
-        check_description,
-        category,
-        created_at,
-        updated_at
-      )
+      check_types (*)
     `
     )
     .eq('pilot_id', pilotId)
@@ -177,14 +170,7 @@ export async function getPilotCertificationById(
     .select(
       `
       *,
-      check_types (
-        id,
-        check_code,
-        check_description,
-        category,
-        created_at,
-        updated_at
-      )
+      check_types (*)
     `
     )
     .eq('id', certificationId)

@@ -5,7 +5,8 @@
  * Replaces modal-based certification editing with full-page tabs.
  *
  * Developer: Maurice Rondeau
- * @date December 6, 2025
+ * @version 5.0.0 - Removed onPilotDelete/isDeleting (moved to PilotProfileHeader)
+ * @date February 2026
  */
 
 'use client'
@@ -14,7 +15,7 @@ import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { PilotOverviewTab } from './pilot-overview-tab'
 import { PilotCertificationsTab } from './pilot-certifications-tab'
-import { User, FileCheck, Plane } from 'lucide-react'
+import { User, FileCheck } from 'lucide-react'
 
 // Pilot interface - aligned with Supabase pilots table schema
 export interface Pilot {
@@ -33,6 +34,7 @@ export interface Pilot {
   passport_expiry: string | null
   licence_type: 'ATPL' | 'CPL' | null
   licence_number: string | null
+  email: string | null
   contract_type: string | null
   contract_type_id: string | null
   captain_qualifications: Record<string, boolean> | string[] | null
@@ -69,20 +71,16 @@ interface PilotDetailTabsProps {
   pilot: Pilot
   initialCertifications: Certification[]
   retirementAge: number
-  onPilotDelete: () => Promise<void>
   onCertificationUpdate: () => void
   csrfToken: string | null
-  isDeleting: boolean
 }
 
 export function PilotDetailTabs({
   pilot,
   initialCertifications,
   retirementAge,
-  onPilotDelete,
   onCertificationUpdate,
   csrfToken,
-  isDeleting,
 }: PilotDetailTabsProps) {
   const [activeTab, setActiveTab] = useState('overview')
   const [certifications, setCertifications] = useState<Certification[]>(initialCertifications || [])
@@ -102,11 +100,15 @@ export function PilotDetailTabs({
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="mb-6 grid w-full grid-cols-2 lg:w-[400px]">
-        <TabsTrigger value="overview" className="flex items-center gap-2">
+        <TabsTrigger value="overview" aria-label="Overview" className="flex items-center gap-2">
           <User className="h-4 w-4" />
           <span className="hidden sm:inline">Overview</span>
         </TabsTrigger>
-        <TabsTrigger value="certifications" className="flex items-center gap-2">
+        <TabsTrigger
+          value="certifications"
+          aria-label="Certifications"
+          className="flex items-center gap-2"
+        >
           <FileCheck className="h-4 w-4" />
           <span className="hidden sm:inline">Certifications</span>
           {(pilot.certificationStatus.expiring > 0 || pilot.certificationStatus.expired > 0) && (
@@ -121,9 +123,7 @@ export function PilotDetailTabs({
         <PilotOverviewTab
           pilot={pilot}
           retirementAge={retirementAge}
-          onPilotDelete={onPilotDelete}
           onViewCertifications={handleSwitchToCertifications}
-          isDeleting={isDeleting}
         />
       </TabsContent>
 
