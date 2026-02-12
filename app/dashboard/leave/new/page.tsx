@@ -485,23 +485,6 @@ export default function NewLeaveRequestPage() {
         </form>
       </Card>
 
-      {/* Help Text */}
-      <Card className="bg-primary/5 border-primary/20 p-4">
-        <div className="flex items-start space-x-3">
-          <span className="text-2xl">ℹ️</span>
-          <div className="space-y-1">
-            <p className="text-foreground text-sm font-medium">Form Tips</p>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>Select your name, leave type, and date range</li>
-              <li>End date must be after or equal to start date</li>
-              <li>Requests with less than 21 days advance notice are marked as "late"</li>
-              <li>Maximum leave duration is 90 days</li>
-              <li>The system will check for date conflicts automatically</li>
-              <li>Manager/Admin approval required for all leave requests</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }

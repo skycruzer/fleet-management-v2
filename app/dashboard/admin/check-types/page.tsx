@@ -12,7 +12,7 @@ export const metadata = dashboardMetadata.adminCheckTypes
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { getCheckTypes, getCheckTypeCategories } from '@/lib/services/admin-service'
-import { ClipboardList, Tag, CheckCircle2, Calendar, Lightbulb } from 'lucide-react'
+import { ClipboardList, Tag, CheckCircle2, Calendar } from 'lucide-react'
 import { CheckTypesTable } from '@/components/admin/check-types-table'
 
 export default async function CheckTypesPage() {
@@ -112,29 +112,6 @@ export default async function CheckTypesPage() {
         </div>
       </Card>
 
-      {/* Help Text */}
-      <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-4">
-        <div className="flex items-start space-x-3">
-          <Lightbulb
-            className="h-6 w-6 flex-shrink-0 text-[var(--color-info)]"
-            aria-hidden="true"
-          />
-          <div className="space-y-1">
-            <p className="text-foreground text-sm font-medium">About Check Types</p>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>Check types define the different certification requirements for pilots</li>
-              <li>Each check type has a code (e.g., PC, OPC, LPC) and descriptive name</li>
-              <li>
-                Categories help organize check types by their purpose or regulatory requirement
-              </li>
-              <li>
-                Use the Reminders button to configure email notification schedules per check type
-              </li>
-              <li>Changes to check types affect all certifications using that type</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }

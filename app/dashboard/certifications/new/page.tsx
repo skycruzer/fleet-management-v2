@@ -358,22 +358,6 @@ export default function NewCertificationPage() {
         </form>
       </Card>
 
-      {/* Help Text */}
-      <Card className="bg-primary/5 border-primary/20 p-4">
-        <div className="flex items-start space-x-3">
-          <span className="text-2xl">ℹ️</span>
-          <div className="space-y-1">
-            <p className="text-foreground text-sm font-medium">Form Tips</p>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>Both pilot and check type are required</li>
-              <li>Completion date must be today or in the past</li>
-              <li>Expiry date must be after the completion date</li>
-              <li>Roster period format: RP1/2025 through RP13/2025</li>
-              <li>An audit log entry will be created for this certification</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }

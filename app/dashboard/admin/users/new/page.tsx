@@ -208,22 +208,6 @@ export default function NewUserPage() {
         </form>
       </Card>
 
-      {/* Help Text */}
-      <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-4">
-        <div className="flex items-start space-x-3">
-          <span className="text-2xl">⚠️</span>
-          <div className="space-y-1">
-            <p className="text-foreground text-sm font-medium">Important Notes</p>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>Email addresses must be unique in the system</li>
-              <li>Users will need to set their password through the authentication system</li>
-              <li>Admin role should only be assigned to trusted personnel</li>
-              <li>Changes to user roles take effect immediately</li>
-              <li>An audit log entry will be created for this user creation</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }

@@ -17,7 +17,7 @@ import { CertificationReportForm } from '@/components/reports/certification-repo
 import { LeaveBidsReportForm } from '@/components/reports/leave-bids-report-form'
 import { PilotInfoReportForm } from '@/components/reports/pilot-info-report-form'
 import { ForecastReportForm } from '@/components/reports/forecast-report-form'
-import { Calendar, Plane, Award, FileText, ClipboardList, Users, TrendingUp } from 'lucide-react'
+import { Calendar, Plane, Award, ClipboardList, Users, TrendingUp } from 'lucide-react'
 
 export function ReportsClient() {
   const [activeTab, setActiveTab] = useState<string>('leave')
@@ -174,29 +174,6 @@ export function ReportsClient() {
         </TabsContent>
       </Tabs>
 
-      <div className="bg-muted mt-8 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
-          <div className="space-y-1">
-            <h3 className="font-medium">Report Features</h3>
-            <ul className="text-muted-foreground space-y-1 text-sm">
-              <li>
-                • <strong>Preview:</strong> View report data in the browser before exporting
-              </li>
-              <li>
-                • <strong>PDF Export:</strong> Download professionally formatted PDF reports
-              </li>
-              <li>
-                • <strong>Email Delivery:</strong> Send reports directly to recipients via email
-              </li>
-              <li>
-                • <strong>Advanced Filtering:</strong> Customize reports with date ranges, status
-                filters, and more
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

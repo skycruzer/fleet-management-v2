@@ -73,22 +73,6 @@ export default async function SystemSettingsPage() {
       {/* Client Component with Interactive Editing */}
       <SettingsClient settings={settings} />
 
-      {/* Help Text */}
-      <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-4">
-        <div className="flex items-start space-x-3">
-          <span className="text-2xl">⚠️</span>
-          <div className="space-y-1">
-            <p className="text-foreground text-sm font-medium">Important Information</p>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>System-protected settings cannot be modified through the interface</li>
-              <li>Changes to settings take effect immediately across the system</li>
-              <li>All setting changes are logged in the audit trail</li>
-              <li>Incorrect setting values can cause system malfunctions</li>
-              <li>Backup current settings before making major changes</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }

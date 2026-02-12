@@ -14,7 +14,6 @@ import {
   BarChart3,
   Settings,
   ArrowLeft,
-  ExternalLink,
 } from 'lucide-react'
 
 export const metadata = {
@@ -150,41 +149,6 @@ export default function DocsPage() {
           />
         </div>
 
-        {/* Key Features */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Key Features</CardTitle>
-            <CardDescription>What makes Fleet Management V2 powerful</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              <FeatureItem
-                title="28-Day Roster Periods"
-                description="All leave requests align with standardized 28-day roster periods (RP1-RP13) for efficient crew planning."
-              />
-              <FeatureItem
-                title="FAA Compliance Color Coding"
-                description="Visual status indicators: Red (expired), Yellow (≤30 days), Green (current) for quick compliance assessment."
-              />
-              <FeatureItem
-                title="Rank-Based Leave Eligibility"
-                description="Captains and First Officers are evaluated independently with minimum crew requirements per rank."
-              />
-              <FeatureItem
-                title="Comprehensive Audit Trail"
-                description="Complete audit logging of all CRUD operations with user tracking and change history."
-              />
-              <FeatureItem
-                title="Real-Time Dashboard"
-                description="Live metrics, compliance rates, and expiring certification alerts updated in real-time."
-              />
-              <FeatureItem
-                title="Progressive Web App"
-                description="Install on mobile devices and work offline with intelligent caching strategies."
-              />
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Support & Resources */}
         <Card className="mt-8">
@@ -259,14 +223,5 @@ function DocCard({
         </ul>
       </CardContent>
     </Card>
-  )
-}
-
-function FeatureItem({ title, description }: { title: string; description: string }) {
-  return (
-    <div>
-      <h4 className="mb-1 font-semibold">{title}</h4>
-      <p className="text-muted-foreground text-sm">{description}</p>
-    </div>
   )
 }

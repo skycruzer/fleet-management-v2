@@ -177,23 +177,6 @@ export default async function CertificationsPage() {
       {/* Expiry Groups Accordion */}
       {totalExpiring > 0 && expiryGroups && <ExpiryGroupsAccordion groups={expiryGroups} />}
 
-      {/* Help Text */}
-      <Card className="bg-primary/5 border-primary/20 p-4">
-        <div className="flex items-start space-x-3">
-          <span className="text-2xl" aria-hidden="true">
-            ℹ️
-          </span>
-          <div className="space-y-1">
-            <p className="text-foreground text-sm font-medium">About This View</p>
-            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-              <li>This page shows ONLY expiring or expired certifications</li>
-              <li>Current/valid certifications are not displayed</li>
-              <li>Certifications are grouped by urgency (expired → 14 → 30 → 60 → 90 days)</li>
-              <li>Click any certification to view details or update expiry date</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }

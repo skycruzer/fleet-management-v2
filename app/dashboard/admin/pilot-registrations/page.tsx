@@ -115,24 +115,6 @@ export default async function PilotRegistrationsPage() {
       {/* Client Component for Interactive Table */}
       <RegistrationApprovalClient initialRegistrations={pendingRegistrations} />
 
-      {/* Help Text */}
-      <Card className="border-[var(--color-info)]/20 bg-[var(--color-info-bg)]">
-        <CardContent className="pt-6">
-          <div className="flex items-start space-x-3">
-            <span className="text-2xl">ℹ️</span>
-            <div className="space-y-2">
-              <p className="text-foreground text-sm font-medium">About Registration Approval</p>
-              <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
-                <li>Pilots submit registration requests through /portal/register</li>
-                <li>Verify employee ID and details before approving</li>
-                <li>Approved pilots receive email notification (when implemented)</li>
-                <li>Denied registrations cannot log in to the portal</li>
-                <li>All approval actions are logged in the audit trail</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

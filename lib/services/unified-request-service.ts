@@ -629,9 +629,19 @@ export async function getPilotRequestById(id: string): Promise<ServiceResponse<P
       }
     }
 
+    // Compute roster periods spanned (same enrichment as getAllPilotRequests)
+    const { getRosterPeriodsForDateRange } = await import('@/lib/services/roster-period-service')
+    const enrichedData = {
+      ...data,
+      roster_periods_spanned: getRosterPeriodsForDateRange(
+        data.start_date,
+        data.end_date || data.start_date
+      ),
+    }
+
     return {
       success: true,
-      data: data as unknown as PilotRequest,
+      data: enrichedData as unknown as PilotRequest,
     }
   } catch (error) {
     await logger.error('Failed to fetch pilot request', {

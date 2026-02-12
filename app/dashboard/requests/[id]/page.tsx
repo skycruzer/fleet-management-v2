@@ -200,7 +200,16 @@ export default async function RequestDetailPage({ params }: PageProps) {
                 )}
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Roster Period</p>
-                  <p className="font-mono text-lg">{request.roster_period}</p>
+                  <p className="font-mono text-lg">
+                    {(request as any).roster_periods_spanned?.length > 1
+                      ? (request as any).roster_periods_spanned.join(', ')
+                      : request.roster_period}
+                  </p>
+                  {(request as any).roster_periods_spanned?.length > 1 && (
+                    <p className="text-muted-foreground text-xs">
+                      Spans {(request as any).roster_periods_spanned.length} roster periods
+                    </p>
+                  )}
                 </div>
                 {request.days_count && (
                   <div>
