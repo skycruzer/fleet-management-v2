@@ -163,48 +163,78 @@ export type QuickEntryFormInput = z.infer<typeof QuickEntrySchema>
 
 /**
  * Helper to determine if request is late (less than 21 days advance notice)
+ *
+ * Business rule: A request is late if submission_date is less than 21 days
+ * before the roster period commencement date.
+ *
+ * @param submissionDate - Date the request was originally submitted (ISO string)
+ * @param rosterPeriodStartDate - Commencement date of the roster period (ISO string)
  */
-export function isLateRequest(startDate: string): boolean {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+export function isLateRequest(
+  submissionDate: string | Date,
+  rosterPeriodStartDate: string | Date
+): boolean {
+  const submission = typeof submissionDate === 'string' ? new Date(submissionDate) : submissionDate
+  const rpStart =
+    typeof rosterPeriodStartDate === 'string'
+      ? new Date(rosterPeriodStartDate)
+      : rosterPeriodStartDate
 
-  const start = new Date(startDate)
-  const daysDiff = Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (isNaN(submission.getTime()) || isNaN(rpStart.getTime())) return false
+
+  const daysDiff = Math.ceil((rpStart.getTime() - submission.getTime()) / (1000 * 60 * 60 * 24))
 
   return daysDiff < 21
 }
 
 /**
- * Helper to get deadline status
+ * Helper to get deadline status relative to roster period commencement.
+ *
+ * Business rule: A request is late if submission_date is less than 21 days
+ * before the roster period commencement date.
+ *
+ * @param submissionDate - Date the request was submitted (ISO string or Date). For new requests, use today.
+ * @param rosterPeriodStartDate - Commencement date of the roster period (ISO string or Date)
  */
-export function getDeadlineStatus(startDate: string): {
+export function getDeadlineStatus(
+  submissionDate: string | Date,
+  rosterPeriodStartDate: string | Date
+): {
   status: 'on-time' | 'late' | 'past-deadline'
   daysRemaining: number
   label: string
 } {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const submission =
+    typeof submissionDate === 'string' ? new Date(submissionDate) : new Date(submissionDate)
+  submission.setHours(0, 0, 0, 0)
 
-  const start = new Date(startDate)
-  const daysRemaining = Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const rpStart =
+    typeof rosterPeriodStartDate === 'string'
+      ? new Date(rosterPeriodStartDate)
+      : new Date(rosterPeriodStartDate)
+  rpStart.setHours(0, 0, 0, 0)
+
+  const daysRemaining = Math.ceil(
+    (rpStart.getTime() - submission.getTime()) / (1000 * 60 * 60 * 24)
+  )
 
   if (daysRemaining < 0) {
     return {
       status: 'past-deadline',
       daysRemaining: 0,
-      label: 'Past deadline - request is for past date',
+      label: 'Past deadline - roster period already started',
     }
   } else if (daysRemaining < 21) {
     return {
       status: 'late',
       daysRemaining,
-      label: `Late request - only ${daysRemaining} days notice`,
+      label: `Late request - only ${daysRemaining} days before roster period`,
     }
   } else {
     return {
       status: 'on-time',
       daysRemaining,
-      label: `On-time - ${daysRemaining} days advance notice`,
+      label: `On-time - ${daysRemaining} days before roster period`,
     }
   }
 }

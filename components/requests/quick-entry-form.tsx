@@ -131,8 +131,8 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         const period = getRosterPeriodFromDate(date)
         setRosterPeriod(period.code)
 
-        // Calculate deadline status
-        const status = getDeadlineStatus(selectedStartDate)
+        // Calculate deadline status (for new requests, submission date = today)
+        const status = getDeadlineStatus(new Date(), period.startDate)
         setDeadlineStatus(status)
       } catch (error) {
         setRosterPeriod(null)

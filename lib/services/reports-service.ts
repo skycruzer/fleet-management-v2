@@ -819,17 +819,31 @@ export async function generatePDF(
 
         autoTable(doc, {
           startY: yPos,
-          head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Status', 'Roster Period']],
+          head: [
+            [
+              'Pilot',
+              'Rank',
+              'Type',
+              'Submitted',
+              'Start Date',
+              'End Date',
+              'Status',
+              'Late',
+              'Roster Period',
+            ],
+          ],
           body: groupData.map((item: any) => [
             item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
             item.rank || item.pilot?.role || 'N/A',
             item.request_type || item.leave_type || 'N/A',
+            formatAustralianDate(item.submission_date),
             formatAustralianDate(item.start_date),
             formatAustralianDate(item.end_date),
             item.workflow_status || item.status || 'N/A',
+            item.is_late_request ? 'Yes' : '',
             item.roster_period || 'N/A',
           ]),
-          styles: { fontSize: 8 },
+          styles: { fontSize: 7 },
           headStyles: { fillColor: [41, 128, 185] },
         })
 
@@ -839,17 +853,31 @@ export async function generatePDF(
       // Flat rendering (no grouping)
       autoTable(doc, {
         startY: yPos,
-        head: [['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Status', 'Roster Period']],
+        head: [
+          [
+            'Pilot',
+            'Rank',
+            'Type',
+            'Submitted',
+            'Start Date',
+            'End Date',
+            'Status',
+            'Late',
+            'Roster Period',
+          ],
+        ],
         body: report.data.map((item: any) => [
           item.name || `${item.pilot?.first_name} ${item.pilot?.last_name}` || 'N/A',
           item.rank || item.pilot?.role || 'N/A',
           item.request_type || item.leave_type || 'N/A',
+          formatAustralianDate(item.submission_date),
           formatAustralianDate(item.start_date),
           formatAustralianDate(item.end_date),
           item.workflow_status || item.status || 'N/A',
+          item.is_late_request ? 'Yes' : '',
           item.roster_period || 'N/A',
         ]),
-        styles: { fontSize: 8 },
+        styles: { fontSize: 7 },
         headStyles: { fillColor: [41, 128, 185] },
       })
     }
@@ -875,21 +903,34 @@ export async function generatePDF(
         autoTable(doc, {
           startY: yPos,
           head: [
-            ['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Days', 'Status', 'Roster Period'],
+            [
+              'Pilot',
+              'Rank',
+              'Type',
+              'Submitted',
+              'Start Date',
+              'End Date',
+              'Days',
+              'Status',
+              'Late',
+              'Roster Period',
+            ],
           ],
           body: groupData.map((item: any) => [
             item.name || 'N/A',
             item.rank || 'N/A',
             item.request_type || 'N/A',
+            formatAustralianDate(item.submission_date),
             formatAustralianDate(item.start_date),
             item.end_date
               ? formatAustralianDate(item.end_date)
               : formatAustralianDate(item.start_date),
             item.days_count || '1',
             item.workflow_status || 'N/A',
+            item.is_late_request ? 'Yes' : '',
             item.roster_period || 'N/A',
           ]),
-          styles: { fontSize: 8 },
+          styles: { fontSize: 7 },
           headStyles: { fillColor: [46, 204, 113] },
         })
 
@@ -900,39 +941,66 @@ export async function generatePDF(
       autoTable(doc, {
         startY: yPos,
         head: [
-          ['Pilot', 'Rank', 'Type', 'Start Date', 'End Date', 'Days', 'Status', 'Roster Period'],
+          [
+            'Pilot',
+            'Rank',
+            'Type',
+            'Submitted',
+            'Start Date',
+            'End Date',
+            'Days',
+            'Status',
+            'Late',
+            'Roster Period',
+          ],
         ],
         body: report.data.map((item: any) => [
           item.name || 'N/A',
           item.rank || 'N/A',
           item.request_type || 'N/A',
+          formatAustralianDate(item.submission_date),
           formatAustralianDate(item.start_date),
           item.end_date
             ? formatAustralianDate(item.end_date)
             : formatAustralianDate(item.start_date),
           item.days_count || '1',
           item.workflow_status || 'N/A',
+          item.is_late_request ? 'Yes' : '',
           item.roster_period || 'N/A',
         ]),
-        styles: { fontSize: 8 },
+        styles: { fontSize: 7 },
         headStyles: { fillColor: [46, 204, 113] },
       })
     }
   } else if (reportType === 'all-requests') {
     autoTable(doc, {
       startY: yPos,
-      head: [['Source', 'Pilot', 'Rank', 'Type', 'Start Date', 'Status', 'Roster Period']],
+      head: [
+        [
+          'Source',
+          'Pilot',
+          'Rank',
+          'Type',
+          'Submitted',
+          'Start Date',
+          'Status',
+          'Late',
+          'Roster Period',
+        ],
+      ],
 
       body: report.data.map((item: any) => [
         item.request_source || 'N/A',
         item.name || 'N/A',
         item.rank || 'N/A',
         item.request_type || item.leave_type || 'N/A',
+        formatAustralianDate(item.submission_date || item.created_at),
         formatAustralianDate(item.start_date || item.created_at),
         item.workflow_status || item.status || 'N/A',
+        item.is_late_request ? 'Yes' : '',
         item.roster_period || 'N/A',
       ]),
-      styles: { fontSize: 8 },
+      styles: { fontSize: 7 },
       headStyles: { fillColor: [155, 89, 182] },
     })
   } else if (reportType === 'flight-requests') {

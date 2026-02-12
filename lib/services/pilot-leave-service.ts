@@ -23,11 +23,12 @@ import {
 } from './unified-request-service'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { getTodayISO, type PilotLeaveRequestOutput } from '@/lib/validations/pilot-leave-schema'
 import {
-  isLateRequest,
-  getTodayISO,
-  type PilotLeaveRequestOutput,
-} from '@/lib/validations/pilot-leave-schema'
+  getRosterPeriodCodeFromDate,
+  calculateRosterPeriodDates,
+  parseRosterPeriodCode,
+} from '@/lib/services/roster-period-service'
 import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
 
 export interface ServiceResponse<T = void> {
@@ -98,7 +99,8 @@ export async function submitPilotLeaveRequest(
       request_method: 'PILOT_PORTAL' as const, // Pilot portal submission
       submission_channel: 'PILOT_PORTAL' as const,
       reason: request.reason || undefined,
-      is_late_request: isLateRequest(request.start_date),
+      // Note: is_late_request is calculated server-side by createPilotRequest()
+      // using submission_date vs roster period start date
       // Medical certificate attachment URL (optional, only for SICK leave)
       source_attachment_url: request.source_attachment_url || undefined,
     }
@@ -208,7 +210,7 @@ export async function updatePilotLeaveRequest(
     // Verify request belongs to pilot and is editable
     const { data: request, error: fetchError } = await supabase
       .from('pilot_requests')
-      .select('id, pilot_id, workflow_status, request_category')
+      .select('id, pilot_id, workflow_status, request_category, submission_date')
       .eq('id', requestId)
       .eq('request_category', 'LEAVE')
       .single()
@@ -236,13 +238,32 @@ export async function updatePilotLeaveRequest(
       }
     }
 
+    // Recalculate is_late_request using ORIGINAL submission_date vs roster period start
+    // Business rule: late = submission_date < 21 days before roster period commencement
+    let lateRequestFlag = false
+    const newStartDate = new Date(updates.start_date)
+    if (!isNaN(newStartDate.getTime())) {
+      const rpCode = getRosterPeriodCodeFromDate(newStartDate)
+      const parsed = parseRosterPeriodCode(rpCode)
+      if (parsed) {
+        const rosterPeriod = calculateRosterPeriodDates(parsed.periodNumber, parsed.year)
+        const originalSubmission = request.submission_date
+          ? new Date(request.submission_date)
+          : new Date()
+        const daysUntilRosterStart = Math.ceil(
+          (rosterPeriod.startDate.getTime() - originalSubmission.getTime()) / (1000 * 60 * 60 * 24)
+        )
+        lateRequestFlag = daysUntilRosterStart < 21
+      }
+    }
+
     // Prepare update data
     const updateData = {
       request_type: updates.request_type,
       start_date: updates.start_date,
       end_date: updates.end_date,
       reason: updates.reason || null,
-      is_late_request: isLateRequest(updates.start_date),
+      is_late_request: lateRequestFlag,
       updated_at: new Date().toISOString(),
     }
 

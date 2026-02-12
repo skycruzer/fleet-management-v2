@@ -15,7 +15,8 @@ import { z } from 'zod'
 export const PilotLeaveTypeEnum = z.enum(
   ['ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'],
   {
-    message: 'Please select a valid leave type. For RDO/SDO, use the dedicated RDO/SDO Request form.',
+    message:
+      'Please select a valid leave type. For RDO/SDO, use the dedicated RDO/SDO Request form.',
   }
 )
 
@@ -95,13 +96,26 @@ export type PilotLeaveCancelInput = z.infer<typeof PilotLeaveCancelSchema>
 
 /**
  * Helper function to calculate if request is late (less than 21 days advance notice)
+ *
+ * Business rule: A request is late if submission_date is less than 21 days
+ * before the roster period commencement date.
+ *
+ * @param submissionDate - Date the request was originally submitted (ISO string)
+ * @param rosterPeriodStartDate - Commencement date of the roster period (ISO string)
  */
-export function isLateRequest(startDate: string): boolean {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+export function isLateRequest(
+  submissionDate: string | Date,
+  rosterPeriodStartDate: string | Date
+): boolean {
+  const submission = typeof submissionDate === 'string' ? new Date(submissionDate) : submissionDate
+  const rpStart =
+    typeof rosterPeriodStartDate === 'string'
+      ? new Date(rosterPeriodStartDate)
+      : rosterPeriodStartDate
 
-  const start = new Date(startDate)
-  const daysDiff = Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  if (isNaN(submission.getTime()) || isNaN(rpStart.getTime())) return false
+
+  const daysDiff = Math.ceil((rpStart.getTime() - submission.getTime()) / (1000 * 60 * 60 * 24))
 
   return daysDiff < 21
 }

@@ -300,15 +300,16 @@ export async function createPilotRequest(
       daysCount = 1 // Single-day request
     }
 
-    // Calculate is_late_request (< 21 days before roster period start)
-    const today = new Date()
+    // Calculate is_late_request (submission_date < 21 days before roster period start)
+    // At creation time, submission_date = now
+    const submissionDate = new Date()
     const daysUntilRosterStart = Math.ceil(
-      (rosterPeriod.startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+      (rosterPeriod.startDate.getTime() - submissionDate.getTime()) / (1000 * 60 * 60 * 24)
     )
     const isLateRequest = daysUntilRosterStart < 21
 
     // Calculate is_past_deadline (after roster deadline date)
-    const isPastDeadline = today > rosterPeriod.deadlineDate
+    const isPastDeadline = submissionDate > rosterPeriod.deadlineDate
 
     // Get pilot seniority for priority score
     const { data: pilot, error: pilotError } = await supabase
@@ -838,13 +839,24 @@ export async function updatePilotRequest(
           updateData.roster_publish_date = rosterPeriod.publishDate.toISOString().split('T')[0]
           updateData.roster_deadline_date = rosterPeriod.deadlineDate.toISOString().split('T')[0]
 
-          // Recalculate is_late_request and is_past_deadline
-          const today = new Date()
+          // Recalculate is_late_request using ORIGINAL submission_date (not today)
+          // Business rule: late = submission_date < 21 days before roster period start
+          const { data: existingRequest } = await supabase
+            .from('pilot_requests')
+            .select('submission_date')
+            .eq('id', id)
+            .single()
+
+          const originalSubmissionDate = existingRequest?.submission_date
+            ? new Date(existingRequest.submission_date)
+            : new Date() // fallback for safety
+
           const daysUntilRosterStart = Math.ceil(
-            (rosterPeriod.startDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+            (rosterPeriod.startDate.getTime() - originalSubmissionDate.getTime()) /
+              (1000 * 60 * 60 * 24)
           )
           updateData.is_late_request = daysUntilRosterStart < 21
-          updateData.is_past_deadline = today > rosterPeriod.deadlineDate
+          updateData.is_past_deadline = originalSubmissionDate > rosterPeriod.deadlineDate
         }
       }
     }

@@ -46,24 +46,31 @@ export function isValidDateRange(startDate: string | Date, endDate: string | Dat
 
 /**
  * Check if a request is a late request (less than required notice days)
- * @param startDate - Start date of the request
- * @param requestDate - Date the request was submitted
+ *
+ * Business rule: A request is late if the submission_date is less than
+ * 21 days before the roster period commencement date.
+ *
+ * @param rosterPeriodStartDate - Commencement date of the roster period
+ * @param submissionDate - Date the request was originally submitted
  * @param requiredNoticeDays - Number of days notice required (default: 21)
  * @returns true if late, false otherwise
  */
 export function isLateRequest(
-  startDate: string | Date,
-  requestDate: string | Date,
+  rosterPeriodStartDate: string | Date,
+  submissionDate: string | Date,
   requiredNoticeDays: number = 21
 ): boolean {
-  if (!startDate || !requestDate) return false
+  if (!rosterPeriodStartDate || !submissionDate) return false
 
-  const start = typeof startDate === 'string' ? new Date(startDate) : startDate
-  const request = typeof requestDate === 'string' ? new Date(requestDate) : requestDate
+  const rpStart =
+    typeof rosterPeriodStartDate === 'string'
+      ? new Date(rosterPeriodStartDate)
+      : rosterPeriodStartDate
+  const submission = typeof submissionDate === 'string' ? new Date(submissionDate) : submissionDate
 
-  if (isNaN(start.getTime()) || isNaN(request.getTime())) return false
+  if (isNaN(rpStart.getTime()) || isNaN(submission.getTime())) return false
 
-  const diffTime = start.getTime() - request.getTime()
+  const diffTime = rpStart.getTime() - submission.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
   return diffDays < requiredNoticeDays
