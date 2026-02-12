@@ -92,11 +92,6 @@
  * - Crew identification cards
  * - Required for airport access
  *
- * TRAVEL VISA (🦺):
- * - International route authorizations
- * - Varies by destination country
- * - May not apply to all pilots
- *
  * GROUND COURSES (👨‍🏫):
  * - Dangerous goods training
  * - Security awareness training
@@ -569,14 +564,10 @@ export function getCategoryIcon(category: string | null): string {
       return '📚' // Training/recurrent
     case 'ID Cards':
       return '🔒' // Security/access
-    case 'Travel Visa':
-      return '🦺' // International operations
     case 'Ground Courses Refresher':
       return '👨‍🏫' // Classroom training
     case 'Foreign Pilot Work Permit':
       return '📜' // Employment authorization
-    case 'Non-renewal':
-      return '📋' // Administrative
     default:
       return '✈️' // Generic aviation
   }
@@ -604,14 +595,10 @@ export function getCategoryColor(category: string | null): string {
       return 'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]'
     case 'ID Cards':
       return 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)]'
-    case 'Travel Visa':
-      return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
     case 'Ground Courses Refresher':
       return 'bg-[var(--color-badge-indigo-bg)] text-[var(--color-badge-indigo)]'
     case 'Foreign Pilot Work Permit':
       return 'bg-[var(--color-category-simulator-bg)] text-[var(--color-category-simulator)]'
-    case 'Non-renewal':
-      return 'bg-muted text-muted-foreground'
     default:
       return 'bg-muted text-muted-foreground'
   }

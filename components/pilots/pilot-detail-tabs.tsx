@@ -35,6 +35,7 @@ export interface Pilot {
   licence_type: 'ATPL' | 'CPL' | null
   licence_number: string | null
   email: string | null
+  phone_number: string | null
   contract_type: string | null
   contract_type_id: string | null
   captain_qualifications: Record<string, boolean> | string[] | null

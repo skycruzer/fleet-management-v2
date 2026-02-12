@@ -389,8 +389,6 @@ export const GRACE_PERIODS: Record<string, number> = {
   'Ground Courses Refresher': 60,
   'ID Cards': 0,
   'Foreign Pilot Work Permit': 0,
-  'Travel Visa': 0,
-  'Non-renewal': 0,
 }
 
 export function getGracePeriod(category: string): number {

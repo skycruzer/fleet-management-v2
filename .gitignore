@@ -92,3 +92,4 @@ firebase-debug.log
 
 # Serena tool config
 .serena/
+node_modules_old/

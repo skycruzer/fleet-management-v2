@@ -2341,6 +2341,7 @@ export type Database = {
           nationality: string | null
           passport_expiry: string | null
           passport_number: string | null
+          phone_number: string | null
           qualification_notes: string | null
           rhs_captain_expiry: string | null
           role: Database['public']['Enums']['pilot_role']
@@ -2367,6 +2368,7 @@ export type Database = {
           nationality?: string | null
           passport_expiry?: string | null
           passport_number?: string | null
+          phone_number?: string | null
           qualification_notes?: string | null
           rhs_captain_expiry?: string | null
           role: Database['public']['Enums']['pilot_role']
@@ -2393,6 +2395,7 @@ export type Database = {
           nationality?: string | null
           passport_expiry?: string | null
           passport_number?: string | null
+          phone_number?: string | null
           qualification_notes?: string | null
           rhs_captain_expiry?: string | null
           role?: Database['public']['Enums']['pilot_role']

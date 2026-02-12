@@ -64,12 +64,12 @@ export function Breadcrumb() {
   })
 
   return (
-    <nav aria-label="Breadcrumb" className="mb-4">
+    <nav aria-label="Breadcrumb">
       <ol className="flex items-center gap-1 text-[13px]">
         {/* Home link */}
         <li>
           <Link
-            href="/"
+            href="/dashboard"
             className="text-muted-foreground/70 hover:text-foreground flex h-6 w-6 items-center justify-center rounded transition-colors"
           >
             <Home className="h-3.5 w-3.5" aria-hidden="true" />

@@ -1,6 +1,9 @@
 /**
  * Pilot Portal Forgot Password Page
- * Aviation-themed password reset request
+ * Developer: Maurice Rondeau
+ *
+ * Clean Nova-style: centered card on dark navy premium background.
+ * Matches login page visual style.
  *
  * @spec 001-missing-core-features (US1 - Password Reset)
  */
@@ -13,8 +16,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   Mail,
@@ -23,7 +24,6 @@ import {
   CheckCircle2,
   Loader2,
   ChevronLeft,
-  Cloud,
   Key,
 } from 'lucide-react'
 
@@ -37,7 +37,6 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [emailFocused, setEmailFocused] = useState(false)
 
   const form = useForm<ForgotPasswordInput>({
     resolver: zodResolver(ForgotPasswordSchema),
@@ -78,135 +77,66 @@ export default function ForgotPasswordPage() {
   const { email } = form.watch()
 
   return (
-    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Aviation Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Animated Clouds */}
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-10 left-0"
-        >
-          <Cloud className="h-24 w-32 text-white/20" />
-        </motion.div>
-
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 50, repeat: Infinity, ease: 'linear', delay: 5 }}
-          className="absolute top-32 left-0"
-        >
-          <Cloud className="h-32 w-40 text-white/15" />
-        </motion.div>
-
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 45, repeat: Infinity, ease: 'linear', delay: 10 }}
-          className="absolute bottom-32 left-0"
-        >
-          <Cloud className="h-28 w-36 text-white/25" />
-        </motion.div>
-
-        {/* Sky Gradient Orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.2, 0.1],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-20 right-20 h-96 w-96 rounded-full bg-gradient-to-br from-pink-300/30 to-purple-400/30 blur-3xl"
-        />
-
-        <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.15, 0.25, 0.15],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
-          className="absolute bottom-20 left-20 h-96 w-96 rounded-full bg-gradient-to-tr from-blue-200/30 to-cyan-300/30 blur-3xl"
-        />
-      </div>
-
-      {/* Main Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
-      >
-        <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="bg-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-            >
-              <Key className="h-8 w-8 text-white" />
-            </motion.div>
-
-            <h1 className="text-foreground mb-2 text-3xl font-bold">Reset Password</h1>
-            <p className="text-muted-foreground text-sm">
-              Enter your email address and we'll send you a link to reset your password
-            </p>
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        {/* Logo & Title */}
+        <div className="mb-8 text-center">
+          <div className="bg-primary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
+            <Key className="h-6 w-6 text-white" />
           </div>
+          <h1 className="text-foreground text-xl font-semibold">Reset Password</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Enter your email address and we&apos;ll send you a reset link
+          </p>
+        </div>
 
+        {/* Card */}
+        <div className="bg-card border-border rounded-lg border p-6">
           {/* Success Message */}
           {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-4"
-            >
-              <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-success-400)]" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-[var(--color-success-400)]">Email Sent!</p>
-                <p className="mt-1 text-sm text-[var(--color-success-400)]/80">
-                  If an account exists with this email, you'll receive password reset instructions
-                  shortly. Please check your inbox and spam folder.
+            <div className="mb-4 flex items-start gap-2 rounded-md border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-3 text-sm">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-success-400)]" />
+              <div>
+                <p className="font-medium text-[var(--color-success-400)]">Email Sent!</p>
+                <p className="mt-1 text-[var(--color-success-400)]/80">
+                  If an account exists with this email, you&apos;ll receive password reset
+                  instructions shortly.
                 </p>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Error Message */}
           {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-4"
-            >
-              <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
-              <p className="flex-1 text-sm text-[var(--color-danger-400)]">{error}</p>
-            </motion.div>
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
           )}
 
           {/* Form */}
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Email Field */}
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-foreground/80 text-sm font-medium">
+            <div>
+              <label
+                htmlFor="email"
+                className="text-foreground/80 mb-1.5 block text-sm font-medium"
+              >
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute top-1/2 left-3 -translate-y-1/2">
-                  <Mail
-                    className={`h-5 w-5 transition-colors ${emailFocused ? 'text-primary' : 'text-muted-foreground'}`}
-                  />
-                </div>
+                <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="captain@airniugini.com.pg"
                   {...form.register('email')}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
                   disabled={isLoading || success}
-                  className="focus:border-primary focus:ring-primary border-border bg-muted/30 h-12 pl-10"
+                  className="focus:border-primary focus:ring-primary/20 border-border bg-muted/40 pl-9 text-sm focus:ring-2"
                 />
               </div>
               {form.formState.errors.email && (
-                <p className="text-sm text-[var(--color-danger-400)]">
+                <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                   {form.formState.errors.email.message}
                 </p>
               )}
@@ -216,29 +146,29 @@ export default function ForgotPasswordPage() {
             <Button
               type="submit"
               disabled={isLoading || !email || success}
-              className="group bg-primary text-primary-foreground hover:bg-primary/90 relative h-12 w-full overflow-hidden shadow-lg transition-all hover:shadow-xl disabled:opacity-50"
+              className="bg-primary hover:bg-primary/90 w-full text-white disabled:opacity-50"
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Sending Reset Link...
-                </>
+                </span>
               ) : success ? (
-                <>
-                  <CheckCircle2 className="mr-2 h-5 w-5" />
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
                   Email Sent
-                </>
+                </span>
               ) : (
-                <>
+                <span className="flex items-center gap-2">
                   Send Reset Link
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </>
+                  <ArrowRight className="h-4 w-4" />
+                </span>
               )}
             </Button>
           </form>
 
           {/* Divider */}
-          <div className="my-8 flex items-center">
+          <div className="my-6 flex items-center">
             <div className="border-border flex-1 border-t" />
             <span className="text-muted-foreground px-4 text-sm">or</span>
             <div className="border-border flex-1 border-t" />
@@ -247,23 +177,18 @@ export default function ForgotPasswordPage() {
           {/* Back to Login Link */}
           <Link
             href="/portal/login"
-            className="group text-primary hover:text-primary/80 flex items-center justify-center gap-2 text-sm font-medium transition-colors"
+            className="text-primary hover:text-primary/80 flex items-center justify-center gap-2 text-sm font-medium transition-colors"
           >
-            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            <ChevronLeft className="h-4 w-4" />
             Back to Login
           </Link>
-
-          {/* Help Text */}
-          <p className="text-muted-foreground mt-6 text-center text-xs">
-            Need help? Contact your system administrator or IT support.
-          </p>
-        </Card>
+        </div>
 
         {/* Footer */}
-        <p className="text-muted-foreground mt-6 text-center text-sm">
-          © {new Date().getFullYear()} Air Niugini · Pilot Portal
+        <p className="text-muted-foreground mt-6 text-center text-xs">
+          Need help? Contact your system administrator or IT support.
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }

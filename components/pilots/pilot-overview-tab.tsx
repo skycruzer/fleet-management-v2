@@ -30,6 +30,7 @@ import {
   Plane,
   Star,
   Mail,
+  Phone,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
@@ -234,6 +235,11 @@ export function PilotOverviewTab({
                 icon: Mail,
                 label: 'Email',
                 value: pilot.email || 'No email on file',
+              },
+              {
+                icon: Phone,
+                label: 'Phone',
+                value: pilot.phone_number || 'No phone on file',
               },
             ]}
           />

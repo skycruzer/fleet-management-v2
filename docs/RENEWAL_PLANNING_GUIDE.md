@@ -93,7 +93,6 @@ Different certification types have different grace periods - the time window bef
 | **Ground Courses Refresher**  | 60 days      | 60 days before expiry |
 | **ID Cards**                  | 0 days       | On expiry date only   |
 | **Foreign Pilot Work Permit** | 0 days       | On expiry date only   |
-| **Travel Visa**               | 0 days       | On expiry date only   |
 
 **Example:**
 

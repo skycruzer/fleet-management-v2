@@ -19,6 +19,7 @@ import * as z from 'zod'
 import { usePortalForm } from '@/lib/hooks/use-portal-form'
 import { FormErrorAlert } from '@/components/portal/form-error-alert'
 import { SubmitButton } from '@/components/portal/submit-button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -358,14 +359,14 @@ export function LeaveRequestForm({ csrfToken = '', onSuccess }: LeaveRequestForm
 
       {/* Submit Buttons */}
       <div className="border-border flex items-center justify-end gap-3 border-t pt-5">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={() => router.back()}
-          className="border-border bg-background text-foreground hover:bg-muted h-9 rounded-lg border px-4 text-sm font-medium transition-colors duration-200"
           disabled={isSubmitting}
         >
           Cancel
-        </button>
+        </Button>
         <SubmitButton isSubmitting={isSubmitting}>Submit Leave Request</SubmitButton>
       </div>
     </form>

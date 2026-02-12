@@ -11,6 +11,8 @@
  * Architecture: Server Component wrapper with Client Component for interactivity
  */
 
+import { Card } from '@/components/ui/card'
+import { CheckCircle } from 'lucide-react'
 import { getExpiringCertifications } from '@/lib/services/expiring-certifications-service'
 import { UrgentAlertBannerClient } from './urgent-alert-banner-client'
 
@@ -18,9 +20,16 @@ export async function UrgentAlertBanner() {
   // Fetch expiring certifications in next 30 days
   const expiringCerts = await getExpiringCertifications(30)
 
-  // Don't show if no urgent items
+  // Show "All Clear" card if no urgent items
   if (expiringCerts.length === 0) {
-    return null
+    return (
+      <Card className="flex h-full items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <CheckCircle className="text-muted-foreground/50 h-5 w-5" aria-hidden="true" />
+          <p className="text-muted-foreground text-xs font-medium">No urgent alerts</p>
+        </div>
+      </Card>
+    )
   }
 
   // Calculate urgency breakdown

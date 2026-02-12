@@ -88,7 +88,7 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-foreground truncate text-[13px] font-medium">{user.email}</p>
-              <form action="/api/auth/signout" method="POST">
+              <form action="/api/auth/logout" method="POST">
                 <Button
                   type="submit"
                   variant="ghost"

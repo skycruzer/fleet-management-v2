@@ -23,6 +23,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import { CheckCircle, XCircle, Trash2, Pencil } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { RequestEditDialog } from './request-edit-dialog'
@@ -49,6 +51,8 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [denyDialogOpen, setDenyDialogOpen] = useState(false)
+  const [denyComments, setDenyComments] = useState('')
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   const canApprove = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
@@ -89,12 +93,21 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   }
 
   const handleDeny = async () => {
+    if (!denyComments.trim()) {
+      toast({
+        title: 'Comments Required',
+        description: 'Please provide a reason for denying this request',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setLoading(true)
     try {
       const response = await fetch(`/api/requests/${request.id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'DENIED' }),
+        body: JSON.stringify({ status: 'DENIED', comments: denyComments.trim() }),
         credentials: 'include',
       })
 
@@ -107,6 +120,9 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
         title: 'Request Denied',
         description: 'The request has been successfully denied',
       })
+
+      setDenyDialogOpen(false)
+      setDenyComments('')
 
       // Refresh the page to show updated status
       router.refresh()
@@ -167,7 +183,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
         )}
         {canDeny && (
           <Button
-            onClick={handleDeny}
+            onClick={() => setDenyDialogOpen(true)}
             disabled={loading}
             variant="secondary"
             className="bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] hover:bg-[var(--color-status-medium-bg)]/80"
@@ -191,6 +207,47 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
       {/* Edit Request Dialog */}
       <RequestEditDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} request={request} />
 
+      {/* Deny Confirmation Dialog */}
+      <AlertDialog
+        open={denyDialogOpen}
+        onOpenChange={(open) => {
+          setDenyDialogOpen(open)
+          if (!open) setDenyComments('')
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deny Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please provide a reason for denying this request. This will be visible to the pilot.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Label htmlFor="deny-comments" className="text-sm font-medium">
+              Reason for Denial
+            </Label>
+            <Textarea
+              id="deny-comments"
+              placeholder="Enter the reason for denying this request..."
+              value={denyComments}
+              onChange={(e) => setDenyComments(e.target.value)}
+              className="mt-2"
+              rows={3}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeny}
+              disabled={!denyComments.trim()}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Deny Request
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -204,7 +261,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-[var(--color-status-high)] hover:bg-[var(--color-status-high)]/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>

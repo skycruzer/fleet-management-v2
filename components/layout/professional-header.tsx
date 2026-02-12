@@ -212,7 +212,7 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
               <Bell className="h-4 w-4" aria-hidden="true" />
               {unreadCount > 0 && (
                 <span
-                  className="bg-accent absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-xs font-medium text-white"
+                  className="bg-destructive text-destructive-foreground absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-xs font-medium"
                   aria-hidden="true"
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
@@ -334,14 +334,6 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
                     )}
                   </div>
                   <div className="p-1" role="menu" aria-label="User options">
-                    <button
-                      onClick={() => navigateAndClose('/dashboard/settings')}
-                      className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
-                      role="menuitem"
-                    >
-                      <User className="text-muted-foreground h-4 w-4" aria-hidden="true" />
-                      <span>Profile</span>
-                    </button>
                     <button
                       onClick={() => navigateAndClose('/dashboard/settings')}
                       className="text-foreground hover:bg-muted/60 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"

@@ -16,6 +16,13 @@ type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
 type CheckType = Database['public']['Tables']['check_types']['Row']
 
 /**
+ * Categories removed from the system — excluded from all queries.
+ * Non-renewal: one-time qualifications with no expiry (B767_PE_CNS, PBN, etc.)
+ * Travel Visa: removed as a separate category
+ */
+const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
+
+/**
  * Certification with check type details
  */
 export interface PilotCertificationWithDetails extends PilotCheck {
@@ -51,9 +58,17 @@ export async function getPilotCertifications(
     throw new Error(`Failed to fetch pilot certifications: ${error.message}`)
   }
 
+  // Filter out non-renewal categories (removed from system)
+  const renewalCerts = (data || []).filter(
+    (cert) =>
+      cert.check_types &&
+      cert.check_types.category &&
+      !EXCLUDED_CATEGORIES.includes(cert.check_types.category)
+  )
+
   // Calculate days until expiry and status for each certification
   const today = new Date()
-  const certificationsWithStatus = (data || []).map((cert) => {
+  const certificationsWithStatus = renewalCerts.map((cert) => {
     const expiryDate = cert.expiry_date ? new Date(cert.expiry_date) : null
     const daysUntilExpiry = expiryDate
       ? Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
@@ -178,6 +193,12 @@ export async function getPilotCertificationById(
     .single()
 
   if (error || !data) {
+    return null
+  }
+
+  // Reject non-renewal categories
+  const category = data.check_types?.category
+  if (!category || EXCLUDED_CATEGORIES.includes(category)) {
     return null
   }
 

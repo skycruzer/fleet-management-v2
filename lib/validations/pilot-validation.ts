@@ -59,6 +59,17 @@ const optionalNameSchema = z
   .nullable()
 
 /**
+ * Phone number validation: International format with digits, spaces, dashes, plus sign
+ */
+const phoneNumberSchema = z
+  .string()
+  .refine((val) => !val || (/^[+\d\s-]+$/.test(val) && val.length >= 7 && val.length <= 20), {
+    message: 'Phone number must be 7-20 characters with digits, spaces, dashes, or plus sign',
+  })
+  .optional()
+  .nullable()
+
+/**
  * Date validation: Accepts YYYY-MM-DD format (HTML date input) or ISO datetime
  * HTML date inputs return YYYY-MM-DD, but ISO datetime is also accepted for API flexibility
  */
@@ -150,6 +161,7 @@ export const PilotCreateSchema = z
     middle_name: optionalNameSchema,
     last_name: nameSchema,
     email: z.string().email('Must be a valid email address').optional().nullable(),
+    phone_number: phoneNumberSchema,
     role: PilotRoleEnum,
     contract_type: z.string().optional().nullable(),
     nationality: nationalitySchema,
@@ -237,6 +249,7 @@ export const PilotUpdateSchema = z
     middle_name: optionalNameSchema,
     last_name: nameSchema.optional(),
     email: z.string().email('Must be a valid email address').optional().nullable(),
+    phone_number: phoneNumberSchema,
     role: PilotRoleEnum.optional(),
     contract_type: z.string().optional().nullable(),
     nationality: nationalitySchema,

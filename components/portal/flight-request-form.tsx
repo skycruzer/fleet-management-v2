@@ -13,14 +13,22 @@
  */
 
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { usePortalForm } from '@/lib/hooks/use-portal-form'
 import { FormErrorAlert } from '@/components/portal/form-error-alert'
 import { SubmitButton } from '@/components/portal/submit-button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { submitFlightRequestAction } from '@/app/portal/flights/actions'
 
 // Form validation schema
@@ -60,6 +68,7 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors, touchedFields },
   } = useForm<FlightRequestFormData>({
     resolver: zodResolver(flightRequestSchema),
@@ -103,15 +112,23 @@ export function FlightRequestForm({ csrfToken }: FlightRequestFormProps) {
         <label className="text-foreground text-sm font-medium">
           Request Type <span className="text-destructive/70 ml-0.5 text-xs">*</span>
         </label>
-        <select
-          {...register('request_type')}
-          className="border-border bg-background focus:ring-ring/20 focus:border-foreground/30 flex h-9 w-full rounded-lg border px-3 py-2 text-sm transition-all duration-200 focus:ring-2 focus:outline-none"
-        >
-          <option value="ADDITIONAL_FLIGHT">Additional Flight</option>
-          <option value="ROUTE_CHANGE">Route Change</option>
-          <option value="SCHEDULE_PREFERENCE">Schedule Preference</option>
-          <option value="PICKUP_REQUEST">Pickup Request</option>
-        </select>
+        <Controller
+          name="request_type"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger className={errors.request_type ? 'border-destructive' : ''}>
+                <SelectValue placeholder="Select request type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ADDITIONAL_FLIGHT">Additional Flight</SelectItem>
+                <SelectItem value="ROUTE_CHANGE">Route Change</SelectItem>
+                <SelectItem value="SCHEDULE_PREFERENCE">Schedule Preference</SelectItem>
+                <SelectItem value="PICKUP_REQUEST">Pickup Request</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.request_type && (
           <p className="text-destructive text-xs font-medium">{errors.request_type.message}</p>
         )}
@@ -258,14 +275,14 @@ Examples:
 
       {/* Submit Buttons */}
       <div className="border-border flex items-center justify-end gap-3 border-t pt-5">
-        <button
+        <Button
           type="button"
+          variant="outline"
           onClick={() => router.back()}
-          className="border-border bg-background text-foreground hover:bg-muted h-9 rounded-lg border px-4 text-sm font-medium transition-colors duration-200"
           disabled={isSubmitting}
         >
           Cancel
-        </button>
+        </Button>
         <SubmitButton isSubmitting={isSubmitting}>Submit Flight Request</SubmitButton>
       </div>
     </form>

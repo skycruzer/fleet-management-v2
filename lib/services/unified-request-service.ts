@@ -26,6 +26,7 @@ import { invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import { notifyAllAdmins } from '@/lib/services/notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { logger } from '@/lib/services/logging-service'
+import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
 
 // ============================================================================
 // Type Definitions
@@ -445,6 +446,17 @@ export async function createPilotRequest(
       ).catch((err) => console.error('Failed to notify admins:', err))
     }
 
+    // Send email confirmation to pilot (fire-and-forget)
+    sendRequestLifecycleEmail(input.pilot_id, 'submitted', {
+      requestCategory: input.request_category as 'LEAVE' | 'FLIGHT',
+      requestType: input.request_type,
+      startDate: input.start_date,
+      endDate: input.end_date || null,
+      daysCount: daysCount,
+      flightDate: input.flight_date || null,
+      reason: input.reason || null,
+    }).catch((err: unknown) => console.error('Failed to send submission email:', err))
+
     return {
       success: true,
       data: data as unknown as PilotRequest,
@@ -747,6 +759,29 @@ export async function updateRequestStatus(
       }
     }
 
+    // Send email notification for status change (fire-and-forget)
+    if (data.pilot_id) {
+      const eventMap: Record<string, 'approved' | 'denied' | 'withdrawn'> = {
+        APPROVED: 'approved',
+        DENIED: 'denied',
+        WITHDRAWN: 'withdrawn',
+      }
+      const emailEvent = eventMap[status]
+      if (emailEvent) {
+        sendRequestLifecycleEmail(data.pilot_id, emailEvent, {
+          requestCategory: data.request_category as 'LEAVE' | 'FLIGHT',
+          requestType: data.request_type,
+          startDate: data.start_date,
+          endDate: data.end_date || null,
+          daysCount: data.days_count || null,
+          flightDate: data.flight_date || null,
+          reason: data.reason || null,
+          denialReason: comments || null,
+          reviewerComments: comments || null,
+        }).catch((err: unknown) => console.error('Failed to send status email:', err))
+      }
+    }
+
     return {
       success: true,
       data: data as unknown as PilotRequest,
@@ -867,6 +902,19 @@ export async function updatePilotRequest(
     await invalidateCacheByTag('reports:leave')
     await invalidateCacheByTag('reports:rdo-sdo')
     await invalidateCacheByTag('reports:all-requests')
+
+    // Send email notification about the edit (fire-and-forget)
+    if (data.pilot_id) {
+      sendRequestLifecycleEmail(data.pilot_id, 'edited', {
+        requestCategory: data.request_category as 'LEAVE' | 'FLIGHT',
+        requestType: data.request_type,
+        startDate: data.start_date,
+        endDate: data.end_date || null,
+        daysCount: data.days_count || null,
+        flightDate: data.flight_date || null,
+        reason: data.reason || null,
+      }).catch((err: unknown) => console.error('Failed to send edit email:', err))
+    }
 
     return {
       success: true,

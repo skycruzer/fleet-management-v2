@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { AlertCircle, AlertTriangle, Clock, Info, ChevronDown } from 'lucide-react'
 import { ExpiryGroup, formatDaysUntilExpiry } from '@/lib/utils/certification-expiry-groups'
+import { formatDate } from '@/lib/utils/date-utils'
 import { useState } from 'react'
 
 interface ExpiryGroupsAccordionProps {
@@ -153,11 +154,7 @@ function ExpiryGroupAccordion({ group }: { group: ExpiryGroup }) {
                             {/* Expiry Date */}
                             {cert.expiry_date && (
                               <p className="text-foreground text-sm font-medium">
-                                {new Date(cert.expiry_date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric',
-                                })}
+                                {formatDate(cert.expiry_date)}
                               </p>
                             )}
 
@@ -171,13 +168,14 @@ function ExpiryGroupAccordion({ group }: { group: ExpiryGroup }) {
                             {/* Status Badge */}
                             {cert.status && (
                               <Badge
-                                className={`mt-2 ${
+                                variant={
                                   cert.status.color === 'red'
-                                    ? 'bg-[var(--color-status-high)] text-white'
+                                    ? 'destructive'
                                     : cert.status.color === 'yellow'
-                                      ? 'bg-[var(--color-status-medium)] text-white'
-                                      : 'bg-muted text-muted-foreground'
-                                }`}
+                                      ? 'warning'
+                                      : 'success'
+                                }
+                                className="mt-2"
                               >
                                 {cert.status.label}
                               </Badge>

@@ -10,7 +10,16 @@
 
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend: Resend | null = null
+function getResendClient(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY environment variable is not configured')
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY)
+  }
+  return _resend
+}
 
 interface PilotInfo {
   email: string
@@ -365,7 +374,7 @@ export async function sendLeaveApprovedEmail(
   request: LeaveRequestInfo
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleet-mgmt.com>',
       to: pilot.email,
       subject: `✅ Leave Request Approved - ${request.leaveType}`,
@@ -396,7 +405,7 @@ export async function sendLeaveDeniedEmail(
   reason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleet-mgmt.com>',
       to: pilot.email,
       subject: `❌ Leave Request Denied - ${request.leaveType}`,
@@ -426,7 +435,7 @@ export async function sendFlightApprovedEmail(
   request: FlightRequestInfo
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleet-mgmt.com>',
       to: pilot.email,
       subject: `✈️ Flight Request Approved - ${request.flightType}`,

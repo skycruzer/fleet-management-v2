@@ -72,6 +72,7 @@ export interface PilotFormData {
   middle_name?: string | null
   last_name: string
   email?: string | null
+  phone_number?: string | null
   role: 'Captain' | 'First Officer'
   contract_type?: string | null
   nationality?: string | null
@@ -502,6 +503,18 @@ export const getPilotStats = unstable_cache(
 // WRITE OPERATIONS
 // ===================================
 
+// Normalize name casing: "john" → "John", "MARY ANN" → "Mary Ann"
+const toTitleCase = (name: string): string =>
+  name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
+
+// Generate pilot email: first letter of first name + last name @airniugini.com.pg
+// e.g. Maurice RONDEAU → mrondeau@airniugini.com.pg
+const generatePilotEmail = (firstName: string, lastName: string): string => {
+  const firstInitial = firstName.charAt(0).toLowerCase()
+  const cleanLast = lastName.toLowerCase().replace(/[^a-z]/g, '')
+  return `${firstInitial}${cleanLast}@airniugini.com.pg`
+}
+
 export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
   // Use admin client to bypass RLS (auth verified at API layer)
   const supabase = createAdminClient()
@@ -524,10 +537,11 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
       .insert([
         {
           employee_id: pilotData.employee_id,
-          first_name: pilotData.first_name,
-          middle_name: toNullIfEmpty(pilotData.middle_name),
-          last_name: pilotData.last_name,
-          email: toNullIfEmpty(pilotData.email),
+          first_name: toTitleCase(pilotData.first_name),
+          middle_name: pilotData.middle_name ? toTitleCase(pilotData.middle_name) : null,
+          last_name: pilotData.last_name.toUpperCase(),
+          email: toNullIfEmpty(pilotData.email) || generatePilotEmail(pilotData.first_name, pilotData.last_name),
+          phone_number: toNullIfEmpty(pilotData.phone_number),
           role: pilotData.role,
           contract_type: toNullIfEmpty(pilotData.contract_type),
           nationality: toNullIfEmpty(pilotData.nationality),
@@ -597,9 +611,11 @@ export async function createPilotWithCertifications(
     // Prepare pilot data for PostgreSQL function
     const pilotJson = {
       employee_id: pilotData.employee_id,
-      first_name: pilotData.first_name,
-      middle_name: pilotData.middle_name || null,
-      last_name: pilotData.last_name,
+      first_name: toTitleCase(pilotData.first_name),
+      middle_name: pilotData.middle_name ? toTitleCase(pilotData.middle_name) : null,
+      last_name: pilotData.last_name.toUpperCase(),
+      email: pilotData.email || generatePilotEmail(pilotData.first_name, pilotData.last_name),
+      phone_number: pilotData.phone_number || null,
       role: pilotData.role,
       contract_type: pilotData.contract_type || null,
       nationality: pilotData.nationality || null,
@@ -713,6 +729,9 @@ export async function updatePilot(
 
     const updateData = {
       ...pilotData,
+      ...(pilotData.first_name ? { first_name: toTitleCase(pilotData.first_name) } : {}),
+      ...(pilotData.middle_name ? { middle_name: toTitleCase(pilotData.middle_name) } : {}),
+      ...(pilotData.last_name ? { last_name: pilotData.last_name.toUpperCase() } : {}),
       seniority_number: seniorityNumber,
     }
 
@@ -1306,10 +1325,10 @@ export async function processRetiredPilots(): Promise<RetirementProcessingSummar
       },
     })
 
-    // Query all active pilots (email is in pilot_users table, not pilots)
+    // Query all active pilots (email now lives on pilots table)
     const { data: activePilots, error: fetchError } = await supabase
       .from('pilots')
-      .select('id, employee_id, first_name, last_name, role, date_of_birth, is_active')
+      .select('id, employee_id, first_name, last_name, role, date_of_birth, is_active, email')
       .eq('is_active', true)
 
     if (fetchError) {
@@ -1341,14 +1360,16 @@ export async function processRetiredPilots(): Promise<RetirementProcessingSummar
       if (age >= retirementAge) {
         const pilotName = `${pilot.first_name} ${pilot.last_name}`
 
-        // Look up pilot's email from pilot_users table
-        const { data: pilotUser } = await supabase
-          .from('pilot_users')
-          .select('email')
-          .eq('pilot_id', pilot.id)
-          .single()
-
-        const pilotEmail = pilotUser?.email || null
+        // Use pilot record email, fall back to pilot_users table
+        let pilotEmail = pilot.email || null
+        if (!pilotEmail) {
+          const { data: pilotUser } = await supabase
+            .from('pilot_users')
+            .select('email')
+            .eq('pilot_id', pilot.id)
+            .single()
+          pilotEmail = pilotUser?.email || null
+        }
 
         const result: PilotRetirementResult = {
           pilotId: pilot.id,

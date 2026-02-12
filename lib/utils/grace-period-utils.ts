@@ -7,7 +7,7 @@
  * - Flight Checks: 90 days grace period
  * - Simulator Checks: 60 days grace period
  * - Ground Courses: 60 days grace period
- * - ID Cards/Work Permits/Visas: 0 days (renew on or after expiry)
+ * - ID Cards/Work Permits: 0 days (renew on or after expiry)
  */
 
 import { subDays } from 'date-fns'
@@ -22,8 +22,6 @@ export const GRACE_PERIODS: Record<string, number> = {
   'Ground Courses Refresher': 60,
   'ID Cards': 0,
   'Foreign Pilot Work Permit': 0,
-  'Travel Visa': 0,
-  'Non-renewal': 0,
 }
 
 /**

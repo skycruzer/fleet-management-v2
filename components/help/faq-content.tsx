@@ -286,7 +286,7 @@ export function FaqContent() {
               Can&apos;t find what you&apos;re looking for? Our support team is here to help.
             </p>
           </div>
-          <Link href="/dashboard/support">
+          <Link href="/dashboard/feedback">
             <Button size="lg" className="gap-2">
               <FileQuestion className="h-4 w-4" />
               Contact Support

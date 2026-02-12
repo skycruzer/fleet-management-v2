@@ -1,92 +1,92 @@
+/**
+ * Pilot List Skeleton Component
+ * Loading state placeholder for the pilots page
+ *
+ * Developer: Maurice Rondeau
+ */
+
 export function PilotListSkeleton() {
   return (
-    <div className="space-y-4 p-6">
-      {/* Header Skeleton */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div className="bg-muted animate-shimmer h-8 w-32 rounded" />
-        <div className="flex gap-2">
-          <div className="bg-muted animate-shimmer h-10 w-40 rounded" />
-          <div className="bg-muted animate-shimmer h-10 w-32 rounded" />
-        </div>
-      </div>
-
-      {/* Search and Filters Skeleton */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="flex-1">
-          <div className="bg-muted animate-shimmer h-10 w-full rounded" />
-        </div>
-        <div className="flex gap-2">
-          <div className="bg-muted animate-shimmer h-10 w-32 rounded" />
-          <div className="bg-muted animate-shimmer h-10 w-32 rounded" />
-        </div>
-      </div>
-
-      {/* Table Skeleton - Desktop */}
-      <div className="border-border bg-card hidden overflow-hidden rounded-lg border shadow-sm md:block">
-        {/* Table Header */}
-        <div className="border-border bg-muted/50 grid grid-cols-6 gap-4 border-b p-4">
-          {['Name', 'Rank', 'Seniority', 'Status', 'Certifications', 'Actions'].map((col) => (
-            <div key={col} className="bg-muted animate-shimmer h-4 rounded" />
-          ))}
-        </div>
-
-        {/* Table Rows */}
-        <div className="divide-border divide-y">
-          {[...Array(27)].map((_, i) => (
-            <div key={i} className="hover:bg-muted bg-card grid grid-cols-6 gap-4 p-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-muted animate-shimmer h-10 w-10 rounded-full" />
-                <div className="space-y-2">
-                  <div className="bg-muted animate-shimmer h-4 w-32 rounded" />
-                  <div className="bg-muted/70 animate-shimmer h-3 w-24 rounded" />
-                </div>
-              </div>
-              <div className="flex items-center">
-                <div className="bg-muted/70 animate-shimmer h-4 w-20 rounded" />
-              </div>
-              <div className="flex items-center">
-                <div className="bg-muted/70 animate-shimmer h-4 w-12 rounded" />
-              </div>
-              <div className="flex items-center">
-                <div className="bg-muted animate-shimmer h-6 w-16 rounded-full" />
-              </div>
-              <div className="flex items-center">
-                <div className="bg-muted/70 animate-shimmer h-4 w-16 rounded" />
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-muted animate-shimmer h-8 w-8 rounded" />
-                <div className="bg-muted animate-shimmer h-8 w-8 rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Cards Skeleton - Mobile */}
-      <div className="space-y-3 md:hidden">
-        {[...Array(10)].map((_, i) => (
-          <div key={i} className="border-border bg-card rounded-lg border p-4 shadow-sm">
-            <div className="mb-3 flex items-start gap-3">
-              <div className="bg-muted animate-shimmer h-12 w-12 rounded-full" />
+    <div className="space-y-6">
+      {/* Stats Bar Skeleton — 2x2 on mobile, 4-across on desktop */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="border-border bg-card rounded-xl border p-5 shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="bg-muted animate-shimmer h-12 w-12 flex-shrink-0 rounded-full" />
               <div className="flex-1 space-y-2">
-                <div className="bg-muted animate-shimmer h-5 w-32 rounded" />
+                <div className="bg-muted animate-shimmer h-7 w-16 rounded" />
                 <div className="bg-muted/70 animate-shimmer h-4 w-24 rounded" />
               </div>
-              <div className="bg-muted animate-shimmer h-6 w-16 rounded-full" />
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <div className="bg-muted/70 animate-shimmer h-3 w-20 rounded" />
-                <div className="bg-muted/70 animate-shimmer h-3 w-12 rounded" />
+            <div className="bg-muted animate-shimmer mt-3 h-1.5 rounded-full" />
+          </div>
+        ))}
+      </div>
+
+      {/* Filter Bar Skeleton */}
+      <div className="space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="bg-muted animate-shimmer h-10 max-w-md flex-1 rounded" />
+          <div className="bg-muted/70 animate-shimmer h-4 w-24 rounded" />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-1.5">
+            <div className="bg-muted/70 animate-shimmer h-3 w-8 rounded" />
+            <div className="flex gap-1">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-muted animate-shimmer h-7 w-16 rounded-full" />
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="bg-muted/70 animate-shimmer h-3 w-10 rounded" />
+            <div className="flex gap-1">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-muted animate-shimmer h-7 w-16 rounded-full" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* View Toggle Skeleton */}
+      <div className="border-input bg-background flex items-center rounded-lg border p-1">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-muted animate-shimmer h-8 w-20 rounded" />
+        ))}
+      </div>
+
+      {/* Card Grid Skeleton — responsive grid matching PilotCard layout */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="border-border bg-card rounded-xl border shadow-sm">
+            <div className="p-5">
+              {/* Header: Avatar + Identity */}
+              <div className="mb-4 flex items-start gap-3">
+                <div className="bg-muted animate-shimmer h-14 w-14 flex-shrink-0 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <div className="bg-muted animate-shimmer h-4 w-28 rounded" />
+                  <div className="flex gap-1.5">
+                    <div className="bg-muted animate-shimmer h-5 w-16 rounded-full" />
+                    <div className="bg-muted/70 animate-shimmer h-5 w-14 rounded-full" />
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <div className="bg-muted/70 animate-shimmer h-3 w-24 rounded" />
-                <div className="bg-muted/70 animate-shimmer h-3 w-16 rounded" />
+              {/* Detail rows */}
+              <div className="space-y-2">
+                {[...Array(3)].map((_, j) => (
+                  <div key={j} className="flex items-center justify-between">
+                    <div className="bg-muted/70 animate-shimmer h-3.5 w-16 rounded" />
+                    <div className="bg-muted animate-shimmer h-3.5 w-12 rounded" />
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="border-border mt-3 flex gap-2 border-t pt-3">
+            {/* Footer */}
+            <div className="border-border flex gap-2 border-t px-5 py-3">
               <div className="bg-muted animate-shimmer h-8 flex-1 rounded" />
-              <div className="bg-muted animate-shimmer h-8 w-20 rounded" />
+              <div className="bg-muted animate-shimmer h-8 flex-1 rounded" />
             </div>
           </div>
         ))}

@@ -46,8 +46,6 @@ import { ArrowLeft, Calendar, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 const LEAVE_TYPES = [
-  { value: 'RDO', label: 'RDO - Rostered Day Off' },
-  { value: 'SDO', label: 'SDO - Substitute Day Off' },
   { value: 'ANNUAL', label: 'Annual Leave' },
   { value: 'SICK', label: 'Sick Leave' },
   { value: 'LSL', label: 'Long Service Leave' },

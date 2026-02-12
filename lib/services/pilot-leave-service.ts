@@ -28,6 +28,7 @@ import {
   getTodayISO,
   type PilotLeaveRequestOutput,
 } from '@/lib/validations/pilot-leave-schema'
+import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
 
 export interface ServiceResponse<T = void> {
   success: boolean
@@ -111,6 +112,15 @@ export async function submitPilotLeaveRequest(
         error: result.error || ERROR_MESSAGES.LEAVE.CREATE_FAILED.message,
       }
     }
+
+    // Send email confirmation to pilot (fire-and-forget)
+    sendRequestLifecycleEmail(pilot.pilot_id!, 'submitted', {
+      requestCategory: 'LEAVE',
+      requestType: request.request_type,
+      startDate: request.start_date,
+      endDate: request.end_date || null,
+      reason: request.reason || null,
+    }).catch((err: unknown) => console.error('Failed to send leave submission email:', err))
 
     return {
       success: true,
@@ -252,6 +262,15 @@ export async function updatePilotLeaveRequest(
         error: ERROR_MESSAGES.LEAVE.UPDATE_FAILED.message,
       }
     }
+
+    // Send email notification about the edit (fire-and-forget)
+    sendRequestLifecycleEmail(pilot.pilot_id!, 'edited', {
+      requestCategory: 'LEAVE',
+      requestType: updates.request_type,
+      startDate: updates.start_date,
+      endDate: updates.end_date || null,
+      reason: updates.reason || null,
+    }).catch((err: unknown) => console.error('Failed to send leave edit email:', err))
 
     return {
       success: true,

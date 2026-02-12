@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ChevronDown, CheckCircle, AlertCircle, Clock, FolderOpen, Pencil } from 'lucide-react'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
-import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date-utils'
 
 interface CategoryViewProps {
   certifications: CertificationWithDetails[]
@@ -75,30 +75,15 @@ function groupByCategory(certifications: CertificationWithDetails[]): CategoryGr
  */
 function getCategoryCompliance(stats: CategoryGroup['stats']): {
   label: string
-  variant: 'destructive' | 'default' | 'secondary'
-  className: string
+  variant: 'destructive' | 'warning' | 'success'
 } {
   if (stats.expired > 0) {
-    return {
-      label: 'Issues',
-      variant: 'destructive',
-      className: '',
-    }
+    return { label: 'Issues', variant: 'destructive' }
   }
   if (stats.expiring > 0) {
-    return {
-      label: 'Attention',
-      variant: 'default',
-      className:
-        'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] hover:bg-[var(--color-status-medium-bg)]',
-    }
+    return { label: 'Attention', variant: 'warning' }
   }
-  return {
-    label: 'Compliant',
-    variant: 'secondary',
-    className:
-      'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)]',
-  }
+  return { label: 'Compliant', variant: 'success' }
 }
 
 /**
@@ -140,19 +125,13 @@ function CategoryAccordion({
           {/* Status Summary */}
           <div className="hidden items-center gap-1.5 sm:flex">
             {category.stats.current > 0 && (
-              <Badge
-                variant="secondary"
-                className="gap-1 bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]"
-              >
+              <Badge variant="success" className="gap-1">
                 <CheckCircle className="h-3 w-3" />
                 {category.stats.current}
               </Badge>
             )}
             {category.stats.expiring > 0 && (
-              <Badge
-                variant="secondary"
-                className="gap-1 bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]"
-              >
+              <Badge variant="warning" className="gap-1">
                 <Clock className="h-3 w-3" />
                 {category.stats.expiring}
               </Badge>
@@ -166,9 +145,7 @@ function CategoryAccordion({
           </div>
 
           {/* Compliance Badge */}
-          <Badge variant={compliance.variant} className={compliance.className}>
-            {compliance.label}
-          </Badge>
+          <Badge variant={compliance.variant}>{compliance.label}</Badge>
 
           {/* Chevron */}
           <ChevronDown
@@ -207,9 +184,7 @@ function CategoryAccordion({
                   {/* Expiry Date */}
                   <div className="text-right">
                     <p className="text-foreground text-sm">
-                      {cert.expiry_date
-                        ? format(new Date(cert.expiry_date), 'MMM d, yyyy')
-                        : 'No date'}
+                      {cert.expiry_date ? formatDate(cert.expiry_date) : 'No date'}
                     </p>
                     {cert.status?.daysUntilExpiry !== undefined && (
                       <p
@@ -234,15 +209,10 @@ function CategoryAccordion({
                       cert.status?.color === 'red'
                         ? 'destructive'
                         : cert.status?.color === 'yellow'
-                          ? 'default'
-                          : 'secondary'
-                    }
-                    className={
-                      cert.status?.color === 'yellow'
-                        ? 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]'
-                        : cert.status?.color === 'green'
-                          ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
-                          : ''
+                          ? 'warning'
+                          : cert.status?.color === 'green'
+                            ? 'success'
+                            : 'secondary'
                     }
                   >
                     {cert.status?.label || 'No Date'}

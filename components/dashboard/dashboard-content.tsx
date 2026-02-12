@@ -29,7 +29,7 @@ import { RetirementForecastCard } from '@/components/dashboard/retirement-foreca
 
 export async function DashboardContent() {
   return (
-    <div className="w-full max-w-full space-y-6 overflow-x-hidden" style={{ minWidth: 0 }}>
+    <div className="w-full max-w-full min-w-0 space-y-6 overflow-x-hidden">
       {/* Zone 1: Personalized Greeting + Fleet Insights */}
       <section aria-label="Greeting and fleet overview" className="space-y-4">
         <ErrorBoundary fallback={<DashboardErrorFallback section="greeting" />}>
@@ -101,7 +101,7 @@ export async function DashboardContent() {
 
         <div>
           <ErrorBoundary fallback={<DashboardErrorFallback section="alerts" />}>
-            <Suspense fallback={<div className="bg-muted animate-shimmer h-16 rounded-xl" />}>
+            <Suspense fallback={<div className="bg-muted animate-shimmer h-32 rounded-xl" />}>
               <UrgentAlertBanner />
             </Suspense>
           </ErrorBoundary>

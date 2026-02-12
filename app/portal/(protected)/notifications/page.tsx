@@ -153,7 +153,7 @@ export default function NotificationsPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="px-4 py-6 sm:px-6 lg:px-8">
         <Card>
           <CardContent className="p-12 text-center">
             <p>Loading notifications...</p>
@@ -164,10 +164,10 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
+    <div className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Notifications</h1>
+          <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">Notifications</h1>
           <p className="text-muted-foreground mt-1">
             {unreadCount > 0
               ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`

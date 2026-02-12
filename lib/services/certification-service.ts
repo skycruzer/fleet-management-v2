@@ -20,6 +20,13 @@ import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { unifiedCacheService, invalidateCacheByTag } from './unified-cache-service'
 import { getCertificationStatus, DEFAULT_THRESHOLDS } from '@/lib/utils/certification-status'
 
+/**
+ * Categories removed from the system — excluded from all read queries.
+ * Non-renewal: one-time qualifications with no expiry (B767_PE_CNS, PBN, etc.)
+ * Travel Visa: removed as a separate category
+ */
+const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
+
 // ===================================
 // INTERFACES
 // ===================================
@@ -155,7 +162,13 @@ export async function getCertifications(
 
         if (error) throw error
 
-        const certificationsWithStatus = (data || []).map((cert) => ({
+        // Filter out non-renewal categories (removed from system)
+        const renewalCerts = (data || []).filter((cert: any) => {
+          const category = cert.check_type?.category
+          return category && !EXCLUDED_CATEGORIES.includes(category)
+        })
+
+        const certificationsWithStatus = renewalCerts.map((cert) => ({
           ...cert,
           status: getCertificationStatus(
             cert.expiry_date ? new Date(cert.expiry_date) : null,
@@ -165,7 +178,7 @@ export async function getCertifications(
 
         return {
           certifications: certificationsWithStatus,
-          total: count || 0,
+          total: certificationsWithStatus.length,
           page,
           pageSize,
         }
@@ -274,7 +287,13 @@ export async function getCertificationsByPilotId(
 
     if (error) throw error
 
-    const certificationsWithStatus = (data || []).map((cert) => ({
+    // Filter out non-renewal categories (removed from system)
+    const renewalCerts = (data || []).filter((cert: any) => {
+      const category = cert.check_type?.category
+      return category && !EXCLUDED_CATEGORIES.includes(category)
+    })
+
+    const certificationsWithStatus = renewalCerts.map((cert) => ({
       ...cert,
       status: getCertificationStatus(
         cert.expiry_date ? new Date(cert.expiry_date) : null,
@@ -331,7 +350,10 @@ export async function getExpiringCertifications(daysAhead: number = 60) {
     futureDate.setDate(futureDate.getDate() + daysAhead)
 
     const expiringCerts = (data || [])
-      .filter((cert): cert is typeof cert & { expiry_date: string } => {
+      .filter((cert: any): cert is typeof cert & { expiry_date: string } => {
+        // Exclude non-renewal categories
+        const category = cert.check_type?.category
+        if (!category || EXCLUDED_CATEGORIES.includes(category)) return false
         if (!cert.expiry_date) return false
         const expiryDate = new Date(cert.expiry_date)
         return expiryDate <= futureDate
@@ -652,11 +674,19 @@ export async function getCertificationStats() {
   const supabase = createAdminClient()
 
   try {
-    const { data, error } = await supabase.from('pilot_checks').select('expiry_date')
+    const { data, error } = await supabase
+      .from('pilot_checks')
+      .select('expiry_date, check_type:check_types(category)')
 
     if (error) throw error
 
-    const stats = (data || []).reduce(
+    // Filter out non-renewal categories
+    const renewalData = (data || []).filter((cert: any) => {
+      const category = cert.check_type?.category
+      return category && !EXCLUDED_CATEGORIES.includes(category)
+    })
+
+    const stats = renewalData.reduce(
       (acc, cert) => {
         acc.total++
 
@@ -720,7 +750,13 @@ export async function getCertificationsByCategory() {
 
     if (error) throw error
 
-    const categoryStats = (data || []).reduce(
+    // Filter out non-renewal categories before computing stats
+    const renewalData = (data || []).filter((cert: any) => {
+      const category = cert.check_type?.category
+      return category && !EXCLUDED_CATEGORIES.includes(category)
+    })
+
+    const categoryStats = renewalData.reduce(
       (acc, cert: any) => {
         const category = cert.check_type?.category || 'Other'
 
@@ -803,8 +839,13 @@ export async function getCertificationsGroupedByCategory(): Promise<
 
     if (error) throw error
 
-    // Group certifications by category
-    const grouped = (data || []).reduce(
+    // Filter out non-renewal categories then group by category
+    const renewalData = (data || []).filter((cert: any) => {
+      const category = cert.check_type?.category
+      return category && !EXCLUDED_CATEGORIES.includes(category)
+    })
+
+    const grouped = renewalData.reduce(
       (acc, cert: any) => {
         const category = cert.check_type?.category || 'Uncategorized'
 

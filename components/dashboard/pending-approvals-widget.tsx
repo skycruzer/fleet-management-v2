@@ -48,7 +48,7 @@ export async function PendingApprovalsWidget() {
   }
 
   return (
-    <Card className="p-4">
+    <Card className="h-full p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
           Pending Approvals

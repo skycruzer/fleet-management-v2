@@ -73,7 +73,7 @@ export function RosterCalendarWidget() {
   const monthName = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
   return (
-    <Card className="p-4">
+    <Card className="h-full p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
           Roster Calendar

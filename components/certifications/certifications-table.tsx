@@ -13,6 +13,7 @@ import { DataTable, DataTableSearch, useTableFilter, type Column } from '@/compo
 import { EmptyState } from '@/components/ui/empty-state'
 import { Eye, FileText, Download } from 'lucide-react'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
+import { RankBadge } from '@/components/pilots/rank-badge'
 import { exportToCSV, generateFilename } from '@/lib/utils/export-utils'
 import { formatDate } from '@/lib/utils/date-utils'
 
@@ -100,11 +101,12 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
       header: 'Rank',
       accessorFn: (row) => row.pilot?.role || '',
       sortable: true,
-      cell: (row) => (
-        <Badge variant={row.pilot?.role === 'Captain' ? 'default' : 'secondary'}>
-          {row.pilot?.role || '-'}
-        </Badge>
-      ),
+      cell: (row) =>
+        row.pilot?.role ? (
+          <RankBadge rank={row.pilot.role} />
+        ) : (
+          <Badge variant="secondary">-</Badge>
+        ),
     },
     {
       id: 'check',
@@ -148,23 +150,14 @@ export function CertificationsTable({ certifications }: CertificationsTableProps
           row.status.color === 'red'
             ? 'destructive'
             : row.status.color === 'yellow'
-              ? 'default'
+              ? 'warning'
               : row.status.color === 'green'
-                ? 'default'
+                ? 'success'
                 : 'secondary'
-
-        const className =
-          row.status.color === 'yellow'
-            ? 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)] hover:bg-[var(--color-status-medium-bg)]'
-            : row.status.color === 'green'
-              ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] hover:bg-[var(--color-status-low-bg)]'
-              : ''
 
         return (
           <div className="flex flex-col gap-1">
-            <Badge variant={variant} className={className}>
-              {row.status.label}
-            </Badge>
+            <Badge variant={variant}>{row.status.label}</Badge>
             {row.status.daysUntilExpiry !== undefined && (
               <span className="text-muted-foreground text-xs">
                 {row.status.daysUntilExpiry < 0

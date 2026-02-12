@@ -14,6 +14,7 @@ import { CertificationsTable } from '@/components/certifications/certifications-
 import { Table, LayoutGrid } from 'lucide-react'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/hooks/use-toast'
 
 interface CertificationsViewToggleProps {
   groupedCertifications: Record<string, CertificationWithDetails[]>
@@ -25,6 +26,7 @@ export function CertificationsViewToggle({
   allCertifications,
 }: CertificationsViewToggleProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [viewMode, setViewMode] = useState<'grouped' | 'table'>('grouped')
   const [editingCertId, setEditingCertId] = useState<string | null>(null)
   const [editExpiryDate, setEditExpiryDate] = useState('')
@@ -45,13 +47,17 @@ export function CertificationsViewToggle({
         throw new Error(result.error || 'Failed to update certification')
       }
 
-      alert('Certification updated successfully')
+      toast({ title: 'Success', description: 'Certification updated successfully' })
       setEditingCertId(null)
       setEditExpiryDate('')
       router.refresh() // Refresh server component data
     } catch (error) {
       console.error('Error updating certification:', error)
-      alert(error instanceof Error ? error.message : 'Failed to update certification')
+      toast({
+        title: 'Update Failed',
+        description: error instanceof Error ? error.message : 'Failed to update certification',
+        variant: 'destructive',
+      })
     } finally {
       setSavingCert(false)
     }
@@ -79,8 +85,14 @@ export function CertificationsViewToggle({
   return (
     <>
       {/* View Toggle */}
-      <div className="border-input bg-background flex items-center rounded-lg border p-1">
+      <div
+        role="tablist"
+        aria-label="Certifications view mode"
+        className="border-input bg-background flex items-center rounded-lg border p-1"
+      >
         <Button
+          role="tab"
+          aria-selected={viewMode === 'table'}
           variant={viewMode === 'table' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setViewMode('table')}
@@ -91,6 +103,8 @@ export function CertificationsViewToggle({
           <span className="hidden sm:inline">Table</span>
         </Button>
         <Button
+          role="tab"
+          aria-selected={viewMode === 'grouped'}
           variant={viewMode === 'grouped' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => setViewMode('grouped')}

@@ -1,6 +1,9 @@
 /**
  * Pilot Portal Reset Password Page
- * Aviation-themed password reset with token validation
+ * Developer: Maurice Rondeau
+ *
+ * Clean Nova-style: centered card on dark navy premium background.
+ * Matches login page visual style.
  *
  * @spec 001-missing-core-features (US1 - Password Reset)
  */
@@ -14,8 +17,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import {
   Lock,
@@ -25,7 +26,6 @@ import {
   CheckCircle2,
   Loader2,
   Key,
-  Cloud,
   Shield,
   ArrowRight,
 } from 'lucide-react'
@@ -61,8 +61,6 @@ export default function ResetPasswordPage() {
   const [email, setEmail] = useState<string>('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [passwordFocused, setPasswordFocused] = useState(false)
-  const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false)
 
   const form = useForm<ResetPasswordInput>({
     resolver: zodResolver(ResetPasswordSchema),
@@ -165,98 +163,46 @@ export default function ResetPasswordPage() {
   const passwordStrength = getPasswordStrength(password)
 
   return (
-    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Aviation Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-10 left-0"
-        >
-          <Cloud className="h-24 w-32 text-white/20" />
-        </motion.div>
-
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 50, repeat: Infinity, ease: 'linear', delay: 5 }}
-          className="absolute top-32 left-0"
-        >
-          <Cloud className="h-32 w-40 text-white/15" />
-        </motion.div>
-
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 45, repeat: Infinity, ease: 'linear', delay: 10 }}
-          className="absolute bottom-32 left-0"
-        >
-          <Cloud className="h-28 w-36 text-white/25" />
-        </motion.div>
-
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-20 right-20 h-96 w-96 rounded-full bg-gradient-to-br from-pink-300/30 to-purple-400/30 blur-3xl"
-        />
-
-        <motion.div
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
-          className="absolute bottom-20 left-20 h-96 w-96 rounded-full bg-gradient-to-tr from-blue-200/30 to-cyan-300/30 blur-3xl"
-        />
-      </div>
-
-      {/* Main Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
-      >
-        <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="bg-primary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-            >
-              <Shield className="h-8 w-8 text-white" />
-            </motion.div>
-
-            <h1 className="text-foreground mb-2 text-3xl font-bold">Set New Password</h1>
-            {email && (
-              <p className="text-muted-foreground text-sm">
-                for <span className="text-foreground font-medium">{email}</span>
-              </p>
-            )}
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        {/* Logo & Title */}
+        <div className="mb-8 text-center">
+          <div className="bg-primary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
+            <Shield className="h-6 w-6 text-white" />
           </div>
+          <h1 className="text-foreground text-xl font-semibold">Set New Password</h1>
+          {email && (
+            <p className="text-muted-foreground mt-1 text-sm">
+              for <span className="text-foreground font-medium">{email}</span>
+            </p>
+          )}
+        </div>
 
+        {/* Card */}
+        <div className="bg-card border-border rounded-lg border p-6">
           {/* Loading State */}
           {isValidating && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="text-primary h-12 w-12 animate-spin" />
+              <Loader2 className="text-primary h-8 w-8 animate-spin" />
               <p className="text-muted-foreground mt-4 text-sm">Validating reset link...</p>
             </div>
           )}
 
           {/* Invalid Token */}
           {!isValidating && !tokenValid && (
-            <div className="space-y-6">
-              <div className="flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-4">
-                <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-[var(--color-danger-400)]">
-                    Invalid Reset Link
-                  </p>
-                  <p className="mt-1 text-sm text-[var(--color-danger-400)]/80">{error}</p>
+            <div className="space-y-4">
+              <div className="flex items-start gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-danger-400)]" />
+                <div>
+                  <p className="font-medium text-[var(--color-danger-400)]">Invalid Reset Link</p>
+                  <p className="mt-1 text-[var(--color-danger-400)]/80">{error}</p>
                 </div>
               </div>
 
               <Link href="/portal/forgot-password">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
+                <Button className="bg-primary hover:bg-primary/90 w-full text-white">
                   Request New Reset Link
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -264,79 +210,62 @@ export default function ResetPasswordPage() {
 
           {/* Success Message */}
           {!isValidating && tokenValid && success && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="space-y-6"
-            >
+            <div className="space-y-4">
               <div className="flex flex-col items-center text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-                  className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-success-muted)]"
-                >
-                  <CheckCircle2 className="h-8 w-8 text-[var(--color-success-400)]" />
-                </motion.div>
-
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-success-muted)]">
+                  <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
+                </div>
                 <p className="text-foreground text-lg font-semibold">
                   Password Reset Successfully!
                 </p>
                 <p className="text-muted-foreground mt-2 text-sm">
-                  You'll be redirected to login in a few seconds...
+                  You&apos;ll be redirected to login in a few seconds...
                 </p>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Reset Form */}
           {!isValidating && tokenValid && !success && (
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* Error Message */}
               {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-3 rounded-lg border border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-4"
-                >
-                  <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-danger-400)]" />
-                  <p className="flex-1 text-sm text-[var(--color-danger-400)]">{error}</p>
-                </motion.div>
+                <div className="flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
               )}
 
               {/* Password Field */}
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-foreground/80 text-sm font-medium">
+              <div>
+                <label
+                  htmlFor="password"
+                  className="text-foreground/80 mb-1.5 block text-sm font-medium"
+                >
                   New Password
                 </label>
                 <div className="relative">
-                  <div className="absolute top-1/2 left-3 -translate-y-1/2">
-                    <Lock
-                      className={`h-5 w-5 transition-colors ${passwordFocused ? 'text-primary' : 'text-muted-foreground'}`}
-                    />
-                  </div>
+                  <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter new password"
                     {...form.register('password')}
-                    onFocus={() => setPasswordFocused(true)}
-                    onBlur={() => setPasswordFocused(false)}
                     disabled={isLoading}
-                    className="focus:border-primary focus:ring-primary border-border bg-muted/30 h-12 pr-10 pl-10"
+                    className="focus:border-primary focus:ring-primary/20 border-border bg-muted/40 pr-9 pl-9 text-sm focus:ring-2"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
 
                 {/* Password Strength Indicator */}
                 {password && (
-                  <div className="space-y-1">
+                  <div className="mt-2 space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Password strength:</span>
                       <span
@@ -355,13 +284,13 @@ export default function ResetPasswordPage() {
                 )}
 
                 {form.formState.errors.password && (
-                  <p className="text-sm text-[var(--color-danger-400)]">
+                  <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                     {form.formState.errors.password.message}
                   </p>
                 )}
 
                 {/* Password Requirements */}
-                <div className="text-muted-foreground space-y-1 text-xs">
+                <div className="text-muted-foreground mt-2 space-y-1 text-xs">
                   <p className="font-medium">Password must contain:</p>
                   <ul className="ml-4 space-y-0.5">
                     <li className={password.length >= 8 ? 'text-[var(--color-success-400)]' : ''}>
@@ -388,25 +317,22 @@ export default function ResetPasswordPage() {
               </div>
 
               {/* Confirm Password Field */}
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-foreground/80 text-sm font-medium">
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-foreground/80 mb-1.5 block text-sm font-medium"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <div className="absolute top-1/2 left-3 -translate-y-1/2">
-                    <Lock
-                      className={`h-5 w-5 transition-colors ${confirmPasswordFocused ? 'text-primary' : 'text-muted-foreground'}`}
-                    />
-                  </div>
+                  <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Confirm new password"
                     {...form.register('confirmPassword')}
-                    onFocus={() => setConfirmPasswordFocused(true)}
-                    onBlur={() => setConfirmPasswordFocused(false)}
                     disabled={isLoading}
-                    className="focus:border-primary focus:ring-primary border-border bg-muted/30 h-12 pr-10 pl-10"
+                    className="focus:border-primary focus:ring-primary/20 border-border bg-muted/40 pr-9 pl-9 text-sm focus:ring-2"
                   />
                   <button
                     type="button"
@@ -414,14 +340,14 @@ export default function ResetPasswordPage() {
                     className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-5 w-5" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </button>
                 </div>
                 {form.formState.errors.confirmPassword && (
-                  <p className="text-sm text-[var(--color-danger-400)]">
+                  <p className="mt-1 text-sm text-[var(--color-danger-400)]">
                     {form.formState.errors.confirmPassword.message}
                   </p>
                 )}
@@ -431,18 +357,18 @@ export default function ResetPasswordPage() {
               <Button
                 type="submit"
                 disabled={isLoading || !password || !confirmPassword}
-                className="group bg-primary text-primary-foreground hover:bg-primary/90 relative h-12 w-full overflow-hidden shadow-lg transition-all hover:shadow-xl disabled:opacity-50"
+                className="bg-primary hover:bg-primary/90 w-full text-white disabled:opacity-50"
               >
                 {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     Resetting Password...
-                  </>
+                  </span>
                 ) : (
-                  <>
+                  <span className="flex items-center gap-2">
                     Reset Password
-                    <Key className="ml-2 h-5 w-5 transition-transform group-hover:rotate-12" />
-                  </>
+                    <Key className="h-4 w-4" />
+                  </span>
                 )}
               </Button>
             </form>
@@ -451,7 +377,7 @@ export default function ResetPasswordPage() {
           {/* Footer Link */}
           {!isValidating && !success && (
             <>
-              <div className="my-8 flex items-center">
+              <div className="my-6 flex items-center">
                 <div className="border-border flex-1 border-t" />
                 <span className="text-muted-foreground px-4 text-sm">or</span>
                 <div className="border-border flex-1 border-t" />
@@ -465,13 +391,13 @@ export default function ResetPasswordPage() {
               </Link>
             </>
           )}
-        </Card>
+        </div>
 
         {/* Footer */}
-        <p className="text-muted-foreground mt-6 text-center text-sm">
+        <p className="text-muted-foreground mt-6 text-center text-xs">
           © {new Date().getFullYear()} Air Niugini · Pilot Portal
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }

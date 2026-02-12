@@ -8,15 +8,12 @@
  * - Animations moved to client wrapper component
  */
 
-import { redirect } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import {
   User,
-  UserCircle,
-  Mail,
   Briefcase,
   Award,
   Shield,
@@ -28,10 +25,10 @@ import {
   Star,
   FileText,
   Plane,
-  Phone,
 } from 'lucide-react'
 import { format, differenceInYears, differenceInMonths } from 'date-fns'
 import { ProfileAnimationWrapper } from './profile-animation-wrapper'
+import { EditableContactCard } from './editable-contact-card'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
@@ -476,41 +473,12 @@ export default async function ProfilePage() {
             </div>
           </Card>
 
-          {/* Contact Information */}
-          <Card className="h-full p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
-                <Mail className="h-5 w-5 text-[var(--color-primary-600)]" />
-              </div>
-              <h3 className="text-foreground text-lg font-semibold">Contact Information</h3>
-            </div>
-            <div className="space-y-4">
-              <InfoRow icon={Mail} label="Email Address" value={profile.email} />
-              {profile.phone && <InfoRow icon={Phone} label="Phone Number" value={profile.phone} />}
-              {profile.address && (
-                <>
-                  <InfoRow icon={MapPin} label="Address" value={profile.address} />
-                  {(profile.city || profile.state || profile.postal_code) && (
-                    <InfoRow
-                      icon={MapPin}
-                      label="City/State"
-                      value={[profile.city, profile.state, profile.postal_code]
-                        .filter(Boolean)
-                        .join(', ')}
-                    />
-                  )}
-                  {profile.country && (
-                    <InfoRow icon={MapPin} label="Country" value={profile.country} />
-                  )}
-                </>
-              )}
-              {!profile.phone && !profile.address && (
-                <p className="text-muted-foreground text-sm italic">
-                  No additional contact information available
-                </p>
-              )}
-            </div>
-          </Card>
+          {/* Contact Information (Editable) */}
+          <EditableContactCard
+            email={profile.email}
+            phone={profile.phone}
+            address={profile.address}
+          />
 
           {/* Passport Information */}
           <Card className="h-full p-6 transition-all hover:shadow-md">
@@ -629,8 +597,9 @@ export default async function ProfilePage() {
             <div>
               <p className="text-foreground font-medium">Update Required?</p>
               <p className="text-muted-foreground mt-1 text-sm">
-                If any of your personal information needs to be updated, please contact Fleet
-                Management via the Feedback page.
+                You can update your email and phone number directly from the Contact Information
+                section above. For other changes, please contact Fleet Management via the Feedback
+                page.
               </p>
               <Link href="/portal/feedback">
                 <Button variant="outline" className="mt-4">

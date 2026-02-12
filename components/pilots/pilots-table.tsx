@@ -1,17 +1,21 @@
 /**
  * Pilots Table Component
- * Sortable and filterable table view of all pilots
+ * Sortable table view of all pilots — filtering handled by parent
+ *
+ * Developer: Maurice Rondeau
  */
 
 'use client'
 
 import * as React from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { DataTable, DataTableSearch, useTableFilter, type Column } from '@/components/ui/data-table'
+import { DataTable, type Column } from '@/components/ui/data-table'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Eye, Pencil, Users, Download } from 'lucide-react'
+import { RankBadge } from '@/components/pilots/rank-badge'
 import { exportToCSV, generateFilename } from '@/lib/utils/export-utils'
 import { formatDate } from '@/lib/utils/date-utils'
 
@@ -30,18 +34,7 @@ interface PilotsTableProps {
 }
 
 export function PilotsTable({ pilots }: PilotsTableProps) {
-  // Filter function for search
-  const filterFn = React.useCallback((pilot: PilotTableRow, query: string) => {
-    const searchStr = query.toLowerCase()
-    return (
-      pilot.first_name.toLowerCase().includes(searchStr) ||
-      pilot.last_name.toLowerCase().includes(searchStr) ||
-      pilot.role.toLowerCase().includes(searchStr) ||
-      (pilot.seniority_number?.toString() || '').includes(searchStr)
-    )
-  }, [])
-
-  const { filteredData, filterQuery, setFilterQuery } = useTableFilter(pilots, filterFn)
+  const router = useRouter()
 
   // Export function
   const handleExport = React.useCallback(() => {
@@ -60,8 +53,16 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       },
     ]
 
-    exportToCSV(filteredData, exportColumns, generateFilename('pilots'))
-  }, [filteredData])
+    exportToCSV(pilots, exportColumns, generateFilename('pilots'))
+  }, [pilots])
+
+  // Row click navigation
+  const handleRowClick = React.useCallback(
+    (row: PilotTableRow) => {
+      router.push(`/dashboard/pilots/${row.id}`)
+    },
+    [router]
+  )
 
   // Define columns
   const columns: Column<PilotTableRow>[] = [
@@ -92,9 +93,7 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
       header: 'Rank',
       accessorKey: 'role',
       sortable: true,
-      cell: (row) => (
-        <Badge variant={row.role === 'Captain' ? 'default' : 'secondary'}>{row.role}</Badge>
-      ),
+      cell: (row) => <RankBadge rank={row.role} />,
     },
     {
       id: 'commencement',
@@ -161,37 +160,21 @@ export function PilotsTable({ pilots }: PilotsTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <DataTableSearch
-          value={filterQuery}
-          onChange={setFilterQuery}
-          placeholder="Search pilots by name, rank, or seniority..."
-          className="max-w-md"
-        />
+      <div className="flex items-center justify-end">
         <Button onClick={handleExport} variant="outline" size="sm" className="w-full sm:w-auto">
           <Download className="mr-2 h-4 w-4" aria-hidden="true" />
           Export to CSV
         </Button>
       </div>
-      {filteredData.length === 0 && filterQuery ? (
-        <EmptyState
-          title="No pilots match your search"
-          description={`We couldn't find any pilots matching "${filterQuery}". Try adjusting your search terms.`}
-          action={{
-            label: 'Clear search',
-            onClick: () => setFilterQuery(''),
-          }}
-        />
-      ) : (
-        <DataTable
-          data={filteredData}
-          columns={columns}
-          emptyMessage="No pilots found. Try adjusting your search."
-          enablePagination={true}
-          initialPageSize={25}
-          pageSizeOptions={[10, 25, 50, 100]}
-        />
-      )}
+      <DataTable
+        data={pilots}
+        columns={columns}
+        onRowClick={handleRowClick}
+        emptyMessage="No pilots match your filters."
+        enablePagination={true}
+        initialPageSize={25}
+        pageSizeOptions={[10, 25, 50, 100]}
+      />
     </div>
   )
 }

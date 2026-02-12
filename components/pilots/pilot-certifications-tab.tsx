@@ -5,7 +5,8 @@
  * Replaces modal-based editing for better UX.
  *
  * Developer: Maurice Rondeau
- * @date December 6, 2025
+ * @version 5.0.0 - Summary stats bar moved to top
+ * @date February 2026
  */
 
 'use client'
@@ -334,6 +335,33 @@ export function PilotCertificationsTab({
         </div>
       </Card>
 
+      {/* Summary Stats Bar — moved to top for at-a-glance status */}
+      <Card className="bg-muted/30 p-4">
+        <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
+            <span className="text-muted-foreground">
+              Current:{' '}
+              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'current').length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]" />
+            <span className="text-muted-foreground">
+              Expiring:{' '}
+              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'expiring').length}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-[var(--color-status-high)]" />
+            <span className="text-muted-foreground">
+              Expired:{' '}
+              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'expired').length}
+            </span>
+          </div>
+        </div>
+      </Card>
+
       {/* Loading State */}
       {loading && safeCertifications.length === 0 && (
         <Card className="p-6">
@@ -367,7 +395,7 @@ export function PilotCertificationsTab({
             </h3>
           </div>
 
-          <Table>
+          <Table aria-label={`${category} certifications`}>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[300px]">Check Type</TableHead>
@@ -400,6 +428,10 @@ export function PilotCertificationsTab({
                         type="date"
                         value={editDate}
                         onChange={(e) => setEditDate(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSave(cert.id)
+                          if (e.key === 'Escape') handleCancelEdit()
+                        }}
                         className="w-[160px]"
                         disabled={saving}
                       />
@@ -413,6 +445,7 @@ export function PilotCertificationsTab({
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           size="sm"
+                          aria-label="Save"
                           onClick={() => handleSave(cert.id)}
                           disabled={saving}
                           className="bg-[var(--color-status-low)] hover:bg-[var(--color-status-low)]/90"
@@ -426,6 +459,7 @@ export function PilotCertificationsTab({
                         <Button
                           size="sm"
                           variant="outline"
+                          aria-label="Cancel"
                           onClick={handleCancelEdit}
                           disabled={saving}
                         >
@@ -450,33 +484,6 @@ export function PilotCertificationsTab({
           </Table>
         </Card>
       ))}
-
-      {/* Summary Stats */}
-      <Card className="bg-muted/30 p-4">
-        <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-[var(--color-status-low)]" />
-            <span className="text-muted-foreground">
-              Current:{' '}
-              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'current').length}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-[var(--color-status-medium)]" />
-            <span className="text-muted-foreground">
-              Expiring:{' '}
-              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'expiring').length}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-[var(--color-status-high)]" />
-            <span className="text-muted-foreground">
-              Expired:{' '}
-              {safeCertifications.filter((c) => getCertStatus(c.expiry_date) === 'expired').length}
-            </span>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }

@@ -59,6 +59,7 @@ import {
 } from 'lucide-react'
 import { EmptyState } from '@/components/ui/empty-state'
 import { TableSkeleton } from '@/components/ui/skeleton'
+import { formatDate } from '@/lib/utils/date-utils'
 
 // ============================================================================
 // Type Definitions
@@ -355,13 +356,7 @@ export function RequestsTable({
     )
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    })
-  }
+  // Uses shared formatDate from @/lib/utils/date-utils
 
   // ============================================================================
   // Render
@@ -839,7 +834,7 @@ export function RequestsTable({
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
-              className="bg-[var(--color-status-high)]"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>

@@ -10,13 +10,13 @@ import {
   UserCircle,
   MessageSquare,
   Calendar,
+  CalendarDays,
   FileCheck,
   LogOut,
   ChevronRight,
   Cloud,
   Menu,
   X,
-  Clock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NotificationBell } from '@/components/portal/notification-bell'
@@ -50,16 +50,16 @@ const navigationItems: NavItem[] = [
     description: 'Leave & RDO/SDO requests',
   },
   {
+    title: 'Leave Bids',
+    href: '/portal/leave-bids',
+    icon: CalendarDays,
+    description: 'Annual leave bidding',
+  },
+  {
     title: 'Feedback',
     href: '/portal/feedback',
     icon: MessageSquare,
     description: 'Share your feedback',
-  },
-  {
-    title: 'Feedback History',
-    href: '/portal/feedback/history',
-    icon: Clock,
-    description: 'View past feedback',
   },
 ]
 

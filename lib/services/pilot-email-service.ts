@@ -9,8 +9,18 @@
  */
 
 import { Resend } from 'resend'
+import { createAdminClient } from '@/lib/supabase/admin'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend: Resend | null = null
+function getResendClient(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY environment variable is not configured')
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY)
+  }
+  return _resend
+}
 
 /**
  * Email configuration
@@ -200,7 +210,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: pilotData.email,
       subject: `✅ Your Pilot Portal Registration Has Been Approved`,
@@ -328,7 +338,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 If you have questions, please contact ${supportEmail}
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: pilotData.email,
       subject: `Pilot Portal Registration Update`,
@@ -448,7 +458,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: requestData.email,
       subject: `✅ Your ${requestData.requestType} Leave Request Has Been Approved`,
@@ -582,7 +592,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: requestData.email,
       subject: `Leave Request Update - ${requestData.requestType}`,
@@ -700,7 +710,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: requestData.email,
       subject: `✅ Your ${requestData.requestType} Flight Request Has Been Approved`,
@@ -836,7 +846,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: requestData.email,
       subject: `Flight Request Update - ${requestData.requestType}`,
@@ -1021,7 +1031,7 @@ This is an automated safety alert from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: data.email,
       subject: `${config.icon} Certification Expiry Alert - ${config.label}`,
@@ -1143,7 +1153,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: data.email,
       subject: `🔐 Password Reset Request - ${EMAIL_CONFIG.appName}`,
@@ -1301,7 +1311,7 @@ This is an automated message from ${EMAIL_CONFIG.appName}.
 Please do not reply to this email.
     `.trim()
 
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: EMAIL_CONFIG.from,
       to: data.email,
       subject: `Retirement Status Update - ${EMAIL_CONFIG.appName}`,
@@ -1324,5 +1334,492 @@ Please do not reply to this email.
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Request Lifecycle Emails (submitted, edited, withdrawn + dispatch helper)
+// ---------------------------------------------------------------------------
+
+/**
+ * Request lifecycle email data — covers all request events
+ */
+export interface RequestLifecycleEmailData {
+  requestCategory: 'LEAVE' | 'FLIGHT'
+  requestType: string
+  startDate: string
+  endDate?: string | null
+  daysCount?: number | null
+  flightDate?: string | null
+  description?: string | null
+  reason?: string | null
+  denialReason?: string | null
+  reviewerComments?: string | null
+}
+
+/**
+ * Internal data shape passed to submitted/edited/withdrawn templates
+ */
+interface RequestEmailTemplateData extends RequestLifecycleEmailData {
+  firstName: string
+  lastName: string
+  email: string
+  rank: string
+}
+
+/**
+ * Shared HTML email footer used across request lifecycle templates
+ */
+function emailFooter(): string {
+  return `
+    <!-- Footer -->
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+      <p style="margin: 0; font-size: 12px; color: #999;">
+        This is an automated message from ${EMAIL_CONFIG.appName}.<br>
+        Please do not reply to this email.
+      </p>
+      <p style="margin: 10px 0 0 0; font-size: 12px; color: #999;">
+        &copy; ${new Date().getFullYear()} ${EMAIL_CONFIG.appName}. All rights reserved.
+      </p>
+    </div>`
+}
+
+/**
+ * Build the request-details block shared by submitted/edited templates
+ */
+function requestDetailsBlock(data: RequestEmailTemplateData): string {
+  const lines: string[] = [
+    `<p style="margin: 0; font-size: 14px; color: #555;"><strong>Request Type:</strong> ${data.requestType}</p>`,
+  ]
+
+  if (data.requestCategory === 'LEAVE') {
+    lines.push(
+      `<p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Start Date:</strong> ${data.startDate}</p>`
+    )
+    if (data.endDate) {
+      lines.push(
+        `<p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>End Date:</strong> ${data.endDate}</p>`
+      )
+    }
+    if (data.daysCount != null) {
+      lines.push(
+        `<p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Days:</strong> ${data.daysCount}</p>`
+      )
+    }
+  } else {
+    if (data.flightDate) {
+      lines.push(
+        `<p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Flight Date:</strong> ${data.flightDate}</p>`
+      )
+    }
+    if (data.description) {
+      lines.push(
+        `<p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Description:</strong> ${data.description}</p>`
+      )
+    }
+  }
+
+  if (data.reason) {
+    lines.push(
+      `<p style="margin: 10px 0 0 0; font-size: 14px; color: #555;"><strong>Reason:</strong> ${data.reason}</p>`
+    )
+  }
+
+  return lines.join('\n        ')
+}
+
+/**
+ * Send request submitted confirmation email
+ */
+export async function sendRequestSubmittedEmail(
+  data: RequestEmailTemplateData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const portalUrl = `${EMAIL_CONFIG.appUrl}/portal/requests`
+    const accentColor = '#0066cc'
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Submitted</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+  <div style="background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid ${accentColor};">
+      <h1 style="color: ${accentColor}; margin: 0; font-size: 28px;">✈️ ${EMAIL_CONFIG.appName}</h1>
+      <p style="color: #666; margin: 10px 0 0 0; font-size: 14px;">Request Submitted</p>
+    </div>
+
+    <!-- Main content -->
+    <div style="margin-bottom: 30px;">
+      <h2 style="color: ${accentColor}; margin: 0 0 20px 0; font-size: 24px;">Request Received, ${data.rank} ${data.lastName}!</h2>
+
+      <p style="margin: 0 0 15px 0; font-size: 16px;">
+        Your <strong>${data.requestType}</strong> request has been <strong style="color: ${accentColor};">submitted</strong> and is pending review.
+      </p>
+
+      <div style="background-color: #f0f9ff; border-left: 4px solid ${accentColor}; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        ${requestDetailsBlock(data)}
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${portalUrl}" style="display: inline-block; background-color: ${accentColor}; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,102,204,0.3);">
+          View My Requests →
+        </a>
+      </div>
+
+      <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
+        You will receive an email once your request has been reviewed.
+      </p>
+    </div>
+
+    ${emailFooter()}
+  </div>
+</body>
+</html>
+    `.trim()
+
+    const textContent = `
+Request Submitted
+
+Request Received, ${data.rank} ${data.lastName}!
+
+Your ${data.requestType} request has been submitted and is pending review.
+
+Request Type: ${data.requestType}
+${data.requestCategory === 'LEAVE' ? `Start Date: ${data.startDate}${data.endDate ? `\nEnd Date: ${data.endDate}` : ''}${data.daysCount != null ? `\nDays: ${data.daysCount}` : ''}` : `${data.flightDate ? `Flight Date: ${data.flightDate}` : ''}${data.description ? `\nDescription: ${data.description}` : ''}`}
+${data.reason ? `Reason: ${data.reason}` : ''}
+
+View your requests: ${portalUrl}
+
+You will receive an email once your request has been reviewed.
+
+---
+This is an automated message from ${EMAIL_CONFIG.appName}.
+Please do not reply to this email.
+    `.trim()
+
+    const { error } = await getResendClient().emails.send({
+      from: EMAIL_CONFIG.from,
+      to: data.email,
+      subject: `Your ${data.requestType} Request Has Been Submitted`,
+      html: htmlContent,
+      text: textContent,
+    })
+
+    if (error) {
+      console.error('Failed to send request submitted email:', error)
+      return { success: false, error: error.message || 'Failed to send request submitted email' }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error sending request submitted email:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+/**
+ * Send request edited/updated confirmation email
+ */
+export async function sendRequestEditedEmail(
+  data: RequestEmailTemplateData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const portalUrl = `${EMAIL_CONFIG.appUrl}/portal/requests`
+    const accentColor = '#f59e0b'
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Updated</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+  <div style="background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid ${accentColor};">
+      <h1 style="color: ${accentColor}; margin: 0; font-size: 28px;">✏️ ${EMAIL_CONFIG.appName}</h1>
+      <p style="color: #666; margin: 10px 0 0 0; font-size: 14px;">Request Updated</p>
+    </div>
+
+    <!-- Main content -->
+    <div style="margin-bottom: 30px;">
+      <h2 style="color: ${accentColor}; margin: 0 0 20px 0; font-size: 24px;">Request Updated, ${data.rank} ${data.lastName}</h2>
+
+      <p style="margin: 0 0 15px 0; font-size: 16px;">
+        Your <strong>${data.requestType}</strong> request has been <strong style="color: ${accentColor};">updated</strong> and is pending review.
+      </p>
+
+      <div style="background-color: #fffbeb; border-left: 4px solid ${accentColor}; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        ${requestDetailsBlock(data)}
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${portalUrl}" style="display: inline-block; background-color: ${accentColor}; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(245,158,11,0.3);">
+          View My Requests →
+        </a>
+      </div>
+
+      <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
+        You will receive an email once the updated request has been reviewed.
+      </p>
+    </div>
+
+    ${emailFooter()}
+  </div>
+</body>
+</html>
+    `.trim()
+
+    const textContent = `
+Request Updated
+
+Request Updated, ${data.rank} ${data.lastName}
+
+Your ${data.requestType} request has been updated and is pending review.
+
+Request Type: ${data.requestType}
+${data.requestCategory === 'LEAVE' ? `Start Date: ${data.startDate}${data.endDate ? `\nEnd Date: ${data.endDate}` : ''}${data.daysCount != null ? `\nDays: ${data.daysCount}` : ''}` : `${data.flightDate ? `Flight Date: ${data.flightDate}` : ''}${data.description ? `\nDescription: ${data.description}` : ''}`}
+${data.reason ? `Reason: ${data.reason}` : ''}
+
+View your requests: ${portalUrl}
+
+You will receive an email once the updated request has been reviewed.
+
+---
+This is an automated message from ${EMAIL_CONFIG.appName}.
+Please do not reply to this email.
+    `.trim()
+
+    const { error } = await getResendClient().emails.send({
+      from: EMAIL_CONFIG.from,
+      to: data.email,
+      subject: `Your ${data.requestType} Request Has Been Updated`,
+      html: htmlContent,
+      text: textContent,
+    })
+
+    if (error) {
+      console.error('Failed to send request edited email:', error)
+      return { success: false, error: error.message || 'Failed to send request edited email' }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error sending request edited email:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+/**
+ * Send request withdrawn confirmation email
+ */
+export async function sendRequestWithdrawnEmail(
+  data: RequestEmailTemplateData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const portalUrl = `${EMAIL_CONFIG.appUrl}/portal/requests`
+    const accentColor = '#6c757d'
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Withdrawn</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+  <div style="background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid ${accentColor};">
+      <h1 style="color: ${accentColor}; margin: 0; font-size: 28px;">✈️ ${EMAIL_CONFIG.appName}</h1>
+      <p style="color: #666; margin: 10px 0 0 0; font-size: 14px;">Request Withdrawn</p>
+    </div>
+
+    <!-- Main content -->
+    <div style="margin-bottom: 30px;">
+      <h2 style="color: ${accentColor}; margin: 0 0 20px 0; font-size: 24px;">Request Withdrawn</h2>
+
+      <p style="margin: 0 0 15px 0; font-size: 16px;">
+        Dear ${data.rank} ${data.lastName}, your <strong>${data.requestType}</strong> request has been <strong>withdrawn</strong>.
+      </p>
+
+      <div style="background-color: #f8f9fa; border-left: 4px solid ${accentColor}; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        ${requestDetailsBlock(data)}
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${portalUrl}" style="display: inline-block; background-color: #0066cc; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,102,204,0.3);">
+          View My Requests →
+        </a>
+      </div>
+
+      <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
+        If you need to submit a new request, you can do so from the portal at any time.
+      </p>
+    </div>
+
+    ${emailFooter()}
+  </div>
+</body>
+</html>
+    `.trim()
+
+    const textContent = `
+Request Withdrawn
+
+Dear ${data.rank} ${data.lastName}, your ${data.requestType} request has been withdrawn.
+
+Request Type: ${data.requestType}
+${data.requestCategory === 'LEAVE' ? `Start Date: ${data.startDate}${data.endDate ? `\nEnd Date: ${data.endDate}` : ''}` : `${data.flightDate ? `Flight Date: ${data.flightDate}` : ''}`}
+
+View your requests: ${portalUrl}
+
+If you need to submit a new request, you can do so from the portal at any time.
+
+---
+This is an automated message from ${EMAIL_CONFIG.appName}.
+Please do not reply to this email.
+    `.trim()
+
+    const { error } = await getResendClient().emails.send({
+      from: EMAIL_CONFIG.from,
+      to: data.email,
+      subject: `Your ${data.requestType} Request Has Been Withdrawn`,
+      html: htmlContent,
+      text: textContent,
+    })
+
+    if (error) {
+      console.error('Failed to send request withdrawn email:', error)
+      return { success: false, error: error.message || 'Failed to send request withdrawn email' }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error sending request withdrawn email:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+/**
+ * Dispatch helper — sends the correct email for any request lifecycle event.
+ *
+ * Fire-and-forget: never throws. Callers can use without try/catch.
+ *
+ * @param pilotId - UUID of the pilot from the `pilots` table
+ * @param event   - Lifecycle event type
+ * @param requestData - Request details (fields used vary by event)
+ */
+export async function sendRequestLifecycleEmail(
+  pilotId: string,
+  event: 'submitted' | 'edited' | 'approved' | 'denied' | 'withdrawn',
+  requestData: RequestLifecycleEmailData
+): Promise<void> {
+  try {
+    // Fetch pilot contact info
+    const supabase = createAdminClient()
+    const { data: pilot, error: fetchError } = await supabase
+      .from('pilots')
+      .select('email, first_name, last_name, role')
+      .eq('id', pilotId)
+      .single()
+
+    if (fetchError || !pilot) {
+      console.warn(
+        `[sendRequestLifecycleEmail] Could not fetch pilot ${pilotId}:`,
+        fetchError?.message || 'not found'
+      )
+      return
+    }
+
+    if (!pilot.email) {
+      console.warn(
+        `[sendRequestLifecycleEmail] Pilot ${pilotId} (${pilot.first_name} ${pilot.last_name}) has no email — skipping`
+      )
+      return
+    }
+
+    const baseData = {
+      firstName: pilot.first_name,
+      lastName: pilot.last_name,
+      email: pilot.email,
+      rank: pilot.role || 'Pilot',
+    }
+
+    switch (event) {
+      case 'submitted':
+        await sendRequestSubmittedEmail({ ...baseData, ...requestData })
+        break
+
+      case 'edited':
+        await sendRequestEditedEmail({ ...baseData, ...requestData })
+        break
+
+      case 'withdrawn':
+        await sendRequestWithdrawnEmail({ ...baseData, ...requestData })
+        break
+
+      case 'approved':
+        if (requestData.requestCategory === 'LEAVE') {
+          await sendLeaveRequestApprovalEmail({
+            ...baseData,
+            requestType: requestData.requestType,
+            startDate: requestData.startDate,
+            endDate: requestData.endDate || requestData.startDate,
+            daysCount: requestData.daysCount || 1,
+            reviewerComments: requestData.reviewerComments || undefined,
+          })
+        } else {
+          await sendFlightRequestApprovalEmail({
+            ...baseData,
+            requestType: requestData.requestType,
+            flightDate: requestData.flightDate || requestData.startDate,
+            description: requestData.description || requestData.requestType,
+            reviewerComments: requestData.reviewerComments || undefined,
+          })
+        }
+        break
+
+      case 'denied':
+        if (requestData.requestCategory === 'LEAVE') {
+          await sendLeaveRequestDenialEmail({
+            ...baseData,
+            requestType: requestData.requestType,
+            startDate: requestData.startDate,
+            endDate: requestData.endDate || requestData.startDate,
+            daysCount: requestData.daysCount || 1,
+            denialReason: requestData.denialReason || undefined,
+            reviewerComments: requestData.reviewerComments || undefined,
+          })
+        } else {
+          await sendFlightRequestDenialEmail({
+            ...baseData,
+            requestType: requestData.requestType,
+            flightDate: requestData.flightDate || requestData.startDate,
+            description: requestData.description || requestData.requestType,
+            denialReason: requestData.denialReason || undefined,
+            reviewerComments: requestData.reviewerComments || undefined,
+          })
+        }
+        break
+    }
+
+    console.log(
+      `[sendRequestLifecycleEmail] Sent '${event}' email to ${pilot.email} for ${requestData.requestCategory} request`
+    )
+  } catch (error) {
+    console.error(
+      `[sendRequestLifecycleEmail] Failed to send '${event}' email for pilot ${pilotId}:`,
+      error instanceof Error ? error.message : error
+    )
   }
 }

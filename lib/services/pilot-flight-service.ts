@@ -22,6 +22,7 @@ import {
   parseRosterPeriodCode,
 } from '@/lib/services/roster-period-service'
 import type { FlightRequestInput } from '@/lib/validations/flight-request-schema'
+import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
 
 export interface ServiceResponse<T = void> {
   success: boolean
@@ -189,6 +190,16 @@ export async function submitPilotFlightRequest(
       roster_period: createdRequest.roster_period,
       submission_channel: createdRequest.submission_channel,
     }
+
+    // Send email confirmation to pilot (fire-and-forget)
+    sendRequestLifecycleEmail(pilotDetails.id, 'submitted', {
+      requestCategory: 'FLIGHT',
+      requestType: request.request_type,
+      startDate: request.start_date,
+      endDate: request.end_date || null,
+      description: request.description || null,
+      reason: request.reason || null,
+    }).catch((err: unknown) => console.error('Failed to send flight submission email:', err))
 
     return {
       success: true,
@@ -402,6 +413,16 @@ export async function updatePilotFlightRequest(
       roster_period: updatedRequest.roster_period,
       submission_channel: updatedRequest.submission_channel,
     }
+
+    // Send email notification about the edit (fire-and-forget)
+    sendRequestLifecycleEmail(pilot.pilot_id!, 'edited', {
+      requestCategory: 'FLIGHT',
+      requestType: updates.request_type,
+      startDate: updates.start_date,
+      endDate: updates.end_date || null,
+      description: updates.description || null,
+      reason: updates.reason || null,
+    }).catch((err: unknown) => console.error('Failed to send flight edit email:', err))
 
     return {
       success: true,

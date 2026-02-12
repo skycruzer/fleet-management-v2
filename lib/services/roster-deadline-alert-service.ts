@@ -26,7 +26,16 @@ export const ALERT_MILESTONES = [21, 14, 7, 3, 1, 0] as const
 /**
  * Email configuration
  */
-const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend: Resend | null = null
+function getResendClient(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY environment variable is not configured')
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY)
+  }
+  return _resend
+}
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleetmgmt.com>'
 
 // ============================================================================
@@ -379,7 +388,7 @@ export async function sendDeadlineAlertEmail(
     const subject = generateEmailSubject(alert)
     const html = generateEmailBody(alert, recipientName)
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResendClient().emails.send({
       from: FROM_EMAIL,
       to: recipientEmail,
       subject,

@@ -28,6 +28,7 @@ import {
   ScrollText,
   RefreshCw,
   ClipboardList,
+  FileSearch,
   MessageSquare,
   PanelLeftClose,
   PanelLeft,
@@ -63,7 +64,7 @@ const moreNavItems: NavItem[] = [
   { title: 'Tasks', href: '/dashboard/tasks', icon: CheckSquare },
   { title: 'System Admin', href: '/dashboard/admin', icon: Shield },
   { title: 'Disciplinary', href: '/dashboard/disciplinary', icon: AlertCircle },
-  { title: 'Audit Logs', href: '/dashboard/audit-logs', icon: ClipboardList },
+  { title: 'Audit Logs', href: '/dashboard/audit-logs', icon: FileSearch },
   { title: 'Feedback', href: '/dashboard/feedback', icon: MessageSquare },
 ]
 

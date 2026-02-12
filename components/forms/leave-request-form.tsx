@@ -83,8 +83,6 @@ export function LeaveRequestForm({
   }
 
   const leaveTypeOptions: SelectOption[] = [
-    { label: 'RDO (Regular Day Off)', value: 'RDO' },
-    { label: 'SDO (Special Day Off)', value: 'SDO' },
     { label: 'Annual Leave', value: 'ANNUAL' },
     { label: 'Sick Leave', value: 'SICK' },
     { label: 'Long Service Leave', value: 'LSL' },

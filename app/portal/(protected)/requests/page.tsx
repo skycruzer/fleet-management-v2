@@ -82,7 +82,7 @@ export default function MyRequestsPage() {
   }, [])
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <PageBreadcrumbs rootPath="portal" />
       <div>
         <h1 className="text-foreground text-2xl font-semibold">My Requests</h1>

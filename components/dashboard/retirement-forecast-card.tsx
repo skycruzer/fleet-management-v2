@@ -76,7 +76,9 @@ export async function RetirementForecastCard() {
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Clock className="h-5 w-5 text-[var(--color-status-medium)]" aria-hidden="true" />
-            <h3 className="text-foreground text-lg font-semibold">Retirement Forecast</h3>
+            <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+              Retirement Forecast
+            </h3>
           </div>
         </div>
         <div
@@ -98,7 +100,9 @@ export async function RetirementForecastCard() {
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4 text-[var(--color-status-medium)]" aria-hidden="true" />
-            <h3 className="text-foreground text-sm font-semibold">Retirement Forecast</h3>
+            <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+              Retirement Forecast
+            </h3>
           </div>
           <Badge variant="outline" className="text-xs">
             Age {retirementAge}
@@ -123,7 +127,9 @@ export async function RetirementForecastCard() {
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Clock className="h-4 w-4 text-[var(--color-status-medium)]" />
-          <h3 className="text-foreground text-sm font-semibold">Retirement Forecast</h3>
+          <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+            Retirement Forecast
+          </h3>
         </div>
         <Badge variant="outline" className="text-xs">
           Age {retirementAge}

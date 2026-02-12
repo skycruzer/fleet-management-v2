@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { format } from 'date-fns'
+import { formatDate } from '@/lib/utils/date-utils'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
 
 // Use the service type directly
@@ -67,21 +67,21 @@ export function CertificationCategoryGroup({
     return '📋'
   }
 
-  // Get status color classes
-  const getStatusColor = (cert: Certification): string => {
-    if (!cert.status) return 'bg-muted text-muted-foreground'
-    if (cert.status.color === 'red')
-      return 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]'
-    if (cert.status.color === 'yellow')
-      return 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]'
-    return 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]'
+  // Get status badge variant
+  const getStatusVariant = (cert: Certification) => {
+    if (!cert.status) return 'secondary' as const
+    if (cert.status.color === 'red') return 'destructive' as const
+    if (cert.status.color === 'yellow') return 'warning' as const
+    return 'success' as const
   }
 
   return (
     <Card className="overflow-hidden">
       {/* Category Header */}
-      <div
-        className="hover:bg-muted/50 flex cursor-pointer items-center justify-between p-4 transition-colors"
+      <button
+        type="button"
+        aria-expanded={isExpanded}
+        className="hover:bg-muted/50 flex w-full cursor-pointer items-center justify-between p-4 transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex flex-1 items-center gap-4">
@@ -91,38 +91,32 @@ export function CertificationCategoryGroup({
             <Badge variant="outline" className="text-xs">
               {stats.total} Total
             </Badge>
-            <Badge
-              variant="outline"
-              className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-xs text-[var(--color-status-low)]"
-            >
+            <Badge variant="success" className="text-xs">
               {stats.current} Current
             </Badge>
-            <Badge
-              variant="outline"
-              className="border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] text-xs text-[var(--color-status-medium)]"
-            >
+            <Badge variant="warning" className="text-xs">
               {stats.expiring} Expiring
             </Badge>
             {stats.expired > 0 && (
-              <Badge
-                variant="outline"
-                className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-xs text-[var(--color-status-high)]"
-              >
+              <Badge variant="destructive" className="text-xs">
                 {stats.expired} Expired
               </Badge>
             )}
           </div>
         </div>
-        <Button variant="ghost" size="sm">
+        <span className="inline-flex h-8 w-8 items-center justify-center rounded-md">
           {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </Button>
-      </div>
+        </span>
+      </button>
 
       {/* Certifications Table */}
       {isExpanded && (
         <div className="border-t">
           <div className="overflow-x-auto">
-            <table className="divide-border min-w-full divide-y">
+            <table
+              className="divide-border min-w-full divide-y"
+              aria-label={`${category} certifications`}
+            >
               <thead className="bg-muted/20">
                 <tr>
                   <th className="text-muted-foreground px-4 py-3 text-left text-xs font-medium tracking-wider uppercase">
@@ -149,7 +143,7 @@ export function CertificationCategoryGroup({
                       {cert.check_type?.check_description || 'N/A'}
                     </td>
                     <td className="text-muted-foreground px-4 py-4 text-sm whitespace-nowrap">
-                      {cert.created_at ? format(new Date(cert.created_at), 'MMM dd, yyyy') : 'N/A'}
+                      {cert.created_at ? formatDate(cert.created_at) : 'N/A'}
                     </td>
                     <td className="px-4 py-4 text-sm whitespace-nowrap">
                       {editingCertId === cert.id ? (
@@ -180,19 +174,13 @@ export function CertificationCategoryGroup({
                         </div>
                       ) : (
                         <span className="text-foreground">
-                          {cert.expiry_date
-                            ? format(new Date(cert.expiry_date), 'MMM dd, yyyy')
-                            : 'N/A'}
+                          {cert.expiry_date ? formatDate(cert.expiry_date) : 'N/A'}
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       {cert.status && (
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(cert)}`}
-                        >
-                          {cert.status.label}
-                        </span>
+                        <Badge variant={getStatusVariant(cert)}>{cert.status.label}</Badge>
                       )}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">

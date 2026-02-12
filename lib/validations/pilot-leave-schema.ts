@@ -13,9 +13,9 @@ import { z } from 'zod'
  * Leave request types available to pilots
  */
 export const PilotLeaveTypeEnum = z.enum(
-  ['RDO', 'SDO', 'ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'],
+  ['ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'],
   {
-    message: 'Please select a valid leave type',
+    message: 'Please select a valid leave type. For RDO/SDO, use the dedicated RDO/SDO Request form.',
   }
 )
 
