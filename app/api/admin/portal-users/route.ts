@@ -28,11 +28,25 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl
 
+    // Map client-side sort fields to actual DB column names
+    const sortFieldMap: Record<string, string> = {
+      name: 'first_name',
+      employee_id: 'employee_id',
+      rank: 'rank',
+      registration_date: 'registration_date',
+      last_login_at: 'last_login_at',
+      // total_requests and active_sessions are computed fields — sort by registration_date
+      total_requests: 'registration_date',
+      active_sessions: 'last_login_at',
+    }
+
+    const rawSort = searchParams.get('sortBy') ?? 'registration_date'
+
     const filters: PortalUsersFilters = {
       status: (searchParams.get('status') as PortalUsersFilters['status']) ?? 'all',
       rank: searchParams.get('rank') ?? undefined,
       search: searchParams.get('search') ?? undefined,
-      sortBy: searchParams.get('sortBy') ?? undefined,
+      sortBy: sortFieldMap[rawSort] ?? 'registration_date',
       sortOrder: (searchParams.get('sortOrder') as PortalUsersFilters['sortOrder']) ?? undefined,
       page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
       pageSize: searchParams.get('pageSize') ? Number(searchParams.get('pageSize')) : 25,
