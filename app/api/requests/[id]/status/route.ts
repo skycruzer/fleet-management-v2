@@ -40,7 +40,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     // Parse request body
     const body = await request.json()
-    const { status, comments } = body as { status: WorkflowStatus; comments?: string }
+    const { status, comments, force } = body as {
+      status: WorkflowStatus
+      comments?: string
+      force?: boolean
+    }
 
     // Validate status
     const validStatuses: WorkflowStatus[] = [
@@ -58,7 +62,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
     // Update request status
     const { id } = await context.params
-    const result = await updateRequestStatus(id, status, auth.userId!, comments)
+    const result = await updateRequestStatus(id, status, auth.userId!, comments, force)
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })

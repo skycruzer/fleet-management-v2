@@ -669,7 +669,8 @@ export async function updateRequestStatus(
   id: string,
   status: WorkflowStatus,
   reviewedBy: string,
-  comments?: string
+  comments?: string,
+  force?: boolean
 ): Promise<ServiceResponse<PilotRequest>> {
   // Use admin client to bypass RLS (auth verified at API layer)
   const supabase = createAdminClient()
@@ -710,17 +711,28 @@ export async function updateRequestStatus(
           )
 
           if (!crewCheck.canApprove) {
-            await logger.warn('Leave approval blocked - insufficient crew', {
-              source: 'unified-request-service:updateRequestStatus',
-              requestId: id,
-              reason: crewCheck.reason,
-              captainsAvailable: crewCheck.captains.available,
-              firstOfficersAvailable: crewCheck.firstOfficers.available,
-            })
+            if (force) {
+              await logger.warn('Leave approval FORCE-APPROVED despite insufficient crew', {
+                source: 'unified-request-service:updateRequestStatus',
+                requestId: id,
+                reason: crewCheck.reason,
+                captainsAvailable: crewCheck.captains.available,
+                firstOfficersAvailable: crewCheck.firstOfficers.available,
+                reviewedBy,
+              })
+            } else {
+              await logger.warn('Leave approval blocked - insufficient crew', {
+                source: 'unified-request-service:updateRequestStatus',
+                requestId: id,
+                reason: crewCheck.reason,
+                captainsAvailable: crewCheck.captains.available,
+                firstOfficersAvailable: crewCheck.firstOfficers.available,
+              })
 
-            return {
-              success: false,
-              error: `Cannot approve: ${crewCheck.reason}`,
+              return {
+                success: false,
+                error: `Cannot approve: ${crewCheck.reason}`,
+              }
             }
           }
         } catch (crewCheckError) {

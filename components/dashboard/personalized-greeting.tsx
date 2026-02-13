@@ -2,25 +2,17 @@
  * Personalized Greeting Component
  * Developer: Maurice Rondeau
  *
- * Server component that displays a personalized time-of-day greeting
- * with the admin user's name, role badge, and avatar/initials.
- * Falls back gracefully when profile data is unavailable.
+ * Server component that fetches user data, paired with a client component
+ * that computes the time-of-day greeting using the browser's local time.
  *
- * Data flow: Supabase Auth / Admin Session → user-service → render
+ * Data flow: Supabase Auth / Admin Session → user-service → ClientGreeting
  * Part of the Video Buddy-inspired dashboard redesign (Phase 1).
  */
 
 import { createClient } from '@/lib/supabase/server'
 import { validateAdminSession } from '@/lib/services/admin-auth-service'
 import { getUserById } from '@/lib/services/user-service'
-import { User as UserIcon } from 'lucide-react'
-
-function getGreeting(): string {
-  const hour = new Date().getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 17) return 'Good afternoon'
-  return 'Good evening'
-}
+import { ClientGreeting } from '@/components/dashboard/client-greeting'
 
 function getInitials(name: string): string {
   return name
@@ -89,36 +81,7 @@ async function getGreetingData(): Promise<GreetingData> {
 }
 
 export async function PersonalizedGreeting() {
-  const greeting = getGreeting()
   const { displayName, role, initials } = await getGreetingData()
 
-  return (
-    <div className="flex items-center gap-4">
-      {/* Avatar / Initials */}
-      <div
-        role="img"
-        aria-label={`User avatar${initials ? `, initials ${initials}` : ''}`}
-        className="bg-primary/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full"
-      >
-        {initials ? (
-          <span className="text-primary text-lg font-semibold">{initials}</span>
-        ) : (
-          <UserIcon className="text-primary h-6 w-6" aria-hidden="true" />
-        )}
-      </div>
-
-      {/* Greeting Text */}
-      <div>
-        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-          {greeting}
-          {displayName ? `, ${displayName}` : ''}
-        </h1>
-        <p className="text-muted-foreground mt-0.5 text-sm">
-          {role}
-          {' \u00B7 '}
-          Here&apos;s your fleet overview
-        </p>
-      </div>
-    </div>
-  )
+  return <ClientGreeting displayName={displayName} role={role} initials={initials} />
 }

@@ -99,6 +99,22 @@ export function PaginatedReportTable({
           ),
         },
         {
+          accessorKey: 'submission_date',
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              className="h-8 px-2"
+            >
+              Submitted
+              <ArrowUpDown className="ml-2 h-3 w-3" />
+            </Button>
+          ),
+          cell: ({ getValue }) => (
+            <div className="text-sm">{formatAustralianDate(getValue() as string)}</div>
+          ),
+        },
+        {
           accessorKey: 'start_date',
           header: ({ column }) => (
             <Button
@@ -141,6 +157,13 @@ export function PaginatedReportTable({
               </Badge>
             )
           },
+        },
+        {
+          accessorKey: 'is_late_request',
+          header: 'Late',
+          cell: ({ getValue }) => (
+            <div className="text-sm">{getValue() ? 'Yes' : ''}</div>
+          ),
         },
         {
           accessorFn: (row) => {
@@ -335,8 +358,10 @@ export function PaginatedReportTable({
               <ArrowUpDown className="ml-2 h-3 w-3" />
             </Button>
           ),
-          cell: ({ getValue }) => (
-            <div className="text-sm">{formatAustralianDate(getValue() as string)}</div>
+          cell: ({ row }) => (
+            <div className="text-sm">
+              {formatAustralianDate(row.original.submitted_at || row.original.submission_date)}
+            </div>
           ),
         },
         {

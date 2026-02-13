@@ -54,29 +54,45 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   const [denyDialogOpen, setDenyDialogOpen] = useState(false)
   const [denyComments, setDenyComments] = useState('')
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [forceApproveDialogOpen, setForceApproveDialogOpen] = useState(false)
+  const [crewShortageMessage, setCrewShortageMessage] = useState('')
 
   const canApprove = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
   const canDeny = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
   const canEdit = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
 
-  const handleApprove = async () => {
+  const handleApprove = async (force = false) => {
     setLoading(true)
     try {
       const response = await fetch(`/api/requests/${request.id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'APPROVED' }),
+        body: JSON.stringify({ status: 'APPROVED', ...(force && { force: true }) }),
         credentials: 'include',
       })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to approve request')
+        const errorMessage = error.error || 'Failed to approve request'
+
+        // If crew shortage, show force-approve dialog instead of error toast
+        if (!force && typeof errorMessage === 'string' && errorMessage.startsWith('Cannot approve:')) {
+          setCrewShortageMessage(errorMessage)
+          setForceApproveDialogOpen(true)
+          return
+        }
+
+        throw new Error(errorMessage)
       }
+
+      setForceApproveDialogOpen(false)
+      setCrewShortageMessage('')
 
       toast({
         title: 'Request Approved',
-        description: 'The request has been successfully approved',
+        description: force
+          ? 'The request has been force-approved despite crew shortage'
+          : 'The request has been successfully approved',
       })
 
       // Refresh the page to show updated status
@@ -173,7 +189,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
       <div className="flex gap-2">
         {canApprove && (
           <Button
-            onClick={handleApprove}
+            onClick={() => handleApprove()}
             disabled={loading}
             className="bg-[var(--color-status-low)] hover:bg-[var(--color-status-low)]/90"
           >
@@ -243,6 +259,31 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Deny Request
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Force Approve Confirmation Dialog */}
+      <AlertDialog
+        open={forceApproveDialogOpen}
+        onOpenChange={(open) => {
+          setForceApproveDialogOpen(open)
+          if (!open) setCrewShortageMessage('')
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Crew Shortage Warning</AlertDialogTitle>
+            <AlertDialogDescription>{crewShortageMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleApprove(true)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Force Approve Anyway
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

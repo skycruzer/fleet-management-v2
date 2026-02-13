@@ -15,6 +15,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { unifiedCacheService, invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
 import { rosterPeriodsToDateRange } from '@/lib/utils/roster-periods'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import { generateLeaveBidsPDF } from '@/lib/services/leave-bids-pdf-service'
 import {
   getRetirementForecastByRank,
@@ -96,6 +97,22 @@ function paginateData<T>(data: T[], page: number = 1, pageSize: number = DEFAULT
   const start = (page - 1) * safePageSize
   const end = start + safePageSize
   return data.slice(start, end)
+}
+
+/**
+ * Compute multi-roster period string from a request's date range
+ * Falls back to static roster_period field if calculation fails
+ */
+function computeRosterPeriods(item: any): string {
+  if (!item.start_date) return item.roster_period || 'N/A'
+  try {
+    const startDate = new Date(item.start_date)
+    const endDate = item.end_date ? new Date(item.end_date) : startDate
+    const periods = getAffectedRosterPeriods(startDate, endDate)
+    return periods.map((p) => p.code).join(', ')
+  } catch {
+    return item.roster_period || 'N/A'
+  }
 }
 
 /**
@@ -841,7 +858,7 @@ export async function generatePDF(
             formatAustralianDate(item.end_date),
             item.workflow_status || item.status || 'N/A',
             item.is_late_request ? 'Yes' : '',
-            item.roster_period || 'N/A',
+            computeRosterPeriods(item),
           ]),
           styles: { fontSize: 7 },
           headStyles: { fillColor: [41, 128, 185] },
@@ -875,7 +892,7 @@ export async function generatePDF(
           formatAustralianDate(item.end_date),
           item.workflow_status || item.status || 'N/A',
           item.is_late_request ? 'Yes' : '',
-          item.roster_period || 'N/A',
+          computeRosterPeriods(item),
         ]),
         styles: { fontSize: 7 },
         headStyles: { fillColor: [41, 128, 185] },
@@ -928,7 +945,7 @@ export async function generatePDF(
             item.days_count || '1',
             item.workflow_status || 'N/A',
             item.is_late_request ? 'Yes' : '',
-            item.roster_period || 'N/A',
+            computeRosterPeriods(item),
           ]),
           styles: { fontSize: 7 },
           headStyles: { fillColor: [46, 204, 113] },
@@ -966,7 +983,7 @@ export async function generatePDF(
           item.days_count || '1',
           item.workflow_status || 'N/A',
           item.is_late_request ? 'Yes' : '',
-          item.roster_period || 'N/A',
+          computeRosterPeriods(item),
         ]),
         styles: { fontSize: 7 },
         headStyles: { fillColor: [46, 204, 113] },
@@ -998,7 +1015,7 @@ export async function generatePDF(
         formatAustralianDate(item.start_date || item.created_at),
         item.workflow_status || item.status || 'N/A',
         item.is_late_request ? 'Yes' : '',
-        item.roster_period || 'N/A',
+        computeRosterPeriods(item),
       ]),
       styles: { fontSize: 7 },
       headStyles: { fillColor: [155, 89, 182] },

@@ -18,6 +18,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { redirect } from 'next/navigation'
 import { RequestDetailActions } from '@/components/requests/request-detail-actions'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -172,7 +173,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Submission Date</p>
-                  <p className="text-lg">{formatDate(request.submission_date)}</p>
+                  <p className="text-lg">{formatDate(request.submission_date || request.created_at)}</p>
                 </div>
               </div>
             </CardContent>
@@ -200,16 +201,29 @@ export default async function RequestDetailPage({ params }: PageProps) {
                 )}
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Roster Period</p>
-                  <p className="font-mono text-lg">
-                    {(request as any).roster_periods_spanned?.length > 1
-                      ? (request as any).roster_periods_spanned.join(', ')
-                      : request.roster_period}
-                  </p>
-                  {(request as any).roster_periods_spanned?.length > 1 && (
-                    <p className="text-muted-foreground text-xs">
-                      Spans {(request as any).roster_periods_spanned.length} roster periods
-                    </p>
-                  )}
+                  {(() => {
+                    const periods =
+                      request.start_date && request.end_date
+                        ? getAffectedRosterPeriods(
+                            new Date(request.start_date),
+                            new Date(request.end_date)
+                          )
+                        : []
+                    return (
+                      <>
+                        <p className="font-mono text-lg">
+                          {periods.length > 1
+                            ? periods.map((p) => p.code).join(', ')
+                            : request.roster_period || (periods[0]?.code ?? 'N/A')}
+                        </p>
+                        {periods.length > 1 && (
+                          <p className="text-muted-foreground text-xs">
+                            Spans {periods.length} roster periods
+                          </p>
+                        )}
+                      </>
+                    )
+                  })()}
                 </div>
                 {request.days_count && (
                   <div>
