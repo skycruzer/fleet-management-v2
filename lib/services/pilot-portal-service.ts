@@ -46,6 +46,8 @@ interface PortalStats {
   total_captains: number
   total_first_officers: number
   active_certifications: number
+  total_certifications: number
+  compliance_rate: number
   pending_leave_requests: number
   pending_flight_requests: number
   upcoming_checks: number
@@ -64,6 +66,13 @@ interface PortalStats {
   }>
   critical_certifications: number
   critical_certifications_details: Array<{
+    id: string
+    check_code: string
+    check_description: string
+    expiry_date: string
+  }>
+  caution_certifications: number
+  caution_certifications_details: Array<{
     id: string
     check_code: string
     check_description: string
@@ -494,6 +503,12 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
       .eq('pilot_id', pilotId)
       .gte('expiry_date', new Date().toISOString())
 
+    // Get total certifications count for this pilot (for compliance rate)
+    const { count: totalCertsCount } = await supabase
+      .from('pilot_checks')
+      .select('*', { count: 'exact', head: true })
+      .eq('pilot_id', pilotId)
+
     // Get pending leave requests count for this pilot (v2.0.0 - uses pilot_requests)
     const { count: leaveCount } = await supabase
       .from('pilot_requests')
@@ -550,7 +565,7 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
       .order('expiry_date', { ascending: false })
       .limit(10)
 
-    // Get critical certifications (expiring within 14 days)
+    // Get critical certifications (expiring within 14 days) — Warning tier
     const fourteenDaysFromNow = new Date()
     fourteenDaysFromNow.setDate(fourteenDaysFromNow.getDate() + 14)
 
@@ -572,6 +587,28 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
       .order('expiry_date', { ascending: true })
       .limit(10)
 
+    // Get caution certifications (expiring in 15-30 days) — Caution tier
+    const thirtyDaysFromNow = new Date()
+    thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
+
+    const { data: cautionChecks } = await supabase
+      .from('pilot_checks')
+      .select(
+        `
+        id,
+        expiry_date,
+        check_types (
+          check_code,
+          check_description
+        )
+      `
+      )
+      .eq('pilot_id', pilotId)
+      .gt('expiry_date', fourteenDaysFromNow.toISOString())
+      .lte('expiry_date', thirtyDaysFromNow.toISOString())
+      .order('expiry_date', { ascending: true })
+      .limit(10)
+
     return {
       success: true,
       data: {
@@ -579,6 +616,11 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
         total_captains: captainsCount || 0,
         total_first_officers: firstOfficersCount || 0,
         active_certifications: certsCount || 0,
+        total_certifications: totalCertsCount || 0,
+        compliance_rate:
+          totalCertsCount && totalCertsCount > 0
+            ? Math.round(((certsCount || 0) / totalCertsCount) * 100)
+            : 100,
         pending_leave_requests: leaveCount || 0,
         pending_flight_requests: flightCount || 0,
         upcoming_checks: upcomingChecks?.length || 0,
@@ -600,6 +642,14 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
         critical_certifications: criticalChecks?.length || 0,
         critical_certifications_details:
           criticalChecks?.map((check: any) => ({
+            id: check.id,
+            check_code: check.check_types?.check_code || 'Unknown',
+            check_description: check.check_types?.check_description || 'Unknown',
+            expiry_date: check.expiry_date,
+          })) || [],
+        caution_certifications: cautionChecks?.length || 0,
+        caution_certifications_details:
+          cautionChecks?.map((check: any) => ({
             id: check.id,
             check_code: check.check_types?.check_code || 'Unknown',
             check_description: check.check_types?.check_description || 'Unknown',

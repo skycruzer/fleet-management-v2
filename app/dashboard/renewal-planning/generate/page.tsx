@@ -129,6 +129,23 @@ export default function GeneratePlanPage() {
   ])
   const [clearExisting, setClearExisting] = useState(false)
 
+  // Captain role pairing configuration
+  const CAPTAIN_ROLE_OPTIONS = [
+    { id: 'line_captain', label: 'Line Captain', description: 'Standard line captains' },
+    { id: 'training_captain', label: 'Training Captain (TRI)', description: 'Type Rating Instructors — right-hand seat for sim checks' },
+    { id: 'examiner', label: 'Examiner Captain (TRE)', description: 'Type Rating Examiners — right-hand seat for sim checks' },
+    { id: 'rhs_captain', label: 'RHS Captain', description: 'Right-hand seat qualified captains' },
+  ] as const
+  const [selectedCaptainRoles, setSelectedCaptainRoles] = useState<string[]>(
+    CAPTAIN_ROLE_OPTIONS.map((r) => r.id)
+  )
+
+  const handleCaptainRoleToggle = (roleId: string) => {
+    setSelectedCaptainRoles((prev) =>
+      prev.includes(roleId) ? prev.filter((r) => r !== roleId) : [...prev, roleId]
+    )
+  }
+
   // Wizard state
   const [currentStep, setCurrentStep] = useState<WizardStep>('configure')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -136,7 +153,7 @@ export default function GeneratePlanPage() {
 
   // Preview query - only runs when on preview step
   const previewQuery = useQuery<PreviewData>({
-    queryKey: ['renewal-preview', monthsAhead, selectedCategories, selectedCheckCodes],
+    queryKey: ['renewal-preview', monthsAhead, selectedCategories, selectedCheckCodes, selectedCaptainRoles],
     queryFn: async () => {
       const response = await fetch('/api/renewal-planning/preview', {
         method: 'POST',
@@ -145,6 +162,7 @@ export default function GeneratePlanPage() {
           monthsAhead,
           categories: selectedCategories,
           checkCodes: selectedCheckCodes.length > 0 ? selectedCheckCodes : undefined,
+          captainRoles: selectedCaptainRoles.length > 0 ? selectedCaptainRoles : undefined,
         }),
         credentials: 'include',
       })
@@ -237,6 +255,7 @@ export default function GeneratePlanPage() {
           monthsAhead,
           categories: selectedCategories.length > 0 ? selectedCategories : undefined,
           checkCodes: selectedCheckCodes.length > 0 ? selectedCheckCodes : undefined,
+          captainRoles: selectedCaptainRoles.length > 0 ? selectedCaptainRoles : undefined,
         }),
         credentials: 'include',
       })
@@ -410,6 +429,42 @@ export default function GeneratePlanPage() {
           </div>
         </Card>
 
+        {/* Captain Role Pairing Configuration */}
+        <Card className="p-6">
+          <h2 className="text-foreground mb-4 text-xl font-semibold">
+            Captain Role Pairing
+          </h2>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Select which captain qualification types to include when pairing Captains with
+            First Officers. RHS/Training/Examiner captains perform simulator checks from the
+            right-hand seat.
+          </p>
+          <div className="space-y-3">
+            {CAPTAIN_ROLE_OPTIONS.map((role) => (
+              <div key={role.id} className="flex items-start space-x-2">
+                <Checkbox
+                  id={`role-${role.id}`}
+                  checked={selectedCaptainRoles.includes(role.id)}
+                  onCheckedChange={() => handleCaptainRoleToggle(role.id)}
+                />
+                <div className="space-y-0.5">
+                  <Label htmlFor={`role-${role.id}`} className="cursor-pointer font-medium">
+                    {role.label}
+                  </Label>
+                  <p className="text-muted-foreground text-xs">
+                    {role.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {selectedCaptainRoles.length === 0 && (
+            <p className="mt-3 text-sm text-[var(--color-danger-400)]">
+              At least one captain role must be selected for pairing to work.
+            </p>
+          )}
+        </Card>
+
         {/* Options */}
         <Card className="p-6">
           <h2 className="text-foreground mb-4 text-xl font-semibold">Options</h2>
@@ -459,6 +514,7 @@ export default function GeneratePlanPage() {
           <ul className="space-y-2 text-sm text-[var(--color-info)]">
             <li>• Fetches expiring checks for selected categories</li>
             <li>• Pairs Captains with First Officers (Flight/Simulator)</li>
+            <li>• TRI/TRE/RHS captains get right-hand seat for sim checks</li>
             <li>• Assigns to all 13 roster periods (RP1-RP13)</li>
             <li>• Distributes evenly based on capacity limits</li>
             <li>• Grace periods: 90 days (Flight/Sim), 60 days (Ground)</li>

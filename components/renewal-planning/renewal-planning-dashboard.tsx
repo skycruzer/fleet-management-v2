@@ -3,8 +3,10 @@
 /**
  * Renewal Planning Dashboard Client Component
  * Handles year selection and displays renewal planning data
+ * Supports Grid and Timeline (Gantt) view modes
  */
 
+import { useState } from 'react'
 import {
   Calendar,
   RefreshCw,
@@ -12,6 +14,8 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  LayoutGrid,
+  BarChart3,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -28,6 +32,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { formatDate } from '@/lib/utils/date-utils'
 import { EmailRenewalPlanButton } from './email-renewal-plan-button'
 import { ExportPDFButton } from './export-pdf-button'
+import { GanttTimeline } from './gantt-timeline'
 
 interface RosterPeriodSummary {
   rosterPeriod: string
@@ -45,17 +50,37 @@ interface RosterPeriodSummary {
   >
 }
 
+interface RenewalDetail {
+  id: string
+  pilot_name: string
+  employee_id: string
+  check_code: string
+  category: string
+  planned_renewal_date: string
+  original_expiry_date: string
+  renewal_window_start: string
+  renewal_window_end: string
+  roster_period: string
+  pairing_status?: string
+  paired_pilot_name?: string
+}
+
 interface RenewalPlanningDashboardProps {
   summaries: RosterPeriodSummary[]
+  renewalDetails?: RenewalDetail[]
   selectedYear: number
 }
 
+type ViewMode = 'grid' | 'timeline'
+
 export function RenewalPlanningDashboard({
   summaries,
+  renewalDetails = [],
   selectedYear,
 }: RenewalPlanningDashboardProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [viewMode, setViewMode] = useState<ViewMode>('grid')
 
   // Generate year options: Always show selectedYear and extend range dynamically
   const currentYear = new Date().getFullYear()
@@ -89,6 +114,36 @@ export function RenewalPlanningDashboard({
           </p>
         </div>
         <div className="flex items-center space-x-2">
+          {/* View Toggle */}
+          <div
+            role="tablist"
+            aria-label="Dashboard view mode"
+            className="border-input bg-background flex items-center rounded-lg border p-0.5"
+          >
+            <Button
+              role="tab"
+              aria-selected={viewMode === 'grid'}
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className="h-8"
+            >
+              <LayoutGrid className="mr-1.5 h-4 w-4" />
+              Grid
+            </Button>
+            <Button
+              role="tab"
+              aria-selected={viewMode === 'timeline'}
+              variant={viewMode === 'timeline' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('timeline')}
+              className="h-8"
+            >
+              <BarChart3 className="mr-1.5 h-4 w-4" />
+              Timeline
+            </Button>
+          </div>
+
           {/* Year Selector */}
           <Select value={selectedYear.toString()} onValueChange={handleYearChange}>
             <SelectTrigger className="w-[120px]">
@@ -213,82 +268,108 @@ export function RenewalPlanningDashboard({
         </Card>
       )}
 
-      {/* Roster Period Timeline */}
-      <Card className="p-6">
-        <h2 className="text-foreground mb-6 text-xl font-semibold">
-          Roster Period Distribution ({selectedYear})
-        </h2>
+      {/* Roster Period Content — Grid or Timeline */}
+      {viewMode === 'timeline' ? (
+        <GanttTimeline
+          renewals={renewalDetails ?? []}
+          rosterPeriods={summaries.map((s) => ({
+            code: s.rosterPeriod,
+            startDate:
+              s.periodStartDate instanceof Date
+                ? s.periodStartDate.toISOString().split('T')[0]
+                : String(s.periodStartDate).split('T')[0],
+            endDate:
+              s.periodEndDate instanceof Date
+                ? s.periodEndDate.toISOString().split('T')[0]
+                : String(s.periodEndDate).split('T')[0],
+          }))}
+          year={selectedYear}
+        />
+      ) : (
+        <Card className="p-6">
+          <h2 className="text-foreground mb-6 text-xl font-semibold">
+            Roster Period Distribution ({selectedYear})
+          </h2>
 
-        {summaries.length === 0 ? (
-          <div className="py-12 text-center">
-            <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-            <h3 className="text-foreground mb-2 text-lg font-semibold">No Roster Periods Found</h3>
-            <p className="text-muted-foreground">No roster periods available for {selectedYear}.</p>
-            <p className="text-muted-foreground mt-2 text-sm">
-              Try selecting a different year or generate a plan first.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {summaries.map((summary) => {
-              const utilizationColor =
-                summary.utilizationPercentage > 80
-                  ? 'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)]'
-                  : summary.utilizationPercentage > 60
-                    ? 'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)]'
-                    : 'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)]'
+          {summaries.length === 0 ? (
+            <div className="py-12 text-center">
+              <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+              <h3 className="text-foreground mb-2 text-lg font-semibold">
+                No Roster Periods Found
+              </h3>
+              <p className="text-muted-foreground">
+                No roster periods available for {selectedYear}.
+              </p>
+              <p className="text-muted-foreground mt-2 text-sm">
+                Try selecting a different year or generate a plan first.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {summaries.map((summary) => {
+                const utilizationColor =
+                  summary.utilizationPercentage > 80
+                    ? 'bg-[var(--color-status-high-bg)] border-[var(--color-status-high-border)]'
+                    : summary.utilizationPercentage > 60
+                      ? 'bg-[var(--color-status-medium-bg)] border-[var(--color-status-medium-border)]'
+                      : 'bg-[var(--color-status-low-bg)] border-[var(--color-status-low-border)]'
 
-              const badgeColor =
-                summary.utilizationPercentage > 80
-                  ? 'bg-[var(--color-status-high)] text-white'
-                  : summary.utilizationPercentage > 60
-                    ? 'bg-[var(--color-status-medium)] text-white'
-                    : 'bg-[var(--color-status-low)] text-white'
+                const badgeColor =
+                  summary.utilizationPercentage > 80
+                    ? 'bg-[var(--color-status-high)] text-white'
+                    : summary.utilizationPercentage > 60
+                      ? 'bg-[var(--color-status-medium)] text-white'
+                      : 'bg-[var(--color-status-low)] text-white'
 
-              return (
-                <Link
-                  key={summary.rosterPeriod}
-                  href={`/dashboard/renewal-planning/roster-period/${summary.rosterPeriod}`}
-                >
-                  <Card
-                    className={`border-2 p-4 transition-all hover:shadow-md ${utilizationColor}`}
+                return (
+                  <Link
+                    key={summary.rosterPeriod}
+                    href={`/dashboard/renewal-planning/roster-period/${summary.rosterPeriod}`}
                   >
-                    <div className="mb-3 flex items-center justify-between">
-                      <h3 className="text-foreground font-semibold">{summary.rosterPeriod}</h3>
-                      <Badge className={badgeColor}>
-                        {Math.round(summary.utilizationPercentage)}%
-                      </Badge>
-                    </div>
+                    <Card
+                      className={`border-2 p-4 transition-all hover:shadow-md ${utilizationColor}`}
+                    >
+                      <div className="mb-3 flex items-center justify-between">
+                        <h3 className="text-foreground font-semibold">{summary.rosterPeriod}</h3>
+                        <Badge className={badgeColor}>
+                          {Math.round(summary.utilizationPercentage)}%
+                        </Badge>
+                      </div>
 
-                    <p className="text-muted-foreground mb-3 text-xs">
-                      {formatDate(summary.periodStartDate)} - {formatDate(summary.periodEndDate)}
-                    </p>
-
-                    <div className="space-y-2">
-                      {Object.entries(summary.categoryBreakdown)
-                        .slice(0, 4)
-                        .map(([category, data]) => (
-                          <div key={category} className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground truncate">{category}</span>
-                            <span className="text-foreground font-medium">
-                              {data.plannedCount}/{data.capacity}
-                            </span>
-                          </div>
-                        ))}
-                    </div>
-
-                    <div className="border-border mt-3 border-t pt-3">
-                      <p className="text-foreground text-sm font-semibold">
-                        Total: {summary.totalPlannedRenewals} / {summary.totalCapacity}
+                      <p className="text-muted-foreground mb-3 text-xs">
+                        {formatDate(summary.periodStartDate)} -{' '}
+                        {formatDate(summary.periodEndDate)}
                       </p>
-                    </div>
-                  </Card>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-      </Card>
+
+                      <div className="space-y-2">
+                        {Object.entries(summary.categoryBreakdown)
+                          .slice(0, 4)
+                          .map(([category, data]) => (
+                            <div
+                              key={category}
+                              className="flex items-center justify-between text-xs"
+                            >
+                              <span className="text-muted-foreground truncate">{category}</span>
+                              <span className="text-foreground font-medium">
+                                {data.plannedCount}/{data.capacity}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+
+                      <div className="border-border mt-3 border-t pt-3">
+                        <p className="text-foreground text-sm font-semibold">
+                          Total: {summary.totalPlannedRenewals} / {summary.totalCapacity}
+                        </p>
+                      </div>
+                    </Card>
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </Card>
+      )}
 
       {/* Year Navigation */}
       <div className="flex items-center justify-center gap-4">

@@ -986,3 +986,57 @@ Replace native HTML elements with shadcn/ui components for visual consistency.
 - [ ] EN8.2 Run `npm run validate` — type-check + lint + format
 - [ ] EN8.3 Test cron job endpoint manually with Bearer token
 - [ ] EN8.4 Verify email delivery via Resend dashboard
+
+---
+
+## Renewal Planning Feature Updates (February 13, 2026)
+
+**Scope**: Fix critical bugs, add Gantt timeline, enhance PDF with pairing data, add RHS/Training/Examiner captain pairing
+**Research**: Full codebase audit by researcher agent (16 functions, 11 API routes, 4 pages, 14+ components)
+
+---
+
+### Phase 1: Bug Fixes (Critical)
+
+- [x] RP1.1 **Fix stale Dec/Jan exclusion in PDF service** — `lib/services/renewal-planning-pdf-service.ts`
+  - Line 294: Change `Roster Periods: 13 (11 eligible, 2 excluded)` → `Roster Periods: 13 (Full Year Coverage)`
+  - Line 295: Remove `Excluded: December & January (holiday months)` line
+  - Line 369: Remove `month !== 0 && month !== 11` filter in `addCategoryPage()`
+- [x] RP1.2 **Fix stale Dec/Jan filter in email route** — `app/api/renewal-planning/email/route.ts`
+  - Line 354-355: Change Feb-Nov filter → full year Jan-Dec
+- [x] RP1.3 **Fix PDF export missing pairing data** — `app/api/renewal-planning/export-pdf/route.ts`
+  - Fetch pairing data (paired crews, unpaired pilots, statistics) from `certification_renewal_plans`
+  - Pass `pairingData` to `generateRenewalPlanPDF()` so pairing summary page renders
+- [x] RP1.4 **Fix capacity default inconsistency** — `lib/services/certification-renewal-planning-service.ts`
+  - Align Ground Courses default capacity to 10 (matching `category-capacity-utils.ts`)
+
+### Phase 2: Gantt Timeline
+
+- [x] RP2.1 **Create Gantt timeline component** — `components/renewal-planning/gantt-timeline.tsx`
+  - Horizontal bar chart: X-axis = roster periods, Y-axis = pilots
+  - Color-coded bars per category (Flight=blue, Simulator=purple, Ground=green)
+  - Bars show renewal window with marker for planned date
+  - Tooltip on hover with details
+- [x] RP2.2 **Add Gantt view toggle to dashboard** — `components/renewal-planning/renewal-planning-dashboard.tsx`
+  - Add Timeline tab alongside existing grid view
+- [x] RP2.3 **Add Gantt page to PDF report** — `lib/services/renewal-planning-pdf-service.ts`
+  - New page: horizontal bars using jsPDF rectangles, grouped by category
+  - Roster period boundaries as vertical lines
+
+### Phase 3: RHS/Training/Examiner Captain Pairing
+
+- [x] RP3.1 **Update pairing types** — `lib/types/pairing.ts`
+  - Expand `PilotForPairing.role` union to include `'RHS Captain' | 'Training Captain' | 'Examiner Captain'`
+  - Add `CAPTAIN_ROLES` constant for all captain-type roles
+- [x] RP3.2 **Update pairing algorithm** — `lib/services/certification-renewal-planning-service.ts`
+  - Expand role grouping: all captain types (Captain, RHS Captain, Training Captain, Examiner Captain) can pair with FOs
+- [x] RP3.3 **Update generate wizard UI** — `app/dashboard/renewal-planning/generate/page.tsx`
+  - Add pairing role configuration checkboxes in Step 1
+
+### Phase 4: Validation
+
+- [x] RP4.1 `npm run build` — verify no SSR/import errors
+- [ ] RP4.2 PDF export includes pairing summary page
+- [ ] RP4.3 All 13 roster periods shown (no Dec/Jan exclusion)
+- [ ] RP4.4 Gantt timeline renders on dashboard and in PDF
+- [ ] RP4.5 RHS/Training/Examiner captain pairing options available

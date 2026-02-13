@@ -41,6 +41,9 @@ interface RenewalItem {
   pairing_status?: 'paired' | 'unpaired_solo' | 'not_applicable'
   paired_pilot_name?: string
   paired_pilot_employee_id?: string
+  // RHS/Captain role fields
+  captain_role?: 'line_captain' | 'training_captain' | 'examiner' | 'rhs_captain' | null
+  seat_position?: 'left_seat' | 'right_seat' | null
 }
 
 interface RosterPeriodSummary {
@@ -90,6 +93,15 @@ const CATEGORIES = [
   },
 ]
 
+function getCaptainRoleLabel(role?: string | null): string {
+  switch (role) {
+    case 'training_captain': return 'TRI'
+    case 'examiner': return 'TRE'
+    case 'rhs_captain': return 'RHS'
+    default: return ''
+  }
+}
+
 /**
  * Generate complete renewal planning PDF - organized BY CATEGORY
  */
@@ -106,7 +118,11 @@ export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<
   doc.addPage()
   addExecutiveSummary(doc, data)
 
-  // Page 3: Pairing Summary (if pairing data exists)
+  // Page 3: Gantt Timeline
+  doc.addPage()
+  addGanttTimelinePage(doc, data)
+
+  // Page 4: Pairing Summary (if pairing data exists)
   if (data.pairingData) {
     doc.addPage()
     addPairingSummaryPage(doc, data)
@@ -291,8 +307,7 @@ function addExecutiveSummary(doc: JsPDF, data: RenewalPlanPDFData) {
     `Total Renewals Planned: ${totalRenewals}`,
     `Total Capacity: ${totalCapacity}`,
     `Overall Utilization: ${Math.round(avgUtilization)}%`,
-    `Roster Periods: 13 (11 eligible, 2 excluded)`,
-    `Excluded: December & January (holiday months)`,
+    `Roster Periods: 13 (Full Year Coverage)`,
   ]
 
   let yPos = afterTableY + 25
@@ -363,12 +378,7 @@ function addCategoryPage(
   doc.setFont('helvetica', 'bold')
   doc.text('Distribution by Roster Period', 15, 70)
 
-  const periodTableData = data.summaries
-    .filter((s) => {
-      const month = s.periodStartDate.getMonth()
-      return month !== 0 && month !== 11 // Exclude December/January
-    })
-    .map((s) => {
+  const periodTableData = data.summaries.map((s) => {
       const catBreakdown = s.categoryBreakdown[category.id]
       const planned = catBreakdown?.plannedCount || 0
       const capacity = catBreakdown?.capacity || 0
@@ -429,21 +439,44 @@ function addCategoryPage(
       )
     })
 
-    const pilotTableData = sortedRenewals.map((r) => [
-      r.roster_period,
-      `${r.pilot.first_name} ${r.pilot.last_name}`,
-      r.pilot.employee_id,
-      r.check_type.check_code,
-      formatDate(r.planned_renewal_date),
-    ])
+    // Include Role/Seat column for simulator checks
+    const isSimCategory = category.id === 'Simulator Checks'
+    const pilotTableData = sortedRenewals.map((r) => {
+      const row = [
+        r.roster_period,
+        `${r.pilot.first_name} ${r.pilot.last_name}`,
+        r.pilot.employee_id,
+        r.check_type.check_code,
+        formatDate(r.planned_renewal_date),
+      ]
+      if (isSimCategory) {
+        const roleLabel = getCaptainRoleLabel(r.captain_role)
+        const seatLabel = r.seat_position === 'right_seat' ? 'RHS' : r.seat_position === 'left_seat' ? 'LHS' : ''
+        row.push(roleLabel ? `${roleLabel} (${seatLabel})` : seatLabel)
+      }
+      return row
+    })
+
+    const headers = ['Period', 'Pilot', 'Emp ID', 'Check', 'Planned Date']
+    if (isSimCategory) headers.push('Role / Seat')
 
     autoTable(doc, {
-      head: [['Period', 'Pilot', 'Emp ID', 'Check', 'Planned Date']],
+      head: [headers],
       body: pilotTableData,
       startY: afterPeriodTable + 18,
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: category.color, textColor: 255 },
       alternateRowStyles: { fillColor: [250, 250, 250] },
+      didParseCell: isSimCategory ? (cellData: any) => {
+        // Highlight RHS cells
+        if (cellData.section === 'body' && cellData.column.index === 5) {
+          const val = cellData.cell.raw as string
+          if (val && val.includes('RHS')) {
+            cellData.cell.styles.textColor = [180, 83, 9] // amber
+            cellData.cell.styles.fontStyle = 'bold'
+          }
+        }
+      } : undefined,
     })
   } else {
     doc.setFontSize(11)
@@ -744,4 +777,191 @@ function addPairingSummaryPage(doc: JsPDF, data: RenewalPlanPDFData) {
       },
     })
   }
+}
+
+/**
+ * Gantt Timeline Page — Visual renewal schedule across roster periods
+ */
+function addGanttTimelinePage(doc: JsPDF, data: RenewalPlanPDFData) {
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
+
+  // Title
+  doc.setFontSize(18)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(44, 62, 80)
+  doc.text('Renewal Timeline', pageWidth / 2, 20, { align: 'center' })
+
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(100, 100, 100)
+  doc.text(`${data.year} Certification Renewal Schedule by Roster Period`, pageWidth / 2, 28, {
+    align: 'center',
+  })
+
+  // Legend
+  const legendY = 36
+  const legendItems = CATEGORIES.filter((c) => c.id !== 'Pilot Medical')
+  let legendX = 15
+  doc.setFontSize(8)
+  legendItems.forEach((cat) => {
+    doc.setFillColor(cat.color[0], cat.color[1], cat.color[2])
+    doc.rect(legendX, legendY - 3, 8, 4, 'F')
+    doc.setTextColor(60, 60, 60)
+    doc.text(cat.label, legendX + 10, legendY)
+    legendX += doc.getTextWidth(cat.label) + 16
+  })
+
+  // Chart dimensions
+  const chartLeft = 55
+  const chartRight = pageWidth - 10
+  const chartWidth = chartRight - chartLeft
+  const chartTop = 44
+  const rowHeight = 5.5
+  const headerHeight = 12
+
+  // Get sorted roster periods
+  const sortedPeriods = [...data.summaries].sort(
+    (a, b) => a.periodStartDate.getTime() - b.periodStartDate.getTime()
+  )
+
+  if (sortedPeriods.length === 0) return
+
+  // Time range
+  const timeStart = sortedPeriods[0].periodStartDate.getTime()
+  const timeEnd = sortedPeriods[sortedPeriods.length - 1].periodEndDate.getTime()
+  const timeRange = timeEnd - timeStart
+
+  const toX = (date: Date | string) => {
+    const t = typeof date === 'string' ? new Date(date).getTime() : date.getTime()
+    const ratio = Math.max(0, Math.min(1, (t - timeStart) / timeRange))
+    return chartLeft + ratio * chartWidth
+  }
+
+  // Draw period columns header
+  doc.setFontSize(7)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(44, 62, 80)
+
+  sortedPeriods.forEach((period, periodIndex) => {
+    const x1 = toX(period.periodStartDate)
+    const x2 = toX(period.periodEndDate)
+    const midX = (x1 + x2) / 2
+
+    // Alternating column background
+    if (periodIndex % 2 === 0) {
+      doc.setFillColor(245, 247, 250)
+      doc.rect(x1, chartTop, x2 - x1, pageHeight - chartTop - 10, 'F')
+    }
+
+    // Vertical grid line
+    doc.setDrawColor(200, 200, 200)
+    doc.setLineWidth(0.2)
+    doc.line(x1, chartTop, x1, pageHeight - 10)
+
+    // Period label
+    const label = period.rosterPeriod.replace(/^RP/, '')
+    doc.text(`RP${label}`, midX, chartTop + 5, { align: 'center' })
+
+    // Date range
+    doc.setFontSize(5)
+    doc.setFont('helvetica', 'normal')
+    const startStr = formatDate(period.periodStartDate).slice(0, 6)
+    doc.text(startStr, midX, chartTop + 9, { align: 'center' })
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'bold')
+  })
+
+  // Right edge grid line
+  doc.line(chartRight, chartTop, chartRight, pageHeight - 10)
+
+  // Group renewals by pilot
+  const pilotRenewals = new Map<
+    string,
+    Array<{
+      category: string
+      planned_renewal_date: string
+      original_expiry_date: string
+      roster_period: string
+      check_code: string
+    }>
+  >()
+
+  data.renewals.forEach((r) => {
+    const key = `${r.pilot.last_name}, ${r.pilot.first_name}`
+    if (!pilotRenewals.has(key)) pilotRenewals.set(key, [])
+    pilotRenewals.get(key)!.push({
+      category: r.check_type.category,
+      planned_renewal_date: r.planned_renewal_date,
+      original_expiry_date: r.original_expiry_date,
+      roster_period: r.roster_period,
+      check_code: r.check_type.check_code,
+    })
+  })
+
+  // Sort pilots alphabetically
+  const sortedPilots = [...pilotRenewals.entries()].sort((a, b) => a[0].localeCompare(b[0]))
+
+  // Draw rows
+  const currentY = chartTop + headerHeight
+  const maxRows = Math.floor((pageHeight - chartTop - headerHeight - 15) / rowHeight)
+
+  sortedPilots.slice(0, maxRows).forEach(([pilotName, renewals], idx) => {
+    const rowY = currentY + idx * rowHeight
+
+    // Alternating row background
+    if (idx % 2 === 1) {
+      doc.setFillColor(250, 250, 252)
+      doc.rect(0, rowY - 1, chartLeft - 2, rowHeight, 'F')
+    }
+
+    // Pilot name (left column)
+    doc.setFontSize(6)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(60, 60, 60)
+    const displayName = pilotName.length > 22 ? pilotName.substring(0, 20) + '...' : pilotName
+    doc.text(displayName, 3, rowY + 2.5)
+
+    // Draw renewal bars
+    renewals.forEach((renewal) => {
+      const category = CATEGORIES.find((c) => c.id === renewal.category)
+      if (!category) return
+
+      const barX = toX(renewal.planned_renewal_date) - 3
+      const barWidth = 6
+
+      // Bar
+      doc.setFillColor(category.color[0], category.color[1], category.color[2])
+      doc.roundedRect(barX, rowY - 0.5, barWidth, rowHeight - 1.5, 1, 1, 'F')
+
+      // Diamond marker at planned date
+      const diamondX = toX(renewal.planned_renewal_date)
+      doc.setFillColor(255, 255, 255)
+      doc.circle(diamondX, rowY + (rowHeight - 1.5) / 2 - 0.5, 0.8, 'F')
+    })
+  })
+
+  // Footer note if truncated
+  if (sortedPilots.length > maxRows) {
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(120, 120, 120)
+    doc.text(
+      `Showing ${maxRows} of ${sortedPilots.length} pilots. See category pages for complete details.`,
+      pageWidth / 2,
+      pageHeight - 8,
+      { align: 'center' }
+    )
+  }
+
+  // Summary stats
+  const statsY = Math.min(currentY + sortedPilots.length * rowHeight + 5, pageHeight - 20)
+  doc.setFontSize(8)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(80, 80, 80)
+  doc.text(
+    `Total: ${data.renewals.length} renewals across ${sortedPilots.length} pilots in ${sortedPeriods.length} roster periods`,
+    15,
+    statsY
+  )
 }

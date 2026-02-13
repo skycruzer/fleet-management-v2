@@ -22,7 +22,7 @@ import { getCurrentPilot as getAuthPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, AlertTriangle, XCircle, Calendar, Plane } from 'lucide-react'
+import { Clock, AlertTriangle, XCircle, Calendar, Plane, ShieldCheck } from 'lucide-react'
 import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 import { RosterPeriodCard } from '@/components/portal/roster-period-card'
@@ -95,6 +95,141 @@ export default async function PilotDashboardPage() {
         <div className="mb-8">
           <RosterPeriodCard />
         </div>
+
+        {/* Certification Compliance */}
+        {stats && (
+          <div className="mb-8">
+            <Link href="/portal/certifications">
+              <Card className="hover:border-foreground/20 hover:bg-muted/40 p-5 transition-all duration-200">
+                <div className="mb-2 flex items-center justify-between">
+                  <ShieldCheck
+                    className={`h-6 w-6 ${
+                      stats.compliance_rate >= 90
+                        ? 'text-[var(--color-success-600)]'
+                        : stats.compliance_rate >= 70
+                          ? 'text-[var(--color-warning-600)]'
+                          : 'text-destructive'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </div>
+                <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+                  Certification Compliance
+                </h3>
+                <div className="mt-2 space-y-1">
+                  <p
+                    className={`text-2xl font-semibold ${
+                      stats.compliance_rate >= 90
+                        ? 'text-[var(--color-success-600)]'
+                        : stats.compliance_rate >= 70
+                          ? 'text-[var(--color-warning-600)]'
+                          : 'text-destructive'
+                    }`}
+                  >
+                    {stats.compliance_rate}%
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {stats.active_certifications} of {stats.total_certifications} certifications
+                    current
+                  </p>
+                </div>
+              </Card>
+            </Link>
+          </div>
+        )}
+
+        {/* 30-Day Expiry Countdown */}
+        {stats &&
+          ((stats.critical_certifications || 0) > 0 ||
+            (stats.caution_certifications || 0) > 0) && (
+            <div className="mb-8 space-y-4">
+              <h2 className="text-foreground text-lg font-semibold tracking-tight">
+                30-Day Expiry Countdown
+              </h2>
+
+              {/* Warning tier: 0-14 days */}
+              {(stats.critical_certifications || 0) > 0 && (
+                <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/5 p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <AlertTriangle
+                      className="h-5 w-5 text-[var(--color-danger-400)]"
+                      aria-hidden="true"
+                    />
+                    <h3 className="text-sm font-semibold text-[var(--color-danger-400)]">
+                      Warning — Expiring within 14 days
+                    </h3>
+                  </div>
+                  <div className="space-y-2">
+                    {stats.critical_certifications_details.map((check) => {
+                      const daysLeft = Math.ceil(
+                        (new Date(check.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                      )
+                      return (
+                        <div
+                          key={check.id}
+                          className="bg-card flex items-center justify-between rounded border border-[var(--color-danger-500)]/20 px-4 py-3"
+                        >
+                          <div>
+                            <p className="text-foreground text-sm font-semibold">
+                              {check.check_code}
+                            </p>
+                            <p className="text-muted-foreground text-xs">{check.check_description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-[var(--color-danger-400)]">
+                              {daysLeft}d
+                            </p>
+                            <p className="text-muted-foreground text-xs">remaining</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </Card>
+              )}
+
+              {/* Caution tier: 15-30 days */}
+              {(stats.caution_certifications || 0) > 0 && (
+                <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-500)]/5 p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Clock
+                      className="h-5 w-5 text-[var(--color-warning-400)]"
+                      aria-hidden="true"
+                    />
+                    <h3 className="text-sm font-semibold text-[var(--color-warning-400)]">
+                      Caution — Expiring within 15–30 days
+                    </h3>
+                  </div>
+                  <div className="space-y-2">
+                    {stats.caution_certifications_details.map((check) => {
+                      const daysLeft = Math.ceil(
+                        (new Date(check.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                      )
+                      return (
+                        <div
+                          key={check.id}
+                          className="bg-card flex items-center justify-between rounded border border-[var(--color-warning-500)]/20 px-4 py-3"
+                        >
+                          <div>
+                            <p className="text-foreground text-sm font-semibold">
+                              {check.check_code}
+                            </p>
+                            <p className="text-muted-foreground text-xs">{check.check_description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-[var(--color-warning-400)]">
+                              {daysLeft}d
+                            </p>
+                            <p className="text-muted-foreground text-xs">remaining</p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
 
         {/* Retirement Information Card - Moved from Profile */}
         {pilotData && (

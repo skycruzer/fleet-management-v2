@@ -18,7 +18,6 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
   ChevronDown,
@@ -34,6 +33,8 @@ import {
 import { cn } from '@/lib/utils'
 import { RosterAssignmentBadge } from './roster-assignment-badge'
 
+import type { CaptainRole, SeatPosition } from '@/lib/types/pairing'
+
 // Types matching the enhanced preview API response
 interface PairingPreviewItem {
   captain: {
@@ -43,6 +44,7 @@ interface PairingPreviewItem {
     expiryDate: string
     windowStart: string
     windowEnd: string
+    captainRole?: CaptainRole
   }
   firstOfficer: {
     pilotId: string
@@ -65,6 +67,8 @@ interface UnpairedPreviewItem {
   category: string
   reason: string
   urgency: 'critical' | 'high' | 'normal'
+  captainRole?: CaptainRole
+  seatPosition?: SeatPosition
 }
 
 interface IndividualPreviewItem {
@@ -347,6 +351,25 @@ function CapacityBar({
   )
 }
 
+function CaptainRoleBadge({ role }: { role?: CaptainRole }) {
+  if (!role || role === 'line_captain') return null
+
+  const config = {
+    training_captain: { label: 'TRI', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+    examiner: { label: 'TRE', className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
+    rhs_captain: { label: 'RHS', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+  }
+
+  const cfg = config[role]
+  if (!cfg) return null
+
+  return (
+    <Badge variant="outline" className={cn('text-[10px] font-semibold', cfg.className)}>
+      {cfg.label}
+    </Badge>
+  )
+}
+
 function PairCard({ pair }: { pair: PairingPreviewItem }) {
   const getCategoryIcon = () => {
     if (pair.category === 'Flight Checks') return <Plane className="h-3 w-3" />
@@ -354,18 +377,29 @@ function PairCard({ pair }: { pair: PairingPreviewItem }) {
     return null
   }
 
+  const isRhsCheck = pair.captain.captainRole && pair.captain.captainRole !== 'line_captain'
+
   return (
     <div className="bg-background flex items-center justify-between rounded-lg border p-3">
       <div className="flex items-center gap-3">
         <div className="flex flex-col items-center sm:flex-row sm:gap-3">
           <div className="text-center sm:text-left">
-            <p className="text-foreground text-sm font-medium">{pair.captain.name}</p>
-            <p className="text-muted-foreground text-xs">Captain • {pair.captain.employeeId}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-foreground text-sm font-medium">{pair.captain.name}</p>
+              <CaptainRoleBadge role={pair.captain.captainRole} />
+            </div>
+            <p className="text-muted-foreground text-xs">
+              Captain • {pair.captain.employeeId}
+              {isRhsCheck && ' • Right Seat'}
+            </p>
           </div>
           <span className="text-muted-foreground text-lg">↔</span>
           <div className="text-center sm:text-left">
             <p className="text-foreground text-sm font-medium">{pair.firstOfficer.name}</p>
-            <p className="text-muted-foreground text-xs">FO • {pair.firstOfficer.employeeId}</p>
+            <p className="text-muted-foreground text-xs">
+              FO • {pair.firstOfficer.employeeId}
+              {isRhsCheck && ' • Left Seat'}
+            </p>
           </div>
         </div>
       </div>
@@ -412,9 +446,13 @@ function UnpairedCard({ pilot }: { pilot: UnpairedPreviewItem }) {
   return (
     <div className="bg-background flex items-center justify-between rounded-lg border border-[var(--color-status-medium-border)] p-3">
       <div>
-        <p className="text-foreground text-sm font-medium">{pilot.name}</p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-foreground text-sm font-medium">{pilot.name}</p>
+          <CaptainRoleBadge role={pilot.captainRole} />
+        </div>
         <p className="text-muted-foreground text-xs">
           {pilot.role} • {pilot.employeeId} • Expires: {pilot.expiryDate}
+          {pilot.seatPosition === 'right_seat' && ' • Right Seat'}
         </p>
       </div>
       <div className="flex items-center gap-2">

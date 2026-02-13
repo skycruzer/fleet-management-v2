@@ -178,7 +178,98 @@ export async function GET(request: Request) {
       roster_period: r.planned_roster_period || '',
       priority: r.priority,
       status: r.status || 'pending',
+      pairing_status: r.pairing_status,
+      paired_pilot_name: r.paired_pilot_id ? undefined : undefined, // Populated below
+      paired_pilot_employee_id: undefined as string | undefined,
     }))
+
+    // Build pairing data for PDF (paired crews + unpaired pilots + statistics)
+    const pairedRenewals = filteredRenewals.filter(
+      (r: any) => r.pairing_status === 'paired' && r.pair_group_id
+    )
+    const unpairedRenewals = filteredRenewals.filter(
+      (r: any) => r.pairing_status === 'unpaired_solo'
+    )
+
+    // Group paired renewals by pair_group_id to form crew pairs
+    const pairGroups = new Map<string, any[]>()
+    for (const r of pairedRenewals) {
+      const groupId = r.pair_group_id as string
+      if (!pairGroups.has(groupId)) pairGroups.set(groupId, [])
+      pairGroups.get(groupId)!.push(r)
+    }
+
+    const pairs: any[] = []
+    for (const [groupId, members] of pairGroups) {
+      if (members.length >= 2) {
+        const captain = members.find((m: any) => m.pilot?.role === 'Captain') || members[0]
+        const fo = members.find((m: any) => m.pilot?.role === 'First Officer') || members[1]
+        pairs.push({
+          id: groupId,
+          captain: {
+            pilotId: captain.pilot_id,
+            renewalPlanId: captain.id,
+            name: `${captain.pilot?.first_name || ''} ${captain.pilot?.last_name || ''}`.trim(),
+            employeeId: captain.pilot?.employee_id || '',
+            expiryDate: captain.original_expiry_date,
+            seniorityNumber: 0,
+          },
+          firstOfficer: {
+            pilotId: fo.pilot_id,
+            renewalPlanId: fo.id,
+            name: `${fo.pilot?.first_name || ''} ${fo.pilot?.last_name || ''}`.trim(),
+            employeeId: fo.pilot?.employee_id || '',
+            expiryDate: fo.original_expiry_date,
+            seniorityNumber: 0,
+          },
+          category: captain.check_type?.category || 'Flight Checks',
+          plannedRosterPeriod: captain.planned_roster_period,
+          plannedDate: captain.planned_renewal_date,
+          renewalWindowOverlap: { start: '', end: '', days: 0 },
+          status: 'paired' as const,
+        })
+      }
+    }
+
+    const unpaired = unpairedRenewals.map((r: any) => ({
+      pilotId: r.pilot_id,
+      renewalPlanId: r.id,
+      name: `${r.pilot?.first_name || ''} ${r.pilot?.last_name || ''}`.trim(),
+      employeeId: r.pilot?.employee_id || '',
+      role: r.pilot?.role || 'First Officer',
+      expiryDate: r.original_expiry_date,
+      daysUntilExpiry: Math.ceil(
+        (new Date(r.original_expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      ),
+      category: r.check_type?.category || 'Flight Checks',
+      plannedRosterPeriod: r.planned_roster_period,
+      plannedDate: r.planned_renewal_date,
+      reason: 'no_matching_role' as const,
+      status: 'unpaired_solo' as const,
+      urgency: 'normal' as const,
+    }))
+
+    const pairingData =
+      pairs.length > 0 || unpaired.length > 0
+        ? {
+            pairs,
+            unpaired,
+            statistics: {
+              totalPairs: pairs.length,
+              totalUnpaired: unpaired.length,
+              byCategory: [] as any[],
+              urgentUnpaired: unpaired.filter((u) => u.daysUntilExpiry < 30).length,
+              averageOverlapDays: 0,
+              rhsCheckCount: 0,
+              captainRoleBreakdown: {
+                lineCaptains: 0,
+                trainingCaptains: 0,
+                examiners: 0,
+                rhsCaptains: 0,
+              },
+            },
+          }
+        : undefined
 
     // Generate PDF
     const pdfBlob = await generateRenewalPlanPDF({
@@ -186,6 +277,7 @@ export async function GET(request: Request) {
       summaries: validSummaries,
       renewals: typedRenewals,
       generatedAt: new Date(),
+      pairingData,
     })
 
     // Convert blob to buffer for Response

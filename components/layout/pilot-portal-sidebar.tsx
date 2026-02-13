@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import {
-  Plane,
   UserCircle,
   MessageSquare,
   Calendar,
@@ -18,6 +17,7 @@ import {
   Menu,
   X,
 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { NotificationBell } from '@/components/portal/notification-bell'
 import { SidebarShell } from '@/components/layout/sidebar-shell'
@@ -146,14 +146,18 @@ export function PilotPortalSidebar({
       {/* Mobile Header with Hamburger */}
       <div className="border-border bg-card/95 fixed top-0 right-0 left-0 z-[var(--z-header)] flex h-16 items-center justify-between border-b px-4 backdrop-blur-sm lg:hidden">
         <div className="flex items-center gap-3">
-          <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
-            <Plane className="text-primary-foreground h-5 w-5" />
-          </div>
+          <Image
+            src="/images/air-niugini-logo.jpg"
+            alt="Air Niugini"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-lg object-contain"
+          />
           <div>
             <h1 className="text-foreground text-lg font-bold" tabIndex={-1}>
-              Pilot Portal
+              B767 Pilot Portal
             </h1>
-            <p className="text-muted-foreground text-xs">Crew Access</p>
+            <p className="text-muted-foreground text-xs">Air Niugini Ltd</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -202,12 +206,16 @@ export function PilotPortalSidebar({
             <>
               {/* Logo Header */}
               <div className="border-border bg-card flex h-16 items-center gap-3 border-b px-6">
-                <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-lg">
-                  <Plane className="text-primary-foreground h-5 w-5" />
-                </div>
+                <Image
+                  src="/images/air-niugini-logo.jpg"
+                  alt="Air Niugini"
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 rounded-lg object-contain"
+                />
                 <div className="flex-1">
-                  <h1 className="text-foreground text-lg font-bold">Pilot Portal</h1>
-                  <p className="text-muted-foreground text-xs">Crew Access</p>
+                  <h1 className="text-foreground text-lg font-bold">B767 Pilot Portal</h1>
+                  <p className="text-muted-foreground text-xs">Air Niugini Ltd</p>
                 </div>
                 {/* Notification Bell */}
                 <NotificationBell />

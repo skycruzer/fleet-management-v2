@@ -29,12 +29,24 @@ import {
   requiresPairing,
   PAIRING_REQUIRED_CATEGORIES,
   PairingStatus,
+  CaptainRole,
+  SeatPosition,
+  determineCaptainRole,
+  determineSeatPosition,
+  SIMULATOR_CATEGORIES,
 } from '@/lib/types/pairing'
 
 // Type aliases for clarity
 type RenewalPlan = Database['public']['Tables']['certification_renewal_plans']['Row']
-type RenewalPlanInsert = Database['public']['Tables']['certification_renewal_plans']['Insert']
+type BaseRenewalPlanInsert = Database['public']['Tables']['certification_renewal_plans']['Insert']
 type RosterCapacity = Database['public']['Tables']['roster_period_capacity']['Row']
+
+// Extended insert type with seat position and captain role columns
+// These columns are added by migration 20260213000004 — regenerate types with `npm run db:types`
+type RenewalPlanInsert = BaseRenewalPlanInsert & {
+  seat_position?: string | null
+  captain_role?: string | null
+}
 
 /**
  * Extended renewal plan with pilot and check type details
@@ -397,7 +409,7 @@ export async function getRosterPeriodCapacity(
       case 'Simulator Checks':
         return capacity.simulator_capacity || 6
       case 'Ground Courses Refresher':
-        return capacity.ground_capacity || 8
+        return capacity.ground_capacity || 10
       default:
         return 8 // Default capacity
     }
@@ -427,7 +439,7 @@ export async function getRosterPeriodCapacity(
     (capacity.medical_capacity || 4) +
     (capacity.flight_capacity || 4) +
     (capacity.simulator_capacity || 6) +
-    (capacity.ground_capacity || 8)
+    (capacity.ground_capacity || 10)
 
   return {
     rosterPeriod: capacity.roster_period,
@@ -626,7 +638,7 @@ function getCapacityForPeriod(
     case 'Simulator Checks':
       return capacity.simulator_capacity || 6
     case 'Ground Courses Refresher':
-      return capacity.ground_capacity || 8
+      return capacity.ground_capacity || 10
     default:
       return 8 // Default capacity
   }
@@ -741,7 +753,8 @@ export async function generateRenewalPlanWithPairing(options?: {
         last_name,
         employee_id,
         role,
-        seniority_number
+        seniority_number,
+        captain_qualifications
       ),
       check_types (
         id,
@@ -836,7 +849,7 @@ export async function generateRenewalPlanWithPairing(options?: {
 
     if (!captainCert || !foCert) continue // Skip if certs not found
 
-    // Captain plan
+    // Captain plan — includes seat position and captain role
     renewalPlans.push({
       pilot_id: pair.captain.pilotId,
       check_type_id: captainCert.check_type_id,
@@ -850,6 +863,8 @@ export async function generateRenewalPlanWithPairing(options?: {
       pair_group_id: pair.id,
       paired_pilot_id: pair.firstOfficer.pilotId,
       pairing_status: 'paired' as PairingStatus,
+      captain_role: pair.captain.captainRole || null,
+      seat_position: pair.captain.seatPosition || null,
     })
 
     // First Officer plan
@@ -866,6 +881,7 @@ export async function generateRenewalPlanWithPairing(options?: {
       pair_group_id: pair.id,
       paired_pilot_id: pair.captain.pilotId,
       pairing_status: 'paired' as PairingStatus,
+      seat_position: pair.firstOfficer.seatPosition || null,
     })
 
     // Update allocations (pairs count as 2)
@@ -900,6 +916,8 @@ export async function generateRenewalPlanWithPairing(options?: {
       status: 'planned',
       priority: calculatePriority(parseISO(unpaired.expiryDate)),
       pairing_status: 'unpaired_solo' as PairingStatus,
+      captain_role: unpaired.captainRole || null,
+      seat_position: unpaired.seatPosition || null,
     })
 
     updateAllocations(currentAllocations, unpaired.plannedRosterPeriod, unpaired.category)
@@ -1351,13 +1369,7 @@ export async function getPairingDataForYear(year: number): Promise<{
     return {
       pairs: [],
       unpaired: [],
-      statistics: {
-        totalPairs: 0,
-        totalUnpaired: 0,
-        byCategory: [],
-        urgentUnpaired: 0,
-        averageOverlapDays: 0,
-      },
+      statistics: createEmptyStatistics(),
     }
   }
 
@@ -1397,6 +1409,17 @@ export async function getPairingDataForYear(year: number): Promise<{
 
   const totalOverlapDays = allPairs.reduce((sum, p) => sum + p.renewalWindowOverlap.days, 0)
 
+  // Count RHS checks and captain role breakdown
+  const rhsCheckCount = [
+    ...allPairs.filter((p) => p.captain.seatPosition === 'right_seat'),
+    ...allUnpaired.filter((u) => u.seatPosition === 'right_seat'),
+  ].length
+
+  const allCaptainRoles = [
+    ...allPairs.map((p) => p.captain.captainRole),
+    ...allUnpaired.filter((u) => u.role === 'Captain').map((u) => u.captainRole),
+  ]
+
   return {
     pairs: allPairs,
     unpaired: allUnpaired,
@@ -1407,8 +1430,55 @@ export async function getPairingDataForYear(year: number): Promise<{
       urgentUnpaired: allUnpaired.filter((u) => u.urgency === 'critical' || u.urgency === 'high')
         .length,
       averageOverlapDays: allPairs.length > 0 ? Math.round(totalOverlapDays / allPairs.length) : 0,
+      rhsCheckCount,
+      captainRoleBreakdown: {
+        lineCaptains: allCaptainRoles.filter((r) => r === 'line_captain').length,
+        trainingCaptains: allCaptainRoles.filter((r) => r === 'training_captain').length,
+        examiners: allCaptainRoles.filter((r) => r === 'examiner').length,
+        rhsCaptains: allCaptainRoles.filter((r) => r === 'rhs_captain').length,
+      },
     },
   }
+}
+
+/**
+ * Get all renewal plans for a given year (flat list with details)
+ * Used by the Gantt timeline visualization
+ */
+export async function getRenewalPlansForYear(year: number): Promise<RenewalPlanWithDetails[]> {
+  const supabase = createServiceRoleClient()
+
+  const { data, error } = await supabase
+    .from('certification_renewal_plans')
+    .select(
+      `
+      *,
+      pilot:pilots!pilot_id (
+        id,
+        first_name,
+        last_name,
+        employee_id,
+        role,
+        seniority_number
+      ),
+      check_type:check_types!check_type_id (
+        id,
+        check_code,
+        check_description,
+        category
+      ),
+      paired_pilot:pilots!paired_pilot_id (
+        id,
+        first_name,
+        last_name
+      )
+    `
+    )
+    .like('planned_roster_period', `%/${year}`)
+    .order('planned_renewal_date')
+
+  if (error) throw error
+  return (data as any[]) || []
 }
 
 // ============================================================================
@@ -1561,6 +1631,11 @@ async function processPairingCertifications(
             if (plannedDate < overlapStart) plannedDate = overlapStart
             if (plannedDate > overlapEnd) plannedDate = overlapEnd
 
+            // Determine captain role and seat positions
+            const captainRole = determineCaptainRole(captain.pilots?.captain_qualifications)
+            const captainSeat = determineSeatPosition('Captain', captainRole, category)
+            const foSeat = determineSeatPosition('First Officer', undefined, category)
+
             pairs.push({
               id: pairId,
               captain: {
@@ -1570,6 +1645,8 @@ async function processPairingCertifications(
                 employeeId: captain.pilots.employee_id,
                 expiryDate: captain.expiry_date,
                 seniorityNumber: captain.pilots.seniority_number,
+                captainRole,
+                seatPosition: captainSeat,
               },
               firstOfficer: {
                 pilotId: bestFO.fo.pilot_id,
@@ -1578,6 +1655,7 @@ async function processPairingCertifications(
                 employeeId: bestFO.fo.pilots.employee_id,
                 expiryDate: bestFO.fo.expiry_date,
                 seniorityNumber: bestFO.fo.pilots.seniority_number,
+                seatPosition: foSeat,
               },
               category: category as any,
               plannedRosterPeriod: optimalPeriod.period.code,
@@ -1600,6 +1678,9 @@ async function processPairingCertifications(
 
       // Could not pair this captain - handle as unpaired
       const daysUntilExpiry = differenceInDays(captainExpiry, new Date())
+      const unpairedCaptainRole = determineCaptainRole(captain.pilots?.captain_qualifications)
+      const unpairedCaptainSeat = determineSeatPosition('Captain', unpairedCaptainRole, category)
+
       if (options.autoScheduleUrgent && daysUntilExpiry <= options.urgentThresholdDays) {
         // All 13 roster periods available for urgent solo scheduling
         const eligiblePeriods = getRosterPeriodsInRange(captainWindow.start, captainWindow.end)
@@ -1624,6 +1705,8 @@ async function processPairingCertifications(
             reason: 'no_matching_role',
             status: 'unpaired_solo',
             urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+            captainRole: unpairedCaptainRole,
+            seatPosition: unpairedCaptainSeat,
           })
           warnings.push(
             `Captain ${captain.pilots.first_name} ${captain.pilots.last_name} scheduled solo (urgent, no matching FO)`
@@ -1644,6 +1727,8 @@ async function processPairingCertifications(
           reason: 'no_matching_role',
           status: 'unpaired_solo',
           urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+          captainRole: unpairedCaptainRole,
+          seatPosition: unpairedCaptainSeat,
         })
         warnings.push(
           `Captain ${captain.pilots.first_name} ${captain.pilots.last_name} needs manual review (no matching FO)`
@@ -1753,12 +1838,27 @@ function calculatePairingStatistics(
 
   const totalOverlapDays = pairs.reduce((sum, p) => sum + p.renewalWindowOverlap.days, 0)
 
+  const allCaptainRoles = [
+    ...pairs.map((p) => p.captain.captainRole),
+    ...unpaired.filter((u) => u.role === 'Captain').map((u) => u.captainRole),
+  ]
+
   return {
     totalPairs: pairs.length,
     totalUnpaired: unpaired.length,
     byCategory,
     urgentUnpaired: unpaired.filter((u) => u.urgency === 'critical' || u.urgency === 'high').length,
     averageOverlapDays: pairs.length > 0 ? totalOverlapDays / pairs.length : 0,
+    rhsCheckCount: [
+      ...pairs.filter((p) => p.captain.seatPosition === 'right_seat'),
+      ...unpaired.filter((u) => u.seatPosition === 'right_seat'),
+    ].length,
+    captainRoleBreakdown: {
+      lineCaptains: allCaptainRoles.filter((r) => r === 'line_captain').length,
+      trainingCaptains: allCaptainRoles.filter((r) => r === 'training_captain').length,
+      examiners: allCaptainRoles.filter((r) => r === 'examiner').length,
+      rhsCaptains: allCaptainRoles.filter((r) => r === 'rhs_captain').length,
+    },
   }
 }
 
@@ -1769,5 +1869,12 @@ function createEmptyStatistics(): PairingStatistics {
     byCategory: [],
     urgentUnpaired: 0,
     averageOverlapDays: 0,
+    rhsCheckCount: 0,
+    captainRoleBreakdown: {
+      lineCaptains: 0,
+      trainingCaptains: 0,
+      examiners: 0,
+      rhsCaptains: 0,
+    },
   }
 }

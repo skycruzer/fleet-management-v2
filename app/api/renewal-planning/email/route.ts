@@ -238,7 +238,7 @@ function generateEmailHTML(data: {
           </div>
           <div class="stat">
             <span class="stat-label">Roster Periods:</span>
-            <span class="stat-value">13 (11 eligible, 2 excluded - Dec/Jan)</span>
+            <span class="stat-value">13 (Full Year Coverage)</span>
           </div>
           <div class="stat">
             <span class="stat-label">High Risk Periods (&gt;80%):</span>
@@ -273,8 +273,6 @@ function generateEmailHTML(data: {
         <div style="margin: 15px 0;">
           ${summaries
             .map((s: any) => {
-              const month = s.periodStartDate.getMonth()
-              const isExcluded = month === 0 || month === 11
               const utilColor =
                 s.utilizationPercentage > 80
                   ? '#dc2626'
@@ -286,15 +284,9 @@ function generateEmailHTML(data: {
             <div class="period-item">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <strong>${s.rosterPeriod}</strong>
-                ${
-                  isExcluded
-                    ? '<span style="color: #6b7280; font-size: 12px;">EXCLUDED (Holiday)</span>'
-                    : `
-                  <span style="color: ${utilColor}; font-weight: 600;">
-                    ${s.totalPlannedRenewals}/${s.totalCapacity} (${Math.round(s.utilizationPercentage)}%)
-                  </span>
-                `
-                }
+                <span style="color: ${utilColor}; font-weight: 600;">
+                  ${s.totalPlannedRenewals}/${s.totalCapacity} (${Math.round(s.utilizationPercentage)}%)
+                </span>
               </div>
             </div>
           `
@@ -351,8 +343,8 @@ export async function POST(request: Request) {
     const { data: periods, error: periodsError } = await supabase
       .from('roster_period_capacity')
       .select('roster_period, period_start_date, period_end_date')
-      .gte('period_start_date', `${year}-02-01`)
-      .lte('period_start_date', `${year}-11-30`)
+      .gte('period_start_date', `${year}-01-01`)
+      .lte('period_start_date', `${year}-12-31`)
       .order('period_start_date')
 
     if (periodsError) {
@@ -442,11 +434,7 @@ ${highRiskPeriods.map((p: any) => `- ${p.rosterPeriod}: ${Math.round(p.utilizati
 Roster Period Breakdown:
 ${validSummaries
   .map((s: any) => {
-    const month = s.periodStartDate.getMonth()
-    const isExcluded = month === 0 || month === 11
-    return isExcluded
-      ? `${s.rosterPeriod}: EXCLUDED (Holiday Month)`
-      : `${s.rosterPeriod}: ${s.totalPlannedRenewals}/${s.totalCapacity} (${Math.round(s.utilizationPercentage)}%)`
+    return `${s.rosterPeriod}: ${s.totalPlannedRenewals}/${s.totalCapacity} (${Math.round(s.utilizationPercentage)}%)`
   })
   .join('\n')}
 

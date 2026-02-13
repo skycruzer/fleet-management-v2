@@ -63,7 +63,10 @@ export default function PilotLoginPage() {
             height={48}
             className="mx-auto mb-0 h-12 w-12 rounded-lg object-contain"
           />
-          <h1 className="text-foreground text-xl font-semibold">Pilot Portal</h1>
+          <p className="text-muted-foreground mt-1 text-xs font-medium tracking-wide">
+            Air Niugini Ltd
+          </p>
+          <h1 className="text-foreground text-xl font-semibold">B767 Pilot Portal</h1>
           <p className="text-muted-foreground mt-1 text-sm">Crew member access</p>
         </div>
 
