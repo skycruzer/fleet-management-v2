@@ -25,6 +25,7 @@ import {
   Settings,
   List,
   UserCheck,
+  Monitor,
 } from 'lucide-react'
 import { Breadcrumb } from '@/components/navigation/breadcrumb'
 
@@ -165,6 +166,18 @@ export default async function AdminPage() {
               <div>
                 <p className="font-semibold">Pilot Registrations</p>
                 <p className="text-muted-foreground text-sm">Review pending approvals</p>
+              </div>
+            </Button>
+          </Link>
+
+          <Link href="/dashboard/admin/portal-users">
+            <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
+              <div className="bg-muted/30 rounded-lg p-3">
+                <Monitor className="text-primary h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-semibold">Portal Users</p>
+                <p className="text-muted-foreground text-sm">View pilot portal activity</p>
               </div>
             </Button>
           </Link>

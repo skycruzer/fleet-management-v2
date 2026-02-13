@@ -40,6 +40,7 @@ const pathLabels: Record<string, string> = {
   help: 'Help Center',
   feedback: 'Pilot Feedback',
   'roster-period': 'Roster Period',
+  'portal-users': 'Portal Users',
   generate: 'Generate',
 }
 
