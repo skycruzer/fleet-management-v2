@@ -77,7 +77,23 @@ export const DateRangeSchema = z
  */
 export const ReportFiltersSchema = z.object({
   dateRange: DateRangeSchema.optional(),
-  status: z.array(z.enum(['PENDING', 'SUBMITTED', 'IN_REVIEW', 'APPROVED', 'REJECTED'])).optional(),
+  status: z
+    .array(
+      z.enum([
+        // pilot_requests workflow statuses
+        'DRAFT',
+        'SUBMITTED',
+        'IN_REVIEW',
+        'APPROVED',
+        'DENIED',
+        'WITHDRAWN',
+        // leave_bids statuses
+        'PENDING',
+        'PROCESSING',
+        'REJECTED',
+      ])
+    )
+    .optional(),
   rank: z.array(z.enum(['Captain', 'First Officer'])).optional(),
   rosterPeriod: z.string().optional(),
   rosterPeriods: z.array(z.string()).optional(),
