@@ -11,6 +11,8 @@
  * Install with: npm install jspdf jspdf-autotable
  */
 
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import type { RosterPeriodReport, RosterRequestItem } from './roster-report-service'
 import { logger } from './logging-service'
 
@@ -97,17 +99,16 @@ export async function generateRosterPDF(
     // Header Section
     // ========================================================================
 
-    // Company Logo (if provided)
-    if (options.logoUrl) {
-      try {
-        // Note: In production, you'd load and add the actual logo image
-        // doc.addImage(logoData, 'PNG', 15, 15, 30, 30)
-        currentY += 35
-      } catch (error) {
-        logger.warn('Failed to add logo to PDF', {
-          error: error instanceof Error ? error : String(error),
-        })
-      }
+    // Company Logo
+    try {
+      const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
+      const logoData = readFileSync(logoPath)
+      const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
+      doc.addImage(logoBase64, 'JPEG', 14, 10, 18, 18)
+    } catch (error) {
+      logger.warn('Failed to add logo to PDF', {
+        error: error instanceof Error ? error : String(error),
+      })
     }
 
     // Report Title

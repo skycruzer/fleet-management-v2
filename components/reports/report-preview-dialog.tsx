@@ -20,6 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ReportData, ReportType } from '@/types/reports'
+import Image from 'next/image'
 import { Calendar, Plane, Award, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { PaginatedReportTable } from './paginated-report-table'
 
@@ -70,11 +71,18 @@ export function ReportPreviewDialog({
       <DialogContent className="max-h-[90vh] max-w-5xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {getIcon()}
+            <Image
+              src="/images/air-niugini-logo.jpg"
+              alt="Air Niugini"
+              width={24}
+              height={24}
+              className="h-6 w-6 rounded object-contain"
+            />
             {reportData.title}
           </DialogTitle>
           <DialogDescription>
-            Generated: {new Date(reportData.generatedAt).toLocaleString()}
+            Air Niugini Fleet Management &middot; Generated:{' '}
+            {new Date(reportData.generatedAt).toLocaleString()}
           </DialogDescription>
         </DialogHeader>
 

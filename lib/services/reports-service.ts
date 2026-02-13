@@ -11,6 +11,8 @@
  * Phase 4.0: Updated for unified architecture (pilot_requests with request_category filter)
  */
 
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { unifiedCacheService, invalidateCacheByTag } from '@/lib/services/unified-cache-service'
 import type { ReportType, ReportFilters, ReportData, PaginationMeta } from '@/types/reports'
@@ -778,13 +780,27 @@ export async function generatePDF(
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
 
-  // Header
-  doc.setFontSize(20)
+  // Logo + Header
+  try {
+    const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
+    const logoData = readFileSync(logoPath)
+    const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
+    doc.addImage(logoBase64, 'JPEG', 14, 8, 18, 18)
+  } catch {
+    // Logo not found — continue without it
+  }
+
+  doc.setFontSize(18)
   doc.setFont('helvetica', 'bold')
-  doc.text(report.title, pageWidth / 2, 20, { align: 'center' })
+  doc.text(report.title, pageWidth / 2, 16, { align: 'center' })
+
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(100)
+  doc.text('Air Niugini — Fleet Management System', pageWidth / 2, 22, { align: 'center' })
+  doc.setTextColor(0)
 
   doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
   doc.text(`Generated: ${formatAustralianDateTime(report.generatedAt)}`, pageWidth / 2, 28, {
     align: 'center',
   })

@@ -11,7 +11,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Plane, IdCard, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import { IdCard, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react'
 
 export default function PilotLoginPage() {
   const router = useRouter()
@@ -55,9 +56,13 @@ export default function PilotLoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo & Title */}
         <div className="mb-8 text-center">
-          <div className="bg-primary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-            <Plane className="h-6 w-6 text-white" />
-          </div>
+          <Image
+            src="/images/air-niugini-logo.jpg"
+            alt="Air Niugini"
+            width={48}
+            height={48}
+            className="mx-auto mb-0 h-12 w-12 rounded-lg object-contain"
+          />
           <h1 className="text-foreground text-xl font-semibold">Pilot Portal</h1>
           <p className="text-muted-foreground mt-1 text-sm">Crew member access</p>
         </div>

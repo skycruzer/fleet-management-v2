@@ -3,6 +3,8 @@
  * Generates comprehensive PDF reports for leave bid management
  */
 
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -69,6 +71,16 @@ export async function generateLeaveBidsPDF(
 
   const pageWidth = doc.internal.pageSize.width
   const pageHeight = doc.internal.pageSize.height
+
+  // Logo
+  try {
+    const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
+    const logoData = readFileSync(logoPath)
+    const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
+    doc.addImage(logoBase64, 'JPEG', 14, 5, 18, 18)
+  } catch {
+    // Logo not found — continue without it
+  }
 
   // Title
   doc.setFontSize(20)

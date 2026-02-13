@@ -9,6 +9,8 @@
  * @since 2025-11-09
  */
 
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import { format } from 'date-fns'
 
 /**
@@ -151,6 +153,16 @@ export async function generateAnalyticsPDF(
   const { default: autoTable } = await import('jspdf-autotable')
   const doc = new jsPDF()
   const pageWidth = doc.internal.pageSize.getWidth()
+
+  // Logo
+  try {
+    const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
+    const logoData = readFileSync(logoPath)
+    const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
+    doc.addImage(logoBase64, 'JPEG', 14, 8, 18, 18)
+  } catch {
+    // Logo not found — continue without it
+  }
 
   // Header
   doc.setFontSize(20)

@@ -20,7 +20,6 @@ import {
   FileCheck,
   LogOut,
   ChevronDown,
-  Plane,
   BarChart3,
   AlertCircle,
   CheckSquare,
@@ -33,6 +32,7 @@ import {
   PanelLeftClose,
   PanelLeft,
 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { SidebarShell } from '@/components/layout/sidebar-shell'
@@ -248,9 +248,13 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
               isCollapsed ? 'justify-center px-2' : 'px-4'
             )}
           >
-            <div className="bg-accent flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md">
-              <Plane className="h-3.5 w-3.5 text-white" />
-            </div>
+            <Image
+              src="/images/air-niugini-logo.jpg"
+              alt="Air Niugini"
+              width={28}
+              height={28}
+              className="h-7 w-7 flex-shrink-0 rounded-md object-contain"
+            />
             {!isCollapsed && (
               <div className="min-w-0">
                 <h1

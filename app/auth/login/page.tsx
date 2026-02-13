@@ -5,8 +5,9 @@
  */
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card } from '@/components/ui/card'
-import { Building2, Shield, ChevronLeft } from 'lucide-react'
+import { Shield, ChevronLeft } from 'lucide-react'
 import { LoginForm } from './login-form'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
@@ -29,9 +30,13 @@ export default function AdminLoginPage() {
           {/* Logo and Title */}
           <div className="mb-8 text-center">
             <div className="mb-4 inline-flex">
-              <div className="bg-primary relative flex h-16 w-16 items-center justify-center rounded-xl shadow-lg">
-                <Building2 className="text-primary-foreground h-8 w-8" />
-              </div>
+              <Image
+                src="/images/air-niugini-logo.jpg"
+                alt="Air Niugini"
+                width={64}
+                height={64}
+                className="h-16 w-16 rounded-xl object-contain shadow-lg"
+              />
             </div>
             <h1 className="text-foreground mb-2 text-3xl font-bold">Administration</h1>
             <div className="text-muted-foreground flex items-center justify-center gap-2">

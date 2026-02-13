@@ -5,6 +5,8 @@
  * Reports are organized BY CATEGORY for easy distribution to respective teams.
  */
 
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import type JsPDF from 'jspdf'
 import { formatDate } from '@/lib/utils/date-utils'
 import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
@@ -132,6 +134,16 @@ export async function generateRenewalPlanPDF(data: RenewalPlanPDFData): Promise<
  */
 function addCoverPage(doc: JsPDF, data: RenewalPlanPDFData) {
   const pageWidth = doc.internal.pageSize.getWidth()
+
+  // Logo
+  try {
+    const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
+    const logoData = readFileSync(logoPath)
+    const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
+    doc.addImage(logoBase64, 'JPEG', pageWidth / 2 - 12, 40, 24, 24)
+  } catch {
+    // Logo not found — continue without it
+  }
 
   // Title
   doc.setFontSize(28)
