@@ -17,6 +17,7 @@ import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import {
   getRosterPeriodCapacity,
   getRenewalPlansForYear,
+  getPairingDataForYear,
 } from '@/lib/services/certification-renewal-planning-service'
 
 async function getRosterPeriodSummariesForYear(year: number) {
@@ -66,14 +67,16 @@ async function getRenewalDetailsForYear(year: number) {
 }
 
 async function RenewalPlanningContent({ selectedYear }: { selectedYear: number }) {
-  const [summaries, renewalDetails] = await Promise.all([
+  const [summaries, renewalDetails, pairingData] = await Promise.all([
     getRosterPeriodSummariesForYear(selectedYear),
     getRenewalDetailsForYear(selectedYear),
+    getPairingDataForYear(selectedYear),
   ])
   return (
     <RenewalPlanningDashboard
       summaries={summaries}
       renewalDetails={renewalDetails}
+      pairingData={pairingData}
       selectedYear={selectedYear}
     />
   )

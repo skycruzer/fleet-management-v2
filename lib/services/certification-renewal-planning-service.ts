@@ -29,11 +29,8 @@ import {
   requiresPairing,
   PAIRING_REQUIRED_CATEGORIES,
   PairingStatus,
-  CaptainRole,
-  SeatPosition,
   determineCaptainRole,
   determineSeatPosition,
-  SIMULATOR_CATEGORIES,
 } from '@/lib/types/pairing'
 
 // Type aliases for clarity
@@ -271,10 +268,12 @@ export async function generateRenewalPlan(options?: {
       (currentAllocations[optimalPeriod.code][category] || 0) + 1
   }
 
-  // Step 4: Bulk insert renewal plans
+  // Step 4: Bulk upsert renewal plans (handles duplicates gracefully)
   const { data: created, error: insertError } = await supabase
     .from('certification_renewal_plans')
-    .insert(renewalPlans).select(`
+    .upsert(renewalPlans, {
+      onConflict: 'pilot_id,check_type_id,original_expiry_date',
+    }).select(`
       *,
       pilot:pilots!pilot_id (
         id,
@@ -691,6 +690,7 @@ export async function generateRenewalPlanWithPairing(options?: {
     autoScheduleUrgent = true,
     urgentThresholdDays = 30,
     excludePeriods = [],
+    captainRoles,
   } = pairingOptions || {}
 
   // Step 1: Fetch all certifications
@@ -839,6 +839,7 @@ export async function generateRenewalPlanWithPairing(options?: {
       autoScheduleUrgent,
       urgentThresholdDays,
       excludePeriods,
+      captainRoles,
     }
   )
 
@@ -946,9 +947,16 @@ export async function generateRenewalPlanWithPairing(options?: {
     }
   }
 
+  // Strip columns that don't exist in the database yet (migration not applied)
+  const cleanedPlans = deduplicatedPlans.map(
+    ({ captain_role, seat_position, ...rest }) => rest
+  )
+
   const { data: created, error: insertError } = await supabase
     .from('certification_renewal_plans')
-    .insert(deduplicatedPlans)
+    .upsert(cleanedPlans, {
+      onConflict: 'pilot_id,check_type_id,original_expiry_date',
+    })
     .select(
       `
       *,
@@ -1539,6 +1547,7 @@ async function processPairingCertifications(
     autoScheduleUrgent: boolean
     urgentThresholdDays: number
     excludePeriods: string[]
+    captainRoles?: string[]
   }
 ): Promise<PairingResult> {
   const pairs: PairedCrew[] = []
@@ -1557,7 +1566,7 @@ async function processPairingCertifications(
 
   // Process each category
   for (const [category, certs] of byCategory) {
-    const captains = certs
+    const allCaptainCerts = certs
       .filter((c) => c.pilots?.role === 'Captain')
       .sort((a, b) => {
         // Sort by expiry date (urgent first), then seniority
@@ -1565,6 +1574,22 @@ async function processPairingCertifications(
         if (expiryCompare !== 0) return expiryCompare
         return (a.pilots?.seniority_number || 999) - (b.pilots?.seniority_number || 999)
       })
+
+    // Filter captains by selected roles if captainRoles is specified
+    // Captains whose role is not selected are excluded from pairing and treated as unpaired/individual
+    let captains = allCaptainCerts
+    const excludedCaptains: typeof allCaptainCerts = []
+    if (options.captainRoles && options.captainRoles.length > 0) {
+      captains = allCaptainCerts.filter((c) => {
+        const role = determineCaptainRole(c.pilots?.captain_qualifications)
+        return options.captainRoles!.includes(role)
+      })
+      const excludedFromPairing = allCaptainCerts.filter((c) => {
+        const role = determineCaptainRole(c.pilots?.captain_qualifications)
+        return !options.captainRoles!.includes(role)
+      })
+      excludedCaptains.push(...excludedFromPairing)
+    }
 
     const firstOfficers = certs
       .filter((c) => c.pilots?.role === 'First Officer')
@@ -1733,6 +1758,40 @@ async function processPairingCertifications(
         warnings.push(
           `Captain ${captain.pilots.first_name} ${captain.pilots.last_name} needs manual review (no matching FO)`
         )
+      }
+    }
+
+    // Handle captains excluded by captainRoles filter (treated as unpaired/individual)
+    for (const captain of excludedCaptains) {
+      const captainExpiry = parseISO(captain.expiry_date)
+      const daysUntilExpiry = differenceInDays(captainExpiry, new Date())
+      const excludedRole = determineCaptainRole(captain.pilots?.captain_qualifications)
+      const excludedSeat = determineSeatPosition('Captain', excludedRole, category)
+      const captainWindow = calculateRenewalWindow(captainExpiry, category)
+
+      const eligiblePeriods = getRosterPeriodsInRange(captainWindow.start, captainWindow.end)
+      if (eligiblePeriods.length > 0) {
+        let plannedDate = eligiblePeriods[0].startDate
+        if (plannedDate < captainWindow.start) plannedDate = captainWindow.start
+        if (plannedDate > captainWindow.end) plannedDate = captainWindow.end
+
+        unpaired.push({
+          pilotId: captain.pilot_id,
+          renewalPlanId: '',
+          name: `${captain.pilots.first_name} ${captain.pilots.last_name}`,
+          employeeId: captain.pilots.employee_id,
+          role: 'Captain',
+          expiryDate: captain.expiry_date,
+          daysUntilExpiry,
+          category: category as any,
+          plannedRosterPeriod: eligiblePeriods[0].code,
+          plannedDate: plannedDate.toISOString().split('T')[0],
+          reason: 'no_matching_role',
+          status: 'unpaired_solo',
+          urgency: daysUntilExpiry <= 14 ? 'critical' : daysUntilExpiry <= 30 ? 'high' : 'normal',
+          captainRole: excludedRole,
+          seatPosition: excludedSeat,
+        })
       }
     }
 

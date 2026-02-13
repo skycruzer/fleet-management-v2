@@ -272,6 +272,8 @@ export interface PairingOptions {
   urgentThresholdDays?: number
   /** Specific roster periods to exclude (e.g., holidays) */
   excludePeriods?: string[]
+  /** Filter captains by qualification role (e.g., ['line_captain', 'training_captain']) */
+  captainRoles?: string[]
 }
 
 /**

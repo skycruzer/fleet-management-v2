@@ -6,7 +6,7 @@
  * Supports Grid and Timeline (Gantt) view modes
  */
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   Calendar,
   RefreshCw,
@@ -16,6 +16,8 @@ import {
   ChevronRight,
   LayoutGrid,
   BarChart3,
+  Loader2,
+  Eye,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -33,6 +35,8 @@ import { formatDate } from '@/lib/utils/date-utils'
 import { EmailRenewalPlanButton } from './email-renewal-plan-button'
 import { ExportPDFButton } from './export-pdf-button'
 import { GanttTimeline } from './gantt-timeline'
+import { RenewalPlanPreviewModal } from './renewal-plan-preview-modal'
+import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
 
 interface RosterPeriodSummary {
   rosterPeriod: string
@@ -46,6 +50,7 @@ interface RosterPeriodSummary {
     {
       plannedCount: number
       capacity: number
+      pilots: Array<{ id: string; name: string; checkType: string; employeeId?: string }>
     }
   >
 }
@@ -68,6 +73,11 @@ interface RenewalDetail {
 interface RenewalPlanningDashboardProps {
   summaries: RosterPeriodSummary[]
   renewalDetails?: RenewalDetail[]
+  pairingData?: {
+    pairs: PairedCrew[]
+    unpaired: UnpairedPilot[]
+    statistics: PairingStatistics
+  }
   selectedYear: number
 }
 
@@ -76,11 +86,52 @@ type ViewMode = 'grid' | 'timeline'
 export function RenewalPlanningDashboard({
   summaries,
   renewalDetails = [],
+  pairingData,
   selectedYear,
 }: RenewalPlanningDashboardProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [isAutoGenerating, setIsAutoGenerating] = useState(false)
+  const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [autoGenerateError, setAutoGenerateError] = useState<string | null>(null)
+  const hasTriggeredGeneration = useRef(false)
+
+  const triggerGeneration = useCallback(async () => {
+    setIsAutoGenerating(true)
+    setAutoGenerateError(null)
+    try {
+      const res = await fetch('/api/renewal-planning/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          monthsAhead: 12,
+          categories: ['Flight Checks', 'Simulator Checks', 'Ground Courses Refresher'],
+          clearExisting: false,
+        }),
+      })
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || `Generation failed (${res.status})`)
+      }
+      router.refresh()
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to auto-generate renewal plans'
+      setAutoGenerateError(message)
+    } finally {
+      setIsAutoGenerating(false)
+    }
+  }, [router])
+
+  // Auto-generate renewal plans when the page loads with no existing plans
+  useEffect(() => {
+    const totalPlannedCount = summaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
+    if (totalPlannedCount === 0 && !hasTriggeredGeneration.current && !isAutoGenerating) {
+      hasTriggeredGeneration.current = true
+      triggerGeneration()
+    }
+  }, [summaries, isAutoGenerating, triggerGeneration])
 
   // Generate year options: Always show selectedYear and extend range dynamically
   const currentYear = new Date().getFullYear()
@@ -102,6 +153,43 @@ export function RenewalPlanningDashboard({
   const totalCapacity = summaries.reduce((sum, s) => sum + s.totalCapacity, 0)
   const totalPlanned = summaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
   const overallUtilization = totalCapacity > 0 ? (totalPlanned / totalCapacity) * 100 : 0
+
+  if (isAutoGenerating) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 p-8">
+        <Loader2 className="text-primary h-12 w-12 animate-spin" />
+        <h2 className="text-foreground text-xl font-semibold">Generating Renewal Plans...</h2>
+        <p className="text-muted-foreground text-sm">
+          Auto-generating plans for all categories across 12 months. This may take a moment.
+        </p>
+      </div>
+    )
+  }
+
+  if (autoGenerateError) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 p-8">
+        <AlertTriangle className="h-12 w-12 text-[var(--color-status-high)]" />
+        <h2 className="text-foreground text-xl font-semibold">Auto-Generation Failed</h2>
+        <p className="text-muted-foreground text-sm">{autoGenerateError}</p>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => {
+              hasTriggeredGeneration.current = false
+              setAutoGenerateError(null)
+              triggerGeneration()
+            }}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Retry
+          </Button>
+          <Link href={`/dashboard/renewal-planning/generate?year=${selectedYear}`}>
+            <Button variant="outline">Generate Manually</Button>
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 p-8">
@@ -164,6 +252,15 @@ export function RenewalPlanningDashboard({
               Calendar View
             </Button>
           </Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowPreviewModal(true)}
+            disabled={totalPlanned === 0}
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Preview &amp; Export
+          </Button>
           <Link href={`/api/renewal-planning/export?year=${selectedYear}`} target="_blank">
             <Button variant="outline" size="sm">
               <Download className="mr-2 h-4 w-4" />
@@ -172,6 +269,17 @@ export function RenewalPlanningDashboard({
           </Link>
           <ExportPDFButton year={selectedYear} hasData={totalPlanned > 0} />
           <EmailRenewalPlanButton year={selectedYear} hasData={totalPlanned > 0} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              hasTriggeredGeneration.current = false
+              triggerGeneration()
+            }}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Regenerate
+          </Button>
           <Link href={`/dashboard/renewal-planning/generate?year=${selectedYear}`}>
             <Button size="sm">
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -426,6 +534,32 @@ export function RenewalPlanningDashboard({
           <li>• Capacity limits: Flight (4), Simulator (6), Ground (8) per period</li>
         </ul>
       </Card>
+
+      {/* Preview & Export Modal */}
+      <RenewalPlanPreviewModal
+        open={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        year={selectedYear}
+        summaries={summaries}
+        pairingData={pairingData}
+        onExportPDF={() => {
+          window.open(`/api/renewal-planning/export-pdf?year=${selectedYear}`, '_blank')
+        }}
+        onExportCSV={() => {
+          window.open(`/api/renewal-planning/export?year=${selectedYear}`, '_blank')
+        }}
+        onSendEmail={async () => {
+          const formData = new FormData()
+          formData.append('year', selectedYear.toString())
+          const response = await fetch('/api/renewal-planning/email', {
+            method: 'POST',
+            body: formData,
+          })
+          if (!response.ok) {
+            throw new Error('Failed to send email')
+          }
+        }}
+      />
     </div>
   )
 }

@@ -18,16 +18,15 @@ import { logError, ErrorSeverity } from '@/lib/error-logger'
 import {
   getCategoryCapacity,
   getTotalCapacity,
-  CATEGORY_CAPACITY_DEFAULTS,
   calculateUtilization,
 } from '@/lib/utils/category-capacity-utils'
-import { getRosterPeriodFromDate, formatRosterPeriodFromObject } from '@/lib/utils/roster-utils'
+import { getRosterPeriodFromDate } from '@/lib/utils/roster-utils'
 import { calculateRenewalWindow } from '@/lib/utils/grace-period-utils'
 import {
   PAIRING_REQUIRED_CATEGORIES,
   INDIVIDUAL_CATEGORIES,
   requiresPairing,
-  type PilotForPairing,
+  determineCaptainRole,
   type UnpairedReason,
 } from '@/lib/types/pairing'
 
@@ -113,6 +112,12 @@ interface ExpiringCheck {
     role: string
     employee_id?: string
     seniority_number?: number
+    captain_qualifications?: {
+      line_captain?: boolean
+      training_captain?: boolean
+      examiner?: boolean
+      rhs_captain_expiry?: string
+    } | null
   }
   check_types: {
     id: string
@@ -136,6 +141,7 @@ export async function POST(request: NextRequest) {
     const monthsAhead = Math.min(Math.max(body.monthsAhead || 12, 1), 24)
     const requestedCategories: string[] = body.categories || VALID_CATEGORIES
     const requestedCheckCodes: string[] | undefined = body.checkCodes // Optional filter by specific check codes
+    const requestedCaptainRoles: string[] | undefined = body.captainRoles
 
     // Calculate date range
     const startDate = new Date()
@@ -145,8 +151,36 @@ export async function POST(request: NextRequest) {
     // Build category filter for database
     const dbCategories = requestedCategories.filter((c) => VALID_CATEGORIES.includes(c as any))
 
-    // Fetch expiring certifications with pilot info
-    let checksQuery = supabase
+    // Step 1: Resolve check_type_ids from check_types table (two-step approach
+    // avoids PostgREST embedded resource filter issues with .in() on joined tables)
+    let checkTypeIdsQuery = supabase.from('check_types').select('id').in('category', dbCategories)
+
+    if (requestedCheckCodes && requestedCheckCodes.length > 0) {
+      checkTypeIdsQuery = checkTypeIdsQuery.in('check_code', requestedCheckCodes)
+    }
+
+    const { data: checkTypeRows, error: checkTypeError } = await checkTypeIdsQuery
+    if (checkTypeError) throw checkTypeError
+
+    const checkTypeIds = (checkTypeRows || []).map((ct) => ct.id)
+    if (checkTypeIds.length === 0) {
+      // No matching check types — return empty preview
+      return NextResponse.json({
+        success: true,
+        data: {
+          totalPlans: 0,
+          periodsAffected: 0,
+          avgUtilization: 0,
+          categoryBreakdown: {},
+          pairingStats: { totalPairs: 0, totalUnpaired: 0, pairingRate: 0, urgentUnpaired: 0 },
+          distribution: [],
+          warnings: [],
+        },
+      })
+    }
+
+    // Step 2: Fetch expiring certifications filtered by check_type_id
+    const { data: expiringChecks, error: checksError } = await supabase
       .from('pilot_checks')
       .select(
         `
@@ -154,20 +188,13 @@ export async function POST(request: NextRequest) {
         pilot_id,
         check_type_id,
         expiry_date,
-        pilots!inner (id, first_name, last_name, role, employee_id, seniority_number),
+        pilots!inner (id, first_name, last_name, role, employee_id, seniority_number, captain_qualifications),
         check_types!inner (id, check_code, category)
       `
       )
+      .in('check_type_id', checkTypeIds)
       .gte('expiry_date', startDate.toISOString().split('T')[0])
       .lte('expiry_date', endDate.toISOString().split('T')[0])
-      .in('check_types.category', dbCategories)
-
-    // Apply check code filter if provided
-    if (requestedCheckCodes && requestedCheckCodes.length > 0) {
-      checksQuery = checksQuery.in('check_types.check_code', requestedCheckCodes)
-    }
-
-    const { data: expiringChecks, error: checksError } = await checksQuery
 
     if (checksError) {
       throw checksError
@@ -183,9 +210,6 @@ export async function POST(request: NextRequest) {
       .gte('period_start_date', `${year}-01-01`)
       .lte('period_start_date', `${year + 1}-12-31`)
       .order('period_start_date')
-
-    // Create capacity map
-    const capacityMap = new Map((capacityData || []).map((c) => [c.roster_period, c]))
 
     // Initialize roster period previews
     const rosterPeriodPreviews: Map<string, RosterPeriodPreview> = new Map()
@@ -255,7 +279,15 @@ export async function POST(request: NextRequest) {
     // Process each pairing category
     for (const [category, categoryChecks] of checksByCategory) {
       // Separate captains and first officers
-      const captainChecks = categoryChecks.filter((c) => c.pilots?.role === 'Captain')
+      // Filter captains by selected roles if captainRoles is specified
+      const allCaptainChecks = categoryChecks.filter((c) => c.pilots?.role === 'Captain')
+      const captainChecks =
+        requestedCaptainRoles && requestedCaptainRoles.length > 0
+          ? allCaptainChecks.filter((c) => {
+              const role = determineCaptainRole(c.pilots?.captain_qualifications)
+              return requestedCaptainRoles.includes(role)
+            })
+          : allCaptainChecks
       const foChecks = categoryChecks.filter((c) => c.pilots?.role === 'First Officer')
 
       // Track matched pilots

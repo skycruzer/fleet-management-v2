@@ -676,13 +676,21 @@ export default function GeneratePlanPage() {
       <div className="space-y-6">
         {/* Success Header */}
         <div className="flex items-center space-x-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-success-muted)]">
-            <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
+          <div className={`flex h-12 w-12 items-center justify-center rounded-full ${generationResult.totalPlans > 0 ? 'bg-[var(--color-success-muted)]' : 'bg-[var(--color-warning-muted)]'}`}>
+            {generationResult.totalPlans > 0 ? (
+              <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
+            ) : (
+              <AlertTriangle className="h-6 w-6 text-[var(--color-warning-400)]" />
+            )}
           </div>
           <div>
-            <h2 className="text-foreground text-2xl font-bold">Generation Complete!</h2>
+            <h2 className="text-foreground text-2xl font-bold">
+              {generationResult.totalPlans > 0 ? 'Generation Complete!' : 'No Renewals Found'}
+            </h2>
             <p className="text-muted-foreground">
-              Successfully generated {generationResult.totalPlans} renewal plans
+              {generationResult.totalPlans > 0
+                ? `Successfully generated ${generationResult.totalPlans} renewal plans`
+                : 'No certifications matched the selected criteria. Try adjusting the time horizon or categories.'}
             </p>
           </div>
         </div>
@@ -788,7 +796,10 @@ export default function GeneratePlanPage() {
         <Card className="p-6">
           <div className="flex flex-wrap justify-center gap-4">
             <Button
-              onClick={() => router.push(`/dashboard/renewal-planning?year=${year}`)}
+              onClick={() => {
+                router.refresh()
+                router.push(`/dashboard/renewal-planning?year=${year}`)
+              }}
               size="lg"
             >
               <ArrowRight className="mr-2 h-4 w-4" />

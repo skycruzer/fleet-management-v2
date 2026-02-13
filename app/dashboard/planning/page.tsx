@@ -10,7 +10,11 @@ import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
-import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
+import {
+  getRosterPeriodCapacity,
+  getRenewalPlansForYear,
+  getPairingDataForYear,
+} from '@/lib/services/certification-renewal-planning-service'
 import { RenewalPlanningDashboard } from '@/components/renewal-planning/renewal-planning-dashboard'
 import { RenewalPlanningSkeleton } from '@/components/skeletons/renewal-planning-skeleton'
 import { PlanningPageClient } from './planning-page-client'
@@ -43,6 +47,26 @@ async function getRosterPeriodSummariesForYear(year: number) {
   return summaries.filter((s) => s !== null)
 }
 
+async function getRenewalDetailsForYear(year: number) {
+  const plans = await getRenewalPlansForYear(year)
+  return plans.map((r) => ({
+    id: r.id,
+    pilot_name: r.pilot ? `${r.pilot.first_name} ${r.pilot.last_name}` : 'Unknown',
+    employee_id: r.pilot?.employee_id || '',
+    check_code: r.check_type?.check_code || '',
+    category: r.check_type?.category || '',
+    planned_renewal_date: r.planned_renewal_date || '',
+    original_expiry_date: r.original_expiry_date || '',
+    renewal_window_start: r.renewal_window_start || '',
+    renewal_window_end: r.renewal_window_end || '',
+    roster_period: r.planned_roster_period || '',
+    pairing_status: r.pairing_status ?? undefined,
+    paired_pilot_name: r.paired_pilot
+      ? `${r.paired_pilot.first_name} ${r.paired_pilot.last_name}`
+      : undefined,
+  }))
+}
+
 export default async function PlanningPage({
   searchParams,
 }: {
@@ -58,12 +82,19 @@ export default async function PlanningPage({
   const selectedYear = params.year ? parseInt(params.year) : new Date().getFullYear()
   const activeTab = params.tab || 'renewals'
 
-  // Fetch renewal summaries server-side
+  // Fetch renewal data server-side
   let summaries: Awaited<ReturnType<typeof getRosterPeriodSummariesForYear>> = []
+  let renewalDetails: Awaited<ReturnType<typeof getRenewalDetailsForYear>> = []
+  let pairingData: Awaited<ReturnType<typeof getPairingDataForYear>> | undefined = undefined
+
   try {
-    summaries = await getRosterPeriodSummariesForYear(selectedYear)
+    ;[summaries, renewalDetails, pairingData] = await Promise.all([
+      getRosterPeriodSummariesForYear(selectedYear),
+      getRenewalDetailsForYear(selectedYear),
+      getPairingDataForYear(selectedYear),
+    ])
   } catch (error) {
-    console.error('Failed to load roster period summaries:', error)
+    console.error('Failed to load renewal planning data:', error)
   }
 
   return (
@@ -79,7 +110,12 @@ export default async function PlanningPage({
         {/* Renewals Tab Content */}
         <div data-tab="renewals">
           <Suspense fallback={<RenewalPlanningSkeleton />}>
-            <RenewalPlanningDashboard summaries={summaries} selectedYear={selectedYear} />
+            <RenewalPlanningDashboard
+              summaries={summaries}
+              renewalDetails={renewalDetails}
+              pairingData={pairingData}
+              selectedYear={selectedYear}
+            />
           </Suspense>
         </div>
 

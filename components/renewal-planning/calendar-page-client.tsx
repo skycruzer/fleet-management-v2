@@ -10,6 +10,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { RenewalCalendarYearly } from './renewal-calendar-yearly'
+import { GanttTimeline } from './gantt-timeline'
 import { RenewalPlanPreviewModal } from './renewal-plan-preview-modal'
 import {
   CalendarFilterPanel,
@@ -19,7 +20,7 @@ import {
 import { EmailRenewalPlanButton } from './email-renewal-plan-button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { ArrowLeft, Download, Eye, AlertCircle, Filter, LayoutGrid, Grid3x3 } from 'lucide-react'
+import { ArrowLeft, Download, Eye, AlertCircle, Filter, LayoutGrid, Grid3x3, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
@@ -41,6 +42,23 @@ interface RosterPeriodSummary {
   >
 }
 
+interface RenewalDetail {
+  id: string
+  pilot_name: string
+  employee_id: string
+  check_code: string
+  category: string
+  planned_renewal_date: string
+  original_expiry_date: string
+  renewal_window_start: string
+  renewal_window_end: string
+  roster_period: string
+  pairing_status?: string
+  paired_pilot_name?: string
+}
+
+type ViewMode = 'calendar' | 'timeline'
+
 interface CalendarPageClientProps {
   year: number
   summaries: RosterPeriodSummary[]
@@ -51,6 +69,7 @@ interface CalendarPageClientProps {
     unpaired: UnpairedPilot[]
     statistics: PairingStatistics
   }
+  renewalDetails?: RenewalDetail[]
 }
 
 export function CalendarPageClient({
@@ -59,11 +78,13 @@ export function CalendarPageClient({
   hasRenewals,
   totalPlannedRenewals,
   pairingData,
+  renewalDetails = [],
 }: CalendarPageClientProps) {
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [filters, setFilters] = useState<CalendarFilters>(DEFAULT_CALENDAR_FILTERS)
   const [showFilters, setShowFilters] = useState(false)
   const [isCompactView, setIsCompactView] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar')
 
   // Calculate category statistics for filter panel
   const categoryStats = summaries.reduce(
@@ -157,25 +178,57 @@ export function CalendarPageClient({
 
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center justify-end gap-2">
-          {/* View Toggle */}
-          <div className="flex overflow-hidden rounded-lg border">
+          {/* View Toggle: Calendar / Timeline */}
+          <div
+            role="tablist"
+            aria-label="Calendar view mode"
+            className="border-input bg-background flex items-center rounded-lg border p-0.5"
+          >
             <Button
-              variant={isCompactView ? 'ghost' : 'secondary'}
+              role="tab"
+              aria-selected={viewMode === 'calendar'}
+              variant={viewMode === 'calendar' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setIsCompactView(false)}
-              className="rounded-none border-r"
+              onClick={() => setViewMode('calendar')}
+              className="h-8"
             >
-              <LayoutGrid className="h-4 w-4" />
+              <LayoutGrid className="mr-1.5 h-4 w-4" />
+              Calendar
             </Button>
             <Button
-              variant={isCompactView ? 'secondary' : 'ghost'}
+              role="tab"
+              aria-selected={viewMode === 'timeline'}
+              variant={viewMode === 'timeline' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setIsCompactView(true)}
-              className="rounded-none"
+              onClick={() => setViewMode('timeline')}
+              className="h-8"
             >
-              <Grid3x3 className="h-4 w-4" />
+              <BarChart3 className="mr-1.5 h-4 w-4" />
+              Timeline
             </Button>
           </div>
+
+          {/* Compact Toggle (Calendar view only) */}
+          {viewMode === 'calendar' && (
+            <div className="flex overflow-hidden rounded-lg border">
+              <Button
+                variant={isCompactView ? 'ghost' : 'secondary'}
+                size="sm"
+                onClick={() => setIsCompactView(false)}
+                className="rounded-none border-r"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={isCompactView ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setIsCompactView(true)}
+                className="rounded-none"
+              >
+                <Grid3x3 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
           {/* Filter Button (Mobile) */}
           <Sheet open={showFilters} onOpenChange={setShowFilters}>
@@ -247,28 +300,46 @@ export function CalendarPageClient({
       )}
 
       {/* Main Content Area */}
-      <div className="flex gap-6">
-        {/* Filter Panel (Desktop) */}
-        <div className="hidden w-64 flex-shrink-0 lg:block">
-          <div className="sticky top-4">
-            <CalendarFilterPanel
+      {viewMode === 'timeline' ? (
+        <GanttTimeline
+          renewals={renewalDetails}
+          rosterPeriods={summaries.map((s) => ({
+            code: s.rosterPeriod,
+            startDate:
+              s.periodStartDate instanceof Date
+                ? s.periodStartDate.toISOString().split('T')[0]
+                : String(s.periodStartDate).split('T')[0],
+            endDate:
+              s.periodEndDate instanceof Date
+                ? s.periodEndDate.toISOString().split('T')[0]
+                : String(s.periodEndDate).split('T')[0],
+          }))}
+          year={year}
+        />
+      ) : (
+        <div className="flex gap-6">
+          {/* Filter Panel (Desktop) */}
+          <div className="hidden w-64 flex-shrink-0 lg:block">
+            <div className="sticky top-4">
+              <CalendarFilterPanel
+                filters={filters}
+                onFiltersChange={setFilters}
+                categoryStats={categoryStats}
+              />
+            </div>
+          </div>
+
+          {/* Calendar Grid */}
+          <div className="min-w-0 flex-1">
+            <RenewalCalendarYearly
+              summaries={summaries}
+              year={year}
               filters={filters}
-              onFiltersChange={setFilters}
-              categoryStats={categoryStats}
+              compact={isCompactView}
             />
           </div>
         </div>
-
-        {/* Calendar Grid */}
-        <div className="min-w-0 flex-1">
-          <RenewalCalendarYearly
-            summaries={summaries}
-            year={year}
-            filters={filters}
-            compact={isCompactView}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Info Box */}
       {hasRenewals && (

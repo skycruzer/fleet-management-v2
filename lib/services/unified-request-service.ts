@@ -23,7 +23,8 @@ import {
 import { detectConflicts, type RequestInput } from '@/lib/services/conflict-detection-service'
 import { checkCrewAvailabilityAtomic } from '@/lib/services/leave-eligibility-service'
 import { invalidateCacheByTag } from '@/lib/services/unified-cache-service'
-import { notifyAllAdmins } from '@/lib/services/notification-service'
+import { notifyAllAdmins, createNotification } from '@/lib/services/notification-service'
+import type { NotificationType } from '@/lib/services/notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { logger } from '@/lib/services/logging-service'
 import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
@@ -779,6 +780,44 @@ export async function updateRequestStatus(
       return {
         success: false,
         error: ERROR_MESSAGES.DATABASE.UPDATE_FAILED('request status').message,
+      }
+    }
+
+    // Create in-app notification for the pilot (fire-and-forget)
+    if (data.pilot_user_id) {
+      const isLeave = data.request_category === 'LEAVE'
+      const notificationConfig: Record<
+        string,
+        { title: string; message: string; type: NotificationType }
+      > = {
+        APPROVED: {
+          title: 'Request Approved',
+          message: `Your ${data.request_type} request has been approved.${comments ? ` Comments: ${comments}` : ''}`,
+          type: isLeave ? 'leave_request_approved' : 'flight_request_approved',
+        },
+        DENIED: {
+          title: 'Request Denied',
+          message: `Your ${data.request_type} request has been denied.${comments ? ` Reason: ${comments}` : ''}`,
+          type: isLeave ? 'leave_request_rejected' : 'flight_request_rejected',
+        },
+        ...(isLeave && {
+          IN_REVIEW: {
+            title: 'Request Under Review',
+            message: `Your ${data.request_type} request is now being reviewed.`,
+            type: 'leave_request_pending_review' as NotificationType,
+          },
+        }),
+      }
+
+      const config = notificationConfig[status]
+      if (config) {
+        createNotification({
+          userId: data.pilot_user_id,
+          title: config.title,
+          message: config.message,
+          type: config.type,
+          link: '/portal/requests',
+        }).catch((err: unknown) => console.error('Failed to create portal notification:', err))
       }
     }
 

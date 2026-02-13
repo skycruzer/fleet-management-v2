@@ -27,7 +27,6 @@ import {
   TrendingUp,
   Calendar,
   AlertCircle,
-  Stethoscope,
   Plane,
   Monitor,
   GraduationCap,
@@ -73,16 +72,6 @@ interface GenerationPreviewProps {
 }
 
 const CATEGORIES = [
-  {
-    id: 'Pilot Medical',
-    label: 'Medical',
-    icon: Stethoscope,
-    color: 'text-[var(--color-status-high)]',
-    bgColor: 'bg-[var(--color-status-high-bg)]',
-    borderColor: 'border-[var(--color-status-high-border)]',
-    progressColor: 'bg-[var(--color-status-high)]',
-    capacityPerPeriod: 4,
-  },
   {
     id: 'Flight Checks',
     label: 'Flight',

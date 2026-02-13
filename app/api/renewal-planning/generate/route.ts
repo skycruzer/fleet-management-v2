@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { generateRenewalPlanWithPairing } from '@/lib/services/certification-renewal-planning-service'
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
     // Supabase Auth users are trusted as admins (dashboard access requires Supabase Auth)
 
     const body = await request.json()
-    const { monthsAhead = 12, categories, pilotIds, checkCodes, clearExisting = false } = body
+    const { monthsAhead = 12, categories, pilotIds, checkCodes, clearExisting = false, captainRoles } = body
 
     // Clear existing renewal plans if requested
     if (clearExisting) {
@@ -69,6 +70,9 @@ export async function POST(request: NextRequest) {
       categories,
       pilotIds,
       checkCodes,
+      pairingOptions: {
+        ...(captainRoles?.length > 0 ? { captainRoles } : {}),
+      },
     })
 
     // Calculate summary statistics
@@ -95,6 +99,10 @@ export async function POST(request: NextRequest) {
     const totalWithPairingData = totalPaired + totalUnpaired
     const pairingRate =
       totalWithPairingData > 0 ? Math.round((totalPaired / totalWithPairingData) * 100) : 0
+
+    // Revalidate dashboard pages so they reflect the newly generated data
+    revalidatePath('/dashboard/renewal-planning')
+    revalidatePath('/dashboard/renewal-planning/calendar')
 
     return NextResponse.json({
       success: true,

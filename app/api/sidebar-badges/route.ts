@@ -20,11 +20,11 @@ export async function GET() {
 
     // Run both count queries in parallel for speed
     const [pendingResult, expiringResult] = await Promise.all([
-      // Count pending requests (SUBMITTED workflow_status)
+      // Count pending requests (SUBMITTED + IN_REVIEW workflow_status)
       supabase
         .from('pilot_requests')
         .select('id', { count: 'exact', head: true })
-        .eq('workflow_status', 'SUBMITTED'),
+        .in('workflow_status', ['SUBMITTED', 'IN_REVIEW']),
 
       // Count certifications expiring within 60 days or already expired
       supabase

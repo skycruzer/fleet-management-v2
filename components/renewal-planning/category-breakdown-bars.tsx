@@ -9,7 +9,7 @@
 
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { Stethoscope, Plane, Monitor, GraduationCap, FileQuestion } from 'lucide-react'
+import { Plane, Monitor, GraduationCap, FileQuestion } from 'lucide-react'
 
 interface CategoryData {
   category: string
@@ -26,8 +26,6 @@ interface CategoryBreakdownBarsProps {
 // Get icon for each category
 function getCategoryIcon(category: string) {
   switch (category) {
-    case 'Pilot Medical':
-      return Stethoscope
     case 'Flight Checks':
       return Plane
     case 'Simulator Checks':
@@ -55,8 +53,6 @@ function getUtilizationTextColor(utilization: number): string {
 // Get short category name for display
 function getShortCategoryName(category: string): string {
   switch (category) {
-    case 'Pilot Medical':
-      return 'Medical'
     case 'Flight Checks':
       return 'Flight'
     case 'Simulator Checks':

@@ -2,7 +2,8 @@
  * Request Detail Actions Component
  *
  * Provides action buttons for managing a single request (Approve, Deny, Edit, Delete)
- * from the request detail page.
+ * from the request detail page. Includes quick-select reason chips for approve/deny
+ * workflows to streamline admin review.
  *
  * @author Maurice Rondeau
  * @date November 20, 2025
@@ -27,7 +28,26 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { CheckCircle, XCircle, Trash2, Pencil } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { cn } from '@/lib/utils'
 import { RequestEditDialog } from './request-edit-dialog'
+
+const DENY_REASONS = [
+  { label: 'Late submission', text: 'Request submitted with less than 21 days notice' },
+  { label: 'Peak period', text: 'Insufficient crew coverage during requested period' },
+  { label: 'Overlapping request', text: 'An overlapping request has already been approved' },
+  { label: 'Exceeds entitlement', text: 'Request exceeds annual leave entitlement' },
+  {
+    label: 'Insufficient documentation',
+    text: 'Required supporting documentation not provided',
+  },
+  { label: 'Operational requirements', text: 'Denied due to operational requirements' },
+] as const
+
+const APPROVE_COMMENTS = [
+  { label: 'Standard processing', text: 'Standard processing' },
+  { label: 'Late submission accepted', text: 'Late submission accepted' },
+  { label: 'Approved with conditions', text: 'Approved with conditions' },
+] as const
 
 interface RequestDetailActionsProps {
   request: {
@@ -53,6 +73,8 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [denyDialogOpen, setDenyDialogOpen] = useState(false)
   const [denyComments, setDenyComments] = useState('')
+  const [approveDialogOpen, setApproveDialogOpen] = useState(false)
+  const [approveComments, setApproveComments] = useState('')
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [forceApproveDialogOpen, setForceApproveDialogOpen] = useState(false)
   const [crewShortageMessage, setCrewShortageMessage] = useState('')
@@ -62,12 +84,17 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   const canEdit = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
 
   const handleApprove = async (force = false) => {
+    const comments = approveComments.trim()
     setLoading(true)
     try {
       const response = await fetch(`/api/requests/${request.id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'APPROVED', ...(force && { force: true }) }),
+        body: JSON.stringify({
+          status: 'APPROVED',
+          ...(comments && { comments }),
+          ...(force && { force: true }),
+        }),
         credentials: 'include',
       })
 
@@ -87,6 +114,8 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
 
       setForceApproveDialogOpen(false)
       setCrewShortageMessage('')
+      setApproveDialogOpen(false)
+      setApproveComments('')
 
       toast({
         title: 'Request Approved',
@@ -189,7 +218,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
       <div className="flex gap-2">
         {canApprove && (
           <Button
-            onClick={() => handleApprove()}
+            onClick={() => setApproveDialogOpen(true)}
             disabled={loading}
             className="bg-[var(--color-status-low)] hover:bg-[var(--color-status-low)]/90"
           >
@@ -223,6 +252,71 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
       {/* Edit Request Dialog */}
       <RequestEditDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} request={request} />
 
+      {/* Approve Dialog */}
+      <AlertDialog
+        open={approveDialogOpen}
+        onOpenChange={(open) => {
+          setApproveDialogOpen(open)
+          if (!open) setApproveComments('')
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Approve Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Add optional comments for this approval. These will be recorded with the request.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3 py-4">
+            <Label className="text-sm font-medium">Quick Comments</Label>
+            <div className="flex flex-wrap gap-2">
+              {APPROVE_COMMENTS.map((reason) => {
+                const isSelected = approveComments.includes(reason.text)
+                return (
+                  <button
+                    key={reason.label}
+                    type="button"
+                    onClick={() => {
+                      setApproveComments((prev) => {
+                        if (prev.includes(reason.text)) return prev
+                        return prev ? `${prev}\n${reason.text}` : reason.text
+                      })
+                    }}
+                    className={cn(
+                      'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors',
+                      isSelected
+                        ? 'border-transparent bg-primary text-primary-foreground'
+                        : 'border-border text-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    {reason.label}
+                  </button>
+                )
+              })}
+            </div>
+            <Label htmlFor="approve-comments" className="text-sm font-medium">
+              Comments (Optional)
+            </Label>
+            <Textarea
+              id="approve-comments"
+              placeholder="Add any additional comments..."
+              value={approveComments}
+              onChange={(e) => setApproveComments(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleApprove()}
+              className="bg-[var(--color-status-low)] text-white hover:bg-[var(--color-status-low)]/90"
+            >
+              Approve Request
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Deny Confirmation Dialog */}
       <AlertDialog
         open={denyDialogOpen}
@@ -238,7 +332,33 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
               Please provide a reason for denying this request. This will be visible to the pilot.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="py-4">
+          <div className="space-y-3 py-4">
+            <Label className="text-sm font-medium">Quick Reasons</Label>
+            <div className="flex flex-wrap gap-2">
+              {DENY_REASONS.map((reason) => {
+                const isSelected = denyComments.includes(reason.text)
+                return (
+                  <button
+                    key={reason.label}
+                    type="button"
+                    onClick={() => {
+                      setDenyComments((prev) => {
+                        if (prev.includes(reason.text)) return prev
+                        return prev ? `${prev}\n${reason.text}` : reason.text
+                      })
+                    }}
+                    className={cn(
+                      'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors',
+                      isSelected
+                        ? 'border-transparent bg-destructive text-destructive-foreground'
+                        : 'border-border text-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    {reason.label}
+                  </button>
+                )
+              })}
+            </div>
             <Label htmlFor="deny-comments" className="text-sm font-medium">
               Reason for Denial
             </Label>
@@ -247,7 +367,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
               placeholder="Enter the reason for denying this request..."
               value={denyComments}
               onChange={(e) => setDenyComments(e.target.value)}
-              className="mt-2"
+              className="mt-1"
               rows={3}
             />
           </div>

@@ -627,6 +627,15 @@ export function RequestsTable({
                           request.workflow_status !== 'APPROVED' &&
                           request.workflow_status !== 'DENIED' && (
                             <>
+                              {request.workflow_status === 'SUBMITTED' && (
+                                <DropdownMenuItem
+                                  onClick={() => onUpdateStatus(request.id, 'IN_REVIEW')}
+                                  className="cursor-pointer text-[var(--color-info)] focus:bg-[var(--color-info-bg)] focus:text-[var(--color-info)]"
+                                >
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Mark as In Review
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
                                 onClick={() => onUpdateStatus(request.id, 'APPROVED')}
                                 className="cursor-pointer text-[var(--color-status-low)] focus:bg-[var(--color-status-low-bg)] focus:text-[var(--color-status-low)]"

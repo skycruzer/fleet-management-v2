@@ -13,7 +13,6 @@ import {
   Calendar,
   Users,
   AlertTriangle,
-  Stethoscope,
   Plane,
   Monitor,
   GraduationCap,
@@ -42,8 +41,6 @@ interface PeriodHoverCardProps {
 // Get icon for each category
 function getCategoryIcon(category: string) {
   switch (category) {
-    case 'Pilot Medical':
-      return Stethoscope
     case 'Flight Checks':
       return Plane
     case 'Simulator Checks':

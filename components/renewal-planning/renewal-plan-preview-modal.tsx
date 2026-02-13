@@ -32,7 +32,6 @@ import {
   CheckCircle,
   TrendingUp,
   Loader2,
-  Stethoscope,
   Plane,
   Monitor,
   GraduationCap,
@@ -44,7 +43,13 @@ import {
 import { CategoryDetailTab } from './category-detail-tab'
 import { PairingVisualizationPanel } from './pairing-visualization-panel'
 import { cn } from '@/lib/utils'
-import type { PairedCrew, UnpairedPilot, PairingStatistics } from '@/lib/types/pairing'
+import {
+  requiresPairing,
+  type PairedCrew,
+  type UnpairedPilot,
+  type PairingStatistics,
+  type CaptainRole,
+} from '@/lib/types/pairing'
 
 interface RosterPeriodSummary {
   rosterPeriod: string
@@ -83,12 +88,6 @@ interface RenewalPlanPreviewModalProps {
 
 const CATEGORIES = [
   {
-    id: 'Pilot Medical',
-    label: 'Medical',
-    icon: Stethoscope,
-    color: 'text-[var(--color-status-high)]',
-  },
-  {
     id: 'Flight Checks',
     label: 'Flight',
     icon: Plane,
@@ -126,6 +125,23 @@ export function RenewalPlanPreviewModal({
 
   // Aggregate data by category
   const categoryData = useMemo(() => {
+    interface PilotWithPairing {
+      id: string
+      name: string
+      employeeId: string
+      checkType: string
+      rosterPeriod: string
+      plannedDate: Date
+      expiryDate: Date
+      pairedWith?: {
+        name: string
+        employeeId: string
+        role: 'Captain' | 'First Officer'
+        captainRole?: CaptainRole
+      }
+      pairingStatus?: 'paired' | 'unpaired_solo' | 'not_applicable'
+    }
+
     const data: Record<
       string,
       {
@@ -137,27 +153,73 @@ export function RenewalPlanPreviewModal({
           plannedCount: number
           capacity: number
           utilization: number
-          pilots: Array<{
-            id: string
-            name: string
-            employeeId: string
-            checkType: string
-            rosterPeriod: string
-            plannedDate: Date
-            expiryDate: Date
-          }>
+          pilots: PilotWithPairing[]
         }>
-        pilots: Array<{
-          id: string
-          name: string
-          employeeId: string
-          checkType: string
-          rosterPeriod: string
-          plannedDate: Date
-          expiryDate: Date
-        }>
+        pilots: PilotWithPairing[]
       }
     > = {}
+
+    // Build lookup maps from pairing data for efficient cross-referencing
+    const pairByCaptainId = new Map<string, PairedCrew>()
+    const pairByFOId = new Map<string, PairedCrew>()
+    if (pairingData?.pairs) {
+      for (const pair of pairingData.pairs) {
+        pairByCaptainId.set(pair.captain.pilotId, pair)
+        pairByFOId.set(pair.firstOfficer.pilotId, pair)
+      }
+    }
+
+    /** Attach pairing info to a pilot if they appear in pairingData */
+    function enrichWithPairing(
+      pilot: { id: string; name: string; employeeId?: string; checkType: string },
+      category: string,
+      rosterPeriod: string,
+      periodStartDate: Date,
+      periodEndDate: Date
+    ): PilotWithPairing {
+      const base: PilotWithPairing = {
+        id: pilot.id,
+        name: pilot.name,
+        employeeId: pilot.employeeId || '',
+        checkType: pilot.checkType,
+        rosterPeriod,
+        plannedDate: periodStartDate,
+        expiryDate: periodEndDate,
+      }
+
+      if (!requiresPairing(category)) {
+        base.pairingStatus = 'not_applicable'
+        return base
+      }
+
+      // Check if pilot is a First Officer paired with a captain
+      const pairAsFO = pairByFOId.get(pilot.id)
+      if (pairAsFO) {
+        base.pairedWith = {
+          name: pairAsFO.captain.name,
+          employeeId: pairAsFO.captain.employeeId,
+          role: 'Captain',
+          captainRole: pairAsFO.captain.captainRole,
+        }
+        base.pairingStatus = 'paired'
+        return base
+      }
+
+      // Check if pilot is a captain paired with a First Officer
+      const pairAsCaptain = pairByCaptainId.get(pilot.id)
+      if (pairAsCaptain) {
+        base.pairedWith = {
+          name: pairAsCaptain.firstOfficer.name,
+          employeeId: pairAsCaptain.firstOfficer.employeeId,
+          role: 'First Officer',
+        }
+        base.pairingStatus = 'paired'
+        return base
+      }
+
+      base.pairingStatus = 'unpaired_solo'
+      return base
+    }
 
     // Initialize categories
     CATEGORIES.forEach((cat) => {
@@ -178,6 +240,10 @@ export function RenewalPlanPreviewModal({
         data[category].totalRenewals += breakdown.plannedCount
         data[category].totalCapacity += breakdown.capacity
 
+        const enrichedPilots = breakdown.pilots.map((p) =>
+          enrichWithPairing(p, category, summary.rosterPeriod, summary.periodStartDate, summary.periodEndDate)
+        )
+
         // Add period distribution
         data[category].periodDistribution.push({
           rosterPeriod: summary.rosterPeriod,
@@ -185,29 +251,11 @@ export function RenewalPlanPreviewModal({
           capacity: breakdown.capacity,
           utilization:
             breakdown.capacity > 0 ? (breakdown.plannedCount / breakdown.capacity) * 100 : 0,
-          pilots: breakdown.pilots.map((p) => ({
-            id: p.id,
-            name: p.name,
-            employeeId: p.employeeId || '',
-            checkType: p.checkType,
-            rosterPeriod: summary.rosterPeriod,
-            plannedDate: summary.periodStartDate,
-            expiryDate: summary.periodEndDate,
-          })),
+          pilots: enrichedPilots,
         })
 
         // Add pilots to overall list
-        breakdown.pilots.forEach((pilot) => {
-          data[category].pilots.push({
-            id: pilot.id,
-            name: pilot.name,
-            employeeId: pilot.employeeId || '',
-            checkType: pilot.checkType,
-            rosterPeriod: summary.rosterPeriod,
-            plannedDate: summary.periodStartDate,
-            expiryDate: summary.periodEndDate,
-          })
-        })
+        data[category].pilots.push(...enrichedPilots)
       })
     })
 
@@ -218,7 +266,7 @@ export function RenewalPlanPreviewModal({
     })
 
     return data
-  }, [summaries])
+  }, [summaries, pairingData])
 
   // Calculate overall statistics
   const totalRenewals = summaries.reduce((sum, s) => sum + s.totalPlannedRenewals, 0)
@@ -259,7 +307,7 @@ export function RenewalPlanPreviewModal({
           onValueChange={setActiveTab}
           className="flex flex-1 flex-col overflow-hidden"
         >
-          <TabsList className="mb-4 grid w-full grid-cols-6">
+          <TabsList className="mb-4 grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-1.5">
               <LayoutGrid className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Overview</span>

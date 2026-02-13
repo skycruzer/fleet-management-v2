@@ -48,11 +48,6 @@ const CATEGORY_COLORS: Record<string, { bg: string; border: string; text: string
     border: 'rgb(40, 167, 69)',
     text: 'rgb(40, 167, 69)',
   },
-  'Pilot Medical': {
-    bg: 'rgba(255, 159, 64, 0.2)',
-    border: 'rgb(255, 159, 64)',
-    text: 'rgb(255, 159, 64)',
-  },
 }
 
 const DEFAULT_COLOR = {

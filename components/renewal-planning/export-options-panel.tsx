@@ -26,7 +26,6 @@ import { cn } from '@/lib/utils'
 type ExportFormat = 'pdf' | 'csv'
 type ExportCategory =
   | 'all'
-  | 'Pilot Medical'
   | 'Flight Checks'
   | 'Simulator Checks'
   | 'Ground Courses Refresher'
@@ -45,7 +44,6 @@ export interface ExportOptions {
 
 const CATEGORIES = [
   { value: 'all', label: 'All Categories' },
-  { value: 'Pilot Medical', label: 'Pilot Medical' },
   { value: 'Flight Checks', label: 'Flight Checks' },
   { value: 'Simulator Checks', label: 'Simulator Checks' },
   { value: 'Ground Courses Refresher', label: 'Ground Courses' },

@@ -10,7 +10,6 @@
 import { useMemo } from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import {
   Users,
   Calendar,
@@ -26,7 +25,21 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatDate } from '@/lib/utils/date-utils'
-import { requiresPairing } from '@/lib/types/pairing'
+import { requiresPairing, type CaptainRole } from '@/lib/types/pairing'
+
+const CAPTAIN_ROLE_LABELS: Record<CaptainRole, string> = {
+  examiner: 'TRE',
+  training_captain: 'TRI',
+  line_captain: 'LCP',
+  rhs_captain: 'RHS',
+}
+
+const CAPTAIN_ROLE_COLORS: Record<CaptainRole, string> = {
+  examiner: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+  training_captain: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  line_captain: 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400',
+  rhs_captain: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+}
 
 interface PilotRenewal {
   id: string
@@ -42,6 +55,7 @@ interface PilotRenewal {
     name: string
     employeeId: string
     role: 'Captain' | 'First Officer'
+    captainRole?: CaptainRole
   }
   pairingStatus?: 'paired' | 'unpaired_solo' | 'not_applicable'
 }
@@ -243,15 +257,17 @@ export function CategoryDetailTab({
             <thead className="bg-muted/30 sticky top-0">
               <tr>
                 <th className="text-muted-foreground px-4 py-2 text-left font-medium">Pilot</th>
-                <th className="text-muted-foreground px-4 py-2 text-left font-medium">Emp ID</th>
-                {showPairingColumn && (
-                  <th className="text-muted-foreground px-4 py-2 text-left font-medium">
-                    Paired With
-                  </th>
-                )}
+                <th className="text-muted-foreground px-4 py-2 text-left font-medium">
+                  Check Type
+                </th>
                 <th className="text-muted-foreground px-4 py-2 text-left font-medium">
                   Roster Period
                 </th>
+                {showPairingColumn && (
+                  <th className="text-muted-foreground px-4 py-2 text-left font-medium">
+                    Examiner / Paired With
+                  </th>
+                )}
                 <th className="text-muted-foreground px-4 py-2 text-left font-medium">
                   Planned Date
                 </th>
@@ -266,14 +282,35 @@ export function CategoryDetailTab({
                       <div className="text-muted-foreground text-xs">{pilot.rank}</div>
                     )}
                   </td>
-                  <td className="text-muted-foreground px-4 py-2">{pilot.employeeId}</td>
+                  <td className="text-muted-foreground px-4 py-2 text-sm">
+                    {pilot.checkType}
+                  </td>
+                  <td className="px-4 py-2">
+                    <Badge variant="outline" className="text-xs">
+                      {pilot.rosterPeriod}
+                    </Badge>
+                  </td>
                   {showPairingColumn && (
                     <td className="px-4 py-2">
                       {pilot.pairingStatus === 'paired' && pilot.pairedWith ? (
                         <div className="flex items-center gap-1.5">
                           <Link className="h-3.5 w-3.5 text-[var(--color-status-low)]" />
                           <div>
-                            <div className="text-sm font-medium">{pilot.pairedWith.name}</div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm font-medium">
+                                {pilot.pairedWith.name}
+                              </span>
+                              {pilot.pairedWith.captainRole && (
+                                <Badge
+                                  className={cn(
+                                    'px-1.5 py-0 text-[10px] font-semibold',
+                                    CAPTAIN_ROLE_COLORS[pilot.pairedWith.captainRole]
+                                  )}
+                                >
+                                  {CAPTAIN_ROLE_LABELS[pilot.pairedWith.captainRole]}
+                                </Badge>
+                              )}
+                            </div>
                             <div className="text-muted-foreground text-xs">
                               {pilot.pairedWith.employeeId} • {pilot.pairedWith.role}
                             </div>
@@ -294,11 +331,6 @@ export function CategoryDetailTab({
                       )}
                     </td>
                   )}
-                  <td className="px-4 py-2">
-                    <Badge variant="outline" className="text-xs">
-                      {pilot.rosterPeriod}
-                    </Badge>
-                  </td>
                   <td className="text-muted-foreground px-4 py-2">
                     {formatDate(pilot.plannedDate)}
                   </td>

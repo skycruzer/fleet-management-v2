@@ -25,7 +25,7 @@ npm run dev                 # http://localhost:3000 (uses Webpack, not Turbopack
 ```bash
 npm run build               # Production build — run this to catch SSR/import errors
 npm run validate            # type-check + lint + format:check (pre-commit gate)
-npm run validate:naming     # Validate file naming conventions
+npm run validate:naming     # Validate file naming conventions (kebab-case enforcement)
 npm run lint:fix            # Auto-fix ESLint issues
 npm run format              # Format code with Prettier
 ```
@@ -54,11 +54,15 @@ npm run db:deploy           # Deploy migrations to production
 
 ### Testing Notes
 
-- Playwright config: `playwright.config.ts`
 - Tests run on **port 3005** (separate from dev server on 3000)
 - Test env vars loaded from `.env.test.local` (not `.env.local`)
-- Only Chromium enabled by default; other browsers commented out
-- Workers set to 1 (sequential) to avoid database overload
+- Only Chromium enabled; workers set to 1 (sequential) to avoid database overload
+
+### Pre-commit Hooks
+
+Husky + lint-staged runs automatically on `git commit`:
+- `*.{js,jsx,ts,tsx}` → ESLint --fix + Prettier
+- `*.{json,md,mdx,css,yaml,yml}` → Prettier
 
 ---
 
@@ -88,45 +92,7 @@ const { data } = await supabase.from('pilots').select('*')
 | Planning    | `retirement-forecast-service`, `succession-planning-service`, `certification-renewal-planning-service`         |
 | Roster      | `roster-period-service`, `roster-report-service`, `roster-deadline-alert-service`                              |
 
-**Central Service**: `unified-request-service.ts` handles ALL leave and flight requests through the unified `pilot_requests` table. This is the primary service for request management.
-
-### Component Architecture
-
-Components are organized by domain with shared infrastructure:
-
-| Directory                    | Purpose                                     |
-| ---------------------------- | ------------------------------------------- |
-| `components/ui/`             | shadcn/ui primitives (Button, Dialog, etc.) |
-| `components/layout/`         | App shell: sidebar, header, breadcrumbs     |
-| `components/dashboard/`      | Dashboard widgets and metrics               |
-| `components/pilots/`         | Pilot profile, list, and management views   |
-| `components/certifications/` | Certification tracking and compliance UI    |
-| `components/requests/`       | Unified leave/flight request management     |
-| `components/portal/`         | Pilot portal (separate auth context)        |
-| `components/forms/`          | Reusable form components                    |
-| `components/skeletons/`      | Loading state placeholders for all pages    |
-| `components/shared/`         | Cross-domain shared components              |
-
-### Custom Hooks (`lib/hooks/`)
-
-Reusable hooks to leverage before writing new state logic:
-
-| Hook                           | Purpose                                      |
-| ------------------------------ | -------------------------------------------- |
-| `use-optimistic-mutation`      | Generic optimistic update with rollback      |
-| `use-optimistic-pilot`         | Pilot-specific optimistic mutations          |
-| `use-optimistic-certification` | Certification optimistic mutations           |
-| `use-optimistic-leave-request` | Leave request optimistic mutations           |
-| `use-csrf-token`               | CSRF token management                        |
-| `use-keyboard-shortcuts`       | Global keyboard shortcut registration        |
-| `use-keyboard-nav`             | Arrow-key navigation in lists/tables         |
-| `use-unsaved-changes`          | Warn before navigating away from dirty forms |
-| `use-sidebar-badges`           | Badge counts for sidebar navigation items    |
-| `use-filter-presets`           | Saved/restorable filter configurations       |
-| `use-table-state`              | Table sorting, pagination, and filter state  |
-| `use-report-query`             | TanStack Query wrapper for report generation |
-| `use-online-status`            | Network connectivity detection               |
-| `use-reduced-motion`           | Respect `prefers-reduced-motion`             |
+**Central Service**: `unified-request-service.ts` handles ALL leave and flight requests through the unified `pilot_requests` table.
 
 ### Dual Authentication Architecture
 
@@ -148,7 +114,27 @@ Reusable hooks to leverage before writing new state logic:
 | Server       | `lib/supabase/server.ts`       | Server Components, API routes              |
 | Admin        | `lib/supabase/admin.ts`        | Service operations (pilot portal auth)     |
 | Service Role | `lib/supabase/service-role.ts` | Bypasses RLS for system operations         |
-| Middleware   | `lib/supabase/middleware.ts`   | Auth state, session refresh                |
+| Middleware   | `lib/supabase/middleware.ts`   | Auth state, session refresh, rate limiting |
+
+### Middleware Rate Limiting
+
+`lib/supabase/middleware.ts` enforces rate limits on `/api/auth/*` endpoints:
+- Login/signin: **5 requests/minute** per IP
+- Password reset: **3 requests/hour** per IP
+- General auth (signup, etc.): **10 requests/minute** per IP
+
+### Client-Side Provider Stack
+
+The app wraps all pages in this provider chain (`app/providers.tsx`):
+
+```
+QueryClientProvider → ThemeProvider → NuqsAdapter → CsrfProvider
+```
+
+- **TanStack Query**: Server state caching and mutations (config in `lib/react-query/`)
+- **next-themes**: Dark/light mode with `class` attribute strategy
+- **nuqs**: URL-based state management (used for tab state, filters, pagination via query params)
+- **CSRF**: Token management for form submissions
 
 ### Session Management
 
@@ -163,18 +149,20 @@ Pilot portal sessions use Redis-backed sessions via `redis-session-service.ts`:
 | Feature       | Service                        | Purpose                           |
 | ------------- | ------------------------------ | --------------------------------- |
 | Dashboard     | `dashboard-service-v4.ts`      | Cached metrics, faster page loads |
-| Rate Limiting | `@upstash/ratelimit`           | API protection                    |
+| Rate Limiting | `@upstash/ratelimit`           | API and auth endpoint protection  |
 | Sessions      | `redis-session-service.ts`     | Pilot portal auth                 |
 | Invalidation  | `cache-invalidation-helper.ts` | Clear stale data after mutations  |
 
 ### Validation Schemas
 
-All Zod schemas in `lib/validations/`. Always validate API inputs:
+All Zod schemas live in `lib/validations/`. Always validate API inputs:
 
 ```typescript
 import { PilotRequestSchema } from '@/lib/validations/pilot-request-schema'
 const validated = PilotRequestSchema.parse(body)
 ```
+
+Forms use **React Hook Form** with Zod resolvers for client-side validation.
 
 ### Error Handling Contract (Standardized Jan 2026)
 
@@ -221,11 +209,21 @@ export async function GET(request: NextRequest) {
 
 **Migration status**: New services must use `ServiceResponse<T>`. Existing services may throw errors (wrapped by `executeAndRespond`).
 
+### Custom Hooks (`lib/hooks/`)
+
+Check existing hooks before writing new state logic. Key patterns:
+
+- **Optimistic mutations**: `use-optimistic-mutation` (generic), plus domain-specific variants for pilots, certifications, leave requests
+- **Table state**: `use-table-state` (sorting, pagination, filters), `use-filter-presets` (saved configurations)
+- **UX**: `use-unsaved-changes`, `use-keyboard-shortcuts`, `use-keyboard-nav`, `use-reduced-motion`
+- **Data fetching**: `use-report-query` (TanStack Query wrapper for reports), `use-sidebar-badges`
+- **Security**: `use-csrf-token`, `use-online-status`
+
 ---
 
 ## Route Consolidation (Redirects)
 
-Several old routes have been consolidated into tabbed views. When building navigation or links, use the **new** paths:
+Old routes redirect to consolidated tabbed views (configured in `next.config.js`). Always use the **new** paths:
 
 | Old Route                              | Redirects To                                  |
 | -------------------------------------- | --------------------------------------------- |
@@ -272,6 +270,10 @@ WHERE request_category = 'FLIGHT'
 
 - `leave_requests` — Use `pilot_requests` instead
 - `flight_requests` — Use `pilot_requests` instead
+
+### Generated Types
+
+`types/supabase.ts` is **auto-generated** — never edit manually. Regenerate after schema changes with `npm run db:types`.
 
 ---
 
@@ -347,7 +349,7 @@ router.push('/dashboard/certifications')
 
 ### Dev Server Uses Webpack (Not Turbopack)
 
-The `dev` script runs `next dev --webpack`. Turbopack is disabled due to path alias resolution issues in production builds. The `next.config.js` has a `turbopack.root` workaround but Webpack remains the default.
+The `dev` script runs `next dev --webpack`. Turbopack is disabled due to path alias resolution issues. The `next.config.js` has a `turbopack.root` workaround but Webpack remains the default.
 
 ### Server Actions Body Limit
 
@@ -370,22 +372,25 @@ Enforced by `npm run validate:naming`:
 
 ## Technology Stack
 
-| Tech            | Purpose                         |
-| --------------- | ------------------------------- |
-| Next.js 16+     | App framework (App Router)      |
-| React 19+       | UI library                      |
-| TypeScript 5.9  | Type safety (strict mode)       |
-| Tailwind CSS v4 | Styling                         |
-| Supabase        | PostgreSQL + Auth + RLS         |
-| TanStack Query  | Server state management         |
-| Zod             | Schema validation               |
-| Playwright      | E2E testing                     |
-| Redis (Upstash) | Sessions, caching, rate limits  |
-| shadcn/ui       | Component library (Radix-based) |
-| Framer Motion   | Animations                      |
-| Storybook       | Component development           |
+| Tech            | Purpose                              |
+| --------------- | ------------------------------------ |
+| Next.js 16+     | App Router, React Compiler enabled   |
+| React 19+       | UI library                           |
+| TypeScript 5.9  | Strict mode                          |
+| Tailwind CSS v4 | Styling (via `@tailwindcss/postcss`) |
+| Supabase        | PostgreSQL + Auth + RLS              |
+| TanStack Query  | Server state management              |
+| React Hook Form | Form state with Zod resolvers        |
+| nuqs            | URL-based state (tabs, filters)      |
+| Playwright      | E2E testing                          |
+| Redis (Upstash) | Sessions, caching, rate limits       |
+| shadcn/ui       | Component library (Radix-based)      |
+| Framer Motion   | Animations                           |
+| Storybook       | Component development                |
 
-Path alias: `@/*` maps to project root (configured in `tsconfig.json`).
+Path alias: `@/*` maps to project root. Node engine: `>=18.18.0 <25`.
+
+Formatting: Single quotes, 2-space indent, 100-char line width, Tailwind class sorting via `prettier-plugin-tailwindcss`.
 
 ---
 
@@ -400,6 +405,8 @@ Path alias: `@/*` maps to project root (configured in `tsconfig.json`).
 | `UPSTASH_REDIS_REST_URL`        | Yes      | Redis URL for sessions/cache    |
 | `UPSTASH_REDIS_REST_TOKEN`      | Yes      | Redis authentication token      |
 | `RESEND_API_KEY`                | Server   | Email service (Resend) API key  |
+| `RESEND_FROM_EMAIL`             | Server   | Email sender address            |
+| `CRON_SECRET`                   | Server   | Vercel cron job auth token      |
 | `LOGTAIL_SOURCE_TOKEN`          | Server   | Better Stack logging token      |
 
 Copy `.env.example` to `.env.local` for development. Tests use `.env.test.local`.
@@ -420,6 +427,6 @@ Admin and pilot portal APIs use different auth systems. Never mix authentication
 
 ---
 
-**Version**: 3.5.0
+**Version**: 4.0.0
 **Last Updated**: February 2026
 **Maintainer**: Maurice (Skycruzer)

@@ -11,7 +11,7 @@
  */
 
 import { useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { DeadlineWidget } from './deadline-widget'
 
 interface DeadlineWidgetWrapperProps {
@@ -24,14 +24,13 @@ export function DeadlineWidgetWrapper({
   compact = false,
 }: DeadlineWidgetWrapperProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   const handleReviewClick = useCallback(
     (rosterPeriodCode: string) => {
       // Create new URLSearchParams with roster period filter
       const params = new URLSearchParams()
       params.set('roster_period', rosterPeriodCode)
-      params.set('status', 'pending') // Show only pending requests
+      params.set('status', 'SUBMITTED,IN_REVIEW') // Show only pending requests
       params.set('tab', 'leave') // Default to leave tab
 
       // Navigate to requests page with filters

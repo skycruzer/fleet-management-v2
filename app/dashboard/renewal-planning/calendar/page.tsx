@@ -14,6 +14,7 @@
 import {
   getRosterPeriodCapacity,
   getPairingDataForYear,
+  getRenewalPlansForYear,
 } from '@/lib/services/certification-renewal-planning-service'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { CalendarPageClient } from '@/components/renewal-planning/calendar-page-client'
@@ -48,6 +49,26 @@ async function getRosterPeriodSummariesForYear(year: number) {
   return summaries.filter((s) => s !== null)
 }
 
+async function getRenewalDetailsForYear(year: number) {
+  const plans = await getRenewalPlansForYear(year)
+  return plans.map((r) => ({
+    id: r.id,
+    pilot_name: r.pilot ? `${r.pilot.first_name} ${r.pilot.last_name}` : 'Unknown',
+    employee_id: r.pilot?.employee_id || '',
+    check_code: r.check_type?.check_code || '',
+    category: r.check_type?.category || '',
+    planned_renewal_date: r.planned_renewal_date || '',
+    original_expiry_date: r.original_expiry_date || '',
+    renewal_window_start: r.renewal_window_start || '',
+    renewal_window_end: r.renewal_window_end || '',
+    roster_period: r.planned_roster_period || '',
+    pairing_status: r.pairing_status ?? undefined,
+    paired_pilot_name: r.paired_pilot
+      ? `${r.paired_pilot.first_name} ${r.paired_pilot.last_name}`
+      : undefined,
+  }))
+}
+
 export default async function RenewalPlanningCalendarPage({
   searchParams,
 }: {
@@ -57,9 +78,10 @@ export default async function RenewalPlanningCalendarPage({
   const selectedYear = params.year ? parseInt(params.year) : new Date().getFullYear()
 
   // Fetch data in parallel
-  const [summaries, pairingData] = await Promise.all([
+  const [summaries, pairingData, renewalDetails] = await Promise.all([
     getRosterPeriodSummariesForYear(selectedYear),
     getPairingDataForYear(selectedYear),
+    getRenewalDetailsForYear(selectedYear),
   ])
 
   // Calculate if we have any planned renewals
@@ -73,6 +95,7 @@ export default async function RenewalPlanningCalendarPage({
       hasRenewals={hasRenewals}
       totalPlannedRenewals={totalPlannedRenewals}
       pairingData={pairingData}
+      renewalDetails={renewalDetails}
     />
   )
 }
