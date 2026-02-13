@@ -576,11 +576,10 @@ export async function getMultiYearRetirementForecast(
   const supabase = createAdminClient()
 
   try {
-    // @ts-ignore - Supabase type inference issue with select fields
     const { data: pilots, error } = await supabase
       .from('pilots')
-      .select('id, rank, date_of_birth, status')
-      .eq('status', 'active')
+      .select('id, role, date_of_birth, is_active')
+      .eq('is_active', true)
 
     if (error) throw error
     if (!pilots) return []
@@ -600,17 +599,16 @@ export async function getMultiYearRetirementForecast(
       let captains = 0
       let firstOfficers = 0
 
-      // @ts-ignore - Type inference issue with pilots array
-      pilots?.forEach((pilot: any) => {
+      pilots?.forEach((pilot) => {
         if (!pilot.date_of_birth) return
 
         const birthDate = new Date(pilot.date_of_birth)
         const retirementYear = birthDate.getFullYear() + retirementAge
 
         if (retirementYear === targetYear) {
-          if (pilot.rank === 'Captain') {
+          if (pilot.role === 'Captain') {
             captains++
-          } else if (pilot.rank === 'First Officer') {
+          } else if (pilot.role === 'First Officer') {
             firstOfficers++
           }
         }
@@ -681,11 +679,10 @@ export async function predictCrewShortages(
   const supabase = createAdminClient()
 
   try {
-    // @ts-ignore - Supabase type inference issue with select fields
     const { data: pilots, error } = await supabase
       .from('pilots')
-      .select('id, rank, date_of_birth, status')
-      .eq('status', 'active')
+      .select('id, role, date_of_birth, is_active')
+      .eq('is_active', true)
 
     if (error) throw error
     if (!pilots) {
@@ -697,10 +694,8 @@ export async function predictCrewShortages(
     }
 
     const now = new Date()
-    // @ts-ignore - Type inference issue with pilots array
-    const currentCaptains = pilots?.filter((p: any) => p.rank === 'Captain').length || 0
-    // @ts-ignore - Type inference issue with pilots array
-    const currentFirstOfficers = pilots?.filter((p: any) => p.rank === 'First Officer').length || 0
+    const currentCaptains = pilots?.filter((p) => p.role === 'Captain').length || 0
+    const currentFirstOfficers = pilots?.filter((p) => p.role === 'First Officer').length || 0
 
     const criticalPeriods: Array<{
       startMonth: string
@@ -726,8 +721,7 @@ export async function predictCrewShortages(
       let captainRetirements = 0
       let firstOfficerRetirements = 0
 
-      // @ts-ignore - Type inference issue with pilots array
-      pilots?.forEach((pilot: any) => {
+      pilots?.forEach((pilot) => {
         if (!pilot.date_of_birth) return
 
         const birthDate = new Date(pilot.date_of_birth)
@@ -741,9 +735,9 @@ export async function predictCrewShortages(
           retirementMonth === targetDate.getMonth() &&
           retirementYear === targetDate.getFullYear()
         ) {
-          if (pilot.rank === 'Captain') {
+          if (pilot.role === 'Captain') {
             captainRetirements++
-          } else if (pilot.rank === 'First Officer') {
+          } else if (pilot.role === 'First Officer') {
             firstOfficerRetirements++
           }
         }

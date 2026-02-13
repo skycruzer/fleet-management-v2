@@ -8,8 +8,10 @@
  */
 
 import { NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { updateRequestStatus } from '@/lib/services/unified-request-service'
+import {
+  updateRequestStatus,
+  deletePilotRequest,
+} from '@/lib/services/unified-request-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 import { revalidatePath } from 'next/cache'
@@ -21,8 +23,6 @@ interface BulkActionRequest {
 }
 
 export async function POST(request: Request) {
-  const supabase = createAdminClient()
-
   try {
     // Check authentication
     const auth = await getAuthenticatedAdmin()
@@ -54,17 +54,14 @@ export async function POST(request: Request) {
     for (const requestId of request_ids) {
       try {
         if (action === 'delete') {
-          // Delete request
-          const { error: deleteError } = await supabase
-            .from('pilot_requests')
-            .delete()
-            .eq('id', requestId)
+          // Delete request using service layer
+          const result = await deletePilotRequest(requestId)
 
-          if (deleteError) {
-            failureCount++
-            errors.push({ id: requestId, error: deleteError.message })
-          } else {
+          if (result.success) {
             successCount++
+          } else {
+            failureCount++
+            errors.push({ id: requestId, error: result.error || 'Unknown error' })
           }
         } else {
           // Update status (approve or deny)

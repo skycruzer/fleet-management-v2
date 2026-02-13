@@ -11,10 +11,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { Plane, Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react'
 
 export default function ChangePasswordPage() {
   const router = useRouter()
+  const { csrfToken } = useCsrfToken()
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showOldPassword, setShowOldPassword] = useState(false)
@@ -53,7 +55,10 @@ export default function ChangePasswordPage() {
     try {
       const response = await fetch('/api/portal/change-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
         body: JSON.stringify({ oldPassword, newPassword }),
       })
 

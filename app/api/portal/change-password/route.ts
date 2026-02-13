@@ -5,15 +5,26 @@
  * POST /api/portal/change-password
  * Validates session, verifies old password, updates to new password.
  * Sets must_change_password = false after successful change.
+ *
+ * CSRF PROTECTION: POST method requires CSRF token validation
+ * RATE LIMITING: 5 requests per minute per IP (prevents brute force)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { validatePilotSession } from '@/lib/services/session-service'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import bcrypt from 'bcryptjs'
 
-export async function POST(request: NextRequest) {
+export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF Protection
+    const csrfError = await validateCsrf(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     // 1. Validate session
     const session = await validatePilotSession()
 
@@ -110,4 +121,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})

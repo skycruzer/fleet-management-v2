@@ -13,6 +13,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { RequestsTable, type PilotRequest } from './requests-table'
+import { RequestExportToolbar } from './request-export-toolbar'
 import { useToast } from '@/hooks/use-toast'
 
 interface RequestsTableClientProps {
@@ -138,14 +139,17 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
   // ============================================================================
 
   return (
-    <RequestsTable
-      requests={requests}
-      loading={loading}
-      onViewRequest={handleViewRequest}
-      onUpdateStatus={handleUpdateStatus}
-      onDeleteRequest={handleDeleteRequest}
-      onBulkAction={handleBulkAction}
-      enableSelection={true}
-    />
+    <div className="space-y-4">
+      <RequestExportToolbar requests={requests} />
+      <RequestsTable
+        requests={requests}
+        loading={loading}
+        onViewRequest={handleViewRequest}
+        onUpdateStatus={handleUpdateStatus}
+        onDeleteRequest={handleDeleteRequest}
+        onBulkAction={handleBulkAction}
+        enableSelection={true}
+      />
+    </div>
   )
 }

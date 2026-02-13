@@ -196,7 +196,7 @@ export default function NewLeaveRequestPage() {
       // CRITICAL: Refresh cache BEFORE navigation (Next.js 16 requirement)
       router.refresh()
       await new Promise((resolve) => setTimeout(resolve, 300))
-      router.push('/portal/leave-requests')
+      router.push('/portal/requests?tab=leave')
     } catch {
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)

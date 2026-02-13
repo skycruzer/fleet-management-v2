@@ -107,7 +107,7 @@ export default function NewFlightRequestPage() {
       // CRITICAL: Refresh cache BEFORE navigation (Next.js 16 requirement)
       router.refresh()
       await new Promise((resolve) => setTimeout(resolve, 300))
-      router.push('/portal/flight-requests')
+      router.push('/portal/requests?tab=rdo-sdo')
     } catch {
       setError('An unexpected error occurred. Please try again.')
       setIsLoading(false)
