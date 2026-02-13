@@ -116,9 +116,9 @@ export function LeaveReportForm() {
     }
 
     const statuses = []
-    if (values.statusPending) statuses.push('PENDING')
+    if (values.statusPending) statuses.push('DRAFT')
     if (values.statusApproved) statuses.push('APPROVED')
-    if (values.statusRejected) statuses.push('REJECTED')
+    if (values.statusRejected) statuses.push('DENIED')
     if (values.statusSubmitted) statuses.push('SUBMITTED')
     if (values.statusInReview) statuses.push('IN_REVIEW')
     if (statuses.length > 0) filters.status = statuses
@@ -237,9 +237,9 @@ export function LeaveReportForm() {
     }
 
     // Apply status filters
-    form.setValue('statusPending', filters.status?.includes('pending') || false)
-    form.setValue('statusApproved', filters.status?.includes('approved') || false)
-    form.setValue('statusRejected', filters.status?.includes('rejected') || false)
+    form.setValue('statusPending', filters.status?.includes('DRAFT') || false)
+    form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
+    form.setValue('statusRejected', filters.status?.includes('DENIED') || false)
 
     // Apply rank filters
     form.setValue('rankCaptain', filters.rank?.includes('Captain') || false)
@@ -418,7 +418,7 @@ export function LeaveReportForm() {
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="cursor-pointer font-normal">Pending</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Draft</FormLabel>
                   </FormItem>
                 )}
               />
@@ -466,7 +466,7 @@ export function LeaveReportForm() {
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="cursor-pointer font-normal">Rejected</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Denied</FormLabel>
                   </FormItem>
                 )}
               />

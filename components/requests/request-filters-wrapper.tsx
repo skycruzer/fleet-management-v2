@@ -16,17 +16,32 @@ import { RequestFilters, RequestFiltersClient } from './request-filters-client'
 
 export function RequestFiltersWrapper() {
   // nuqs manages URL sync automatically for each filter param
+  // IMPORTANT: shallow: false triggers full server-side navigation so server
+  // components (RequestsTableWrapper) re-render with updated searchParams
+  const nuqsOptions = { shallow: false } as const
   const [rosterPeriod, setRosterPeriod] = useQueryState(
     'roster_period',
-    parseAsString.withDefault('')
+    parseAsString.withDefault('').withOptions(nuqsOptions)
   )
-  const [status, setStatus] = useQueryState('status', parseAsString.withDefault(''))
-  const [category] = useQueryState('category', parseAsString.withDefault(''))
-  const [channel, setChannel] = useQueryState('channel', parseAsString.withDefault(''))
-  const [isLate, setIsLate] = useQueryState('is_late', parseAsBoolean.withDefault(false))
+  const [status, setStatus] = useQueryState(
+    'status',
+    parseAsString.withDefault('').withOptions(nuqsOptions)
+  )
+  const [category] = useQueryState(
+    'category',
+    parseAsString.withDefault('').withOptions(nuqsOptions)
+  )
+  const [channel, setChannel] = useQueryState(
+    'channel',
+    parseAsString.withDefault('').withOptions(nuqsOptions)
+  )
+  const [isLate, setIsLate] = useQueryState(
+    'is_late',
+    parseAsBoolean.withDefault(false).withOptions(nuqsOptions)
+  )
   const [isPastDeadline, setIsPastDeadline] = useQueryState(
     'is_past_deadline',
-    parseAsBoolean.withDefault(false)
+    parseAsBoolean.withDefault(false).withOptions(nuqsOptions)
   )
 
   // Convert nuqs state to RequestFilters for the child component

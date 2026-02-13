@@ -115,11 +115,11 @@ export function FlightRequestReportForm() {
     }
 
     const statuses = []
-    if (values.statusPending) statuses.push('PENDING')
+    if (values.statusPending) statuses.push('DRAFT')
     if (values.statusSubmitted) statuses.push('SUBMITTED')
     if (values.statusInReview) statuses.push('IN_REVIEW')
     if (values.statusApproved) statuses.push('APPROVED')
-    if (values.statusRejected) statuses.push('REJECTED')
+    if (values.statusRejected) statuses.push('DENIED')
     if (statuses.length > 0) filters.status = statuses
 
     const ranks = []
@@ -236,11 +236,11 @@ export function FlightRequestReportForm() {
     }
 
     // Apply status filters
-    form.setValue('statusPending', filters.status?.includes('PENDING') || false)
+    form.setValue('statusPending', filters.status?.includes('DRAFT') || false)
     form.setValue('statusSubmitted', filters.status?.includes('SUBMITTED') || false)
     form.setValue('statusInReview', filters.status?.includes('IN_REVIEW') || false)
     form.setValue('statusApproved', filters.status?.includes('APPROVED') || false)
-    form.setValue('statusRejected', filters.status?.includes('REJECTED') || false)
+    form.setValue('statusRejected', filters.status?.includes('DENIED') || false)
 
     // Apply rank filters
     form.setValue('rankCaptain', filters.rank?.includes('Captain') || false)
@@ -422,7 +422,7 @@ export function FlightRequestReportForm() {
                         }}
                       />
                     </FormControl>
-                    <FormLabel className="cursor-pointer font-normal">Pending</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Draft</FormLabel>
                   </FormItem>
                 )}
               />
@@ -494,7 +494,7 @@ export function FlightRequestReportForm() {
                         }}
                       />
                     </FormControl>
-                    <FormLabel className="cursor-pointer font-normal">Rejected</FormLabel>
+                    <FormLabel className="cursor-pointer font-normal">Denied</FormLabel>
                   </FormItem>
                 )}
               />
