@@ -25,6 +25,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logError, logInfo, ErrorSeverity } from '@/lib/error-logger'
 import { redisCacheService, CACHE_KEYS, CACHE_TTL } from './redis-cache-service'
+import { getPilotRequirements } from '@/lib/services/admin-service'
 import type { HistoricalRetirementTrends } from '@/types/database-views'
 
 /**
@@ -33,12 +34,16 @@ import type { HistoricalRetirementTrends } from '@/types/database-views'
 async function computePilotAnalytics() {
   const supabase = createAdminClient()
 
-  const { data: pilots, error } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, role, is_active, date_of_birth, commencement_date')
+  const [{ data: pilots, error }, pilotReqs] = await Promise.all([
+    supabase
+      .from('pilots')
+      .select('id, first_name, last_name, role, is_active, date_of_birth, commencement_date'),
+    getPilotRequirements(),
+  ])
 
   if (error) throw error
 
+  const retirementAge = pilotReqs.pilot_retirement_age
   const now = new Date()
   const retiringIn2YearsPilots: Array<{
     id: string
@@ -68,7 +73,7 @@ async function computePilotAnalytics() {
       if (pilot.date_of_birth && pilot.is_active) {
         const birthDate = new Date(pilot.date_of_birth)
         const retirementDate = new Date(birthDate)
-        retirementDate.setFullYear(retirementDate.getFullYear() + 65)
+        retirementDate.setFullYear(retirementDate.getFullYear() + retirementAge)
 
         const yearsToRetirement = Math.floor(
           (retirementDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365.25)

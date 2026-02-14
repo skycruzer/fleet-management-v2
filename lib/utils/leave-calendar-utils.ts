@@ -79,8 +79,11 @@ export function calculateDayAvailability(
 export function getEventBgColor(event: CalendarEvent): string {
   const statusColors: Record<string, string> = {
     APPROVED: 'bg-[var(--color-success-muted)]',
+    SUBMITTED: 'bg-[var(--color-warning-muted)]',
     PENDING: 'bg-[var(--color-warning-muted)]',
+    IN_REVIEW: 'bg-[var(--color-warning-muted)]',
     DENIED: 'bg-[var(--color-destructive-muted)]',
+    WITHDRAWN: 'bg-muted/60',
     CANCELLED: 'bg-muted',
   }
 

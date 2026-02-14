@@ -94,7 +94,7 @@ export default function TaskList({ tasks }: TaskListProps) {
           bVal = priorityOrder[b.priority as keyof typeof priorityOrder] || 0
           break
         case 'status':
-          const statusOrder = { TODO: 1, IN_PROGRESS: 2, IN_REVIEW: 3, DONE: 4, CANCELLED: 5 }
+          const statusOrder = { TODO: 1, IN_PROGRESS: 2, IN_REVIEW: 3, COMPLETED: 4, CANCELLED: 5 }
           aVal = statusOrder[a.status as keyof typeof statusOrder] || 0
           bVal = statusOrder[b.status as keyof typeof statusOrder] || 0
           break

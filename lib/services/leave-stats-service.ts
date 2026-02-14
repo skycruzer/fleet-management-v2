@@ -145,7 +145,7 @@ export async function getPilotLeaveStats(
     pilotId: pilot.id,
     pilotName: `${pilot.first_name} ${pilot.last_name}`,
     rank: pilot.role as 'Captain' | 'First Officer',
-    seniorityNumber: pilot.seniority_number ?? 0,
+    seniorityNumber: pilot.seniority_number ?? 9999,
     approvedDaysThisYear: approvedDays,
     pendingDaysThisYear: pendingDays,
     totalDaysThisYear: approvedDays + pendingDays,
@@ -222,13 +222,13 @@ export async function getPriorityRanking(
   const rankings = await Promise.all(
     pilots.map(async (pilot) => {
       const approvedDays = await getApprovedDaysForYear(pilot.id, year)
-      const priorityScore = calculatePriorityScore(pilot.seniority_number ?? 0, approvedDays)
+      const priorityScore = calculatePriorityScore(pilot.seniority_number ?? 9999, approvedDays)
 
       return {
         pilotId: pilot.id,
         pilotName: `${pilot.first_name} ${pilot.last_name}`,
         rank: pilot.role as 'Captain' | 'First Officer',
-        seniorityNumber: pilot.seniority_number ?? 0,
+        seniorityNumber: pilot.seniority_number ?? 9999,
         approvedDays,
         priorityScore,
         priorityRank: 0, // Will be set after sorting
