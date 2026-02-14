@@ -243,7 +243,9 @@ export default function NewFeedbackPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setFormData({ category: '', subject: '', message: '', is_anonymous: false })}
+                onClick={() =>
+                  setFormData({ category: '', subject: '', message: '', is_anonymous: false })
+                }
                 disabled={submitting}
               >
                 Clear Form
