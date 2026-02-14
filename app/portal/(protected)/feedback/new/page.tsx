@@ -13,7 +13,7 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { MessageSquare, ArrowLeft, Send, CheckCircle, AlertCircle } from 'lucide-react'
+import { MessageSquare, ArrowLeft, Send, CheckCircle, AlertCircle, EyeOff } from 'lucide-react'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 
 export default function NewFeedbackPage() {
@@ -21,6 +21,7 @@ export default function NewFeedbackPage() {
     category: '',
     subject: '',
     message: '',
+    is_anonymous: false,
   })
   const [submitting, setSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
@@ -37,7 +38,7 @@ export default function NewFeedbackPage() {
         category: formData.category,
         subject: formData.subject.trim(),
         message: formData.message.trim(),
-        is_anonymous: false,
+        is_anonymous: formData.is_anonymous,
       }
 
       // Submit feedback to API
@@ -59,7 +60,7 @@ export default function NewFeedbackPage() {
 
       // Show success and clear form
       setSubmitSuccess(true)
-      setFormData({ category: '', subject: '', message: '' })
+      setFormData({ category: '', subject: '', message: '', is_anonymous: false })
 
       // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -212,12 +213,35 @@ export default function NewFeedbackPage() {
               </p>
             </div>
 
+            {/* Anonymous Option */}
+            <div className="border-border rounded-lg border p-4">
+              <label htmlFor="is_anonymous" className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="is_anonymous"
+                  checked={formData.is_anonymous}
+                  onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
+                  className="mt-1 h-4 w-4 rounded"
+                />
+                <div>
+                  <div className="text-foreground flex items-center gap-2 text-sm font-medium">
+                    <EyeOff className="h-4 w-4" />
+                    Submit Anonymously
+                  </div>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Your name will be hidden from the feedback. Fleet management can still respond
+                    but won&apos;t see who submitted it.
+                  </p>
+                </div>
+              </label>
+            </div>
+
             {/* Submit Button */}
             <div className="flex items-center justify-end space-x-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setFormData({ category: '', subject: '', message: '' })}
+                onClick={() => setFormData({ category: '', subject: '', message: '', is_anonymous: false })}
                 disabled={submitting}
               >
                 Clear Form
