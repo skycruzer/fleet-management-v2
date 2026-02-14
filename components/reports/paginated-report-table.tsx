@@ -161,9 +161,7 @@ export function PaginatedReportTable({
         {
           accessorKey: 'is_late_request',
           header: 'Late',
-          cell: ({ getValue }) => (
-            <div className="text-sm">{getValue() ? 'Yes' : ''}</div>
-          ),
+          cell: ({ getValue }) => <div className="text-sm">{getValue() ? 'Yes' : ''}</div>,
         },
         {
           accessorFn: (row) => {

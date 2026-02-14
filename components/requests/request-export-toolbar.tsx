@@ -171,7 +171,20 @@ export function RequestExportToolbar({ requests, filterSummary }: RequestExportT
 
       autoTable(doc, {
         startY: 36,
-        head: [['#', 'Pilot Name', 'Rank', 'Category', 'Type', 'Start Date', 'End Date', 'Days', 'Roster Period', 'Status']],
+        head: [
+          [
+            '#',
+            'Pilot Name',
+            'Rank',
+            'Category',
+            'Type',
+            'Start Date',
+            'End Date',
+            'Days',
+            'Roster Period',
+            'Status',
+          ],
+        ],
         body: tableBody,
         headStyles: {
           fillColor: [37, 99, 235],
@@ -213,17 +226,8 @@ export function RequestExportToolbar({ requests, filterSummary }: RequestExportT
           const pageHeight = doc.internal.pageSize.getHeight()
           doc.setFontSize(8)
           doc.setTextColor(107, 114, 128)
-          doc.text(
-            'Air Niugini B767 Operations — Fleet Management System',
-            14,
-            pageHeight - 10
-          )
-          doc.text(
-            `Page ${data.pageNumber}`,
-            pageWidth - 14,
-            pageHeight - 10,
-            { align: 'right' }
-          )
+          doc.text('Air Niugini B767 Operations — Fleet Management System', 14, pageHeight - 10)
+          doc.text(`Page ${data.pageNumber}`, pageWidth - 14, pageHeight - 10, { align: 'right' })
         },
       })
 
@@ -286,9 +290,7 @@ export function RequestExportToolbar({ requests, filterSummary }: RequestExportT
           <Badge variant="secondary" className="font-normal">
             {requests.length} request{requests.length !== 1 ? 's' : ''}
           </Badge>
-          {filterSummary && (
-            <span className="text-muted-foreground text-xs">{filterSummary}</span>
-          )}
+          {filterSummary && <span className="text-muted-foreground text-xs">{filterSummary}</span>}
         </div>
 
         <div className="flex items-center gap-2">

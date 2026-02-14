@@ -114,7 +114,6 @@ export default async function PilotRegistrationsPage() {
 
       {/* Client Component for Interactive Table */}
       <RegistrationApprovalClient initialRegistrations={pendingRegistrations} />
-
     </div>
   )
 }

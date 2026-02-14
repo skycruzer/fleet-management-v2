@@ -10,10 +10,7 @@ import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import {
-  DEFAULT_MINIMUM_CAPTAINS,
-  DEFAULT_MINIMUM_FIRST_OFFICERS,
-} from '@/lib/constants/crew'
+import { DEFAULT_MINIMUM_CAPTAINS, DEFAULT_MINIMUM_FIRST_OFFICERS } from '@/lib/constants/crew'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { LeaveApprovalCard } from '@/components/leave/leave-approval-card'
 import { Card } from '@/components/ui/card'

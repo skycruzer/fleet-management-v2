@@ -103,7 +103,11 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
         const errorMessage = error.error || 'Failed to approve request'
 
         // If crew shortage, show force-approve dialog instead of error toast
-        if (!force && typeof errorMessage === 'string' && errorMessage.startsWith('Cannot approve:')) {
+        if (
+          !force &&
+          typeof errorMessage === 'string' &&
+          errorMessage.startsWith('Cannot approve:')
+        ) {
           setCrewShortageMessage(errorMessage)
           setForceApproveDialogOpen(true)
           return
@@ -285,7 +289,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
                     className={cn(
                       'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors',
                       isSelected
-                        ? 'border-transparent bg-primary text-primary-foreground'
+                        ? 'bg-primary text-primary-foreground border-transparent'
                         : 'border-border text-foreground hover:bg-accent hover:text-accent-foreground'
                     )}
                   >
@@ -350,7 +354,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
                     className={cn(
                       'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors',
                       isSelected
-                        ? 'border-transparent bg-destructive text-destructive-foreground'
+                        ? 'bg-destructive text-destructive-foreground border-transparent'
                         : 'border-border text-foreground hover:bg-accent hover:text-accent-foreground'
                     )}
                   >

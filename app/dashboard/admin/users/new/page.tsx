@@ -207,7 +207,6 @@ export default function NewUserPage() {
           </div>
         </form>
       </Card>
-
     </div>
   )
 }

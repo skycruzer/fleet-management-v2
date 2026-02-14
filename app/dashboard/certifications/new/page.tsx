@@ -357,7 +357,6 @@ export default function NewCertificationPage() {
           </div>
         </form>
       </Card>
-
     </div>
   )
 }

@@ -484,7 +484,6 @@ export default function NewLeaveRequestPage() {
           </div>
         </form>
       </Card>
-
     </div>
   )
 }

@@ -176,7 +176,6 @@ export default async function CertificationsPage() {
 
       {/* Expiry Groups Accordion */}
       {totalExpiring > 0 && expiryGroups && <ExpiryGroupsAccordion groups={expiryGroups} />}
-
     </div>
   )
 }

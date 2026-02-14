@@ -4,10 +4,7 @@
  */
 
 import type { LeaveRequest } from '@/lib/services/unified-request-service'
-import {
-  DEFAULT_MINIMUM_CAPTAINS,
-  DEFAULT_MINIMUM_FIRST_OFFICERS,
-} from '@/lib/constants/crew'
+import { DEFAULT_MINIMUM_CAPTAINS, DEFAULT_MINIMUM_FIRST_OFFICERS } from '@/lib/constants/crew'
 
 export interface CalendarEvent {
   id: string
@@ -121,7 +118,10 @@ export function getDayStatusColor(
   const fosAvailable = totalFirstOfficers - fosOnLeave
 
   // Critical: Less than minimum available
-  if (captainsAvailable < DEFAULT_MINIMUM_CAPTAINS || fosAvailable < DEFAULT_MINIMUM_FIRST_OFFICERS) {
+  if (
+    captainsAvailable < DEFAULT_MINIMUM_CAPTAINS ||
+    fosAvailable < DEFAULT_MINIMUM_FIRST_OFFICERS
+  ) {
     return 'bg-[var(--color-destructive-muted)]'
   }
 

@@ -8,10 +8,7 @@
  */
 
 import { NextResponse } from 'next/server'
-import {
-  updateRequestStatus,
-  deletePilotRequest,
-} from '@/lib/services/unified-request-service'
+import { updateRequestStatus, deletePilotRequest } from '@/lib/services/unified-request-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 import { revalidatePath } from 'next/cache'

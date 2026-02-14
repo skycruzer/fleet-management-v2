@@ -9,14 +9,7 @@
 
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import {
-  Calendar,
-  Users,
-  AlertTriangle,
-  Plane,
-  Monitor,
-  GraduationCap,
-} from 'lucide-react'
+import { Calendar, Users, AlertTriangle, Plane, Monitor, GraduationCap } from 'lucide-react'
 import { formatDate } from '@/lib/utils/date-utils'
 
 interface CategoryBreakdown {

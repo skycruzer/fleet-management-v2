@@ -282,9 +282,7 @@ export function CategoryDetailTab({
                       <div className="text-muted-foreground text-xs">{pilot.rank}</div>
                     )}
                   </td>
-                  <td className="text-muted-foreground px-4 py-2 text-sm">
-                    {pilot.checkType}
-                  </td>
+                  <td className="text-muted-foreground px-4 py-2 text-sm">{pilot.checkType}</td>
                   <td className="px-4 py-2">
                     <Badge variant="outline" className="text-xs">
                       {pilot.rosterPeriod}
@@ -297,9 +295,7 @@ export function CategoryDetailTab({
                           <Link className="h-3.5 w-3.5 text-[var(--color-status-low)]" />
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="text-sm font-medium">
-                                {pilot.pairedWith.name}
-                              </span>
+                              <span className="text-sm font-medium">{pilot.pairedWith.name}</span>
                               {pilot.pairedWith.captainRole && (
                                 <Badge
                                   className={cn(

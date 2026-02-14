@@ -95,10 +95,14 @@ const CATEGORIES = [
 
 function getCaptainRoleLabel(role?: string | null): string {
   switch (role) {
-    case 'training_captain': return 'TRI'
-    case 'examiner': return 'TRE'
-    case 'rhs_captain': return 'RHS'
-    default: return ''
+    case 'training_captain':
+      return 'TRI'
+    case 'examiner':
+      return 'TRE'
+    case 'rhs_captain':
+      return 'RHS'
+    default:
+      return ''
   }
 }
 
@@ -379,19 +383,19 @@ function addCategoryPage(
   doc.text('Distribution by Roster Period', 15, 70)
 
   const periodTableData = data.summaries.map((s) => {
-      const catBreakdown = s.categoryBreakdown[category.id]
-      const planned = catBreakdown?.plannedCount || 0
-      const capacity = catBreakdown?.capacity || 0
-      const util = capacity > 0 ? (planned / capacity) * 100 : 0
+    const catBreakdown = s.categoryBreakdown[category.id]
+    const planned = catBreakdown?.plannedCount || 0
+    const capacity = catBreakdown?.capacity || 0
+    const util = capacity > 0 ? (planned / capacity) * 100 : 0
 
-      return [
-        s.rosterPeriod,
-        `${formatDate(s.periodStartDate)} - ${formatDate(s.periodEndDate)}`,
-        `${planned} / ${capacity}`,
-        `${Math.round(util)}%`,
-        getUtilizationStatus(util),
-      ]
-    })
+    return [
+      s.rosterPeriod,
+      `${formatDate(s.periodStartDate)} - ${formatDate(s.periodEndDate)}`,
+      `${planned} / ${capacity}`,
+      `${Math.round(util)}%`,
+      getUtilizationStatus(util),
+    ]
+  })
 
   autoTable(doc, {
     head: [['Period', 'Dates', 'Renewals', 'Util%', 'Status']],
@@ -451,7 +455,8 @@ function addCategoryPage(
       ]
       if (isSimCategory) {
         const roleLabel = getCaptainRoleLabel(r.captain_role)
-        const seatLabel = r.seat_position === 'right_seat' ? 'RHS' : r.seat_position === 'left_seat' ? 'LHS' : ''
+        const seatLabel =
+          r.seat_position === 'right_seat' ? 'RHS' : r.seat_position === 'left_seat' ? 'LHS' : ''
         row.push(roleLabel ? `${roleLabel} (${seatLabel})` : seatLabel)
       }
       return row
@@ -467,16 +472,18 @@ function addCategoryPage(
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: category.color, textColor: 255 },
       alternateRowStyles: { fillColor: [250, 250, 250] },
-      didParseCell: isSimCategory ? (cellData: any) => {
-        // Highlight RHS cells
-        if (cellData.section === 'body' && cellData.column.index === 5) {
-          const val = cellData.cell.raw as string
-          if (val && val.includes('RHS')) {
-            cellData.cell.styles.textColor = [180, 83, 9] // amber
-            cellData.cell.styles.fontStyle = 'bold'
+      didParseCell: isSimCategory
+        ? (cellData: any) => {
+            // Highlight RHS cells
+            if (cellData.section === 'body' && cellData.column.index === 5) {
+              const val = cellData.cell.raw as string
+              if (val && val.includes('RHS')) {
+                cellData.cell.styles.textColor = [180, 83, 9] // amber
+                cellData.cell.styles.fontStyle = 'bold'
+              }
+            }
           }
-        }
-      } : undefined,
+        : undefined,
     })
   } else {
     doc.setFontSize(11)

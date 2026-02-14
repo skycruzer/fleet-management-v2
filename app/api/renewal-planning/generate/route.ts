@@ -47,7 +47,14 @@ export async function POST(request: NextRequest) {
     // Supabase Auth users are trusted as admins (dashboard access requires Supabase Auth)
 
     const body = await request.json()
-    const { monthsAhead = 12, categories, pilotIds, checkCodes, clearExisting = false, captainRoles } = body
+    const {
+      monthsAhead = 12,
+      categories,
+      pilotIds,
+      checkCodes,
+      clearExisting = false,
+      captainRoles,
+    } = body
 
     // Clear existing renewal plans if requested
     if (clearExisting) {

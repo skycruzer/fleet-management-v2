@@ -11,10 +11,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import {
-  DEFAULT_MINIMUM_CAPTAINS,
-  DEFAULT_MINIMUM_FIRST_OFFICERS,
-} from '@/lib/constants/crew'
+import { DEFAULT_MINIMUM_CAPTAINS, DEFAULT_MINIMUM_FIRST_OFFICERS } from '@/lib/constants/crew'
 import { logger } from './logging-service'
 
 // ============================================================================

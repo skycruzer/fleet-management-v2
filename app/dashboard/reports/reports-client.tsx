@@ -173,7 +173,6 @@ export function ReportsClient() {
           </Card>
         </TabsContent>
       </Tabs>
-
     </div>
   )
 }

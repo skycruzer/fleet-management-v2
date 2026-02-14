@@ -72,7 +72,14 @@ interface ApiResponse {
   pagination: PaginationInfo
 }
 
-type SortField = 'name' | 'employee_id' | 'rank' | 'registration_date' | 'last_login_at' | 'total_requests' | 'active_sessions'
+type SortField =
+  | 'name'
+  | 'employee_id'
+  | 'rank'
+  | 'registration_date'
+  | 'last_login_at'
+  | 'total_requests'
+  | 'active_sessions'
 type SortOrder = 'asc' | 'desc'
 
 // --- Helpers ---
@@ -287,7 +294,7 @@ export function PortalUsersTable() {
                         <button
                           type="button"
                           onClick={() => handleSort('name')}
-                          className="inline-flex items-center hover:text-foreground"
+                          className="hover:text-foreground inline-flex items-center"
                         >
                           Name
                           <SortIcon field="name" />
@@ -297,7 +304,7 @@ export function PortalUsersTable() {
                         <button
                           type="button"
                           onClick={() => handleSort('employee_id')}
-                          className="inline-flex items-center hover:text-foreground"
+                          className="hover:text-foreground inline-flex items-center"
                         >
                           Employee ID
                           <SortIcon field="employee_id" />
@@ -307,7 +314,7 @@ export function PortalUsersTable() {
                         <button
                           type="button"
                           onClick={() => handleSort('rank')}
-                          className="inline-flex items-center hover:text-foreground"
+                          className="hover:text-foreground inline-flex items-center"
                         >
                           Rank
                           <SortIcon field="rank" />
@@ -318,7 +325,7 @@ export function PortalUsersTable() {
                         <button
                           type="button"
                           onClick={() => handleSort('last_login_at')}
-                          className="inline-flex items-center hover:text-foreground"
+                          className="hover:text-foreground inline-flex items-center"
                         >
                           Last Login
                           <SortIcon field="last_login_at" />
@@ -328,7 +335,7 @@ export function PortalUsersTable() {
                         <button
                           type="button"
                           onClick={() => handleSort('total_requests')}
-                          className="inline-flex items-center hover:text-foreground"
+                          className="hover:text-foreground inline-flex items-center"
                         >
                           Requests
                           <SortIcon field="total_requests" />
@@ -338,7 +345,7 @@ export function PortalUsersTable() {
                         <button
                           type="button"
                           onClick={() => handleSort('active_sessions')}
-                          className="inline-flex items-center hover:text-foreground"
+                          className="hover:text-foreground inline-flex items-center"
                         >
                           Sessions
                           <SortIcon field="active_sessions" />
@@ -348,7 +355,7 @@ export function PortalUsersTable() {
                         <button
                           type="button"
                           onClick={() => handleSort('registration_date')}
-                          className="inline-flex items-center hover:text-foreground"
+                          className="hover:text-foreground inline-flex items-center"
                         >
                           Registered
                           <SortIcon field="registration_date" />
@@ -379,7 +386,9 @@ export function PortalUsersTable() {
                         {/* Employee ID */}
                         <TableCell>
                           {user.employee_id ? (
-                            <code className="text-muted-foreground text-xs">{user.employee_id}</code>
+                            <code className="text-muted-foreground text-xs">
+                              {user.employee_id}
+                            </code>
                           ) : (
                             <span className="text-muted-foreground text-xs">--</span>
                           )}

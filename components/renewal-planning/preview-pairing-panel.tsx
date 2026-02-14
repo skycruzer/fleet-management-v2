@@ -355,9 +355,18 @@ function CaptainRoleBadge({ role }: { role?: CaptainRole }) {
   if (!role || role === 'line_captain') return null
 
   const config = {
-    training_captain: { label: 'TRI', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-    examiner: { label: 'TRE', className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
-    rhs_captain: { label: 'RHS', className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+    training_captain: {
+      label: 'TRI',
+      className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    },
+    examiner: {
+      label: 'TRE',
+      className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    },
+    rhs_captain: {
+      label: 'RHS',
+      className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    },
   }
 
   const cfg = config[role]

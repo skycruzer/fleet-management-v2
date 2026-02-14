@@ -241,7 +241,13 @@ export function RenewalPlanPreviewModal({
         data[category].totalCapacity += breakdown.capacity
 
         const enrichedPilots = breakdown.pilots.map((p) =>
-          enrichWithPairing(p, category, summary.rosterPeriod, summary.periodStartDate, summary.periodEndDate)
+          enrichWithPairing(
+            p,
+            category,
+            summary.rosterPeriod,
+            summary.periodStartDate,
+            summary.periodEndDate
+          )
         )
 
         // Add period distribution

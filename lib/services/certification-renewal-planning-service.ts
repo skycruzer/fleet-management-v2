@@ -948,9 +948,7 @@ export async function generateRenewalPlanWithPairing(options?: {
   }
 
   // Strip columns that don't exist in the database yet (migration not applied)
-  const cleanedPlans = deduplicatedPlans.map(
-    ({ captain_role, seat_position, ...rest }) => rest
-  )
+  const cleanedPlans = deduplicatedPlans.map(({ captain_role, seat_position, ...rest }) => rest)
 
   const { data: created, error: insertError } = await supabase
     .from('certification_renewal_plans')

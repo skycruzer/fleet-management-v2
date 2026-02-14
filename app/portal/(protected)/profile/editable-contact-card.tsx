@@ -157,7 +157,13 @@ export function EditableContactCard({ email, phone, address }: EditableContactCa
               )}
               {isSaving ? 'Saving...' : 'Save'}
             </Button>
-            <Button variant="outline" onClick={handleCancel} disabled={isSaving} size="sm" className="gap-1.5">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isSaving}
+              size="sm"
+              className="gap-1.5"
+            >
               <X className="h-3.5 w-3.5" />
               Cancel
             </Button>

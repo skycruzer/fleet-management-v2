@@ -24,11 +24,7 @@ import { Download, FileText, Table2, Loader2, CheckCircle, AlertCircle } from 'l
 import { cn } from '@/lib/utils'
 
 type ExportFormat = 'pdf' | 'csv'
-type ExportCategory =
-  | 'all'
-  | 'Flight Checks'
-  | 'Simulator Checks'
-  | 'Ground Courses Refresher'
+type ExportCategory = 'all' | 'Flight Checks' | 'Simulator Checks' | 'Ground Courses Refresher'
 
 interface ExportOptionsPanelProps {
   year: number

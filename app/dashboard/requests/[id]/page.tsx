@@ -173,7 +173,9 @@ export default async function RequestDetailPage({ params }: PageProps) {
                 </div>
                 <div>
                   <p className="text-muted-foreground text-sm font-medium">Submission Date</p>
-                  <p className="text-lg">{formatDate(request.submission_date || request.created_at)}</p>
+                  <p className="text-lg">
+                    {formatDate(request.submission_date || request.created_at)}
+                  </p>
                 </div>
               </div>
             </CardContent>

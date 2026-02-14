@@ -140,8 +140,7 @@ export default async function PilotDashboardPage() {
 
         {/* 30-Day Expiry Countdown */}
         {stats &&
-          ((stats.critical_certifications || 0) > 0 ||
-            (stats.caution_certifications || 0) > 0) && (
+          ((stats.critical_certifications || 0) > 0 || (stats.caution_certifications || 0) > 0) && (
             <div className="mb-8 space-y-4">
               <h2 className="text-foreground text-lg font-semibold tracking-tight">
                 30-Day Expiry Countdown
@@ -173,7 +172,9 @@ export default async function PilotDashboardPage() {
                             <p className="text-foreground text-sm font-semibold">
                               {check.check_code}
                             </p>
-                            <p className="text-muted-foreground text-xs">{check.check_description}</p>
+                            <p className="text-muted-foreground text-xs">
+                              {check.check_description}
+                            </p>
                           </div>
                           <div className="text-right">
                             <p className="text-lg font-bold text-[var(--color-danger-400)]">
@@ -192,10 +193,7 @@ export default async function PilotDashboardPage() {
               {(stats.caution_certifications || 0) > 0 && (
                 <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-500)]/5 p-5">
                   <div className="mb-3 flex items-center gap-2">
-                    <Clock
-                      className="h-5 w-5 text-[var(--color-warning-400)]"
-                      aria-hidden="true"
-                    />
+                    <Clock className="h-5 w-5 text-[var(--color-warning-400)]" aria-hidden="true" />
                     <h3 className="text-sm font-semibold text-[var(--color-warning-400)]">
                       Caution — Expiring within 15–30 days
                     </h3>
@@ -214,7 +212,9 @@ export default async function PilotDashboardPage() {
                             <p className="text-foreground text-sm font-semibold">
                               {check.check_code}
                             </p>
-                            <p className="text-muted-foreground text-xs">{check.check_description}</p>
+                            <p className="text-muted-foreground text-xs">
+                              {check.check_description}
+                            </p>
                           </div>
                           <div className="text-right">
                             <p className="text-lg font-bold text-[var(--color-warning-400)]">

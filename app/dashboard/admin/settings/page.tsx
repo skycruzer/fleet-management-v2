@@ -72,7 +72,6 @@ export default async function SystemSettingsPage() {
 
       {/* Client Component with Interactive Editing */}
       <SettingsClient settings={settings} />
-
     </div>
   )
 }

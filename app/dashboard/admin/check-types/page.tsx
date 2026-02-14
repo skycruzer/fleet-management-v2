@@ -111,7 +111,6 @@ export default async function CheckTypesPage() {
           Showing {checkTypes.length} check types
         </div>
       </Card>
-
     </div>
   )
 }

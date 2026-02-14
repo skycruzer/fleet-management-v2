@@ -303,9 +303,7 @@ export function RequestEmailReportDialog({
           <DialogTitle>Email Requests Report</DialogTitle>
           <DialogDescription>
             Send {requests.length} filtered request{requests.length !== 1 ? 's' : ''} via email
-            {filterSummary && (
-              <span className="mt-1 block text-xs">Filters: {filterSummary}</span>
-            )}
+            {filterSummary && <span className="mt-1 block text-xs">Filters: {filterSummary}</span>}
           </DialogDescription>
         </DialogHeader>
 
@@ -387,7 +385,12 @@ export function RequestEmailReportDialog({
           {/* Subject */}
           <div>
             <Label htmlFor="subject">Subject</Label>
-            <Input id="subject" {...register('subject')} placeholder="Email subject" className="mt-2" />
+            <Input
+              id="subject"
+              {...register('subject')}
+              placeholder="Email subject"
+              className="mt-2"
+            />
           </div>
 
           {/* Message */}

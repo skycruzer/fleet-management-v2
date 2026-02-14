@@ -6,15 +6,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Book,
-  FileText,
-  Users,
-  Shield,
-  BarChart3,
-  Settings,
-  ArrowLeft,
-} from 'lucide-react'
+import { Book, FileText, Users, Shield, BarChart3, Settings, ArrowLeft } from 'lucide-react'
 
 export const metadata = {
   title: 'Documentation | Fleet Management V2',
@@ -148,7 +140,6 @@ export default function DocsPage() {
             ]}
           />
         </div>
-
 
         {/* Support & Resources */}
         <Card className="mt-8">

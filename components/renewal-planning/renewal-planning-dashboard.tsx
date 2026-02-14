@@ -445,8 +445,7 @@ export function RenewalPlanningDashboard({
                       </div>
 
                       <p className="text-muted-foreground mb-3 text-xs">
-                        {formatDate(summary.periodStartDate)} -{' '}
-                        {formatDate(summary.periodEndDate)}
+                        {formatDate(summary.periodStartDate)} - {formatDate(summary.periodEndDate)}
                       </p>
 
                       <div className="space-y-2">

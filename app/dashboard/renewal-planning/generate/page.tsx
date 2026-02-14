@@ -132,8 +132,16 @@ export default function GeneratePlanPage() {
   // Captain role pairing configuration
   const CAPTAIN_ROLE_OPTIONS = [
     { id: 'line_captain', label: 'Line Captain', description: 'Standard line captains' },
-    { id: 'training_captain', label: 'Training Captain (TRI)', description: 'Type Rating Instructors — right-hand seat for sim checks' },
-    { id: 'examiner', label: 'Examiner Captain (TRE)', description: 'Type Rating Examiners — right-hand seat for sim checks' },
+    {
+      id: 'training_captain',
+      label: 'Training Captain (TRI)',
+      description: 'Type Rating Instructors — right-hand seat for sim checks',
+    },
+    {
+      id: 'examiner',
+      label: 'Examiner Captain (TRE)',
+      description: 'Type Rating Examiners — right-hand seat for sim checks',
+    },
     { id: 'rhs_captain', label: 'RHS Captain', description: 'Right-hand seat qualified captains' },
   ] as const
   const [selectedCaptainRoles, setSelectedCaptainRoles] = useState<string[]>(
@@ -153,7 +161,13 @@ export default function GeneratePlanPage() {
 
   // Preview query - only runs when on preview step
   const previewQuery = useQuery<PreviewData>({
-    queryKey: ['renewal-preview', monthsAhead, selectedCategories, selectedCheckCodes, selectedCaptainRoles],
+    queryKey: [
+      'renewal-preview',
+      monthsAhead,
+      selectedCategories,
+      selectedCheckCodes,
+      selectedCaptainRoles,
+    ],
     queryFn: async () => {
       const response = await fetch('/api/renewal-planning/preview', {
         method: 'POST',
@@ -431,13 +445,11 @@ export default function GeneratePlanPage() {
 
         {/* Captain Role Pairing Configuration */}
         <Card className="p-6">
-          <h2 className="text-foreground mb-4 text-xl font-semibold">
-            Captain Role Pairing
-          </h2>
+          <h2 className="text-foreground mb-4 text-xl font-semibold">Captain Role Pairing</h2>
           <p className="text-muted-foreground mb-4 text-sm">
-            Select which captain qualification types to include when pairing Captains with
-            First Officers. RHS/Training/Examiner captains perform simulator checks from the
-            right-hand seat.
+            Select which captain qualification types to include when pairing Captains with First
+            Officers. RHS/Training/Examiner captains perform simulator checks from the right-hand
+            seat.
           </p>
           <div className="space-y-3">
             {CAPTAIN_ROLE_OPTIONS.map((role) => (
@@ -451,9 +463,7 @@ export default function GeneratePlanPage() {
                   <Label htmlFor={`role-${role.id}`} className="cursor-pointer font-medium">
                     {role.label}
                   </Label>
-                  <p className="text-muted-foreground text-xs">
-                    {role.description}
-                  </p>
+                  <p className="text-muted-foreground text-xs">{role.description}</p>
                 </div>
               </div>
             ))}
@@ -676,7 +686,9 @@ export default function GeneratePlanPage() {
       <div className="space-y-6">
         {/* Success Header */}
         <div className="flex items-center space-x-4">
-          <div className={`flex h-12 w-12 items-center justify-center rounded-full ${generationResult.totalPlans > 0 ? 'bg-[var(--color-success-muted)]' : 'bg-[var(--color-warning-muted)]'}`}>
+          <div
+            className={`flex h-12 w-12 items-center justify-center rounded-full ${generationResult.totalPlans > 0 ? 'bg-[var(--color-success-muted)]' : 'bg-[var(--color-warning-muted)]'}`}
+          >
             {generationResult.totalPlans > 0 ? (
               <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
             ) : (

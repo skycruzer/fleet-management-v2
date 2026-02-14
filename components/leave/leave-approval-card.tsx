@@ -14,10 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, XCircle, AlertTriangle, Clock, Calendar, User, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import {
-  DEFAULT_MINIMUM_CAPTAINS,
-  DEFAULT_MINIMUM_FIRST_OFFICERS,
-} from '@/lib/constants/crew'
+import { DEFAULT_MINIMUM_CAPTAINS, DEFAULT_MINIMUM_FIRST_OFFICERS } from '@/lib/constants/crew'
 import { toast } from 'sonner'
 
 interface LeaveRequest {
@@ -298,8 +295,7 @@ export function LeaveApprovalCard({
                       First Officers: {request.availability_impact.fos_before || 0} →{' '}
                       {request.availability_impact.fos_after || 0}
                       {request.availability_impact.fos_after !== undefined &&
-                        request.availability_impact.fos_after <
-                          DEFAULT_MINIMUM_FIRST_OFFICERS && (
+                        request.availability_impact.fos_after < DEFAULT_MINIMUM_FIRST_OFFICERS && (
                           <span className="font-semibold">
                             {' '}
                             (Below minimum of {DEFAULT_MINIMUM_FIRST_OFFICERS})
