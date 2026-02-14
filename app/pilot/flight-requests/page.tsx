@@ -4,8 +4,8 @@ import {
   getCurrentPilotFlightRequests,
   getPilotFlightStats,
 } from '@/lib/services/pilot-flight-service'
-import FlightRequestForm from '@/components/pilot/FlightRequestForm'
-import FlightRequestsList from '@/components/pilot/FlightRequestsList'
+import FlightRequestForm from '@/components/pilot/flight-request-form'
+import FlightRequestsList from '@/components/pilot/flight-requests-list'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 

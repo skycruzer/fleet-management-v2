@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatterWithTimeline, getIncidentTypes } from '@/lib/services/disciplinary-service'
-import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatterForm'
+import DisciplinaryMatterForm from '@/components/disciplinary/disciplinary-matter-form'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 /**

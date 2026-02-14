@@ -15,7 +15,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
 import { Button } from '@/components/ui/button'
-import { RetirementCountdownBadge } from '@/components/pilots/RetirementCountdownBadge'
+import { RetirementCountdownBadge } from '@/components/pilots/retirement-countdown-badge'
 import {
   DropdownMenu,
   DropdownMenuContent,

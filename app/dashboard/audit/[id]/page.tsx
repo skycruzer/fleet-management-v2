@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getAuditLogById } from '@/lib/services/audit-service'
-import AuditLogDetail from '@/components/audit/AuditLogDetail'
+import AuditLogDetail from '@/components/audit/audit-log-detail'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 /**

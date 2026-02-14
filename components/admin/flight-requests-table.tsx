@@ -12,7 +12,7 @@ import { useState, useMemo } from 'react'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { Plane } from 'lucide-react'
 import { EmptyState } from '@/components/ui/empty-state'
-import FlightRequestReviewModal from './FlightRequestReviewModal'
+import FlightRequestReviewModal from './flight-request-review-modal'
 
 interface FlightRequestsTableProps {
   requests: FlightRequest[]

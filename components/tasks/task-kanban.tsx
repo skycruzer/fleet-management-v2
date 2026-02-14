@@ -24,7 +24,7 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import TaskCard from './TaskCard'
+import TaskCard from './task-card'
 import type { TaskWithRelations } from '@/lib/services/task-service'
 
 interface TaskKanbanProps {

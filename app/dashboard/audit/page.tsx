@@ -8,8 +8,8 @@ import {
   type AuditStats,
   type AuditLogFilters as AuditLogFiltersType,
 } from '@/lib/services/audit-service'
-import AuditLogTable from '@/components/audit/AuditLogTable'
-import AuditLogFilters from '@/components/audit/AuditLogFilters'
+import AuditLogTable from '@/components/audit/audit-log-table'
+import AuditLogFilters from '@/components/audit/audit-log-filters'
 // Force dynamic rendering to prevent static generation at build time
 /**
  * Audit Log Viewer Page (Admin)

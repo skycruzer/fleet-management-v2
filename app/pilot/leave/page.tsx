@@ -4,8 +4,8 @@ import {
   getCurrentPilotLeaveRequests,
   getPilotLeaveStats,
 } from '@/lib/services/pilot-leave-service'
-import LeaveRequestForm from '@/components/pilot/LeaveRequestForm'
-import LeaveRequestsList from '@/components/pilot/LeaveRequestsList'
+import LeaveRequestForm from '@/components/pilot/leave-request-form'
+import LeaveRequestsList from '@/components/pilot/leave-requests-list'
 // Force dynamic rendering to prevent static generation at build time
 export const dynamic = 'force-dynamic'
 

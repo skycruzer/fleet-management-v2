@@ -2,8 +2,8 @@ import { Suspense } from 'react'
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTasks, getTaskStats } from '@/lib/services/task-service'
-import TaskKanban from '@/components/tasks/TaskKanban'
-import TaskList from '@/components/tasks/TaskList'
+import TaskKanban from '@/components/tasks/task-kanban'
+import TaskList from '@/components/tasks/task-list'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
 /**

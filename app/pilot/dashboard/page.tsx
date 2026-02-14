@@ -14,8 +14,8 @@ import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
-import PilotDashboardContent from '@/components/pilot/PilotDashboardContent'
-import NotificationBell from '@/components/pilot/NotificationBell'
+import PilotDashboardContent from '@/components/pilot/pilot-dashboard-content'
+import NotificationBell from '@/components/pilot/notification-bell'
 
 export const metadata: Metadata = {
   title: 'Pilot Dashboard | Fleet Management',

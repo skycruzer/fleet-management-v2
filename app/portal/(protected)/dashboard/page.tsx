@@ -23,7 +23,7 @@ import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Clock, AlertTriangle, XCircle, Calendar, Plane, ShieldCheck } from 'lucide-react'
-import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
+import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 import { RosterPeriodCard } from '@/components/portal/roster-period-card'
 

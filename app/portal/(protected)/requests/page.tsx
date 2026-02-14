@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 import { Calendar, Plane, Loader2 } from 'lucide-react'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 import { FlightRequestsList } from '@/components/portal/rdo-sdo-requests-list'
-import LeaveRequestsList from '@/components/pilot/LeaveRequestsList'
+import LeaveRequestsList from '@/components/pilot/leave-requests-list'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import type { LeaveRequest } from '@/lib/services/unified-request-service'
 

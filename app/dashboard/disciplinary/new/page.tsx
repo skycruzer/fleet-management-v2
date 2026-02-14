@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getIncidentTypes } from '@/lib/services/disciplinary-service'
-import DisciplinaryMatterForm from '@/components/disciplinary/DisciplinaryMatterForm'
+import DisciplinaryMatterForm from '@/components/disciplinary/disciplinary-matter-form'
 // Force dynamic rendering to prevent static generation at build time
 /**
  * New Disciplinary Matter Page (Admin)

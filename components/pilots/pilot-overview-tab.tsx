@@ -33,7 +33,7 @@ import {
   Phone,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { RetirementInformationCard } from '@/components/pilots/RetirementInformationCard'
+import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 import { PilotInfoCard } from '@/components/pilots/pilot-info-card'
 import type { Pilot } from './pilot-detail-tabs'
 
