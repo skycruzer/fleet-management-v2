@@ -55,7 +55,7 @@ export default function NewFeedbackPage() {
 
       // Check both HTTP status and API success flag
       if (!response.ok || !result.success) {
-        throw new Error(result.error || result.message || 'Failed to submit feedback')
+        throw new Error(result.message || result.error || 'Failed to submit feedback')
       }
 
       // Show success and clear form
@@ -186,10 +186,11 @@ export default function NewFeedbackPage() {
                 className="border-input bg-background text-foreground focus:border-primary focus:ring-primary w-full rounded-md border px-3 py-2 focus:ring-2 focus:outline-none"
                 placeholder="Brief summary of your feedback"
                 required
+                minLength={5}
                 maxLength={200}
               />
               <p className="text-muted-foreground mt-1 text-xs">
-                {formData.subject.length}/200 characters
+                {formData.subject.length}/200 characters (min 5)
               </p>
             </div>
 
@@ -206,10 +207,11 @@ export default function NewFeedbackPage() {
                 placeholder="Provide details about your feedback, suggestion, or concern..."
                 required
                 rows={8}
+                minLength={10}
                 maxLength={2000}
               />
               <p className="text-muted-foreground mt-1 text-xs">
-                {formData.message.length}/2000 characters
+                {formData.message.length}/2000 characters (min 10)
               </p>
             </div>
 
