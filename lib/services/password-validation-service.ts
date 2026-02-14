@@ -9,6 +9,7 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 
 /**
  * Password validation configuration
@@ -369,8 +370,7 @@ async function checkPasswordHistory(password: string, userId: string): Promise<b
 export async function hashPassword(password: string): Promise<string> {
   // Use bcrypt for password hashing
   const bcrypt = require('bcryptjs')
-  const saltRounds = 12
-  return await bcrypt.hash(password, saltRounds)
+  return await bcrypt.hash(password, BCRYPT_SALT_ROUNDS)
 }
 
 /**

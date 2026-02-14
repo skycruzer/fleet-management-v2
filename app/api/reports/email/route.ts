@@ -13,9 +13,20 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportEmailRequestSchema } from '@/lib/validations/reports-schema'
+import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
-const resend = new Resend(process.env.RESEND_API_KEY)
+
+let _resend: Resend | null = null
+function getResend() {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY environment variable is not configured')
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY)
+  }
+  return _resend
+}
 
 export async function POST(request: Request) {
   try {
@@ -135,8 +146,8 @@ export async function POST(request: Request) {
     const startTime = Date.now()
 
     // Send email via Resend (with optional CC/BCC)
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'reports@fleetmanagement.com',
+    const { data, error } = await getResend().emails.send({
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: recipients,
       ...(cc && cc.length > 0 ? { cc } : {}),
       ...(bcc && bcc.length > 0 ? { bcc } : {}),

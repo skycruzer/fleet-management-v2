@@ -12,7 +12,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { updateRequestStatus, type WorkflowStatus } from '@/lib/services/unified-request-service'
+import { z } from 'zod'
+import { updateRequestStatus } from '@/lib/services/unified-request-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { logger } from '@/lib/services/logging-service'
@@ -38,27 +39,22 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Parse request body
+    // Parse and validate request body
+    const UpdateStatusSchema = z.object({
+      status: z.enum(['DRAFT', 'SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED', 'WITHDRAWN']),
+      comments: z.string().optional(),
+      force: z.boolean().optional(),
+    })
+
     const body = await request.json()
-    const { status, comments, force } = body as {
-      status: WorkflowStatus
-      comments?: string
-      force?: boolean
+    const parsed = UpdateStatusSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: parsed.error.issues },
+        { status: 400 }
+      )
     }
-
-    // Validate status
-    const validStatuses: WorkflowStatus[] = [
-      'DRAFT',
-      'SUBMITTED',
-      'IN_REVIEW',
-      'APPROVED',
-      'DENIED',
-      'WITHDRAWN',
-    ]
-
-    if (!validStatuses.includes(status)) {
-      return NextResponse.json({ success: false, error: 'Invalid status value' }, { status: 400 })
-    }
+    const { status, comments, force } = parsed.data
 
     // Update request status
     const { id } = await context.params

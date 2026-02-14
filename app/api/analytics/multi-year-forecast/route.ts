@@ -21,8 +21,14 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const retirementAge = parseInt(searchParams.get('retirementAge') || '65')
-    const yearsAhead = parseInt(searchParams.get('yearsAhead') || '10')
+    const retirementAge = Math.min(
+      75,
+      Math.max(50, parseInt(searchParams.get('retirementAge') || '65') || 65)
+    )
+    const yearsAhead = Math.min(
+      30,
+      Math.max(1, parseInt(searchParams.get('yearsAhead') || '10') || 10)
+    )
 
     const forecast = await getMultiYearRetirementForecast(retirementAge, yearsAhead)
 

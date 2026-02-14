@@ -38,8 +38,8 @@ export default function FlightRequestReviewModal({
     defaultValues: {
       status:
         request.workflow_status === 'SUBMITTED'
-          ? 'UNDER_REVIEW'
-          : (request.workflow_status as 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'),
+          ? 'IN_REVIEW'
+          : (request.workflow_status as 'IN_REVIEW' | 'APPROVED' | 'DENIED'),
       reviewer_comments: request.review_comments || '',
     },
   })
@@ -172,7 +172,7 @@ export default function FlightRequestReviewModal({
                   {...form.register('status')}
                   className="border-border focus:border-primary focus:ring-primary bg-card mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:ring-1 focus:outline-none"
                 >
-                  <option value="UNDER_REVIEW">Under Review</option>
+                  <option value="IN_REVIEW">Under Review</option>
                   <option value="APPROVED">Approved</option>
                   <option value="DENIED">Denied</option>
                 </select>

@@ -12,6 +12,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Database } from '@/types/supabase'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 import { handleConstraintError } from '@/lib/utils/constraint-error-handler'
 import {
   PilotLoginInput,
@@ -264,8 +265,7 @@ export async function submitPilotRegistration(
 
     // Hash password using bcrypt
     const bcrypt = require('bcryptjs')
-    const saltRounds = 10
-    const passwordHash = await bcrypt.hash(registration.password, saltRounds)
+    const passwordHash = await bcrypt.hash(registration.password, BCRYPT_SALT_ROUNDS)
 
     // SECURITY: Creating direct registration with bcrypt password hash
 
@@ -515,7 +515,7 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
       .select('*', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
       .eq('request_category', 'LEAVE')
-      .eq('workflow_status', 'PENDING')
+      .in('workflow_status', ['SUBMITTED', 'IN_REVIEW'])
 
     // Get pending flight requests count for this pilot (v2.0.0 - uses pilot_requests)
     const { count: flightCount } = await supabase
@@ -523,7 +523,7 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
       .select('*', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
       .eq('request_category', 'FLIGHT')
-      .in('workflow_status', ['PENDING', 'SUBMITTED', 'IN_REVIEW'])
+      .in('workflow_status', ['SUBMITTED', 'IN_REVIEW'])
 
     // Get upcoming checks (expiring within 60 days) with details
     const sixtyDaysFromNow = new Date()

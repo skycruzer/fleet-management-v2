@@ -22,16 +22,12 @@ import {
   validateRedisSession,
   destroyRedisSession,
 } from '@/lib/services/redis-session-service'
+import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 
 /**
  * Admin session cookie name
  */
 const ADMIN_SESSION_COOKIE_NAME = 'admin-session'
-
-/**
- * Salt rounds for bcrypt
- */
-const BCRYPT_SALT_ROUNDS = 10
 
 /**
  * Admin user interface

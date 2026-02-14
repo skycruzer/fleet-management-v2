@@ -117,7 +117,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
 
             {/* Cancel Button */}
             {(request.workflow_status === 'SUBMITTED' ||
-              request.workflow_status === 'UNDER_REVIEW') && (
+              request.workflow_status === 'IN_REVIEW') && (
               <button
                 onClick={() => setConfirmCancelId(request.id)}
                 disabled={cancelingId === request.id}
@@ -174,21 +174,11 @@ function formatRequestType(type: string): string {
 function StatusBadge({
   status,
 }: {
-  status:
-    | 'DRAFT'
-    | 'SUBMITTED'
-    | 'PENDING'
-    | 'UNDER_REVIEW'
-    | 'IN_REVIEW'
-    | 'APPROVED'
-    | 'DENIED'
-    | 'WITHDRAWN'
+  status: 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
 }) {
   const badgeStyles: Record<string, string> = {
     DRAFT: 'bg-muted/30 text-muted-foreground',
     SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
-    PENDING: 'bg-muted/30 text-foreground',
-    UNDER_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
     IN_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
     APPROVED: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
     DENIED: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
@@ -198,8 +188,6 @@ function StatusBadge({
   const labels: Record<string, string> = {
     DRAFT: 'Draft',
     SUBMITTED: 'Submitted',
-    PENDING: 'Pending',
-    UNDER_REVIEW: 'Under Review',
     IN_REVIEW: 'In Review',
     APPROVED: 'Approved',
     DENIED: 'Denied',

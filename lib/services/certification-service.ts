@@ -178,7 +178,7 @@ export async function getCertifications(
 
         return {
           certifications: certificationsWithStatus,
-          total: certificationsWithStatus.length,
+          total: count || 0,
           page,
           pageSize,
         }

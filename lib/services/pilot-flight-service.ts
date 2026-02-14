@@ -39,7 +39,7 @@ export interface FlightRequest {
   end_date?: string | null
   description?: string | null
   reason?: string | null
-  workflow_status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+  workflow_status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
   review_comments?: string | null
   reviewed_by?: string | null
   reviewed_at?: string | null
@@ -562,7 +562,7 @@ export async function getPilotFlightStats(): Promise<
     const stats = {
       total: requests?.length || 0,
       submitted: requests?.filter((r) => r.workflow_status === 'SUBMITTED').length || 0,
-      under_review: requests?.filter((r) => r.workflow_status === 'UNDER_REVIEW').length || 0,
+      under_review: requests?.filter((r) => r.workflow_status === 'IN_REVIEW').length || 0,
       approved: requests?.filter((r) => r.workflow_status === 'APPROVED').length || 0,
       denied: requests?.filter((r) => r.workflow_status === 'DENIED').length || 0,
     }

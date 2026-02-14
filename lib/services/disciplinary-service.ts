@@ -202,9 +202,13 @@ export async function getMatters(
 
     // Search query
     if (filters?.searchQuery) {
-      query = query.or(
-        `title.ilike.%${filters.searchQuery}%,description.ilike.%${filters.searchQuery}%,flight_number.ilike.%${filters.searchQuery}%`
-      )
+      const { sanitizeSearchTerm } = await import('@/lib/utils/search-sanitizer')
+      const safe = sanitizeSearchTerm(filters.searchQuery)
+      if (safe) {
+        query = query.or(
+          `title.ilike.%${safe}%,description.ilike.%${safe}%,flight_number.ilike.%${safe}%`
+        )
+      }
     }
 
     // Sorting

@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { validatePilotSession } from '@/lib/services/session-service'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
@@ -35,24 +36,21 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    // 2. Parse request body
+    // 2. Parse and validate request body
+    const ChangePasswordSchema = z.object({
+      oldPassword: z.string().min(1, 'Current password is required'),
+      newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+    })
+
     const body = await request.json()
-    const { oldPassword, newPassword } = body
-
-    if (!oldPassword || !newPassword) {
+    const parsed = ChangePasswordSchema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Both current and new passwords are required.' },
+        { error: 'Validation failed', details: parsed.error.issues },
         { status: 400 }
       )
     }
-
-    // 3. Validate new password
-    if (newPassword.length < 8) {
-      return NextResponse.json(
-        { success: false, error: 'New password must be at least 8 characters.' },
-        { status: 400 }
-      )
-    }
+    const { oldPassword, newPassword } = parsed.data
 
     if (newPassword === oldPassword) {
       return NextResponse.json(

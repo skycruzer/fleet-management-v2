@@ -227,7 +227,14 @@ function storeErrorInLocalStorage(errorEntry: ErrorLogEntry): void {
 
     const storageKey = 'fleet-management-errors'
     const existingErrors = localStorage.getItem(storageKey)
-    const errors = existingErrors ? JSON.parse(existingErrors) : []
+    let errors: ErrorLogEntry[] = []
+    if (existingErrors) {
+      try {
+        errors = JSON.parse(existingErrors)
+      } catch {
+        // Corrupted stored data — start fresh
+      }
+    }
 
     // Keep only last 50 errors
     const updatedErrors = [...errors, errorEntry].slice(-50)

@@ -11,6 +11,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Database } from '@/types/supabase'
+import { getCertificationStatus } from '@/lib/utils/certification-status'
 
 type PilotCheck = Database['public']['Tables']['pilot_checks']['Row']
 type CheckType = Database['public']['Tables']['check_types']['Row']
@@ -66,27 +67,22 @@ export async function getPilotCertifications(
       !EXCLUDED_CATEGORIES.includes(cert.check_types.category)
   )
 
-  // Calculate days until expiry and status for each certification
-  const today = new Date()
+  // Calculate days until expiry and status using shared utility
   const certificationsWithStatus = renewalCerts.map((cert) => {
-    const expiryDate = cert.expiry_date ? new Date(cert.expiry_date) : null
-    const daysUntilExpiry = expiryDate
-      ? Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-      : -999 // Large negative number for null expiry dates
+    const certStatus = getCertificationStatus(cert.expiry_date)
 
-    let status: 'expired' | 'expiring_soon' | 'current'
-    if (daysUntilExpiry < 0) {
-      status = 'expired'
-    } else if (daysUntilExpiry <= 30) {
-      status = 'expiring_soon'
-    } else {
-      status = 'current'
+    // Map shared utility colors to portal status values
+    const statusMap: Record<string, 'expired' | 'expiring_soon' | 'current'> = {
+      red: 'expired',
+      yellow: 'expiring_soon',
+      green: 'current',
+      gray: 'current', // No date treated as current (not alarming red)
     }
 
     return {
       ...cert,
-      daysUntilExpiry,
-      status,
+      daysUntilExpiry: certStatus.daysUntilExpiry,
+      status: statusMap[certStatus.color],
     }
   })
 
@@ -202,26 +198,19 @@ export async function getPilotCertificationById(
     return null
   }
 
-  // Calculate days until expiry and status
-  const today = new Date()
-  const expiryDate = data.expiry_date ? new Date(data.expiry_date) : null
-  const daysUntilExpiry = expiryDate
-    ? Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    : -999 // Large negative number for null expiry dates
-
-  let status: 'expired' | 'expiring_soon' | 'current'
-  if (daysUntilExpiry < 0) {
-    status = 'expired'
-  } else if (daysUntilExpiry <= 30) {
-    status = 'expiring_soon'
-  } else {
-    status = 'current'
+  // Calculate days until expiry and status using shared utility
+  const certStatus = getCertificationStatus(data.expiry_date)
+  const statusMap: Record<string, 'expired' | 'expiring_soon' | 'current'> = {
+    red: 'expired',
+    yellow: 'expiring_soon',
+    green: 'current',
+    gray: 'current',
   }
 
   return {
     ...data,
-    daysUntilExpiry,
-    status,
+    daysUntilExpiry: certStatus.daysUntilExpiry,
+    status: statusMap[certStatus.color],
   }
 }
 

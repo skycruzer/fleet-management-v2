@@ -78,7 +78,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
  *
  * Request body:
  * {
- *   status: "UNDER_REVIEW" | "APPROVED" | "DENIED",
+ *   status: "IN_REVIEW" | "APPROVED" | "DENIED",
  *   admin_comments?: string (required for DENIED)
  * }
  *

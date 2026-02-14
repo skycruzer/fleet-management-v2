@@ -31,7 +31,7 @@ export interface CheckTypeReminderSettings {
   check_description: string
   category: string | null
   reminder_days: number[] | null
-  email_notifications_enabled: boolean
+  email_notifications_enabled: boolean | null
 }
 
 export interface NotificationHistoryFilters {

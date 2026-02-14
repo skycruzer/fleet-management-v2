@@ -22,9 +22,18 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const retirementAge = parseInt(searchParams.get('retirementAge') || '65')
-    const minimumCaptains = parseInt(searchParams.get('minimumCaptains') || '10')
-    const minimumFirstOfficers = parseInt(searchParams.get('minimumFirstOfficers') || '10')
+    const retirementAge = Math.min(
+      75,
+      Math.max(50, parseInt(searchParams.get('retirementAge') || '65') || 65)
+    )
+    const minimumCaptains = Math.min(
+      100,
+      Math.max(1, parseInt(searchParams.get('minimumCaptains') || '10') || 10)
+    )
+    const minimumFirstOfficers = Math.min(
+      100,
+      Math.max(1, parseInt(searchParams.get('minimumFirstOfficers') || '10') || 10)
+    )
 
     const predictions = await predictCrewShortages(
       retirementAge,

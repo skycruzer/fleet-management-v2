@@ -20,9 +20,12 @@ export const LeaveRequestTypeEnum = z.enum(
   }
 )
 
-export const LeaveRequestStatusEnum = z.enum(['PENDING', 'APPROVED', 'DENIED'], {
-  message: 'Status must be one of: PENDING, APPROVED, DENIED',
-})
+export const LeaveRequestStatusEnum = z.enum(
+  ['DRAFT', 'SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED', 'WITHDRAWN'],
+  {
+    message: 'Status must be one of: DRAFT, SUBMITTED, IN_REVIEW, APPROVED, DENIED, WITHDRAWN',
+  }
+)
 
 export const RequestMethodEnum = z.enum(
   ['PILOT_PORTAL', 'EMAIL', 'PHONE', 'ORACLE', 'ADMIN_PORTAL'],

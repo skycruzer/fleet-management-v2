@@ -82,7 +82,7 @@ export interface TaskStats {
 }
 
 // Valid task statuses for Kanban board
-export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED'] as const
+export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'COMPLETED', 'CANCELLED'] as const
 export type TaskStatus = (typeof TASK_STATUSES)[number]
 
 // Valid task priorities
@@ -167,9 +167,11 @@ export async function getTasks(
     }
 
     if (filters?.searchQuery) {
-      query = query.or(
-        `title.ilike.%${filters.searchQuery}%,description.ilike.%${filters.searchQuery}%`
-      )
+      const { sanitizeSearchTerm } = await import('@/lib/utils/search-sanitizer')
+      const safe = sanitizeSearchTerm(filters.searchQuery)
+      if (safe) {
+        query = query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`)
+      }
     }
 
     const { data, error } = await query

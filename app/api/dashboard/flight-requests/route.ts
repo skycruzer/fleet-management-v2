@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllFlightRequests, getFlightRequestStats } from '@/lib/services/flight-request-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
@@ -7,7 +8,7 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  *
  * Fetch all flight requests for admin review.
  * Supports query parameters for filtering:
- * - status: PENDING | UNDER_REVIEW | APPROVED | DENIED
+ * - status: SUBMITTED | IN_REVIEW | APPROVED | DENIED
  * - pilot_id: UUID
  * - start_date_from: YYYY-MM-DD
  * - start_date_to: YYYY-MM-DD
@@ -17,6 +18,11 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
  */
 export async function GET(_request: NextRequest) {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const searchParams = _request.nextUrl.searchParams
     const includeStats = searchParams.get('stats') === 'true'
 
@@ -35,15 +41,15 @@ export async function GET(_request: NextRequest) {
 
     // Build filters from query params
     const filters: {
-      status?: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+      status?: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED'
       pilot_id?: string
       start_date_from?: string
       start_date_to?: string
     } = {}
 
     const status = searchParams.get('status')
-    if (status && ['PENDING', 'UNDER_REVIEW', 'APPROVED', 'DENIED'].includes(status)) {
-      filters.status = status as 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+    if (status && ['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED'].includes(status)) {
+      filters.status = status as 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED'
     }
 
     const pilotId = searchParams.get('pilot_id')

@@ -4,6 +4,10 @@
  */
 
 import type { LeaveRequest } from '@/lib/services/unified-request-service'
+import {
+  DEFAULT_MINIMUM_CAPTAINS,
+  DEFAULT_MINIMUM_FIRST_OFFICERS,
+} from '@/lib/constants/crew'
 
 export interface CalendarEvent {
   id: string
@@ -79,8 +83,11 @@ export function calculateDayAvailability(
 export function getEventBgColor(event: CalendarEvent): string {
   const statusColors: Record<string, string> = {
     APPROVED: 'bg-[var(--color-success-muted)]',
+    SUBMITTED: 'bg-[var(--color-warning-muted)]',
     PENDING: 'bg-[var(--color-warning-muted)]',
+    IN_REVIEW: 'bg-[var(--color-warning-muted)]',
     DENIED: 'bg-[var(--color-destructive-muted)]',
+    WITHDRAWN: 'bg-muted/60',
     CANCELLED: 'bg-muted',
   }
 
@@ -113,8 +120,8 @@ export function getDayStatusColor(
   const captainsAvailable = totalCaptains - captainsOnLeave
   const fosAvailable = totalFirstOfficers - fosOnLeave
 
-  // Critical: Less than 10 available
-  if (captainsAvailable < 10 || fosAvailable < 10) {
+  // Critical: Less than minimum available
+  if (captainsAvailable < DEFAULT_MINIMUM_CAPTAINS || fosAvailable < DEFAULT_MINIMUM_FIRST_OFFICERS) {
     return 'bg-[var(--color-destructive-muted)]'
   }
 

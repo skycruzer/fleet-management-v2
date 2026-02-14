@@ -11,6 +11,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
+import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
 
 /**
  * Configuration
@@ -359,7 +360,7 @@ async function sendLockoutNotification(email: string, lockedUntil: Date): Promis
     const lockoutTime = Math.ceil((lockedUntil.getTime() - new Date().getTime()) / 60000)
 
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'no-reply@fleet-mgmt.com',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: email,
       subject: '🔒 Account Temporarily Locked - Fleet Management',
       html: `
@@ -390,7 +391,7 @@ async function sendUnlockNotification(email: string): Promise<void> {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'no-reply@fleet-mgmt.com',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: email,
       subject: '✅ Account Unlocked - Fleet Management',
       html: `
