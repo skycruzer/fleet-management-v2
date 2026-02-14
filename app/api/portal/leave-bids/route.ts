@@ -320,8 +320,11 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
  *
  * @auth Pilot Portal Authentication required (explicit check)
  */
-export async function DELETE(request: NextRequest) {
+export const DELETE = withRateLimit(async (request: NextRequest) => {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // SECURITY: Explicit authentication check at API layer
     const pilot = await getCurrentPilot()
     if (!pilot) {
@@ -356,6 +359,9 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    revalidatePath('/portal/leave-bids')
+    revalidatePath('/portal/dashboard')
+
     return NextResponse.json({
       success: true,
       message: 'Leave bid cancelled successfully',
@@ -371,4 +377,4 @@ export async function DELETE(request: NextRequest) {
       { status: sanitized.statusCode || 500 }
     )
   }
-}
+})

@@ -15,6 +15,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
+import { createAdminClient } from '@/lib/supabase/admin'
 import {
   createFeedbackComment,
   getFeedbackComments,
@@ -22,6 +23,19 @@ import {
   deleteFeedbackComment,
 } from '@/lib/services/feedback-comment-service'
 import { z } from 'zod'
+
+/**
+ * Verify pilot owns the feedback referenced by feedbackId
+ */
+async function verifyFeedbackOwnership(feedbackId: string, pilotId: string): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('pilot_feedback')
+    .select('pilot_id')
+    .eq('id', feedbackId)
+    .single()
+  return data?.pilot_id === pilotId
+}
 
 // Validation schemas
 const createCommentSchema = z.object({
@@ -52,6 +66,11 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
     if (!pilot) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify pilot owns this feedback
+    if (pilot.pilot_id && !(await verifyFeedbackOwnership(feedbackId, pilot.pilot_id))) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
     // Fetch comments
@@ -85,6 +104,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     if (!pilot) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify pilot owns this feedback
+    if (pilot.pilot_id && !(await verifyFeedbackOwnership(feedbackId, pilot.pilot_id))) {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
     // Parse and validate request body

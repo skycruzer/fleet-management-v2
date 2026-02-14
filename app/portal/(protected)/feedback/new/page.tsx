@@ -208,10 +208,10 @@ export default function NewFeedbackPage() {
                 required
                 rows={8}
                 minLength={10}
-                maxLength={2000}
+                maxLength={5000}
               />
               <p className="text-muted-foreground mt-1 text-xs">
-                {formData.message.length}/2000 characters (min 10)
+                {formData.message.length}/5000 characters (min 10)
               </p>
             </div>
 

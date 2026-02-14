@@ -232,7 +232,7 @@ export default function NewLeaveRequestPage() {
   return (
     <div className="container mx-auto space-y-6 p-6">
       <div className="flex items-center gap-4">
-        <Link href="/portal/leave-requests">
+        <Link href="/portal/requests?tab=leave">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -383,7 +383,7 @@ export default function NewLeaveRequestPage() {
           </CardContent>
 
           <CardFooter className="flex justify-between">
-            <Link href="/portal/leave-requests">
+            <Link href="/portal/requests?tab=leave">
               <Button type="button" variant="outline" disabled={isLoading}>
                 Cancel
               </Button>

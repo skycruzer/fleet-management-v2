@@ -14,6 +14,16 @@ import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
+/** Escape HTML to prevent XSS in generated export */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 /**
  * GET - Export Leave Bid as PDF
  *
@@ -43,6 +53,11 @@ export async function GET(request: NextRequest) {
     }
 
     const bid = bidResult.data
+
+    // Verify pilot owns this bid
+    if (bid.pilot_id !== pilot.pilot_id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     // Parse dates from JSON
     let options: Array<{ start_date: string; end_date: string; priority?: number }> = []
@@ -122,13 +137,13 @@ export async function GET(request: NextRequest) {
 
   <div class="info-grid">
     <div class="label">Pilot Name:</div>
-    <div class="value">${pilot.first_name} ${pilot.last_name}</div>
+    <div class="value">${escapeHtml(pilot.first_name || '')} ${escapeHtml(pilot.last_name || '')}</div>
 
     <div class="label">Employee ID:</div>
-    <div class="value">${pilot.employee_id || 'N/A'}</div>
+    <div class="value">${escapeHtml(pilot.employee_id || 'N/A')}</div>
 
     <div class="label">Roster Period:</div>
-    <div class="value">${bid.roster_period_code}</div>
+    <div class="value">${escapeHtml(bid.roster_period_code)}</div>
 
     <div class="label">Status:</div>
     <div class="value">
@@ -138,7 +153,7 @@ export async function GET(request: NextRequest) {
     </div>
 
     <div class="label">Priority:</div>
-    <div class="value">${bid.priority}</div>
+    <div class="value">${escapeHtml(bid.priority)}</div>
 
     <div class="label">Submitted:</div>
     <div class="value">${bid.submitted_at ? new Date(bid.submitted_at).toLocaleDateString() : 'Not submitted'}</div>
@@ -178,7 +193,7 @@ export async function GET(request: NextRequest) {
     bid.reason
       ? `
     <h2>Reason</h2>
-    <p>${bid.reason}</p>
+    <p>${escapeHtml(bid.reason)}</p>
   `
       : ''
   }
@@ -187,7 +202,7 @@ export async function GET(request: NextRequest) {
     bid.notes
       ? `
     <h2>Additional Notes</h2>
-    <p>${bid.notes}</p>
+    <p>${escapeHtml(bid.notes)}</p>
   `
       : ''
   }
@@ -196,7 +211,7 @@ export async function GET(request: NextRequest) {
     bid.review_comments
       ? `
     <h2>Review Comments</h2>
-    <p>${bid.review_comments}</p>
+    <p>${escapeHtml(bid.review_comments)}</p>
     ${bid.reviewed_at ? `<p><small>Reviewed: ${new Date(bid.reviewed_at).toLocaleString()}</small></p>` : ''}
   `
       : ''

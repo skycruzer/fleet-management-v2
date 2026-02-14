@@ -191,7 +191,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `leave-bid-${bid.roster_period_code}.pdf`
+      a.download = `leave-bid-${bid.roster_period_code}.html`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -201,9 +201,18 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
     }
   }
 
-  const parseDates = (datesJson: string): string[] => {
+  const parseDateRanges = (datesJson: string): string[] => {
     try {
-      return JSON.parse(datesJson)
+      const parsed = JSON.parse(datesJson)
+      if (Array.isArray(parsed)) {
+        return parsed.map((opt: { start_date?: string; end_date?: string }) => {
+          if (opt.start_date && opt.end_date) {
+            return `${new Date(opt.start_date).toLocaleDateString()} - ${new Date(opt.end_date).toLocaleDateString()}`
+          }
+          return String(opt)
+        })
+      }
+      return []
     } catch {
       return []
     }
@@ -315,9 +324,9 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
                     <TableCell className="font-medium">{bid.roster_period_code}</TableCell>
                     <TableCell>
                       <div className="max-w-xs truncate">
-                        {parseDates(bid.preferred_dates).slice(0, 2).join(', ')}
-                        {parseDates(bid.preferred_dates).length > 2 &&
-                          ` +${parseDates(bid.preferred_dates).length - 2} more`}
+                        {parseDateRanges(bid.preferred_dates).slice(0, 2).join(', ')}
+                        {parseDateRanges(bid.preferred_dates).length > 2 &&
+                          ` +${parseDateRanges(bid.preferred_dates).length - 2} more`}
                       </div>
                     </TableCell>
                     <TableCell>{getPriorityBadge(bid.priority)}</TableCell>

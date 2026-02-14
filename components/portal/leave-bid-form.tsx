@@ -181,6 +181,7 @@ export function LeaveBidForm({ onSuccess, initialData, isEdit }: LeaveBidFormPro
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           bid_year: bidYear,
           options: filledOptions,

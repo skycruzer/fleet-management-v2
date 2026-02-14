@@ -144,7 +144,7 @@ export default function NewFlightRequestPage() {
   return (
     <div className="container mx-auto space-y-6 p-6">
       <div className="flex items-center gap-4">
-        <Link href="/portal/flight-requests">
+        <Link href="/portal/requests?tab=rdo-sdo">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -302,7 +302,7 @@ export default function NewFlightRequestPage() {
           </CardContent>
 
           <CardFooter className="flex justify-between">
-            <Link href="/portal/flight-requests">
+            <Link href="/portal/requests?tab=rdo-sdo">
               <Button type="button" variant="outline" disabled={isLoading}>
                 Cancel
               </Button>

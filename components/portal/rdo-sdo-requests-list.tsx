@@ -93,8 +93,8 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
   }
 
   const canCancelRequest = (request: FlightRequest): boolean => {
-    // Can cancel SUBMITTED, IN_REVIEW, or APPROVED requests
-    return ['SUBMITTED', 'IN_REVIEW', 'APPROVED'].includes(request.workflow_status)
+    // Can only cancel SUBMITTED requests (service rejects other statuses)
+    return request.workflow_status === 'SUBMITTED'
   }
 
   const handleCancelRequest = async () => {
@@ -104,7 +104,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
     setError('')
 
     try {
-      const response = await fetch(`/api/portal/rdo-sdo-requests?id=${selectedRequest.id}`, {
+      const response = await fetch(`/api/portal/flight-requests?id=${selectedRequest.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -29,6 +29,7 @@ import {
 } from '@/lib/validations/pilot-leave-schema'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
 
@@ -39,6 +40,9 @@ import { revalidatePath } from 'next/cache'
  */
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const body = await request.json()
 
     // Validate request data
@@ -143,6 +147,9 @@ export async function GET(_request: NextRequest) {
  */
 export const PUT = withRateLimit(async (request: NextRequest) => {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const { searchParams } = new URL(request.url)
     const requestId = searchParams.get('id')
 
@@ -227,6 +234,9 @@ export const PUT = withRateLimit(async (request: NextRequest) => {
  */
 export const DELETE = withRateLimit(async (request: NextRequest) => {
   try {
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const { searchParams } = new URL(request.url)
     const requestId = searchParams.get('id')
 
