@@ -10,6 +10,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Calendar, Plus } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,10 +61,17 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
   if (requests.length === 0) {
     return (
       <div className="rounded-lg border-2 border-dashed p-8 text-center">
-        <p className="text-muted-foreground">No leave requests yet</p>
+        <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+        <p className="text-muted-foreground font-medium">No leave requests yet</p>
         <p className="text-muted-foreground mt-1 text-sm">
-          Submit your first leave request using the form on the left
+          Submit your first leave request to get started.
         </p>
+        <Link href="/portal/leave-requests/new" className="mt-4 inline-block">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Submit Leave Request
+          </Button>
+        </Link>
       </div>
     )
   }

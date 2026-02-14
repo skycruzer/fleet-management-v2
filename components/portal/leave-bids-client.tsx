@@ -40,6 +40,7 @@ import {
   XCircle,
   Download,
   Pencil,
+  Plus,
 } from 'lucide-react'
 import { LeaveBidForm } from '@/components/portal/leave-bid-form'
 import type { LeaveBid } from '@/lib/services/leave-bid-service'
@@ -54,6 +55,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
   const [selectedBid, setSelectedBid] = useState<LeaveBid | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showNewBidDialog, setShowNewBidDialog] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [error, setError] = useState<string>('')
 
@@ -97,6 +99,11 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
   const handleEditSuccess = () => {
     setShowEditDialog(false)
     setSelectedBid(null)
+    router.refresh()
+  }
+
+  const handleNewBidSuccess = () => {
+    setShowNewBidDialog(false)
     router.refresh()
   }
 
@@ -204,6 +211,14 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
 
   return (
     <div className="space-y-6">
+      {/* Submit New Bid Button */}
+      <div className="flex justify-end">
+        <Button onClick={() => setShowNewBidDialog(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Submit New Leave Bid
+        </Button>
+      </div>
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -275,8 +290,12 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
               <Calendar className="text-muted-foreground mx-auto h-12 w-12" />
               <h3 className="mt-4 text-lg font-semibold">No Leave Bids</h3>
               <p className="text-muted-foreground mt-2">
-                You haven't submitted any leave bids yet.
+                You haven&apos;t submitted any leave bids yet.
               </p>
+              <Button className="mt-4" onClick={() => setShowNewBidDialog(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Submit New Leave Bid
+              </Button>
             </div>
           ) : (
             <Table>
@@ -389,6 +408,19 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
               onSuccess={handleEditSuccess}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* New Leave Bid Dialog */}
+      <Dialog open={showNewBidDialog} onOpenChange={setShowNewBidDialog}>
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Submit New Leave Bid</DialogTitle>
+            <DialogDescription>
+              Select a year and up to 4 preferred date ranges for your leave bid.
+            </DialogDescription>
+          </DialogHeader>
+          <LeaveBidForm onSuccess={handleNewBidSuccess} />
         </DialogContent>
       </Dialog>
     </div>

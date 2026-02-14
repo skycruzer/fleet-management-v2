@@ -10,8 +10,10 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { Calendar, Plane, Loader2 } from 'lucide-react'
+import { Calendar, Plane, Loader2, Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 import { FlightRequestsList } from '@/components/portal/rdo-sdo-requests-list'
 import LeaveRequestsList from '@/components/pilot/leave-requests-list'
@@ -84,11 +86,23 @@ export default function MyRequestsPage() {
   return (
     <div className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
       <PageBreadcrumbs rootPath="portal" />
-      <div>
-        <h1 className="text-foreground text-2xl font-semibold">My Requests</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          View and manage your leave and RDO/SDO requests.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-foreground text-2xl font-semibold">My Requests</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            View and manage your leave and RDO/SDO requests.
+          </p>
+        </div>
+        <Link
+          href={
+            activeTab === 'rdo-sdo' ? '/portal/flight-requests/new' : '/portal/leave-requests/new'
+          }
+        >
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            {activeTab === 'rdo-sdo' ? 'New RDO/SDO Request' : 'New Leave Request'}
+          </Button>
+        </Link>
       </div>
 
       {/* Tab Navigation */}

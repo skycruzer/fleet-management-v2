@@ -33,7 +33,17 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Calendar, CheckCircle2, Clock, XCircle, AlertCircle, Ban, FileText } from 'lucide-react'
+import {
+  Calendar,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  AlertCircle,
+  Ban,
+  FileText,
+  Plus,
+} from 'lucide-react'
+import Link from 'next/link'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { formatRosterPeriodFromObject, parseRosterPeriodCode } from '@/lib/utils/roster-utils'
@@ -226,7 +236,13 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
             <div className="text-muted-foreground py-8 text-center">
               <Calendar className="mx-auto mb-4 h-12 w-12 opacity-50" />
               <p>No RDO/SDO requests found</p>
-              <p className="mt-2 text-sm">Submit your first request to get started</p>
+              <p className="mt-2 text-sm">Submit your first request to get started.</p>
+              <Link href="/portal/flight-requests/new" className="mt-4 inline-block">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Submit RDO/SDO Request
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
