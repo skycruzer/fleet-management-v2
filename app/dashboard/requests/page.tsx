@@ -47,6 +47,7 @@ interface PageProps {
     channel?: string
     is_late?: string
     is_past_deadline?: string
+    stat_filter?: string
     month?: string
   }>
 }
@@ -197,8 +198,10 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
         </div>
       </div>
 
-      {/* Stats Overview */}
-      <StatsOverview stats={stats} />
+      {/* Stats Overview - clickable cards filter the table */}
+      <Suspense fallback={<Skeleton className="h-24 w-full" />}>
+        <StatsOverview stats={stats} />
+      </Suspense>
 
       {/* Deadline Widget (collapsible in table view) */}
       {viewMode === 'table' && (
