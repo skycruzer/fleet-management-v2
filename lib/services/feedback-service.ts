@@ -414,7 +414,7 @@ export async function addAdminResponse(
           title: 'Feedback Response Received',
           message: 'An admin has responded to your feedback submission.',
           type: 'leave_request_approved',
-          link: '/portal/feedback/history',
+          link: '/portal/feedback',
         })
       }
     }
