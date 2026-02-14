@@ -340,8 +340,10 @@ export async function generateFleetManagementReportData(reportType: string, gene
       upcomingRetirements,
       leaveAnalysis: {
         totalRequests: leaveData.length,
-        approved: leaveData.filter((l: any) => l.status === 'APPROVED').length,
-        pending: leaveData.filter((l: any) => l.status === 'PENDING').length,
+        approved: leaveData.filter((l: any) => l.workflow_status === 'APPROVED').length,
+        pending: leaveData.filter(
+          (l: any) => l.workflow_status === 'SUBMITTED' || l.workflow_status === 'IN_REVIEW'
+        ).length,
       },
     }
   } catch (error) {

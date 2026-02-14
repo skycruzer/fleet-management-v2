@@ -41,7 +41,7 @@ interface FlightRequestsTableProps {
   requests: FlightRequest[]
 }
 
-type StatusFilter = 'all' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+type StatusFilter = 'all' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
 type TypeFilter = 'all' | 'RDO' | 'SDO'
 
 export default function FlightRequestsTable({ requests }: FlightRequestsTableProps) {
@@ -169,9 +169,9 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
             />
             <FilterButton
               label="In Review"
-              count={requests.filter((r) => r.workflow_status === 'UNDER_REVIEW').length}
-              isActive={statusFilter === 'UNDER_REVIEW'}
-              onClick={() => setStatusFilter('UNDER_REVIEW')}
+              count={requests.filter((r) => r.workflow_status === 'IN_REVIEW').length}
+              isActive={statusFilter === 'IN_REVIEW'}
+              onClick={() => setStatusFilter('IN_REVIEW')}
             />
             <FilterButton
               label="Approved"
@@ -315,14 +315,14 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                     onClick={() => handleReview(request)}
                     variant={
                       request.workflow_status === 'SUBMITTED' ||
-                      request.workflow_status === 'UNDER_REVIEW'
+                      request.workflow_status === 'IN_REVIEW'
                         ? 'default'
                         : 'outline'
                     }
                     size="sm"
                   >
                     {request.workflow_status === 'SUBMITTED' ||
-                    request.workflow_status === 'UNDER_REVIEW'
+                    request.workflow_status === 'IN_REVIEW'
                       ? 'Review'
                       : 'View Details'}
                   </Button>

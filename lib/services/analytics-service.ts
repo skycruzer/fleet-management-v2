@@ -285,7 +285,7 @@ async function computeLeaveAnalytics() {
   const stats = (leaveRequests || []).reduce(
     (acc, req: any) => {
       acc.total++
-      if (req.workflow_status === 'PENDING') acc.pending++
+      if (req.workflow_status === 'SUBMITTED' || req.workflow_status === 'IN_REVIEW') acc.pending++
       else if (req.workflow_status === 'APPROVED') acc.approved++
       else if (req.workflow_status === 'DENIED') acc.denied++
 
@@ -352,23 +352,36 @@ export async function getLeaveAnalytics() {
  * Internal function to compute fleet analytics (called on cache miss)
  */
 async function computeFleetAnalytics() {
-  const [pilotAnalytics, certificationAnalytics, leaveAnalytics] = await Promise.all([
+  const supabase = createAdminClient()
+  const today = new Date().toISOString().split('T')[0]
+
+  const [pilotAnalytics, certificationAnalytics, { data: currentLeave }] = await Promise.all([
     getPilotAnalytics(),
     getCertificationAnalytics(),
-    getLeaveAnalytics(),
+    supabase
+      .from('pilot_requests')
+      .select('pilot_id')
+      .eq('request_category', 'LEAVE')
+      .in('workflow_status', ['APPROVED'])
+      .lte('start_date', today)
+      .or(`end_date.gte.${today},end_date.is.null`),
   ])
+
+  // Count unique pilots currently on approved leave
+  const uniquePilotsOnLeave = new Set((currentLeave || []).map((r: any) => r.pilot_id)).size
 
   // Calculate fleet readiness based on pilot compliance
   const totalPilots = pilotAnalytics.total
   const compliantPilots = Math.round((certificationAnalytics.complianceRate / 100) * totalPilots)
-  const pilotsOnLeave = leaveAnalytics.approved + leaveAnalytics.pending
+  const pilotsOnLeave = uniquePilotsOnLeave
 
   // Fleet readiness metrics based on real pilot and certification data
-  const availability = Math.round(((totalPilots - pilotsOnLeave) / totalPilots) * 100)
+  const availability =
+    totalPilots > 0 ? Math.round(((totalPilots - pilotsOnLeave) / totalPilots) * 100) : 0
   const readiness = Math.round((certificationAnalytics.complianceRate + availability) / 2)
 
   // Calculate real pilot status breakdown from leave data
-  const availablePilots = totalPilots - leaveAnalytics.approved
+  const availablePilots = totalPilots - pilotsOnLeave
 
   return {
     utilization: certificationAnalytics.complianceRate,
@@ -383,7 +396,7 @@ async function computeFleetAnalytics() {
     pilotAvailability: {
       available: availablePilots,
       onDuty: 0,
-      onLeave: leaveAnalytics.approved,
+      onLeave: pilotsOnLeave,
       training: 0,
       medical: 0,
     },
@@ -711,6 +724,8 @@ export async function predictCrewShortages(
     let availableFirstOfficers = currentFirstOfficers
     let inCriticalPeriod = false
     let periodStartMonth = ''
+    let maxCaptainShortage = 0
+    let maxFirstOfficerShortage = 0
 
     for (let monthOffset = 0; monthOffset < 60; monthOffset++) {
       const targetDate = new Date(now)
@@ -754,25 +769,48 @@ export async function predictCrewShortages(
         if (!inCriticalPeriod) {
           inCriticalPeriod = true
           periodStartMonth = monthLabel
+          maxCaptainShortage = 0
+          maxFirstOfficerShortage = 0
         }
+        // Track peak shortage during this critical period
+        maxCaptainShortage = Math.max(maxCaptainShortage, captainShortage)
+        maxFirstOfficerShortage = Math.max(maxFirstOfficerShortage, firstOfficerShortage)
       } else {
         if (inCriticalPeriod) {
-          // End of critical period
+          // End of critical period — use peak shortage values
           const severity: 'high' | 'critical' =
-            captainShortage >= 3 || firstOfficerShortage >= 3 ? 'critical' : 'high'
+            maxCaptainShortage >= 3 || maxFirstOfficerShortage >= 3 ? 'critical' : 'high'
 
           criticalPeriods.push({
             startMonth: periodStartMonth,
             endMonth: monthLabel,
             severity,
-            captainShortage,
-            firstOfficerShortage,
-            impactDescription: `Shortage of ${captainShortage} captains and ${firstOfficerShortage} first officers`,
+            captainShortage: maxCaptainShortage,
+            firstOfficerShortage: maxFirstOfficerShortage,
+            impactDescription: `Shortage of ${maxCaptainShortage} captains and ${maxFirstOfficerShortage} first officers`,
           })
 
           inCriticalPeriod = false
         }
       }
+    }
+
+    // Close any unclosed critical period at end of forecast
+    if (inCriticalPeriod) {
+      const lastDate = new Date(now)
+      lastDate.setMonth(lastDate.getMonth() + 59)
+      const lastMonth = lastDate.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+      const severity: 'high' | 'critical' =
+        maxCaptainShortage >= 3 || maxFirstOfficerShortage >= 3 ? 'critical' : 'high'
+
+      criticalPeriods.push({
+        startMonth: periodStartMonth,
+        endMonth: lastMonth,
+        severity,
+        captainShortage: maxCaptainShortage,
+        firstOfficerShortage: maxFirstOfficerShortage,
+        impactDescription: `Shortage of ${maxCaptainShortage} captains and ${maxFirstOfficerShortage} first officers`,
+      })
     }
 
     // Generate recommendations

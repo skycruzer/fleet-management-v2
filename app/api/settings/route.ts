@@ -12,10 +12,16 @@
 
 import { NextResponse } from 'next/server'
 import { getSystemSettings } from '@/lib/services/admin-service'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getCacheHeadersPreset } from '@/lib/utils/cache-headers'
 
 export async function GET() {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const settings = await getSystemSettings()
 
     return NextResponse.json(

@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
       search: searchParams.get('search') ?? undefined,
       sortBy: sortFieldMap[rawSort] ?? 'registration_date',
       sortOrder: (searchParams.get('sortOrder') as PortalUsersFilters['sortOrder']) ?? undefined,
-      page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
-      pageSize: searchParams.get('pageSize') ? Number(searchParams.get('pageSize')) : 25,
+      page: Math.max(1, Number(searchParams.get('page')) || 1),
+      pageSize: Math.min(100, Math.max(1, Number(searchParams.get('pageSize')) || 25)),
     }
 
     const [result, summary] = await Promise.all([
@@ -91,9 +91,6 @@ export async function GET(request: NextRequest) {
       userId: auth.userId ?? undefined,
     })
 
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }

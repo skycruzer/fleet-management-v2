@@ -84,7 +84,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
 
   const canCancelRequest = (request: FlightRequest): boolean => {
     // Can cancel SUBMITTED, IN_REVIEW, or APPROVED requests
-    return ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED'].includes(request.workflow_status)
+    return ['SUBMITTED', 'IN_REVIEW', 'APPROVED'].includes(request.workflow_status)
   }
 
   const handleCancelRequest = async () => {
@@ -146,7 +146,7 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
   const stats = {
     total: requests.length,
     submitted: requests.filter((r) => r.workflow_status === 'SUBMITTED').length,
-    in_review: requests.filter((r) => r.workflow_status === 'UNDER_REVIEW').length,
+    in_review: requests.filter((r) => r.workflow_status === 'IN_REVIEW').length,
     approved: requests.filter((r) => r.workflow_status === 'APPROVED').length,
     denied: requests.filter((r) => r.workflow_status === 'DENIED').length,
     withdrawn: requests.filter((r) => r.workflow_status === 'WITHDRAWN').length,

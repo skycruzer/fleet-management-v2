@@ -124,10 +124,14 @@ export async function getPortalUsersWithActivity(
 
   // ── Search filter (OR across multiple columns) ──────────────────────
   if (search) {
-    const pattern = `%${search}%`
-    query = query.or(
-      `first_name.ilike.${pattern},last_name.ilike.${pattern},email.ilike.${pattern},employee_id.ilike.${pattern}`
-    )
+    const { sanitizeSearchTerm } = await import('@/lib/utils/search-sanitizer')
+    const safe = sanitizeSearchTerm(search)
+    if (safe) {
+      const pattern = `%${safe}%`
+      query = query.or(
+        `first_name.ilike.${pattern},last_name.ilike.${pattern},email.ilike.${pattern},employee_id.ilike.${pattern}`
+      )
+    }
   }
 
   // ── Sorting ─────────────────────────────────────────────────────────
@@ -284,10 +288,7 @@ async function fetchSessions(supabase: SupabaseAdmin, userIds: string[]) {
 }
 
 async function fetchRequests(supabase: SupabaseAdmin, pilotIds: string[]) {
-  const { data, error } = await supabase
-    .from('pilot_requests')
-    .select('*')
-    .in('pilot_id', pilotIds)
+  const { data, error } = await supabase.from('pilot_requests').select('*').in('pilot_id', pilotIds)
 
   if (error) {
     console.error('[portal-admin-service] Failed to fetch requests:', error.message)
@@ -297,10 +298,7 @@ async function fetchRequests(supabase: SupabaseAdmin, pilotIds: string[]) {
 }
 
 async function fetchLeaveBids(supabase: SupabaseAdmin, pilotIds: string[]) {
-  const { data, error } = await supabase
-    .from('leave_bids')
-    .select('*')
-    .in('pilot_id', pilotIds)
+  const { data, error } = await supabase.from('leave_bids').select('*').in('pilot_id', pilotIds)
 
   if (error) {
     console.error('[portal-admin-service] Failed to fetch leave bids:', error.message)
@@ -310,10 +308,7 @@ async function fetchLeaveBids(supabase: SupabaseAdmin, pilotIds: string[]) {
 }
 
 async function fetchFeedback(supabase: SupabaseAdmin, pilotIds: string[]) {
-  const { data, error } = await supabase
-    .from('pilot_feedback')
-    .select('*')
-    .in('pilot_id', pilotIds)
+  const { data, error } = await supabase.from('pilot_feedback').select('*').in('pilot_id', pilotIds)
 
   if (error) {
     console.error('[portal-admin-service] Failed to fetch feedback:', error.message)

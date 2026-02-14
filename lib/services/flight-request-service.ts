@@ -28,7 +28,7 @@ import type { ServiceResponse } from '@/lib/types/service-response'
  * MIGRATED: Uses pilot_requests table with request_category='FLIGHT'
  */
 export async function getAllFlightRequests(filters?: {
-  status?: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+  status?: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED'
   pilot_id?: string
   start_date_from?: string
   start_date_to?: string
@@ -340,8 +340,8 @@ export async function getFlightRequestStats(): Promise<
     // MIGRATED: status -> workflow_status in aggregations
     const stats = {
       total: requests?.length || 0,
-      pending: requests?.filter((r) => r.workflow_status === 'PENDING').length || 0,
-      under_review: requests?.filter((r) => r.workflow_status === 'UNDER_REVIEW').length || 0,
+      pending: requests?.filter((r) => r.workflow_status === 'SUBMITTED').length || 0,
+      under_review: requests?.filter((r) => r.workflow_status === 'IN_REVIEW').length || 0,
       approved: requests?.filter((r) => r.workflow_status === 'APPROVED').length || 0,
       denied: requests?.filter((r) => r.workflow_status === 'DENIED').length || 0,
       by_type: {

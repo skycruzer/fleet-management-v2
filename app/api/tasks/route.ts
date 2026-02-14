@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getTasks, createTask, getTaskStats } from '@/lib/services/task-service'
 import { TaskInputSchema } from '@/lib/validations/task-schema'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { revalidatePath } from 'next/cache'
@@ -41,6 +42,11 @@ import { revalidatePath } from 'next/cache'
  */
 export async function GET(_request: NextRequest) {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const searchParams = _request.nextUrl.searchParams
 
     // Check if stats are requested
@@ -156,6 +162,12 @@ export async function GET(_request: NextRequest) {
  */
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
+    // Authentication
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     // CSRF Protection
     const csrfError = await validateCsrf(request)
     if (csrfError) {

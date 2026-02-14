@@ -113,7 +113,11 @@ export async function getAllFeedback(
     }
 
     if (filters?.search) {
-      query = query.or(`subject.ilike.%${filters.search}%,message.ilike.%${filters.search}%`)
+      const { sanitizeSearchTerm } = await import('@/lib/utils/search-sanitizer')
+      const safe = sanitizeSearchTerm(filters.search)
+      if (safe) {
+        query = query.or(`subject.ilike.%${safe}%,message.ilike.%${safe}%`)
+      }
     }
 
     if (filters?.startDate) {

@@ -373,8 +373,9 @@ export async function calculateCrewAvailability(
     `
     )
     .eq('request_category', 'LEAVE')
-    .in('workflow_status', ['APPROVED', 'PENDING'])
-    .or(`start_date.lte.${endDate},end_date.gte.${startDate}`)
+    .in('workflow_status', ['APPROVED', 'SUBMITTED', 'IN_REVIEW'])
+    .lte('start_date', endDate)
+    .or(`end_date.gte.${startDate},end_date.is.null`)
 
   if (leaveError) {
     throw new Error('Failed to fetch leave requests')
@@ -396,9 +397,9 @@ export async function calculateCrewAvailability(
 
     // Count pilots on leave for this specific date
     const onLeaveToday = relevantLeave.filter((lr) => {
-      if (!lr.start_date || !lr.end_date) return false
+      if (!lr.start_date) return false
       const leaveStart = parseISO(lr.start_date)
-      const leaveEnd = parseISO(lr.end_date)
+      const leaveEnd = lr.end_date ? parseISO(lr.end_date) : leaveStart
       return isWithinInterval(day, { start: leaveStart, end: leaveEnd })
     })
 
@@ -477,8 +478,8 @@ export async function getConflictingPendingRequests(
     `
     )
     .eq('request_category', 'LEAVE')
-    .eq('workflow_status', 'PENDING')
-    .gte('end_date', request.startDate) // Ends on or after our start
+    .in('workflow_status', ['SUBMITTED', 'IN_REVIEW'])
+    .or(`end_date.gte.${request.startDate},end_date.is.null`) // Ends on or after our start (null = single-day)
     .lte('start_date', request.endDate) // Starts on or before our end
 
   if (error || !pendingRequests || pendingRequests.length === 0) {
@@ -491,7 +492,7 @@ export async function getConflictingPendingRequests(
     .map((req: any) => {
       const pilot = req.pilots
       const reqStart = parseISO(req.start_date)
-      const reqEnd = parseISO(req.end_date)
+      const reqEnd = req.end_date ? parseISO(req.end_date) : reqStart
       const isCurrentPilot = req.pilot_id === request.pilotId
       const totalDays = differenceInDays(reqEnd, reqStart) + 1
 
@@ -1116,8 +1117,9 @@ export async function getAlternativePilotRecommendations(
       'pilot_id',
       pilots.map((p) => p.id)
     )
-    .in('workflow_status', ['APPROVED', 'PENDING'])
-    .or(`start_date.lte.${endDate},end_date.gte.${startDate}`)
+    .in('workflow_status', ['APPROVED', 'SUBMITTED', 'IN_REVIEW'])
+    .lte('start_date', endDate)
+    .or(`end_date.gte.${startDate},end_date.is.null`)
 
   // Build recommendations
   const recommendations: PilotRecommendation[] = pilots.map((pilot, index) => {
@@ -1126,7 +1128,7 @@ export async function getAlternativePilotRecommendations(
     let status: 'AVAILABLE' | 'ON_LEAVE' | 'PENDING_LEAVE' = 'AVAILABLE'
     if (pilotLeave.some((lr) => lr.workflow_status === 'APPROVED')) {
       status = 'ON_LEAVE'
-    } else if (pilotLeave.some((lr) => lr.workflow_status === 'PENDING')) {
+    } else if (pilotLeave.some((lr) => ['SUBMITTED', 'IN_REVIEW'].includes(lr.workflow_status))) {
       status = 'PENDING_LEAVE'
     }
 
@@ -1185,7 +1187,7 @@ export async function checkBulkLeaveEligibility(rosterPeriod: string): Promise<{
     )
     .eq('request_category', 'LEAVE')
     .eq('roster_period', rosterPeriod)
-    .eq('workflow_status', 'PENDING')
+    .in('workflow_status', ['SUBMITTED', 'IN_REVIEW'])
     .order('start_date', { ascending: true })
 
   if (error || !requests) {

@@ -18,7 +18,7 @@ interface FlightRequestsTableProps {
   requests: FlightRequest[]
 }
 
-type StatusFilter = 'all' | 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+type StatusFilter = 'all' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED'
 
 export default function FlightRequestsTable({ requests }: FlightRequestsTableProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
@@ -70,9 +70,9 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
         />
         <FilterButton
           label="Under Review"
-          count={requests.filter((r) => r.workflow_status === 'UNDER_REVIEW').length}
-          isActive={statusFilter === 'UNDER_REVIEW'}
-          onClick={() => setStatusFilter('UNDER_REVIEW')}
+          count={requests.filter((r) => r.workflow_status === 'IN_REVIEW').length}
+          isActive={statusFilter === 'IN_REVIEW'}
+          onClick={() => setStatusFilter('IN_REVIEW')}
         />
         <FilterButton
           label="Approved"
@@ -150,8 +150,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                 onClick={() => handleReview(request)}
                 className="focus:ring-accent ml-4 rounded-md bg-[var(--color-info-bg)] px-4 py-2 text-sm font-medium text-[var(--color-info)] transition-colors hover:bg-[var(--color-info-bg)]/80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
               >
-                {request.workflow_status === 'SUBMITTED' ||
-                request.workflow_status === 'UNDER_REVIEW'
+                {request.workflow_status === 'SUBMITTED' || request.workflow_status === 'IN_REVIEW'
                   ? 'Review'
                   : 'View Details'}
               </button>
@@ -210,12 +209,12 @@ function formatRequestType(type: string): string {
 function StatusBadge({
   status,
 }: {
-  status: 'SUBMITTED' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+  status: 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
 }) {
   const badgeStyles = {
     SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
     PENDING: 'bg-muted text-muted-foreground',
-    UNDER_REVIEW: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
+    IN_REVIEW: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
     APPROVED: 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)]',
     DENIED: 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
     WITHDRAWN: 'bg-muted text-muted-foreground',
@@ -224,7 +223,7 @@ function StatusBadge({
   const labels = {
     SUBMITTED: 'Submitted',
     PENDING: 'Pending',
-    UNDER_REVIEW: 'Under Review',
+    IN_REVIEW: 'Under Review',
     APPROVED: 'Approved',
     DENIED: 'Denied',
     WITHDRAWN: 'Withdrawn',

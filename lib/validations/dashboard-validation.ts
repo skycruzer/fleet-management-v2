@@ -116,7 +116,7 @@ export type DashboardCertificationFilter = z.infer<typeof DashboardCertification
  * Dashboard leave filter
  */
 export const DashboardLeaveFilterSchema = z.object({
-  status: z.enum(['PENDING', 'APPROVED', 'DENIED', 'all']).optional().default('all'),
+  status: z.enum(['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED', 'all']).optional().default('all'),
   rosterPeriod: z
     .string()
     .regex(

@@ -92,7 +92,7 @@ export async function getPendingDaysForYear(
     .select('start_date, end_date')
     .eq('request_category', 'LEAVE')
     .eq('pilot_id', pilotId)
-    .eq('workflow_status', 'PENDING')
+    .in('workflow_status', ['SUBMITTED', 'IN_REVIEW'])
     .gte('start_date', `${year}-01-01`)
     .lte('start_date', `${year}-12-31`)
 

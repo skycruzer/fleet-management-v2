@@ -167,9 +167,11 @@ export async function getTasks(
     }
 
     if (filters?.searchQuery) {
-      query = query.or(
-        `title.ilike.%${filters.searchQuery}%,description.ilike.%${filters.searchQuery}%`
-      )
+      const { sanitizeSearchTerm } = await import('@/lib/utils/search-sanitizer')
+      const safe = sanitizeSearchTerm(filters.searchQuery)
+      if (safe) {
+        query = query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`)
+      }
     }
 
     const { data, error } = await query

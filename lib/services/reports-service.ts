@@ -152,7 +152,7 @@ export async function generateLeaveReport(
   if (effectiveDateRange) {
     query = query
       .gte('start_date', effectiveDateRange.startDate)
-      .lte('end_date', effectiveDateRange.endDate)
+      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -270,7 +270,7 @@ export async function generateRdoSdoReport(
   if (effectiveDateRange) {
     query = query
       .gte('start_date', effectiveDateRange.startDate)
-      .lte('end_date', effectiveDateRange.endDate)
+      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -585,7 +585,7 @@ export async function generateAllRequestsReport(
   if (effectiveDateRange) {
     rdoSdoQuery = rdoSdoQuery
       .gte('start_date', effectiveDateRange.startDate)
-      .lte('end_date', effectiveDateRange.endDate)
+      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {
@@ -607,7 +607,7 @@ export async function generateAllRequestsReport(
   if (effectiveDateRange) {
     leaveQuery = leaveQuery
       .gte('start_date', effectiveDateRange.startDate)
-      .lte('end_date', effectiveDateRange.endDate)
+      .or(`end_date.lte.${effectiveDateRange.endDate},end_date.is.null`)
   }
 
   if (filters.status && filters.status.length > 0) {

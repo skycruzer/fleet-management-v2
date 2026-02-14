@@ -288,7 +288,11 @@ export async function getAuditLogs(filters: AuditLogFilters = {}): Promise<Audit
 
     // Search in description field
     if (searchQuery) {
-      query = query.ilike('description', `%${searchQuery}%`)
+      const { sanitizeSearchTerm } = await import('@/lib/utils/search-sanitizer')
+      const safe = sanitizeSearchTerm(searchQuery)
+      if (safe) {
+        query = query.ilike('description', `%${safe}%`)
+      }
     }
 
     // Apply sorting

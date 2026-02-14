@@ -540,7 +540,9 @@ export async function createPilot(pilotData: PilotFormData): Promise<Pilot> {
           first_name: toTitleCase(pilotData.first_name),
           middle_name: pilotData.middle_name ? toTitleCase(pilotData.middle_name) : null,
           last_name: pilotData.last_name.toUpperCase(),
-          email: toNullIfEmpty(pilotData.email) || generatePilotEmail(pilotData.first_name, pilotData.last_name),
+          email:
+            toNullIfEmpty(pilotData.email) ||
+            generatePilotEmail(pilotData.first_name, pilotData.last_name),
           phone_number: toNullIfEmpty(pilotData.phone_number),
           role: pilotData.role,
           contract_type: toNullIfEmpty(pilotData.contract_type),
@@ -1102,11 +1104,13 @@ export async function searchPilots(
     let query = supabase.from('pilots').select('*')
 
     if (searchTerm) {
-      query = query.or(`
-        first_name.ilike.%${searchTerm}%,
-        last_name.ilike.%${searchTerm}%,
-        employee_id.ilike.%${searchTerm}%
-      `)
+      const { sanitizeSearchTerm } = await import('@/lib/utils/search-sanitizer')
+      const safe = sanitizeSearchTerm(searchTerm)
+      if (safe) {
+        query = query.or(
+          `first_name.ilike.%${safe}%,last_name.ilike.%${safe}%,employee_id.ilike.%${safe}%`
+        )
+      }
     }
 
     if (filters.role && filters.role !== 'all') {

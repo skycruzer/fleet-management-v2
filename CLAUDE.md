@@ -18,25 +18,21 @@ npm run db:types            # Generate TypeScript types
 npm run dev                 # http://localhost:3000 (uses Webpack, not Turbopack)
 ```
 
-## Build & Validation Commands
+## Commands
 
 **IMPORTANT: After every code change, validate the build succeeds.**
 
 ```bash
-npm run build               # Production build — run this to catch SSR/import errors
-npm run validate            # type-check + lint + format:check (pre-commit gate)
-npm run validate:naming     # Validate file naming conventions (kebab-case enforcement)
-npm run lint:fix            # Auto-fix ESLint issues
-npm run format              # Format code with Prettier
-```
-
-## Key Commands
-
-```bash
 # Development
 npm run dev                 # Start dev server (Webpack mode, port 3000)
-npm run build               # Production build
+npm run build               # Production build — run this to catch SSR/import errors
 npm run storybook           # Component dev at http://localhost:6006
+
+# Validation (pre-commit gate)
+npm run validate            # type-check + lint + format:check
+npm run validate:naming     # File naming conventions (kebab-case enforcement)
+npm run lint:fix            # Auto-fix ESLint issues
+npm run format              # Format code with Prettier
 
 # Testing (Playwright E2E — uses port 3005, NOT 3000)
 npm test                    # Run all tests (auto-starts dev server on :3005)
@@ -61,6 +57,7 @@ npm run db:deploy           # Deploy migrations to production
 ### Pre-commit Hooks
 
 Husky + lint-staged runs automatically on `git commit`:
+
 - `*.{js,jsx,ts,tsx}` → ESLint --fix + Prettier
 - `*.{json,md,mdx,css,yaml,yml}` → Prettier
 
@@ -106,6 +103,20 @@ const { data } = await supabase.from('pilots').select('*')
 | Client      | `lib/supabase/server.ts` | `pilot-portal-service.ts` |
 | Users       | Admin staff, managers    | Pilots                    |
 
+### App Route Structure
+
+| Route Group                               | Purpose                                           |
+| ----------------------------------------- | ------------------------------------------------- |
+| `/dashboard/*`                            | Admin portal (Supabase Auth protected)            |
+| `/portal/(protected)/*`                   | Pilot portal authenticated pages (Redis sessions) |
+| `/portal/(public)/*`                      | Pilot login, register, forgot/reset-password      |
+| `/auth/*`, `/login`                       | Admin auth flows                                  |
+| `/pilot/*`                                | Pilot-facing auth (login, register, logout)       |
+| `/api/*`                                  | API routes (see API Routes Structure below)       |
+| `/docs`, `/privacy`, `/terms`, `/offline` | Static/utility pages                              |
+
+The portal uses **Next.js route groups** for auth enforcement — `(protected)` pages require a valid Redis session, `(public)` pages do not.
+
 ### Supabase Clients
 
 | Client       | File                           | Use Case                                   |
@@ -116,12 +127,20 @@ const { data } = await supabase.from('pilots').select('*')
 | Service Role | `lib/supabase/service-role.ts` | Bypasses RLS for system operations         |
 | Middleware   | `lib/supabase/middleware.ts`   | Auth state, session refresh, rate limiting |
 
-### Middleware Rate Limiting
+### Rate Limiting (`lib/rate-limit.ts`)
 
-`lib/supabase/middleware.ts` enforces rate limits on `/api/auth/*` endpoints:
-- Login/signin: **5 requests/minute** per IP
-- Password reset: **3 requests/hour** per IP
-- General auth (signup, etc.): **10 requests/minute** per IP
+Distributed rate limiting via Upstash Redis, enforced in `lib/supabase/middleware.ts` for `/api/auth/*` and in services for actions:
+
+| Endpoint / Action     | Limit              |
+| --------------------- | ------------------ |
+| Login/signin          | 5 per minute / IP  |
+| Password reset        | 3 per hour / IP    |
+| General auth          | 10 per minute / IP |
+| Feedback submissions  | 5 per minute       |
+| Leave/flight requests | 3 per minute       |
+| Feedback votes        | 30 per minute      |
+
+Falls back to no-op in development when Redis credentials are not configured.
 
 ### Client-Side Provider Stack
 
@@ -208,6 +227,19 @@ export async function GET(request: NextRequest) {
 | `validationErrorResponse(msg, errors)` | 400 validation error                |
 
 **Migration status**: New services must use `ServiceResponse<T>`. Existing services may throw errors (wrapped by `executeAndRespond`).
+
+### Component Organization
+
+| Directory               | Purpose                                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| `components/ui/`        | shadcn/ui base components (70+). Storybook stories colocated as `*.stories.tsx`                   |
+| `components/layout/`    | App shell, sidebar, navigation chrome                                                             |
+| `components/dashboard/` | Admin dashboard widgets and cards                                                                 |
+| `components/portal/`    | Pilot portal UI components                                                                        |
+| `components/shared/`    | Cross-cutting components used in both portals                                                     |
+| `components/{feature}/` | Feature-scoped components (e.g., `certifications/`, `requests/`, `reports/`, `leave/`, `pilots/`) |
+| `components/skeletons/` | Loading state placeholders                                                                        |
+| `components/forms/`     | Reusable form components                                                                          |
 
 ### Custom Hooks (`lib/hooks/`)
 
@@ -410,6 +442,8 @@ Formatting: Single quotes, 2-space indent, 100-char line width, Tailwind class s
 | `LOGTAIL_SOURCE_TOKEN`          | Server   | Better Stack logging token      |
 
 Copy `.env.example` to `.env.local` for development. Tests use `.env.test.local`.
+
+**Validated at startup** by `lib/env.ts` (Zod schema). Access env vars via `import { env } from '@/lib/env'` instead of `process.env` directly — this ensures type safety and early failure on missing vars.
 
 ---
 

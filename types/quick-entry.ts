@@ -22,7 +22,7 @@ export type LeaveType =
 
 export type FlightType = 'FLIGHT_REQUEST' | 'RDO' | 'SDO' | 'OFFICE_DAY'
 
-export type RequestStatus = 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'DENIED'
+export type RequestStatus = 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED'
 
 export type DeadlineStatus = 'on-time' | 'late' | 'past-deadline'
 

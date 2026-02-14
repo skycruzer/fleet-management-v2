@@ -31,7 +31,7 @@ export function sanitizeSearchTerm(searchTerm: string): string {
 
   return searchTerm
     .replace(/[%_\\]/g, '\\$&') // Escape PostgREST wildcards
-    .replace(/['"`;]/g, '') // Remove dangerous characters
+    .replace(/['"`;,()]/g, '') // Remove dangerous characters and PostgREST filter separators
     .replace(/\s+/g, ' ') // Normalize whitespace
     .trim()
     .slice(0, 100) // Limit length to prevent abuse

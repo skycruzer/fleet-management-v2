@@ -87,8 +87,8 @@ export async function GET(_request: NextRequest) {
       | null
     const sortOrder = searchParams.get('sortOrder') as 'asc' | 'desc' | null
 
-    const page = pageStr ? parseInt(pageStr, 10) : 1
-    const pageSize = pageSizeStr ? parseInt(pageSizeStr, 10) : 20
+    const page = Math.max(1, pageStr ? parseInt(pageStr, 10) || 1 : 1)
+    const pageSize = Math.min(100, Math.max(1, pageSizeStr ? parseInt(pageSizeStr, 10) || 20 : 20))
 
     const filters = {
       pilotId: pilotId || undefined,

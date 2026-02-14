@@ -95,7 +95,7 @@ export type FlightRequestOutput = z.infer<typeof FlightRequestSchema>
 // Flight request review schema (admin)
 export const FlightRequestReviewSchema = z
   .object({
-    status: z.enum(['UNDER_REVIEW', 'APPROVED', 'DENIED'], {
+    status: z.enum(['IN_REVIEW', 'APPROVED', 'DENIED'], {
       message: 'Review status is required',
     }),
     reviewer_comments: z
@@ -121,7 +121,7 @@ export type FlightRequestReviewInput = z.infer<typeof FlightRequestReviewSchema>
 
 // Query filters schema
 export const FlightRequestFiltersSchema = z.object({
-  status: z.enum(['PENDING', 'UNDER_REVIEW', 'APPROVED', 'DENIED']).optional(),
+  status: z.enum(['SUBMITTED', 'IN_REVIEW', 'APPROVED', 'DENIED']).optional(),
   pilot_id: z.string().uuid().optional(),
   request_date_from: z
     .string()

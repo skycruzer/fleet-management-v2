@@ -46,8 +46,8 @@ export async function GET(_request: NextRequest) {
   const pilotId = searchParams.get('pilotId')
   const checkTypeId = searchParams.get('checkTypeId')
   const category = searchParams.get('category')
-  const page = parseInt(searchParams.get('page') || '1')
-  const pageSize = parseInt(searchParams.get('pageSize') || '50')
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1)
+  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '50') || 50))
 
   try {
     const result = await getCertifications(page, pageSize, {
