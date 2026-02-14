@@ -122,7 +122,8 @@ export interface RequestsTableProps {
   onUpdateStatus?: (
     requestId: string,
     status: PilotRequest['workflow_status'],
-    comments?: string
+    comments?: string,
+    force?: boolean
   ) => Promise<void>
 
   /**

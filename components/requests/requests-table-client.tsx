@@ -3,6 +3,7 @@
  *
  * Client component that wraps RequestsTable and provides action handlers
  * for CRUD operations (update status, delete, bulk actions).
+ * Includes force-approve dialog for crew shortage overrides.
  *
  * @author Maurice Rondeau
  * @date November 11, 2025
@@ -15,6 +16,17 @@ import { useRouter } from 'next/navigation'
 import { RequestsTable, type PilotRequest } from './requests-table'
 import { RequestExportToolbar } from './request-export-toolbar'
 import { useToast } from '@/hooks/use-toast'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { AlertTriangle } from 'lucide-react'
 
 interface RequestsTableClientProps {
   requests: PilotRequest[]
@@ -25,6 +37,12 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
 
+  // Force-approve override state
+  const [forceApproveDialogOpen, setForceApproveDialogOpen] = useState(false)
+  const [crewShortageMessage, setCrewShortageMessage] = useState('')
+  const [pendingApprovalId, setPendingApprovalId] = useState<string | null>(null)
+  const [pendingApprovalComments, setPendingApprovalComments] = useState<string | undefined>()
+
   // ============================================================================
   // Action Handlers
   // ============================================================================
@@ -32,24 +50,48 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
   const handleUpdateStatus = async (
     requestId: string,
     status: PilotRequest['workflow_status'],
-    comments?: string
+    comments?: string,
+    force?: boolean
   ) => {
     setLoading(true)
     try {
       const response = await fetch(`/api/requests/${requestId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, comments }),
+        body: JSON.stringify({ status, comments, ...(force && { force: true }) }),
       })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to update status')
+        const errorMessage = error.error || 'Failed to update status'
+
+        // If crew shortage on approve, show force-approve dialog
+        if (
+          !force &&
+          status === 'APPROVED' &&
+          typeof errorMessage === 'string' &&
+          errorMessage.startsWith('Cannot approve:')
+        ) {
+          setCrewShortageMessage(errorMessage)
+          setPendingApprovalId(requestId)
+          setPendingApprovalComments(comments)
+          setForceApproveDialogOpen(true)
+          setLoading(false)
+          return
+        }
+
+        throw new Error(errorMessage)
       }
+
+      setForceApproveDialogOpen(false)
+      setCrewShortageMessage('')
+      setPendingApprovalId(null)
 
       toast({
         title: 'Status Updated',
-        description: `Request status changed to ${status}`,
+        description: force
+          ? 'Request force-approved despite crew shortage'
+          : `Request status changed to ${status}`,
       })
 
       // Refresh the page to show updated data
@@ -62,6 +104,12 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleForceApprove = async () => {
+    if (pendingApprovalId) {
+      await handleUpdateStatus(pendingApprovalId, 'APPROVED', pendingApprovalComments, true)
     }
   }
 
@@ -150,6 +198,44 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
         onBulkAction={handleBulkAction}
         enableSelection={true}
       />
+
+      {/* Force Approve Override Dialog */}
+      <AlertDialog
+        open={forceApproveDialogOpen}
+        onOpenChange={(open) => {
+          setForceApproveDialogOpen(open)
+          if (!open) {
+            setCrewShortageMessage('')
+            setPendingApprovalId(null)
+            setPendingApprovalComments(undefined)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-[var(--color-warning-500)]" />
+              Crew Shortage Warning
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              {crewShortageMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="rounded-md border border-[var(--color-warning-500)]/30 bg-[var(--color-warning-muted)] p-3 text-sm text-[var(--color-warning-600)]">
+            Approving this request will reduce crew below the minimum threshold. This action will be
+            logged for audit purposes.
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleForceApprove}
+              className="bg-[var(--color-warning-500)] text-white hover:bg-[var(--color-warning-600)]"
+            >
+              Override &amp; Approve
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
