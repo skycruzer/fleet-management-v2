@@ -117,9 +117,7 @@ export async function deleteUserAccount(
           .from('pilots')
           .update({
             email: `deleted_${userId}@deleted.local`,
-            phone: null,
-            emergency_contact: null,
-            emergency_phone: null,
+            phone_number: null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', pilotId)
@@ -321,9 +319,7 @@ export async function anonymizeUserData(userId: string): Promise<{
         .from('pilots')
         .update({
           email: `anonymized_${userId}@anonymized.local`,
-          phone: null,
-          emergency_contact: null,
-          emergency_phone: null,
+          phone_number: null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', pilotId)

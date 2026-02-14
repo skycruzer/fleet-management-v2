@@ -12,6 +12,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Database } from '@/types/supabase'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
+import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 import { handleConstraintError } from '@/lib/utils/constraint-error-handler'
 import {
   PilotLoginInput,
@@ -264,8 +265,7 @@ export async function submitPilotRegistration(
 
     // Hash password using bcrypt
     const bcrypt = require('bcryptjs')
-    const saltRounds = 10
-    const passwordHash = await bcrypt.hash(registration.password, saltRounds)
+    const passwordHash = await bcrypt.hash(registration.password, BCRYPT_SALT_ROUNDS)
 
     // SECURITY: Creating direct registration with bcrypt password hash
 

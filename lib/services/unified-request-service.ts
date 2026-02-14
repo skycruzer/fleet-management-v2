@@ -50,6 +50,7 @@ export type FlightRequestType =
   | 'SDO' // Substitute Day Off (flight schedule related)
   | 'FLIGHT_REQUEST'
   | 'SCHEDULE_CHANGE'
+  | 'OFFICE_DAY'
 export type RequestType = LeaveRequestType | FlightRequestType
 
 /**
@@ -783,6 +784,14 @@ export async function updateRequestStatus(
       }
     }
 
+    // Invalidate report caches to ensure fresh dashboard/report data
+    if (data.request_category === 'LEAVE') {
+      await invalidateCacheByTag('reports:leave')
+    } else if (data.request_category === 'FLIGHT') {
+      await invalidateCacheByTag('reports:rdo-sdo')
+    }
+    await invalidateCacheByTag('reports:all-requests')
+
     // Create in-app notification for the pilot (fire-and-forget)
     if (data.pilot_user_id) {
       const isLeave = data.request_category === 'LEAVE'
@@ -1107,7 +1116,7 @@ export function validateRequestType(
 ): { valid: boolean; error?: string } {
   const validCombinations: Record<RequestCategory, string[]> = {
     LEAVE: ['ANNUAL', 'SICK', 'LSL', 'LWOP', 'MATERNITY', 'COMPASSIONATE'],
-    FLIGHT: ['RDO', 'SDO', 'FLIGHT_REQUEST', 'SCHEDULE_CHANGE'],
+    FLIGHT: ['RDO', 'SDO', 'FLIGHT_REQUEST', 'SCHEDULE_CHANGE', 'OFFICE_DAY'],
     LEAVE_BID: ['ANNUAL'],
   }
 

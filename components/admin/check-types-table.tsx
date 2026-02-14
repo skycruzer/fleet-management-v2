@@ -51,7 +51,7 @@ export function CheckTypesTable({ checkTypes }: CheckTypesTableProps) {
   function openReminderDialog(ct: CheckType) {
     setSelectedCheckType(ct)
     setReminderDays(ct.reminder_days ?? [90, 60, 30, 14, 7])
-    setEmailEnabled(ct.email_notifications_enabled)
+    setEmailEnabled(ct.email_notifications_enabled ?? false)
     setDialogOpen(true)
   }
 

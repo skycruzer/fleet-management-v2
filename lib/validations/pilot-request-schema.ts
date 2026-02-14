@@ -36,9 +36,13 @@ export const LeaveRequestTypeEnum = z.enum(
   }
 )
 
-export const FlightRequestTypeEnum = z.enum(['RDO', 'SDO', 'FLIGHT_REQUEST', 'SCHEDULE_CHANGE'], {
-  message: 'Flight request type must be one of: RDO, SDO, FLIGHT_REQUEST, SCHEDULE_CHANGE',
-})
+export const FlightRequestTypeEnum = z.enum(
+  ['RDO', 'SDO', 'FLIGHT_REQUEST', 'SCHEDULE_CHANGE', 'OFFICE_DAY'],
+  {
+    message:
+      'Flight request type must be one of: RDO, SDO, FLIGHT_REQUEST, SCHEDULE_CHANGE, OFFICE_DAY',
+  }
+)
 
 export const RequestTypeEnum = z.union([LeaveRequestTypeEnum, FlightRequestTypeEnum], {
   message: 'Request type is required',

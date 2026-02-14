@@ -19,13 +19,13 @@ import {
   destroyRedisSession,
   destroyAllUserSessions,
 } from '@/lib/services/redis-session-service'
+import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 const SESSION_COOKIE_NAME = 'fleet-session'
-const BCRYPT_SALT_ROUNDS = 10
 const MAX_FAILED_ATTEMPTS = 5
 const LOCKOUT_DURATION_MINUTES = 30
 const DEFAULT_PASSWORD = 'niugini'
