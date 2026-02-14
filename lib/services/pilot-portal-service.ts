@@ -467,6 +467,14 @@ export async function reviewPilotRegistration(
 // ===================================
 
 /**
+ * Categories excluded from compliance calculations.
+ * Non-renewal: one-time qualifications with no expiry (B767_PE_CNS, PBN, etc.)
+ * Travel Visa: removed as a separate category
+ * Consistent with certification-service.ts and pilot-certification-service.ts.
+ */
+const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
+
+/**
  * Get pilot portal statistics for dashboard
  *
  * @param pilotId - Pilot ID
@@ -497,17 +505,22 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
       .eq('role', 'First Officer')
 
     // Get active certifications count for this pilot
+    // Include certs with no expiry (permanent) OR expiry >= today
+    // Exclude Non-renewal and Travel Visa categories (consistent with certification-service)
     const { count: certsCount } = await supabase
       .from('pilot_checks')
-      .select('*', { count: 'exact', head: true })
+      .select('*, check_types!inner(category)', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
-      .gte('expiry_date', new Date().toISOString())
+      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
+      .or(`expiry_date.is.null,expiry_date.gte.${new Date().toISOString()}`)
 
     // Get total certifications count for this pilot (for compliance rate)
+    // Exclude Non-renewal and Travel Visa categories (consistent with certification-service)
     const { count: totalCertsCount } = await supabase
       .from('pilot_checks')
-      .select('*', { count: 'exact', head: true })
+      .select('*, check_types!inner(category)', { count: 'exact', head: true })
       .eq('pilot_id', pilotId)
+      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
 
     // Get pending leave requests count for this pilot (v2.0.0 - uses pilot_requests)
     const { count: leaveCount } = await supabase
@@ -535,13 +548,15 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
         `
         id,
         expiry_date,
-        check_types (
+        check_types!inner (
           check_code,
-          check_description
+          check_description,
+          category
         )
       `
       )
       .eq('pilot_id', pilotId)
+      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
       .gte('expiry_date', new Date().toISOString())
       .lte('expiry_date', sixtyDaysFromNow.toISOString())
       .order('expiry_date', { ascending: true })
@@ -554,13 +569,15 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
         `
         id,
         expiry_date,
-        check_types (
+        check_types!inner (
           check_code,
-          check_description
+          check_description,
+          category
         )
       `
       )
       .eq('pilot_id', pilotId)
+      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
       .lt('expiry_date', new Date().toISOString())
       .order('expiry_date', { ascending: false })
       .limit(10)
@@ -575,13 +592,15 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
         `
         id,
         expiry_date,
-        check_types (
+        check_types!inner (
           check_code,
-          check_description
+          check_description,
+          category
         )
       `
       )
       .eq('pilot_id', pilotId)
+      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
       .gte('expiry_date', new Date().toISOString())
       .lte('expiry_date', fourteenDaysFromNow.toISOString())
       .order('expiry_date', { ascending: true })
@@ -597,13 +616,15 @@ export async function getPilotPortalStats(pilotId: string): Promise<ServiceRespo
         `
         id,
         expiry_date,
-        check_types (
+        check_types!inner (
           check_code,
-          check_description
+          check_description,
+          category
         )
       `
       )
       .eq('pilot_id', pilotId)
+      .not('check_types.category', 'in', `(${EXCLUDED_CATEGORIES.map((c) => `"${c}"`).join(',')})`)
       .gt('expiry_date', fourteenDaysFromNow.toISOString())
       .lte('expiry_date', thirtyDaysFromNow.toISOString())
       .order('expiry_date', { ascending: true })
