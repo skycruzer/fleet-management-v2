@@ -13,6 +13,7 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
 import { Logtail } from '@logtail/node'
 import { ReportEmailRequestSchema } from '@/lib/validations/reports-schema'
+import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
 
 const log = process.env.LOGTAIL_SOURCE_TOKEN ? new Logtail(process.env.LOGTAIL_SOURCE_TOKEN) : null
 
@@ -146,7 +147,7 @@ export async function POST(request: Request) {
 
     // Send email via Resend (with optional CC/BCC)
     const { data, error } = await getResend().emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'reports@fleetmanagement.com',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: recipients,
       ...(cc && cc.length > 0 ? { cc } : {}),
       ...(bcc && bcc.length > 0 ? { bcc } : {}),

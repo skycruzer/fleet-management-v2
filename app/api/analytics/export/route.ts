@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { exportAnalyticsData } from '@/lib/services/export-service'
 import type { AnalyticsExportData, ExportFormat } from '@/lib/services/export-service'
@@ -18,15 +19,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
+    const ExportBodySchema = z.object({
+      format: z.enum(['csv', 'pdf']).optional(),
+      data: z.record(z.unknown()).refine((d) => Object.keys(d).length > 0, 'Data cannot be empty'),
+    })
+
     const body = await request.json()
-    const { format: exportFormat = 'csv', data } = body
-
-    if (!data) {
-      return NextResponse.json({ success: false, error: 'No data provided' }, { status: 400 })
+    const parsed = ExportBodySchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: parsed.error.issues },
+        { status: 400 }
+      )
     }
-
-    // Validate data structure
-    const analyticsData: AnalyticsExportData = data
+    const { format: exportFormat = 'csv', data } = parsed.data
+    const analyticsData = data as unknown as AnalyticsExportData
 
     // Use service layer to generate export
     const exportResult = await exportAnalyticsData(analyticsData, {

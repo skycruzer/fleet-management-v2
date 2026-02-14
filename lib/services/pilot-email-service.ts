@@ -10,6 +10,7 @@
 
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { DEFAULT_FROM_EMAIL, DEFAULT_SUPPORT_EMAIL } from '@/lib/constants/email'
 
 let _resend: Resend | null = null
 function getResendClient(): Resend {
@@ -26,7 +27,7 @@ function getResendClient(): Resend {
  * Email configuration
  */
 const EMAIL_CONFIG = {
-  from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <noreply@yourdomain.com>',
+  from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
   appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   appName: process.env.NEXT_PUBLIC_APP_NAME || 'Fleet Management V2',
 }
@@ -248,7 +249,7 @@ export async function sendRegistrationDenialEmail(
   denialReason?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supportEmail = process.env.SUPPORT_EMAIL || 'support@fleetmanagement.com'
+    const supportEmail = process.env.SUPPORT_EMAIL || DEFAULT_SUPPORT_EMAIL
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -1206,7 +1207,7 @@ export async function sendRetirementNotificationEmail(
   data: RetirementNotificationData
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supportEmail = process.env.SUPPORT_EMAIL || 'support@fleetmanagement.com'
+    const supportEmail = process.env.SUPPORT_EMAIL || DEFAULT_SUPPORT_EMAIL
 
     const htmlContent = `
 <!DOCTYPE html>

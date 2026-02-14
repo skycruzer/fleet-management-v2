@@ -239,8 +239,18 @@ export async function validateRedisSession(
       try {
         const raw = await redis.get<string>(sessionKey(sessionToken))
         if (raw) {
-          const sessionData: RedisSessionData =
-            typeof raw === 'string' ? JSON.parse(raw) : (raw as unknown as RedisSessionData)
+          let sessionData: RedisSessionData
+          try {
+            sessionData =
+              typeof raw === 'string' ? JSON.parse(raw) : (raw as unknown as RedisSessionData)
+          } catch {
+            console.error(
+              'Failed to parse Redis session JSON:',
+              (typeof raw === 'string' ? raw : '').substring(0, 100)
+            )
+            await redis.del(sessionKey(sessionToken))
+            return { isValid: false, error: 'Corrupt session data' }
+          }
 
           // Check expiry
           if (new Date(sessionData.expiresAt) < new Date()) {
@@ -475,9 +485,19 @@ export async function destroyRedisSession(
           // Get session data to find userId for set cleanup
           const raw = await redis.get<string>(sessionKey(sessionToken))
           if (raw) {
-            const sessionData: RedisSessionData =
-              typeof raw === 'string' ? JSON.parse(raw) : (raw as unknown as RedisSessionData)
-            await redis.srem(userSessionsKey(sessionData.userId), sessionToken)
+            let sessionData: RedisSessionData | null = null
+            try {
+              sessionData =
+                typeof raw === 'string' ? JSON.parse(raw) : (raw as unknown as RedisSessionData)
+            } catch {
+              console.error(
+                'Failed to parse Redis session JSON:',
+                (typeof raw === 'string' ? raw : '').substring(0, 100)
+              )
+            }
+            if (sessionData) {
+              await redis.srem(userSessionsKey(sessionData.userId), sessionToken)
+            }
           }
           await redis.del(sessionKey(sessionToken))
         } catch {

@@ -10,7 +10,7 @@ import { z } from 'zod'
  */
 
 const envSchema = z.object({
-  // Supabase Configuration
+  // ── Supabase (required) ──────────────────────────────────────────────
   NEXT_PUBLIC_SUPABASE_URL: z
     .string()
     .min(1, 'NEXT_PUBLIC_SUPABASE_URL is required')
@@ -22,7 +22,12 @@ const envSchema = z.object({
     .min(1, 'NEXT_PUBLIC_SUPABASE_ANON_KEY is required')
     .min(20, 'NEXT_PUBLIC_SUPABASE_ANON_KEY appears to be invalid (too short)'),
 
-  // App Configuration (optional with defaults)
+  SUPABASE_SERVICE_ROLE_KEY: z
+    .string()
+    .min(20, 'SUPABASE_SERVICE_ROLE_KEY appears to be invalid (too short)')
+    .optional(),
+
+  // ── App Configuration (public, optional with defaults) ───────────────
   NEXT_PUBLIC_APP_URL: z
     .string()
     .url('NEXT_PUBLIC_APP_URL must be a valid URL')
@@ -33,11 +38,28 @@ const envSchema = z.object({
 
   NEXT_PUBLIC_APP_VERSION: z.string().optional().default('0.1.0'),
 
-  // Optional: Service Role Key (server-only)
-  SUPABASE_SERVICE_ROLE_KEY: z
-    .string()
-    .min(20, 'SUPABASE_SERVICE_ROLE_KEY appears to be invalid (too short)')
-    .optional(),
+  // ── Redis / Upstash (server-only, optional) ──────────────────────────
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+
+  UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+
+  // ── Email / Resend (server-only, optional) ───────────────────────────
+  RESEND_API_KEY: z.string().min(1).optional(),
+
+  RESEND_FROM_EMAIL: z.string().min(1).optional(),
+
+  // ── Contact emails (server-only, optional) ───────────────────────────
+  SUPPORT_EMAIL: z.string().email().optional(),
+
+  FLEET_MANAGER_EMAIL: z.string().email().optional(),
+
+  // ── Cron job authentication (server-only, optional) ──────────────────
+  CRON_SECRET: z.string().min(1).optional(),
+
+  // ── Logging / Observability (optional) ───────────────────────────────
+  LOGTAIL_SOURCE_TOKEN: z.string().min(1).optional(),
+
+  NEXT_PUBLIC_LOGTAIL_SOURCE_TOKEN: z.string().min(1).optional(),
 })
 
 /**

@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import {
   generateRosterPeriodReport,
   saveRosterReport,
@@ -150,8 +151,20 @@ export async function POST(
     }
 
     const rosterPeriodCode = decodeURIComponent(resolvedParams.code)
+    const RosterReportBodySchema = z.object({
+      reportType: z.enum(['PREVIEW', 'FINAL']).optional(),
+      pdfUrl: z.string().optional(),
+    })
+
     const body = await request.json()
-    const { reportType = 'PREVIEW', pdfUrl } = body
+    const parsed = RosterReportBodySchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: parsed.error.issues },
+        { status: 400 }
+      )
+    }
+    const { reportType = 'PREVIEW', pdfUrl } = parsed.data
 
     logger.info('POST /api/reports/roster-period/[code]', {
       rosterPeriodCode,

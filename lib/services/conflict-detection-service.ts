@@ -11,6 +11,10 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import {
+  DEFAULT_MINIMUM_CAPTAINS,
+  DEFAULT_MINIMUM_FIRST_OFFICERS,
+} from '@/lib/constants/crew'
 import { logger } from './logging-service'
 
 // ============================================================================
@@ -74,8 +78,8 @@ export interface RequestInput {
 // Constants
 // ============================================================================
 
-const MINIMUM_CAPTAINS = 10
-const MINIMUM_FIRST_OFFICERS = 10
+const MINIMUM_CAPTAINS = DEFAULT_MINIMUM_CAPTAINS
+const MINIMUM_FIRST_OFFICERS = DEFAULT_MINIMUM_FIRST_OFFICERS
 
 // ============================================================================
 // Main Conflict Detection Functions

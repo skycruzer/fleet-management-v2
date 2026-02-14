@@ -9,6 +9,10 @@
  */
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import {
+  DEFAULT_MINIMUM_CAPTAINS,
+  DEFAULT_MINIMUM_FIRST_OFFICERS,
+} from '@/lib/constants/crew'
 import { calculateRosterPeriodDates } from './roster-period-service'
 import { logger } from './logging-service'
 
@@ -438,14 +442,14 @@ async function calculateCrewAvailability(
       onLeave: avgCaptainsOnLeave,
       available: captains.length - avgCaptainsOnLeave,
       percentageAvailable: ((captains.length - avgCaptainsOnLeave) / captains.length) * 100,
-      belowMinimum: minCaptainsAvailable < 10,
+      belowMinimum: minCaptainsAvailable < DEFAULT_MINIMUM_CAPTAINS,
     },
     firstOfficers: {
       totalCrew: firstOfficers.length,
       onLeave: avgFOsOnLeave,
       available: firstOfficers.length - avgFOsOnLeave,
       percentageAvailable: ((firstOfficers.length - avgFOsOnLeave) / firstOfficers.length) * 100,
-      belowMinimum: minFOsAvailable < 10,
+      belowMinimum: minFOsAvailable < DEFAULT_MINIMUM_FIRST_OFFICERS,
     },
     minimumCrewDate: minCrewDate,
     minimumCrewCaptains: minCaptainsAvailable,

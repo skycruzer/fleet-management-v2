@@ -180,11 +180,19 @@ export function generateRequestKey(
  */
 export async function deduplicatedFetch(url: string, options?: RequestInit): Promise<Response> {
   const method = options?.method || 'GET'
-  const key = generateRequestKey(
-    method,
-    url,
-    options?.body ? JSON.parse(options.body as string) : undefined
-  )
+  let parsedBody: Record<string, unknown> | undefined
+  if (options?.body) {
+    try {
+      parsedBody = JSON.parse(options.body as string)
+    } catch {
+      console.error(
+        'Failed to parse request body JSON:',
+        (options.body as string)?.substring(0, 100)
+      )
+      parsedBody = { _raw: options.body as string }
+    }
+  }
+  const key = generateRequestKey(method, url, parsedBody)
 
   return requestDeduplicator.deduplicate(key, () => fetch(url, options))
 }

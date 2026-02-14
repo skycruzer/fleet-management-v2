@@ -15,6 +15,7 @@ import { generateRosterPDF } from '@/lib/services/roster-pdf-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
+import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
 
 // ============================================================================
 // Validation Schemas
@@ -236,7 +237,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
 
     // Send email (with optional CC/BCC)
     const emailResult = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <noreply@fleetmanagement.com>',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: validated.recipients,
       ...(validated.cc && validated.cc.length > 0 ? { cc: validated.cc } : {}),
       ...(validated.bcc && validated.bcc.length > 0 ? { bcc: validated.bcc } : {}),

@@ -14,6 +14,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle, XCircle, AlertTriangle, Clock, Calendar, User, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import {
+  DEFAULT_MINIMUM_CAPTAINS,
+  DEFAULT_MINIMUM_FIRST_OFFICERS,
+} from '@/lib/constants/crew'
 import { toast } from 'sonner'
 
 interface LeaveRequest {
@@ -115,11 +119,13 @@ export function LeaveApprovalCard({
     if (request.availability_impact) {
       const { captains_after, fos_after } = request.availability_impact
       const rankImpact = request.rank === 'Captain' ? captains_after : fos_after
+      const minimumCrew =
+        request.rank === 'Captain' ? DEFAULT_MINIMUM_CAPTAINS : DEFAULT_MINIMUM_FIRST_OFFICERS
 
-      if (rankImpact !== undefined && rankImpact < 10) {
+      if (rankImpact !== undefined && rankImpact < minimumCrew) {
         return 'critical'
       }
-      if (rankImpact !== undefined && rankImpact === 10) {
+      if (rankImpact !== undefined && rankImpact === minimumCrew) {
         return 'warning'
       }
     }
@@ -264,7 +270,7 @@ export function LeaveApprovalCard({
                     <p
                       className={cn(
                         request.availability_impact.captains_after !== undefined &&
-                          request.availability_impact.captains_after < 10
+                          request.availability_impact.captains_after < DEFAULT_MINIMUM_CAPTAINS
                           ? 'text-[var(--color-status-high)]'
                           : 'text-[var(--color-status-medium)]'
                       )}
@@ -272,8 +278,11 @@ export function LeaveApprovalCard({
                       Captains: {request.availability_impact.captains_before || 0} →{' '}
                       {request.availability_impact.captains_after || 0}
                       {request.availability_impact.captains_after !== undefined &&
-                        request.availability_impact.captains_after < 10 && (
-                          <span className="font-semibold"> (Below minimum of 10)</span>
+                        request.availability_impact.captains_after < DEFAULT_MINIMUM_CAPTAINS && (
+                          <span className="font-semibold">
+                            {' '}
+                            (Below minimum of {DEFAULT_MINIMUM_CAPTAINS})
+                          </span>
                         )}
                     </p>
                   )}
@@ -281,7 +290,7 @@ export function LeaveApprovalCard({
                     <p
                       className={cn(
                         request.availability_impact.fos_after !== undefined &&
-                          request.availability_impact.fos_after < 10
+                          request.availability_impact.fos_after < DEFAULT_MINIMUM_FIRST_OFFICERS
                           ? 'text-[var(--color-status-high)]'
                           : 'text-[var(--color-status-medium)]'
                       )}
@@ -289,8 +298,12 @@ export function LeaveApprovalCard({
                       First Officers: {request.availability_impact.fos_before || 0} →{' '}
                       {request.availability_impact.fos_after || 0}
                       {request.availability_impact.fos_after !== undefined &&
-                        request.availability_impact.fos_after < 10 && (
-                          <span className="font-semibold"> (Below minimum of 10)</span>
+                        request.availability_impact.fos_after <
+                          DEFAULT_MINIMUM_FIRST_OFFICERS && (
+                          <span className="font-semibold">
+                            {' '}
+                            (Below minimum of {DEFAULT_MINIMUM_FIRST_OFFICERS})
+                          </span>
                         )}
                     </p>
                   )}

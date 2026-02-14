@@ -17,6 +17,7 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { logger } from '@/lib/services/logging-service'
 import { z } from 'zod'
+import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
 
 // ============================================================================
 // Validation Schema
@@ -243,7 +244,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 </html>`
 
     const emailResult = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <noreply@fleetmanagement.com>',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: validated.recipients,
       ...(validated.cc && validated.cc.length > 0 ? { cc: validated.cc } : {}),
       ...(validated.bcc && validated.bcc.length > 0 ? { bcc: validated.bcc } : {}),

@@ -13,6 +13,7 @@ import { getUpcomingRosterPeriods, RosterPeriodDates } from '@/lib/services/rost
 import { getAllPilotRequests } from '@/lib/services/unified-request-service'
 import { logger } from '@/lib/services/logging-service'
 import { Resend } from 'resend'
+import { DEFAULT_FROM_EMAIL, DEFAULT_FLEET_MANAGER_EMAIL } from '@/lib/constants/email'
 
 // ============================================================================
 // Constants
@@ -36,7 +37,7 @@ function getResendClient(): Resend {
   }
   return _resend
 }
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleetmgmt.com>'
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL
 
 // ============================================================================
 // Type Definitions
@@ -478,7 +479,7 @@ export async function sendScheduledDeadlineAlerts(): Promise<AlertCheckResult> {
     // For now, use environment variable or fallback
     const recipients: { email: string; name: string }[] = [
       {
-        email: process.env.FLEET_MANAGER_EMAIL || 'fleet.manager@example.com',
+        email: process.env.FLEET_MANAGER_EMAIL || DEFAULT_FLEET_MANAGER_EMAIL,
         name: 'Fleet Manager',
       },
     ]

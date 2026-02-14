@@ -10,6 +10,10 @@ import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import {
+  DEFAULT_MINIMUM_CAPTAINS,
+  DEFAULT_MINIMUM_FIRST_OFFICERS,
+} from '@/lib/constants/crew'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { LeaveApprovalCard } from '@/components/leave/leave-approval-card'
 import { Card } from '@/components/ui/card'
@@ -72,7 +76,7 @@ export default async function LeaveApprovalPage() {
       if (
         r.rank === 'Captain' &&
         typeof impact.captains_after === 'number' &&
-        impact.captains_after < 10
+        impact.captains_after < DEFAULT_MINIMUM_CAPTAINS
       ) {
         return true
       }
@@ -80,7 +84,7 @@ export default async function LeaveApprovalPage() {
       if (
         r.rank === 'First Officer' &&
         typeof impact.fos_after === 'number' &&
-        impact.fos_after < 10
+        impact.fos_after < DEFAULT_MINIMUM_FIRST_OFFICERS
       ) {
         return true
       }

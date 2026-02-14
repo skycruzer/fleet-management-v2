@@ -9,6 +9,7 @@
  */
 
 import { Resend } from 'resend'
+import { DEFAULT_FROM_EMAIL } from '@/lib/constants/email'
 
 let _resend: Resend | null = null
 function getResendClient(): Resend {
@@ -375,7 +376,7 @@ export async function sendLeaveApprovedEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { data, error } = await getResendClient().emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleet-mgmt.com>',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: pilot.email,
       subject: `✅ Leave Request Approved - ${request.leaveType}`,
       html: getLeaveApprovedEmailHTML(pilot, request),
@@ -406,7 +407,7 @@ export async function sendLeaveDeniedEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { data, error } = await getResendClient().emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleet-mgmt.com>',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: pilot.email,
       subject: `❌ Leave Request Denied - ${request.leaveType}`,
       html: getLeaveDeniedemailHTML(pilot, request, reason),
@@ -436,7 +437,7 @@ export async function sendFlightApprovedEmail(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { data, error } = await getResendClient().emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'Fleet Management <no-reply@fleet-mgmt.com>',
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: pilot.email,
       subject: `✈️ Flight Request Approved - ${request.flightType}`,
       html: getFlightApprovedEmailHTML(pilot, request),
