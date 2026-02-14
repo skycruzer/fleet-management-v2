@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotRequirements } from '@/lib/services/admin-service'
@@ -104,6 +104,73 @@ export async function GET() {
     console.error('Profile API error:', error)
     const sanitized = sanitizeError(error, {
       operation: 'getPilotProfile',
+      endpoint: '/api/portal/profile',
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
+  }
+}
+
+/**
+ * PUT /api/portal/profile
+ * Update pilot contact information (email & phone number)
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = createAdminClient()
+
+    const pilot = await getCurrentPilot()
+    if (!pilot) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - pilot not found' },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { email, phone_number } = body
+
+    // Validate email is present
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return NextResponse.json(
+        { success: false, error: 'A valid email address is required' },
+        { status: 400 }
+      )
+    }
+
+    // Update pilot_users table (contact info lives here for portal users)
+    const { error: userUpdateError } = await supabase
+      .from('pilot_users')
+      .update({
+        email: email.trim(),
+        phone_number: phone_number?.trim() || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', pilot.id)
+
+    if (userUpdateError) {
+      console.error('Update pilot_users contact error:', userUpdateError)
+      return NextResponse.json(
+        { success: false, error: 'Failed to update contact information' },
+        { status: 500 }
+      )
+    }
+
+    // Also update the linked pilots table if it exists
+    if (pilot.pilot_id) {
+      await supabase
+        .from('pilots')
+        .update({
+          phone_number: phone_number?.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', pilot.pilot_id)
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error('Profile update API error:', error)
+    const sanitized = sanitizeError(error, {
+      operation: 'updatePilotProfile',
       endpoint: '/api/portal/profile',
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
