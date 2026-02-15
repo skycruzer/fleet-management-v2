@@ -164,7 +164,10 @@ export async function updateSession(request: NextRequest) {
       !pilotUser &&
       request.nextUrl.pathname.startsWith('/portal') &&
       !request.nextUrl.pathname.startsWith('/portal/login') &&
-      !request.nextUrl.pathname.startsWith('/portal/register')
+      !request.nextUrl.pathname.startsWith('/portal/register') &&
+      !request.nextUrl.pathname.startsWith('/portal/forgot-password') &&
+      !request.nextUrl.pathname.startsWith('/portal/reset-password') &&
+      !request.nextUrl.pathname.startsWith('/portal/change-password')
     ) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
