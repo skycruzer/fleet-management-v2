@@ -338,7 +338,7 @@ export async function getRegistrationStatus(
     const { data, error } = await supabase
       .from('pilot_users')
       .select('*')
-      .eq('email', email)
+      .ilike('email', email.trim())
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle()
@@ -860,11 +860,11 @@ export async function requestPasswordReset(
     const supabase = createAdminClient()
     const crypto = require('crypto')
 
-    // Find pilot user by email
+    // Find pilot user by email (case-insensitive to match however it was stored)
     const { data: pilotUser, error: pilotError } = await supabase
       .from('pilot_users')
       .select('id, email, first_name, last_name, rank, registration_approved')
-      .eq('email', email.toLowerCase().trim())
+      .ilike('email', email.trim())
       .single()
 
     // Always return success to prevent email enumeration attacks
