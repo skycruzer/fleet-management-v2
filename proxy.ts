@@ -269,8 +269,14 @@ export async function proxy(request: NextRequest) {
   // API ROUTES - Role-based access
   // ============================================================================
   if (pathname.startsWith('/api/portal')) {
-    // Allow public portal API routes (login, register)
-    const publicPortalApiRoutes = ['/api/portal/login', '/api/portal/register']
+    // Allow public portal API routes (login, register, password flows)
+    const publicPortalApiRoutes = [
+      '/api/portal/login',
+      '/api/portal/register',
+      '/api/portal/forgot-password',
+      '/api/portal/reset-password',
+      '/api/portal/change-password',
+    ]
     if (publicPortalApiRoutes.includes(pathname)) {
       return response
     }
