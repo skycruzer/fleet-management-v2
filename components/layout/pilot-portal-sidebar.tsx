@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Cloud,
   Menu,
+  Settings,
   X,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -60,6 +61,12 @@ const navigationItems: NavItem[] = [
     href: '/portal/feedback',
     icon: MessageSquare,
     description: 'Share your feedback',
+  },
+  {
+    title: 'Settings',
+    href: '/portal/settings',
+    icon: Settings,
+    description: 'Account & password',
   },
 ]
 

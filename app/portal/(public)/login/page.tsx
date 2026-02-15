@@ -3,13 +3,13 @@
  * Developer: Maurice Rondeau
  *
  * Clean Nova-style: centered card on dark navy premium background.
- * No registration or forgot-password — admin manages accounts.
  */
 
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { IdCard, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react'
@@ -135,19 +135,27 @@ export default function PilotLoginPage() {
               </div>
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center gap-2">
-              <input
-                id="rememberMe"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                disabled={isLoading}
-                className="text-primary focus:ring-primary/20 border-border bg-muted/40 h-4 w-4 rounded"
-              />
-              <label htmlFor="rememberMe" className="text-muted-foreground text-sm">
-                Remember me for 30 days
-              </label>
+            {/* Remember Me + Forgot Password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <input
+                  id="rememberMe"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={isLoading}
+                  className="text-primary focus:ring-primary/20 border-border bg-muted/40 h-4 w-4 rounded"
+                />
+                <label htmlFor="rememberMe" className="text-muted-foreground text-sm">
+                  Remember me for 30 days
+                </label>
+              </div>
+              <Link
+                href="/portal/forgot-password"
+                className="text-primary hover:text-primary/80 text-sm font-medium"
+              >
+                Forgot password?
+              </Link>
             </div>
 
             {/* Submit */}

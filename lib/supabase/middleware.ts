@@ -116,7 +116,10 @@ export async function updateSession(request: NextRequest) {
   if (
     request.nextUrl.pathname.startsWith('/portal') &&
     !request.nextUrl.pathname.startsWith('/portal/login') &&
-    !request.nextUrl.pathname.startsWith('/portal/register')
+    !request.nextUrl.pathname.startsWith('/portal/register') &&
+    !request.nextUrl.pathname.startsWith('/portal/forgot-password') &&
+    !request.nextUrl.pathname.startsWith('/portal/reset-password') &&
+    !request.nextUrl.pathname.startsWith('/portal/change-password')
   ) {
     // Check for custom pilot session cookie (bcrypt-authenticated pilots)
     // Note: Full validation happens in protected routes via validatePilotSession()
