@@ -82,7 +82,14 @@ export interface TaskStats {
 }
 
 // Valid task statuses for Kanban board
-export const TASK_STATUSES = ['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'COMPLETED', 'CANCELLED'] as const
+export const TASK_STATUSES = [
+  'TODO',
+  'IN_PROGRESS',
+  'IN_REVIEW',
+  'BLOCKED',
+  'COMPLETED',
+  'CANCELLED',
+] as const
 export type TaskStatus = (typeof TASK_STATUSES)[number]
 
 // Valid task priorities

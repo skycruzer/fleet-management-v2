@@ -193,6 +193,7 @@ export default function TaskForm({ task, users = [], onSuccess, onCancel }: Task
             >
               <option value="TODO">To Do</option>
               <option value="IN_PROGRESS">In Progress</option>
+              <option value="IN_REVIEW">In Review</option>
               <option value="BLOCKED">Blocked</option>
               <option value="COMPLETED">Completed</option>
               <option value="CANCELLED">Cancelled</option>

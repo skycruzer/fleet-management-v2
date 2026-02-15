@@ -7,6 +7,7 @@
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTaskById } from '@/lib/services/task-service'
+import { createClient } from '@/lib/supabase/server'
 import TaskForm from '@/components/tasks/task-form'
 
 interface TaskEditPageProps {
@@ -29,6 +30,13 @@ export default async function TaskEditPage({ params }: TaskEditPageProps) {
 
   const task = taskResult.data
 
+  // Fetch users for assignment dropdown
+  const supabase = await createClient()
+  const { data: users } = await supabase
+    .from('an_users')
+    .select('id, email, name')
+    .order('name', { ascending: true })
+
   return (
     <div className="mx-auto max-w-4xl p-6">
       <div className="mb-6">
@@ -38,7 +46,7 @@ export default async function TaskEditPage({ params }: TaskEditPageProps) {
 
       <div className="bg-card overflow-hidden rounded-lg shadow">
         <div className="p-6">
-          <TaskForm task={task} />
+          <TaskForm task={task} users={users || []} />
         </div>
       </div>
     </div>
