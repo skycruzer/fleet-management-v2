@@ -341,19 +341,24 @@ export async function createPilotRequest(
 
     const conflictResult = await detectConflicts(conflictInput)
 
-    // If critical conflicts exist, prevent creation
-    const criticalConflicts = conflictResult.conflicts.filter((c) => c.severity === 'CRITICAL')
+    // Block submission only for conflicts that genuinely prevent creation
+    // (e.g., overlapping requests for the same pilot).
+    // CREW_BELOW_MINIMUM is admin-advisory — it informs the approval decision,
+    // but should never prevent a pilot from submitting their request.
+    const submissionBlockingConflicts = conflictResult.conflicts.filter(
+      (c) => c.severity === 'CRITICAL' && c.type !== 'CREW_BELOW_MINIMUM'
+    )
 
-    if (criticalConflicts.length > 0) {
+    if (submissionBlockingConflicts.length > 0) {
       await logger.warn('Request blocked due to critical conflicts', {
         source: 'unified-request-service:createPilotRequest',
         pilot_id: input.pilot_id,
-        conflicts: criticalConflicts,
+        conflicts: submissionBlockingConflicts,
       })
 
       return {
         success: false,
-        error: criticalConflicts[0].message,
+        error: submissionBlockingConflicts[0].message,
         conflicts: conflictResult.conflicts,
         warnings: conflictResult.warnings,
         canApprove: false,
