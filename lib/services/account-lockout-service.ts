@@ -51,13 +51,15 @@ interface ServiceResponse<T> {
 /**
  * Record a failed login attempt
  *
- * @param email - Email address that failed login
+ * @param identifier - Login identifier (staff ID or email) used for lockout tracking
  * @param ipAddress - IP address of the attempt
+ * @param notificationEmail - Actual email to send lockout notifications to (optional)
  * @returns Updated lockout status
  */
 export async function recordFailedAttempt(
-  email: string,
-  ipAddress?: string
+  identifier: string,
+  ipAddress?: string,
+  notificationEmail?: string
 ): Promise<ServiceResponse<LockoutStatus>> {
   try {
     const supabase = createAdminClient()
@@ -69,7 +71,7 @@ export async function recordFailedAttempt(
     const { data: attempts, error: fetchError } = await supabase
       .from('failed_login_attempts' as any)
       .select('*')
-      .eq('email', email.toLowerCase())
+      .eq('email', identifier.toLowerCase())
       .gte('attempted_at', windowStart.toISOString())
       .order('attempted_at', { ascending: false })
 
@@ -85,7 +87,7 @@ export async function recordFailedAttempt(
 
     // Record this failed attempt
     const { error: insertError } = await supabase.from('failed_login_attempts' as any).insert({
-      email: email.toLowerCase(),
+      email: identifier.toLowerCase(),
       attempted_at: new Date().toISOString(),
       ip_address: ipAddress,
     })
@@ -103,7 +105,7 @@ export async function recordFailedAttempt(
 
       // Lock the account
       const { error: lockError } = await supabase.from('account_lockouts' as any).insert({
-        email: email.toLowerCase(),
+        email: identifier.toLowerCase(),
         locked_at: new Date().toISOString(),
         locked_until: lockedUntil.toISOString(),
         failed_attempts: newAttemptCount,
@@ -114,8 +116,12 @@ export async function recordFailedAttempt(
         console.error('Error locking account:', lockError)
       }
 
-      // Send lockout notification email
-      await sendLockoutNotification(email, lockedUntil)
+      // Send lockout notification to the pilot's actual email if available,
+      // falling back to looking up the email from the database
+      const emailForNotification = notificationEmail || (await resolveEmailForNotification(identifier))
+      if (emailForNotification) {
+        await sendLockoutNotification(emailForNotification, lockedUntil)
+      }
 
       return {
         success: true,
@@ -147,10 +153,12 @@ export async function recordFailedAttempt(
 /**
  * Check if account is currently locked
  *
- * @param email - Email address to check
+ * @param identifier - Login identifier (staff ID or email) to check
  * @returns Lockout status
  */
-export async function checkAccountLockout(email: string): Promise<ServiceResponse<LockoutStatus>> {
+export async function checkAccountLockout(
+  identifier: string
+): Promise<ServiceResponse<LockoutStatus>> {
   try {
     const supabase = createAdminClient()
 
@@ -158,7 +166,7 @@ export async function checkAccountLockout(email: string): Promise<ServiceRespons
     const { data: lockout, error } = await supabase
       .from('account_lockouts' as any)
       .select('*')
-      .eq('email', email.toLowerCase())
+      .eq('email', identifier.toLowerCase())
       .gte('locked_until', new Date().toISOString())
       .order('locked_at', { ascending: false })
       .limit(1)
@@ -207,9 +215,9 @@ export async function checkAccountLockout(email: string): Promise<ServiceRespons
 /**
  * Clear failed attempts after successful login
  *
- * @param email - Email address to clear
+ * @param identifier - Login identifier (staff ID or email) to clear
  */
-export async function clearFailedAttempts(email: string): Promise<ServiceResponse<null>> {
+export async function clearFailedAttempts(identifier: string): Promise<ServiceResponse<null>> {
   try {
     const supabase = createAdminClient()
 
@@ -217,7 +225,7 @@ export async function clearFailedAttempts(email: string): Promise<ServiceRespons
     const { error: deleteError } = await supabase
       .from('failed_login_attempts' as any)
       .delete()
-      .eq('email', email.toLowerCase())
+      .eq('email', identifier.toLowerCase())
 
     if (deleteError) {
       console.error('Error clearing failed attempts:', deleteError)
@@ -347,6 +355,31 @@ export async function getLockoutStatistics(): Promise<
       success: false,
       error: 'Failed to fetch statistics',
     }
+  }
+}
+
+/**
+ * Resolve an actual email address from a login identifier (staff ID).
+ * Used when sending lockout notifications — the identifier may be a staff ID,
+ * not an email address.
+ */
+async function resolveEmailForNotification(identifier: string): Promise<string | null> {
+  try {
+    const supabase = createAdminClient()
+
+    // Check if the identifier is already an email
+    if (identifier.includes('@')) return identifier
+
+    // Look up email from pilot_users by employee_id
+    const { data } = await supabase
+      .from('pilot_users')
+      .select('email')
+      .eq('employee_id', identifier)
+      .single()
+
+    return data?.email || null
+  } catch {
+    return null
   }
 }
 

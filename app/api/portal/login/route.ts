@@ -187,7 +187,7 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     })
 
     if (!result.success) {
-      // SECURITY: Record failed login attempt
+      // SECURITY: Record failed login attempt (pass staffId as identifier for tracking)
       logger.warn('Failed login attempt', { staffId, ipAddress })
       await recordFailedAttempt(staffId, ipAddress)
 
@@ -197,7 +197,12 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     }
 
     // SECURITY: Clear failed attempts after successful login
+    // Clear by both staffId and email to handle any prior mismatch
     await clearFailedAttempts(staffId)
+    const pilotEmail = result.data?.user?.email
+    if (pilotEmail && pilotEmail !== staffId) {
+      await clearFailedAttempts(pilotEmail)
+    }
 
     // SECURITY: Session created successfully - return success response
     // Client will handle redirect to dashboard

@@ -99,17 +99,43 @@ export async function pilotLogin(
   try {
     const supabase = createAdminClient()
     const bcrypt = require('bcryptjs')
+    const trimmedStaffId = credentials.staffId.trim()
 
-    // Find pilot user by employee_id (staff ID)
-    const { data: pilotUser, error: pilotError } = await supabase
+    const pilotUserFields =
+      'id, email, employee_id, password_hash, registration_approved, first_name, last_name, rank, must_change_password, pilot_id'
+
+    // Step 1: Try direct match on pilot_users.employee_id
+    let { data: pilotUser } = await supabase
       .from('pilot_users')
-      .select(
-        'id, email, employee_id, password_hash, registration_approved, first_name, last_name, rank, must_change_password, pilot_id'
-      )
-      .eq('employee_id', credentials.staffId)
+      .select(pilotUserFields)
+      .eq('employee_id', trimmedStaffId)
       .single()
 
-    if (pilotError || !pilotUser) {
+    // Step 2: Fallback — look up via pilots.employee_id → pilot_users.pilot_id
+    // Handles cases where pilot_users.employee_id is null but the pilot is
+    // linked to a pilots record that has the correct employee_id.
+    if (!pilotUser) {
+      const { data: pilot } = await supabase
+        .from('pilots')
+        .select('id')
+        .eq('employee_id', trimmedStaffId)
+        .eq('is_active', true)
+        .single()
+
+      if (pilot) {
+        const { data: linkedUser } = await supabase
+          .from('pilot_users')
+          .select(pilotUserFields)
+          .eq('pilot_id', pilot.id)
+          .single()
+
+        if (linkedUser) {
+          pilotUser = linkedUser
+        }
+      }
+    }
+
+    if (!pilotUser) {
       return {
         success: false,
         error: ERROR_MESSAGES.PORTAL.LOGIN_FAILED.message,
