@@ -418,7 +418,7 @@ export async function sendLeaveRequestApprovalEmail(
       </div>
 
       <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
-        If you have any questions, please contact your supervisor or the flight operations team.
+        If you have any questions, please contact the fleet office.
       </p>
     </div>
 
@@ -453,7 +453,7 @@ ${requestData.reviewerComments ? `- Comments: ${requestData.reviewerComments}` :
 
 View your leave requests: ${portalUrl}
 
-If you have any questions, please contact your supervisor or the flight operations team.
+If you have any questions, please contact the fleet office.
 
 ---
 This is an automated message from ${EMAIL_CONFIG.appName}.
@@ -545,7 +545,7 @@ export async function sendLeaveRequestDenialEmail(
           <strong>What's Next?</strong>
         </p>
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #004085;">
-          If you have questions about this decision or would like to discuss alternative dates, please contact your supervisor or the flight operations team.
+          If you have questions about this decision or would like to discuss alternative dates, please contact the fleet office.
         </p>
       </div>
 
@@ -585,7 +585,7 @@ Leave Details:
 ${requestData.denialReason || requestData.reviewerComments ? `- Reason: ${requestData.denialReason || requestData.reviewerComments}` : ''}
 
 What's Next?
-If you have questions about this decision or would like to discuss alternative dates, please contact your supervisor or the flight operations team.
+If you have questions about this decision or would like to discuss alternative dates, please contact the fleet office.
 
 View your leave requests: ${portalUrl}
 
@@ -671,7 +671,7 @@ export async function sendFlightRequestApprovalEmail(
       </div>
 
       <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
-        If you have any questions, please contact your supervisor or the flight operations team.
+        If you have any questions, please contact the fleet office.
       </p>
     </div>
 
@@ -705,7 +705,7 @@ ${requestData.reviewerComments ? `- Comments: ${requestData.reviewerComments}` :
 
 View your flight requests: ${portalUrl}
 
-If you have any questions, please contact your supervisor or the flight operations team.
+If you have any questions, please contact the fleet office.
 
 ---
 This is an automated message from ${EMAIL_CONFIG.appName}.
@@ -798,7 +798,7 @@ export async function sendFlightRequestDenialEmail(
           <strong>What's Next?</strong>
         </p>
         <p style="margin: 10px 0 0 0; font-size: 14px; color: #004085;">
-          If you have questions about this decision or would like to discuss alternative options, please contact your supervisor or the flight operations team.
+          If you have questions about this decision or would like to discuss alternative options, please contact the fleet office.
         </p>
       </div>
 
@@ -839,7 +839,7 @@ Request Details:
 ${requestData.denialReason || requestData.reviewerComments ? `- Reason: ${requestData.denialReason || requestData.reviewerComments}` : ''}
 
 What's Next?
-If you have questions about this decision or would like to discuss alternative options, please contact your supervisor or the flight operations team.
+If you have questions about this decision or would like to discuss alternative options, please contact the fleet office.
 
 View your flight requests: ${portalUrl}
 
