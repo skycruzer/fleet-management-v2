@@ -797,8 +797,19 @@ export async function updateRequestStatus(
     }
     await invalidateCacheByTag('reports:all-requests')
 
+    // Resolve pilot_user_id (may be null for requests created via createPilotRequest)
+    let pilotUserId = data.pilot_user_id
+    if (!pilotUserId && data.pilot_id) {
+      const { data: mapping } = await supabase
+        .from('pilot_user_mappings')
+        .select('pilot_user_id')
+        .eq('pilot_id', data.pilot_id)
+        .single()
+      pilotUserId = mapping?.pilot_user_id || null
+    }
+
     // Create in-app notification for the pilot (fire-and-forget)
-    if (data.pilot_user_id) {
+    if (pilotUserId) {
       const isLeave = data.request_category === 'LEAVE'
       const notificationConfig: Record<
         string,
@@ -824,7 +835,7 @@ export async function updateRequestStatus(
       const config = notificationConfig[status]
       if (config) {
         createNotification({
-          userId: data.pilot_user_id,
+          userId: pilotUserId,
           title: config.title,
           message: config.message,
           type: config.type,
