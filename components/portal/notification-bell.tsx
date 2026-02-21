@@ -60,6 +60,22 @@ export function NotificationBell() {
 
   const unreadCount = notifications.filter((n) => !n.read).length
 
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await fetch('/api/portal/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId }),
+        credentials: 'include',
+      })
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+      )
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err)
+    }
+  }
+
   const getNotificationIcon = (type: string) => {
     const colors: Record<string, string> = {
       leave_approved: 'bg-[var(--color-status-low)]',
@@ -124,7 +140,10 @@ export function NotificationBell() {
                     key={notification.id}
                     href={notification.link || '/portal/notifications'}
                     className="hover:bg-muted block transition-colors"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      if (!notification.read) markAsRead(notification.id)
+                      setIsOpen(false)
+                    }}
                   >
                     <div className="p-4">
                       <div className="flex items-start gap-3">
