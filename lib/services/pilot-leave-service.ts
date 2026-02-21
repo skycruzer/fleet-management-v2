@@ -115,14 +115,8 @@ export async function submitPilotLeaveRequest(
       }
     }
 
-    // Send email confirmation to pilot (fire-and-forget)
-    sendRequestLifecycleEmail(pilot.pilot_id!, 'submitted', {
-      requestCategory: 'LEAVE',
-      requestType: request.request_type,
-      startDate: request.start_date,
-      endDate: request.end_date || null,
-      reason: request.reason || null,
-    }).catch((err: unknown) => console.error('Failed to send leave submission email:', err))
+    // Email confirmation is already sent by createPilotRequest() in unified-request-service.ts
+    // (via sendRequestLifecycleEmail). No need to send again here.
 
     return {
       success: true,
