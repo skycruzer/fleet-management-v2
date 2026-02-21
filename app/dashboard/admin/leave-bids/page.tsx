@@ -37,6 +37,7 @@ export default async function AdminLeaveBidsPage() {
       created_at,
       updated_at,
       pilot_id,
+      preferred_dates,
       pilots (
         id,
         first_name,
@@ -61,18 +62,39 @@ export default async function AdminLeaveBidsPage() {
     console.error('Error fetching leave bids:', error)
   }
 
-  // Transform bids to add bid_year derived from leave_bid_options start_date
+  // Transform bids: normalize leave_bid_options from either the options table
+  // or the preferred_dates JSON column (portal submissions use preferred_dates)
   const bids = (leaveBids || []).map((bid: any) => {
-    // Extract year from first leave bid option start_date
-    let bidYear = new Date().getFullYear() + 1 // Default to next year
-    if (bid.leave_bid_options && bid.leave_bid_options.length > 0) {
-      const firstOption = bid.leave_bid_options[0]
-      if (firstOption.start_date) {
-        bidYear = new Date(firstOption.start_date).getFullYear()
+    let options = bid.leave_bid_options || []
+
+    // If no options from the table, parse preferred_dates JSON (portal submission format)
+    if (options.length === 0 && bid.preferred_dates) {
+      try {
+        const parsed = typeof bid.preferred_dates === 'string'
+          ? JSON.parse(bid.preferred_dates)
+          : bid.preferred_dates
+        if (Array.isArray(parsed)) {
+          options = parsed.map((item: any, index: number) => ({
+            id: `${bid.id}-opt-${index}`,
+            priority: item.priority || index + 1,
+            start_date: item.start_date,
+            end_date: item.end_date,
+          }))
+        }
+      } catch {
+        // Invalid JSON — leave options empty
       }
     }
+
+    // Extract year from first option start_date
+    let bidYear = new Date().getFullYear() + 1
+    if (options.length > 0 && options[0].start_date) {
+      bidYear = new Date(options[0].start_date).getFullYear()
+    }
+
     return {
       ...bid,
+      leave_bid_options: options,
       bid_year: bidYear,
     }
   })
