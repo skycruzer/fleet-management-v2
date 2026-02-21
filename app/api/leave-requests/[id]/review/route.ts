@@ -13,10 +13,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { updateLeaveRequestStatus } from '@/lib/services/unified-request-service'
-import { createNotification } from '@/lib/services/notification-service'
 import { z } from 'zod'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
@@ -83,40 +81,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Update leave request status using service function
     const result = await updateLeaveRequestStatus(requestId, status, auth.userId!, comments)
-
-    // Fetch the leave request details to get pilot information
-    const supabase = createAdminClient()
-    const { data: leaveRequest } = await supabase
-      .from('pilot_requests')
-      .select('*')
-      .eq('id', requestId)
-      .eq('request_category', 'LEAVE')
-      .single()
-
-    // Create notification for pilot if they have start/end dates
-    if (leaveRequest?.pilot_user_id && leaveRequest.start_date && leaveRequest.end_date) {
-      const notificationTitle =
-        status === 'APPROVED' ? '✅ Leave Request Approved' : '❌ Leave Request Denied'
-
-      const startDate = new Date(leaveRequest.start_date).toLocaleDateString()
-      const endDate = new Date(leaveRequest.end_date).toLocaleDateString()
-
-      const notificationMessage =
-        status === 'APPROVED'
-          ? `Your ${leaveRequest.request_type || 'leave'} from ${startDate} to ${endDate} has been approved.${comments ? ` Comment: ${comments}` : ''}`
-          : `Your ${leaveRequest.request_type || 'leave'} from ${startDate} to ${endDate} has been denied.${comments ? ` Reason: ${comments}` : ''}`
-
-      await createNotification({
-        userId: leaveRequest.pilot_user_id,
-        title: notificationTitle,
-        message: notificationMessage,
-        type: status === 'APPROVED' ? 'leave_request_approved' : 'leave_request_rejected',
-        link: '/portal/leave-requests',
-      }).catch((err) => {
-        // Log error but don't fail the request
-        console.error('Failed to create notification:', err)
-      })
-    }
 
     // Revalidate cache for all affected paths
     revalidatePath('/dashboard/leave')

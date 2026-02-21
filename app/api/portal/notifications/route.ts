@@ -64,9 +64,20 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Filter out admin-portal notifications (dual-role users would see /dashboard/* links
+    // that redirect to login since they don't have an admin session in the pilot portal)
+    const allNotifications = Array.isArray(result.data)
+      ? result.data
+      : result.data
+        ? [result.data]
+        : []
+    const portalNotifications = allNotifications.filter(
+      (n) => !n.link || !n.link.startsWith('/dashboard')
+    )
+
     return NextResponse.json({
       success: true,
-      data: result.data || [],
+      data: portalNotifications,
     })
   } catch (error: any) {
     console.error('Notifications API error:', error)
