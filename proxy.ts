@@ -88,6 +88,7 @@ export async function proxy(request: NextRequest) {
     '/portal/register',
     '/portal/forgot-password',
     '/portal/reset-password',
+    '/api/health',
   ]
 
   // Check if pathname exactly matches public routes or is root
