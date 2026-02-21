@@ -17,17 +17,11 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { unauthorizedResponse, validationErrorResponse } from '@/lib/utils/api-response-helper'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
-const VALID_REMINDER_DAYS = [90, 60, 30, 14, 7] as const
-
 const ReminderSettingsSchema = z.object({
   reminder_days: z
-    .array(
-      z.number().refine((n) => (VALID_REMINDER_DAYS as readonly number[]).includes(n), {
-        message: `Must be one of: ${VALID_REMINDER_DAYS.join(', ')}`,
-      })
-    )
+    .array(z.number().int().positive().max(365))
     .min(0)
-    .max(VALID_REMINDER_DAYS.length),
+    .max(10),
   email_notifications_enabled: z.boolean(),
 })
 

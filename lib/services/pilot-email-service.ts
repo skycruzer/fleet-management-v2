@@ -958,7 +958,7 @@ export async function sendCertificationExpiryAlert(
         <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 14px; color: #555;">
           ${
             data.urgencyLevel === 'critical'
-              ? '<li><strong>DO NOT FLY</strong> with expired certifications</li><li>Contact training immediately to schedule renewal</li><li>Update your status in the system</li>'
+              ? '<li><strong>DO NOT FLY</strong> with expired certifications</li><li>Please notify the B767 Office if this certification has been completed</li><li>Advise if APM has been updated and provide the new expiry date</li>'
               : data.urgencyLevel === 'warning'
                 ? '<li>Schedule renewal as soon as possible</li><li>Contact training to book your renewal</li><li>Review renewal requirements</li>'
                 : '<li>Plan your renewal well in advance</li><li>Check training calendar availability</li><li>Prepare required documentation</li>'

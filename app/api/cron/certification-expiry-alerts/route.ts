@@ -3,9 +3,11 @@
  * Developer: Maurice Rondeau
  *
  * Runs daily at 6:00 AM to check for expiring certifications
- * and send email notifications to pilots.
+ * and send email + bell notifications to pilots.
  *
  * Enhanced with:
+ * - Admin-configurable notification intervals via settings table
+ * - Bell notifications for pilots with portal accounts
  * - Per-check-type reminder day configuration
  * - Deduplication via certification_email_log
  * - notification_level-based tracking (90/60/30/14/7 days + EXPIRED)
@@ -17,6 +19,8 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendCertificationExpiryAlert } from '@/lib/services/pilot-email-service'
+import { createNotification, type NotificationType } from '@/lib/services/notification-service'
+import { getSystemSetting } from '@/lib/services/admin-service'
 import { format } from 'date-fns'
 
 export const dynamic = 'force-dynamic'
@@ -50,10 +54,10 @@ function determineNotificationLevel(daysUntilExpiry: number): NotificationLevel 
  */
 function shouldSendForReminderDays(
   daysUntilExpiry: number,
-  reminderDays: number[] | null
+  reminderDays: number[] | null,
+  systemDefaults: number[] = [30, 14, 7]
 ): boolean {
-  const defaultReminderDays = [90, 60, 30, 14, 7]
-  const activeDays = reminderDays && reminderDays.length > 0 ? reminderDays : defaultReminderDays
+  const activeDays = reminderDays && reminderDays.length > 0 ? reminderDays : systemDefaults
 
   // Always notify for expired certifications
   if (daysUntilExpiry < 0) return true
@@ -72,11 +76,27 @@ export async function GET(request: Request) {
 
     const supabase = createAdminClient()
 
+    // Read configurable notification intervals from settings
+    let systemIntervals = [30, 14, 7]
+    try {
+      const setting = await getSystemSetting('certification_notification_intervals')
+      if (setting?.value) {
+        const parsed = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value
+        if (Array.isArray(parsed) && parsed.every((n: unknown) => typeof n === 'number' && n > 0)) {
+          systemIntervals = parsed
+        }
+      }
+    } catch {
+      // Fall back to defaults if setting not found
+    }
+
     // Get all expiring certifications using enhanced database function
     // Now includes per-check-type reminder config and pilot_check_id for dedup
+    // Keep threshold at 90 minimum to support per-check-type configs that may use 60/90
+    const maxThreshold = Math.max(...systemIntervals, 90)
     const { data: expiringChecks, error } = await supabase.rpc(
       'get_expiring_certifications_with_email',
-      { days_threshold: 90 }
+      { days_threshold: maxThreshold }
     )
 
     if (error) {
@@ -94,7 +114,7 @@ export async function GET(request: Request) {
 
     // Filter checks that should send notifications based on their reminder_days config
     const checksToNotify = expiringChecks.filter((check) =>
-      shouldSendForReminderDays(check.days_until_expiry, check.reminder_days)
+      shouldSendForReminderDays(check.days_until_expiry, check.reminder_days, systemIntervals)
     )
 
     if (checksToNotify.length === 0) {
@@ -190,8 +210,23 @@ export async function GET(request: Request) {
       {}
     )
 
+    // Resolve pilot portal user IDs for bell notifications
+    const pilotIds = Object.keys(certsByPilot)
+    const { data: userMappings } = await supabase
+      .from('pilot_user_mappings')
+      .select('pilot_id, pilot_user_id')
+      .in('pilot_id', pilotIds)
+
+    const pilotUserMap = new Map<string, string>()
+    for (const mapping of userMappings || []) {
+      if (mapping.pilot_id && mapping.pilot_user_id) {
+        pilotUserMap.set(mapping.pilot_id, mapping.pilot_user_id)
+      }
+    }
+
     // Send email alerts and log results
     const emailResults = []
+    let bellNotificationsSent = 0
     for (const pilotId in certsByPilot) {
       const { pilot, certifications } = certsByPilot[pilotId]
 
@@ -239,6 +274,40 @@ export async function GET(request: Request) {
         })
       }
 
+      // Send bell notification if pilot has a portal account
+      const pilotUserId = pilotUserMap.get(pilotId)
+      if (pilotUserId) {
+        const bellTitle =
+          mostCritical < 0
+            ? 'EXPIRED: Certification Action Required'
+            : mostCritical <= 7
+              ? 'URGENT: Certification Expiring in 7 Days'
+              : mostCritical <= 14
+                ? 'Certification Expiring in 14 Days'
+                : 'Certification Expiring Soon'
+
+        const bellType: NotificationType =
+          mostCritical < 0 ? 'certification_expired' : 'certification_expiring'
+
+        const certNames = certifications.map((c) => c.checkCode).join(', ')
+        const bellMessage =
+          mostCritical < 0
+            ? `The following certification(s) have expired: ${certNames}. Please take immediate action.`
+            : `${certNames} — expiring within ${mostCritical} days. Please schedule renewal.`
+
+        createNotification({
+          userId: pilotUserId,
+          title: bellTitle,
+          message: bellMessage,
+          type: bellType,
+          link: '/portal/certifications',
+        }).catch((err) =>
+          console.error(`Failed to create bell notification for pilot ${pilotId}:`, err)
+        )
+
+        bellNotificationsSent++
+      }
+
       emailResults.push({
         pilotId,
         pilotName: `${pilot.first_name} ${pilot.last_name}`,
@@ -269,6 +338,7 @@ export async function GET(request: Request) {
         matchedThresholds: checksToNotify.length,
         newNotifications: newChecksToNotify.length,
         deduplicatedSkipped: checksToNotify.length - newChecksToNotify.length,
+        bellNotificationsSent,
       },
       results: emailResults,
     })
