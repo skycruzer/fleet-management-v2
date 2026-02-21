@@ -20,7 +20,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface Notification {
   id: string
-  notification_type: string
+  type: string
   title: string
   message: string
   link: string | null
@@ -124,7 +124,7 @@ export function NotificationBell() {
                       <div className="flex items-start gap-3">
                         {/* Color Indicator */}
                         <div
-                          className={`mt-2 h-2 w-2 flex-shrink-0 rounded-full ${getNotificationIcon(notification.notification_type)}`}
+                          className={`mt-2 h-2 w-2 flex-shrink-0 rounded-full ${getNotificationIcon(notification.type)}`}
                         />
 
                         {/* Content */}

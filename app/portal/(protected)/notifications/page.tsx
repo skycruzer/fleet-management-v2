@@ -18,7 +18,7 @@ import { formatDistanceToNow } from 'date-fns'
 
 interface Notification {
   id: string
-  notification_type: string
+  type: string
   title: string
   message: string
   link: string | null
@@ -207,8 +207,8 @@ export default function NotificationsPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="mb-2 flex items-center gap-2">
-                      <Badge className={getNotificationBadgeColor(notification.notification_type)}>
-                        {notification.notification_type.replace(/_/g, ' ')}
+                      <Badge className={getNotificationBadgeColor(notification.type)}>
+                        {notification.type.replace(/_/g, ' ')}
                       </Badge>
                       {!notification.read && (
                         <Badge variant="outline" className="bg-[var(--color-info-bg)]">
