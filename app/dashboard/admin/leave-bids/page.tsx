@@ -3,7 +3,7 @@
  * Allows administrators to review and approve/reject pilot leave bids
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { Card } from '@/components/ui/card'
@@ -21,10 +21,7 @@ export default async function AdminLeaveBidsPage() {
     redirect('/auth/login')
   }
 
-  const supabase = await createClient()
-
-  // Access control: Any authenticated user can access this page
-  // Role-based restrictions can be added later when an_users table is populated
+  const supabase = createAdminClient()
 
   // Fetch all leave bids with pilot information
   const { data: leaveBids, error } = await supabase
