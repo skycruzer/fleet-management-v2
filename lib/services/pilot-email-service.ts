@@ -1930,7 +1930,7 @@ export async function sendRequestLifecycleEmail(
  */
 export async function sendAdminRequestNotificationEmail(params: {
   pilotName: string
-  requestCategory: 'LEAVE' | 'FLIGHT'
+  requestCategory: 'LEAVE' | 'FLIGHT' | 'LEAVE_BID'
   requestType: string
   startDate: string
   endDate: string | null
@@ -1960,11 +1960,15 @@ export async function sendAdminRequestNotificationEmail(params: {
     }
 
     const resend = getResendClient()
-    const categoryLabel = params.requestCategory === 'LEAVE' ? 'Leave' : 'RDO/SDO'
+    const categoryLabel = params.requestCategory === 'LEAVE' ? 'Leave'
+      : params.requestCategory === 'LEAVE_BID' ? 'Leave Bid'
+      : 'RDO/SDO'
     const dateRange = params.endDate && params.endDate !== params.startDate
       ? `${params.startDate} to ${params.endDate}`
       : params.startDate
-    const dashboardLink = `${EMAIL_CONFIG.appUrl}/dashboard/requests/${params.requestId}`
+    const dashboardLink = params.requestCategory === 'LEAVE_BID'
+      ? `${EMAIL_CONFIG.appUrl}/dashboard/admin/leave-bids/${params.requestId}`
+      : `${EMAIL_CONFIG.appUrl}/dashboard/requests/${params.requestId}`
 
     const subject = `New ${categoryLabel} Request — ${params.pilotName}`
     const html = `

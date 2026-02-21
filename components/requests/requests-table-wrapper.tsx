@@ -27,6 +27,8 @@ interface RequestsTableWrapperProps {
     channel?: string
     is_late?: string
     is_past_deadline?: string
+    start_date_from?: string
+    start_date_to?: string
   }>
 }
 
@@ -51,6 +53,8 @@ export async function RequestsTableWrapper({ searchParams }: RequestsTableWrappe
       : undefined,
     is_late_request: params.is_late === 'true' ? true : undefined,
     is_past_deadline: params.is_past_deadline === 'true' ? true : undefined,
+    start_date_from: params.start_date_from || undefined,
+    start_date_to: params.start_date_to || undefined,
   }
 
   // Fetch requests from service layer

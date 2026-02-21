@@ -23,6 +23,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { notifyAllAdmins } from '@/lib/services/notification-service'
+import { sendAdminRequestNotificationEmail } from '@/lib/services/pilot-email-service'
 import type { ServiceResponse } from '@/lib/types/service-response'
 
 export interface LeaveBid {
@@ -130,13 +131,22 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         }
       }
 
-      // Notify admins about updated leave bid
+      // Notify admins about updated leave bid (bell + email)
       notifyAllAdmins(
         'Leave Bid Updated',
-        `A pilot updated their leave bid for ${bidData.roster_period_code}`,
+        `${pilot.first_name} ${pilot.last_name} updated their leave bid for ${bidData.roster_period_code}`,
         'leave_bid_submitted',
-        '/dashboard/leave-bids'
+        `/dashboard/admin/leave-bids/${updatedBid.id}`
       ).catch((err) => console.error('Failed to notify admins:', err))
+
+      sendAdminRequestNotificationEmail({
+        pilotName: `${pilot.first_name} ${pilot.last_name}`,
+        requestCategory: 'LEAVE_BID',
+        requestType: `Leave Bid (${bidData.priority})`,
+        startDate: bidData.roster_period_code,
+        endDate: null,
+        requestId: updatedBid.id,
+      }).catch((err) => console.error('Failed to send admin email:', err))
 
       return {
         success: true,
@@ -168,13 +178,22 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         }
       }
 
-      // Notify admins about new leave bid
+      // Notify admins about new leave bid (bell + email)
       notifyAllAdmins(
         'New Leave Bid Submitted',
-        `A pilot submitted a leave bid for ${bidData.roster_period_code}`,
+        `${pilot.first_name} ${pilot.last_name} submitted a leave bid for ${bidData.roster_period_code}`,
         'leave_bid_submitted',
-        '/dashboard/leave-bids'
+        `/dashboard/admin/leave-bids/${newBid.id}`
       ).catch((err) => console.error('Failed to notify admins:', err))
+
+      sendAdminRequestNotificationEmail({
+        pilotName: `${pilot.first_name} ${pilot.last_name}`,
+        requestCategory: 'LEAVE_BID',
+        requestType: `Leave Bid (${bidData.priority})`,
+        startDate: bidData.roster_period_code,
+        endDate: null,
+        requestId: newBid.id,
+      }).catch((err) => console.error('Failed to send admin email:', err))
 
       return {
         success: true,

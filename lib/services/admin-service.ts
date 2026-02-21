@@ -237,14 +237,14 @@ export async function getSystemSetting(key: string): Promise<SystemSetting | nul
   try {
     const supabase = createAdminClient()
 
-    const { data, error } = await supabase.from('settings').select('*').eq('key', key).single()
+    const { data, error } = await supabase.from('settings').select('*').eq('key', key).maybeSingle()
 
     if (error) {
       console.error('Error fetching system setting:', error)
       throw new Error(`Failed to fetch system setting: ${error.message}`)
     }
 
-    return data
+    return data // Returns null if key not found (no throw)
   } catch (error) {
     console.error('Error in getSystemSetting:', error)
     throw error

@@ -13,6 +13,27 @@
 
 import { useQueryState, parseAsString, parseAsBoolean } from 'nuqs'
 import { RequestFilters, RequestFiltersClient } from './request-filters-client'
+import { generateRosterPeriods, rosterPeriodToDateRange } from '@/lib/utils/roster-periods'
+
+// Generate roster periods with date ranges for filter buttons
+const rosterPeriodData = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true }).map(
+  (code) => {
+    const range = rosterPeriodToDateRange(code)
+    const now = new Date().toISOString().split('T')[0]
+    const status =
+      range && range.startDate <= now && range.endDate >= now
+        ? 'current'
+        : range && range.startDate > now
+          ? 'future'
+          : 'past'
+    return {
+      code,
+      startDate: range?.startDate || '',
+      endDate: range?.endDate || '',
+      status,
+    }
+  }
+)
 
 export function RequestFiltersWrapper() {
   // nuqs manages URL sync automatically for each filter param
@@ -43,6 +64,14 @@ export function RequestFiltersWrapper() {
     'is_past_deadline',
     parseAsBoolean.withDefault(false).withOptions(nuqsOptions)
   )
+  const [startDateFrom, setStartDateFrom] = useQueryState(
+    'start_date_from',
+    parseAsString.withDefault('').withOptions(nuqsOptions)
+  )
+  const [startDateTo, setStartDateTo] = useQueryState(
+    'start_date_to',
+    parseAsString.withDefault('').withOptions(nuqsOptions)
+  )
 
   // Convert nuqs state to RequestFilters for the child component
   const filters: RequestFilters = {
@@ -52,6 +81,8 @@ export function RequestFiltersWrapper() {
     channel: channel ? channel.split(',').filter(Boolean) : [],
     is_late: isLate,
     is_past_deadline: isPastDeadline,
+    start_date_from: startDateFrom || undefined,
+    start_date_to: startDateTo || undefined,
   }
 
   // Handle filter changes — nuqs automatically syncs URL
@@ -83,7 +114,17 @@ export function RequestFiltersWrapper() {
     // Update boolean flags — set to null to remove from URL when false
     setIsLate(newFilters.is_late || null)
     setIsPastDeadline(newFilters.is_past_deadline || null)
+
+    // Update date range
+    setStartDateFrom(newFilters.start_date_from || null)
+    setStartDateTo(newFilters.start_date_to || null)
   }
 
-  return <RequestFiltersClient filters={filters} onFiltersChange={handleFiltersChange} />
+  return (
+    <RequestFiltersClient
+      filters={filters}
+      onFiltersChange={handleFiltersChange}
+      rosterPeriods={rosterPeriodData}
+    />
+  )
 }
