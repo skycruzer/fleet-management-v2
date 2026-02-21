@@ -28,6 +28,7 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
+  Trash2,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
@@ -290,6 +291,46 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
       )
     }
     router.refresh()
+  }
+
+  const handleDelete = async (bidId: string) => {
+    const confirmed = await confirm({
+      title: 'Delete Leave Bid',
+      description:
+        'Are you sure you want to permanently delete this leave bid? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'destructive',
+    })
+    if (!confirmed) return
+
+    setActionLoading(bidId)
+    setError('')
+    setSuccess('')
+
+    try {
+      const response = await fetch(`/api/admin/leave-bids/${bidId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        credentials: 'include',
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        setError(result.error || 'Failed to delete bid')
+        return
+      }
+
+      setSuccess('Leave bid deleted successfully.')
+      router.refresh()
+    } catch {
+      setError('An unexpected error occurred')
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   const handleOptionReview = async (
@@ -633,6 +674,22 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                           >
                             <Edit className="mr-1 h-3 w-3" />
                             Edit
+                          </Button>
+
+                          {/* Delete Button - Always Available */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(bid.id)}
+                            disabled={actionLoading === bid.id}
+                            className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                          >
+                            {actionLoading === bid.id ? (
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                            ) : (
+                              <Trash2 className="mr-1 h-3 w-3" />
+                            )}
+                            Delete
                           </Button>
 
                           {/* Approve/Reject - Only for Pending */}

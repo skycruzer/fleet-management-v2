@@ -13,6 +13,7 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
+import { adminDeleteLeaveBid } from '@/lib/services/leave-bid-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -95,6 +96,59 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const { id } = await context.params
     const sanitized = sanitizeError(error, {
       operation: 'updateLeaveBid',
+      resourceId: id,
+      endpoint: '/api/admin/leave-bids/[id]',
+    })
+    return NextResponse.json(sanitized, { status: sanitized.statusCode })
+  }
+}
+
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  try {
+    // SECURITY: Validate CSRF token
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
+    const { id } = await context.params
+
+    // Check authentication
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // SECURITY: Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(auth.userId!)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
+    // Delete leave bid via service layer
+    const result = await adminDeleteLeaveBid(id)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { success: false, error: result.error || 'Failed to delete leave bid' },
+        { status: 404 }
+      )
+    }
+
+    // Revalidate leave bid paths
+    revalidatePath('/dashboard/admin/leave-bids')
+    revalidatePath('/portal/leave-bids')
+
+    return NextResponse.json({
+      success: true,
+      message: 'Leave bid deleted successfully',
+    })
+  } catch (error: unknown) {
+    console.error('Error in DELETE /api/admin/leave-bids/[id]:', error)
+    const { id } = await context.params
+    const sanitized = sanitizeError(error, {
+      operation: 'deleteLeaveBid',
       resourceId: id,
       endpoint: '/api/admin/leave-bids/[id]',
     })

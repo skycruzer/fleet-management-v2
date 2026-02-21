@@ -21,9 +21,21 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Save, CheckCircle, XCircle, Clock, Calendar, User } from 'lucide-react'
+import {
+  ArrowLeft,
+  Save,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Calendar,
+  User,
+  Trash2,
+  Loader2,
+} from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 
 interface LeaveBidOption {
   id: string
@@ -65,7 +77,10 @@ interface LeaveBidEditFormProps {
 
 export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
   const router = useRouter()
+  const { csrfToken } = useCsrfToken()
+  const { confirm, ConfirmDialog } = useConfirm()
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -111,6 +126,49 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
     }
   }
 
+  const handleDelete = async () => {
+    const confirmed = await confirm({
+      title: 'Delete Leave Bid',
+      description:
+        'Are you sure you want to permanently delete this leave bid? This action cannot be undone.',
+      confirmText: 'Delete',
+      variant: 'destructive',
+    })
+    if (!confirmed) return
+
+    setDeleting(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const response = await fetch(`/api/admin/leave-bids/${bid.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        credentials: 'include',
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        setError(result.error || 'Failed to delete leave bid')
+        return
+      }
+
+      setSuccess('Leave bid deleted successfully.')
+      setTimeout(() => {
+        router.push('/dashboard/admin/leave-bids')
+        router.refresh()
+      }, 1500)
+    } catch {
+      setError('An unexpected error occurred')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const getStatusBadge = (status: string | null) => {
     switch (status) {
       case 'PENDING':
@@ -150,6 +208,7 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
 
   return (
     <>
+      <ConfirmDialog />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -335,16 +394,31 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex justify-end gap-3 border-t pt-4">
-              <Link href="/dashboard/admin/leave-bids">
-                <Button type="button" variant="outline" disabled={saving}>
-                  Cancel
-                </Button>
-              </Link>
-              <Button type="submit" disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
-                {saving ? 'Saving...' : 'Save Changes'}
+            <div className="flex justify-between border-t pt-4">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={saving || deleting}
+              >
+                {deleting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="mr-2 h-4 w-4" />
+                )}
+                {deleting ? 'Deleting...' : 'Delete Bid'}
               </Button>
+              <div className="flex gap-3">
+                <Link href="/dashboard/admin/leave-bids">
+                  <Button type="button" variant="outline" disabled={saving || deleting}>
+                    Cancel
+                  </Button>
+                </Link>
+                <Button type="submit" disabled={saving || deleting}>
+                  <Save className="mr-2 h-4 w-4" />
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

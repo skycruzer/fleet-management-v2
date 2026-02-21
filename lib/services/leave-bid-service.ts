@@ -477,3 +477,53 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
     }
   }
 }
+
+/**
+ * Admin Delete Leave Bid
+ *
+ * Allows administrators to delete any leave bid regardless of status.
+ * Uses admin client to bypass RLS.
+ *
+ * @param bidId - Leave bid ID to delete
+ * @returns Service response
+ */
+export async function adminDeleteLeaveBid(bidId: string): Promise<ServiceResponse> {
+  try {
+    const supabase = createAdminClient()
+
+    // Verify bid exists
+    const { data: bid, error: fetchError } = await supabase
+      .from('leave_bids')
+      .select('id')
+      .eq('id', bidId)
+      .single()
+
+    if (fetchError || !bid) {
+      return {
+        success: false,
+        error: 'Leave bid not found',
+      }
+    }
+
+    // Delete the bid (cascades to leave_bid_options via FK)
+    const { error: deleteError } = await supabase.from('leave_bids').delete().eq('id', bidId)
+
+    if (deleteError) {
+      console.error('Error deleting leave bid:', deleteError)
+      return {
+        success: false,
+        error: 'Failed to delete leave bid',
+      }
+    }
+
+    return {
+      success: true,
+    }
+  } catch (error) {
+    console.error('Admin delete leave bid error:', error)
+    return {
+      success: false,
+      error: 'Failed to delete leave bid',
+    }
+  }
+}
