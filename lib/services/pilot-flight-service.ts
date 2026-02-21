@@ -23,6 +23,7 @@ import {
 } from '@/lib/services/roster-period-service'
 import type { FlightRequestInput } from '@/lib/validations/flight-request-schema'
 import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
+import { notifyAllAdmins } from '@/lib/services/notification-service'
 
 export interface ServiceResponse<T = void> {
   success: boolean
@@ -200,6 +201,14 @@ export async function submitPilotFlightRequest(
       description: request.description || null,
       reason: request.reason || null,
     }).catch((err: unknown) => console.error('Failed to send flight submission email:', err))
+
+    // Notify admins about new RDO/SDO request (fire-and-forget)
+    notifyAllAdmins(
+      'New Flight Request',
+      `${pilotDetails.first_name} ${pilotDetails.last_name} submitted a ${request.request_type} request for ${request.start_date}`,
+      'flight_request_submitted',
+      `/dashboard/requests/${createdRequest.id}`
+    ).catch((err: unknown) => console.error('Failed to notify admins:', err))
 
     return {
       success: true,
