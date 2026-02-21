@@ -217,7 +217,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
             <Link href={`/dashboard/requests?tab=leave&view=${viewMode}`}>Leave Requests</Link>
           </TabsTrigger>
           <TabsTrigger value="flight" asChild>
-            <Link href={`/dashboard/requests?tab=flight&view=${viewMode}`}>Flight Requests</Link>
+            <Link href={`/dashboard/requests?tab=flight&view=${viewMode}`}>RDO/SDO Requests</Link>
           </TabsTrigger>
         </TabsList>
 
