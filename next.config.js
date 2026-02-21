@@ -134,22 +134,7 @@ const nextConfig = {
         destination: '/dashboard/requests?tab=leave-bids',
         permanent: true,
       },
-      // System Admin: Sub-pages merged into Admin
-      {
-        source: '/dashboard/admin/settings',
-        destination: '/dashboard/admin?tab=settings',
-        permanent: true,
-      },
-      {
-        source: '/dashboard/admin/check-types',
-        destination: '/dashboard/admin?tab=check-types',
-        permanent: true,
-      },
-      {
-        source: '/dashboard/admin/pilot-registrations',
-        destination: '/dashboard/admin?tab=registrations',
-        permanent: true,
-      },
+      // System Admin: Sub-pages have dedicated pages (no redirect needed)
       // Legacy FAQs redirect to Help Center
       {
         source: '/dashboard/faqs',
