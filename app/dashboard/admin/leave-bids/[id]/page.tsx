@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, CheckCircle, XCircle, Clock, Calendar, User, Briefcase } from 'lucide-react'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import Link from 'next/link'
 import { format } from 'date-fns'
 
@@ -90,7 +91,15 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
     }
   }
 
-  const bid = { ...rawBid, leave_bid_options: options }
+  // Enrich each option with roster period codes
+  const enrichedOptions = options.map((opt: any) => ({
+    ...opt,
+    roster_periods: getAffectedRosterPeriods(new Date(opt.start_date), new Date(opt.end_date)).map(
+      (rp: any) => rp.code
+    ),
+  }))
+
+  const bid = { ...rawBid, leave_bid_options: enrichedOptions }
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
@@ -291,6 +300,22 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
                         days
                       </p>
                     </div>
+                    {option.roster_periods && option.roster_periods.length > 0 && (
+                      <div>
+                        <p className="text-muted-foreground text-xs font-medium">Roster Periods</p>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {option.roster_periods.map((rp: string) => (
+                            <Badge
+                              key={rp}
+                              variant="outline"
+                              className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-xs text-[var(--color-info)]"
+                            >
+                              {rp}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

@@ -13,6 +13,7 @@ import { FileText } from 'lucide-react'
 import Link from 'next/link'
 import { LeaveBidReviewTable } from '@/components/admin/leave-bid-review-table'
 import { LeaveBidAnnualCalendar } from '@/components/admin/leave-bid-annual-calendar'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 
 export default async function AdminLeaveBidsPage() {
   // Check authentication (supports both Supabase Auth and admin-session cookie)
@@ -35,6 +36,7 @@ export default async function AdminLeaveBidsPage() {
       updated_at,
       pilot_id,
       preferred_dates,
+      option_statuses,
       pilots (
         id,
         first_name,
@@ -67,9 +69,10 @@ export default async function AdminLeaveBidsPage() {
     // If no options from the table, parse preferred_dates JSON (portal submission format)
     if (options.length === 0 && bid.preferred_dates) {
       try {
-        const parsed = typeof bid.preferred_dates === 'string'
-          ? JSON.parse(bid.preferred_dates)
-          : bid.preferred_dates
+        const parsed =
+          typeof bid.preferred_dates === 'string'
+            ? JSON.parse(bid.preferred_dates)
+            : bid.preferred_dates
         if (Array.isArray(parsed)) {
           options = parsed.map((item: any, index: number) => ({
             id: `${bid.id}-opt-${index}`,
@@ -83,15 +86,24 @@ export default async function AdminLeaveBidsPage() {
       }
     }
 
+    // Enrich each option with roster period codes
+    const enrichedOptions = options.map((opt: any) => ({
+      ...opt,
+      roster_periods: getAffectedRosterPeriods(
+        new Date(opt.start_date),
+        new Date(opt.end_date)
+      ).map((rp: any) => rp.code),
+    }))
+
     // Extract year from first option start_date
     let bidYear = new Date().getFullYear() + 1
-    if (options.length > 0 && options[0].start_date) {
-      bidYear = new Date(options[0].start_date).getFullYear()
+    if (enrichedOptions.length > 0 && enrichedOptions[0].start_date) {
+      bidYear = new Date(enrichedOptions[0].start_date).getFullYear()
     }
 
     return {
       ...bid,
-      leave_bid_options: options,
+      leave_bid_options: enrichedOptions,
       bid_year: bidYear,
     }
   })

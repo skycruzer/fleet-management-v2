@@ -42,6 +42,7 @@ export interface LeaveBid {
   submitted_at: string | null
   created_at: string | null
   updated_at: string | null
+  option_statuses?: Record<string, string> | null
 }
 
 export interface LeaveBidInput {

@@ -1306,6 +1306,7 @@ export type Database = {
           created_at: string | null
           id: string
           notes: string | null
+          option_statuses: Json | null
           pilot_id: string
           preferred_dates: string
           priority: string
@@ -1323,6 +1324,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           notes?: string | null
+          option_statuses?: Json | null
           pilot_id: string
           preferred_dates: string
           priority: string
@@ -1340,6 +1342,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           notes?: string | null
+          option_statuses?: Json | null
           pilot_id?: string
           preferred_dates?: string
           priority?: string

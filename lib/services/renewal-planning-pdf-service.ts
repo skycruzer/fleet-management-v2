@@ -182,7 +182,7 @@ function addCoverPage(doc: JsPDF, data: RenewalPlanPDFData) {
   doc.setFontSize(12)
   doc.text(`Generated: ${formatDate(data.generatedAt)}`, pageWidth / 2, 140, { align: 'center' })
   doc.text('Air Niugini - B767 Fleet', pageWidth / 2, 150, { align: 'center' })
-  doc.text('Fleet Management System', pageWidth / 2, 160, { align: 'center' })
+  doc.text('B767 Fleet Management System', pageWidth / 2, 160, { align: 'center' })
 
   // Category Summary Box
   doc.setDrawColor(41, 128, 185)
@@ -224,7 +224,7 @@ function addCoverPage(doc: JsPDF, data: RenewalPlanPDFData) {
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(150, 150, 150)
-  doc.text('B767 Pilot Management System', pageWidth / 2, 280, { align: 'center' })
+  doc.text('Air Niugini - B767 Fleet Management', pageWidth / 2, 280, { align: 'center' })
 
   // Reset colors
   doc.setTextColor(0, 0, 0)

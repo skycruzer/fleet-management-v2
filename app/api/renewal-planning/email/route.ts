@@ -302,8 +302,8 @@ function generateEmailHTML(data: {
         </div>
 
         <div class="footer">
-          <p><strong>B767 Pilot Management System</strong></p>
-          <p>Air Niugini - Fleet Operations</p>
+          <p><strong>Air Niugini - B767 Fleet Management</strong></p>
+          <p>Fleet Operations</p>
           <p style="margin-top: 10px;">
             This is an automated email. For questions, please contact the Fleet Management team.
           </p>
@@ -447,8 +447,8 @@ ${validSummaries
 View full details: ${appUrl}/dashboard/renewal-planning/calendar?year=${year}
 
 ---
-B767 Pilot Management System
-Air Niugini - Fleet Operations
+Air Niugini - B767 Fleet Management
+Fleet Operations
     `.trim()
 
     // Send email with retry logic

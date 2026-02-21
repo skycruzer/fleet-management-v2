@@ -359,7 +359,7 @@ function generateEmailBody(alert: DeadlineAlert, recipientName: string): string 
     </div>
 
     <div class="footer">
-      <p>This is an automated notification from Fleet Management System</p>
+      <p>This is an automated notification from Air Niugini - B767 Fleet Management</p>
       <p>You can manage notification settings in your dashboard</p>
     </div>
   </div>

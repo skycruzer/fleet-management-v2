@@ -20,7 +20,14 @@ import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
 import { RosterPeriodMultiSelect } from '@/components/reports/roster-period-multi-select'
 import { FilterPresetManager } from '@/components/reports/filter-preset-manager'
-import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Eye, Download, Mail, Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPreview, useReportExport, usePrefetchReport } from '@/lib/hooks/use-report-query'
 import type { ReportFilters } from '@/types/reports'
@@ -28,7 +35,11 @@ import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
 import { generateRosterPeriods } from '@/lib/utils/roster-periods'
 
+const currentYear = new Date().getFullYear()
+const yearOptions = Array.from({ length: 3 }, (_, i) => currentYear - 1 + i)
+
 const formSchema = z.object({
+  year: z.string().default('all'),
   rosterPeriods: z.array(z.string()).default([]),
   statusPending: z.boolean().default(false),
   statusProcessing: z.boolean().default(false),
@@ -44,7 +55,9 @@ export function LeaveBidsReportForm() {
   const [showPreview, setShowPreview] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const { toast } = useToast()
-  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
+  const rosterPeriods = generateRosterPeriods([currentYear - 1, currentYear, currentYear + 1], {
+    currentAndFutureOnly: true,
+  })
   const prefetchReport = usePrefetchReport()
 
   // TanStack Query hooks
@@ -62,6 +75,7 @@ export function LeaveBidsReportForm() {
   const form = useForm<z.input<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      year: 'all',
       rosterPeriods: [],
       statusPending: false,
       statusProcessing: false,
@@ -75,6 +89,11 @@ export function LeaveBidsReportForm() {
   // Build filters from form values
   const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {
     const filters: ReportFilters = {}
+
+    // Year filter
+    if (values.year && values.year !== 'all') {
+      filters.year = parseInt(values.year, 10)
+    }
 
     // Roster periods
     if (values.rosterPeriods && values.rosterPeriods.length > 0) {
@@ -157,6 +176,13 @@ export function LeaveBidsReportForm() {
     // Reset all fields first
     form.reset()
 
+    // Apply year
+    if (preset.filters.year) {
+      form.setValue('year', String(preset.filters.year))
+    } else {
+      form.setValue('year', 'all')
+    }
+
     // Apply roster periods
     if (preset.filters.rosterPeriods) {
       form.setValue('rosterPeriods', preset.filters.rosterPeriods)
@@ -203,6 +229,24 @@ export function LeaveBidsReportForm() {
 
       <Form {...form}>
         <form className="space-y-6">
+          {/* Year Filter */}
+          <div className="space-y-2">
+            <Label htmlFor="year">Bid Year</Label>
+            <Select value={values.year} onValueChange={(val) => form.setValue('year', val)}>
+              <SelectTrigger id="year" className="w-[200px]">
+                <SelectValue placeholder="All years" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All years</SelectItem>
+                {yearOptions.map((yr) => (
+                  <SelectItem key={yr} value={String(yr)}>
+                    {yr}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Roster Periods */}
           <div className="space-y-2">
             <Label htmlFor="rosterPeriods">Roster Periods</Label>

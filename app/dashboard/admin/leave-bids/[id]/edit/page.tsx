@@ -7,6 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect, notFound } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { LeaveBidEditForm } from '@/components/admin/leave-bid-edit-form'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -85,7 +86,15 @@ export default async function LeaveBidEditPage({ params }: PageProps) {
     }
   }
 
-  const typedBid = { ...rawBid, leave_bid_options: options } as any
+  // Enrich each option with roster period codes
+  const enrichedOptions = options.map((opt: any) => ({
+    ...opt,
+    roster_periods: getAffectedRosterPeriods(new Date(opt.start_date), new Date(opt.end_date)).map(
+      (rp: any) => rp.code
+    ),
+  }))
+
+  const typedBid = { ...rawBid, leave_bid_options: enrichedOptions } as any
 
   return (
     <div className="container mx-auto space-y-6 p-6">

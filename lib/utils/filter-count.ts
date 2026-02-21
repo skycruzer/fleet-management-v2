@@ -44,6 +44,11 @@ export function countActiveFilters(filters: ReportFilters): number {
     count++
   }
 
+  // Year filter (leave bids)
+  if (filters.year) {
+    count++
+  }
+
   return count
 }
 
@@ -75,6 +80,10 @@ export function getFilterSummary(filters: ReportFilters): string[] {
 
   if (filters.expiryThreshold !== undefined) {
     summary.push(`Expiry: ${filters.expiryThreshold} days`)
+  }
+
+  if (filters.year) {
+    summary.push(`Year: ${filters.year}`)
   }
 
   return summary

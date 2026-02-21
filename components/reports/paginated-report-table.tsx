@@ -295,7 +295,7 @@ export function PaginatedReportTable({
     if (reportType === 'leave-bids') {
       return [
         {
-          accessorFn: (row) =>
+          accessorFn: (row: any) =>
             row.name || `${row.pilot?.first_name} ${row.pilot?.last_name}` || 'N/A',
           id: 'pilot',
           header: ({ column }) => (
@@ -311,56 +311,118 @@ export function PaginatedReportTable({
           cell: ({ getValue }) => <div className="font-medium">{getValue() as string}</div>,
         },
         {
-          accessorFn: (row) => row.rank || row.pilot?.role || 'N/A',
+          accessorFn: (row: any) => row.rank || row.pilot?.role || 'N/A',
           id: 'rank',
           header: 'Rank',
           enableGrouping: true,
           cell: ({ getValue }) => <div className="text-sm">{getValue() as string}</div>,
         },
         {
-          accessorKey: 'roster_period_code',
-          id: 'roster_period',
-          header: 'Roster Period',
-          enableGrouping: true,
-          cell: ({ getValue }) => (
-            <div className="font-mono text-sm">{(getValue() as string) || 'N/A'}</div>
-          ),
-        },
-        {
-          accessorKey: 'priority',
-          header: 'Priority',
-          cell: ({ getValue }) => (
-            <Badge
-              variant="outline"
-              className={`font-mono text-xs ${
-                getValue() === 'HIGH'
-                  ? 'border-[var(--color-status-high)] text-[var(--color-status-high)]'
-                  : getValue() === 'MEDIUM'
-                    ? 'border-[var(--color-status-medium)] text-[var(--color-status-medium)]'
-                    : 'border-muted-foreground text-muted-foreground'
-              }`}
-            >
-              {getValue() as string}
-            </Badge>
-          ),
-        },
-        {
-          accessorKey: 'submitted_at',
+          accessorFn: (row: any) => row.seniority || row.pilot?.seniority_number || 0,
+          id: 'seniority',
           header: ({ column }) => (
             <Button
               variant="ghost"
               onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
               className="h-8 px-2"
             >
-              Submitted
+              Seniority
               <ArrowUpDown className="ml-2 h-3 w-3" />
             </Button>
           ),
-          cell: ({ row }) => (
-            <div className="text-sm">
-              {formatAustralianDate(row.original.submitted_at || row.original.submission_date)}
-            </div>
+          cell: ({ getValue }) => (
+            <div className="text-sm font-medium">#{getValue() as number}</div>
           ),
+        },
+        {
+          id: 'preferences',
+          header: 'Preferences, Date Ranges & Roster Periods',
+          cell: ({ row }) => {
+            const options = row.original.leave_bid_options || []
+            const optStatuses = row.original.option_statuses || {}
+            if (options.length === 0)
+              return <span className="text-muted-foreground text-xs">No preferences</span>
+            return (
+              <div className="space-y-1.5">
+                {options
+                  .sort((a: any, b: any) => (a.priority || 0) - (b.priority || 0))
+                  .map((opt: any, idx: number) => {
+                    const start = opt.start_date
+                      ? new Date(opt.start_date).toLocaleDateString('en-AU', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })
+                      : '?'
+                    const end = opt.end_date
+                      ? new Date(opt.end_date).toLocaleDateString('en-AU', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })
+                      : '?'
+                    const days =
+                      opt.start_date && opt.end_date
+                        ? Math.ceil(
+                            (new Date(opt.end_date).getTime() -
+                              new Date(opt.start_date).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          ) + 1
+                        : 0
+                    const ordinal =
+                      opt.priority === 1
+                        ? '1st'
+                        : opt.priority === 2
+                          ? '2nd'
+                          : opt.priority === 3
+                            ? '3rd'
+                            : `${opt.priority}th`
+                    const optStatus = optStatuses[String(idx)]
+                    return (
+                      <div key={idx} className="flex flex-wrap items-center gap-1.5">
+                        <Badge variant="outline" className="shrink-0 text-[10px]">
+                          {ordinal}
+                        </Badge>
+                        <span className="text-xs">
+                          {start} – {end}
+                          <span className="text-muted-foreground ml-1">({days}d)</span>
+                        </span>
+                        {opt.roster_periods && opt.roster_periods.length > 0 && (
+                          <>
+                            <span className="text-muted-foreground text-[10px]">→</span>
+                            {opt.roster_periods.map((rp: string) => (
+                              <Badge
+                                key={rp}
+                                variant="outline"
+                                className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-1.5 py-0 text-[10px] text-[var(--color-info)]"
+                              >
+                                {rp}
+                              </Badge>
+                            ))}
+                          </>
+                        )}
+                        {optStatus === 'APPROVED' && (
+                          <Badge
+                            variant="outline"
+                            className="bg-[var(--color-status-low-bg)] text-[10px] text-[var(--color-status-low)]"
+                          >
+                            Approved
+                          </Badge>
+                        )}
+                        {optStatus === 'REJECTED' && (
+                          <Badge
+                            variant="outline"
+                            className="bg-[var(--color-status-high-bg)] text-[10px] text-[var(--color-status-high)]"
+                          >
+                            Rejected
+                          </Badge>
+                        )}
+                      </div>
+                    )
+                  })}
+              </div>
+            )
+          },
         },
         {
           accessorKey: 'status',

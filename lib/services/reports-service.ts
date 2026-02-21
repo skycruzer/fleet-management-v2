@@ -1140,16 +1140,18 @@ export async function generatePDF(
     }
   } else if (reportType === 'leave-bids') {
     // Use specialized leave bids PDF service
-    // Extract year from report data (default to current year if not available)
     const currentYear = new Date().getFullYear()
-
     const bidYear = report.data[0]?.bid_year || currentYear
-
-    // Extract status filter if any (from report summary or default to 'all')
     const statusFilter = (report.summary?.statusFilter as string) || 'all'
 
-    // Generate PDF using specialized service and return directly
-    return await generateLeaveBidsPDF(report.data, bidYear, statusFilter)
+    // Pass enhanced summary and grouping to the PDF service
+    return await generateLeaveBidsPDF(
+      report.data,
+      bidYear,
+      statusFilter,
+      report.summary as any,
+      grouping
+    )
   } else if (reportType === 'pilot-info') {
     autoTable(doc, {
       startY: yPos,
@@ -1262,9 +1264,37 @@ export async function generatePDF(
 }
 
 /**
+ * Normalize leave bid options from either leave_bid_options table or preferred_dates JSON
+ * Portal-submitted bids store dates in preferred_dates; admin-created bids use leave_bid_options
+ */
+function normalizeBidOptions(bid: any): any[] {
+  const tableOptions = bid.leave_bid_options || []
+  if (tableOptions.length > 0) return tableOptions
+
+  // Parse preferred_dates JSON (portal submission format)
+  if (!bid.preferred_dates) return []
+  try {
+    const parsed =
+      typeof bid.preferred_dates === 'string'
+        ? JSON.parse(bid.preferred_dates)
+        : bid.preferred_dates
+    if (!Array.isArray(parsed)) return []
+    return parsed.map((item: any, index: number) => ({
+      id: `${bid.id}-opt-${index}`,
+      priority: item.priority || index + 1,
+      start_date: item.start_date,
+      end_date: item.end_date,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/**
  * Generate Leave Bids Report
- * Queries leave_bids table with pilot information
- * Supports filtering by status, rank, and roster periods
+ * Queries leave_bids table with pilot and option information
+ * Supports filtering by status, rank, roster periods, and year
+ * Enriches bid options with affected roster period codes
  */
 export async function generateLeaveBidsReport(
   filters: ReportFilters,
@@ -1273,8 +1303,7 @@ export async function generateLeaveBidsReport(
 ): Promise<ReportData> {
   const supabase = createAdminClient()
 
-  // Query leave_bids table with pilot information
-  // Filter by active pilots only
+  // Query leave_bids table with pilot and options information
   let query = supabase
     .from('leave_bids')
     .select(
@@ -1287,6 +1316,12 @@ export async function generateLeaveBidsReport(
         role,
         seniority_number,
         is_active
+      ),
+      leave_bid_options (
+        id,
+        priority,
+        start_date,
+        end_date
       )
     `
     )
@@ -1312,19 +1347,102 @@ export async function generateLeaveBidsReport(
     throw new Error(`Failed to generate leave bids report: ${error.message}`)
   }
 
-  // Filter out inactive pilots and add computed fields (Supabase can't filter on joined fields)
+  // Filter out inactive pilots, enrich with computed fields and roster periods
   let enrichedData = (data || [])
     .filter((bid: any) => bid.pilot?.is_active === true)
-    .map((bid: any) => ({
-      ...bid,
-      name: bid.pilot ? `${bid.pilot.first_name} ${bid.pilot.last_name}` : 'N/A',
-      rank: bid.pilot?.role || 'N/A',
-      seniority: bid.pilot?.seniority_number || 0,
-    }))
+    .map((bid: any) => {
+      // Normalize options from table or preferred_dates
+      const options = normalizeBidOptions(bid)
 
-  // Filter by rank (post-query - Supabase can't filter on joined fields)
+      // Enrich each option with affected roster period codes
+      const enrichedOptions = options.map((opt: any) => {
+        let roster_periods: string[] = []
+        if (opt.start_date && opt.end_date) {
+          try {
+            const periods = getAffectedRosterPeriods(
+              new Date(opt.start_date),
+              new Date(opt.end_date)
+            )
+            roster_periods = periods.map((p) => p.code)
+          } catch {
+            // fallback — leave empty
+          }
+        }
+        return { ...opt, roster_periods }
+      })
+
+      // Collect all unique roster period codes across all options
+      const allRosterPeriods = new Set<string>()
+      enrichedOptions.forEach((opt: any) => {
+        opt.roster_periods.forEach((rp: string) => allRosterPeriods.add(rp))
+      })
+      if (bid.roster_period_code) {
+        allRosterPeriods.add(bid.roster_period_code)
+      }
+
+      // Extract bid year from first option's start_date
+      let bid_year = new Date().getFullYear()
+      if (enrichedOptions.length > 0 && enrichedOptions[0].start_date) {
+        bid_year = new Date(enrichedOptions[0].start_date).getFullYear()
+      }
+
+      return {
+        ...bid,
+        leave_bid_options: enrichedOptions,
+        name: bid.pilot ? `${bid.pilot.first_name} ${bid.pilot.last_name}` : 'N/A',
+        rank: bid.pilot?.role || 'N/A',
+        seniority: bid.pilot?.seniority_number || 0,
+        roster_periods_all: Array.from(allRosterPeriods),
+        bid_year,
+      }
+    })
+
+  // Filter by year (post-query — bid_year is computed from option dates)
+  if (filters.year) {
+    enrichedData = enrichedData.filter((bid: any) => bid.bid_year === filters.year)
+  }
+
+  // Filter by rank (post-query — Supabase can't filter on joined fields)
   if (filters.rank && filters.rank.length > 0) {
     enrichedData = enrichedData.filter((bid: any) => filters.rank!.includes(bid.rank))
+  }
+
+  // Calculate enhanced summary statistics
+  const totalBids = enrichedData.length
+  const approvedCount = enrichedData.filter((b: any) => b.status === 'APPROVED').length
+  const approvalRate = totalBids > 0 ? Math.round((approvedCount / totalBids) * 100) : 0
+
+  // Bids per roster period (count each bid in all affected periods)
+  const bidsByRosterPeriod: Record<string, number> = {}
+  enrichedData.forEach((bid: any) => {
+    // Count in all affected roster periods, not just the primary period
+    const periods = bid.roster_periods_all || []
+    if (periods.length > 0) {
+      periods.forEach((period: string) => {
+        bidsByRosterPeriod[period] = (bidsByRosterPeriod[period] || 0) + 1
+      })
+    } else {
+      // Fallback to single period code if roster_periods_all not available
+      const rp = bid.roster_period_code || 'N/A'
+      bidsByRosterPeriod[rp] = (bidsByRosterPeriod[rp] || 0) + 1
+    }
+  })
+
+  const summary = {
+    totalBids,
+    byStatus: {
+      pending: enrichedData.filter((b: any) => b.status === 'PENDING').length,
+      processing: enrichedData.filter((b: any) => b.status === 'PROCESSING').length,
+      approved: approvedCount,
+      rejected: enrichedData.filter((b: any) => b.status === 'REJECTED').length,
+    },
+    byRank: {
+      captain: enrichedData.filter((b: any) => b.rank === 'Captain').length,
+      firstOfficer: enrichedData.filter((b: any) => b.rank === 'First Officer').length,
+    },
+    bidsByRosterPeriod,
+    statusFilter: filters.status?.length === 1 ? filters.status[0].toLowerCase() : 'all',
+    approvalRate,
   }
 
   // Calculate pagination (after all filtering is complete)
@@ -1335,21 +1453,6 @@ export async function generateLeaveBidsReport(
 
   // Apply pagination if not full export
   const paginatedData = fullExport ? enrichedData : paginateData(enrichedData, page, pageSize)
-
-  // Generate summary statistics
-  const summary = {
-    totalBids: enrichedData.length,
-    byStatus: {
-      pending: enrichedData.filter((b: any) => b.status === 'PENDING').length,
-      processing: enrichedData.filter((b: any) => b.status === 'PROCESSING').length,
-      approved: enrichedData.filter((b: any) => b.status === 'APPROVED').length,
-      rejected: enrichedData.filter((b: any) => b.status === 'REJECTED').length,
-    },
-    byRank: {
-      captain: enrichedData.filter((b: any) => b.rank === 'Captain').length,
-      firstOfficer: enrichedData.filter((b: any) => b.rank === 'First Officer').length,
-    },
-  }
 
   // Generate dynamic title based on filters
   const title = generateReportTitle('leave-bids', filters)

@@ -95,8 +95,10 @@ export const ReportFiltersSchema = z.object({
     )
     .optional(),
   rank: z.array(z.enum(['Captain', 'First Officer'])).optional(),
+  pilotId: z.string().optional(),
   rosterPeriod: z.string().optional(),
   rosterPeriods: z.array(z.string()).optional(),
+  checkType: z.string().uuid().optional(),
   checkTypes: z.array(z.string().uuid()).optional(),
   categories: z.array(z.string()).optional(), // Filter by certification category
   expiryThreshold: z.number().int().min(0).max(365).optional(),
@@ -107,6 +109,8 @@ export const ReportFiltersSchema = z.object({
   activeStatus: z.enum(['active', 'inactive', 'all']).optional(),
   qualifications: z.array(z.enum(['line_captain', 'training_captain', 'examiner'])).optional(),
   licenceType: z.array(z.enum(['ATPL', 'CPL'])).optional(),
+  // Leave Bids Report filters
+  year: z.number().int().min(2020).max(2050).optional(),
   // Forecast Report filters
   timeHorizon: z.enum(['2yr', '5yr', '10yr']).optional(),
   forecastSections: z.array(z.enum(['retirement', 'succession', 'shortage'])).optional(),

@@ -7,6 +7,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { generateLeaveBidsPDF } from '@/lib/services/leave-bids-pdf-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +49,7 @@ export async function GET(request: Request) {
         updated_at,
         reviewed_at,
         review_comments,
+        preferred_dates,
         pilot_id,
         pilots (
           id,
@@ -97,18 +99,65 @@ export async function GET(request: Request) {
       )
     }
 
-    // Transform bids to add bid_year
+    // Transform bids: normalize options (portal uses preferred_dates JSON, admin uses leave_bid_options table)
     const bids = leaveBids.map((bid: any) => {
-      let bidYear = year
-      if (bid.leave_bid_options && bid.leave_bid_options.length > 0) {
-        const firstOption = bid.leave_bid_options[0]
-        if (firstOption.start_date) {
-          bidYear = new Date(firstOption.start_date).getFullYear()
+      let options = bid.leave_bid_options || []
+
+      // Portal submissions store dates in preferred_dates JSON
+      if (options.length === 0 && bid.preferred_dates) {
+        try {
+          const parsed =
+            typeof bid.preferred_dates === 'string'
+              ? JSON.parse(bid.preferred_dates)
+              : bid.preferred_dates
+          if (Array.isArray(parsed)) {
+            options = parsed.map((item: any, index: number) => ({
+              id: `${bid.id}-opt-${index}`,
+              priority: item.priority || index + 1,
+              start_date: item.start_date,
+              end_date: item.end_date,
+            }))
+          }
+        } catch {
+          // Invalid JSON — leave options empty
         }
       }
+
+      // Enrich each option with roster period codes
+      const enrichedOptions = options.map((opt: any) => {
+        let roster_periods: string[] = []
+        if (opt.start_date && opt.end_date) {
+          try {
+            roster_periods = getAffectedRosterPeriods(
+              new Date(opt.start_date),
+              new Date(opt.end_date)
+            ).map((rp: any) => rp.code)
+          } catch {
+            // fallback
+          }
+        }
+        return { ...opt, roster_periods }
+      })
+
+      // Collect all unique roster periods across options
+      const allRPs = new Set<string>()
+      enrichedOptions.forEach((opt: any) =>
+        opt.roster_periods?.forEach((rp: string) => allRPs.add(rp))
+      )
+
+      // Extract bid year from first option
+      let bidYear = year
+      if (enrichedOptions.length > 0 && enrichedOptions[0].start_date) {
+        bidYear = new Date(enrichedOptions[0].start_date).getFullYear()
+      }
+
+      const pilot = bid.pilots || {}
       return {
         ...bid,
+        leave_bid_options: enrichedOptions,
+        roster_periods_all: Array.from(allRPs),
         bid_year: bidYear,
+        rank: pilot.role || 'N/A',
       }
     })
 
@@ -125,8 +174,40 @@ export async function GET(request: Request) {
       )
     }
 
+    // Compute summary stats for the PDF
+    const approvedCount = filteredBids.filter((b) => b.status === 'APPROVED').length
+    const summary = {
+      totalBids: filteredBids.length,
+      byStatus: {
+        pending: filteredBids.filter((b) => b.status === 'PENDING').length,
+        processing: filteredBids.filter((b) => b.status === 'PROCESSING').length,
+        approved: approvedCount,
+        rejected: filteredBids.filter((b) => b.status === 'REJECTED').length,
+      },
+      byRank: {
+        captain: filteredBids.filter((b) => b.rank === 'Captain').length,
+        firstOfficer: filteredBids.filter((b) => b.rank === 'First Officer').length,
+      },
+      bidsByRosterPeriod: filteredBids.reduce(
+        (acc: Record<string, number>, bid) => {
+          const periods =
+            bid.roster_periods_all.length > 0
+              ? bid.roster_periods_all
+              : [bid.roster_period_code || 'N/A']
+          periods.forEach((rp: string) => {
+            acc[rp] = (acc[rp] || 0) + 1
+          })
+          return acc
+        },
+        {} as Record<string, number>
+      ),
+      approvalRate:
+        filteredBids.length > 0 ? Math.round((approvedCount / filteredBids.length) * 100) : 0,
+      statusFilter,
+    }
+
     // Generate PDF
-    const pdfBuffer = await generateLeaveBidsPDF(filteredBids, year, statusFilter)
+    const pdfBuffer = await generateLeaveBidsPDF(filteredBids, year, statusFilter, summary)
 
     // Convert buffer to arrayBuffer for Response
     const arrayBuffer: ArrayBuffer = pdfBuffer.buffer.slice(

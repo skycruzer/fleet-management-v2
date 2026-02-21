@@ -45,13 +45,23 @@ import {
 import { LeaveBidForm } from '@/components/portal/leave-bid-form'
 import type { LeaveBid } from '@/lib/services/leave-bid-service'
 
+interface EnrichedLeaveBid extends LeaveBid {
+  enriched_options?: Array<{
+    priority: number
+    start_date: string
+    end_date: string
+    roster_periods: string[]
+  }>
+  all_roster_periods?: string[]
+}
+
 interface LeaveBidsClientProps {
-  initialBids: LeaveBid[]
+  initialBids: EnrichedLeaveBid[]
 }
 
 export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
   const router = useRouter()
-  const [bids, setBids] = useState<LeaveBid[]>(initialBids)
+  const [bids, setBids] = useState<EnrichedLeaveBid[]>(initialBids)
   const [selectedBid, setSelectedBid] = useState<LeaveBid | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
@@ -128,16 +138,6 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
     )
   }
 
-  const getPriorityBadge = (priority: string) => {
-    const priorityMap: Record<string, 'default' | 'secondary' | 'destructive'> = {
-      HIGH: 'destructive',
-      MEDIUM: 'default',
-      LOW: 'secondary',
-    }
-
-    return <Badge variant={priorityMap[priority] || 'secondary'}>{priority}</Badge>
-  }
-
   const handleCancelBid = async () => {
     if (!selectedBid) return
 
@@ -198,23 +198,6 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
       document.body.removeChild(a)
     } catch {
       setError('Failed to download PDF')
-    }
-  }
-
-  const parseDateRanges = (datesJson: string): string[] => {
-    try {
-      const parsed = JSON.parse(datesJson)
-      if (Array.isArray(parsed)) {
-        return parsed.map((opt: { start_date?: string; end_date?: string }) => {
-          if (opt.start_date && opt.end_date) {
-            return `${new Date(opt.start_date).toLocaleDateString()} - ${new Date(opt.end_date).toLocaleDateString()}`
-          }
-          return String(opt)
-        })
-      }
-      return []
-    } catch {
-      return []
     }
   }
 
@@ -311,8 +294,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Roster Period</TableHead>
-                  <TableHead>Preferred Dates</TableHead>
-                  <TableHead>Priority</TableHead>
+                  <TableHead>Preferences, Date Ranges & Roster Periods</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Submitted</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -323,13 +305,90 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
                   <TableRow key={bid.id}>
                     <TableCell className="font-medium">{bid.roster_period_code}</TableCell>
                     <TableCell>
-                      <div className="max-w-xs truncate">
-                        {parseDateRanges(bid.preferred_dates).slice(0, 2).join(', ')}
-                        {parseDateRanges(bid.preferred_dates).length > 2 &&
-                          ` +${parseDateRanges(bid.preferred_dates).length - 2} more`}
+                      <div className="space-y-1.5">
+                        {(bid.enriched_options || [])
+                          .sort((a, b) => (a.priority || 0) - (b.priority || 0))
+                          .map((opt, idx) => {
+                            const start = opt.start_date
+                              ? new Date(opt.start_date).toLocaleDateString('en-AU', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
+                              : '?'
+                            const end = opt.end_date
+                              ? new Date(opt.end_date).toLocaleDateString('en-AU', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
+                              : '?'
+                            const days =
+                              opt.start_date && opt.end_date
+                                ? Math.ceil(
+                                    (new Date(opt.end_date).getTime() -
+                                      new Date(opt.start_date).getTime()) /
+                                      (1000 * 60 * 60 * 24)
+                                  ) + 1
+                                : 0
+                            const ordinal =
+                              opt.priority === 1
+                                ? '1st'
+                                : opt.priority === 2
+                                  ? '2nd'
+                                  : opt.priority === 3
+                                    ? '3rd'
+                                    : `${opt.priority}th`
+                            const optStatus = bid.option_statuses?.[String(idx)]
+                            return (
+                              <div key={idx} className="flex flex-wrap items-center gap-1.5">
+                                <Badge variant="outline" className="shrink-0 text-[10px]">
+                                  {ordinal}
+                                </Badge>
+                                <span className="text-xs">
+                                  {start} – {end}
+                                  <span className="text-muted-foreground ml-1">({days}d)</span>
+                                </span>
+                                {opt.roster_periods && opt.roster_periods.length > 0 && (
+                                  <>
+                                    <span className="text-muted-foreground text-[10px]">→</span>
+                                    {opt.roster_periods.map((rp) => (
+                                      <Badge
+                                        key={rp}
+                                        variant="outline"
+                                        className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-1.5 py-0 text-[10px] text-[var(--color-info)]"
+                                      >
+                                        {rp}
+                                      </Badge>
+                                    ))}
+                                  </>
+                                )}
+                                {optStatus === 'APPROVED' && (
+                                  <Badge
+                                    variant="outline"
+                                    className="border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] text-[10px] text-[var(--color-status-low)]"
+                                  >
+                                    <CheckCircle2 className="mr-0.5 h-2.5 w-2.5" />
+                                    Approved
+                                  </Badge>
+                                )}
+                                {optStatus === 'REJECTED' && (
+                                  <Badge
+                                    variant="outline"
+                                    className="border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] text-[10px] text-[var(--color-status-high)]"
+                                  >
+                                    <XCircle className="mr-0.5 h-2.5 w-2.5" />
+                                    Rejected
+                                  </Badge>
+                                )}
+                              </div>
+                            )
+                          })}
+                        {(!bid.enriched_options || bid.enriched_options.length === 0) && (
+                          <span className="text-muted-foreground text-xs">No preferences</span>
+                        )}
                       </div>
                     </TableCell>
-                    <TableCell>{getPriorityBadge(bid.priority)}</TableCell>
                     <TableCell>{getStatusBadge(bid.status)}</TableCell>
                     <TableCell>
                       {bid.submitted_at ? new Date(bid.submitted_at).toLocaleDateString() : 'N/A'}

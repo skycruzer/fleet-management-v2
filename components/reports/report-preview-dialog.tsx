@@ -99,18 +99,51 @@ export function ReportPreviewDialog({
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                    {Object.entries(reportData.summary).map(([key, value]) => {
+                    {Object.entries(reportData.summary)
+                      .filter(([, value]) => typeof value !== 'object' || value === null)
+                      .map(([key, value]) => {
+                        const label = key
+                          .replace(/([A-Z])/g, ' $1')
+                          .replace(/^./, (str) => str.toUpperCase())
+                        return (
+                          <div key={key} className="space-y-1">
+                            <p className="text-muted-foreground text-sm">{label}</p>
+                            <p className="text-2xl font-bold">{String(value ?? 'N/A')}</p>
+                          </div>
+                        )
+                      })}
+                  </div>
+                  {/* Render nested summary objects (byStatus, byRank, bidsByRosterPeriod) */}
+                  {Object.entries(reportData.summary)
+                    .filter(
+                      ([, value]) =>
+                        typeof value === 'object' && value !== null && !Array.isArray(value)
+                    )
+                    .map(([key, value]) => {
                       const label = key
                         .replace(/([A-Z])/g, ' $1')
                         .replace(/^./, (str) => str.toUpperCase())
                       return (
-                        <div key={key} className="space-y-1">
-                          <p className="text-muted-foreground text-sm">{label}</p>
-                          <p className="text-2xl font-bold">{value}</p>
+                        <div key={key} className="mt-4">
+                          <p className="text-muted-foreground mb-2 text-sm font-medium">{label}</p>
+                          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                            {Object.entries(value as Record<string, unknown>).map(
+                              ([subKey, subValue]) => {
+                                const subLabel = subKey
+                                  .replace(/([A-Z])/g, ' $1')
+                                  .replace(/^./, (str) => str.toUpperCase())
+                                return (
+                                  <div key={subKey} className="space-y-1">
+                                    <p className="text-muted-foreground text-xs">{subLabel}</p>
+                                    <p className="text-lg font-semibold">{String(subValue ?? 0)}</p>
+                                  </div>
+                                )
+                              }
+                            )}
+                          </div>
                         </div>
                       )
                     })}
-                  </div>
                 </CardContent>
               </Card>
             )}

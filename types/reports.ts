@@ -39,6 +39,8 @@ export interface ReportFilters {
   activeStatus?: 'active' | 'inactive' | 'all'
   qualifications?: string[] // 'line_captain', 'training_captain', 'examiner'
   licenceType?: ('ATPL' | 'CPL')[]
+  // Leave Bids Report filters
+  year?: number // Bid year filter
   // Forecast Report filters
   timeHorizon?: '2yr' | '5yr' | '10yr'
   forecastSections?: ('retirement' | 'succession' | 'shortage')[]

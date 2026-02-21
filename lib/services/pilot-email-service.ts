@@ -30,7 +30,7 @@ function getResendClient(): Resend {
 const EMAIL_CONFIG = {
   from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
   appUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  appName: process.env.NEXT_PUBLIC_APP_NAME || 'Fleet Management V2',
+  appName: process.env.NEXT_PUBLIC_APP_NAME || 'Air Niugini B767 Fleet',
 }
 
 /**
@@ -1942,9 +1942,8 @@ export async function sendAdminRequestNotificationEmail(params: {
       return { success: true } // No setting configured — no-op
     }
 
-    const emails: unknown = typeof setting.value === 'string'
-      ? JSON.parse(setting.value)
-      : setting.value
+    const emails: unknown =
+      typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value
 
     if (!Array.isArray(emails) || emails.length === 0) {
       return { success: true } // Empty list — no-op
@@ -1960,15 +1959,20 @@ export async function sendAdminRequestNotificationEmail(params: {
     }
 
     const resend = getResendClient()
-    const categoryLabel = params.requestCategory === 'LEAVE' ? 'Leave'
-      : params.requestCategory === 'LEAVE_BID' ? 'Leave Bid'
-      : 'RDO/SDO'
-    const dateRange = params.endDate && params.endDate !== params.startDate
-      ? `${params.startDate} to ${params.endDate}`
-      : params.startDate
-    const dashboardLink = params.requestCategory === 'LEAVE_BID'
-      ? `${EMAIL_CONFIG.appUrl}/dashboard/admin/leave-bids/${params.requestId}`
-      : `${EMAIL_CONFIG.appUrl}/dashboard/requests/${params.requestId}`
+    const categoryLabel =
+      params.requestCategory === 'LEAVE'
+        ? 'Leave'
+        : params.requestCategory === 'LEAVE_BID'
+          ? 'Leave Bid'
+          : 'RDO/SDO'
+    const dateRange =
+      params.endDate && params.endDate !== params.startDate
+        ? `${params.startDate} to ${params.endDate}`
+        : params.startDate
+    const dashboardLink =
+      params.requestCategory === 'LEAVE_BID'
+        ? `${EMAIL_CONFIG.appUrl}/dashboard/admin/leave-bids/${params.requestId}`
+        : `${EMAIL_CONFIG.appUrl}/dashboard/requests/${params.requestId}`
 
     const subject = `New ${categoryLabel} Request — ${params.pilotName}`
     const html = `
@@ -2004,7 +2008,10 @@ export async function sendAdminRequestNotificationEmail(params: {
     )
     return { success: true }
   } catch (error) {
-    console.error('[sendAdminRequestNotificationEmail] Failed:', error instanceof Error ? error.message : error)
+    console.error(
+      '[sendAdminRequestNotificationEmail] Failed:',
+      error instanceof Error ? error.message : error
+    )
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }

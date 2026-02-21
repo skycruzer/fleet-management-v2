@@ -139,7 +139,7 @@ export async function POST(request: Request) {
 
       <hr />
       <p style="font-size: 12px; color: #666;">
-        This is an automated report from Fleet Management V2 - B767 Pilot Management System
+        This is an automated report from Air Niugini - B767 Fleet Management System
       </p>
     `
 
