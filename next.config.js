@@ -129,11 +129,7 @@ const nextConfig = {
         destination: '/dashboard/requests?tab=leave',
         permanent: true,
       },
-      {
-        source: '/dashboard/admin/leave-bids',
-        destination: '/dashboard/requests?tab=leave-bids',
-        permanent: true,
-      },
+      // Leave bids: dedicated page at /dashboard/admin/leave-bids (no redirect)
       // System Admin: Sub-pages have dedicated pages (no redirect needed)
       // Legacy FAQs redirect to Help Center
       {

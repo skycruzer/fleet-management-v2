@@ -27,6 +27,7 @@ import {
   ScrollText,
   RefreshCw,
   ClipboardList,
+  CalendarHeart,
   FileSearch,
   MessageSquare,
   PanelLeftClose,
@@ -54,6 +55,7 @@ const primaryNavItems: NavItem[] = [
   { title: 'Pilots', href: '/dashboard/pilots', icon: Users },
   { title: 'Certifications', href: '/dashboard/certifications', icon: FileCheck },
   { title: 'Requests', href: '/dashboard/requests', icon: ClipboardList },
+  { title: 'Leave Bids', href: '/dashboard/admin/leave-bids', icon: CalendarHeart },
   { title: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
 ]
 
