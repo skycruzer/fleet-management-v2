@@ -226,27 +226,22 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
         </Alert>
       )}
 
-      {/* Requests Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your RDO/SDO Requests</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {requests.length === 0 ? (
-            <div className="text-muted-foreground py-8 text-center">
-              <Calendar className="mx-auto mb-4 h-12 w-12 opacity-50" />
-              <p>No RDO/SDO requests found</p>
-              <p className="mt-2 text-sm">Submit your first request to get started.</p>
-              <Link href="/portal/flight-requests/new" className="mt-4 inline-block">
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Submit RDO/SDO Request
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
+      {/* Requests List */}
+      {requests.length === 0 ? (
+        <div className="text-muted-foreground py-8 text-center">
+          <Calendar className="mx-auto mb-4 h-12 w-12 opacity-50" />
+          <p>No RDO/SDO requests found</p>
+          <p className="mt-2 text-sm">Submit your first request to get started.</p>
+          <Link href="/portal/flight-requests/new" className="mt-4 inline-block">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Submit RDO/SDO Request
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border">
+          <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Type</TableHead>
@@ -300,10 +295,8 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
                   ))}
                 </TableBody>
               </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      )}
 
       {/* Cancel Confirmation Dialog */}
       <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>

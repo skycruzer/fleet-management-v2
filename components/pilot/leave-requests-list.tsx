@@ -59,24 +59,6 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
     }
   }
 
-  if (requests.length === 0) {
-    return (
-      <div className="rounded-lg border-2 border-dashed p-8 text-center">
-        <Calendar className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-        <p className="text-muted-foreground font-medium">No leave requests yet</p>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Submit your first leave request to get started.
-        </p>
-        <Link href="/portal/leave-requests/new" className="mt-4 inline-block">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Submit Leave Request
-          </Button>
-        </Link>
-      </div>
-    )
-  }
-
   // Calculate stats
   const stats = {
     total: requests.length,
@@ -139,6 +121,19 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
       </div>
 
       {/* Request List */}
+      {requests.length === 0 ? (
+        <div className="text-muted-foreground py-8 text-center">
+          <Calendar className="mx-auto mb-4 h-12 w-12 opacity-50" />
+          <p>No leave requests found</p>
+          <p className="mt-2 text-sm">Submit your first request to get started.</p>
+          <Link href="/portal/leave-requests/new" className="mt-4 inline-block">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Submit Leave Request
+            </Button>
+          </Link>
+        </div>
+      ) : (
       <div className="space-y-3">
       {requests.map((request) => (
         <div key={request.id} className="rounded-lg border p-4 transition-shadow hover:shadow-md">
@@ -209,6 +204,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
         </div>
       ))}
       </div>
+      )}
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog
