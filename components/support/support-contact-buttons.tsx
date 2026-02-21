@@ -16,7 +16,7 @@ const contactChannels = [
     icon: Mail,
     title: 'Email Support',
     description: 'Send us an email for detailed inquiries',
-    action: 'mailto:support@fleetmanagement.com',
+    action: 'mailto:mrondeau@airniugini.com.pg',
     actionLabel: 'Send Email',
     color: 'text-[var(--color-info)]',
     bgColor: 'bg-[var(--color-info-bg)]',

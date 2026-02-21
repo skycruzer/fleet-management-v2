@@ -175,10 +175,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <p className="text-muted-foreground text-xs">
                   If this error persists, please contact{' '}
                   <a
-                    href="mailto:support@fleetmanagement.com"
+                    href="mailto:mrondeau@airniugini.com.pg"
                     className="text-primary font-medium hover:underline"
                   >
-                    support@fleetmanagement.com
+                    mrondeau@airniugini.com.pg
                   </a>
                 </p>
               </div>

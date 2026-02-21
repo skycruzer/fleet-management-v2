@@ -13,5 +13,5 @@
  */
 
 export const DEFAULT_FROM_EMAIL = 'Fleet Management <noreply@fleetmanagement.com>'
-export const DEFAULT_SUPPORT_EMAIL = 'support@fleetmanagement.com'
+export const DEFAULT_SUPPORT_EMAIL = 'mrondeau@airniugini.com.pg'
 export const DEFAULT_FLEET_MANAGER_EMAIL = 'fleet.manager@fleetmanagement.com'
