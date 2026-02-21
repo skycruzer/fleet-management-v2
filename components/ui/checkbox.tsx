@@ -23,7 +23,7 @@ const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root
         'border-border bg-background rounded border',
         'transition-all duration-150',
         'focus-visible:ring-ring/20 focus-visible:border-foreground/30 focus-visible:ring-2 focus-visible:outline-none',
-        'data-[state=checked]:bg-accent data-[state=checked]:border-accent data-[state=checked]:text-white',
+        'data-[state=checked]:bg-accent data-[state=checked]:border-accent data-[state=checked]:text-accent-foreground',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}

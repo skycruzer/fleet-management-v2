@@ -177,7 +177,7 @@ export function DataTable<T extends Record<string, any>>({
                   aria-label={onRowClick ? `View details for row ${index + 1}` : undefined}
                 >
                   {columns.map((column) => (
-                    <TableCell key={column.id} className="whitespace-nowrap">
+                    <TableCell key={column.id}>
                       {column.cell
                         ? (column.cell as (row: T) => React.ReactNode)(row)
                         : String(getValue(row, column) ?? '-')}
