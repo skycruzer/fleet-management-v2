@@ -259,7 +259,7 @@ export function DeadlineWidget({
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-foreground text-sm font-semibold">Leave Requests</p>
                   <Badge variant="outline" className="text-xs">
-                    {alert.leaveRequestsCount} total
+                    {alert.leavePendingCount + alert.leaveApprovedCount} active
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -278,12 +278,12 @@ export function DeadlineWidget({
                 </div>
               </div>
 
-              {/* Flight Requests */}
+              {/* Flight Requests (RDO/SDO) */}
               <div className="border-l-4 border-[var(--color-category-simulator)] pl-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-foreground text-sm font-semibold">Flight Requests (RDO/SDO)</p>
+                  <p className="text-foreground text-sm font-semibold">RDO/SDO Requests</p>
                   <Badge variant="outline" className="text-xs">
-                    {alert.flightRequestsCount} total
+                    {alert.flightPendingCount + alert.flightApprovedCount} active
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-2">

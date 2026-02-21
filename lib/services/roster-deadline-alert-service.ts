@@ -183,83 +183,79 @@ export async function checkUpcomingDeadlines(lookAheadCount: number = 3): Promis
  */
 export async function getAllDeadlineAlerts(): Promise<DeadlineAlert[]> {
   try {
-    const periods = getUpcomingRosterPeriods(6)
+    // Only look 1 roster period ahead of the current period
+    // getUpcomingRosterPeriods starts from the current period, so fetch 2 and skip the first
+    const periods = getUpcomingRosterPeriods(2).slice(1)
     const alerts: DeadlineAlert[] = []
 
+    // Fetch all requests ONCE (not per-period) for efficiency
+    const result = await getAllPilotRequests({})
+
+    if (!result.success || !result.data) {
+      return alerts
+    }
+
+    const allRequests = result.data
+
     for (const period of periods) {
-      // Get ALL requests and filter by date range overlap
-      // This handles requests that span multiple roster periods
-      const result = await getAllPilotRequests({})
+      // Filter requests that span this roster period by date range overlap
+      const periodStart = new Date(period.startDate)
+      const periodEnd = new Date(period.endDate)
 
-      if (result.success && result.data) {
-        // Filter requests that span this roster period by date range overlap
-        const periodStart = new Date(period.startDate)
-        const periodEnd = new Date(period.endDate)
+      const requests = allRequests.filter((req) => {
+        const reqStart = new Date(req.start_date)
+        const reqEnd = req.end_date ? new Date(req.end_date) : reqStart
+        return reqStart <= periodEnd && reqEnd >= periodStart
+      })
 
-        const requests = result.data.filter((req) => {
-          const reqStart = new Date(req.start_date)
-          const reqEnd = req.end_date ? new Date(req.end_date) : reqStart
+      // Filter by category
+      const leaveRequests = requests.filter((r) => r.request_category === 'LEAVE')
+      const flightRequests = requests.filter((r) => r.request_category === 'FLIGHT')
 
-          // Request spans period if:
-          // 1. Request starts before period ends AND
-          // 2. Request ends after period starts
-          return reqStart <= periodEnd && reqEnd >= periodStart
-        })
+      // Overall counts
+      const pendingCount = requests.filter(
+        (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
+      ).length
 
-        // Filter by category
-        const leaveRequests = requests.filter((r) => r.request_category === 'LEAVE')
-        const flightRequests = requests.filter((r) => r.request_category === 'FLIGHT')
+      const submittedCount = requests.filter((r) => r.workflow_status === 'SUBMITTED').length
+      const approvedCount = requests.filter((r) => r.workflow_status === 'APPROVED').length
+      const deniedCount = requests.filter((r) => r.workflow_status === 'DENIED').length
 
-        // Overall counts
-        const pendingCount = requests.filter(
-          (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
-        ).length
+      // Category-specific counts
+      const leavePendingCount = leaveRequests.filter(
+        (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
+      ).length
 
-        const submittedCount = requests.filter((r) => r.workflow_status === 'SUBMITTED').length
+      const flightPendingCount = flightRequests.filter(
+        (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
+      ).length
 
-        const approvedCount = requests.filter((r) => r.workflow_status === 'APPROVED').length
+      const leaveApprovedCount = leaveRequests.filter(
+        (r) => r.workflow_status === 'APPROVED'
+      ).length
 
-        const deniedCount = requests.filter((r) => r.workflow_status === 'DENIED').length
+      const flightApprovedCount = flightRequests.filter(
+        (r) => r.workflow_status === 'APPROVED'
+      ).length
 
-        // Category-specific counts
-        const leaveRequestsCount = leaveRequests.length
-        const flightRequestsCount = flightRequests.length
+      // Determine milestone if within alert range
+      const milestone = ALERT_MILESTONES.find((m) => m === period.daysUntilDeadline)
 
-        const leavePendingCount = leaveRequests.filter(
-          (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
-        ).length
-
-        const flightPendingCount = flightRequests.filter(
-          (r) => r.workflow_status === 'SUBMITTED' || r.workflow_status === 'IN_REVIEW'
-        ).length
-
-        const leaveApprovedCount = leaveRequests.filter(
-          (r) => r.workflow_status === 'APPROVED'
-        ).length
-
-        const flightApprovedCount = flightRequests.filter(
-          (r) => r.workflow_status === 'APPROVED'
-        ).length
-
-        // Determine milestone if within alert range
-        const milestone = ALERT_MILESTONES.find((m) => m === period.daysUntilDeadline)
-
-        alerts.push({
-          rosterPeriod: period,
-          daysUntilDeadline: period.daysUntilDeadline,
-          milestone: milestone !== undefined ? milestone : 21, // Default to 21 if not at milestone
-          pendingCount,
-          submittedCount,
-          approvedCount,
-          deniedCount,
-          leaveRequestsCount,
-          flightRequestsCount,
-          leavePendingCount,
-          flightPendingCount,
-          leaveApprovedCount,
-          flightApprovedCount,
-        })
-      }
+      alerts.push({
+        rosterPeriod: period,
+        daysUntilDeadline: period.daysUntilDeadline,
+        milestone: milestone !== undefined ? milestone : 21,
+        pendingCount,
+        submittedCount,
+        approvedCount,
+        deniedCount,
+        leaveRequestsCount: leaveRequests.length,
+        flightRequestsCount: flightRequests.length,
+        leavePendingCount,
+        flightPendingCount,
+        leaveApprovedCount,
+        flightApprovedCount,
+      })
     }
 
     return alerts
