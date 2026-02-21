@@ -35,7 +35,7 @@ export function NotificationBell() {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('/api/portal/notifications')
+      const response = await fetch('/api/portal/notifications?unread=true')
       const result = await response.json()
 
       if (response.ok && result.success) {
