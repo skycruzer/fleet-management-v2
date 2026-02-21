@@ -149,7 +149,7 @@ export default function SimpleAdminLogin() {
         </form>
 
         <p style={{ color: '#64748b', textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
-          Test credentials: skycruzer@icloud.com
+          Use your admin credentials to sign in
         </p>
       </div>
     </div>

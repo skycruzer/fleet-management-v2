@@ -8,17 +8,16 @@
  * - Leave request notifications
  * - Feedback response notifications
  *
- * Credentials:
- * - Pilot: mrondeau@airniugini.com.pg / mron2393
- * - Admin: mrondeau@airniugini.com.pg / mron2393
+ * Credentials: Set via environment variables TEST_PILOT_EMAIL, TEST_PILOT_PASSWORD,
+ *              TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD
  */
 
 import { test, expect } from '@playwright/test'
 
-const PILOT_EMAIL = 'mrondeau@airniugini.com.pg'
-const PILOT_PASSWORD = 'mron2393'
-const ADMIN_EMAIL = 'mrondeau@airniugini.com.pg'
-const ADMIN_PASSWORD = 'mron2393'
+const PILOT_EMAIL = process.env.TEST_PILOT_EMAIL || 'pilot@example.com'
+const PILOT_PASSWORD = process.env.TEST_PILOT_PASSWORD || 'test-password'
+const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@example.com'
+const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'test-password'
 
 test.describe('Pilot Portal - New Features', () => {
   test.beforeEach(async ({ page }) => {

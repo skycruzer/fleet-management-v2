@@ -23,8 +23,8 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
   test('should allow pilot to submit leave bid', async ({ page }) => {
     // Login as pilot (using Maurice Rondeau's credentials from registration test)
-    await page.fill('#email', 'mrondeau@airniugini.com.pg')
-    await page.fill('#password', 'Lemakot@1972')
+    await page.fill('#email', process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.fill('#password', process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.click('button[type="submit"]')
 
     // Wait for navigation to portal dashboard
@@ -114,8 +114,8 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
   test('should display existing leave bids', async ({ page }) => {
     // Login as pilot
-    await page.fill('#email', 'mrondeau@airniugini.com.pg')
-    await page.fill('#password', 'Lemakot@1972')
+    await page.fill('#email', process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.fill('#password', process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.click('button[type="submit"]')
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
@@ -141,8 +141,8 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
   test('should show bid options sorted by priority', async ({ page }) => {
     // Login as pilot
-    await page.fill('#email', 'mrondeau@airniugini.com.pg')
-    await page.fill('#password', 'Lemakot@1972')
+    await page.fill('#email', process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.fill('#password', process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.click('button[type="submit"]')
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
@@ -170,8 +170,8 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
   test('should validate leave bid options', async ({ page }) => {
     // Login as pilot
-    await page.fill('#email', 'mrondeau@airniugini.com.pg')
-    await page.fill('#password', 'Lemakot@1972')
+    await page.fill('#email', process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.fill('#password', process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.click('button[type="submit"]')
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
@@ -199,8 +199,8 @@ test.describe('Leave Bids - Pilot Portal', () => {
 
   test('should prevent duplicate bid for same year', async ({ page }) => {
     // Login as pilot
-    await page.fill('#email', 'mrondeau@airniugini.com.pg')
-    await page.fill('#password', 'Lemakot@1972')
+    await page.fill('#email', process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.fill('#password', process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.click('button[type="submit"]')
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })
@@ -362,8 +362,8 @@ test.describe('Leave Bid API Integration', () => {
 
     // Login as pilot
     await page.goto('/portal/login')
-    await page.fill('#email', 'mrondeau@airniugini.com.pg')
-    await page.fill('#password', 'Lemakot@1972')
+    await page.fill('#email', process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.fill('#password', process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.click('button[type="submit"]')
 
     await page.waitForURL('**/portal/dashboard', { timeout: 10000 })

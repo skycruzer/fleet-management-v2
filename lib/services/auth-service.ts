@@ -8,7 +8,7 @@
  *
  * Single cookie: `fleet-session`
  * Login uses `staff_id` (not email)
- * Default password: "niugini" (must_change_password = true)
+ * Default password: env DEFAULT_USER_PASSWORD (must_change_password = true)
  */
 
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
@@ -28,7 +28,7 @@ import { BCRYPT_SALT_ROUNDS } from '@/lib/constants/auth'
 const SESSION_COOKIE_NAME = 'fleet-session'
 const MAX_FAILED_ATTEMPTS = 5
 const LOCKOUT_DURATION_MINUTES = 30
-const DEFAULT_PASSWORD = 'niugini'
+const DEFAULT_PASSWORD = process.env.DEFAULT_USER_PASSWORD || 'changeme'
 
 // ============================================================================
 // Types

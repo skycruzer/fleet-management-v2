@@ -36,9 +36,9 @@ test.describe('Pilot Registration', () => {
     await page.fill('#address', 'Dakota')
 
     // Fill account information
-    await page.fill('#email', 'mrondeau@airniugini.com.pg')
-    await page.fill('#password', 'Lemakot@1972')
-    await page.fill('#confirmPassword', 'Lemakot@1972')
+    await page.fill('#email', process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.fill('#password', process.env.TEST_PILOT_PASSWORD || 'test-password')
+    await page.fill('#confirmPassword', process.env.TEST_PILOT_PASSWORD || 'test-password')
 
     // Take screenshot before submission
     await page.screenshot({

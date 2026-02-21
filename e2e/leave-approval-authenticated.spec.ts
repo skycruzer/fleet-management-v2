@@ -8,9 +8,9 @@ import { test, expect } from '@playwright/test'
 const BASE_URL = ''
 const TEST_TIMEOUT = 60000 // 60 seconds
 
-// Admin credentials (from your request: skycruzer)
-const ADMIN_EMAIL = 'skycruzer@example.com'
-const ADMIN_PASSWORD = 'password123' // Update with actual password
+// Admin credentials from environment variables
+const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@example.com'
+const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'test-password'
 
 test.describe('Leave Approval Dashboard - Authenticated Tests', () => {
   test('Full authenticated journey with Leave Approval Dashboard', async ({ page }) => {

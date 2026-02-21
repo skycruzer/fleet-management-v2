@@ -94,6 +94,9 @@ firebase-debug.log
 .serena/
 node_modules_old/
 
+# MCP configuration (contains service role keys)
+.mcp.json
+
 # Backup files
 *.backup
 *.bak

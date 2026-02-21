@@ -27,8 +27,8 @@ test.describe('PILOT PORTAL - Complete Feature Testing', () => {
     await expect(page.getByPlaceholder('Enter your password')).toBeVisible()
 
     // Login
-    await page.getByPlaceholder('pilot@airniugini.com').fill('mrondeau@airniugini.com.pg')
-    await page.getByPlaceholder('Enter your password').fill('mron2393')
+    await page.getByPlaceholder('pilot@airniugini.com').fill(process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.getByPlaceholder('Enter your password').fill(process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.getByRole('button', { name: /Access Portal/i }).click()
 
     await page.waitForURL('/portal/dashboard', { timeout: 15000 })
@@ -291,8 +291,8 @@ test.describe('ERROR CHECKING - Console and Network', () => {
 
     // Login to pilot portal
     await page.goto('/portal/login')
-    await page.getByPlaceholder('pilot@airniugini.com').fill('mrondeau@airniugini.com.pg')
-    await page.getByPlaceholder('Enter your password').fill('mron2393')
+    await page.getByPlaceholder('pilot@airniugini.com').fill(process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.getByPlaceholder('Enter your password').fill(process.env.TEST_PILOT_PASSWORD || 'test-password')
     await page.getByRole('button', { name: /Access Portal/i }).click()
     await page.waitForURL('/portal/dashboard', { timeout: 15000 })
 

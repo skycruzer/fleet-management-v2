@@ -8,10 +8,10 @@
 
 import { test, expect } from '@playwright/test'
 
-const ADMIN_EMAIL = 'skycruzer@icloud.com'
-const ADMIN_PASSWORD = 'mron2393'
-const PILOT_EMAIL = 'mrondeau@airniugini.com.pg'
-const PILOT_PASSWORD = 'mron2393'
+const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@example.com'
+const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'test-password'
+const PILOT_EMAIL = process.env.TEST_PILOT_EMAIL || 'pilot@example.com'
+const PILOT_PASSWORD = process.env.TEST_PILOT_PASSWORD || 'test-password'
 
 test.describe('Complete Login Flow Tests', () => {
   test('should navigate from landing page to admin login and login successfully', async ({

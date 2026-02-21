@@ -12,8 +12,8 @@
 
 import { test, expect, Page } from '@playwright/test'
 
-const TEST_EMAIL = 'mrondeau@airniugini.com.pg'
-const TEST_PASSWORD = 'Lemakot@1972'
+const TEST_EMAIL = process.env.TEST_PILOT_EMAIL || 'pilot@example.com'
+const TEST_PASSWORD = process.env.TEST_PILOT_PASSWORD || 'test-password'
 
 /**
  * Helper function to perform login and wait for dashboard

@@ -18,8 +18,8 @@ export interface PilotCredentials {
  * Used across E2E tests for pilot portal authentication
  */
 export const TEST_PILOT: PilotCredentials = {
-  email: 'mrondeau@airniugini.com.pg',
-  password: 'Lemakot@1972',
+  email: process.env.TEST_PILOT_EMAIL || 'pilot@example.com',
+  password: process.env.TEST_PILOT_PASSWORD || 'test-password',
 }
 
 /**

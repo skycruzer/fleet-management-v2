@@ -24,8 +24,8 @@ test.describe('Comprehensive Portal Testing', () => {
     await page.waitForLoadState('networkidle')
 
     // Fill in credentials
-    await page.getByPlaceholder('pilot@airniugini.com').fill('mrondeau@airniugini.com.pg')
-    await page.getByPlaceholder('Enter your password').fill('mron2393')
+    await page.getByPlaceholder('pilot@airniugini.com').fill(process.env.TEST_PILOT_EMAIL || 'pilot@example.com')
+    await page.getByPlaceholder('Enter your password').fill(process.env.TEST_PILOT_PASSWORD || 'test-password')
 
     // Submit login
     await page.getByRole('button', { name: /Access Portal/i }).click()

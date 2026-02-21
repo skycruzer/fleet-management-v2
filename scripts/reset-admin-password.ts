@@ -16,7 +16,7 @@ import * as bcrypt from 'bcryptjs'
 import { createClient } from '@supabase/supabase-js'
 
 const BCRYPT_SALT_ROUNDS = 10
-const DEFAULT_PASSWORD = 'niugini'
+const DEFAULT_PASSWORD = process.env.DEFAULT_USER_PASSWORD || 'changeme'
 
 async function resetAdminPassword() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
