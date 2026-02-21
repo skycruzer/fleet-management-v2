@@ -27,7 +27,10 @@ import { notifyAllAdmins, createNotification } from '@/lib/services/notification
 import type { NotificationType } from '@/lib/services/notification-service'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { logger } from '@/lib/services/logging-service'
-import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
+import {
+  sendRequestLifecycleEmail,
+  sendAdminRequestNotificationEmail,
+} from '@/lib/services/pilot-email-service'
 
 // ============================================================================
 // Type Definitions
@@ -464,6 +467,18 @@ export async function createPilotRequest(
       flightDate: input.flight_date || null,
       reason: input.reason || null,
     }).catch((err: unknown) => console.error('Failed to send submission email:', err))
+
+    // Send admin email notification (fire-and-forget)
+    if (input.submission_channel === 'PILOT_PORTAL') {
+      sendAdminRequestNotificationEmail({
+        pilotName: input.name,
+        requestCategory: input.request_category as 'LEAVE' | 'FLIGHT',
+        requestType: input.request_type,
+        startDate: input.start_date,
+        endDate: input.end_date || null,
+        requestId: data.id,
+      }).catch((err: unknown) => console.error('Failed to send admin notification email:', err))
+    }
 
     return {
       success: true,

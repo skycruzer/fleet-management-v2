@@ -22,7 +22,10 @@ import {
   parseRosterPeriodCode,
 } from '@/lib/services/roster-period-service'
 import type { FlightRequestInput } from '@/lib/validations/flight-request-schema'
-import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
+import {
+  sendRequestLifecycleEmail,
+  sendAdminRequestNotificationEmail,
+} from '@/lib/services/pilot-email-service'
 import { notifyAllAdmins } from '@/lib/services/notification-service'
 
 export interface ServiceResponse<T = void> {
@@ -209,6 +212,16 @@ export async function submitPilotFlightRequest(
       'flight_request_submitted',
       `/dashboard/requests/${createdRequest.id}`
     ).catch((err: unknown) => console.error('Failed to notify admins:', err))
+
+    // Send admin email notification (fire-and-forget)
+    sendAdminRequestNotificationEmail({
+      pilotName: `${pilotDetails.first_name} ${pilotDetails.last_name}`,
+      requestCategory: 'FLIGHT',
+      requestType: request.request_type,
+      startDate: request.start_date,
+      endDate: request.end_date || null,
+      requestId: createdRequest.id,
+    }).catch((err: unknown) => console.error('Failed to send admin notification email:', err))
 
     return {
       success: true,

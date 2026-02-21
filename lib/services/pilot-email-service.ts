@@ -11,6 +11,7 @@
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { DEFAULT_FROM_EMAIL, DEFAULT_SUPPORT_EMAIL } from '@/lib/constants/email'
+import { getSystemSetting } from '@/lib/services/admin-service'
 
 let _resend: Resend | null = null
 function getResendClient(): Resend {
@@ -1918,5 +1919,88 @@ export async function sendRequestLifecycleEmail(
       `[sendRequestLifecycleEmail] Failed to send '${event}' email for pilot ${pilotId}:`,
       error instanceof Error ? error.message : error
     )
+  }
+}
+
+/**
+ * Send email notification to configured admin addresses when a pilot submits a request.
+ *
+ * Reads the `admin_notification_emails` setting (JSON array of up to 2 email addresses).
+ * If no emails are configured, exits silently. Fire-and-forget — never throws.
+ */
+export async function sendAdminRequestNotificationEmail(params: {
+  pilotName: string
+  requestCategory: 'LEAVE' | 'FLIGHT'
+  requestType: string
+  startDate: string
+  endDate: string | null
+  requestId: string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const setting = await getSystemSetting('admin_notification_emails')
+    if (!setting?.value) {
+      return { success: true } // No setting configured — no-op
+    }
+
+    const emails: unknown = typeof setting.value === 'string'
+      ? JSON.parse(setting.value)
+      : setting.value
+
+    if (!Array.isArray(emails) || emails.length === 0) {
+      return { success: true } // Empty list — no-op
+    }
+
+    // Validate and cap at 2 addresses
+    const validEmails = emails
+      .filter((e): e is string => typeof e === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))
+      .slice(0, 2)
+
+    if (validEmails.length === 0) {
+      return { success: true }
+    }
+
+    const resend = getResendClient()
+    const categoryLabel = params.requestCategory === 'LEAVE' ? 'Leave' : 'RDO/SDO'
+    const dateRange = params.endDate && params.endDate !== params.startDate
+      ? `${params.startDate} to ${params.endDate}`
+      : params.startDate
+    const dashboardLink = `${EMAIL_CONFIG.appUrl}/dashboard/requests/${params.requestId}`
+
+    const subject = `New ${categoryLabel} Request — ${params.pilotName}`
+    const html = `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+        <h2 style="margin-bottom: 16px;">New ${categoryLabel} Request Submitted</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr><td style="padding: 8px 0; color: #666;">Pilot</td><td style="padding: 8px 0; font-weight: 600;">${params.pilotName}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Type</td><td style="padding: 8px 0;">${params.requestType}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Date(s)</td><td style="padding: 8px 0;">${dateRange}</td></tr>
+        </table>
+        <a href="${dashboardLink}" style="display: inline-block; padding: 10px 20px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">
+          View Request
+        </a>
+        <p style="margin-top: 24px; font-size: 13px; color: #888;">
+          This is an automated notification from ${EMAIL_CONFIG.appName}.
+        </p>
+      </div>
+    `
+
+    await Promise.all(
+      validEmails.map((email) =>
+        resend.emails.send({
+          from: EMAIL_CONFIG.from,
+          to: email,
+          subject,
+          html,
+        })
+      )
+    )
+
+    console.log(
+      `[sendAdminRequestNotificationEmail] Sent admin notification to ${validEmails.join(', ')} for ${params.requestCategory} request ${params.requestId}`
+    )
+    return { success: true }
+  } catch (error) {
+    console.error('[sendAdminRequestNotificationEmail] Failed:', error instanceof Error ? error.message : error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
