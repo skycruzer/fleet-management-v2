@@ -52,7 +52,7 @@ export default async function SettingsPage() {
       }
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6">
       {/* Breadcrumb Navigation */}
       <Breadcrumb />
 

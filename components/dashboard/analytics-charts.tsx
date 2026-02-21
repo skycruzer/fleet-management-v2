@@ -8,6 +8,7 @@
 
 'use client'
 
+import { useEffect, useState } from 'react'
 import {
   BarChart,
   Bar,
@@ -22,14 +23,60 @@ import {
   Legend,
 } from 'recharts'
 
-const TOOLTIP_STYLE = {
-  backgroundColor: '#1c1c1e',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: '8px',
-  color: '#e4e4e7',
-}
+function useChartColors() {
+  const [colors, setColors] = useState({
+    chart1: '#60a5fa',
+    chart2: '#34d399',
+    chart3: '#fbbf24',
+    chart4: '#c084fc',
+    chart5: '#22d3ee',
+    grid: 'rgba(255,255,255,0.06)',
+    axis: '#a1a1aa',
+    tooltipBg: '#1c1c1e',
+    tooltipText: '#e4e4e7',
+    tooltipBorder: 'rgba(255,255,255,0.1)',
+  })
 
-const AXIS_TICK = { fill: '#a1a1aa', fontSize: 11 }
+  useEffect(() => {
+    const root = document.documentElement
+    const style = getComputedStyle(root)
+    const get = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback
+
+    setColors({
+      chart1: get('--color-chart-1', '#60a5fa'),
+      chart2: get('--color-chart-2', '#34d399'),
+      chart3: get('--color-chart-3', '#fbbf24'),
+      chart4: get('--color-chart-4', '#c084fc'),
+      chart5: get('--color-chart-5', '#22d3ee'),
+      grid: get('--color-chart-grid', 'rgba(255,255,255,0.06)'),
+      axis: get('--color-chart-axis', '#a1a1aa'),
+      tooltipBg: get('--color-chart-tooltip-bg', '#1c1c1e'),
+      tooltipText: get('--color-chart-tooltip-text', '#e4e4e7'),
+      tooltipBorder: get('--color-chart-tooltip-border', 'rgba(255,255,255,0.1)'),
+    })
+
+    // Re-read on theme change
+    const observer = new MutationObserver(() => {
+      const s = getComputedStyle(document.documentElement)
+      setColors({
+        chart1: s.getPropertyValue('--color-chart-1').trim() || '#60a5fa',
+        chart2: s.getPropertyValue('--color-chart-2').trim() || '#34d399',
+        chart3: s.getPropertyValue('--color-chart-3').trim() || '#fbbf24',
+        chart4: s.getPropertyValue('--color-chart-4').trim() || '#c084fc',
+        chart5: s.getPropertyValue('--color-chart-5').trim() || '#22d3ee',
+        grid: s.getPropertyValue('--color-chart-grid').trim() || 'rgba(255,255,255,0.06)',
+        axis: s.getPropertyValue('--color-chart-axis').trim() || '#a1a1aa',
+        tooltipBg: s.getPropertyValue('--color-chart-tooltip-bg').trim() || '#1c1c1e',
+        tooltipText: s.getPropertyValue('--color-chart-tooltip-text').trim() || '#e4e4e7',
+        tooltipBorder: s.getPropertyValue('--color-chart-tooltip-border').trim() || 'rgba(255,255,255,0.1)',
+      })
+    })
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
+  }, [])
+
+  return colors
+}
 
 interface PilotRankChartProps {
   captains: number
@@ -38,6 +85,15 @@ interface PilotRankChartProps {
 }
 
 export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankChartProps) {
+  const colors = useChartColors()
+  const tooltipStyle = {
+    backgroundColor: colors.tooltipBg,
+    border: `1px solid ${colors.tooltipBorder}`,
+    borderRadius: '8px',
+    color: colors.tooltipText,
+  }
+  const axisTick = { fill: colors.axis, fontSize: 11 }
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
@@ -48,11 +104,11 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
         ]}
         margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-        <XAxis dataKey="name" tick={AXIS_TICK} />
-        <YAxis tick={AXIS_TICK} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Bar dataKey="count" fill="#60a5fa" radius={[4, 4, 0, 0]} />
+        <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+        <XAxis dataKey="name" tick={axisTick} />
+        <YAxis tick={axisTick} />
+        <Tooltip contentStyle={tooltipStyle} />
+        <Bar dataKey="count" fill={colors.chart1} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -65,6 +121,14 @@ interface CertificationPieChartProps {
 }
 
 export function CertificationPieChart({ current, expiring, expired }: CertificationPieChartProps) {
+  const colors = useChartColors()
+  const tooltipStyle = {
+    backgroundColor: colors.tooltipBg,
+    border: `1px solid ${colors.tooltipBorder}`,
+    borderRadius: '8px',
+    color: colors.tooltipText,
+  }
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
@@ -81,12 +145,12 @@ export function CertificationPieChart({ current, expiring, expired }: Certificat
           paddingAngle={3}
           dataKey="value"
         >
-          <Cell fill="#34d399" />
-          <Cell fill="#fbbf24" />
-          <Cell fill="#f87171" />
+          <Cell fill={colors.chart2} />
+          <Cell fill={colors.chart3} />
+          <Cell fill="var(--color-destructive)" />
         </Pie>
-        <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
+        <Tooltip contentStyle={tooltipStyle} />
       </PieChart>
     </ResponsiveContainer>
   )
@@ -97,6 +161,15 @@ interface LeaveTypeChartProps {
 }
 
 export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
+  const colors = useChartColors()
+  const tooltipStyle = {
+    backgroundColor: colors.tooltipBg,
+    border: `1px solid ${colors.tooltipBorder}`,
+    borderRadius: '8px',
+    color: colors.tooltipText,
+  }
+  const axisTick = { fill: colors.axis, fontSize: 11 }
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
@@ -107,13 +180,13 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
         }))}
         margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-        <XAxis dataKey="name" tick={AXIS_TICK} />
-        <YAxis tick={AXIS_TICK} />
-        <Tooltip contentStyle={TOOLTIP_STYLE} />
-        <Legend wrapperStyle={{ fontSize: '11px', color: '#a1a1aa' }} />
-        <Bar dataKey="requests" fill="#818cf8" radius={[4, 4, 0, 0]} name="Requests" />
-        <Bar dataKey="days" fill="#34d399" radius={[4, 4, 0, 0]} name="Total Days" />
+        <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+        <XAxis dataKey="name" tick={axisTick} />
+        <YAxis tick={axisTick} />
+        <Tooltip contentStyle={tooltipStyle} />
+        <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
+        <Bar dataKey="requests" fill={colors.chart4} radius={[4, 4, 0, 0]} name="Requests" />
+        <Bar dataKey="days" fill={colors.chart2} radius={[4, 4, 0, 0]} name="Total Days" />
       </BarChart>
     </ResponsiveContainer>
   )

@@ -209,6 +209,18 @@
   --color-info-border: oklch(0.72 0.14 230 / 0.25);
   --color-info-foreground: oklch(0.78 0.12 230);
 
+  /* === CHART COLORS (Dark mode) === */
+  --color-chart-1: oklch(0.72 0.14 250);
+  --color-chart-2: oklch(0.72 0.18 155);
+  --color-chart-3: oklch(0.8 0.16 85);
+  --color-chart-4: oklch(0.7 0.16 310);
+  --color-chart-5: oklch(0.72 0.14 195);
+  --color-chart-grid: oklch(0.98 0 0 / 0.06);
+  --color-chart-axis: oklch(0.6 0.01 80);
+  --color-chart-tooltip-bg: oklch(0.2 0.01 260);
+  --color-chart-tooltip-text: oklch(0.9 0.005 80);
+  --color-chart-tooltip-border: oklch(0.98 0 0 / 0.1);
+
   /* === TYPOGRAPHY SCALE (14px dashboard-optimized) === */
   --text-xs: 0.75rem;
   --text-sm: 0.857rem;
@@ -331,11 +343,11 @@
   --color-warning-600: oklch(0.62 0.14 65);
   --color-warning-700: oklch(0.55 0.13 60);
   --color-warning-800: oklch(0.48 0.12 55);
-  --color-warning: oklch(0.7 0.15 70);
+  --color-warning: oklch(0.55 0.15 70);
   --color-warning-foreground: oklch(0.15 0.01 260);
-  --color-warning-text: oklch(0.55 0.16 85);
+  --color-warning-text: oklch(0.5 0.16 85);
   --color-warning-muted: oklch(0.78 0.16 75 / 0.08);
-  --color-warning-muted-foreground: oklch(0.7 0.15 70);
+  --color-warning-muted-foreground: oklch(0.55 0.15 70);
 
   --color-danger-50: oklch(0.96 0.02 25);
   --color-danger-100: oklch(0.92 0.04 25);
@@ -415,6 +427,18 @@
   --color-info-bg: oklch(0.65 0.14 230 / 0.08);
   --color-info-border: oklch(0.65 0.14 230 / 0.2);
   --color-info-foreground: oklch(0.48 0.14 230);
+
+  /* Chart colors - darker for light bg */
+  --color-chart-1: oklch(0.5 0.15 250);
+  --color-chart-2: oklch(0.5 0.17 155);
+  --color-chart-3: oklch(0.6 0.15 70);
+  --color-chart-4: oklch(0.5 0.16 310);
+  --color-chart-5: oklch(0.5 0.14 195);
+  --color-chart-grid: oklch(0.15 0 0 / 0.08);
+  --color-chart-axis: oklch(0.4 0.01 80);
+  --color-chart-tooltip-bg: oklch(0.98 0.005 80);
+  --color-chart-tooltip-text: oklch(0.2 0.01 260);
+  --color-chart-tooltip-border: oklch(0.15 0 0 / 0.1);
 
   /* Neutral warm scale for light mode */
   --color-slate-50: oklch(0.98 0.003 80);

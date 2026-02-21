@@ -25,7 +25,7 @@ export default async function PortalUsersPage() {
   const summary = await getPortalUsersSummary()
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6">
       <Breadcrumb />
 
       {/* Page Header */}

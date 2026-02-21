@@ -216,7 +216,7 @@ export function LeaveBidsReportForm() {
           {/* Status Filters */}
           <div className="space-y-2">
             <Label>Status</Label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="statusPending"
@@ -263,7 +263,7 @@ export function LeaveBidsReportForm() {
           {/* Rank Filters */}
           <div className="space-y-2">
             <Label>Rank</Label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="rankCaptain"

@@ -46,7 +46,7 @@ const commonIssues = [
 
 export default function SupportPage() {
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>

@@ -176,7 +176,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {/* Page Content */}
             <main
               id="main-content"
-              className="dashboard-layout bg-background min-h-screen w-full max-w-full overflow-x-hidden p-4 lg:p-5"
+              className="dashboard-layout bg-background mx-auto min-h-screen w-full max-w-screen-2xl overflow-x-hidden p-4 lg:p-5"
               role="main"
               aria-label="Main content"
             >

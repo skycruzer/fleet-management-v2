@@ -221,7 +221,7 @@ export default function FAQPage() {
     .filter((category) => category.questions.length > 0)
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>
