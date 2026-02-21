@@ -77,9 +77,8 @@ interface RenewalPlanPDFData {
   pairingData?: PairingData
 }
 
-// Category configuration
+// Category configuration (Medical excluded — 28-day window too short for advance planning)
 const CATEGORIES = [
-  { id: 'Pilot Medical', label: 'Pilot Medical', color: [220, 53, 69] as [number, number, number] },
   { id: 'Flight Checks', label: 'Flight Checks', color: [0, 123, 255] as [number, number, number] },
   {
     id: 'Simulator Checks',
@@ -808,7 +807,7 @@ function addGanttTimelinePage(doc: JsPDF, data: RenewalPlanPDFData) {
 
   // Legend
   const legendY = 36
-  const legendItems = CATEGORIES.filter((c) => c.id !== 'Pilot Medical')
+  const legendItems = CATEGORIES
   let legendX = 15
   doc.setFontSize(8)
   legendItems.forEach((cat) => {

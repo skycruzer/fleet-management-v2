@@ -44,7 +44,7 @@ export function LeaveBidsReportForm() {
   const [showPreview, setShowPreview] = useState(false)
   const [showEmail, setShowEmail] = useState(false)
   const { toast } = useToast()
-  const rosterPeriods = generateRosterPeriods()
+  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
   const prefetchReport = usePrefetchReport()
 
   // TanStack Query hooks

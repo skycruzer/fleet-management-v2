@@ -29,12 +29,15 @@ export async function ComplianceOverviewServer() {
     )
     .not('expiry_date', 'is', null)
 
-  // Calculate category breakdown
+  // Calculate category breakdown (excluding non-renewal and travel visa categories)
+  const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
   const categoryMap = new Map<string, { current: number; total: number }>()
   const now = new Date()
 
   allChecks?.forEach((check: any) => {
     const category = check.check_types?.category || 'Other'
+    if (EXCLUDED_CATEGORIES.includes(category)) return
+
     const expiryDate = new Date(check.expiry_date)
     const isCurrent = expiryDate > now
 

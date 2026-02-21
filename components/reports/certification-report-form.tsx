@@ -110,7 +110,7 @@ export function CertificationReportForm() {
 
   const filterMode = form.watch('filterMode') ?? 'dateRange'
   const selectedCategories = form.watch('categories') ?? []
-  const rosterPeriods = generateRosterPeriods()
+  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
 
   // Filter check types by selected categories
   const filteredCheckTypes =

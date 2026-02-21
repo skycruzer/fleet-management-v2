@@ -461,6 +461,7 @@ export function PaginatedReportTable({
             if (quals.line_captain) list.push('LC')
             if (quals.training_captain) list.push('TC')
             if (quals.examiner) list.push('EX')
+            if (quals.rhs_captain) list.push('RHS')
             return list.join(', ') || '-'
           },
           id: 'qualifications',

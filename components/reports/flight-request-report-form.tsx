@@ -94,7 +94,7 @@ export function FlightRequestReportForm() {
   })
 
   const filterMode = form.watch('filterMode') ?? 'dateRange'
-  const rosterPeriods = generateRosterPeriods()
+  const rosterPeriods = generateRosterPeriods([2025, 2026], { currentAndFutureOnly: true })
 
   // Build filters from form values (uses input type for optional handling)
   const buildFilters = (values: z.input<typeof formSchema>): ReportFilters => {

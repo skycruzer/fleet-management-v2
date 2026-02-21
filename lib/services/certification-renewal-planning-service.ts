@@ -433,9 +433,8 @@ export async function getRosterPeriodCapacity(
   })
 
   const totalPlanned = renewals.length
-  // Calculate total capacity from all category columns
+  // Calculate total capacity (Medical excluded — 28-day window too short for advance planning)
   const totalCapacity =
-    (capacity.medical_capacity || 4) +
     (capacity.flight_capacity || 4) +
     (capacity.simulator_capacity || 6) +
     (capacity.ground_capacity || 10)

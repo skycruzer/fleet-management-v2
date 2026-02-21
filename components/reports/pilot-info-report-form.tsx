@@ -34,6 +34,7 @@ const formSchema = z.object({
   qualLineCaptain: z.boolean().default(false),
   qualTrainingCaptain: z.boolean().default(false),
   qualExaminer: z.boolean().default(false),
+  qualRHSCaptain: z.boolean().default(false),
   licenceATPL: z.boolean().default(false),
   licenceCPL: z.boolean().default(false),
 })
@@ -67,6 +68,7 @@ export function PilotInfoReportForm() {
       qualLineCaptain: false,
       qualTrainingCaptain: false,
       qualExaminer: false,
+      qualRHSCaptain: false,
       licenceATPL: false,
       licenceCPL: false,
     },
@@ -88,10 +90,11 @@ export function PilotInfoReportForm() {
     if (ranks.length > 0) filters.rank = ranks
 
     // Qualifications
-    const qualifications: ('line_captain' | 'training_captain' | 'examiner')[] = []
+    const qualifications: ('line_captain' | 'training_captain' | 'examiner' | 'rhs_captain')[] = []
     if (values.qualLineCaptain) qualifications.push('line_captain')
     if (values.qualTrainingCaptain) qualifications.push('training_captain')
     if (values.qualExaminer) qualifications.push('examiner')
+    if (values.qualRHSCaptain) qualifications.push('rhs_captain')
     if (qualifications.length > 0) filters.qualifications = qualifications
 
     // Licence types
@@ -307,7 +310,7 @@ export function PilotInfoReportForm() {
               <div>
                 <Label>Qualifications</Label>
                 <p className="text-muted-foreground mt-1 text-xs">
-                  Captain qualifications (Line Captain, Training Captain, Examiner)
+                  Captain qualifications (Line Captain, Training Captain, Examiner, RHS Captain)
                 </p>
               </div>
               <div className="flex gap-2">
@@ -319,6 +322,7 @@ export function PilotInfoReportForm() {
                     form.setValue('qualLineCaptain', true)
                     form.setValue('qualTrainingCaptain', true)
                     form.setValue('qualExaminer', true)
+                    form.setValue('qualRHSCaptain', true)
                     handleFormChange()
                   }}
                   className="h-7 text-xs"
@@ -333,6 +337,7 @@ export function PilotInfoReportForm() {
                     form.setValue('qualLineCaptain', false)
                     form.setValue('qualTrainingCaptain', false)
                     form.setValue('qualExaminer', false)
+                    form.setValue('qualRHSCaptain', false)
                     handleFormChange()
                   }}
                   className="h-7 text-xs"
@@ -393,6 +398,24 @@ export function PilotInfoReportForm() {
                       />
                     </FormControl>
                     <FormLabel className="cursor-pointer font-normal">Examiner</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="qualRHSCaptain"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked)
+                          handleFormChange()
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">RHS Captain</FormLabel>
                   </FormItem>
                 )}
               />

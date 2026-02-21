@@ -9,15 +9,28 @@
 /**
  * Generate roster periods for given years
  * Format: RP01/2025, RP02/2025, ..., RP13/2025 (zero-padded)
+ *
+ * @param years - Years to generate periods for (default: 2025, 2026)
+ * @param options.currentAndFutureOnly - When true, excludes past periods (end date < today)
  */
-export function generateRosterPeriods(years: number[] = [2025, 2026]): string[] {
+export function generateRosterPeriods(
+  years: number[] = [2025, 2026],
+  options?: { currentAndFutureOnly?: boolean }
+): string[] {
   const periods: string[] = []
   for (const year of years) {
     for (let rp = 1; rp <= 13; rp++) {
       periods.push(`RP${String(rp).padStart(2, '0')}/${year}`)
     }
   }
-  return periods
+
+  if (!options?.currentAndFutureOnly) return periods
+
+  const today = new Date().toISOString().split('T')[0]
+  return periods.filter((period) => {
+    const range = rosterPeriodToDateRange(period)
+    return range ? range.endDate >= today : false
+  })
 }
 
 /**

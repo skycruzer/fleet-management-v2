@@ -512,7 +512,7 @@ function AnalyticsPageContent() {
             <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
               Category Breakdown
             </h3>
-            <div className="max-h-64 space-y-3 overflow-y-auto">
+            <div className="space-y-3">
               {analytics.certification.categoryBreakdown.map((category) => (
                 <div key={category.category} className="bg-muted/50 rounded-lg p-3">
                   <div className="text-foreground mb-2 font-medium">{category.category}</div>

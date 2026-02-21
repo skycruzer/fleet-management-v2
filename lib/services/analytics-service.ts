@@ -162,6 +162,11 @@ export async function getPilotAnalytics() {
 }
 
 /**
+ * Categories excluded from analytics (one-time qualifications with no expiry)
+ */
+const EXCLUDED_CATEGORIES = ['Non-renewal', 'Travel Visa']
+
+/**
  * Internal function to compute certification analytics (called on cache miss)
  */
 async function computeCertificationAnalytics() {
@@ -183,6 +188,10 @@ async function computeCertificationAnalytics() {
   const now = new Date()
   const stats = (checks || []).reduce(
     (acc, check: any) => {
+      // Filter out non-renewal and travel visa categories
+      const category = check.check_types?.category || 'Other'
+      if (EXCLUDED_CATEGORIES.includes(category)) return acc
+
       acc.total++
 
       if (!check.expiry_date) {
@@ -204,7 +213,6 @@ async function computeCertificationAnalytics() {
       }
 
       // Category breakdown
-      const category = check.check_types?.category || 'Other'
       if (!acc.categoryBreakdown[category]) {
         acc.categoryBreakdown[category] = { current: 0, expiring: 0, expired: 0 }
       }

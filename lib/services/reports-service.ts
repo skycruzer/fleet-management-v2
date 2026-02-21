@@ -28,6 +28,7 @@ import {
   getSuccessionReadinessScore,
 } from '@/lib/services/succession-planning-service'
 import { parseCaptainQualifications } from '@/lib/utils/type-guards'
+import { isRHSCaptainValid } from '@/lib/utils/qualification-utils'
 import { getCertificationStatus } from '@/lib/utils/certification-status'
 import { generateReportTitle, generateReportDescription } from '@/lib/utils/report-title-generator'
 import { formatAustralianDate, formatAustralianDateTime } from '@/lib/utils/date-format'
@@ -1165,6 +1166,7 @@ export async function generatePDF(
           item.qualifications?.line_captain ? 'LC' : '',
           item.qualifications?.training_captain ? 'TC' : '',
           item.qualifications?.examiner ? 'EX' : '',
+          item.qualifications?.rhs_captain ? 'RHS' : '',
         ]
           .filter(Boolean)
           .join(', ') || '-',
@@ -1442,6 +1444,7 @@ export async function generatePilotInfoReport(
         if (q === 'line_captain') return quals.line_captain
         if (q === 'training_captain') return quals.training_captain
         if (q === 'examiner') return quals.examiner
+        if (q === 'rhs_captain') return isRHSCaptainValid(quals)
         return false
       })
     })
@@ -1477,6 +1480,7 @@ export async function generatePilotInfoReport(
         line_captain: quals?.line_captain || false,
         training_captain: quals?.training_captain || false,
         examiner: quals?.examiner || false,
+        rhs_captain: isRHSCaptainValid(quals),
       },
       certificationStatus: { current, expiring, expired },
     }
@@ -1492,6 +1496,7 @@ export async function generatePilotInfoReport(
     lineCaptains: enrichedData.filter((p: any) => p.qualifications.line_captain).length,
     trainingCaptains: enrichedData.filter((p: any) => p.qualifications.training_captain).length,
     examiners: enrichedData.filter((p: any) => p.qualifications.examiner).length,
+    rhsCaptains: enrichedData.filter((p: any) => p.qualifications.rhs_captain).length,
     atplHolders: enrichedData.filter((p: any) => p.licence_type === 'ATPL').length,
     cplHolders: enrichedData.filter((p: any) => p.licence_type === 'CPL').length,
   }
