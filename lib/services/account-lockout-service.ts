@@ -118,7 +118,8 @@ export async function recordFailedAttempt(
 
       // Send lockout notification to the pilot's actual email if available,
       // falling back to looking up the email from the database
-      const emailForNotification = notificationEmail || (await resolveEmailForNotification(identifier))
+      const emailForNotification =
+        notificationEmail || (await resolveEmailForNotification(identifier))
       if (emailForNotification) {
         await sendLockoutNotification(emailForNotification, lockedUntil)
       }

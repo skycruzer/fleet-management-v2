@@ -43,9 +43,11 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Fetch notifications on mount
+  // Fetch notifications on mount and poll every 30 seconds
   useEffect(() => {
     fetchNotifications()
+    const interval = setInterval(fetchNotifications, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   const fetchNotifications = async () => {
@@ -200,7 +202,11 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
             <motion.button
               whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
               whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
-              onClick={() => setShowNotifications(!showNotifications)}
+              onClick={() => {
+                const opening = !showNotifications
+                setShowNotifications(opening)
+                if (opening) fetchNotifications()
+              }}
               className="text-muted-foreground hover:text-foreground hover:bg-muted/60 relative flex h-8 w-8 items-center justify-center rounded-md transition-colors"
               aria-label={
                 unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'

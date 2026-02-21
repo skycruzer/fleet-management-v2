@@ -33,23 +33,23 @@ export function NotificationBell() {
   const [isLoading, setIsLoading] = useState(true)
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await fetch('/api/portal/notifications')
-        const result = await response.json()
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('/api/portal/notifications')
+      const result = await response.json()
 
-        if (response.ok && result.success) {
-          setNotifications(result.data || [])
-        }
-
-        setIsLoading(false)
-      } catch (err) {
-        console.error('Failed to fetch notifications:', err)
-        setIsLoading(false)
+      if (response.ok && result.success) {
+        setNotifications(result.data || [])
       }
-    }
 
+      setIsLoading(false)
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err)
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
     fetchNotifications()
 
     // Poll for new notifications every 30 seconds
@@ -78,7 +78,13 @@ export function NotificationBell() {
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open)
+        if (open) fetchNotifications()
+      }}
+    >
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />

@@ -450,7 +450,7 @@ export async function createPilotRequest(
         `New ${requestTypeLabel}`,
         `${input.name} submitted a ${input.request_type} request for ${input.start_date}`,
         notificationType,
-        '/dashboard/requests'
+        `/dashboard/requests/${data.id}`
       ).catch((err) => console.error('Failed to notify admins:', err))
     }
 

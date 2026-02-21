@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { CheckCircle, XCircle, Trash2, Pencil } from 'lucide-react'
+import { CheckCircle, XCircle, Trash2, Pencil, Eye } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { RequestEditDialog } from './request-edit-dialog'
@@ -79,9 +79,42 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   const [forceApproveDialogOpen, setForceApproveDialogOpen] = useState(false)
   const [crewShortageMessage, setCrewShortageMessage] = useState('')
 
+  const canReview = request.workflow_status === 'SUBMITTED'
   const canApprove = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
   const canDeny = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
   const canEdit = request.workflow_status !== 'APPROVED' && request.workflow_status !== 'DENIED'
+
+  const handleMarkInReview = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/requests/${request.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'IN_REVIEW' }),
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to mark as in review')
+      }
+
+      toast({
+        title: 'Marked as In Review',
+        description: 'The request is now under review',
+      })
+
+      router.refresh()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to update status',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleApprove = async (force = false) => {
     const comments = approveComments.trim()
@@ -220,6 +253,17 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
   return (
     <>
       <div className="flex gap-2">
+        {canReview && (
+          <Button
+            onClick={handleMarkInReview}
+            disabled={loading}
+            variant="secondary"
+            className="bg-[var(--color-info-bg)] text-[var(--color-info)] hover:bg-[var(--color-info-bg)]/80"
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Mark as In Review
+          </Button>
+        )}
         {canApprove && (
           <Button
             onClick={() => setApproveDialogOpen(true)}
