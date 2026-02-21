@@ -68,7 +68,8 @@ function useChartColors() {
         axis: s.getPropertyValue('--color-chart-axis').trim() || '#a1a1aa',
         tooltipBg: s.getPropertyValue('--color-chart-tooltip-bg').trim() || '#1c1c1e',
         tooltipText: s.getPropertyValue('--color-chart-tooltip-text').trim() || '#e4e4e7',
-        tooltipBorder: s.getPropertyValue('--color-chart-tooltip-border').trim() || 'rgba(255,255,255,0.1)',
+        tooltipBorder:
+          s.getPropertyValue('--color-chart-tooltip-border').trim() || 'rgba(255,255,255,0.1)',
       })
     })
     observer.observe(root, { attributes: true, attributeFilter: ['class'] })

@@ -18,6 +18,10 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { createNotification } from '@/lib/services/notification-service'
+import {
+  sendLeaveBidApprovedEmail,
+  sendLeaveBidRejectedEmail,
+} from '@/lib/services/pilot-email-notification-service'
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
@@ -82,7 +86,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         updated_at: new Date().toISOString(),
       })
       .eq('id', bidId)
-      .select('id, roster_period_code, pilot_id, status')
+      .select('id, roster_period_code, pilot_id, status, preferred_dates')
       .single()
 
     if (updateError) {
@@ -112,6 +116,53 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       type: notificationType,
       link: `/portal/leave-bids`,
     })
+
+    // Send email notification to pilot (fire-and-forget)
+    const { data: pilotRecord } = await supabase
+      .from('pilots')
+      .select('email, first_name, last_name, role, employee_id')
+      .eq('id', updatedBid.pilot_id)
+      .single()
+
+    if (pilotRecord?.email) {
+      // Parse preferred_dates to extract preferences for email
+      let preferences: Array<{ priority: number; startDate: string; endDate: string }> = []
+      try {
+        const parsed = JSON.parse((updatedBid.preferred_dates as string) || '[]')
+        if (Array.isArray(parsed)) {
+          preferences = parsed.map(
+            (opt: { priority?: number; start_date?: string; end_date?: string }, idx: number) => ({
+              priority: opt.priority || idx + 1,
+              startDate: opt.start_date || '',
+              endDate: opt.end_date || '',
+            })
+          )
+        }
+      } catch {
+        // If parsing fails, send email without preferences
+      }
+
+      const pilotInfo = {
+        email: pilotRecord.email,
+        firstName: pilotRecord.first_name,
+        lastName: pilotRecord.last_name,
+        rank: (pilotRecord.role === 'Captain' ? 'Captain' : 'First Officer') as
+          | 'Captain'
+          | 'First Officer',
+        employeeNumber: pilotRecord.employee_id,
+      }
+
+      const bidInfo = {
+        id: updatedBid.id,
+        rosterPeriodCode: updatedBid.roster_period_code,
+        preferences,
+      }
+
+      const sendEmail = action === 'approve' ? sendLeaveBidApprovedEmail : sendLeaveBidRejectedEmail
+      sendEmail(pilotInfo, bidInfo).catch((err) =>
+        console.error('Failed to send leave bid email:', err)
+      )
+    }
 
     return NextResponse.json({
       success: true,

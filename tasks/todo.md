@@ -1040,3 +1040,62 @@ Replace native HTML elements with shadcn/ui components for visual consistency.
 - [ ] RP4.3 All 13 roster periods shown (no Dec/Jan exclusion)
 - [ ] RP4.4 Gantt timeline renders on dashboard and in PDF
 - [ ] RP4.5 RHS/Training/Examiner captain pairing options available
+
+---
+
+## Leave Bid Roster Period Indicators & Annual Report (February 21, 2026)
+
+**Scope**: Two enhancements to the leave bid system:
+
+1. Show which roster period(s) each leave bid date range falls into
+2. Full annual leave bid report with export (PDF) and email via the existing report system
+
+**Research**: 3 parallel agents confirmed:
+
+- `getRosterPeriodFromDate()` and `getAffectedRosterPeriods()` already exist in `lib/utils/roster-utils.ts`
+- `generateLeaveBidsReport()` already exists in `reports-service.ts`
+- `generateLeaveBidsPDF()` already exists in `leave-bids-pdf-service.ts`
+- Report API routes (`/api/reports/preview`, `/export`, `/email`) already dispatch to `leave-bids` type
+- No new tables, services, or API routes needed
+
+---
+
+### Part 1: Roster Period Indicators on Leave Bids
+
+- [ ] LB1.1 **Enrich bid options with roster periods in list page** — `app/dashboard/admin/leave-bids/page.tsx`
+  - Import `getAffectedRosterPeriods` from `lib/utils/roster-utils.ts`
+  - For each normalized option, compute `roster_periods: string[]` from start/end dates
+  - Pass enriched options to `LeaveBidReviewTable` and `LeaveBidAnnualCalendar`
+
+- [ ] LB1.2 **Display roster period badges in review table** — `components/admin/leave-bid-review-table.tsx`
+  - Add `roster_periods?: string[]` to `LeaveBidOption` interface
+  - Show RP code badges next to each date range in expanded details row
+  - Add "Roster Period" column to main table (show first option's RP codes)
+
+- [ ] LB1.3 **Show roster periods on view page** — `app/dashboard/admin/leave-bids/[id]/page.tsx`
+  - Same enrichment: compute RP codes for each option after normalization
+  - Display RP badges in the Leave Preferences card under each date option
+
+- [ ] LB1.4 **Show roster periods on edit page** — `app/dashboard/admin/leave-bids/[id]/edit/page.tsx`
+  - Enrich options with RP codes before passing to `LeaveBidEditForm`
+
+### Part 2: Enhance Leave Bids Report (Export & Email)
+
+- [ ] LB2.1 **Enhance `generateLeaveBidsReport()`** — `lib/services/reports-service.ts`
+  - Add roster period codes to each bid's data output using `getAffectedRosterPeriods()`
+  - Add year filter support (filter bids by bid year extracted from dates)
+  - Add groupBy roster period support
+  - Enhance summary stats: bids per roster period, bids per rank, approval rate
+
+- [ ] LB2.2 **Enhance leave-bids PDF rendering** — `lib/services/reports-service.ts` `generatePDF()`
+  - Add "Roster Period(s)" column to the leave-bids PDF table
+  - Add grouping by roster period option
+  - Ensure consistency with existing `leave-bids-pdf-service.ts` or merge logic
+
+- [ ] LB2.3 **Verify reports UI supports leave-bids** — `app/dashboard/reports/reports-client.tsx`
+  - Confirm leave-bids appears in report type selector
+  - Confirm filters (year, status, rank) render correctly for leave-bids type
+  - Confirm export PDF and email buttons work end-to-end
+  - Add year filter dropdown if not present for leave-bids report type
+
+- [ ] LB2.4 **Build validation** — `npm run build` passes with no errors

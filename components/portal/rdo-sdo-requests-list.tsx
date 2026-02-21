@@ -242,59 +242,59 @@ export function FlightRequestsList({ initialRequests }: FlightRequestsListProps)
       ) : (
         <div className="overflow-x-auto rounded-lg border">
           <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Dates</TableHead>
-                    <TableHead>Days</TableHead>
-                    <TableHead>Roster Period</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Submitted</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {requests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{getRequestTypeBadge(request.request_type)}</TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="font-medium">{formatDate(request.start_date)}</div>
-                          {request.end_date && request.end_date !== request.start_date && (
-                            <div className="text-muted-foreground text-sm">
-                              to {formatDate(request.end_date)}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{calculateDaysCount(request)}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">{request.roster_period}</div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
-                      <TableCell>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Type</TableHead>
+                <TableHead>Dates</TableHead>
+                <TableHead>Days</TableHead>
+                <TableHead>Roster Period</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {requests.map((request) => (
+                <TableRow key={request.id}>
+                  <TableCell>{getRequestTypeBadge(request.request_type)}</TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="font-medium">{formatDate(request.start_date)}</div>
+                      {request.end_date && request.end_date !== request.start_date && (
                         <div className="text-muted-foreground text-sm">
-                          {formatDate(request.created_at)}
+                          to {formatDate(request.end_date)}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {canCancelRequest(request) && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedRequest(request)
-                              setShowCancelDialog(true)
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{calculateDaysCount(request)}</TableCell>
+                  <TableCell>
+                    <div className="text-sm">{request.roster_period}</div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(request.workflow_status)}</TableCell>
+                  <TableCell>
+                    <div className="text-muted-foreground text-sm">
+                      {formatDate(request.created_at)}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {canCancelRequest(request) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedRequest(request)
+                          setShowCancelDialog(true)
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
 

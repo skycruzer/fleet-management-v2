@@ -35,6 +35,7 @@ import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
+import { createNotification } from '@/lib/services/notification-service'
 
 /**
  * Validation Schema for Leave Bid Submission
@@ -126,6 +127,17 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         ),
         { status: result.error?.includes('Unauthorized') ? 401 : 500 }
       )
+    }
+
+    // Send confirmation notification to pilot
+    if (pilot.pilot_id) {
+      createNotification({
+        userId: pilot.pilot_id,
+        title: 'Leave Bid Submitted',
+        message: `Your leave bid for ${bid_year} has been submitted and is pending review.`,
+        type: 'leave_bid_submitted',
+        link: '/portal/leave-bids',
+      }).catch((err) => console.error('Failed to create bid submission notification:', err))
     }
 
     // Revalidate cache for all affected paths

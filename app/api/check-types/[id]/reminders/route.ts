@@ -18,10 +18,7 @@ import { unauthorizedResponse, validationErrorResponse } from '@/lib/utils/api-r
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 const ReminderSettingsSchema = z.object({
-  reminder_days: z
-    .array(z.number().int().positive().max(365))
-    .min(0)
-    .max(10),
+  reminder_days: z.array(z.number().int().positive().max(365)).min(0).max(10),
   email_notifications_enabled: z.boolean(),
 })
 

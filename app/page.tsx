@@ -102,7 +102,12 @@ export default function HomePage() {
 
             {/* CTA Buttons - larger, more prominent */}
             <div className="flex flex-col gap-4 pt-4 sm:flex-row">
-              <Button size="lg" variant="aviation" className="h-14 px-10 text-base font-semibold" asChild>
+              <Button
+                size="lg"
+                variant="aviation"
+                className="h-14 px-10 text-base font-semibold"
+                asChild
+              >
                 <Link href="/auth/login">
                   Admin Dashboard
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -141,7 +146,7 @@ export default function HomePage() {
 
       {/* Stats Bar */}
       <div className="border-border bg-card border-y">
-        <div className="container mx-auto grid grid-cols-2 gap-0 divide-x divide-border px-4 md:grid-cols-4">
+        <div className="divide-border container mx-auto grid grid-cols-2 gap-0 divide-x px-4 md:grid-cols-4">
           <StatItem number="600+" label="Certifications Tracked" />
           <StatItem number="30+" label="Active Pilots" />
           <StatItem number="13" label="Roster Periods / Year" />
