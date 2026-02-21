@@ -30,6 +30,7 @@
 
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
 import { createAuditLog } from '@/lib/services/audit-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -318,6 +319,11 @@ function generateEmailHTML(data: {
  */
 export async function POST(request: Request) {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const formData = await request.formData()
     const yearParam = formData.get('year')?.toString()
 

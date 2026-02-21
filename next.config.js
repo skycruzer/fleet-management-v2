@@ -44,6 +44,7 @@ const nextConfig = {
       '@dnd-kit/core',
       '@dnd-kit/sortable',
       'date-fns',
+      'recharts',
     ],
     serverActions: {
       bodySizeLimit: '2mb',

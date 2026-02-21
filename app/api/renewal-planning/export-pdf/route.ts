@@ -12,6 +12,7 @@
 
 import { NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { generateRenewalPlanPDF } from '@/lib/services/renewal-planning-pdf-service'
 import { getRosterPeriodCapacity } from '@/lib/services/certification-renewal-planning-service'
 
@@ -19,6 +20,11 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = createServiceRoleClient()
     const { searchParams } = new URL(request.url)
     const yearParam = searchParams.get('year')

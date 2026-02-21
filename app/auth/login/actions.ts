@@ -2,7 +2,6 @@
 
 import { adminLogin } from '@/lib/services/admin-auth-service'
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 
 export async function loginAction(formData: FormData) {
   const email = formData.get('email') as string
@@ -18,6 +17,5 @@ export async function loginAction(formData: FormData) {
     return { error: result.error || 'Invalid credentials' }
   }
 
-  revalidatePath('/', 'layout')
   redirect('/dashboard')
 }

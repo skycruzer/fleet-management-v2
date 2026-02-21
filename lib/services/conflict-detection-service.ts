@@ -146,8 +146,8 @@ export async function detectConflicts(
     return {
       hasConflicts: false,
       conflicts: [],
-      canApprove: true,
-      warnings: ['Failed to perform conflict detection'],
+      canApprove: false,
+      warnings: ['Failed to perform conflict detection — defaulting to deny for safety'],
     }
   }
 }

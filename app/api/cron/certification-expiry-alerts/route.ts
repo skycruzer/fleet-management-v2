@@ -16,6 +16,7 @@
  * Schedule: Daily at 6:00 AM (configured in vercel.json)
  */
 
+import crypto from 'crypto'
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendCertificationExpiryAlert } from '@/lib/services/pilot-email-service'
@@ -70,7 +71,13 @@ export async function GET(request: Request) {
   try {
     // Verify this is a cron job request (Vercel sets this header)
     const authHeader = request.headers.get('authorization')
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    const expectedToken = `Bearer ${process.env.CRON_SECRET}`
+    if (
+      !authHeader ||
+      !process.env.CRON_SECRET ||
+      authHeader.length !== expectedToken.length ||
+      !crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedToken))
+    ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

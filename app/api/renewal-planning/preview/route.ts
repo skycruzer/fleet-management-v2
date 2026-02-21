@@ -14,6 +14,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import {
   getCategoryCapacity,
@@ -132,8 +133,11 @@ interface ExpiringCheck {
 
 export async function POST(request: NextRequest) {
   try {
-    // Use service role client to bypass RLS for renewal planning queries
-    // This is a read-only operation on non-sensitive planning data
+    const auth = await getAuthenticatedAdmin()
+    if (!auth.authenticated) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = createServiceRoleClient()
 
     // Parse request body

@@ -5,8 +5,7 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { jsPDF } from 'jspdf'
-import autoTable from 'jspdf-autotable'
+// jsPDF and autoTable are dynamically imported to avoid bundling ~300KB in non-PDF paths
 
 interface LeaveBidOption {
   id: string
@@ -63,6 +62,9 @@ export async function generateLeaveBidsPDF(
   year: number,
   statusFilter: string = 'all'
 ): Promise<Buffer> {
+  const { jsPDF } = await import('jspdf')
+  const { default: autoTable } = await import('jspdf-autotable')
+
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
