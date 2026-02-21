@@ -3,7 +3,7 @@
  * Read-only view of a leave bid submission
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect, notFound } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,10 +26,10 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
     redirect('/auth/login')
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   // Fetch leave bid with all related data
-  const { data: bid, error } = await supabase
+  const { data: rawBid, error } = await supabase
     .from('leave_bids')
     .select(
       `
@@ -43,6 +43,7 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
       notes,
       reason,
       pilot_id,
+      preferred_dates,
       pilots (
         id,
         first_name,
@@ -64,9 +65,32 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
     .eq('id', id)
     .single()
 
-  if (error || !bid) {
+  if (error || !rawBid) {
     notFound()
   }
+
+  // Normalize options: portal submissions store dates in preferred_dates JSON
+  let options = (rawBid as any).leave_bid_options || []
+  if (options.length === 0 && (rawBid as any).preferred_dates) {
+    try {
+      const parsed =
+        typeof (rawBid as any).preferred_dates === 'string'
+          ? JSON.parse((rawBid as any).preferred_dates)
+          : (rawBid as any).preferred_dates
+      if (Array.isArray(parsed)) {
+        options = parsed.map((item: any, index: number) => ({
+          id: `${rawBid.id}-opt-${index}`,
+          priority: item.priority || index + 1,
+          start_date: item.start_date,
+          end_date: item.end_date,
+        }))
+      }
+    } catch {
+      // Invalid JSON — leave options empty
+    }
+  }
+
+  const bid = { ...rawBid, leave_bid_options: options }
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
