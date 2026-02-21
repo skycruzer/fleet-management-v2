@@ -325,7 +325,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                 aria-controls="nav-section-more"
                 aria-label={`More navigation items, ${moreExpanded ? 'collapse' : 'expand'}`}
               >
-                <h3 className="text-muted-foreground/40 text-xs font-medium tracking-widest uppercase">
+                <h3 className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
                   More
                 </h3>
                 <motion.div
@@ -334,7 +334,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
                   aria-hidden="true"
                   style={{ willChange: 'transform' }}
                 >
-                  <ChevronDown className="text-muted-foreground/40 h-3 w-3" />
+                  <ChevronDown className="text-muted-foreground h-3 w-3" />
                 </motion.div>
               </button>
             )}

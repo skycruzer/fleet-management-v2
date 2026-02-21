@@ -56,7 +56,7 @@ const DialogContent = React.forwardRef<
         // Linear-inspired: enhanced shadow, rounded-xl, clean border
         // Uses z-modal (60) to appear above sidebars (z-40)
         'fixed top-[50%] left-[50%] z-[var(--z-modal)] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
-        'bg-card border-border gap-4 border p-6 shadow-2xl',
+        'bg-card border-border gap-4 border p-4 shadow-2xl sm:p-6',
         'data-[state=open]:animate-in data-[state=closed]:animate-out duration-200',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
