@@ -1620,6 +1620,98 @@ Please do not reply to this email.
 }
 
 /**
+ * Send request in-review notification email
+ */
+export async function sendRequestInReviewEmail(
+  data: RequestEmailTemplateData
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const portalUrl = `${EMAIL_CONFIG.appUrl}/portal/requests`
+    const accentColor = '#0ea5e9'
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Under Review</title>
+</head>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4;">
+  <div style="background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid ${accentColor};">
+      <h1 style="color: ${accentColor}; margin: 0; font-size: 28px;">✈️ ${EMAIL_CONFIG.appName}</h1>
+      <p style="color: #666; margin: 10px 0 0 0; font-size: 14px;">Request Under Review</p>
+    </div>
+
+    <!-- Main content -->
+    <div style="margin-bottom: 30px;">
+      <h2 style="color: ${accentColor}; margin: 0 0 20px 0; font-size: 24px;">Request Under Review</h2>
+
+      <p style="margin: 0 0 15px 0; font-size: 16px;">
+        Dear ${data.rank} ${data.lastName}, your <strong>${data.requestType}</strong> request is now <strong>under review</strong> by the operations team.
+      </p>
+
+      <div style="background-color: #f8f9fa; border-left: 4px solid ${accentColor}; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        ${requestDetailsBlock(data)}
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${portalUrl}" style="display: inline-block; background-color: #0066cc; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(0,102,204,0.3);">
+          View My Requests →
+        </a>
+      </div>
+
+      <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
+        You will receive another notification once a decision has been made.
+      </p>
+    </div>
+
+    ${emailFooter()}
+  </div>
+</body>
+</html>
+    `.trim()
+
+    const textContent = `
+Request Under Review
+
+Dear ${data.rank} ${data.lastName}, your ${data.requestType} request is now under review by the operations team.
+
+Request Type: ${data.requestType}
+${data.requestCategory === 'LEAVE' ? `Start Date: ${data.startDate}${data.endDate ? `\nEnd Date: ${data.endDate}` : ''}` : `${data.flightDate ? `Flight Date: ${data.flightDate}` : ''}`}
+
+View your requests: ${portalUrl}
+
+You will receive another notification once a decision has been made.
+
+---
+This is an automated message from ${EMAIL_CONFIG.appName}.
+Please do not reply to this email.
+    `.trim()
+
+    const { error } = await getResendClient().emails.send({
+      from: EMAIL_CONFIG.from,
+      to: data.email,
+      subject: `Your ${data.requestType} Request Is Under Review`,
+      html: htmlContent,
+      text: textContent,
+    })
+
+    if (error) {
+      console.error('Failed to send request in-review email:', error)
+      return { success: false, error: error.message || 'Failed to send request in-review email' }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error sending request in-review email:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+/**
  * Send request withdrawn confirmation email
  */
 export async function sendRequestWithdrawnEmail(
@@ -1722,7 +1814,7 @@ Please do not reply to this email.
  */
 export async function sendRequestLifecycleEmail(
   pilotId: string,
-  event: 'submitted' | 'edited' | 'approved' | 'denied' | 'withdrawn',
+  event: 'submitted' | 'edited' | 'approved' | 'denied' | 'withdrawn' | 'in_review',
   requestData: RequestLifecycleEmailData
 ): Promise<void> {
   try {
@@ -1767,6 +1859,10 @@ export async function sendRequestLifecycleEmail(
 
       case 'withdrawn':
         await sendRequestWithdrawnEmail({ ...baseData, ...requestData })
+        break
+
+      case 'in_review':
+        await sendRequestInReviewEmail({ ...baseData, ...requestData })
         break
 
       case 'approved':

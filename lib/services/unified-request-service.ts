@@ -814,13 +814,11 @@ export async function updateRequestStatus(
           message: `Your ${data.request_type} request has been denied.${comments ? ` Reason: ${comments}` : ''}`,
           type: isLeave ? 'leave_request_rejected' : 'flight_request_rejected',
         },
-        ...(isLeave && {
-          IN_REVIEW: {
-            title: 'Request Under Review',
-            message: `Your ${data.request_type} request is now being reviewed.`,
-            type: 'leave_request_pending_review' as NotificationType,
-          },
-        }),
+        IN_REVIEW: {
+          title: 'Request Under Review',
+          message: `Your ${data.request_type} request is now being reviewed.`,
+          type: 'leave_request_pending_review' as NotificationType,
+        },
       }
 
       const config = notificationConfig[status]
@@ -837,10 +835,11 @@ export async function updateRequestStatus(
 
     // Send email notification for status change (fire-and-forget)
     if (data.pilot_id) {
-      const eventMap: Record<string, 'approved' | 'denied' | 'withdrawn'> = {
+      const eventMap: Record<string, 'approved' | 'denied' | 'withdrawn' | 'in_review'> = {
         APPROVED: 'approved',
         DENIED: 'denied',
         WITHDRAWN: 'withdrawn',
+        IN_REVIEW: 'in_review',
       }
       const emailEvent = eventMap[status]
       if (emailEvent) {
