@@ -98,9 +98,11 @@ export function calculateRequestStats(requests: PilotRequest[]): RequestStats {
     }
 
     // Count critical, warning, and clean for pending requests
+    // Critical = crew conflicts (below minimum, scheduling conflicts)
+    // Warning = late submission or past deadline (time-based concerns)
+    // Clean = no issues
     if (request.workflow_status === 'SUBMITTED' || request.workflow_status === 'IN_REVIEW') {
-      const hasCriticalIssue =
-        request.is_past_deadline || (request.conflict_flags && request.conflict_flags.length > 0)
+      const hasCriticalIssue = request.conflict_flags && request.conflict_flags.length > 0
       const hasWarningIssue = request.is_late_request || request.is_past_deadline
 
       if (hasCriticalIssue) {
@@ -120,10 +122,11 @@ export function calculateRequestStats(requests: PilotRequest[]): RequestStats {
  * Check if a request is critical (needs immediate attention)
  */
 export function isCriticalRequest(request: PilotRequest): boolean {
-  // Critical if: pending, past deadline, or has conflicts
+  // Critical if: pending and has crew/scheduling conflicts
   return (
     (request.workflow_status === 'SUBMITTED' || request.workflow_status === 'IN_REVIEW') &&
-    (request.is_past_deadline || (request.conflict_flags && request.conflict_flags.length > 0))
+    request.conflict_flags &&
+    request.conflict_flags.length > 0
   )
 }
 

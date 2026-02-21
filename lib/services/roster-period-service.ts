@@ -28,7 +28,7 @@ const ANCHOR_START_DATE = new Date('2025-10-11')
 const ROSTER_PERIOD_DAYS = 28
 const ROSTER_PERIODS_PER_YEAR = 13
 const ROSTER_PUBLISH_DAYS_BEFORE = 10
-const REQUEST_DEADLINE_DAYS_BEFORE_PUBLISH = 21
+const REQUEST_DEADLINE_DAYS_BEFORE_START = 21
 
 // ============================================================================
 // Type Definitions
@@ -50,7 +50,7 @@ export interface RosterPeriodDates {
   endDate: Date
   /** Date when roster is published (10 days before start) */
   publishDate: Date
-  /** Deadline for leave requests (31 days before start) */
+  /** Deadline for leave requests (21 days before start) */
   deadlineDate: Date
   /** Days until deadline (negative if past) */
   daysUntilDeadline: number
@@ -146,9 +146,9 @@ export function calculateRosterPeriodDates(periodNumber: number, year: number): 
   const publishDate = new Date(startDate)
   publishDate.setDate(publishDate.getDate() - ROSTER_PUBLISH_DAYS_BEFORE)
 
-  // Calculate deadline date (21 days before publish = 31 days before start)
-  const deadlineDate = new Date(publishDate)
-  deadlineDate.setDate(deadlineDate.getDate() - REQUEST_DEADLINE_DAYS_BEFORE_PUBLISH)
+  // Calculate deadline date (21 days before roster period start)
+  const deadlineDate = new Date(startDate)
+  deadlineDate.setDate(deadlineDate.getDate() - REQUEST_DEADLINE_DAYS_BEFORE_START)
 
   // Calculate days until key dates
   const now = new Date()

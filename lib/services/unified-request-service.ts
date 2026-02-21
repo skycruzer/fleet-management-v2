@@ -566,15 +566,33 @@ export async function getAllPilotRequests(
       }
     }
 
-    // Compute roster periods spanned for each request
-    const { getRosterPeriodsForDateRange } = await import('@/lib/services/roster-period-service')
-    const requestsWithPeriods = (data || []).map((req: any) => ({
-      ...req,
-      roster_periods_spanned: getRosterPeriodsForDateRange(
-        req.start_date,
-        req.end_date || req.start_date // Use start_date as end_date for single-day requests
-      ),
-    }))
+    // Compute roster periods spanned and dynamically recompute deadline flags
+    const { getRosterPeriodsForDateRange, parseRosterPeriodCode, calculateRosterPeriodDates } =
+      await import('@/lib/services/roster-period-service')
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const requestsWithPeriods = (data || []).map((req: any) => {
+      // Dynamically recompute is_past_deadline from roster period deadline
+      let isPastDeadline = req.is_past_deadline
+      if (req.roster_period) {
+        const parsed = parseRosterPeriodCode(req.roster_period)
+        if (parsed) {
+          const periodDates = calculateRosterPeriodDates(parsed.periodNumber, parsed.year)
+          isPastDeadline = today > periodDates.deadlineDate
+        }
+      }
+
+      return {
+        ...req,
+        is_past_deadline: isPastDeadline,
+        roster_periods_spanned: getRosterPeriodsForDateRange(
+          req.start_date,
+          req.end_date || req.start_date
+        ),
+      }
+    })
 
     return {
       success: true,
