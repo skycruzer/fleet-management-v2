@@ -36,6 +36,7 @@ import { revalidatePath } from 'next/cache'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { unauthorizedResponse } from '@/lib/utils/api-response-helper'
 import { createNotification } from '@/lib/services/notification-service'
+import { sendLeaveBidSubmittedEmail } from '@/lib/services/pilot-email-notification-service'
 
 /**
  * Validation Schema for Leave Bid Submission
@@ -129,7 +130,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    // Send confirmation notification to pilot
+    // Send confirmation notification to pilot (bell + email)
     if (pilot.pilot_id) {
       createNotification({
         userId: pilot.pilot_id,
@@ -139,6 +140,26 @@ export const POST = withRateLimit(async (request: NextRequest) => {
         link: '/portal/leave-bids',
       }).catch((err) => console.error('Failed to create bid submission notification:', err))
     }
+
+    // Send email confirmation to pilot
+    sendLeaveBidSubmittedEmail(
+      {
+        email: pilot.email,
+        firstName: pilot.first_name,
+        lastName: pilot.last_name,
+        rank: pilot.rank as 'Captain' | 'First Officer',
+        employeeNumber: pilot.employee_id || '',
+      },
+      {
+        bidYear: bid_year,
+        optionCount: options.length,
+        preferences: options.map((opt) => ({
+          priority: opt.priority,
+          startDate: opt.start_date,
+          endDate: opt.end_date,
+        })),
+      }
+    ).catch((err) => console.error('Failed to send bid submission email:', err))
 
     // Revalidate cache for all affected paths
     revalidatePath('/portal/leave-bids')

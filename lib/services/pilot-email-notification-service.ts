@@ -132,7 +132,7 @@ function getLeaveApprovedEmailHTML(pilot: PilotInfo, request: LeaveRequestInfo):
               </table>
 
               <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.5; color: #374151;">
-                You can view your approved request and other details in the pilot portal.
+                If you have questions about this decision, please contact B767 fleet office.
               </p>
 
               <!-- CTA Button -->
@@ -243,7 +243,7 @@ function getLeaveDeniedemailHTML(
               </table>
 
               <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.5; color: #374151;">
-                If you have questions about this decision, please contact your supervisor or visit the pilot portal for more information.
+                If you have questions about this decision, please contact B767 fleet office.
               </p>
 
               <!-- CTA Button -->
@@ -338,7 +338,7 @@ function getFlightApprovedEmailHTML(pilot: PilotInfo, request: FlightRequestInfo
               </table>
 
               <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.5; color: #374151;">
-                You can view your approved request and other details in the pilot portal.
+                If you have questions about this decision, please contact B767 fleet office.
               </p>
 
               <!-- CTA Button -->
@@ -471,7 +471,135 @@ function getLeaveBidApprovedEmailHTML(pilot: PilotInfo, bid: LeaveBidInfo): stri
               </table>
 
               <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.5; color: #374151;">
-                You can view your leave bids and their status in the pilot portal.
+                If you have questions about this decision, please contact B767 fleet office.
+              </p>
+
+              <!-- CTA Button -->
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/portal/leave-bids" style="display: inline-block; padding: 16px 40px; background-color: #0891b2; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">
+                      View My Leave Bids
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 10px; font-size: 14px; color: #6b7280;">
+                Air Niugini - B767 Fleet Management
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+                This is an automated notification. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`
+}
+
+/**
+ * Leave Bid Submitted Confirmation Email Template
+ */
+function getLeaveBidSubmittedEmailHTML(
+  pilot: PilotInfo,
+  bid: { bidYear: number; optionCount: number; preferences: Array<{ priority: number; startDate: string; endDate: string }> }
+): string {
+  const preferencesHTML = (bid.preferences || [])
+    .map((pref) => {
+      const ordinal =
+        pref.priority === 1
+          ? '1st'
+          : pref.priority === 2
+            ? '2nd'
+            : pref.priority === 3
+              ? '3rd'
+              : `${pref.priority}th`
+      const start = new Date(pref.startDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+      const end = new Date(pref.endDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+      const days =
+        Math.ceil(
+          (new Date(pref.endDate).getTime() - new Date(pref.startDate).getTime()) /
+            (1000 * 60 * 60 * 24)
+        ) + 1
+      return `
+                      <tr>
+                        <td style="padding: 6px 0; font-size: 14px; color: #6b7280; font-weight: 600;">${ordinal} Choice:</td>
+                        <td style="padding: 6px 0; font-size: 14px; color: #111827; text-align: right;">${start} - ${end} (${days}d)</td>
+                      </tr>`
+    })
+    .join('')
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave Bid Submitted</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #0891b2 0%, #0369a1 100%); padding: 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Leave Bid Submitted</h1>
+            </td>
+          </tr>
+
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.5; color: #374151;">
+                Dear ${pilot.rank} ${pilot.lastName},
+              </p>
+
+              <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.5; color: #374151;">
+                Your leave bid for <strong>${bid.bidYear}</strong> has been successfully submitted and is now <strong style="color: #d97706;">pending review</strong>.
+              </p>
+
+              <!-- Bid Details Card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fffbeb; border: 2px solid #fde68a; border-radius: 6px; margin-bottom: 30px;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <h3 style="margin: 0 0 15px; font-size: 18px; color: #92400e;">Bid Details</h3>
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">Bid Year:</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${bid.bidYear}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">Options Submitted:</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${bid.optionCount}</td>
+                      </tr>
+                      ${preferencesHTML}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.5; color: #374151;">
+                If you have questions about this decision, please contact B767 fleet office.
               </p>
 
               <!-- CTA Button -->
@@ -604,7 +732,7 @@ function getLeaveBidRejectedEmailHTML(pilot: PilotInfo, bid: LeaveBidInfo): stri
               </table>
 
               <p style="margin: 0 0 30px; font-size: 16px; line-height: 1.5; color: #374151;">
-                If you have questions about this decision, please contact your supervisor or visit the pilot portal for more information.
+                If you have questions about this decision, please contact B767 fleet office.
               </p>
 
               <!-- CTA Button -->
@@ -758,6 +886,36 @@ export async function sendLeaveBidApprovedEmail(
     return { success: true }
   } catch (err) {
     console.error('Unexpected error sending leave bid approved email:', err)
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    }
+  }
+}
+
+/**
+ * Send leave bid submitted confirmation email
+ */
+export async function sendLeaveBidSubmittedEmail(
+  pilot: PilotInfo,
+  bid: { bidYear: number; optionCount: number; preferences: Array<{ priority: number; startDate: string; endDate: string }> }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await getResendClient().emails.send({
+      from: process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL,
+      to: pilot.email,
+      subject: `Leave Bid Submitted - ${bid.bidYear}`,
+      html: getLeaveBidSubmittedEmailHTML(pilot, bid),
+    })
+
+    if (error) {
+      console.error('Error sending leave bid submitted email:', error)
+      return { success: false, error: error.message }
+    }
+
+    return { success: true }
+  } catch (err) {
+    console.error('Unexpected error sending leave bid submitted email:', err)
     return {
       success: false,
       error: err instanceof Error ? err.message : 'Unknown error',
