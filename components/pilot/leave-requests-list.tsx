@@ -12,7 +12,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Calendar, Plus } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Calendar, CheckCircle2, Clock, FileText, Plus, XCircle } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,8 +77,69 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
     )
   }
 
+  // Calculate stats
+  const stats = {
+    total: requests.length,
+    submitted: requests.filter((r) => r.workflow_status === 'SUBMITTED').length,
+    in_review: requests.filter((r) => r.workflow_status === 'IN_REVIEW').length,
+    approved: requests.filter((r) => r.workflow_status === 'APPROVED').length,
+    denied: requests.filter((r) => r.workflow_status === 'DENIED').length,
+    withdrawn: requests.filter((r) => r.workflow_status === 'WITHDRAWN').length,
+  }
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
+            <FileText className="text-muted-foreground h-4 w-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <Clock className="h-4 w-4 text-[var(--color-status-medium)]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.submitted + stats.in_review}</div>
+            <p className="text-muted-foreground mt-1 text-xs">
+              {stats.submitted} submitted, {stats.in_review} in review
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Approved</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-[var(--color-status-low)]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.approved}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Denied/Withdrawn</CardTitle>
+            <XCircle className="h-4 w-4 text-[var(--color-status-high)]" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.denied + stats.withdrawn}</div>
+            <p className="text-muted-foreground mt-1 text-xs">
+              {stats.denied} denied, {stats.withdrawn} withdrawn
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Request List */}
+      <div className="space-y-3">
       {requests.map((request) => (
         <div key={request.id} className="rounded-lg border p-4 transition-shadow hover:shadow-md">
           <div className="flex items-start justify-between">
@@ -146,6 +208,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
           </div>
         </div>
       ))}
+      </div>
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog
