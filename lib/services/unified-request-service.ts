@@ -1275,15 +1275,38 @@ export async function getPilotLeaveRequests(
 
 /**
  * Create a leave request (server-side)
+ *
+ * If rank/name/employee_number are not provided, looks up the pilot's
+ * current data from the pilots table to ensure accurate denormalization.
  */
 export async function createLeaveRequestServer(
   data: LeaveRequestFormData
 ): Promise<ServiceResponse<LeaveRequest>> {
+  let rank = data.rank
+  let name = data.name
+  let employeeNumber = data.employee_number
+
+  // Look up pilot details if any denormalized fields are missing
+  if (!rank || !name || !employeeNumber) {
+    const supabase = createAdminClient()
+    const { data: pilot } = await supabase
+      .from('pilots')
+      .select('role, first_name, last_name, employee_id')
+      .eq('id', data.pilot_id)
+      .single()
+
+    if (pilot) {
+      rank = rank || (pilot.role as PilotRank)
+      name = name || `${pilot.first_name} ${pilot.last_name}`
+      employeeNumber = employeeNumber || pilot.employee_id || ''
+    }
+  }
+
   return createPilotRequest({
     pilot_id: data.pilot_id,
-    employee_number: data.employee_number ?? '',
-    rank: data.rank ?? 'Captain',
-    name: data.name ?? '',
+    employee_number: employeeNumber ?? '',
+    rank: rank ?? 'First Officer',
+    name: name ?? '',
     request_category: 'LEAVE',
     request_type: data.request_type,
     start_date: data.start_date,
@@ -1366,12 +1389,14 @@ export async function getPendingLeaveRequests(): Promise<ServiceResponse<LeaveRe
 
 /**
  * Check for leave conflicts (delegates to conflict detection service)
+ *
+ * If rank is not provided, looks up the pilot's current role from the pilots table.
  */
 export async function checkLeaveConflicts(
   pilotId: string,
   startDate: string,
   endDate?: string | null,
-  rank: 'Captain' | 'First Officer' = 'Captain'
+  rank?: 'Captain' | 'First Officer'
 ): Promise<
   ServiceResponse<{
     hasConflicts: boolean
@@ -1379,9 +1404,21 @@ export async function checkLeaveConflicts(
   }>
 > {
   try {
+    // Look up pilot rank if not provided
+    let resolvedRank = rank
+    if (!resolvedRank) {
+      const supabase = createAdminClient()
+      const { data: pilot } = await supabase
+        .from('pilots')
+        .select('role')
+        .eq('id', pilotId)
+        .single()
+      resolvedRank = (pilot?.role as 'Captain' | 'First Officer') || 'First Officer'
+    }
+
     const request: RequestInput = {
       pilotId,
-      rank,
+      rank: resolvedRank,
       startDate,
       endDate: endDate ?? startDate,
       requestCategory: 'LEAVE',

@@ -84,7 +84,7 @@ export async function submitPilotLeaveRequest(
     const leaveRequestData = {
       pilot_id: pilot.pilot_id!,
       name: `${pilotDetails.first_name} ${pilotDetails.last_name}`,
-      rank: (pilotDetails.role as 'Captain' | 'First Officer') || 'Captain',
+      rank: (pilotDetails.role as 'Captain' | 'First Officer') || 'First Officer',
       employee_number: pilotDetails.employee_id || '',
       request_type: request.request_type as
         | 'ANNUAL'
