@@ -512,7 +512,11 @@ function getLeaveBidApprovedEmailHTML(pilot: PilotInfo, bid: LeaveBidInfo): stri
  */
 function getLeaveBidSubmittedEmailHTML(
   pilot: PilotInfo,
-  bid: { bidYear: number; optionCount: number; preferences: Array<{ priority: number; startDate: string; endDate: string }> }
+  bid: {
+    bidYear: number
+    optionCount: number
+    preferences: Array<{ priority: number; startDate: string; endDate: string }>
+  }
 ): string {
   const preferencesHTML = (bid.preferences || [])
     .map((pref) => {
@@ -898,7 +902,11 @@ export async function sendLeaveBidApprovedEmail(
  */
 export async function sendLeaveBidSubmittedEmail(
   pilot: PilotInfo,
-  bid: { bidYear: number; optionCount: number; preferences: Array<{ priority: number; startDate: string; endDate: string }> }
+  bid: {
+    bidYear: number
+    optionCount: number
+    preferences: Array<{ priority: number; startDate: string; endDate: string }>
+  }
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await getResendClient().emails.send({

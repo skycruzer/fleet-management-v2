@@ -114,7 +114,7 @@
   - NAIME AIHI - B767 - SEP - Pilot **(13 days left)** 🟡
   - DANIEL WANMA - CRM Training **(15 days left)** 🟡
   - LAWRENCE KOYAMA - CRM Training **(15 days left)** 🟡
-  - RICK KIBO NENDEPA - Aviation Medical Course **(19 days left)** 🟡
+  - RICK KIBO NENDEPA - Pilot Medical **(19 days left)** 🟡
 - **Additional**: "+4 more" indicator for hidden items
 
 #### Quick Actions Cards ✅

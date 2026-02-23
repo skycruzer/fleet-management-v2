@@ -1099,3 +1099,62 @@ Replace native HTML elements with shadcn/ui components for visual consistency.
   - Add year filter dropdown if not present for leave-bids report type
 
 - [ ] LB2.4 **Build validation** — `npm run build` passes with no errors
+
+---
+
+## Course Consolidation: Aviation Medical → Pilot Medical (February 23, 2026)
+
+**Scope**: Remove duplicate "Aviation Medical - Over 60" check type and rename "Aviation Medical Course" to "Pilot Medical"
+**Risk**: LOW — all MEDI_OVER60 pilots already have MEDI records; 0 email/renewal plan references
+
+### Current Database State
+
+| Check Code    | Check Description          | Category      | pilot_checks | email_log | renewal_plans |
+| ------------- | -------------------------- | ------------- | ------------ | --------- | ------------- |
+| `MEDI`        | Aviation Medical Course    | Pilot Medical | **25**       | 0         | 0             |
+| `MEDI_OVER60` | Aviation Medical - Over 60 | Pilot Medical | **9**        | 0         | 0             |
+
+**Key Finding**: All 9 MEDI_OVER60 pilots also have a MEDI record (no orphans to reassign).
+**FK**: `pilot_checks.check_type_id → check_types.id ON DELETE CASCADE`
+**No unique constraint** on `(pilot_id, check_type_id)` — safe to delete duplicates.
+
+### Phase 1: Database Changes (via Supabase MCP)
+
+- [ ] MC1.1 **Rename MEDI check_description** — `UPDATE check_types SET check_description = 'Pilot Medical' WHERE id = 'ca7c5f05-88c5-49de-a001-00d4a27ee54f'`
+- [ ] MC1.2 **Delete MEDI_OVER60 pilot_checks** — `DELETE FROM pilot_checks WHERE check_type_id = 'd83f0b1f-5649-4f59-bf75-41677e8b8f04'` (9 records, all pilots already have MEDI)
+- [ ] MC1.3 **Delete MEDI_OVER60 check_type** — `DELETE FROM check_types WHERE id = 'd83f0b1f-5649-4f59-bf75-41677e8b8f04'`
+- [ ] MC1.4 **Verify** — Query check_types and pilot_checks to confirm: 25 MEDI records remain, 0 MEDI_OVER60 records, no orphans
+
+### Phase 2: Codebase Update (1 file)
+
+- [ ] MC2.1 **Update docs reference** — `docs/COMPLETE-FEATURES-REPORT-2025-10-23.md:117` — change "Aviation Medical Course" to "Pilot Medical"
+
+**No other codebase changes needed** — the category name "Pilot Medical" is already used in:
+
+- `lib/types/pairing.ts` (grace period constant)
+- `lib/utils/grace-period-utils.ts` (NON_PLANNABLE_CATEGORIES)
+- `components/renewal-planning/category-detail-tab.tsx` (icon/color mapping)
+- `lib/services/certification-renewal-planning-service.ts` (case statement)
+- Multiple UI pages (renewal planning)
+
+### Phase 3: Validation
+
+- [ ] MC3.1 **Verify build** — `npm run build`
+- [ ] MC3.2 **Verify types** — `npm run validate`
+
+### Rollback Instructions
+
+If anything goes wrong, execute in order:
+
+```sql
+-- 1. Re-create the MEDI_OVER60 check type
+INSERT INTO check_types (id, check_code, check_description, category)
+VALUES ('d83f0b1f-5649-4f59-bf75-41677e8b8f04', 'MEDI_OVER60', 'Aviation Medical - Over 60', 'Pilot Medical');
+
+-- 2. Re-create the 9 pilot_checks (IDs preserved in backup query below)
+-- Run the backup SELECT before deletion to capture exact records
+
+-- 3. Revert MEDI description
+UPDATE check_types SET check_description = 'Aviation Medical Course'
+WHERE id = 'ca7c5f05-88c5-49de-a001-00d4a27ee54f';
+```
