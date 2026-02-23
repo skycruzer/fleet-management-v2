@@ -68,6 +68,7 @@ export function LoginForm() {
           />
           <button
             type="button"
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
             onClick={() => setShowPassword(!showPassword)}
             className="text-muted-foreground/60 hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
             disabled={isPending}

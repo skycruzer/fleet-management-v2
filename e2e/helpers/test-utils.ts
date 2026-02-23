@@ -54,7 +54,7 @@ export async function login(page: Page, email?: string, password?: string) {
 
   await page.goto('/auth/login')
   await page.getByLabel(/email/i).fill(loginEmail)
-  await page.getByLabel(/password/i).fill(loginPassword)
+  await page.getByLabel('Password', { exact: true }).fill(loginPassword)
   await page.getByRole('button', { name: /sign in|login/i }).click()
   await page.waitForURL(/dashboard/, { timeout: TEST_CONFIG.timeout })
 }
@@ -66,7 +66,7 @@ export async function login(page: Page, email?: string, password?: string) {
 export async function loginAsAdmin(page: Page) {
   await page.goto('/auth/login')
   await page.getByLabel(/email/i).fill(TEST_CONFIG.admin.email)
-  await page.getByLabel(/password/i).fill(TEST_CONFIG.admin.password)
+  await page.getByLabel('Password', { exact: true }).fill(TEST_CONFIG.admin.password)
   await page.getByRole('button', { name: /sign in|login/i }).click()
 
   // Wait for URL change
@@ -85,7 +85,7 @@ export async function loginAsAdmin(page: Page) {
  */
 export async function loginAsPilot(page: Page) {
   await page.goto('/portal/login')
-  await page.fill('#email', TEST_CONFIG.pilot.email)
+  await page.fill('#staffId', TEST_CONFIG.pilot.email)
   await page.fill('#password', TEST_CONFIG.pilot.password)
   await page.click('button[type="submit"]')
 
