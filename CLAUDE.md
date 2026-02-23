@@ -82,7 +82,7 @@ const { data } = await supabase.from('pilots').select('*')
 
 | Category    | Services                                                                                                       |
 | ----------- | -------------------------------------------------------------------------------------------------------------- |
-| Core Domain | `pilot-service`, `certification-service`, `leave-service`, `flight-request-service`, `unified-request-service` |
+| Core Domain | `pilot-service`, `certification-service`, `pilot-leave-service`, `flight-request-service`, `unified-request-service` |
 | Dashboard   | `dashboard-service-v4` (production, Redis-cached), `analytics-service`                                         |
 | Auth        | `pilot-portal-service`, `session-service`, `account-lockout-service`, `admin-auth-service`                     |
 | Reports     | `pdf-service`, `reports-service` (19 reports), `export-service`                                                |
@@ -476,7 +476,7 @@ Formatting: Single quotes, 2-space indent, 100-char line width, Tailwind class s
 | ------------------------------- | -------- | ------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Supabase project URL            |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Supabase anonymous key          |
-| `NEXT_PUBLIC_APP_URL`           | Yes      | Application base URL            |
+| `NEXT_PUBLIC_APP_URL`           | Optional | Application base URL (defaults to localhost) |
 | `SUPABASE_SERVICE_ROLE_KEY`     | Server   | Service role key (bypasses RLS) |
 | `UPSTASH_REDIS_REST_URL`        | Yes      | Redis URL for sessions/cache    |
 | `UPSTASH_REDIS_REST_TOKEN`      | Yes      | Redis authentication token      |
