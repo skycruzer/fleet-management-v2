@@ -103,6 +103,51 @@ const { data } = await supabase.from('pilots').select('*')
 | Client      | `lib/supabase/server.ts` | `pilot-portal-service.ts` |
 | Users       | Admin staff, managers    | Pilots                    |
 
+### API Route Security Pipeline (`lib/middleware/`)
+
+All mutation API routes (POST/PUT/PATCH/DELETE) follow this standard pipeline:
+
+```typescript
+// 1. CSRF validation
+const csrfError = await validateCsrf(request)
+if (csrfError) return csrfError
+
+// 2. Admin authentication (tries Supabase Auth, then admin-session cookie)
+const auth = await getAuthenticatedAdmin()
+if (!auth.authenticated) return unauthorizedResponse()
+
+// 3. Rate limiting
+const { success } = await authRateLimit.limit(auth.userId!)
+if (!success) return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+
+// 4. Role-based authorization (for destructive operations)
+const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
+if (!roleCheck.authorized) return forbiddenResponse('Insufficient permissions')
+
+// 5. Business logic via service layer
+// 6. revalidatePath() for affected routes
+```
+
+| Middleware                            | File                          | Purpose                                           |
+| ------------------------------------- | ----------------------------- | ------------------------------------------------- |
+| `validateCsrf(request)`               | `csrf-middleware.ts`          | Double-submit cookie CSRF protection              |
+| `getAuthenticatedAdmin()`             | `admin-auth-helper.ts`        | Dual-auth: Supabase Auth → admin-session fallback |
+| `authRateLimit` / `mutationRateLimit` | `rate-limit-middleware.ts`    | Per-user or per-IP rate limiting                  |
+| `requireRole(request, roles[])`       | `authorization-middleware.ts` | Role check for destructive operations             |
+
+### Notification Pattern
+
+Admin-facing notifications use two channels fired in parallel (fire-and-forget):
+
+```typescript
+// Bell notification (in-app)
+notifyAllAdmins(title, message, type, linkUrl).catch(console.error)
+// Email notification
+sendAdminRequestNotificationEmail({ pilotName, requestCategory, ... }).catch(console.error)
+```
+
+Services: `notification-service.ts` (bell) + `pilot-email-service.ts` (email via Resend)
+
 ### App Route Structure
 
 | Route Group                               | Purpose                                           |
@@ -250,6 +295,7 @@ Check existing hooks before writing new state logic. Key patterns:
 - **UX**: `use-unsaved-changes`, `use-keyboard-shortcuts`, `use-keyboard-nav`, `use-reduced-motion`
 - **Data fetching**: `use-report-query` (TanStack Query wrapper for reports), `use-sidebar-badges`
 - **Security**: `use-csrf-token`, `use-online-status`
+- **Destructive actions**: `useConfirm()` from `components/ui/confirm-dialog` — renders `<ConfirmDialog />` and exposes `confirm({ title, description, confirmText, variant })` returning a Promise<boolean>
 
 ---
 
@@ -257,17 +303,15 @@ Check existing hooks before writing new state logic. Key patterns:
 
 Old routes redirect to consolidated tabbed views (configured in `next.config.js`). Always use the **new** paths:
 
-| Old Route                              | Redirects To                                  |
-| -------------------------------------- | --------------------------------------------- |
-| `/dashboard/certifications/expiring`   | `/dashboard/certifications?tab=attention`     |
-| `/dashboard/leave/approve`             | `/dashboard/requests?tab=leave`               |
-| `/dashboard/leave/calendar`            | `/dashboard/requests?tab=leave&view=calendar` |
-| `/dashboard/leave`                     | `/dashboard/requests?tab=leave`               |
-| `/dashboard/admin/leave-bids`          | `/dashboard/requests?tab=leave-bids`          |
-| `/dashboard/admin/settings`            | `/dashboard/admin?tab=settings`               |
-| `/dashboard/admin/check-types`         | `/dashboard/admin?tab=check-types`            |
-| `/dashboard/admin/pilot-registrations` | `/dashboard/admin?tab=registrations`          |
-| `/dashboard/faqs`                      | `/dashboard/help`                             |
+| Old Route                            | Redirects To                                  |
+| ------------------------------------ | --------------------------------------------- |
+| `/dashboard/certifications/expiring` | `/dashboard/certifications?tab=attention`     |
+| `/dashboard/leave/approve`           | `/dashboard/requests?tab=leave`               |
+| `/dashboard/leave/calendar`          | `/dashboard/requests?tab=leave&view=calendar` |
+| `/dashboard/leave`                   | `/dashboard/requests?tab=leave`               |
+| `/dashboard/faqs`                    | `/dashboard/help`                             |
+
+**Dedicated pages** (no redirects): `/dashboard/admin/leave-bids`, `/dashboard/admin/settings`, `/dashboard/admin/check-types`, `/dashboard/admin/pilot-registrations`
 
 ---
 
@@ -461,6 +505,6 @@ Admin and pilot portal APIs use different auth systems. Never mix authentication
 
 ---
 
-**Version**: 4.0.0
+**Version**: 4.1.0
 **Last Updated**: February 2026
 **Maintainer**: Maurice (Skycruzer)
