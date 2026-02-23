@@ -122,7 +122,7 @@ export function PilotOverviewTab({
       >
         <motion.div variants={getVariants(fadeIn)}>
           <Card className="group relative overflow-hidden border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-low)]/10" />
+            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-low)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="mb-1 text-sm font-medium text-[var(--color-status-low)]">Current</p>
@@ -140,7 +140,7 @@ export function PilotOverviewTab({
 
         <motion.div variants={getVariants(fadeIn)}>
           <Card className="group relative overflow-hidden border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-medium)]/10" />
+            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-medium)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="mb-1 text-sm font-medium text-[var(--color-status-medium)]">
@@ -160,7 +160,7 @@ export function PilotOverviewTab({
 
         <motion.div variants={getVariants(fadeIn)}>
           <Card className="group relative overflow-hidden border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 -translate-y-6 translate-x-6 rounded-full bg-[var(--color-status-high)]/10" />
+            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-high)]/10" />
             <div className="relative flex items-center justify-between">
               <div>
                 <p className="mb-1 text-sm font-medium text-[var(--color-status-high)]">Expired</p>

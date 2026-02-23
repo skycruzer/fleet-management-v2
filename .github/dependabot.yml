@@ -1,0 +1,69 @@
+# Dependabot configuration for automated dependency updates
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # npm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'skycruzer'
+    labels:
+      - 'dependencies'
+      - 'automated'
+    groups:
+      # Group minor/patch updates to reduce PR noise
+      production-deps:
+        patterns:
+          - '*'
+        exclude-patterns:
+          - '@types/*'
+          - 'eslint*'
+          - 'prettier*'
+          - '@storybook/*'
+          - 'storybook'
+          - 'playwright'
+          - '@playwright/*'
+        update-types:
+          - 'minor'
+          - 'patch'
+      dev-tooling:
+        patterns:
+          - '@types/*'
+          - 'eslint*'
+          - 'prettier*'
+          - 'typescript'
+        update-types:
+          - 'minor'
+          - 'patch'
+      storybook:
+        patterns:
+          - '@storybook/*'
+          - 'storybook'
+        update-types:
+          - 'minor'
+          - 'patch'
+      testing:
+        patterns:
+          - 'playwright'
+          - '@playwright/*'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'skycruzer'
+    labels:
+      - 'dependencies'
+      - 'ci'

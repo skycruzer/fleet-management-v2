@@ -80,14 +80,14 @@ const { data } = await supabase.from('pilots').select('*')
 
 ### Key Services (55+ in `lib/services/`)
 
-| Category    | Services                                                                                                       |
-| ----------- | -------------------------------------------------------------------------------------------------------------- |
+| Category    | Services                                                                                                             |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
 | Core Domain | `pilot-service`, `certification-service`, `pilot-leave-service`, `flight-request-service`, `unified-request-service` |
-| Dashboard   | `dashboard-service-v4` (production, Redis-cached), `analytics-service`                                         |
-| Auth        | `pilot-portal-service`, `session-service`, `account-lockout-service`, `admin-auth-service`                     |
-| Reports     | `pdf-service`, `reports-service` (19 reports), `export-service`                                                |
-| Planning    | `retirement-forecast-service`, `succession-planning-service`, `certification-renewal-planning-service`         |
-| Roster      | `roster-period-service`, `roster-report-service`, `roster-deadline-alert-service`                              |
+| Dashboard   | `dashboard-service-v4` (production, Redis-cached), `analytics-service`                                               |
+| Auth        | `pilot-portal-service`, `session-service`, `account-lockout-service`, `admin-auth-service`                           |
+| Reports     | `pdf-service`, `reports-service` (19 reports), `export-service`                                                      |
+| Planning    | `retirement-forecast-service`, `succession-planning-service`, `certification-renewal-planning-service`               |
+| Roster      | `roster-period-service`, `roster-report-service`, `roster-deadline-alert-service`                                    |
 
 **Central Service**: `unified-request-service.ts` handles ALL leave and flight requests through the unified `pilot_requests` table.
 
@@ -472,18 +472,18 @@ Formatting: Single quotes, 2-space indent, 100-char line width, Tailwind class s
 
 ## Environment Variables
 
-| Variable                        | Required | Description                     |
-| ------------------------------- | -------- | ------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Supabase project URL            |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Supabase anonymous key          |
+| Variable                        | Required | Description                                  |
+| ------------------------------- | -------- | -------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Supabase project URL                         |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Supabase anonymous key                       |
 | `NEXT_PUBLIC_APP_URL`           | Optional | Application base URL (defaults to localhost) |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Server   | Service role key (bypasses RLS) |
-| `UPSTASH_REDIS_REST_URL`        | Yes      | Redis URL for sessions/cache    |
-| `UPSTASH_REDIS_REST_TOKEN`      | Yes      | Redis authentication token      |
-| `RESEND_API_KEY`                | Server   | Email service (Resend) API key  |
-| `RESEND_FROM_EMAIL`             | Server   | Email sender address            |
-| `CRON_SECRET`                   | Server   | Vercel cron job auth token      |
-| `LOGTAIL_SOURCE_TOKEN`          | Server   | Better Stack logging token      |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Server   | Service role key (bypasses RLS)              |
+| `UPSTASH_REDIS_REST_URL`        | Yes      | Redis URL for sessions/cache                 |
+| `UPSTASH_REDIS_REST_TOKEN`      | Yes      | Redis authentication token                   |
+| `RESEND_API_KEY`                | Server   | Email service (Resend) API key               |
+| `RESEND_FROM_EMAIL`             | Server   | Email sender address                         |
+| `CRON_SECRET`                   | Server   | Vercel cron job auth token                   |
+| `LOGTAIL_SOURCE_TOKEN`          | Server   | Better Stack logging token                   |
 
 Copy `.env.example` to `.env.local` for development. Tests use `.env.test.local`.
 
