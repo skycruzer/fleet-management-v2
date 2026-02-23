@@ -163,8 +163,7 @@ export async function validateCsrf(req: NextRequest): Promise<NextResponse | nul
   // When validateCsrf is called explicitly, always require the token
   // (unlike withCsrfProtection which uses a route allowlist for broad application)
   try {
-    const token =
-      req.headers.get(CSRF_HEADER_NAME) || req.headers.get('X-CSRF-Token')
+    const token = req.headers.get(CSRF_HEADER_NAME) || req.headers.get('X-CSRF-Token')
     if (!token) {
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), {
         status: 403,
