@@ -72,8 +72,9 @@ export async function loginAsAdmin(page: Page) {
   // Wait for URL change
   await page.waitForURL(/dashboard/, { timeout: 60000 })
 
-  // Wait for page to fully load (critical for Next.js 16)
-  await page.waitForLoadState('networkidle', { timeout: 60000 })
+  // Wait for page to fully load (domcontentloaded — networkidle is too strict
+  // for dashboards with ongoing API polling for notifications/badges)
+  await page.waitForLoadState('domcontentloaded', { timeout: 60000 })
 
   // Additional wait for hydration
   await page.waitForTimeout(500)
@@ -92,8 +93,9 @@ export async function loginAsPilot(page: Page) {
   // Wait for URL change
   await page.waitForURL(/portal.*dashboard/, { timeout: 60000 })
 
-  // Wait for page to fully load (critical for Next.js 16)
-  await page.waitForLoadState('networkidle', { timeout: 60000 })
+  // Wait for page to fully load (domcontentloaded — networkidle is too strict
+  // for dashboards with ongoing API polling for notifications/badges)
+  await page.waitForLoadState('domcontentloaded', { timeout: 60000 })
 
   // Additional wait for hydration
   await page.waitForTimeout(500)

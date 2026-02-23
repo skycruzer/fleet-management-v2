@@ -103,12 +103,16 @@ test.describe('Authentication Flow', () => {
   })
 
   test('should logout successfully', async ({ page }) => {
+    // Extended timeout: login + dashboard load + logout dialog + redirect
+    test.setTimeout(60000)
+
     // Login first
     await loginAsAdmin(page)
 
-    // Find and click logout button (force bypasses Next.js dev overlay interception)
+    // Click logout via JS dispatch — the Next.js dev overlay intercepts pointer events,
+    // so we use evaluate() to invoke click() directly on the DOM element
     const logoutButton = page.getByRole('button', { name: /logout|sign out/i })
-    await logoutButton.click({ force: true })
+    await logoutButton.evaluate((el) => (el as HTMLElement).click())
 
     // Confirm the logout dialog
     const dialog = page.getByRole('alertdialog').or(page.getByRole('dialog'))
