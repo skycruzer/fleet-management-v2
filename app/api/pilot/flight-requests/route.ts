@@ -4,6 +4,8 @@ import {
   submitPilotFlightRequest,
   getCurrentPilotFlightRequests,
 } from '@/lib/services/pilot-flight-service'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 
 /**
@@ -54,6 +56,23 @@ export async function GET(_request: NextRequest) {
  */
 export async function POST(_request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(_request)
+    if (csrfError) return csrfError
+
+    // Rate limiting (pilot identity resolved inside service; use IP here)
+    const ip =
+      _request.headers.get('x-forwarded-for')?.split(',')[0] ||
+      _request.headers.get('x-real-ip') ||
+      'anonymous'
+    const { success: rateLimitSuccess } = await mutationRateLimit.limit(ip)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await _request.json()
 
     // Validate input

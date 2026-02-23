@@ -9,6 +9,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { getMatters, createMatter, getMatterStats } from '@/lib/services/disciplinary-service'
 import { CreateDisciplinarySchema } from '@/lib/validations/disciplinary-schema'
 
@@ -163,9 +165,22 @@ export async function GET(_request: NextRequest) {
  */
 export async function POST(_request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(_request)
+    if (csrfError) return csrfError
+
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limiting
+    const { success: rateLimitSuccess } = await mutationRateLimit.limit(auth.userId!)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
     }
 
     // Parse and validate request body with Zod

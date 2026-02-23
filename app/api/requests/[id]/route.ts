@@ -25,6 +25,8 @@ import {
   RequestStatusUpdateSchema,
 } from '@/lib/validations/request-update-schema'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { authRateLimit, getClientIp } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
@@ -104,6 +106,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { id } = await params
 
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Rate limiting
     const identifier = getClientIp(request)
     const { success } = await authRateLimit.limit(identifier)
@@ -231,6 +237,10 @@ export async function DELETE(
   const { id } = await params
 
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Rate limiting
     const identifier = getClientIp(request)
     const { success } = await authRateLimit.limit(identifier)
@@ -248,6 +258,15 @@ export async function DELETE(
       return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, 401), {
         status: 401,
       })
+    }
+
+    // Role-based authorization for destructive operation
+    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
+    if (!roleCheck.authorized) {
+      return NextResponse.json(
+        { success: false, error: roleCheck.error || 'Insufficient permissions' },
+        { status: roleCheck.statusCode || 403 }
+      )
     }
 
     // Delete request using service layer

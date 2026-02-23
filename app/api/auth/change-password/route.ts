@@ -7,31 +7,56 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { validateSession, changePassword } from '@/lib/services/auth-service'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { authRateLimit } from '@/lib/middleware/rate-limit-middleware'
+
+const ChangePasswordSchema = z
+  .object({
+    oldPassword: z.string().min(1, 'Current password is required'),
+    newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Password confirmation is required'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'New passwords do not match',
+    path: ['confirmPassword'],
+  })
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const session = await validateSession()
     if (!session.isValid || !session.user) {
       return NextResponse.json({ success: false, error: 'Not authenticated' }, { status: 401 })
     }
 
+    // Rate limiting
+    const { success: rateLimitSuccess } = await authRateLimit.limit(session.user.id)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
-    const { oldPassword, newPassword, confirmPassword } = body
+    const validation = ChangePasswordSchema.safeParse(body)
 
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, error: 'All password fields are required' },
+        {
+          success: false,
+          error: validation.error.issues[0]?.message || 'Validation failed',
+        },
         { status: 400 }
       )
     }
 
-    if (newPassword !== confirmPassword) {
-      return NextResponse.json(
-        { success: false, error: 'New passwords do not match' },
-        { status: 400 }
-      )
-    }
+    const { oldPassword, newPassword } = validation.data
 
     const result = await changePassword(session.user.id, oldPassword, newPassword)
 

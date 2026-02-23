@@ -55,38 +55,6 @@ export function generateCsrfToken(): string {
  */
 async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
   try {
-    // Portal API routes are protected by session authentication
-    // Skip CSRF for portal routes that have session cookie (already authenticated)
-    const isPortalRoute = req.nextUrl.pathname.startsWith('/api/portal/')
-    const hasSessionCookie = req.cookies.get('pilot-session')?.value
-
-    if (isPortalRoute && hasSessionCookie) {
-      // Portal routes with valid session are already authenticated
-      // Session-based auth provides CSRF protection via SameSite cookie
-      return true
-    }
-
-    // Admin API routes are protected by Supabase Auth or admin-session
-    // Skip CSRF for admin routes that have valid auth cookies
-    // SameSite cookie attribute provides CSRF protection
-    const isAdminApiRoute =
-      req.nextUrl.pathname.startsWith('/api/feedback') ||
-      req.nextUrl.pathname.startsWith('/api/pilots') ||
-      req.nextUrl.pathname.startsWith('/api/certifications') ||
-      req.nextUrl.pathname.startsWith('/api/leave-requests') ||
-      req.nextUrl.pathname.startsWith('/api/requests') ||
-      req.nextUrl.pathname.startsWith('/api/tasks')
-
-    const hasSupabaseAuth = req.cookies.get('sb-wgdmgvonqysflwdiiols-auth-token')?.value
-    const hasAdminSession = req.cookies.get('admin-session')?.value
-    const hasFleetSession = req.cookies.get('fleet-session')?.value
-
-    if (isAdminApiRoute && (hasSupabaseAuth || hasAdminSession || hasFleetSession)) {
-      // Admin routes with valid session are already authenticated
-      // SameSite cookie attribute provides CSRF protection
-      return true
-    }
-
     // Get CSRF token from header
     const token = req.headers.get(CSRF_HEADER_NAME) || req.headers.get('X-CSRF-Token')
 
@@ -115,12 +83,8 @@ async function verifyCsrfTokenFromRequest(req: NextRequest): Promise<boolean> {
     const secret = req.cookies.get('csrf_secret')?.value
 
     if (!secret) {
-      // No secret cookie means the user doesn't have a CSRF session yet
-      // This can happen on first request - allow but log in development
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('CSRF: No secret cookie found, allowing request')
-      }
-      return true
+      // No secret cookie — deny the request (CSRF session not established)
+      return false
     }
 
     // Import and use the cryptographic verification
@@ -196,10 +160,32 @@ export async function validateCsrf(req: NextRequest): Promise<NextResponse | nul
     return null
   }
 
-  // Verify CSRF token
-  const isValid = await verifyCsrfTokenFromRequest(req)
+  // When validateCsrf is called explicitly, always require the token
+  // (unlike withCsrfProtection which uses a route allowlist for broad application)
+  try {
+    const token =
+      req.headers.get(CSRF_HEADER_NAME) || req.headers.get('X-CSRF-Token')
+    if (!token) {
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), {
+        status: 403,
+      })
+    }
 
-  if (!isValid) {
+    const secret = req.cookies.get('csrf_secret')?.value
+    if (!secret) {
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), {
+        status: 403,
+      })
+    }
+
+    const Tokens = (await import('csrf')).default
+    const tokens = new Tokens()
+    if (!tokens.verify(secret, token)) {
+      return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), {
+        status: 403,
+      })
+    }
+  } catch {
     return NextResponse.json(formatApiError(ERROR_MESSAGES.AUTH.CSRF_INVALID, 403), { status: 403 })
   }
 

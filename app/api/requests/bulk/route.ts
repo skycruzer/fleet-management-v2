@@ -7,9 +7,12 @@
  * @date November 11, 2025
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { updateRequestStatus, deletePilotRequest } from '@/lib/services/unified-request-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { mutationRateLimit } from '@/lib/middleware/rate-limit-middleware'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
 import { logger } from '@/lib/services/logging-service'
 import { revalidatePath } from 'next/cache'
 
@@ -19,12 +22,34 @@ interface BulkActionRequest {
   comments?: string
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Check authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Rate limiting
+    const { success: rateLimitSuccess } = await mutationRateLimit.limit(auth.userId!)
+    if (!rateLimitSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
+    // Role-based authorization for bulk operations
+    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
+    if (!roleCheck.authorized) {
+      return NextResponse.json(
+        { success: false, error: roleCheck.error || 'Insufficient permissions' },
+        { status: roleCheck.statusCode || 403 }
+      )
     }
 
     // Parse request body
@@ -35,6 +60,14 @@ export async function POST(request: Request) {
     if (!request_ids || !Array.isArray(request_ids) || request_ids.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Invalid request_ids - must be non-empty array' },
+        { status: 400 }
+      )
+    }
+
+    // Cap array size to prevent abuse
+    if (request_ids.length > 50) {
+      return NextResponse.json(
+        { success: false, error: 'Too many items - maximum 50 per bulk operation' },
         { status: 400 }
       )
     }

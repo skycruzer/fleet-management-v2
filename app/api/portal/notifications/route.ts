@@ -18,6 +18,7 @@ import {
   markNotificationAsRead,
   deleteNotification,
 } from '@/lib/services/notification-service'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import {
   ERROR_MESSAGES,
   formatApiError,
@@ -97,6 +98,10 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
 
@@ -124,8 +129,8 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Mark notification as read using service layer
-    const result = await markNotificationAsRead(notificationId)
+    // Mark notification as read using service layer (with ownership check)
+    const result = await markNotificationAsRead(notificationId, pilot.id)
 
     if (!result.success) {
       return NextResponse.json(
@@ -163,6 +168,10 @@ export async function PATCH(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
 
@@ -190,8 +199,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Delete notification using service layer
-    const result = await deleteNotification(notificationId)
+    // Delete notification using service layer (with ownership check)
+    const result = await deleteNotification(notificationId, pilot.id)
 
     if (!result.success) {
       return NextResponse.json(

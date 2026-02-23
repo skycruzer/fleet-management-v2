@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAllUsers, createUser, getUsersByRole } from '@/lib/services/user-service'
 import { UserCreateSchema } from '@/lib/validations/user-validation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
 
 /**
  * GET /api/users
@@ -50,10 +52,23 @@ export async function GET(_request: NextRequest) {
  */
 export async function POST(_request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(_request)
+    if (csrfError) return csrfError
+
     // Check authentication
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Role-based authorization — only admins can create users
+    const roleCheck = await requireRole(_request, [UserRole.ADMIN])
+    if (!roleCheck.authorized) {
+      return NextResponse.json(
+        { success: false, error: roleCheck.error || 'Insufficient permissions' },
+        { status: roleCheck.statusCode || 403 }
+      )
     }
 
     // Parse and validate request body

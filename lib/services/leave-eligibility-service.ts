@@ -464,7 +464,7 @@ export async function getConflictingPendingRequests(
       pilot_id,
       start_date,
       end_date,
-      request_date,
+      submission_date,
       request_type,
       reason,
       pilots!inner (
@@ -589,7 +589,7 @@ export async function getConflictingPendingRequests(
         seniorityNumber: pilot.seniority_number,
         startDate: req.start_date,
         endDate: req.end_date,
-        requestDate: req.request_date,
+        requestDate: req.submission_date,
         requestType: req.request_type,
         reason: req.reason,
         overlappingDays: totalDays,

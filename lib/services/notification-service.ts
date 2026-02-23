@@ -239,7 +239,10 @@ export async function getUserNotifications(
  * @param notificationId - ID of the notification to mark as read
  * @returns Promise with success status
  */
-export async function markNotificationAsRead(notificationId: string): Promise<NotificationResult> {
+export async function markNotificationAsRead(
+  notificationId: string,
+  recipientId: string
+): Promise<NotificationResult> {
   try {
     const supabase = createAdminClient()
 
@@ -247,6 +250,7 @@ export async function markNotificationAsRead(notificationId: string): Promise<No
       .from('notifications')
       .update({ read: true })
       .eq('id', notificationId)
+      .eq('recipient_id', recipientId)
       .select()
       .single()
 
@@ -331,11 +335,18 @@ export async function markAllNotificationsAsRead(userId: string): Promise<Notifi
  * @param notificationId - ID of the notification to delete
  * @returns Promise with success status
  */
-export async function deleteNotification(notificationId: string): Promise<NotificationResult> {
+export async function deleteNotification(
+  notificationId: string,
+  recipientId: string
+): Promise<NotificationResult> {
   try {
     const supabase = createAdminClient()
 
-    const { error } = await supabase.from('notifications').delete().eq('id', notificationId)
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', notificationId)
+      .eq('recipient_id', recipientId)
 
     if (error) {
       logger.error((error as Error).message, {

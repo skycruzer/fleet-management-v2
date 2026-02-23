@@ -21,6 +21,7 @@ import {
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { authRateLimit, getClientIp } from '@/lib/rate-limit'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
 import { revalidatePath } from 'next/cache'
 import { CreatePilotRequestSchema } from '@/lib/validations/pilot-request-schema'
@@ -163,6 +164,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     // Rate limiting
     const identifier = getClientIp(request)
     const { success } = await authRateLimit.limit(identifier)

@@ -71,7 +71,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const result = await markNotificationAsRead(notificationId)
+    const result = await markNotificationAsRead(notificationId, auth.userId!)
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 500 })
