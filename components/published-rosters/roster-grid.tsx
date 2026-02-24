@@ -18,6 +18,7 @@ interface RosterGridProps {
   searchQuery: string
   activityFilter: string[]
   rankFilter: RankFilter
+  compact?: boolean
 }
 
 // Map Tailwind class names to CSS colors
@@ -62,6 +63,7 @@ export function RosterGrid({
   searchQuery,
   activityFilter,
   rankFilter,
+  compact,
 }: RosterGridProps) {
   const [crewPairing, setCrewPairing] = useState<CrewPairingInfo | null>(null)
 
@@ -160,11 +162,21 @@ export function RosterGrid({
   return (
     <>
       <div className="bg-card overflow-x-auto rounded-lg border">
-        <table className="w-max min-w-full border-collapse text-xs">
+        <table
+          className={cn(
+            'border-collapse text-xs',
+            compact ? 'w-full table-fixed' : 'w-max min-w-full'
+          )}
+        >
           {/* Column headers */}
           <thead>
             <tr className="bg-muted/50 border-b">
-              <th className="bg-muted/50 sticky left-0 z-20 min-w-[140px] px-2 py-1.5 text-left font-medium">
+              <th
+                className={cn(
+                  'bg-muted/50 sticky left-0 z-20 px-2 py-1.5 text-left font-medium',
+                  !compact && 'min-w-[140px]'
+                )}
+              >
                 Pilot
               </th>
               {days.map((d) => {
@@ -176,7 +188,8 @@ export function RosterGrid({
                   <th
                     key={d}
                     className={cn(
-                      'min-w-[52px] px-0.5 py-1.5 text-center font-normal',
+                      'px-0.5 py-1.5 text-center font-normal',
+                      !compact && 'min-w-[52px]',
                       today && 'bg-blue-500/10 dark:bg-blue-500/20',
                       weekend && !today && 'bg-muted/30',
                       isWeekBoundary && 'border-l-border border-l-2'
@@ -215,6 +228,7 @@ export function RosterGrid({
                     periodStartDate={periodStartDate}
                     activityFilter={activityFilter}
                     onCellClick={handleCellClick}
+                    compact={compact}
                   />
                 ))}
               </>
@@ -240,6 +254,7 @@ export function RosterGrid({
                     periodStartDate={periodStartDate}
                     activityFilter={activityFilter}
                     onCellClick={handleCellClick}
+                    compact={compact}
                   />
                 ))}
               </>
@@ -351,6 +366,7 @@ function PilotRowComponent({
   periodStartDate,
   activityFilter,
   onCellClick,
+  compact,
 }: {
   pilot: PilotRow
   days: number[]
@@ -358,11 +374,17 @@ function PilotRowComponent({
   periodStartDate: string
   activityFilter: string[]
   onCellClick: (day: number, code: string) => void
+  compact?: boolean
 }) {
   return (
     <tr className="border-border/50 hover:bg-muted/30 border-b">
       {/* Sticky pilot name column */}
-      <td className="bg-card hover:bg-muted/30 sticky left-0 z-10 px-2 py-1 font-medium">
+      <td
+        className={cn(
+          'bg-card hover:bg-muted/30 sticky left-0 z-10 py-1 font-medium',
+          compact ? 'truncate px-1' : 'px-2'
+        )}
+      >
         {pilot.pilotId ? (
           <Link
             href={`/dashboard/pilots?id=${pilot.pilotId}`}

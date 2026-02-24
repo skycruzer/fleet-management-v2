@@ -1,9 +1,10 @@
 // Maurice Rondeau — Published Rosters Client
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, Maximize2, Minimize2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { RosterPeriodNavigator } from '@/components/published-rosters/roster-period-navigator'
@@ -53,6 +54,17 @@ export function PublishedRostersClient({
   // Dialog state
   const [showUploadDialog, setShowUploadDialog] = useState(false)
   const [showPdfViewer, setShowPdfViewer] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  // Escape key exits fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsFullscreen(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isFullscreen])
 
   // Build activity code map for the grid
   const activityCodeMap = useMemo(() => {
@@ -201,6 +213,19 @@ export function PublishedRostersClient({
               />
             ) : (
               <>
+                {/* Fullscreen toggle */}
+                <div className="flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsFullscreen(true)}
+                    className="gap-1.5"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                    Fullscreen
+                  </Button>
+                </div>
+
                 {/* Daily Crew Summary */}
                 <DailyCrewSummary
                   assignments={mappedAssignments}
@@ -217,6 +242,64 @@ export function PublishedRostersClient({
                   rankFilter={rankFilter}
                 />
               </>
+            )}
+
+            {/* Fullscreen Overlay */}
+            {isFullscreen && (
+              <div className="bg-background fixed inset-0 z-50 flex flex-col overflow-hidden">
+                {/* Fullscreen header */}
+                <div className="border-b px-4 py-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-lg font-semibold">
+                        {currentPeriodCode} — Published Roster
+                      </h2>
+                      <RosterToolbar
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        activityFilter={activityFilter}
+                        onActivityFilterChange={setActivityFilter}
+                        rankFilter={rankFilter}
+                        onRankFilterChange={setRankFilter}
+                        activityCodes={activityCodes.map((ac) => ({
+                          code: ac.code,
+                          name: ac.name,
+                          category: ac.category,
+                        }))}
+                      />
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsFullscreen(false)}
+                      className="gap-1.5"
+                    >
+                      <Minimize2 className="h-4 w-4" />
+                      Exit
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Fullscreen content */}
+                <div className="flex-1 overflow-auto p-2">
+                  <DailyCrewSummary
+                    assignments={mappedAssignments}
+                    periodStartDate={roster.period_start_date}
+                    compact
+                  />
+                  <div className="mt-2">
+                    <RosterGrid
+                      assignments={mappedAssignments}
+                      activityCodeMap={activityCodeMap}
+                      periodStartDate={roster.period_start_date}
+                      searchQuery={searchQuery}
+                      activityFilter={activityFilter}
+                      rankFilter={rankFilter}
+                      compact
+                    />
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* Activity Code Legend */}

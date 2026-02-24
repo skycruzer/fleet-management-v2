@@ -9,12 +9,13 @@ import { isToday } from './roster-date-utils'
 interface DailyCrewSummaryProps {
   assignments: Pick<RosterAssignmentRow, 'rank' | 'day_number' | 'activity_code'>[]
   periodStartDate: string
+  compact?: boolean
 }
 
 // Codes that mean a pilot is NOT available (day off, leave, medical)
 const OFF_CODES = new Set(['DO', 'RDO', 'SDO', 'A_L', 'LSL', 'DO_MEDF', 'DO_MEDI', 'DO_MEDX'])
 
-export function DailyCrewSummary({ assignments, periodStartDate }: DailyCrewSummaryProps) {
+export function DailyCrewSummary({ assignments, periodStartDate, compact }: DailyCrewSummaryProps) {
   const properSummary = useMemo(() => {
     const days = Array.from({ length: 28 }, (_, i) => i + 1)
 
@@ -37,10 +38,20 @@ export function DailyCrewSummary({ assignments, periodStartDate }: DailyCrewSumm
 
   return (
     <div className="bg-card overflow-x-auto rounded-lg border">
-      <table className="w-max min-w-full border-collapse text-xs">
+      <table
+        className={cn(
+          'border-collapse text-xs',
+          compact ? 'w-full table-fixed' : 'w-max min-w-full'
+        )}
+      >
         <tbody>
           <tr className="border-b">
-            <td className="bg-card text-muted-foreground sticky left-0 z-10 min-w-[140px] px-2 py-1.5 font-medium">
+            <td
+              className={cn(
+                'bg-card text-muted-foreground sticky left-0 z-10 px-2 py-1.5 font-medium',
+                !compact && 'min-w-[140px]'
+              )}
+            >
               CPT on duty
             </td>
             {properSummary.map((s) => {
@@ -51,7 +62,8 @@ export function DailyCrewSummary({ assignments, periodStartDate }: DailyCrewSumm
                 <td
                   key={s.day}
                   className={cn(
-                    'min-w-[52px] px-0.5 py-1.5 text-center font-mono',
+                    'px-0.5 py-1.5 text-center font-mono',
+                    !compact && 'min-w-[52px]',
                     today && 'bg-blue-500/10',
                     isWeekBoundary && 'border-l-border border-l-2',
                     s.captainOnDuty < 10 && 'text-red-600 dark:text-red-400'
@@ -63,7 +75,12 @@ export function DailyCrewSummary({ assignments, periodStartDate }: DailyCrewSumm
             })}
           </tr>
           <tr>
-            <td className="bg-card text-muted-foreground sticky left-0 z-10 min-w-[140px] px-2 py-1.5 font-medium">
+            <td
+              className={cn(
+                'bg-card text-muted-foreground sticky left-0 z-10 px-2 py-1.5 font-medium',
+                !compact && 'min-w-[140px]'
+              )}
+            >
               F/O on duty
             </td>
             {properSummary.map((s) => {
@@ -74,7 +91,8 @@ export function DailyCrewSummary({ assignments, periodStartDate }: DailyCrewSumm
                 <td
                   key={s.day}
                   className={cn(
-                    'min-w-[52px] px-0.5 py-1.5 text-center font-mono',
+                    'px-0.5 py-1.5 text-center font-mono',
+                    !compact && 'min-w-[52px]',
                     today && 'bg-blue-500/10',
                     isWeekBoundary && 'border-l-border border-l-2',
                     s.foOnDuty < 10 && 'text-red-600 dark:text-red-400'
