@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
 import { PilotCombobox } from '@/components/ui/pilot-combobox'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -39,6 +40,7 @@ interface Pilot {
 
 export default function NewLeaveRequestPage() {
   const router = useRouter()
+  const { csrfToken } = useCsrfToken()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [conflicts, setConflicts] = useState<any[]>([])
@@ -131,6 +133,7 @@ export default function NewLeaveRequestPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
         },
         body: JSON.stringify(formattedData),
         credentials: 'include',

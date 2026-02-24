@@ -417,6 +417,15 @@ export async function sendLeaveRequestApprovalEmail(
         </a>
       </div>
 
+      <!-- Oracle reminder -->
+      <div style="background-color: #fff8e1; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">⚠️ Action Required</p>
+        <p style="margin: 8px 0 0 0; font-size: 14px; color: #92400e;">
+          Please complete this leave request through <strong>Oracle</strong> for accountability of leave credits.
+          If you are unable to complete the process through Oracle, please advise B767 fleet office.
+        </p>
+      </div>
+
       <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
         If you have questions about this decision, please contact B767 fleet office.
       </p>
@@ -450,6 +459,8 @@ Leave Details:
 - End Date: ${requestData.endDate}
 - Days: ${requestData.daysCount}
 ${requestData.reviewerComments ? `- Comments: ${requestData.reviewerComments}` : ''}
+
+⚠️ ACTION REQUIRED: Please complete this leave request through Oracle for accountability of leave credits. If you are unable to complete the process through Oracle, please advise B767 fleet office.
 
 View your leave requests: ${portalUrl}
 
@@ -670,6 +681,15 @@ export async function sendFlightRequestApprovalEmail(
         </a>
       </div>
 
+      <!-- Oracle reminder -->
+      <div style="background-color: #fff8e1; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px;">
+        <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">⚠️ Action Required</p>
+        <p style="margin: 8px 0 0 0; font-size: 14px; color: #92400e;">
+          Please complete this request through <strong>Oracle</strong> for accountability of leave credits.
+          If you are unable to complete the process through Oracle, please advise B767 fleet office.
+        </p>
+      </div>
+
       <p style="margin: 20px 0 0 0; font-size: 14px; color: #666;">
         If you have questions about this decision, please contact B767 fleet office.
       </p>
@@ -702,6 +722,8 @@ Request Details:
 - Flight Date: ${requestData.flightDate}
 - Description: ${requestData.description}
 ${requestData.reviewerComments ? `- Comments: ${requestData.reviewerComments}` : ''}
+
+⚠️ ACTION REQUIRED: Please complete this request through Oracle for accountability of leave credits. If you are unable to complete the process through Oracle, please advise B767 fleet office.
 
 View your flight requests: ${portalUrl}
 
