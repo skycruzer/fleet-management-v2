@@ -49,6 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { PilotCombobox } from '@/components/ui/pilot-combobox'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 
@@ -421,22 +422,14 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Pilot *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a pilot..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-[300px] overflow-y-auto">
-                        {pilots.map((pilot) => (
-                          <SelectItem key={pilot.id} value={pilot.id}>
-                            {pilot.employee_id} - {pilot.first_name}{' '}
-                            {pilot.middle_name ? `${pilot.middle_name} ` : ''}
-                            {pilot.last_name} ({pilot.role})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <PilotCombobox
+                        pilots={pilots}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select a pilot..."
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
