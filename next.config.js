@@ -28,6 +28,7 @@ const nextConfig = {
   },
 
   reactCompiler: true,
+  serverExternalPackages: ['pdfjs-dist'],
   experimental: {
     optimizePackageImports: [
       'lucide-react',

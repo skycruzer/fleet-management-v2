@@ -32,6 +32,7 @@ import {
   MessageSquare,
   PanelLeftClose,
   PanelLeft,
+  CalendarDays,
 } from 'lucide-react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -61,6 +62,7 @@ const primaryNavItems: NavItem[] = [
 
 // Secondary nav items — under "More" expander
 const moreNavItems: NavItem[] = [
+  { title: 'Published Rosters', href: '/dashboard/published-rosters', icon: CalendarDays },
   { title: 'Renewal Planning', href: '/dashboard/renewal-planning', icon: RefreshCw },
   { title: 'Reports', href: '/dashboard/reports', icon: ScrollText },
   { title: 'Tasks', href: '/dashboard/tasks', icon: CheckSquare },
