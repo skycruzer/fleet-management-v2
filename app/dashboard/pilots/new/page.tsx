@@ -26,7 +26,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { PilotCreateSchema } from '@/lib/validations/pilot-validation'
-import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { useFormUnsavedChanges } from '@/lib/hooks/use-unsaved-changes'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 import Link from 'next/link'
@@ -50,7 +50,6 @@ const CAPTAIN_QUALIFICATIONS = [
 export default function NewPilotPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { csrfToken } = useCsrfToken()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitAttempted, setSubmitAttempted] = useState(false)
@@ -141,7 +140,7 @@ export default function NewPilotPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+          ...csrfHeaders(),
         },
         body: JSON.stringify(data),
         credentials: 'include',

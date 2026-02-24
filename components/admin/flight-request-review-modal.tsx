@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import {
   FlightRequestReviewSchema,
   type FlightRequestReviewInput,
@@ -53,7 +54,7 @@ export default function FlightRequestReviewModal({
     try {
       const response = await fetch(`/api/dashboard/flight-requests/${request.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })
 

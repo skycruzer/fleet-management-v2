@@ -11,6 +11,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -148,7 +149,7 @@ export function FeedbackDashboardClient({
       if (hasStatusChange) {
         const statusResponse = await fetch(`/api/feedback/${selectedFeedback.id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
           body: JSON.stringify({ status: selectedStatus }),
           credentials: 'include',
         })
@@ -167,7 +168,7 @@ export function FeedbackDashboardClient({
       if (hasResponseChange) {
         const response = await fetch(`/api/feedback/${selectedFeedback.id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
           body: JSON.stringify({ adminResponse: adminResponse }),
           credentials: 'include',
         })

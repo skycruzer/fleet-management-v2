@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { AlertCircle, CheckCircle } from 'lucide-react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface LeaveRequest {
   id: string
@@ -69,7 +70,7 @@ export function LeaveRequestEditForm({ request, onSuccess, onCancel }: LeaveRequ
     try {
       const response = await fetch(`/api/portal/leave-requests?id=${request.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
         credentials: 'include',
       })

@@ -52,6 +52,7 @@ import {
 import { PilotCombobox } from '@/components/ui/pilot-combobox'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 // ===================================
 // TYPES
@@ -205,6 +206,7 @@ export function QuickEntryForm({ pilots, onSuccess, onCancel }: QuickEntryFormPr
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         body: JSON.stringify(payload),
       })

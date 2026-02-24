@@ -11,6 +11,7 @@
  */
 
 import { useState, useMemo } from 'react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -96,6 +97,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         body: JSON.stringify({
           request_id: selectedRequest.id,

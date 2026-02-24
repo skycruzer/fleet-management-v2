@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { AlertTriangle } from 'lucide-react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface RequestsTableClientProps {
   requests: PilotRequest[]
@@ -57,7 +58,7 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
     try {
       const response = await fetch(`/api/requests/${requestId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ status, comments, ...(force && { force: true }) }),
       })
 
@@ -118,6 +119,7 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
     try {
       const response = await fetch(`/api/requests/${requestId}`, {
         method: 'DELETE',
+        headers: { ...csrfHeaders() },
       })
 
       if (!response.ok) {
@@ -148,7 +150,7 @@ export function RequestsTableClient({ requests }: RequestsTableClientProps) {
     try {
       const response = await fetch('/api/requests/bulk', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ request_ids: requestIds, action }),
       })
 

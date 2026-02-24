@@ -29,6 +29,7 @@ import { Label } from '@/components/ui/label'
 import { CheckCircle, XCircle, Trash2, Pencil, Eye } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { RequestEditDialog } from './request-edit-dialog'
 
 const DENY_REASONS = [
@@ -89,7 +90,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
     try {
       const response = await fetch(`/api/requests/${request.id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ status: 'IN_REVIEW' }),
         credentials: 'include',
       })
@@ -122,7 +123,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
     try {
       const response = await fetch(`/api/requests/${request.id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({
           status: 'APPROVED',
           ...(comments && { comments }),
@@ -188,7 +189,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
     try {
       const response = await fetch(`/api/requests/${request.id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ status: 'DENIED', comments: denyComments.trim() }),
         credentials: 'include',
       })
@@ -224,6 +225,7 @@ export function RequestDetailActions({ request }: RequestDetailActionsProps) {
     try {
       const response = await fetch(`/api/requests/${request.id}`, {
         method: 'DELETE',
+        headers: { ...csrfHeaders() },
         credentials: 'include',
       })
 

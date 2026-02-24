@@ -130,6 +130,25 @@ export function useCsrfToken(): UseCsrfTokenReturn {
 }
 
 /**
+ * Read CSRF token directly from cookie (non-hook, synchronous).
+ * Use in standalone async functions that cannot call React hooks.
+ */
+export function getCsrfToken(): string {
+  if (typeof document === 'undefined') return ''
+  const match = document.cookie.match(/(?:^|;\s*)csrf-token=([^;]*)/)
+  return match ? decodeURIComponent(match[1]) : ''
+}
+
+/**
+ * Build a headers object containing the CSRF token (non-hook).
+ * Spread into your fetch headers: `{ ...csrfHeaders(), 'Content-Type': 'application/json' }`
+ */
+export function csrfHeaders(): Record<string, string> {
+  const token = getCsrfToken()
+  return token ? { 'X-CSRF-Token': token } : {}
+}
+
+/**
  * Higher-order function to wrap fetch with CSRF protection
  *
  * Usage:

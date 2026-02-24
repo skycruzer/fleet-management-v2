@@ -13,6 +13,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface Notification {
   id: string
@@ -40,6 +41,7 @@ export default function NotificationList({
     try {
       await fetch(`/api/pilot/notifications/${notificationId}`, {
         method: 'PATCH',
+        headers: { ...csrfHeaders() },
       })
 
       setUnreadCount((prev) => Math.max(0, prev - 1))

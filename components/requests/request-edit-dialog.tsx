@@ -42,6 +42,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { Loader2 } from 'lucide-react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 // ===================================
 // TYPES
@@ -212,6 +213,7 @@ export function RequestEditDialog({ open, onOpenChange, request }: RequestEditDi
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         body: JSON.stringify(payload),
         credentials: 'include',

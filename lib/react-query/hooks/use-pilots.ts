@@ -27,6 +27,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { queryKeys, queryPresets } from '../query-client'
 
 /**
@@ -75,7 +76,7 @@ async function fetchPilot(id: string): Promise<Pilot> {
 async function updatePilot(data: { id: string; updates: Partial<Pilot> }): Promise<Pilot> {
   const response = await fetch(`/api/pilots/${data.id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
     body: JSON.stringify(data.updates),
   })
 

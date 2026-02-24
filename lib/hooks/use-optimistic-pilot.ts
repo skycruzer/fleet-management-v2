@@ -6,6 +6,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { logger } from '@/lib/services/logging-service'
 
 interface PilotUpdateData {
@@ -72,7 +73,7 @@ export function useOptimisticPilotUpdate() {
     mutationFn: async ({ id, ...data }) => {
       const response = await fetch(`/api/pilots/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })
 
@@ -218,7 +219,7 @@ export function useOptimisticPilotCreate() {
     mutationFn: async (data) => {
       const response = await fetch('/api/pilots', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })
 

@@ -6,6 +6,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { logger } from '@/lib/services/logging-service'
 
 interface CertificationUpdateData {
@@ -62,7 +63,7 @@ export function useOptimisticCertificationUpdate() {
     mutationFn: async ({ id, ...data }) => {
       const response = await fetch(`/api/certifications/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })
 
@@ -175,7 +176,7 @@ export function useOptimisticCertificationCreate() {
     mutationFn: async (data) => {
       const response = await fetch('/api/certifications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })
 

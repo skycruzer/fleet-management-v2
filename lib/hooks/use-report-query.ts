@@ -8,6 +8,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import type { ReportType, ReportFilters, ReportData } from '@/types/reports'
 
 /**
@@ -52,7 +53,7 @@ async function fetchReportPreview(
 ): Promise<ReportData> {
   const response = await fetch('/api/reports/preview', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
     body: JSON.stringify({ reportType, filters }),
   })
 
@@ -71,7 +72,7 @@ async function fetchReportPreview(
 async function exportReportPDF(reportType: ReportType, filters: ReportFilters): Promise<Blob> {
   const response = await fetch('/api/reports/export', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
     body: JSON.stringify({ reportType, filters }),
   })
 
@@ -101,7 +102,7 @@ async function emailReport(
 ): Promise<void> {
   const response = await fetch('/api/reports/email', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
     body: JSON.stringify({ reportType, filters, recipients, subject, message }),
   })
 

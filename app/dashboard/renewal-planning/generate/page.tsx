@@ -44,6 +44,7 @@ import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 // Components
 import {
@@ -171,7 +172,7 @@ export default function GeneratePlanPage() {
     queryFn: async () => {
       const response = await fetch('/api/renewal-planning/preview', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({
           monthsAhead,
           categories: selectedCategories,
@@ -252,6 +253,7 @@ export default function GeneratePlanPage() {
         toast.info('Clearing existing renewal plans...')
         const deleteResponse = await fetch('/api/renewal-planning/clear', {
           method: 'DELETE',
+          headers: { ...csrfHeaders() },
           credentials: 'include',
         })
 
@@ -264,7 +266,7 @@ export default function GeneratePlanPage() {
       toast.info('Generating renewal plans with Captain/FO pairing...')
       const response = await fetch('/api/renewal-planning/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({
           monthsAhead,
           categories: selectedCategories.length > 0 ? selectedCategories : undefined,

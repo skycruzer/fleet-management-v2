@@ -11,6 +11,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import {
   DndContext,
   DragEndEvent,
@@ -122,7 +123,7 @@ export default function TaskKanban({ tasks }: TaskKanbanProps) {
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ status: newStatus }),
         credentials: 'include',
       })

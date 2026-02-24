@@ -18,6 +18,7 @@ import {
   type PilotLeaveRequestInput,
 } from '@/lib/validations/pilot-leave-schema'
 import { getCurrentRosterPeriodObject, type RosterPeriod } from '@/lib/utils/roster-utils'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface LeaveBidModalProps {
   isOpen: boolean
@@ -56,7 +57,7 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
     try {
       const response = await fetch('/api/pilot/leave', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })
 

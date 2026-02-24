@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { CertificationCreateSchema } from '@/lib/validations/certification-validation'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import Link from 'next/link'
 import { PilotCombobox } from '@/components/ui/pilot-combobox'
 
@@ -108,7 +109,7 @@ export default function NewCertificationPage() {
 
       const response = await fetch('/api/certifications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(formattedData),
         credentials: 'include',
       })

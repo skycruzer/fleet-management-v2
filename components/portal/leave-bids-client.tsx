@@ -43,6 +43,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { LeaveBidForm } from '@/components/portal/leave-bid-form'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import type { LeaveBid } from '@/lib/services/leave-bid-service'
 
 interface EnrichedLeaveBid extends LeaveBid {
@@ -149,6 +150,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         body: JSON.stringify({ bidId: selectedBid.id }),
         credentials: 'include',

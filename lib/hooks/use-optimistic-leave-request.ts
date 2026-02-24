@@ -6,6 +6,7 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { logger } from '@/lib/services/logging-service'
 
 interface LeaveRequestData {
@@ -60,7 +61,7 @@ export function useOptimisticLeaveRequest() {
     mutationFn: async (data: LeaveRequestData) => {
       const response = await fetch('/api/leave-requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })
 
@@ -148,7 +149,7 @@ export function useOptimisticLeaveRequestUpdate() {
     mutationFn: async ({ id, status }) => {
       const response = await fetch(`/api/leave-requests/${id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ status }),
       })
 

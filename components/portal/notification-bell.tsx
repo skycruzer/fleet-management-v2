@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatDistanceToNow } from 'date-fns'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface Notification {
   id: string
@@ -64,7 +65,7 @@ export function NotificationBell() {
     try {
       await fetch('/api/portal/notifications', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ notificationId }),
         credentials: 'include',
       })

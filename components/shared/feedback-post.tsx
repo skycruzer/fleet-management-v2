@@ -11,6 +11,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { formatDistanceToNow } from 'date-fns'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -166,7 +167,7 @@ export function FeedbackPost({
     try {
       const response = await fetch(`${commentsApiPath}/${feedback.id}/comments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ content }),
         credentials: 'include',
       })
@@ -192,7 +193,7 @@ export function FeedbackPost({
     try {
       const response = await fetch(`${commentsApiPath}/${feedback.id}/comments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ content, parent_comment_id: parentCommentId }),
         credentials: 'include',
       })
@@ -215,7 +216,7 @@ export function FeedbackPost({
     try {
       const response = await fetch(`${commentsApiPath}/${feedback.id}/comments`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ comment_id: commentId }),
         credentials: 'include',
       })
@@ -235,7 +236,7 @@ export function FeedbackPost({
     try {
       const response = await fetch(`${commentsApiPath}/${feedback.id}/comments`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ comment_id: commentId, content }),
         credentials: 'include',
       })

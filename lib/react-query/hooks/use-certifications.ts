@@ -5,6 +5,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { queryKeys, queryPresets } from '../query-client'
 
 /**
@@ -81,7 +82,7 @@ export function useUpdateCertification() {
     mutationFn: async (data: { id: string; updates: Partial<Certification> }) => {
       const response = await fetch(`/api/certifications/${data.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data.updates),
       })
 

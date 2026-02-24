@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Check, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface PendingRequest {
   id: string
@@ -50,7 +51,7 @@ export function PendingApprovalsClient({ requests }: { requests: PendingRequest[
       try {
         const res = await fetch(`/api/requests/${requestId}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
           body: JSON.stringify({ status: 'APPROVED' }),
         })
 

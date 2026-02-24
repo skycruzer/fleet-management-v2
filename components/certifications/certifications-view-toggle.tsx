@@ -15,6 +15,7 @@ import { Table, LayoutGrid } from 'lucide-react'
 import type { CertificationWithDetails } from '@/lib/services/certification-service'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/hooks/use-toast'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 
 interface CertificationsViewToggleProps {
   groupedCertifications: Record<string, CertificationWithDetails[]>
@@ -37,7 +38,7 @@ export function CertificationsViewToggle({
       setSavingCert(true)
       const response = await fetch(`/api/certifications/${certId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ expiry_date: editExpiryDate }),
       })
 
