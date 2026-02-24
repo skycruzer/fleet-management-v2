@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { LeaveRequestCreateSchema } from '@/lib/validations/leave-validation'
+import { PilotCombobox } from '@/components/ui/pilot-combobox'
 import { Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -245,24 +246,13 @@ export default function NewLeaveRequestPage() {
                   name="pilot_id"
                   control={control}
                   render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger
-                        id="pilot_id"
-                        aria-invalid={!!errors.pilot_id}
-                        aria-describedby={errors.pilot_id ? 'pilot_id-error' : undefined}
-                        className={errors.pilot_id ? 'border-destructive' : ''}
-                      >
-                        <SelectValue placeholder="Select a pilot..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {pilots.map((pilot) => (
-                          <SelectItem key={pilot.id} value={pilot.id}>
-                            {pilot.employee_id} - {pilot.first_name} {pilot.last_name} ({pilot.role}
-                            )
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <PilotCombobox
+                      pilots={pilots}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select a pilot..."
+                      className={errors.pilot_id ? 'border-destructive' : ''}
+                    />
                   )}
                 />
                 {errors.pilot_id && (
