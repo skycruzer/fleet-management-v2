@@ -69,6 +69,14 @@ const MONTH_MAP: Record<string, number> = {
 export async function parseRosterPdf(fileBuffer: ArrayBuffer): Promise<ParsedRoster> {
   const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
 
+  // Fix worker resolution for Next.js server runtime: the default relative
+  // workerSrc ("./pdf.worker.mjs") resolves against the compiled server bundle
+  // instead of the pdfjs-dist module directory, causing "Load failed".
+  // Using the full package specifier lets Node.js resolve it via node_modules.
+  if (pdfjsLib.GlobalWorkerOptions.workerSrc === './pdf.worker.mjs') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/legacy/build/pdf.worker.mjs'
+  }
+
   const doc = await pdfjsLib.getDocument({ data: new Uint8Array(fileBuffer) }).promise
   let items: TextItem[]
   try {
