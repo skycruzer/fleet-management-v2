@@ -29,6 +29,9 @@ const nextConfig = {
 
   reactCompiler: true,
   serverExternalPackages: ['pdfjs-dist'],
+  outputFileTracingIncludes: {
+    '/api/published-rosters': ['./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'],
+  },
   experimental: {
     optimizePackageImports: [
       'lucide-react',
