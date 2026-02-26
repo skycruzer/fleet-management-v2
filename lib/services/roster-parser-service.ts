@@ -67,6 +67,14 @@ const MONTH_MAP: Record<string, number> = {
  * Each section has a 28-day grid with pilot names and activity codes.
  */
 export async function parseRosterPdf(fileBuffer: ArrayBuffer): Promise<ParsedRoster> {
+  // Polyfill DOMMatrix for Node.js server runtime — pdfjs-dist v5.x requires it
+  // at module evaluation time, before any parsing code runs.
+  if (typeof globalThis.DOMMatrix === 'undefined') {
+    const { default: DOMMatrixPolyfill } = await import('@thednp/dommatrix')
+    // @ts-expect-error — polyfill shim for server-side pdfjs-dist
+    globalThis.DOMMatrix = DOMMatrixPolyfill
+  }
+
   const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
 
   // Fix worker resolution for Next.js server runtime: the default relative
