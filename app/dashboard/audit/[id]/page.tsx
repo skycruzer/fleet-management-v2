@@ -128,20 +128,20 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
         <h2 className="text-foreground mb-4 text-lg font-semibold">Additional Metadata</h2>
         <div className="space-y-3 text-sm">
           {auditLog.ip_address && (
-            <div className="border-border flex items-center justify-between border-b pb-2">
+            <div className="border-border flex flex-col gap-1 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-muted-foreground font-medium">IP Address</span>
               <span className="text-foreground font-mono">{auditLog.ip_address}</span>
             </div>
           )}
           {auditLog.user_agent && (
-            <div className="border-border flex items-start justify-between border-b pb-2">
+            <div className="border-border flex flex-col gap-1 border-b pb-2 sm:flex-row sm:items-start sm:justify-between">
               <span className="text-muted-foreground font-medium">User Agent</span>
               <span className="text-foreground max-w-md truncate text-right font-mono text-xs">
                 {auditLog.user_agent}
               </span>
             </div>
           )}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-muted-foreground font-medium">Record Created</span>
             <span className="text-foreground">
               {new Date(auditLog.created_at).toLocaleString('en-US', {

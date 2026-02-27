@@ -169,9 +169,9 @@ export function CalendarPageClient({
   }
 
   return (
-    <div className="space-y-6 p-8">
+    <div className="space-y-6">
       {/* Header with Actions */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Link href={`/dashboard/renewal-planning?year=${year}`}>
             <Button variant="outline" size="sm" className="mb-3">

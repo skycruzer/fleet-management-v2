@@ -102,7 +102,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto space-y-6 py-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

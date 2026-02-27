@@ -178,7 +178,7 @@ export default function NewPilotPage() {
       />
 
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-foreground text-2xl font-bold">Add New Pilot</h2>
           <p className="text-muted-foreground mt-1">Create a new pilot profile</p>

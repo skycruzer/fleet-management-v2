@@ -118,7 +118,7 @@ export default async function AdminLeaveBidsPage() {
   const bidYear = bids.length > 0 ? bids[0].bid_year : defaultYear
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
+    <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>

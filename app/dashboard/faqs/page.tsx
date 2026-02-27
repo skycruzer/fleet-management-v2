@@ -223,7 +223,7 @@ export default function FAQPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-foreground text-3xl font-bold tracking-tight">
             Frequently Asked Questions

@@ -76,7 +76,7 @@ export default async function NotificationsPage() {
   return (
     <div className="mx-auto max-w-4xl p-6">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
