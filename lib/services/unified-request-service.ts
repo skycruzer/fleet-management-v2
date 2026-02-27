@@ -730,7 +730,7 @@ export async function updateRequestStatus(
       // First, get the request details to check if it's a leave request
       const { data: request, error: fetchError } = await supabase
         .from('pilot_requests')
-        .select('id, request_category, start_date, end_date')
+        .select('id, request_category, start_date, end_date, rank')
         .eq('id', id)
         .single()
 
@@ -747,7 +747,8 @@ export async function updateRequestStatus(
           const crewCheck = await checkCrewAvailabilityAtomic(
             request.start_date,
             request.end_date,
-            id // Exclude this request from the count
+            id, // Exclude this request from the count
+            (request.rank as PilotRank) ?? undefined // Only check the requesting pilot's rank
           )
 
           if (!crewCheck.canApprove) {

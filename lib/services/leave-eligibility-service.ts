@@ -232,12 +232,14 @@ export interface AtomicCrewCheck {
  * @param startDate - Start date of leave request (YYYY-MM-DD)
  * @param endDate - End date of leave request (YYYY-MM-DD)
  * @param excludeRequestId - Request ID to exclude from count (for updates)
+ * @param pilotRank - When provided, only check this rank's availability (rank-separated evaluation)
  * @returns Object with canApprove boolean and availability details for both roles
  */
 export async function checkCrewAvailabilityAtomic(
   startDate: string,
   endDate: string,
-  excludeRequestId?: string
+  excludeRequestId?: string,
+  pilotRank?: 'Captain' | 'First Officer'
 ): Promise<{
   captains: AtomicCrewCheck
   firstOfficers: AtomicCrewCheck
@@ -315,15 +317,30 @@ export async function checkCrewAvailabilityAtomic(
     reason: foCheck.reason,
   }
 
-  const canApprove = captains.canApprove && firstOfficers.canApprove
+  // When pilotRank is provided, only evaluate that rank's availability (rank-separated).
+  // This prevents a Captain's request being denied due to First Officer shortages and vice versa.
+  let canApprove: boolean
   let reason = ''
-  if (!canApprove) {
-    const issues: string[] = []
-    if (!captains.canApprove) issues.push(`Captains: ${captains.reason}`)
-    if (!firstOfficers.canApprove) issues.push(`First Officers: ${firstOfficers.reason}`)
-    reason = issues.join('; ')
+
+  if (pilotRank === 'Captain') {
+    canApprove = captains.canApprove
+    reason = canApprove ? 'Sufficient Captains available' : `Captains: ${captains.reason}`
+  } else if (pilotRank === 'First Officer') {
+    canApprove = firstOfficers.canApprove
+    reason = canApprove
+      ? 'Sufficient First Officers available'
+      : `First Officers: ${firstOfficers.reason}`
   } else {
-    reason = 'Sufficient crew available for both roles'
+    // Fallback: no rank provided — check both (legacy behavior for display/reporting)
+    canApprove = captains.canApprove && firstOfficers.canApprove
+    if (!canApprove) {
+      const issues: string[] = []
+      if (!captains.canApprove) issues.push(`Captains: ${captains.reason}`)
+      if (!firstOfficers.canApprove) issues.push(`First Officers: ${firstOfficers.reason}`)
+      reason = issues.join('; ')
+    } else {
+      reason = 'Sufficient crew available for both roles'
+    }
   }
 
   return { captains, firstOfficers, canApprove, reason }
