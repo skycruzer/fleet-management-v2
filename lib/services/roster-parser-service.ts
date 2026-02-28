@@ -52,7 +52,7 @@ export async function parseRosterPdf(
     let firstOfficers: PilotAssignment[] = []
     let periodCode = ''
     let rosterTitle = ''
-    let dateRange = { start: '', end: '' }
+    const dateRange = { start: '', end: '' }
 
     // Process all pages
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {

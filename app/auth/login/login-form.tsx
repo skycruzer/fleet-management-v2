@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import Link from 'next/link'
 import { Mail, Lock, ArrowRight, AlertCircle, Loader2, Eye, EyeOff } from 'lucide-react'
 import { loginAction } from './actions'
 
@@ -112,18 +113,18 @@ export function LoginForm() {
       </div>
       {/* Cross-portal links */}
       <div className="flex items-center justify-between pt-2 text-sm">
-        <a
+        <Link
           href="/"
           className="text-muted-foreground hover:text-foreground transition-colors"
         >
           Back to home
-        </a>
-        <a
+        </Link>
+        <Link
           href="/portal/login"
           className="text-primary hover:text-primary/80 font-medium transition-colors"
         >
           Pilot Portal →
-        </a>
+        </Link>
       </div>
     </form>
   )
