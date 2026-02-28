@@ -9,14 +9,13 @@ import { revalidatePath } from 'next/cache'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import {
   getPublishedRosters,
+  getRosterWithAssignments,
   uploadPublishedRoster,
 } from '@/lib/services/published-roster-service'
 
 // Maximum roster file size: 50MB
 const MAX_ROSTER_FILE_SIZE = 50 * 1024 * 1024
 
-// GET handler temporarily disabled - incomplete implementation
-/*
 export const GET = withRateLimit(async (request: NextRequest) => {
   try {
     const auth = await getAuthenticatedAdmin()
@@ -49,9 +48,13 @@ export const GET = withRateLimit(async (request: NextRequest) => {
       }
     }
 
-    const rosters = await getPublishedRosters(yearFilter ? { year: yearFilter } : undefined)
+    const rostersResult = await getPublishedRosters(yearFilter ? { year: yearFilter } : undefined)
 
-    return NextResponse.json({ success: true, data: rosters })
+    if (!rostersResult.success) {
+      return NextResponse.json({ success: false, error: rostersResult.error }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, data: rostersResult.data })
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       source: 'api/published-rosters/GET',
@@ -60,7 +63,6 @@ export const GET = withRateLimit(async (request: NextRequest) => {
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
   }
 })
-*/
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {

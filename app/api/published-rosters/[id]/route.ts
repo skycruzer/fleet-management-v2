@@ -7,10 +7,11 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { revalidatePath } from 'next/cache'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
-import { deletePublishedRoster } from '@/lib/services/published-roster-service'
+import {
+  deletePublishedRoster,
+  getPublishedRosterById,
+} from '@/lib/services/published-roster-service'
 
-// GET handler temporarily disabled - incomplete implementation
-/*
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await getAuthenticatedAdmin()
@@ -24,24 +25,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id } = await params
+    const result = await getPublishedRosterById(id)
 
-    const supabase = createServiceRoleClient()
-    const { data: roster, error } = await supabase
-      .from('published_rosters')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (error || !roster) {
-      return NextResponse.json({ success: false, error: 'Roster not found' }, { status: 404 })
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 404 })
     }
 
-    const assignments = await getRosterAssignments(id)
-
-    return NextResponse.json({
-      success: true,
-      data: { ...roster, assignments },
-    })
+    return NextResponse.json({ success: true, data: result.data })
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       source: 'api/published-rosters/[id]/GET',
@@ -50,7 +40,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
   }
 }
-*/
 
 export async function DELETE(
   request: NextRequest,
