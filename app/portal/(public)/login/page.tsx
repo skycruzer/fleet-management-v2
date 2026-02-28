@@ -118,7 +118,7 @@ export default function PilotLoginPage() {
                 }
                 role="alert"
                 aria-live="assertive"
-                className="mb-4 flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive"
+                className="border-destructive/20 bg-destructive/5 text-destructive mb-4 flex items-center gap-2 rounded-md border p-3 text-sm"
               >
                 <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>{error}</span>
@@ -168,7 +168,7 @@ export default function PilotLoginPage() {
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="pl-9 pr-9"
+                  className="pr-9 pl-9"
                   showIcon={false}
                 />
                 <button
@@ -193,15 +193,28 @@ export default function PilotLoginPage() {
                   aria-checked={rememberMe}
                   onClick={() => setRememberMe(!rememberMe)}
                   disabled={isLoading}
-                  className={`border-border flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${rememberMe ? 'bg-primary border-primary text-primary-foreground' : 'bg-muted/40'}`}
+                  className={`border-border focus-visible:ring-ring flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${rememberMe ? 'bg-primary border-primary text-primary-foreground' : 'bg-muted/40'}`}
                 >
                   {rememberMe && (
-                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <svg
+                      className="h-3 w-3"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   )}
                 </button>
-                <label htmlFor="rememberMe" className="text-muted-foreground cursor-pointer text-sm" onClick={() => setRememberMe(!rememberMe)}>
+                <label
+                  htmlFor="rememberMe"
+                  className="text-muted-foreground cursor-pointer text-sm"
+                  onClick={() => setRememberMe(!rememberMe)}
+                >
                   Remember me for 30 days
                 </label>
               </div>

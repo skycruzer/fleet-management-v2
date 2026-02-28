@@ -41,7 +41,9 @@ export default async function NewTaskPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Create New Task</h1>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Create New Task
+        </h1>
         <p className="text-muted-foreground mt-2">Create a task and assign it to a team member</p>
       </div>
 

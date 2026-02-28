@@ -62,7 +62,9 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Audit Log Detail</h1>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Audit Log Detail
+        </h1>
         <p className="text-muted-foreground mt-2">
           Complete details of audit record #{params.id.slice(0, 8)}
         </p>

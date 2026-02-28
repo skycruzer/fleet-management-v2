@@ -95,23 +95,26 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
   const axisTick = { fill: colors.axis, fontSize: 11 }
 
   return (
-    <div role="img" aria-label={`Pilot distribution: ${captains} Captains, ${firstOfficers} First Officers, ${inactive} Inactive`}>
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={[
-          { name: 'Captains', count: captains },
-          { name: 'First Officers', count: firstOfficers },
-          { name: 'Inactive', count: inactive },
-        ]}
-        margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
-        <XAxis dataKey="name" tick={axisTick} />
-        <YAxis tick={axisTick} />
-        <Tooltip contentStyle={tooltipStyle} />
-        <Bar dataKey="count" fill={colors.chart1} radius={[4, 4, 0, 0]} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div
+      role="img"
+      aria-label={`Pilot distribution: ${captains} Captains, ${firstOfficers} First Officers, ${inactive} Inactive`}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={[
+            { name: 'Captains', count: captains },
+            { name: 'First Officers', count: firstOfficers },
+            { name: 'Inactive', count: inactive },
+          ]}
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+          <XAxis dataKey="name" tick={axisTick} />
+          <YAxis tick={axisTick} />
+          <Tooltip contentStyle={tooltipStyle} />
+          <Bar dataKey="count" fill={colors.chart1} radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   )
 }
@@ -132,30 +135,33 @@ export function CertificationPieChart({ current, expiring, expired }: Certificat
   }
 
   return (
-    <div role="img" aria-label={`Certification status: ${current} Current, ${expiring} Expiring, ${expired} Expired`}>
-    <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
-        <Pie
-          data={[
-            { name: 'Current', value: current },
-            { name: 'Expiring', value: expiring },
-            { name: 'Expired', value: expired },
-          ]}
-          cx="50%"
-          cy="50%"
-          innerRadius={40}
-          outerRadius={70}
-          paddingAngle={3}
-          dataKey="value"
-        >
-          <Cell fill={colors.chart2} />
-          <Cell fill={colors.chart3} />
-          <Cell fill="var(--color-destructive)" />
-        </Pie>
-        <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
-        <Tooltip contentStyle={tooltipStyle} />
-      </PieChart>
-    </ResponsiveContainer>
+    <div
+      role="img"
+      aria-label={`Certification status: ${current} Current, ${expiring} Expiring, ${expired} Expired`}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={[
+              { name: 'Current', value: current },
+              { name: 'Expiring', value: expiring },
+              { name: 'Expired', value: expired },
+            ]}
+            cx="50%"
+            cy="50%"
+            innerRadius={40}
+            outerRadius={70}
+            paddingAngle={3}
+            dataKey="value"
+          >
+            <Cell fill={colors.chart2} />
+            <Cell fill={colors.chart3} />
+            <Cell fill="var(--color-destructive)" />
+          </Pie>
+          <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
+          <Tooltip contentStyle={tooltipStyle} />
+        </PieChart>
+      </ResponsiveContainer>
     </div>
   )
 }
@@ -175,25 +181,28 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
   const axisTick = { fill: colors.axis, fontSize: 11 }
 
   return (
-    <div role="img" aria-label={`Leave type breakdown: ${data.map((t) => `${t.type} (${t.count} requests, ${t.totalDays} days)`).join(', ')}`}>
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={data.map((t) => ({
-          name: t.type,
-          requests: t.count,
-          days: t.totalDays,
-        }))}
-        margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
-        <XAxis dataKey="name" tick={axisTick} />
-        <YAxis tick={axisTick} />
-        <Tooltip contentStyle={tooltipStyle} />
-        <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
-        <Bar dataKey="requests" fill={colors.chart4} radius={[4, 4, 0, 0]} name="Requests" />
-        <Bar dataKey="days" fill={colors.chart2} radius={[4, 4, 0, 0]} name="Total Days" />
-      </BarChart>
-    </ResponsiveContainer>
+    <div
+      role="img"
+      aria-label={`Leave type breakdown: ${data.map((t) => `${t.type} (${t.count} requests, ${t.totalDays} days)`).join(', ')}`}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data.map((t) => ({
+            name: t.type,
+            requests: t.count,
+            days: t.totalDays,
+          }))}
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
+          <XAxis dataKey="name" tick={axisTick} />
+          <YAxis tick={axisTick} />
+          <Tooltip contentStyle={tooltipStyle} />
+          <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
+          <Bar dataKey="requests" fill={colors.chart4} radius={[4, 4, 0, 0]} name="Requests" />
+          <Bar dataKey="days" fill={colors.chart2} radius={[4, 4, 0, 0]} name="Total Days" />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   )
 }

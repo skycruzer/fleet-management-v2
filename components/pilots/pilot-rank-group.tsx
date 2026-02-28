@@ -101,7 +101,12 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
         aria-controls={`rank-group-${rank.replace(/\s+/g, '-').toLowerCase()}`}
         tabIndex={0}
         onClick={() => setIsExpanded(!isExpanded)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsExpanded(!isExpanded) } }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            setIsExpanded(!isExpanded)
+          }
+        }}
       >
         <div className="flex flex-1 items-center gap-4">
           <RankBadge rank={rank} />

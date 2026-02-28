@@ -42,9 +42,7 @@ export interface ParsedRosterData {
 /**
  * Parses a B767 roster PDF and extracts structured roster data
  */
-export async function parseRosterPdf(
-  pdfBuffer: Buffer
-): Promise<ParsedRosterData> {
+export async function parseRosterPdf(pdfBuffer: Buffer): Promise<ParsedRosterData> {
   try {
     const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise
 
@@ -110,8 +108,7 @@ export async function parseRosterPdf(
       foCount: firstOfficers.length,
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown PDF parsing error'
+    const errorMessage = error instanceof Error ? error.message : 'Unknown PDF parsing error'
     throw new Error(`Failed to parse roster PDF: ${errorMessage}`)
   }
 }
@@ -122,10 +119,7 @@ export async function parseRosterPdf(
 function extractTitle(items: any[]): string | null {
   for (const item of items) {
     const text = item.str.toUpperCase()
-    if (
-      text.includes('B767') &&
-      (text.includes('ROSTER') || text.includes('ANALYTIC'))
-    ) {
+    if (text.includes('B767') && (text.includes('ROSTER') || text.includes('ANALYTIC'))) {
       return item.str
     }
   }
@@ -146,8 +140,18 @@ function extractDateHeaders(items: any[]): string[] {
       const day = parseInt(match[1])
       const monthStr = match[2].toLowerCase()
       const monthMap: { [key: string]: number } = {
-        jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
-        jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+        jan: 1,
+        feb: 2,
+        mar: 3,
+        apr: 4,
+        may: 5,
+        jun: 6,
+        jul: 7,
+        aug: 8,
+        sep: 9,
+        oct: 10,
+        nov: 11,
+        dec: 12,
       }
 
       const month = monthMap[monthStr]
@@ -193,10 +197,7 @@ function extractPilotSections(items: any[]): {
     if (currentSection) {
       currentPilot.push(text)
 
-      if (
-        currentPilot.length > 25 &&
-        (text.match(/^[A-Z]/) || text.match(/^\d+$/))
-      ) {
+      if (currentPilot.length > 25 && (text.match(/^[A-Z]/) || text.match(/^\d+$/))) {
         if (currentSection === 'CAPTAINS') {
           captains.push([...currentPilot])
         } else {
@@ -231,13 +232,11 @@ function buildPilotAssignment(
   const activityCodes = pilotData.slice(1, 29).map((code) => code || '')
   const dates = generateDateRange(dateRange.start, dateRange.end)
 
-  const assignments = activityCodes
-    .slice(0, 28)
-    .map((code, index) => ({
-      dayNumber: index + 1,
-      date: dates[index] || '',
-      activityCode: code,
-    }))
+  const assignments = activityCodes.slice(0, 28).map((code, index) => ({
+    dayNumber: index + 1,
+    date: dates[index] || '',
+    activityCode: code,
+  }))
 
   return {
     pilotName: fullName,

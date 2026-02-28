@@ -146,7 +146,9 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
     <div className="space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Audit Logs</h1>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Audit Logs
+        </h1>
         <p className="text-muted-foreground mt-2">
           Complete audit trail of all system changes and activities
         </p>

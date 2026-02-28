@@ -32,7 +32,9 @@ export default async function TaskEditPage({ params }: TaskEditPageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Edit Task</h1>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Edit Task
+        </h1>
         <p className="text-muted-foreground mt-2">Update task details and save changes.</p>
       </div>
 

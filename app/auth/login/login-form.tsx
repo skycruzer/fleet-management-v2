@@ -26,7 +26,11 @@ export function LoginForm() {
     <form action={handleSubmit} className="space-y-5">
       {/* Error Message */}
       {error && (
-        <div role="alert" aria-live="assertive" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="border-destructive/30 bg-destructive/5 text-destructive flex items-center gap-2 rounded-lg border p-3 text-sm"
+        >
           <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
@@ -113,10 +117,7 @@ export function LoginForm() {
       </div>
       {/* Cross-portal links */}
       <div className="flex items-center justify-between pt-2 text-sm">
-        <Link
-          href="/"
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
+        <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
           Back to home
         </Link>
         <Link

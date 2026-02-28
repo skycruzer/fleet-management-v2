@@ -89,7 +89,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center rounded-md px-2 py-1.5 text-sm transition-colors motion-reduce:transition-none outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:text-muted-foreground',
+      'focus:bg-accent focus:text-accent-foreground data-[disabled]:text-muted-foreground relative flex cursor-default items-center rounded-md px-2 py-1.5 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none motion-reduce:transition-none',
       inset && 'pl-8',
       className
     )}
@@ -105,7 +105,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center rounded-md py-1.5 pr-2 pl-8 text-sm transition-colors motion-reduce:transition-none outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:text-muted-foreground',
+      'focus:bg-accent focus:text-accent-foreground data-[disabled]:text-muted-foreground relative flex cursor-default items-center rounded-md py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none motion-reduce:transition-none',
       className
     )}
     checked={checked}
@@ -128,7 +128,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center rounded-md py-1.5 pr-2 pl-8 text-sm transition-colors motion-reduce:transition-none outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:text-muted-foreground',
+      'focus:bg-accent focus:text-accent-foreground data-[disabled]:text-muted-foreground relative flex cursor-default items-center rounded-md py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none motion-reduce:transition-none',
       className
     )}
     {...props}
@@ -170,7 +170,12 @@ const DropdownMenuSeparator = React.forwardRef<
 DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName
 
 const DropdownMenuShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
-  return <span className={cn('ml-auto text-xs tracking-widest text-muted-foreground', className)} {...props} />
+  return (
+    <span
+      className={cn('text-muted-foreground ml-auto text-xs tracking-widest', className)}
+      {...props}
+    />
+  )
 }
 DropdownMenuShortcut.displayName = 'DropdownMenuShortcut'
 

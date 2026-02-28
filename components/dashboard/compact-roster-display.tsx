@@ -149,7 +149,13 @@ export async function CompactRosterDisplay() {
           {/* Current Period - Left Side */}
           <div className="bg-muted/50 rounded-xl p-5">
             <div className="mb-4">
-              <Badge className={isPeriodComplete ? 'bg-muted-foreground text-muted mb-2 text-xs font-bold' : 'bg-primary text-primary-foreground mb-2 text-xs font-bold'}>
+              <Badge
+                className={
+                  isPeriodComplete
+                    ? 'bg-muted-foreground text-muted mb-2 text-xs font-bold'
+                    : 'bg-primary text-primary-foreground mb-2 text-xs font-bold'
+                }
+              >
                 {isPeriodComplete ? 'COMPLETE' : 'ACTIVE'}
               </Badge>
               <div className="mb-1 flex items-baseline gap-2">
@@ -175,7 +181,13 @@ export async function CompactRosterDisplay() {
             {/* Days Remaining */}
             <div className="mb-3">
               <div className="mb-1 flex items-center gap-1.5">
-                <Clock className={isPeriodComplete ? 'text-muted-foreground h-3.5 w-3.5' : 'text-primary h-3.5 w-3.5'} />
+                <Clock
+                  className={
+                    isPeriodComplete
+                      ? 'text-muted-foreground h-3.5 w-3.5'
+                      : 'text-primary h-3.5 w-3.5'
+                  }
+                />
                 <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                   {isPeriodComplete ? 'Status' : 'Days Left'}
                 </span>

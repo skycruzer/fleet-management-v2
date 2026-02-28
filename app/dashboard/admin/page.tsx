@@ -50,7 +50,9 @@ export default async function AdminPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-foreground text-xl font-semibold">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-1 text-sm">System configuration and user management</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            System configuration and user management
+          </p>
         </div>
         <Link href="/dashboard/admin/users/new">
           <Button size="lg" className="gap-2">

@@ -111,7 +111,8 @@ function TableView<T>({
                   col.width,
                   col.align === 'center' && 'text-center',
                   col.align === 'right' && 'text-right',
-                  col.sortable && 'hover:bg-muted/40 cursor-pointer transition-colors motion-reduce:transition-none'
+                  col.sortable &&
+                    'hover:bg-muted/40 cursor-pointer transition-colors motion-reduce:transition-none'
                 )}
                 onClick={() => col.sortable && onSort(col.id)}
               >

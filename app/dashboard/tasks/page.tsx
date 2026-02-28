@@ -75,7 +75,9 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
       {/* Page Header */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Tasks</h1>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+            Tasks
+          </h1>
           <p className="text-muted-foreground mt-2">
             Manage and track tasks across your organization
           </p>

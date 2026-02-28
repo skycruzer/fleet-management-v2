@@ -268,7 +268,10 @@ function AnalyticsPageContent() {
         {analytics.risk.criticalAlerts.length > 0 && (
           <Card className="border-destructive/20 bg-destructive/5 p-4">
             <div className="flex items-start space-x-2">
-              <AlertTriangle className="text-destructive mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+              <AlertTriangle
+                className="text-destructive mt-0.5 h-5 w-5 shrink-0"
+                aria-hidden="true"
+              />
               <div className="flex-1">
                 <h3 className="text-foreground mb-2 text-base font-bold">Critical Alerts</h3>
                 <div className="space-y-1.5">
@@ -300,7 +303,7 @@ function AnalyticsPageContent() {
 
         {/* Fleet Readiness Overview */}
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-          <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-primary/20 p-4">
+          <Card className="border-primary/20 from-primary/10 to-primary/20 bg-gradient-to-br p-4">
             <div className="mb-2 flex items-center justify-between">
               <BarChart3 className="text-primary h-8 w-8" aria-hidden="true" />
               <span className="text-primary text-2xl font-bold">
@@ -313,7 +316,7 @@ function AnalyticsPageContent() {
             <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
           </Card>
 
-          <Card className="border-success/20 bg-gradient-to-br from-success/10 to-success/20 p-4">
+          <Card className="border-success/20 from-success/10 to-success/20 bg-gradient-to-br p-4">
             <div className="mb-2 flex items-center justify-between">
               <Plane className="text-success h-8 w-8" aria-hidden="true" />
               <span className="text-success text-2xl font-bold">
@@ -583,8 +586,8 @@ function AnalyticsPageContent() {
               <div key={type.type} className="bg-muted/50 rounded-lg p-3">
                 <div className="text-foreground font-medium">{type.type}</div>
                 <div className="text-muted-foreground mt-1 text-sm">
-                  {type.count} {type.count === 1 ? 'request' : 'requests'} •{' '}
-                  {type.totalDays} {type.totalDays === 1 ? 'day' : 'days'}
+                  {type.count} {type.count === 1 ? 'request' : 'requests'} • {type.totalDays}{' '}
+                  {type.totalDays === 1 ? 'day' : 'days'}
                 </div>
               </div>
             ))}
@@ -645,7 +648,7 @@ function AnalyticsPageContent() {
                       factor.severity === 'critical'
                         ? 'bg-destructive text-destructive-foreground'
                         : factor.severity === 'high'
-                          ? 'bg-(--color-badge-orange) text-destructive-foreground'
+                          ? 'text-destructive-foreground bg-(--color-badge-orange)'
                           : factor.severity === 'medium'
                             ? 'bg-warning text-warning-foreground'
                             : 'bg-success text-success-foreground'

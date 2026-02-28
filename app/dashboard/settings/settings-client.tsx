@@ -84,7 +84,7 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
               <p className="text-muted-foreground text-sm font-medium">Account Status</p>
               <p className="text-foreground text-2xl font-bold">Active</p>
             </div>
-            <div className="rounded-full bg-success/10 p-3">
+            <div className="bg-success/10 rounded-full p-3">
               <CheckCircle2 className="text-success h-6 w-6" />
             </div>
           </div>
@@ -191,7 +191,9 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
             <tbody className="divide-y">
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">Application</td>
-                <td className="text-foreground py-4 text-sm font-medium">Fleet Management System</td>
+                <td className="text-foreground py-4 text-sm font-medium">
+                  Fleet Management System
+                </td>
               </tr>
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">System Version</td>

@@ -78,9 +78,9 @@ function HeroSection() {
   }
 
   return (
-    <div className="bg-(--color-surface-0) relative overflow-hidden">
+    <div className="relative overflow-hidden bg-(--color-surface-0)">
       {/* Background layers */}
-      <div className="border-(--color-border) absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:14px_24px] opacity-30" />
+      <div className="absolute inset-0 border-(--color-border) bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] bg-[size:14px_24px] opacity-30" />
       <div className="bg-sky-gradient absolute inset-0" />
       <div className="bg-noise absolute inset-0" />
 
@@ -128,7 +128,7 @@ function HeroSection() {
           {/* Badge */}
           <motion.div
             variants={item}
-            className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-foreground/5 px-4 py-1.5 backdrop-blur-sm"
+            className="border-foreground/10 bg-foreground/5 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 backdrop-blur-sm"
           >
             <Zap className="text-warning h-3.5 w-3.5" aria-hidden="true" />
             <span className="text-primary text-sm font-medium">Aviation Operations Platform</span>
@@ -136,11 +136,11 @@ function HeroSection() {
 
           {/* Logo & Title */}
           <motion.div variants={item} className="flex flex-col items-center gap-6">
-            <div className="shadow-primary/10 rounded-2xl border border-foreground/10 bg-foreground/5 p-4 shadow-2xl backdrop-blur-sm">
+            <div className="shadow-primary/10 border-foreground/10 bg-foreground/5 rounded-2xl border p-4 shadow-2xl backdrop-blur-sm">
               <Plane className="text-primary h-16 w-16" />
             </div>
             <h1
-              className="font-display max-w-4xl text-5xl font-bold tracking-tight text-foreground/10 sm:text-6xl lg:text-7xl"
+              className="font-display text-foreground/10 max-w-4xl text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
               suppressHydrationWarning
             >
               Fleet Management
@@ -189,7 +189,7 @@ function HeroSection() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={spring}>
               <Button
                 size="lg"
-                className="h-14 border-foreground/20 bg-foreground/10 px-10 text-base font-semibold text-foreground backdrop-blur-sm hover:bg-foreground/20"
+                className="border-foreground/20 bg-foreground/10 text-foreground hover:bg-foreground/20 h-14 px-10 text-base font-semibold backdrop-blur-sm"
                 disabled={!!loadingPath}
                 onClick={() => handleNav('/portal/login')}
               >
@@ -560,35 +560,46 @@ function CTASection() {
         <p className="text-foreground/60 mx-auto mb-8 max-w-xl text-lg">
           Access the admin dashboard to manage your fleet or log in to the pilot portal.
         </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={spring}>
-              <Button
-                size="lg"
-                variant="aviation"
-                className="h-12 px-8 text-base"
-                disabled={!!loadingPath}
-                onClick={() => handleNav('/auth/login')}
-              >
-                {loadingPath === '/auth/login' ? (
-                  <><span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Loading…</>
-                ) : (
-                  <>Admin Dashboard<ArrowRight className="ml-2 h-4 w-4" /></>
-                )}
-              </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={spring}>
-              <Button
-                size="lg"
-                className="h-12 border-foreground/20 bg-foreground/10 px-8 text-base text-foreground hover:bg-foreground/20"
-                disabled={!!loadingPath}
-                onClick={() => handleNav('/portal/login')}
-              >
-                {loadingPath === '/portal/login' ? (
-                  <><span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />Loading…</>
-                ) : 'Pilot Portal'}
-              </Button>
-            </motion.div>
-          </div>
+        <div className="flex flex-col justify-center gap-4 sm:flex-row">
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={spring}>
+            <Button
+              size="lg"
+              variant="aviation"
+              className="h-12 px-8 text-base"
+              disabled={!!loadingPath}
+              onClick={() => handleNav('/auth/login')}
+            >
+              {loadingPath === '/auth/login' ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Loading…
+                </>
+              ) : (
+                <>
+                  Admin Dashboard
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={spring}>
+            <Button
+              size="lg"
+              className="border-foreground/20 bg-foreground/10 text-foreground hover:bg-foreground/20 h-12 px-8 text-base"
+              disabled={!!loadingPath}
+              onClick={() => handleNav('/portal/login')}
+            >
+              {loadingPath === '/portal/login' ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Loading…
+                </>
+              ) : (
+                'Pilot Portal'
+              )}
+            </Button>
+          </motion.div>
+        </div>
       </motion.div>
     </div>
   )

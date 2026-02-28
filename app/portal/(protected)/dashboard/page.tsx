@@ -23,7 +23,15 @@ import { getCurrentPilot as getAuthPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, AlertTriangle, XCircle, Calendar, Plane, ShieldCheck, ChevronRight } from 'lucide-react'
+import {
+  Clock,
+  AlertTriangle,
+  XCircle,
+  Calendar,
+  Plane,
+  ShieldCheck,
+  ChevronRight,
+} from 'lucide-react'
 import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 import { RosterPeriodCard } from '@/components/portal/roster-period-card'
@@ -39,7 +47,7 @@ function DashboardSkeleton() {
         </div>
       </div>
 
-      <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-8">
+      <main className="space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Roster Period Skeleton */}
         <div className="animate-shimmer bg-muted h-32 rounded-lg" />
 
@@ -320,10 +328,7 @@ export default async function PilotDashboardPage() {
             <p className="text-foreground mb-1 text-sm font-medium">Need urgent access?</p>
             <p className="text-muted-foreground text-sm">
               Contact your fleet management administrator or email{' '}
-              <a
-                href="mailto:support@pxb767office.app"
-                className="text-primary hover:underline"
-              >
+              <a href="mailto:support@pxb767office.app" className="text-primary hover:underline">
                 support@pxb767office.app
               </a>
             </p>

@@ -100,9 +100,7 @@ export function CertExpiryCard({
         <h3 className={cn('text-sm font-semibold', config.textClass)}>{title}</h3>
       </div>
 
-      {description && (
-        <p className={cn('mb-3 text-sm', config.textMutedClass)}>{description}</p>
-      )}
+      {description && <p className={cn('mb-3 text-sm', config.textMutedClass)}>{description}</p>}
 
       <div className="space-y-2">
         {checks.map((check) => {
@@ -120,7 +118,7 @@ export function CertExpiryCard({
                 <p className="text-muted-foreground truncate text-xs">{check.check_description}</p>
               </div>
               <div className="ml-3 shrink-0 text-right">
-                <p className={cn('text-lg font-bold leading-none', config.textClass)}>{label}</p>
+                <p className={cn('text-lg leading-none font-bold', config.textClass)}>{label}</p>
                 <p className="text-muted-foreground mt-0.5 text-xs">{sublabel}</p>
               </div>
             </div>

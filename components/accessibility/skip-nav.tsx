@@ -10,7 +10,7 @@ export function SkipNav() {
   return (
     <a
       href="#main-content"
-      className="skip-to-main sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[9999] focus-visible:rounded-md focus-visible:bg-primary focus-visible:px-4 focus-visible:py-3 focus-visible:text-primary-foreground focus-visible:font-medium focus-visible:shadow-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+      className="skip-to-main focus-visible:bg-primary focus-visible:text-primary-foreground focus-visible:ring-ring sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[9999] focus-visible:rounded-md focus-visible:px-4 focus-visible:py-3 focus-visible:font-medium focus-visible:shadow-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       Skip to main content
     </a>
@@ -25,7 +25,7 @@ export function SkipToNav() {
   return (
     <a
       href="#main-navigation"
-      className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-16 focus-visible:left-4 focus-visible:z-[9999] focus-visible:rounded-md focus-visible:bg-primary focus-visible:px-4 focus-visible:py-3 focus-visible:text-primary-foreground focus-visible:font-medium focus-visible:shadow-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+      className="focus-visible:bg-primary focus-visible:text-primary-foreground focus-visible:ring-ring sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-16 focus-visible:left-4 focus-visible:z-[9999] focus-visible:rounded-md focus-visible:px-4 focus-visible:py-3 focus-visible:font-medium focus-visible:shadow-lg focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       Skip to navigation
     </a>

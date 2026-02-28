@@ -120,7 +120,7 @@ const Feedback = React.forwardRef<HTMLDivElement, FeedbackProps>(
           <button
             type="button"
             onClick={onDismiss}
-            className="shrink-0 rounded-md p-1 opacity-70 transition-all motion-reduce:transition-none hover:bg-black/5 hover:opacity-100"
+            className="shrink-0 rounded-md p-1 opacity-70 transition-all hover:bg-black/5 hover:opacity-100 motion-reduce:transition-none"
             aria-label="Dismiss"
           >
             <X className="h-4 w-4" />

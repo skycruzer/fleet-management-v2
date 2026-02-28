@@ -10,10 +10,7 @@
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { ServiceResponse } from '@/lib/types/service-response'
 import type { Database } from '@/types/supabase'
-import type {
-  ParsedRosterData,
-  PilotAssignment,
-} from './roster-parser-service'
+import type { ParsedRosterData, PilotAssignment } from './roster-parser-service'
 import { searchPilots } from './pilot-service'
 
 const STORAGE_BUCKET = 'published-rosters'
@@ -49,9 +46,7 @@ export async function uploadPublishedRoster(
       .single()
 
     if (existing.data) {
-      return ServiceResponse.error(
-        `Roster already uploaded for period ${rosterPeriodCode}`
-      )
+      return ServiceResponse.error(`Roster already uploaded for period ${rosterPeriodCode}`)
     }
 
     // Upload file to storage
@@ -76,10 +71,7 @@ export async function uploadPublishedRoster(
       // Clean up uploaded file on parse failure
       await supabase.storage.from(STORAGE_BUCKET).remove([filePath])
 
-      const errorMsg =
-        parseError instanceof Error
-          ? parseError.message
-          : 'Unknown parsing error'
+      const errorMsg = parseError instanceof Error ? parseError.message : 'Unknown parsing error'
       return ServiceResponse.error(`PDF parsing failed: ${errorMsg}`)
     }
 
@@ -118,9 +110,7 @@ export async function uploadPublishedRoster(
     )
 
     if (assignments.length > 0) {
-      const assignmentResult = await supabase
-        .from('roster_assignments')
-        .insert(assignments)
+      const assignmentResult = await supabase.from('roster_assignments').insert(assignments)
 
       if (assignmentResult.error) {
         // Log but don't fail if assignments insert fails
@@ -130,8 +120,7 @@ export async function uploadPublishedRoster(
 
     return ServiceResponse.success(rosterRecord as PublishedRoster)
   } catch (error) {
-    const errorMsg =
-      error instanceof Error ? error.message : 'Unknown error'
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
     return ServiceResponse.error(`Upload failed: ${errorMsg}`)
   }
 }
@@ -139,12 +128,10 @@ export async function uploadPublishedRoster(
 /**
  * Gets all published rosters with optional filters
  */
-export async function getPublishedRosters(
-  filters?: {
-    year?: number
-    rosterId?: string
-  }
-): Promise<ServiceResponse<PublishedRoster[]>> {
+export async function getPublishedRosters(filters?: {
+  year?: number
+  rosterId?: string
+}): Promise<ServiceResponse<PublishedRoster[]>> {
   try {
     const supabase = createServiceRoleClient()
 
@@ -227,9 +214,7 @@ export async function getPublishedRosterById(
     const assignmentResult = await assignmentQuery
 
     if (assignmentResult.error) {
-      return ServiceResponse.error(
-        `Failed to fetch assignments: ${assignmentResult.error.message}`
-      )
+      return ServiceResponse.error(`Failed to fetch assignments: ${assignmentResult.error.message}`)
     }
 
     return ServiceResponse.success({
@@ -245,9 +230,7 @@ export async function getPublishedRosterById(
 /**
  * Deletes a published roster and all related assignments
  */
-export async function deletePublishedRoster(
-  rosterId: string
-): Promise<ServiceResponse<void>> {
+export async function deletePublishedRoster(rosterId: string): Promise<ServiceResponse<void>> {
   try {
     const supabase = createServiceRoleClient()
 
@@ -264,21 +247,14 @@ export async function deletePublishedRoster(
 
     // Delete from storage
     if (rosterResult.data.file_path) {
-      await supabase.storage
-        .from(STORAGE_BUCKET)
-        .remove([rosterResult.data.file_path])
+      await supabase.storage.from(STORAGE_BUCKET).remove([rosterResult.data.file_path])
     }
 
     // Delete roster (cascade will remove assignments)
-    const deleteResult = await supabase
-      .from('published_rosters')
-      .delete()
-      .eq('id', rosterId)
+    const deleteResult = await supabase.from('published_rosters').delete().eq('id', rosterId)
 
     if (deleteResult.error) {
-      return ServiceResponse.error(
-        `Delete failed: ${deleteResult.error.message}`
-      )
+      return ServiceResponse.error(`Delete failed: ${deleteResult.error.message}`)
     }
 
     return ServiceResponse.success(undefined)

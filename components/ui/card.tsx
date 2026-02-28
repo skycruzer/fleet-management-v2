@@ -12,8 +12,7 @@ const cardVariants = cva(
         glass: 'border-border bg-card/95 backdrop-blur-xl shadow-sm',
         elevated:
           'border-border bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--glow-primary)]',
-        featured:
-          'border-border bg-card shadow-sm border-t-[3px] border-t-primary',
+        featured: 'border-border bg-card shadow-sm border-t-[3px] border-t-primary',
       },
       padding: {
         compact: '[&>[class*=p-]]:p-3',
@@ -44,7 +43,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       className={cn(
         cardVariants({ variant, padding }),
         interactive
-          ? 'cursor-pointer hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-xl'
+          ? 'hover:border-primary/30 cursor-pointer hover:-translate-y-0.5 hover:shadow-xl'
           : '',
         className
       )}
