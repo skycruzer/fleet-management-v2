@@ -99,7 +99,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     }
 
     // 4. Business logic
-    const rosterPeriodCode = formData.get('periodCode') as string | null
+    const rosterPeriodCode = formData.get('rosterPeriodCode') as string | null
     if (!rosterPeriodCode) {
       return NextResponse.json(
         { success: false, error: 'Roster period code is required' },
