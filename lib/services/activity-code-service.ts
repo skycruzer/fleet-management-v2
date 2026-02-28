@@ -7,7 +7,7 @@
  * Developer: Maurice Rondeau
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { ServiceResponse } from '@/lib/types/service-response'
 
 export type ActivityCodeCategory =
@@ -68,7 +68,7 @@ export async function getActivityCodes(
   category?: ActivityCodeCategory
 ): Promise<ServiceResponse<ActivityCode[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     let query = supabase
       .from('activity_codes')
@@ -99,7 +99,7 @@ export async function getActivityCodeByCode(
   code: string
 ): Promise<ServiceResponse<ActivityCode>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     const result = await supabase
       .from('activity_codes')
@@ -141,7 +141,7 @@ export async function upsertActivityCode(
   description?: string
 ): Promise<ServiceResponse<ActivityCode>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
     const color = CATEGORY_COLORS[category]
 
     const result = await supabase

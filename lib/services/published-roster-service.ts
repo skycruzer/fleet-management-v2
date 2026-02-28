@@ -7,7 +7,7 @@
  * Developer: Maurice Rondeau
  */
 
-import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { ServiceResponse } from '@/lib/types/service-response'
 import type { Database } from '@/types/supabase'
 import type {
@@ -30,7 +30,7 @@ export async function uploadPublishedRoster(
   uploadedByUserId: string
 ): Promise<ServiceResponse<PublishedRoster>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Validate file
     if (!file.name.endsWith('.pdf')) {
@@ -146,7 +146,7 @@ export async function getPublishedRosters(
   }
 ): Promise<ServiceResponse<PublishedRoster[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     let query = supabase
       .from('published_rosters')
@@ -193,7 +193,7 @@ export async function getPublishedRosterById(
   }>
 > {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get roster
     const rosterResult = await supabase
@@ -249,7 +249,7 @@ export async function deletePublishedRoster(
   rosterId: string
 ): Promise<ServiceResponse<void>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get roster to delete file
     const rosterResult = await supabase
@@ -296,7 +296,7 @@ export async function getSignedPdfUrl(
   expiresIn: number = 3600
 ): Promise<ServiceResponse<string>> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     const rosterResult = await supabase
       .from('published_rosters')
@@ -328,7 +328,7 @@ export async function getSignedPdfUrl(
  */
 export async function getUploadedPeriodCodes(): Promise<string[]> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     const result = await supabase
       .from('published_rosters')
@@ -357,7 +357,7 @@ export async function getRosterWithAssignments(
   periodCode: string
 ): Promise<(PublishedRoster & { assignments: any[] }) | null> {
   try {
-    const supabase = await createClient()
+    const supabase = createServiceRoleClient()
 
     // Get roster by period code
     const rosterResult = await supabase
