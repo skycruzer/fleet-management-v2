@@ -13,6 +13,7 @@
 export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { portalMetadata } from '@/lib/utils/metadata'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -22,40 +23,52 @@ import { getCurrentPilot as getAuthPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, AlertTriangle, XCircle, Calendar, Plane, ShieldCheck } from 'lucide-react'
+import { Clock, AlertTriangle, XCircle, Calendar, Plane, ShieldCheck, ChevronRight } from 'lucide-react'
 import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 import { RosterPeriodCard } from '@/components/portal/roster-period-card'
+import { CertExpiryCard } from '@/components/portal/cert-expiry-card'
 
-export default async function PilotDashboardPage() {
-  // Get pilot user data (layout already handles authentication, this is just for data)
-  const pilotUser = await getAuthPilot()
-
-  // This should never happen because layout redirects, but keep as safeguard
-  if (!pilotUser) {
-    redirect('/portal/login')
-  }
-
-  if (!pilotUser.registration_approved) {
-    return (
-      <div className="bg-muted/30 flex min-h-screen items-center justify-center p-6">
-        <Card className="max-w-md p-8 text-center">
-          <div className="mb-4 flex justify-center">
-            <Clock className="text-primary h-16 w-16" aria-hidden="true" />
-          </div>
-          <h2 className="text-foreground mb-2 text-2xl font-bold">Registration Pending</h2>
-          <p className="text-muted-foreground mb-4">
-            Your pilot portal registration is pending approval by fleet management. You will receive
-            an email once your account is activated.
-          </p>
-          <Link href="/portal">
-            <Button variant="outline">Back to Home</Button>
-          </Link>
-        </Card>
+function DashboardSkeleton() {
+  return (
+    <div className="min-h-screen">
+      {/* Page Header Skeleton */}
+      <div className="border-border bg-background border-b px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+        <div className="space-y-2">
+          <div className="animate-shimmer bg-muted h-8 w-64 rounded-lg" />
+        </div>
       </div>
-    )
-  }
 
+      <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 space-y-8">
+        {/* Roster Period Skeleton */}
+        <div className="animate-shimmer bg-muted h-32 rounded-lg" />
+
+        {/* Certification Compliance Skeleton */}
+        <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+
+        {/* Multiple Card Skeletons */}
+        <div className="space-y-4">
+          <div className="animate-shimmer bg-muted h-6 w-48 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-28 rounded-lg" />
+        </div>
+
+        {/* Quick Actions Skeleton */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+        </div>
+
+        {/* Statistics Cards Skeleton */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="animate-shimmer bg-muted h-28 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-28 rounded-lg" />
+        </div>
+      </main>
+    </div>
+  )
+}
+
+async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
   // Fetch pilot portal stats using the pilots table ID
   const statsResult = await getPilotPortalStats(pilotUser.pilot_id || pilotUser.id)
   const stats = statsResult.success && statsResult.data ? statsResult.data : null
@@ -82,7 +95,7 @@ export default async function PilotDashboardPage() {
   return (
     <div className="min-h-screen">
       {/* Page Header - Linear-inspired: clean, minimal border */}
-      <div className="border-border bg-background border-b px-8 py-6">
+      <div className="border-border bg-background border-b px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
         <div>
           <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
             Welcome, {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
@@ -90,7 +103,7 @@ export default async function PilotDashboardPage() {
         </div>
       </div>
 
-      <main className="px-8 py-8">
+      <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {/* Roster Period Display */}
         <div className="mb-8">
           <RosterPeriodCard />
@@ -105,13 +118,14 @@ export default async function PilotDashboardPage() {
                   <ShieldCheck
                     className={`h-6 w-6 ${
                       stats.compliance_rate >= 90
-                        ? 'text-[var(--color-success-600)]'
+                        ? 'text-success'
                         : stats.compliance_rate >= 70
-                          ? 'text-[var(--color-warning-600)]'
+                          ? 'text-warning'
                           : 'text-destructive'
                     }`}
                     aria-hidden="true"
                   />
+                  <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />
                 </div>
                 <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
                   Certification Compliance
@@ -120,9 +134,9 @@ export default async function PilotDashboardPage() {
                   <p
                     className={`text-2xl font-semibold ${
                       stats.compliance_rate >= 90
-                        ? 'text-[var(--color-success-600)]'
+                        ? 'text-success'
                         : stats.compliance_rate >= 70
-                          ? 'text-[var(--color-warning-600)]'
+                          ? 'text-warning'
                           : 'text-destructive'
                     }`}
                   >
@@ -145,89 +159,18 @@ export default async function PilotDashboardPage() {
               <h2 className="text-foreground text-lg font-semibold tracking-tight">
                 30-Day Expiry Countdown
               </h2>
-
-              {/* Warning tier: 0-14 days */}
-              {(stats.critical_certifications || 0) > 0 && (
-                <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/5 p-5">
-                  <div className="mb-3 flex items-center gap-2">
-                    <AlertTriangle
-                      className="h-5 w-5 text-[var(--color-danger-400)]"
-                      aria-hidden="true"
-                    />
-                    <h3 className="text-sm font-semibold text-[var(--color-danger-400)]">
-                      Warning — Expiring within 14 days
-                    </h3>
-                  </div>
-                  <div className="space-y-2">
-                    {stats.critical_certifications_details.map((check) => {
-                      const daysLeft = Math.ceil(
-                        (new Date(check.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                      )
-                      return (
-                        <div
-                          key={check.id}
-                          className="bg-card flex items-center justify-between rounded border border-[var(--color-danger-500)]/20 px-4 py-3"
-                        >
-                          <div>
-                            <p className="text-foreground text-sm font-semibold">
-                              {check.check_code}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              {check.check_description}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-[var(--color-danger-400)]">
-                              {daysLeft}d
-                            </p>
-                            <p className="text-muted-foreground text-xs">remaining</p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </Card>
-              )}
-
-              {/* Caution tier: 15-30 days */}
-              {(stats.caution_certifications || 0) > 0 && (
-                <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-500)]/5 p-5">
-                  <div className="mb-3 flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-[var(--color-warning-400)]" aria-hidden="true" />
-                    <h3 className="text-sm font-semibold text-[var(--color-warning-400)]">
-                      Caution — Expiring within 15–30 days
-                    </h3>
-                  </div>
-                  <div className="space-y-2">
-                    {stats.caution_certifications_details.map((check) => {
-                      const daysLeft = Math.ceil(
-                        (new Date(check.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-                      )
-                      return (
-                        <div
-                          key={check.id}
-                          className="bg-card flex items-center justify-between rounded border border-[var(--color-warning-500)]/20 px-4 py-3"
-                        >
-                          <div>
-                            <p className="text-foreground text-sm font-semibold">
-                              {check.check_code}
-                            </p>
-                            <p className="text-muted-foreground text-xs">
-                              {check.check_description}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-[var(--color-warning-400)]">
-                              {daysLeft}d
-                            </p>
-                            <p className="text-muted-foreground text-xs">remaining</p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </Card>
-              )}
+              <CertExpiryCard
+                variant="danger"
+                title="Warning — Expiring within 14 days"
+                description=""
+                checks={stats.critical_certifications_details ?? []}
+              />
+              <CertExpiryCard
+                variant="warning"
+                title="Caution — Expiring within 15–30 days"
+                description=""
+                checks={stats.caution_certifications_details ?? []}
+              />
             </div>
           )}
 
@@ -248,7 +191,7 @@ export default async function PilotDashboardPage() {
           <LeaveBidStatusCard bids={(leaveBids as any) || []} />
         </div>
 
-        {/* Certification Summary - Always show if there are any warnings */}
+        {/* Certification Status Summary */}
         {((stats?.expired_certifications || 0) > 0 ||
           (stats?.critical_certifications || 0) > 0 ||
           (stats?.upcoming_checks || 0) > 0) && (
@@ -256,189 +199,24 @@ export default async function PilotDashboardPage() {
             <h2 className="text-foreground text-lg font-semibold tracking-tight">
               Certification Status
             </h2>
-            {/* Expired Certifications Alert */}
-            {(stats?.expired_certifications || 0) > 0 && (
-              <Card className="border-[var(--color-danger-500)]/20 bg-[var(--color-danger-500)]/10 p-6">
-                <div className="flex items-start space-x-4">
-                  <XCircle className="h-8 w-8 text-[var(--color-danger-400)]" aria-hidden="true" />
-                  <div className="flex-1">
-                    <h3 className="text-foreground mb-2 text-lg font-semibold text-[var(--color-danger-400)]">
-                      Expired Certifications
-                    </h3>
-                    <p className="mb-4 text-[var(--color-danger-400)]/80">
-                      You have {stats?.expired_certifications || 0} expired certification
-                      {(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew
-                      immediately.
-                    </p>
-                    {stats?.expired_certifications_details &&
-                      stats.expired_certifications_details.length > 0 && (
-                        <div className="space-y-2">
-                          {stats.expired_certifications_details.map((check) => {
-                            const expiryDate = new Date(check.expiry_date)
-                            const today = new Date()
-                            const daysExpired = Math.abs(
-                              Math.ceil(
-                                (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-                              )
-                            )
-
-                            return (
-                              <div
-                                key={check.id}
-                                className="bg-card flex items-start justify-between rounded border border-[var(--color-danger-500)]/20 p-3"
-                              >
-                                <div className="flex-1">
-                                  <p className="font-semibold text-[var(--color-danger-400)]">
-                                    {check.check_code}
-                                  </p>
-                                  <p className="text-sm text-[var(--color-danger-400)]/80">
-                                    {check.check_description}
-                                  </p>
-                                </div>
-                                <div className="ml-2 text-right">
-                                  <p className="font-bold text-[var(--color-danger-400)]">
-                                    Expired {daysExpired} days ago
-                                  </p>
-                                  <p className="text-sm text-[var(--color-danger-400)]/70">
-                                    {expiryDate.toLocaleDateString('en-US', {
-                                      month: 'short',
-                                      day: 'numeric',
-                                      year: 'numeric',
-                                    })}
-                                  </p>
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )}
-                  </div>
-                </div>
-              </Card>
-            )}
-
-            {/* Critical Certifications Alert (< 2 weeks) */}
-            {(stats?.critical_certifications || 0) > 0 && (
-              <Card className="border-[var(--color-badge-orange)]/20 bg-[var(--color-badge-orange)]/10 p-6">
-                <div className="flex items-start space-x-4">
-                  <AlertTriangle
-                    className="h-8 w-8 text-[var(--color-badge-orange)]"
-                    aria-hidden="true"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-foreground mb-2 text-lg font-semibold text-[var(--color-badge-orange)]">
-                      Critical: Certifications Expiring Soon
-                    </h3>
-                    <p className="mb-4 text-[var(--color-badge-orange)]/80">
-                      You have {stats?.critical_certifications || 0} certification
-                      {(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring within the
-                      next 2 weeks. Action required.
-                    </p>
-                    {stats?.critical_certifications_details &&
-                      stats.critical_certifications_details.length > 0 && (
-                        <div className="space-y-2">
-                          {stats.critical_certifications_details.map((check) => {
-                            const expiryDate = new Date(check.expiry_date)
-                            const today = new Date()
-                            const daysUntil = Math.ceil(
-                              (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-                            )
-
-                            return (
-                              <div
-                                key={check.id}
-                                className="bg-card flex items-start justify-between rounded border border-[var(--color-badge-orange)]/20 p-3"
-                              >
-                                <div className="flex-1">
-                                  <p className="font-semibold text-[var(--color-badge-orange)]">
-                                    {check.check_code}
-                                  </p>
-                                  <p className="text-sm text-[var(--color-badge-orange)]/80">
-                                    {check.check_description}
-                                  </p>
-                                </div>
-                                <div className="ml-2 text-right">
-                                  <p className="font-bold text-[var(--color-badge-orange)]">
-                                    {daysUntil} days remaining
-                                  </p>
-                                  <p className="text-sm text-[var(--color-badge-orange)]/70">
-                                    {expiryDate.toLocaleDateString('en-US', {
-                                      month: 'short',
-                                      day: 'numeric',
-                                      year: 'numeric',
-                                    })}
-                                  </p>
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      )}
-                  </div>
-                </div>
-              </Card>
-            )}
-
-            {/* Warning Certifications Alert (upcoming checks within 60 days) */}
-            {(stats?.upcoming_checks || 0) > 0 && (
-              <Card className="border-[var(--color-warning-500)]/20 bg-[var(--color-warning-500)]/10 p-6">
-                <div className="flex items-start space-x-3">
-                  <AlertTriangle
-                    className="h-8 w-8 text-[var(--color-warning-400)]"
-                    aria-hidden="true"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-foreground mb-2 text-lg font-semibold text-[var(--color-warning-400)]">
-                      Warning: Upcoming Certifications
-                    </h3>
-                    <p className="mb-4 text-[var(--color-warning-400)]/80">
-                      You have {stats?.upcoming_checks || 0} certification
-                      {(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring within the next 60
-                      days. Plan renewals accordingly.
-                    </p>
-                    {stats?.upcoming_checks_details && stats.upcoming_checks_details.length > 0 && (
-                      <div className="space-y-2">
-                        {stats.upcoming_checks_details.map((check) => {
-                          const expiryDate = new Date(check.expiry_date)
-                          const today = new Date()
-                          const daysUntil = Math.ceil(
-                            (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-                          )
-
-                          return (
-                            <div
-                              key={check.id}
-                              className="bg-card flex items-start justify-between rounded border border-[var(--color-warning-500)]/20 p-3"
-                            >
-                              <div className="flex-1">
-                                <p className="font-semibold text-[var(--color-warning-400)]">
-                                  {check.check_code}
-                                </p>
-                                <p className="text-sm text-[var(--color-warning-400)]/80">
-                                  {check.check_description}
-                                </p>
-                              </div>
-                              <div className="ml-2 text-right">
-                                <p className="font-bold text-[var(--color-warning-400)]">
-                                  {daysUntil} days remaining
-                                </p>
-                                <p className="text-sm text-[var(--color-warning-400)]/70">
-                                  {expiryDate.toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                  })}
-                                </p>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            )}
+            <CertExpiryCard
+              variant="expired"
+              title="Expired Certifications"
+              description={`You have ${stats?.expired_certifications || 0} expired certification${(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew immediately.`}
+              checks={stats?.expired_certifications_details ?? []}
+            />
+            <CertExpiryCard
+              variant="danger"
+              title="Critical — Expiring Within 2 Weeks"
+              description={`${stats?.critical_certifications || 0} certification${(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring soon. Action required.`}
+              checks={stats?.critical_certifications_details ?? []}
+            />
+            <CertExpiryCard
+              variant="warning"
+              title="Upcoming — Expiring Within 60 Days"
+              description={`${stats?.upcoming_checks || 0} certification${(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring soon. Plan renewals accordingly.`}
+              checks={stats?.upcoming_checks_details ?? []}
+            />
           </div>
         )}
 
@@ -512,5 +290,55 @@ export default async function PilotDashboardPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+export default async function PilotDashboardPage() {
+  // Get pilot user data (layout already handles authentication, this is just for data)
+  const pilotUser = await getAuthPilot()
+
+  // This should never happen because layout redirects, but keep as safeguard
+  if (!pilotUser) {
+    redirect('/portal/login')
+  }
+
+  if (!pilotUser.registration_approved) {
+    return (
+      <div className="bg-muted/30 flex min-h-screen items-center justify-center p-6">
+        <Card className="max-w-md p-8 text-center">
+          <div className="mb-4 flex justify-center">
+            <div className="bg-primary/10 rounded-full p-4">
+              <Clock className="text-primary h-12 w-12" aria-hidden="true" />
+            </div>
+          </div>
+          <h2 className="text-foreground mb-2 text-2xl font-bold">Registration Pending</h2>
+          <p className="text-muted-foreground mb-6">
+            Your pilot portal registration is pending approval by fleet management. You will receive
+            an email once your account is activated.
+          </p>
+          <div className="border-border mb-6 rounded-lg border p-4 text-left">
+            <p className="text-foreground mb-1 text-sm font-medium">Need urgent access?</p>
+            <p className="text-muted-foreground text-sm">
+              Contact your fleet management administrator or email{' '}
+              <a
+                href="mailto:support@pxb767office.app"
+                className="text-primary hover:underline"
+              >
+                support@pxb767office.app
+              </a>
+            </p>
+          </div>
+          <Link href="/portal">
+            <Button variant="outline">Back to Home</Button>
+          </Link>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <PilotDashboardContent pilotUser={pilotUser} />
+    </Suspense>
   )
 }

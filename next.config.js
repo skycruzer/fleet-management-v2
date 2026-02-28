@@ -11,6 +11,13 @@ const nextConfig = {
   // Turbopack configuration - explicit root to prevent incorrect workspace detection
   turbopack: {
     root: __dirname,
+    rules: {
+      // SVG import as React component via @svgr/webpack
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
   },
 
   // Image optimization
@@ -23,6 +30,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'wgdmgvonqysflwdiiols.supabase.co',
         pathname: '/storage/v1/object/public/**',
+      },
+      // Dev helpers — pravatar & picsum used for avatar/placeholder images
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
       },
     ],
   },
@@ -93,11 +109,13 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              // va.vercel-scripts.com — Vercel Analytics + Speed Insights
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https://wgdmgvonqysflwdiiols.supabase.co",
+              "img-src 'self' data: https://wgdmgvonqysflwdiiols.supabase.co https://i.pravatar.cc https://picsum.photos",
               "font-src 'self' data:",
-              "connect-src 'self' https://wgdmgvonqysflwdiiols.supabase.co wss://wgdmgvonqysflwdiiols.supabase.co",
+              // vitals.vercel-insights.com — Vercel Web Vitals reporting
+              "connect-src 'self' https://wgdmgvonqysflwdiiols.supabase.co wss://wgdmgvonqysflwdiiols.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

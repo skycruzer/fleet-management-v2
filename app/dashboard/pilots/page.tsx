@@ -24,12 +24,12 @@ export default function PilotsPage() {
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Link href="/dashboard/pilots/new" className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto">
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/dashboard/pilots/new">
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
               Add Pilot
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
 

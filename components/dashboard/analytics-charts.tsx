@@ -38,42 +38,41 @@ function useChartColors() {
   })
 
   useEffect(() => {
-    const root = document.documentElement
-    const style = getComputedStyle(root)
-    const get = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback
-
-    setColors({
-      chart1: get('--color-chart-1', '#60a5fa'),
-      chart2: get('--color-chart-2', '#34d399'),
-      chart3: get('--color-chart-3', '#fbbf24'),
-      chart4: get('--color-chart-4', '#c084fc'),
-      chart5: get('--color-chart-5', '#22d3ee'),
-      grid: get('--color-chart-grid', 'rgba(255,255,255,0.06)'),
-      axis: get('--color-chart-axis', '#a1a1aa'),
-      tooltipBg: get('--color-chart-tooltip-bg', '#1c1c1e'),
-      tooltipText: get('--color-chart-tooltip-text', '#e4e4e7'),
-      tooltipBorder: get('--color-chart-tooltip-border', 'rgba(255,255,255,0.1)'),
-    })
-
-    // Re-read on theme change
-    const observer = new MutationObserver(() => {
+    function readColors() {
       const s = getComputedStyle(document.documentElement)
+      const get = (name: string, fallback: string) => s.getPropertyValue(name).trim() || fallback
       setColors({
-        chart1: s.getPropertyValue('--color-chart-1').trim() || '#60a5fa',
-        chart2: s.getPropertyValue('--color-chart-2').trim() || '#34d399',
-        chart3: s.getPropertyValue('--color-chart-3').trim() || '#fbbf24',
-        chart4: s.getPropertyValue('--color-chart-4').trim() || '#c084fc',
-        chart5: s.getPropertyValue('--color-chart-5').trim() || '#22d3ee',
-        grid: s.getPropertyValue('--color-chart-grid').trim() || 'rgba(255,255,255,0.06)',
-        axis: s.getPropertyValue('--color-chart-axis').trim() || '#a1a1aa',
-        tooltipBg: s.getPropertyValue('--color-chart-tooltip-bg').trim() || '#1c1c1e',
-        tooltipText: s.getPropertyValue('--color-chart-tooltip-text').trim() || '#e4e4e7',
-        tooltipBorder:
-          s.getPropertyValue('--color-chart-tooltip-border').trim() || 'rgba(255,255,255,0.1)',
+        chart1: get('--color-chart-1', '#60a5fa'),
+        chart2: get('--color-chart-2', '#34d399'),
+        chart3: get('--color-chart-3', '#fbbf24'),
+        chart4: get('--color-chart-4', '#c084fc'),
+        chart5: get('--color-chart-5', '#22d3ee'),
+        grid: get('--color-chart-grid', 'rgba(255,255,255,0.06)'),
+        axis: get('--color-chart-axis', '#a1a1aa'),
+        tooltipBg: get('--color-chart-tooltip-bg', '#1c1c1e'),
+        tooltipText: get('--color-chart-tooltip-text', '#e4e4e7'),
+        tooltipBorder: get('--color-chart-tooltip-border', 'rgba(255,255,255,0.1)'),
       })
-    })
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] })
-    return () => observer.disconnect()
+    }
+
+    readColors()
+
+    // Re-read on theme change via matchMedia (more performant than MutationObserver)
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      // Small delay to let CSS custom properties update after class toggle
+      requestAnimationFrame(readColors)
+    }
+    mq.addEventListener('change', handleChange)
+
+    // Also watch for manual theme toggle (class attribute change on <html>)
+    const observer = new MutationObserver(() => requestAnimationFrame(readColors))
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
+    return () => {
+      mq.removeEventListener('change', handleChange)
+      observer.disconnect()
+    }
   }, [])
 
   return colors
@@ -96,6 +95,7 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
   const axisTick = { fill: colors.axis, fontSize: 11 }
 
   return (
+    <div role="img" aria-label={`Pilot distribution: ${captains} Captains, ${firstOfficers} First Officers, ${inactive} Inactive`}>
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
         data={[
@@ -112,6 +112,7 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
         <Bar dataKey="count" fill={colors.chart1} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
+    </div>
   )
 }
 
@@ -131,6 +132,7 @@ export function CertificationPieChart({ current, expiring, expired }: Certificat
   }
 
   return (
+    <div role="img" aria-label={`Certification status: ${current} Current, ${expiring} Expiring, ${expired} Expired`}>
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
         <Pie
@@ -154,6 +156,7 @@ export function CertificationPieChart({ current, expiring, expired }: Certificat
         <Tooltip contentStyle={tooltipStyle} />
       </PieChart>
     </ResponsiveContainer>
+    </div>
   )
 }
 
@@ -172,6 +175,7 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
   const axisTick = { fill: colors.axis, fontSize: 11 }
 
   return (
+    <div role="img" aria-label={`Leave type breakdown: ${data.map((t) => `${t.type} (${t.count} requests, ${t.totalDays} days)`).join(', ')}`}>
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
         data={data.map((t) => ({
@@ -190,5 +194,6 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
         <Bar dataKey="days" fill={colors.chart2} radius={[4, 4, 0, 0]} name="Total Days" />
       </BarChart>
     </ResponsiveContainer>
+    </div>
   )
 }

@@ -7,12 +7,10 @@ import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { revalidatePath } from 'next/cache'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
-import {
-  getRosterAssignments,
-  deletePublishedRoster,
-} from '@/lib/services/published-roster-service'
-import { createServiceRoleClient } from '@/lib/supabase/service-role'
+import { deletePublishedRoster } from '@/lib/services/published-roster-service'
 
+// GET handler temporarily disabled - incomplete implementation
+/*
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await getAuthenticatedAdmin()
@@ -52,6 +50,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
   }
 }
+*/
 
 export async function DELETE(
   request: NextRequest,

@@ -9,11 +9,14 @@ import { revalidatePath } from 'next/cache'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 import {
   getPublishedRosters,
-  getRosterWithAssignments,
-  uploadAndParseRoster,
+  uploadPublishedRoster,
 } from '@/lib/services/published-roster-service'
-import { MAX_ROSTER_FILE_SIZE } from '@/lib/validations/published-roster-schema'
 
+// Maximum roster file size: 50MB
+const MAX_ROSTER_FILE_SIZE = 50 * 1024 * 1024
+
+// GET handler temporarily disabled - incomplete implementation
+/*
 export const GET = withRateLimit(async (request: NextRequest) => {
   try {
     const auth = await getAuthenticatedAdmin()
@@ -57,6 +60,7 @@ export const GET = withRateLimit(async (request: NextRequest) => {
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
   }
 })
+*/
 
 export const POST = withRateLimit(async (request: NextRequest) => {
   try {
@@ -93,10 +97,15 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     }
 
     // 4. Business logic
-    const buffer = await file.arrayBuffer()
-    const replace = formData.get('replace') === 'true'
+    const rosterPeriodCode = formData.get('periodCode') as string | null
+    if (!rosterPeriodCode) {
+      return NextResponse.json(
+        { success: false, error: 'Roster period code is required' },
+        { status: 400 }
+      )
+    }
 
-    const result = await uploadAndParseRoster(buffer, file.name, auth.userId!, { replace })
+    const result = await uploadPublishedRoster(file, rosterPeriodCode, auth.userId!)
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 })
@@ -107,13 +116,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     return NextResponse.json(
       {
         success: true,
-        data: result.roster,
-        meta: {
-          captainCount: result.captainCount,
-          foCount: result.foCount,
-          newActivityCodes: result.newActivityCodes,
-          unmatchedPilots: result.unmatchedPilots,
-        },
+        data: result.data,
       },
       { status: 201 }
     )

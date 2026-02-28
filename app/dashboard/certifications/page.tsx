@@ -180,28 +180,6 @@ export default function CertificationsPage() {
     fetchCertifications()
   }, [fetchCertifications])
 
-  // Re-fetch data when page becomes visible (after navigating back)
-  // This ensures updates made in dialogs are reflected when returning to this page
-  useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (!document.hidden) {
-        try {
-          const response = await fetch('/api/certifications', { credentials: 'include' })
-          if (response.ok) {
-            const data = await response.json()
-            const certificationsList = data.data?.certifications || []
-            setCertifications(certificationsList)
-          }
-        } catch (err) {
-          console.error('Failed to refresh certifications on visibility change:', err)
-        }
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [])
-
   // Fetch pilots and check types for form
   useEffect(() => {
     async function fetchFormData() {
@@ -272,6 +250,12 @@ export default function CertificationsPage() {
     }
   }
 
+  // aria-sort helper for accessible sortable column headers
+  const getAriaSortValue = (column: CertSortColumn): 'ascending' | 'descending' | 'none' => {
+    if (sortColumn !== column) return 'none'
+    return sortDirection === 'asc' ? 'ascending' : 'descending'
+  }
+
   // Sort icon helper
   const getSortIcon = (column: CertSortColumn) => {
     if (sortColumn !== column) return <ArrowUpDown className="ml-1 h-3.5 w-3.5" />
@@ -322,6 +306,11 @@ export default function CertificationsPage() {
   // Client-side pagination of sorted + filtered results
   const { currentPage, pageSize, totalPages, paginatedData, setCurrentPage, setPageSize } =
     usePagination<Certification>(sortedCertifications, 25)
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, statusFilter, setCurrentPage])
 
   // Get status badge variant
   const getStatusBadgeVariant = (color: string) => {
@@ -470,7 +459,7 @@ export default function CertificationsPage() {
   }
 
   if (loading) {
-    return <TableSkeleton rows={8} columns={5} />
+    return <TableSkeleton rows={8} columns={6} />
   }
 
   if (error) {
@@ -619,7 +608,7 @@ export default function CertificationsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>
+                <TableHead aria-sort={getAriaSortValue('pilot')}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -630,7 +619,7 @@ export default function CertificationsPage() {
                   </Button>
                 </TableHead>
                 <TableHead>Employee ID</TableHead>
-                <TableHead>
+                <TableHead aria-sort={getAriaSortValue('check_type')}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -640,7 +629,7 @@ export default function CertificationsPage() {
                     Check Type {getSortIcon('check_type')}
                   </Button>
                 </TableHead>
-                <TableHead>
+                <TableHead aria-sort={getAriaSortValue('expiry_date')}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -650,7 +639,7 @@ export default function CertificationsPage() {
                     Expiry Date {getSortIcon('expiry_date')}
                   </Button>
                 </TableHead>
-                <TableHead>
+                <TableHead aria-sort={getAriaSortValue('status')}>
                   <Button
                     variant="ghost"
                     size="sm"

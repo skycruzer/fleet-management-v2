@@ -175,13 +175,18 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
     const active = isActive(item.href)
 
     return (
-      <Link key={item.href} href={item.href} title={isCollapsed ? item.title : undefined}>
+      <Link
+        key={item.href}
+        href={item.href}
+        title={isCollapsed ? item.title : undefined}
+        aria-current={active ? 'page' : undefined}
+      >
         <div
           className={cn(
-            'group relative flex min-h-[32px] items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium transition-colors duration-100',
+            'group relative flex min-h-[36px] items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-100',
             isCollapsed && 'justify-center px-0',
             active
-              ? 'bg-primary/10 text-primary'
+              ? 'border-primary bg-primary/10 text-primary border-l-[3px] pl-1.5'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
           )}
         >
@@ -310,7 +315,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
         }
       >
         {/* Navigation */}
-        <nav className="space-y-0.5 p-2" aria-label="Main navigation">
+        <nav id="main-navigation" className="space-y-0.5 p-2" aria-label="Main navigation">
           {/* Primary nav items — always visible */}
           <div className="space-y-0.5" role="group" aria-label="Primary navigation">
             {enrichedItems.primary.map(renderNavItem)}

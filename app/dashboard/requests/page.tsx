@@ -11,8 +11,8 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { getPilots } from '@/lib/services/pilot-service'
 import {
   getAllPilotRequests,
   updateRequestStatus,
@@ -26,9 +26,10 @@ import { QuickEntryButton } from '@/components/requests/quick-entry-button'
 import { ViewModeToggle, type ViewMode } from '@/components/requests/view-mode-toggle'
 import { StatsOverview } from '@/components/requests/stats-overview'
 import { RequestCardsGrid } from '@/components/requests/request-cards-grid'
+import { RequestsTabNav } from '@/components/requests/requests-tab-nav'
 import { LeaveCalendarClient } from '@/app/dashboard/leave/calendar/leave-calendar-client'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { calculateRequestStats } from '@/lib/utils/request-stats-utils'
 
 export const metadata = {
@@ -61,35 +62,28 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
     redirect('/auth/login')
   }
 
-  const supabase = await createClient()
-
   // Parse URL parameters
   const viewMode = (searchParams.view as ViewMode) || 'table'
   const activeTab = searchParams.tab || 'leave'
   const category = activeTab === 'flight' ? 'FLIGHT' : 'LEAVE'
 
-  // Fetch pilots for quick entry
-  const { data: pilotsData } = await supabase
-    .from('pilots')
-    .select('id, first_name, last_name, employee_id, role, seniority_number')
-    .eq('is_active', true)
-    .order('seniority_number', { ascending: true })
+  // Fetch pilots for quick entry via service layer
+  const pilotsData = await getPilots({ is_active: true })
 
-  const pilots =
-    pilotsData?.map((p) => {
-      let normalizedRole: 'Captain' | 'First Officer' = 'First Officer'
-      if (p.role === 'Captain' || (p.role as string).includes('Captain')) {
-        normalizedRole = 'Captain'
-      }
-      return {
-        id: p.id,
-        first_name: p.first_name,
-        last_name: p.last_name,
-        employee_id: p.employee_id,
-        role: normalizedRole,
-        seniority_number: p.seniority_number,
-      }
-    }) || []
+  const pilots = pilotsData.map((p) => {
+    let normalizedRole: 'Captain' | 'First Officer' = 'First Officer'
+    if (p.role === 'Captain' || (p.role as string).includes('Captain')) {
+      normalizedRole = 'Captain'
+    }
+    return {
+      id: p.id,
+      first_name: p.first_name,
+      last_name: p.last_name,
+      employee_id: p.employee_id,
+      role: normalizedRole,
+      seniority_number: p.seniority_number,
+    }
+  })
 
   // Fetch requests for stats and cards/calendar views
   const requestsResponse = await getAllPilotRequests({
@@ -183,7 +177,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
   }
 
   return (
-    <div className="w-full space-y-4 px-4 py-4 lg:px-6">
+    <div className="w-full space-y-4 px-4 py-4 lg:px-6 lg:py-6">
       {/* Header - Linear-inspired: compact, clean */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -212,14 +206,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
 
       {/* Category Tabs */}
       <Tabs value={activeTab} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="leave" asChild>
-            <Link href={`/dashboard/requests?tab=leave&view=${viewMode}`}>Leave Requests</Link>
-          </TabsTrigger>
-          <TabsTrigger value="flight" asChild>
-            <Link href={`/dashboard/requests?tab=flight&view=${viewMode}`}>RDO/SDO Requests</Link>
-          </TabsTrigger>
-        </TabsList>
+        <RequestsTabNav activeTab={activeTab} viewMode={viewMode} />
 
         {/* Leave Requests Tab */}
         <TabsContent value="leave" className="mt-4 space-y-4">

@@ -158,7 +158,7 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none"
         onClick={handleBackdropClick}
         aria-hidden="true"
       />
@@ -169,7 +169,7 @@ export function Modal({
         <div
           ref={modalRef}
           className={cn(
-            'bg-card relative w-full rounded-lg shadow-xl transition-all',
+            'bg-card relative w-full rounded-xl shadow-xl transition-all motion-reduce:transition-none',
             sizeClasses[size],
             className
           )}

@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils'
 import { Button } from './button'
 
 const feedbackVariants = cva(
-  'flex items-start gap-3 rounded-lg border p-4 transition-all duration-200',
+  'flex items-start gap-3 rounded-lg border p-4 transition-all duration-200 motion-reduce:transition-none',
   {
     variants: {
       type: {
@@ -120,7 +120,7 @@ const Feedback = React.forwardRef<HTMLDivElement, FeedbackProps>(
           <button
             type="button"
             onClick={onDismiss}
-            className="shrink-0 rounded-md p-1 opacity-70 transition-all hover:bg-black/5 hover:opacity-100"
+            className="shrink-0 rounded-md p-1 opacity-70 transition-all motion-reduce:transition-none hover:bg-black/5 hover:opacity-100"
             aria-label="Dismiss"
           >
             <X className="h-4 w-4" />

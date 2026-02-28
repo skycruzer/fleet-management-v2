@@ -23,6 +23,7 @@ import {
   Info,
   Download,
   FileText,
+  RefreshCw,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
@@ -219,7 +220,7 @@ function AnalyticsPageContent() {
         <div className="space-y-4">
           <Card className="p-8 text-center">
             <div className="space-y-3">
-              <span className="text-4xl">❌</span>
+              <AlertTriangle className="text-destructive mx-auto h-10 w-10" aria-hidden="true" />
               <div>
                 <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
                 <p className="text-muted-foreground text-sm">
@@ -255,16 +256,19 @@ function AnalyticsPageContent() {
                 <span>Refreshing...</span>
               </span>
             ) : (
-              '🔄 Refresh Data'
+              <span className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                Refresh Data
+              </span>
             )}
           </Button>
         </div>
 
         {/* Critical Alerts Section */}
         {analytics.risk.criticalAlerts.length > 0 && (
-          <Card className="border-destructive/20 bg-[var(--color-destructive-muted)] p-4">
+          <Card className="border-destructive/20 bg-destructive/5 p-4">
             <div className="flex items-start space-x-2">
-              <span className="text-2xl">🚨</span>
+              <AlertTriangle className="text-destructive mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
               <div className="flex-1">
                 <h3 className="text-foreground mb-2 text-base font-bold">Critical Alerts</h3>
                 <div className="space-y-1.5">
@@ -278,8 +282,8 @@ function AnalyticsPageContent() {
                         <span
                           className={`rounded px-2 py-1 text-xs font-medium ${
                             alert.severity === 'critical'
-                              ? 'bg-[var(--color-danger-600)] text-white'
-                              : 'bg-[var(--color-warning-600)] text-white'
+                              ? 'bg-destructive text-destructive-foreground'
+                              : 'bg-warning text-warning-foreground'
                           }`}
                         >
                           {alert.severity.toUpperCase()}
@@ -296,10 +300,10 @@ function AnalyticsPageContent() {
 
         {/* Fleet Readiness Overview */}
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-          <Card className="border-[var(--color-primary-500)]/20 bg-gradient-to-br from-[var(--color-primary-500)]/10 to-[var(--color-primary-500)]/20 p-4">
+          <Card className="border-primary/20 bg-gradient-to-br from-primary/10 to-primary/20 p-4">
             <div className="mb-2 flex items-center justify-between">
-              <BarChart3 className="h-8 w-8 text-[var(--color-primary-400)]" aria-hidden="true" />
-              <span className="text-2xl font-bold text-[var(--color-primary-400)]">
+              <BarChart3 className="text-primary h-8 w-8" aria-hidden="true" />
+              <span className="text-primary text-2xl font-bold">
                 {analytics.fleet.utilization}%
               </span>
             </div>
@@ -309,10 +313,10 @@ function AnalyticsPageContent() {
             <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
           </Card>
 
-          <Card className="border-[var(--color-success-500)]/20 bg-gradient-to-br from-[var(--color-success-500)]/10 to-[var(--color-success-500)]/20 p-4">
+          <Card className="border-success/20 bg-gradient-to-br from-success/10 to-success/20 p-4">
             <div className="mb-2 flex items-center justify-between">
-              <Plane className="h-8 w-8 text-[var(--color-success-500)]" aria-hidden="true" />
-              <span className="text-2xl font-bold text-[var(--color-success-500)]">
+              <Plane className="text-success h-8 w-8" aria-hidden="true" />
+              <span className="text-success text-2xl font-bold">
                 {analytics.fleet.availability}%
               </span>
             </div>
@@ -579,7 +583,8 @@ function AnalyticsPageContent() {
               <div key={type.type} className="bg-muted/50 rounded-lg p-3">
                 <div className="text-foreground font-medium">{type.type}</div>
                 <div className="text-muted-foreground mt-1 text-sm">
-                  {type.count} requests • {type.totalDays} days
+                  {type.count} {type.count === 1 ? 'request' : 'requests'} •{' '}
+                  {type.totalDays} {type.totalDays === 1 ? 'day' : 'days'}
                 </div>
               </div>
             ))}
@@ -638,12 +643,12 @@ function AnalyticsPageContent() {
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
                       factor.severity === 'critical'
-                        ? 'bg-[var(--color-danger-600)] text-white'
+                        ? 'bg-destructive text-destructive-foreground'
                         : factor.severity === 'high'
-                          ? 'bg-[var(--color-badge-orange)] text-white'
+                          ? 'bg-(--color-badge-orange) text-destructive-foreground'
                           : factor.severity === 'medium'
-                            ? 'bg-[var(--color-warning-500)] text-white'
-                            : 'bg-[var(--color-success-500)] text-white'
+                            ? 'bg-warning text-warning-foreground'
+                            : 'bg-success text-success-foreground'
                     }`}
                   >
                     {factor.severity.toUpperCase()}

@@ -97,7 +97,7 @@ export default async function LeaveBidEditPage({ params }: PageProps) {
   const typedBid = { ...rawBid, leave_bid_options: enrichedOptions } as any
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
+    <div className="space-y-6">
       <LeaveBidEditForm bid={typedBid} userId={auth.userId!} />
     </div>
   )

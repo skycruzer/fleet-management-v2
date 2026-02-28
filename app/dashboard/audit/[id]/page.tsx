@@ -41,7 +41,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Back Button */}
       <div className="mb-6">
         <Link
@@ -62,7 +62,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-foreground text-3xl font-bold">Audit Log Detail</h1>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Audit Log Detail</h1>
         <p className="text-muted-foreground mt-2">
           Complete details of audit record #{params.id.slice(0, 8)}
         </p>

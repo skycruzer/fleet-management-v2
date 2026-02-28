@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 const alertVariants = cva(
   // Dark theme: left border accent, alpha backgrounds
-  'relative w-full rounded-lg border-l-4 border px-4 py-3 text-sm transition-colors [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7',
+  'relative w-full rounded-lg border-l-4 border px-4 py-3 text-sm transition-colors motion-reduce:transition-none [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7',
   {
     variants: {
       variant: {
@@ -17,7 +17,7 @@ const alertVariants = cva(
           'bg-warning/10 border-l-warning border-warning/20 text-warning [&>svg]:text-warning',
         success:
           'bg-success/10 border-l-success border-success/20 text-success [&>svg]:text-success',
-        info: 'bg-[var(--color-info)]/10 border-l-[var(--color-info)] border-[var(--color-info)]/20 text-[var(--color-info-foreground)] [&>svg]:text-[var(--color-info-foreground)]',
+        info: 'bg-[var(--color-info-bg)] border-l-[var(--color-info)] border-[var(--color-info-border)] text-[var(--color-info-foreground)] [&>svg]:text-[var(--color-info-foreground)]',
       },
     },
     defaultVariants: {

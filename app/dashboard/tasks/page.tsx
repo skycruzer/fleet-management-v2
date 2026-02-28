@@ -71,11 +71,11 @@ export default async function TasksPage({ searchParams }: TasksPageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-foreground text-3xl font-bold">Tasks</h1>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Tasks</h1>
           <p className="text-muted-foreground mt-2">
             Manage and track tasks across your organization
           </p>

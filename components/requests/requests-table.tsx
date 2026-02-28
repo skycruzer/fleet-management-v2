@@ -408,7 +408,7 @@ export function RequestsTable({
       )}
 
       {/* Table */}
-      <div className={`overflow-hidden rounded-lg border ${className}`}>
+      <div className={`overflow-x-auto rounded-lg border ${className}`}>
         <Table>
           <TableHeader>
             <TableRow>

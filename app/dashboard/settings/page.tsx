@@ -59,8 +59,8 @@ export default async function SettingsPage() {
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-foreground text-3xl font-bold tracking-tight">My Settings</h1>
-          <p className="text-muted-foreground mt-2">Manage your account settings and preferences</p>
+          <h1 className="text-foreground text-xl font-semibold">My Settings</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage your account settings and preferences</p>
         </div>
         <Link href="/dashboard">
           <Button variant="outline" size="lg" className="gap-2">

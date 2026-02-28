@@ -1,18 +1,18 @@
 import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { Space_Grotesk } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 
-// Space Grotesk — Geometric display font for headlines
-// Provides visual distinction from body text with technical precision feel
-const spaceGrotesk = Space_Grotesk({
+// Plus Jakarta Sans — Authoritative geometric display font for headlines
+// Sharper terminals and taller x-height than Space Grotesk for a "command center" feel
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-space-grotesk',
+  variable: '--font-plus-jakarta',
   display: 'swap',
-  weight: ['500', '600', '700'],
+  weight: ['500', '600', '700', '800'],
 })
 import { ErrorBoundary } from '@/components/error-boundary'
 import { OfflineIndicator } from '@/components/ui/offline-indicator'
@@ -92,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
-        className={`${GeistSans.variable} ${GeistMono.variable} ${spaceGrotesk.variable} bg-background min-h-screen font-sans antialiased`}
+        className={`${GeistSans.variable} ${GeistMono.variable} ${plusJakarta.variable} bg-background min-h-screen font-sans antialiased`}
       >
         <ErrorBoundary>
           <Providers>

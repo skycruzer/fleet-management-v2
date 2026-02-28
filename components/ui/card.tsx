@@ -4,18 +4,26 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const cardVariants = cva(
-  'rounded-xl border text-card-foreground transition-all duration-200 ease-out',
+  'rounded-xl border text-card-foreground transition-all duration-200 ease-out motion-reduce:transition-none',
   {
     variants: {
       variant: {
         default: 'border-border bg-card shadow-sm',
-        glass: 'border-border bg-card/80 backdrop-blur-xl shadow-sm',
+        glass: 'border-border bg-card/95 backdrop-blur-xl shadow-sm',
         elevated:
           'border-border bg-card shadow-[var(--shadow-card)] hover:shadow-[var(--glow-primary)]',
+        featured:
+          'border-border bg-card shadow-sm border-t-[3px] border-t-primary',
+      },
+      padding: {
+        compact: '[&>[class*=p-]]:p-3',
+        default: '',
+        spacious: '[&>[class*=p-]]:p-6',
       },
     },
     defaultVariants: {
       variant: 'default',
+      padding: 'default',
     },
   }
 )
@@ -30,15 +38,14 @@ interface CardProps
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, interactive = false, ...props }, ref) => (
+  ({ className, variant, padding, interactive = false, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        cardVariants({ variant }),
-        // Interactive cards get enhanced hover effects
+        cardVariants({ variant, padding }),
         interactive
-          ? 'hover:border-border cursor-pointer hover:-translate-y-0.5 hover:shadow-[var(--shadow-interactive-hover)]'
-          : 'hover:border-border',
+          ? 'cursor-pointer hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-xl'
+          : '',
         className
       )}
       {...props}

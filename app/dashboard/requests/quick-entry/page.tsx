@@ -52,7 +52,7 @@ export default async function QuickEntryPage() {
   if (error) {
     console.error('Failed to fetch pilots:', error)
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-6">
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>Failed to load pilots. Please try again later.</AlertDescription>
@@ -63,7 +63,7 @@ export default async function QuickEntryPage() {
 
   if (!pilots || pilots.length === 0) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="space-y-6">
         <Alert>
           <AlertTitle>No Pilots Available</AlertTitle>
           <AlertDescription>
@@ -75,7 +75,7 @@ export default async function QuickEntryPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl p-6">
+    <div className="max-w-4xl space-y-6">
       {/* Header */}
       <div className="mb-6">
         <Link href="/dashboard/requests">

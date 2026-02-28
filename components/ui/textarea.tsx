@@ -46,8 +46,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           className={cn(
             // Linear-inspired: clean border, subtle focus glow
-            'bg-background flex min-h-[60px] w-full rounded-lg border px-3 py-2 text-sm',
-            'transition-all duration-200',
+            'bg-muted/40 flex min-h-[60px] w-full rounded-lg border px-3 py-2 text-sm',
+            'transition-all duration-200 motion-reduce:transition-none',
             'placeholder:text-muted-foreground',
             'resize-none',
             // Default border
@@ -91,7 +91,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         {showCharCount && (
           <div
             className={cn(
-              'absolute right-3 bottom-2 text-xs transition-colors',
+              'absolute right-3 bottom-2 text-xs transition-colors motion-reduce:transition-none',
               isAtLimit && 'font-semibold text-[var(--color-status-high)]',
               isNearLimit && !isAtLimit && 'text-[var(--color-status-medium)]',
               !isNearLimit && 'text-muted-foreground'

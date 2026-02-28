@@ -1,38 +1,91 @@
-// Maurice Rondeau — Published Roster Validation Schema
+/**
+ * Published Roster Validation Schema
+ *
+ * Zod schemas for roster upload validation and API request validation.
+ *
+ * Developer: Maurice Rondeau
+ */
 
 import { z } from 'zod'
 
-export const MAX_ROSTER_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-export const ALLOWED_ROSTER_MIME_TYPE = 'application/pdf'
-
-export const PublishedRosterUploadSchema = z.object({
+/**
+ * File upload validation
+ * Ensures the file is a PDF and within size limits
+ */
+export const RosterFileUploadSchema = z.object({
+  file: z
+    .instanceof(File)
+    .refine((file) => file.type === 'application/pdf', {
+      message: 'File must be a PDF',
+    })
+    .refine((file) => file.size <= 10 * 1024 * 1024, {
+      message: 'File size must be less than 10MB',
+    }),
   rosterPeriodCode: z
     .string()
-    .regex(/^RP\d{2}\/\d{4}$/, 'Invalid roster period code format (e.g., RP02/2026)'),
+    .regex(/^RP\d{2}\/\d{4}$/, {
+      message: 'Period code must be in format RP##/YYYY (e.g., RP01/2026)',
+    })
+    .optional(),
 })
 
-export function validateRosterFile(file: File): { isValid: boolean; errors: string[] } {
-  const errors: string[] = []
+/**
+ * Roster upload request body
+ */
+export const RosterUploadRequestSchema = z.object({
+  rosterPeriodCode: z
+    .string()
+    .optional()
+    .describe('Optional period code. If not provided, extracted from PDF'),
+})
 
-  if (file.size > MAX_ROSTER_FILE_SIZE) {
-    errors.push(`File size exceeds ${MAX_ROSTER_FILE_SIZE / (1024 * 1024)}MB limit`)
-  }
+/**
+ * Roster filter schema
+ */
+export const RosterFiltersSchema = z.object({
+  year: z.coerce.number().int().min(2020).max(2099).optional(),
+  rosterId: z.string().uuid().optional(),
+})
 
-  if (file.type !== ALLOWED_ROSTER_MIME_TYPE) {
-    errors.push('Only PDF files are accepted')
-  }
+/**
+ * Roster assignment filter schema
+ */
+export const RosterAssignmentFiltersSchema = z.object({
+  pilotId: z.string().uuid().optional(),
+  rank: z.enum(['CAPTAIN', 'FIRST_OFFICER']).optional(),
+  activityCode: z.string().max(10).optional(),
+})
 
-  const ext = file.name.toLowerCase().split('.').pop()
-  if (ext !== 'pdf') {
-    errors.push('File must have a .pdf extension')
-  }
+/**
+ * Get roster request schema
+ */
+export const GetRosterRequestSchema = z.object({
+  id: z.string().uuid(),
+  filters: RosterAssignmentFiltersSchema.optional(),
+})
 
-  return { isValid: errors.length === 0, errors }
-}
+/**
+ * Delete roster request schema
+ */
+export const DeleteRosterRequestSchema = z.object({
+  id: z.string().uuid(),
+})
 
-export function sanitizeRosterFilename(filename: string): string {
-  return filename
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
-    .replace(/_+/g, '_')
-    .substring(0, 100)
-}
+/**
+ * Get signed URL request schema
+ */
+export const GetSignedUrlRequestSchema = z.object({
+  rosterId: z.string().uuid(),
+  expiresIn: z.number().int().min(1).max(604800).optional().default(3600),
+})
+
+/**
+ * Type exports for use in API routes
+ */
+export type RosterFileUpload = z.infer<typeof RosterFileUploadSchema>
+export type RosterUploadRequest = z.infer<typeof RosterUploadRequestSchema>
+export type RosterFilters = z.infer<typeof RosterFiltersSchema>
+export type RosterAssignmentFilters = z.infer<typeof RosterAssignmentFiltersSchema>
+export type GetRosterRequest = z.infer<typeof GetRosterRequestSchema>
+export type DeleteRosterRequest = z.infer<typeof DeleteRosterRequestSchema>
+export type GetSignedUrlRequest = z.infer<typeof GetSignedUrlRequestSchema>

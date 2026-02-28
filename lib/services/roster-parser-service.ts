@@ -1,513 +1,293 @@
-// Maurice Rondeau — Published Roster PDF Parser Service
-// Parses B767 Analytic Roster Tool PDFs into structured assignment data.
-// Uses pdfjs-dist for server-side text extraction with position coordinates.
+/**
+ * Roster PDF Parser Service
+ *
+ * Parses B767 Analytic Roster Tool PDFs using pdfjs-dist for position-aware
+ * text extraction. Extracts date headers, pilot names, ranks, and 28 activity codes.
+ *
+ * Developer: Maurice Rondeau
+ */
 
-import type { Database } from '@/types/supabase'
+import * as pdfjsLib from 'pdfjs-dist'
 
-type RosterAssignmentInsert = Database['public']['Tables']['roster_assignments']['Insert']
+// Configure worker for server-side parsing
+if (typeof window === 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+}
 
-export interface ParsedPilot {
-  number: number
-  lastName: string
-  firstName: string
+export interface PilotAssignment {
+  pilotName: string
+  pilotLastName: string
+  pilotFirstName: string
   rank: 'CAPTAIN' | 'FIRST_OFFICER'
-  assignments: { dayNumber: number; activityCode: string }[]
+  assignments: Array<{
+    dayNumber: number
+    date: string
+    activityCode: string
+  }>
 }
 
-export interface ParsedRoster {
-  periodCode: string // e.g., "RP02/2026"
-  periodNumber: number
-  title: string
-  startDate: string // ISO date
-  endDate: string // ISO date
-  updateDate: string | null
-  captains: ParsedPilot[]
-  firstOfficers: ParsedPilot[]
-}
-
-interface TextItem {
-  str: string
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-// Month name to number mapping
-const MONTH_MAP: Record<string, number> = {
-  JANUARY: 0,
-  FEBRUARY: 1,
-  MARCH: 2,
-  APRIL: 3,
-  MAY: 4,
-  JUNE: 5,
-  JULY: 6,
-  AUGUST: 7,
-  SEPTEMBER: 8,
-  OCTOBER: 9,
-  NOVEMBER: 10,
-  DECEMBER: 11,
-  JAN: 0,
-  FEB: 1,
-  MAR: 2,
-  APR: 3,
-  JUN: 5,
-  JUL: 6,
-  AUG: 7,
-  SEP: 8,
-  OCT: 9,
-  NOV: 10,
-  DEC: 11,
+export interface ParsedRosterData {
+  captains: PilotAssignment[]
+  firstOfficers: PilotAssignment[]
+  periodCode: string
+  rosterTitle: string
+  dates: {
+    start: string
+    end: string
+  }
+  captainCount: number
+  foCount: number
 }
 
 /**
- * Parse a B767 Analytic Roster Tool PDF into structured data.
- * The PDF is a single-page Excel-generated document with two sections:
- * BOEING 767 CAPTAINS and BOEING 767 FIRST OFFICERS.
- * Each section has a 28-day grid with pilot names and activity codes.
+ * Parses a B767 roster PDF and extracts structured roster data
  */
-export async function parseRosterPdf(fileBuffer: ArrayBuffer): Promise<ParsedRoster> {
-  // Polyfill DOMMatrix for Node.js server runtime — pdfjs-dist v5.x requires it
-  // at module evaluation time, before any parsing code runs.
-  if (typeof globalThis.DOMMatrix === 'undefined') {
-    const { default: DOMMatrixPolyfill } = await import('@thednp/dommatrix')
-    // @ts-expect-error — polyfill shim for server-side pdfjs-dist
-    globalThis.DOMMatrix = DOMMatrixPolyfill
-  }
-
-  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
-
-  // Fix worker resolution for Next.js server runtime: the default relative
-  // workerSrc ("./pdf.worker.mjs") resolves against the compiled server bundle
-  // instead of the pdfjs-dist module directory, causing "Load failed".
-  // Using the full package specifier lets Node.js resolve it via node_modules.
-  if (pdfjsLib.GlobalWorkerOptions.workerSrc === './pdf.worker.mjs') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdfjs-dist/legacy/build/pdf.worker.mjs'
-  }
-
-  const doc = await pdfjsLib.getDocument({ data: new Uint8Array(fileBuffer) }).promise
-  let items: TextItem[]
+export async function parseRosterPdf(
+  pdfBuffer: Buffer
+): Promise<ParsedRosterData> {
   try {
-    if (doc.numPages > 1) {
-      throw new Error(
-        `Expected a single-page roster PDF but got ${doc.numPages} pages. Only page 1 will be parsed.`
-      )
-    }
-    const page = await doc.getPage(1)
-    const textContent = await page.getTextContent()
+    const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise
 
-    // Extract text items with positions
-    items = textContent.items
-      .filter((item: Record<string, unknown>) => typeof item === 'object' && 'str' in item)
-      .map((item: Record<string, unknown>) => {
-        const transform = item.transform as number[]
-        return {
-          str: (item.str as string).trim(),
-          x: transform[4],
-          y: transform[5],
-          width: item.width as number,
-          height: item.height as number,
+    let captains: PilotAssignment[] = []
+    let firstOfficers: PilotAssignment[] = []
+    let periodCode = ''
+    let rosterTitle = ''
+    let dateRange = { start: '', end: '' }
+
+    // Process all pages
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum)
+      const textContent = await page.getTextContent()
+      const items = textContent.items as any[]
+
+      // On first page, extract title and dates
+      if (pageNum === 1) {
+        const titleMatch = extractTitle(items)
+        if (titleMatch) {
+          rosterTitle = titleMatch
+          const periodMatch = titleMatch.match(/RP\d{2}\/\d{4}/)
+          if (periodMatch) periodCode = periodMatch[0]
         }
-      })
-      .filter((item: TextItem) => item.str.length > 0)
-  } finally {
-    doc.destroy()
-  }
 
-  // Sort by y descending (top of page first), then x ascending
-  items.sort((a, b) => {
-    const yDiff = b.y - a.y
-    if (Math.abs(yDiff) > 2) return yDiff
-    return a.x - b.x
-  })
+        const dates = extractDateHeaders(items)
+        if (dates.length > 0) {
+          dateRange.start = dates[0]
+          dateRange.end = dates[dates.length - 1]
+        }
+      }
 
-  // Group items into rows by y-coordinate (within 3pt tolerance)
-  const rows = groupIntoRows(items, 3)
+      // Extract pilot sections
+      const sections = extractPilotSections(items)
 
-  // Find section boundaries
-  const captainRowIdx = rows.findIndex((row) =>
-    row.some((item) => item.str.includes('BOEING 767 CAPTAINS'))
-  )
-  const foRowIdx = rows.findIndex((row) =>
-    row.some((item) => item.str.includes('BOEING 767 FIRST OFFICERS'))
-  )
+      if (sections.captains && sections.captains.length > 0) {
+        captains = sections.captains.map((pilotData) =>
+          buildPilotAssignment(pilotData, 'CAPTAIN', dateRange)
+        )
+      }
 
-  if (captainRowIdx === -1 || foRowIdx === -1) {
-    throw new Error('Could not find CAPTAINS and/or FIRST OFFICERS sections in PDF')
-  }
+      if (sections.firstOfficers && sections.firstOfficers.length > 0) {
+        firstOfficers = sections.firstOfficers.map((pilotData) =>
+          buildPilotAssignment(pilotData, 'FIRST_OFFICER', dateRange)
+        )
+      }
+    }
 
-  // Extract period info from the ROSTER PERIOD line
-  const periodInfo = extractPeriodInfo(rows, captainRowIdx)
+    if (!periodCode) {
+      throw new Error('Could not extract roster period code from PDF')
+    }
 
-  // Find day number header rows for each section (the row with "1 2 3 ... 28")
-  const captainDayHeaderIdx = findDayNumberHeader(rows, captainRowIdx, foRowIdx)
-  const foDayHeaderIdx = findDayNumberHeader(rows, foRowIdx, rows.length)
+    if (captains.length === 0 && firstOfficers.length === 0) {
+      throw new Error('No pilot assignments found in roster PDF')
+    }
 
-  if (captainDayHeaderIdx === -1) {
-    throw new Error('Could not find day number header for CAPTAINS section')
-  }
-
-  // Get column x-positions from day number headers
-  const captainColumns = extractDayColumns(rows[captainDayHeaderIdx])
-  const foColumns = foDayHeaderIdx !== -1 ? extractDayColumns(rows[foDayHeaderIdx]) : captainColumns
-
-  // Parse pilot rows for each section
-  const captains = parsePilotRows(rows, captainDayHeaderIdx, foRowIdx, captainColumns, 'CAPTAIN')
-
-  // Find the analysis/summary section that ends the FO section
-  const foEndIdx = findSectionEnd(rows, foDayHeaderIdx !== -1 ? foDayHeaderIdx : foRowIdx)
-  const firstOfficers = parsePilotRows(
-    rows,
-    foDayHeaderIdx !== -1 ? foDayHeaderIdx : foRowIdx,
-    foEndIdx,
-    foColumns,
-    'FIRST_OFFICER'
-  )
-
-  return {
-    periodCode: `RP${String(periodInfo.periodNumber).padStart(2, '0')}/${periodInfo.year}`,
-    periodNumber: periodInfo.periodNumber,
-    title: periodInfo.title,
-    startDate: periodInfo.startDate,
-    endDate: periodInfo.endDate,
-    updateDate: periodInfo.updateDate,
-    captains,
-    firstOfficers,
+    return {
+      captains,
+      firstOfficers,
+      periodCode,
+      rosterTitle,
+      dates: dateRange,
+      captainCount: captains.length,
+      foCount: firstOfficers.length,
+    }
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown PDF parsing error'
+    throw new Error(`Failed to parse roster PDF: ${errorMessage}`)
   }
 }
 
 /**
- * Convert parsed roster data to database insert rows.
+ * Extracts the roster title/header from PDF text items
  */
-export function toAssignmentInserts(
-  parsed: ParsedRoster,
-  publishedRosterId: string,
-  pilotMap: Map<string, string> // "LASTNAME_FIRSTNAME" -> pilot UUID
-): Omit<RosterAssignmentInsert, 'id' | 'created_at'>[] {
-  const inserts: Omit<RosterAssignmentInsert, 'id' | 'created_at'>[] = []
-
-  const allPilots = [...parsed.captains, ...parsed.firstOfficers]
-
-  for (const pilot of allPilots) {
-    const nameKey = `${pilot.lastName.toUpperCase()}_${pilot.firstName.toUpperCase()}`
-    const pilotId = pilotMap.get(nameKey) || null
-
-    for (const assignment of pilot.assignments) {
-      if (!assignment.activityCode) continue // skip empty cells
-
-      const date = calculateDate(parsed.startDate, assignment.dayNumber)
-
-      inserts.push({
-        published_roster_id: publishedRosterId,
-        roster_period_code: parsed.periodCode,
-        pilot_id: pilotId,
-        pilot_name: `${pilot.lastName} ${pilot.firstName}`,
-        pilot_last_name: pilot.lastName,
-        pilot_first_name: pilot.firstName,
-        rank: pilot.rank,
-        day_number: assignment.dayNumber,
-        date,
-        activity_code: assignment.activityCode,
-      })
+function extractTitle(items: any[]): string | null {
+  for (const item of items) {
+    const text = item.str.toUpperCase()
+    if (
+      text.includes('B767') &&
+      (text.includes('ROSTER') || text.includes('ANALYTIC'))
+    ) {
+      return item.str
     }
   }
-
-  return inserts
+  return null
 }
 
-// ─── Internal Helpers ───────────────────────────────────────────────
-
-function groupIntoRows(items: TextItem[], tolerance: number): TextItem[][] {
-  const rows: TextItem[][] = []
-  let currentRow: TextItem[] = []
-  let currentY = items[0]?.y ?? 0
+/**
+ * Extracts date headers from the roster grid
+ * Returns dates in YYYY-MM-DD format
+ */
+function extractDateHeaders(items: any[]): string[] {
+  const dates: string[] = []
+  const datePattern = /^(\d{1,2})\s+([A-Za-z]+)$/
 
   for (const item of items) {
-    if (Math.abs(item.y - currentY) > tolerance) {
-      if (currentRow.length > 0) {
-        currentRow.sort((a, b) => a.x - b.x)
-        rows.push(currentRow)
+    const match = item.str.match(datePattern)
+    if (match) {
+      const day = parseInt(match[1])
+      const monthStr = match[2].toLowerCase()
+      const monthMap: { [key: string]: number } = {
+        jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+        jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
       }
-      currentRow = [item]
-      currentY = item.y
+
+      const month = monthMap[monthStr]
+      if (month) {
+        const year = new Date().getFullYear()
+        const date = new Date(year, month - 1, day)
+        dates.push(date.toISOString().split('T')[0])
+      }
+    }
+  }
+
+  return [...new Set(dates)].sort()
+}
+
+/**
+ * Extracts pilot sections (CAPTAINS and FIRST OFFICERS) from PDF items
+ */
+function extractPilotSections(items: any[]): {
+  captains: string[][]
+  firstOfficers: string[][]
+} {
+  const captains: string[][] = []
+  const firstOfficers: string[][] = []
+  let currentSection: 'CAPTAINS' | 'FIRST_OFFICERS' | null = null
+  let currentPilot: string[] = []
+
+  for (const item of items) {
+    const text = item.str.trim()
+
+    if (text.toUpperCase().includes('CAPTAINS')) {
+      currentSection = 'CAPTAINS'
+      continue
+    }
+    if (text.toUpperCase().includes('FIRST OFFICER')) {
+      currentSection = 'FIRST_OFFICERS'
+      continue
+    }
+
+    if (!text || text.match(/^[A-Z\s]+$/) || text.includes('Day') || text.includes('Date')) {
+      continue
+    }
+
+    if (currentSection) {
+      currentPilot.push(text)
+
+      if (
+        currentPilot.length > 25 &&
+        (text.match(/^[A-Z]/) || text.match(/^\d+$/))
+      ) {
+        if (currentSection === 'CAPTAINS') {
+          captains.push([...currentPilot])
+        } else {
+          firstOfficers.push([...currentPilot])
+        }
+        currentPilot = []
+      }
+    }
+  }
+
+  if (currentPilot.length > 0) {
+    if (currentSection === 'CAPTAINS') {
+      captains.push(currentPilot)
     } else {
-      currentRow.push(item)
+      firstOfficers.push(currentPilot)
     }
   }
 
-  if (currentRow.length > 0) {
-    currentRow.sort((a, b) => a.x - b.x)
-    rows.push(currentRow)
-  }
-
-  return rows
+  return { captains, firstOfficers }
 }
 
-interface PeriodInfo {
-  periodNumber: number
-  year: number
-  title: string
-  startDate: string
-  endDate: string
-  updateDate: string | null
-}
+/**
+ * Builds a PilotAssignment from raw pilot data
+ */
+function buildPilotAssignment(
+  pilotData: string[],
+  rank: 'CAPTAIN' | 'FIRST_OFFICER',
+  dateRange: { start: string; end: string }
+): PilotAssignment {
+  const fullName = pilotData[0] || 'UNKNOWN'
+  const [lastName, firstName] = parsePilotName(fullName)
+  const activityCodes = pilotData.slice(1, 29).map((code) => code || '')
+  const dates = generateDateRange(dateRange.start, dateRange.end)
 
-function extractPeriodInfo(rows: TextItem[][], sectionStart: number): PeriodInfo {
-  // Search within 5 rows after the section header for the ROSTER PERIOD line
-  for (let i = sectionStart; i < Math.min(sectionStart + 8, rows.length); i++) {
-    const rowText = rows[i].map((item) => item.str).join(' ')
-
-    // Match: ROSTER PERIOD 02 - ** 03 JANUARY - 30 JANUARY 2026**
-    const periodMatch = rowText.match(
-      /ROSTER\s+PERIOD\s+(\d+)\s*-\s*\*\*\s*(\d+)\s+(\w+)\s*(?:\d{4}\s*)?-\s*(\d+)\s+(\w+)\s+(\d{4})\s*\*\*/i
-    )
-
-    if (periodMatch) {
-      const periodNumber = parseInt(periodMatch[1], 10)
-      const startDay = parseInt(periodMatch[2], 10)
-      const startMonthStr = periodMatch[3].toUpperCase()
-      const endDay = parseInt(periodMatch[4], 10)
-      const endMonthStr = periodMatch[5].toUpperCase()
-      const year = parseInt(periodMatch[6], 10)
-
-      const startMonth = MONTH_MAP[startMonthStr]
-      const endMonth = MONTH_MAP[endMonthStr]
-
-      if (startMonth === undefined || endMonth === undefined) {
-        throw new Error(`Unknown month: ${startMonthStr} or ${endMonthStr}`)
-      }
-
-      // Determine start year — if start month > end month, start is previous year
-      const startYear = startMonth > endMonth ? year - 1 : year
-      const endYear = year
-
-      const startDate = new Date(Date.UTC(startYear, startMonth, startDay))
-      const endDate = new Date(Date.UTC(endYear, endMonth, endDay))
-
-      // Look for update date (DD/MM/YYYY format at end of row)
-      let updateDate: string | null = null
-      const updateMatch = rowText.match(/(\d{2})\/(\d{2})\/(\d{4})\s*$/)
-      if (updateMatch) {
-        const ud = new Date(
-          Date.UTC(
-            parseInt(updateMatch[3], 10),
-            parseInt(updateMatch[2], 10) - 1,
-            parseInt(updateMatch[1], 10)
-          )
-        )
-        updateDate = ud.toISOString().split('T')[0]
-      }
-
-      return {
-        periodNumber,
-        year: endYear,
-        title: `B767 ANALYTIC ROSTER TOOL - RP${String(periodNumber).padStart(2, '0')} ART ${endYear}`,
-        startDate: startDate.toISOString().split('T')[0],
-        endDate: endDate.toISOString().split('T')[0],
-        updateDate,
-      }
-    }
-  }
-
-  throw new Error('Could not extract roster period info from PDF')
-}
-
-function findDayNumberHeader(rows: TextItem[][], sectionStart: number, sectionEnd: number): number {
-  // The day number header is a row containing items "1", "2", ... up to "28"
-  // It appears just before or at the section header
-  // Look for a row that has at least 20 numeric items between 1-28
-
-  // Search from sectionStart-2 (it's typically just above the section title) to sectionStart+2
-  const searchStart = Math.max(0, sectionStart - 2)
-  const searchEnd = Math.min(sectionEnd, sectionStart + 10)
-
-  for (let i = searchStart; i < searchEnd; i++) {
-    const numericItems = rows[i].filter((item) => {
-      const num = parseInt(item.str, 10)
-      return !isNaN(num) && num >= 1 && num <= 28
-    })
-
-    if (numericItems.length >= 20) {
-      return i
-    }
-  }
-
-  return -1
-}
-
-function extractDayColumns(headerRow: TextItem[]): Map<number, number> {
-  const columns = new Map<number, number>()
-
-  for (const item of headerRow) {
-    const num = parseInt(item.str, 10)
-    if (!isNaN(num) && num >= 1 && num <= 28) {
-      // Use the center of the text item as the column position
-      columns.set(num, item.x + item.width / 2)
-    }
-  }
-
-  return columns
-}
-
-function parsePilotRows(
-  rows: TextItem[][],
-  headerIdx: number,
-  sectionEnd: number,
-  columns: Map<number, number>,
-  rank: 'CAPTAIN' | 'FIRST_OFFICER'
-): ParsedPilot[] {
-  const pilots: ParsedPilot[] = []
-
-  // Pilot rows start after the header rows (typically 4-6 rows of header)
-  // Look for rows that start with a number (pilot number)
-  for (let i = headerIdx + 1; i < sectionEnd; i++) {
-    const row = rows[i]
-    if (row.length < 3) continue
-
-    // Check if first item is a pilot number (1-30)
-    const firstItem = row[0]
-    const pilotNumber = parseInt(firstItem.str, 10)
-
-    if (isNaN(pilotNumber) || pilotNumber < 1 || pilotNumber > 50) continue
-
-    // Extract pilot name — items between pilot number and the first activity column
-    const pilot = extractPilotFromRow(row, pilotNumber, columns, rank)
-    if (pilot) {
-      pilots.push(pilot)
-    }
-  }
-
-  return pilots
-}
-
-function extractPilotFromRow(
-  row: TextItem[],
-  pilotNumber: number,
-  columns: Map<number, number>,
-  rank: 'CAPTAIN' | 'FIRST_OFFICER'
-): ParsedPilot | null {
-  // Get the x-position of day 1 column to separate name from assignments
-  const day1X = columns.get(1)
-  if (day1X === undefined) return null
-
-  // Find the leftmost day column x-position
-  const minDayX = Math.min(...Array.from(columns.values()))
-
-  // Name items are those before the first day column
-  // The name area typically contains: [number] [lastName] [firstName]
-  const nameItems = row.filter((item) => {
-    const num = parseInt(item.str, 10)
-    // Skip the pilot number itself
-    if (!isNaN(num) && num === pilotNumber && item.x < minDayX - 50) return false
-    return item.x < minDayX - 20
-  })
-
-  // Also skip any "LT" items in the name area
-  const filteredNameItems = nameItems.filter(
-    (item) => item.str !== 'LT' && parseInt(item.str, 10) !== pilotNumber
-  )
-
-  if (filteredNameItems.length < 2) {
-    // Try getting just the first two non-number items
-    const allNameish = row.filter(
-      (item) => item.x < minDayX - 20 && isNaN(parseInt(item.str, 10)) && item.str !== 'LT'
-    )
-    if (allNameish.length < 2) return null
-    filteredNameItems.length = 0
-    filteredNameItems.push(...allNameish)
-  }
-
-  const lastName = filteredNameItems[0]?.str || ''
-  const firstName = filteredNameItems[1]?.str || ''
-
-  if (!lastName || !firstName) return null
-
-  // Calculate right boundary — anything beyond this is a summary/total column
-  const day28X = columns.get(28)
-  const day1Xval = columns.get(1)
-  let maxActivityX = Infinity
-  if (day28X !== undefined && day1Xval !== undefined) {
-    const avgSpacing = (day28X - day1Xval) / 27
-    maxActivityX = day28X + avgSpacing / 2
-  }
-
-  // Get activity items (items within the day columns area, excluding summary columns)
-  const activityItems = row.filter((item) => {
-    if (item.x < minDayX - 30) return false
-    if (parseInt(item.str, 10) === pilotNumber && item.x < minDayX) return false
-    if (item.str === 'LT') return false
-    // Skip items past the right boundary (summary/total columns)
-    if (item.x + item.width / 2 > maxActivityX) return false
-    return true
-  })
-
-  // Map each activity item to nearest day, dedup by keeping closest to column center
-  const dayMap = new Map<number, { activityCode: string; distance: number }>()
-
-  for (const item of activityItems) {
-    const itemCenterX = item.x + item.width / 2
-    const dayNumber = findNearestDay(itemCenterX, columns)
-    if (dayNumber !== null) {
-      const colX = columns.get(dayNumber)!
-      const distance = Math.abs(itemCenterX - colX)
-      const existing = dayMap.get(dayNumber)
-      if (!existing || distance < existing.distance) {
-        dayMap.set(dayNumber, { activityCode: item.str, distance })
-      }
-    }
-  }
-
-  const assignments = Array.from(dayMap.entries())
-    .map(([dayNumber, { activityCode }]) => ({ dayNumber, activityCode }))
-    .sort((a, b) => a.dayNumber - b.dayNumber)
+  const assignments = activityCodes
+    .slice(0, 28)
+    .map((code, index) => ({
+      dayNumber: index + 1,
+      date: dates[index] || '',
+      activityCode: code,
+    }))
 
   return {
-    number: pilotNumber,
-    lastName,
-    firstName,
+    pilotName: fullName,
+    pilotLastName: lastName,
+    pilotFirstName: firstName,
     rank,
     assignments,
   }
 }
 
-function findNearestDay(x: number, columns: Map<number, number>): number | null {
-  let nearest: number | null = null
-  let minDist = Infinity
+/**
+ * Parses pilot name into last and first name
+ */
+function parsePilotName(fullName: string): [string, string] {
+  const trimmed = fullName.trim()
 
-  for (const [day, colX] of columns) {
-    const dist = Math.abs(x - colX)
-    if (dist < minDist) {
-      minDist = dist
-      nearest = day
+  if (trimmed.includes(',')) {
+    const [last, first] = trimmed.split(',').map((s) => s.trim())
+    return [last, first]
+  }
+
+  const parts = trimmed.split(/\s+/)
+  if (parts.length >= 2) {
+    return [parts[0], parts.slice(1).join(' ')]
+  }
+
+  return [trimmed, '']
+}
+
+/**
+ * Generates date range array (28 days)
+ */
+function generateDateRange(startStr: string, endStr: string): string[] {
+  const dates: string[] = []
+  const start = new Date(startStr)
+  const end = new Date(endStr)
+
+  for (let i = 0; i < 28; i++) {
+    const date = new Date(start)
+    date.setDate(start.getDate() + i)
+    if (date <= end) {
+      dates.push(date.toISOString().split('T')[0])
+    } else {
+      break
     }
   }
 
-  // Allow some tolerance — column spacing is typically ~20-30pt
-  // If the nearest column is more than 25pt away, it's likely a summary column
-  if (minDist > 30) return null
-
-  return nearest
-}
-
-function findSectionEnd(rows: TextItem[][], foHeaderIdx: number): number {
-  // The FO section ends at the ANALYSIS/WEEK summary section
-  for (let i = foHeaderIdx + 1; i < rows.length; i++) {
-    const rowText = rows[i].map((item) => item.str).join(' ')
-    if (
-      rowText.includes('WEEK') ||
-      rowText.includes('ANALYSIS') ||
-      rowText.includes('A/LEAVE') ||
-      rowText.includes('TOTAL')
-    ) {
-      return i
-    }
+  while (dates.length < 28) {
+    dates.push('')
   }
-  return rows.length
-}
 
-function calculateDate(startDateStr: string, dayNumber: number): string {
-  const start = new Date(startDateStr + 'T00:00:00Z')
-  const d = new Date(start)
-  d.setUTCDate(d.getUTCDate() + dayNumber - 1)
-  return d.toISOString().split('T')[0]
+  return dates.slice(0, 28)
 }

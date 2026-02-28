@@ -110,12 +110,12 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-foreground text-3xl font-bold">Disciplinary Matters</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-foreground text-xl font-semibold">Disciplinary Matters</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Track and manage disciplinary matters and actions
           </p>
         </div>

@@ -94,7 +94,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Back Button */}
       <div className="mb-6">
         <Link

@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { createClient } from '../../../lib/supabase/client'
-import { User, CheckCircle2, Shield, Building2, Code2, Calendar } from 'lucide-react'
+import { User, CheckCircle2, Shield, Building2, Calendar } from 'lucide-react'
 import { SettingsQuickActions } from '@/components/settings/settings-quick-actions'
 import { SettingsDangerZone } from '@/components/settings/settings-danger-zone'
 import { formatDistanceToNow } from 'date-fns'
@@ -84,8 +84,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
               <p className="text-muted-foreground text-sm font-medium">Account Status</p>
               <p className="text-foreground text-2xl font-bold">Active</p>
             </div>
-            <div className="rounded-full bg-[var(--color-success-muted)] p-3">
-              <CheckCircle2 className="h-6 w-6 text-[var(--color-success-600)]" />
+            <div className="rounded-full bg-success/10 p-3">
+              <CheckCircle2 className="text-success h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -100,8 +100,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
                   : 'Never'}
               </p>
             </div>
-            <div className="rounded-full bg-[var(--color-info-bg)] p-3">
-              <User className="h-6 w-6 text-[var(--color-primary-600)]" />
+            <div className="bg-primary/10 rounded-full p-3">
+              <User className="text-primary h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -141,8 +141,10 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
           <table className="w-full">
             <tbody className="divide-y">
               <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground py-4 text-sm font-medium">User ID</td>
-                <td className="text-foreground py-4 font-mono text-sm">{userData.id}</td>
+                <td className="text-muted-foreground py-4 text-sm font-medium">Account Ref</td>
+                <td className="text-muted-foreground py-4 font-mono text-sm">
+                  ···{userData.id.slice(-8)}
+                </td>
               </tr>
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">Full Name</td>
@@ -161,10 +163,10 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">Account Created</td>
                 <td className="text-foreground py-4 text-sm">
-                  {new Date(userData.created_at).toLocaleDateString('en-US', {
+                  {new Date(userData.created_at).toLocaleDateString('en-GB', {
                     year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
                   })}
                 </td>
               </tr>
@@ -173,35 +175,23 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
         </div>
       </Card>
 
-      {/* System & Developer Information */}
+      {/* Application Information */}
       <Card className="p-6">
         <div className="mb-6 flex items-center gap-3">
           <div className="bg-primary/10 rounded-lg p-2">
             <Building2 className="text-primary h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-foreground text-xl font-semibold">System Information</h2>
-            <p className="text-muted-foreground text-sm">Developer and company details</p>
+            <h2 className="text-foreground text-xl font-semibold">Application Information</h2>
+            <p className="text-muted-foreground text-sm">Platform version and build details</p>
           </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <tbody className="divide-y">
               <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground flex items-center gap-2 py-4 text-sm font-medium">
-                  <Code2 className="h-4 w-4" />
-                  Developer
-                </td>
-                <td className="text-foreground py-4 text-sm font-medium">
-                  Maurice Rondeau (Skycruzer)
-                </td>
-              </tr>
-              <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground flex items-center gap-2 py-4 text-sm font-medium">
-                  <Building2 className="h-4 w-4" />
-                  Company
-                </td>
-                <td className="text-foreground py-4 text-sm font-medium">PIN PNG LTD</td>
+                <td className="text-muted-foreground py-4 text-sm font-medium">Application</td>
+                <td className="text-foreground py-4 text-sm font-medium">Fleet Management System</td>
               </tr>
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground py-4 text-sm font-medium">System Version</td>
@@ -212,20 +202,9 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
               <tr className="hover:bg-muted/50">
                 <td className="text-muted-foreground flex items-center gap-2 py-4 text-sm font-medium">
                   <Calendar className="h-4 w-4" />
-                  Build Date
+                  Last Updated
                 </td>
-                <td className="text-foreground py-4 text-sm">October 29, 2025</td>
-              </tr>
-              <tr className="hover:bg-muted/50">
-                <td className="text-muted-foreground py-4 text-sm font-medium">Technology Stack</td>
-                <td className="py-4">
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary">Next.js 16</Badge>
-                    <Badge variant="secondary">React 19</Badge>
-                    <Badge variant="secondary">TypeScript 5.7</Badge>
-                    <Badge variant="secondary">Supabase</Badge>
-                  </div>
-                </td>
+                <td className="text-foreground py-4 text-sm">2025</td>
               </tr>
             </tbody>
           </table>

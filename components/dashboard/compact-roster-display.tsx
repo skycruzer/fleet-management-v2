@@ -110,12 +110,14 @@ export async function CompactRosterDisplay() {
   // Each roster period is EXACTLY 28 days (business rule)
   const today = new Date()
   const endDate = new Date(currentPeriod.endDate)
-  const daysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const rawDaysRemaining = Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const daysRemaining = Math.max(0, rawDaysRemaining)
+  const isPeriodComplete = rawDaysRemaining <= 0
 
   // Get progress percentage
   // Total days is ALWAYS 28 (fixed roster period length)
   const totalDays = 28
-  const elapsedDays = totalDays - daysRemaining
+  const elapsedDays = totalDays - rawDaysRemaining
   const progressPercentage = Math.max(0, Math.min(100, (elapsedDays / totalDays) * 100))
 
   return (
@@ -135,7 +137,7 @@ export async function CompactRosterDisplay() {
             </div>
           </div>
           <Badge className="bg-primary-foreground/20 text-primary-foreground text-xs font-bold shadow-md backdrop-blur-sm">
-            ACTIVE
+            {isPeriodComplete ? 'COMPLETE' : 'ACTIVE'}
           </Badge>
         </div>
       </div>
@@ -147,8 +149,8 @@ export async function CompactRosterDisplay() {
           {/* Current Period - Left Side */}
           <div className="bg-muted/50 rounded-xl p-5">
             <div className="mb-4">
-              <Badge className="bg-primary text-primary-foreground mb-2 text-xs font-bold">
-                ACTIVE
+              <Badge className={isPeriodComplete ? 'bg-muted-foreground text-muted mb-2 text-xs font-bold' : 'bg-primary text-primary-foreground mb-2 text-xs font-bold'}>
+                {isPeriodComplete ? 'COMPLETE' : 'ACTIVE'}
               </Badge>
               <div className="mb-1 flex items-baseline gap-2">
                 <h4 className="text-foreground text-3xl font-black tracking-tight">
@@ -173,15 +175,19 @@ export async function CompactRosterDisplay() {
             {/* Days Remaining */}
             <div className="mb-3">
               <div className="mb-1 flex items-center gap-1.5">
-                <Clock className="text-primary h-3.5 w-3.5" />
+                <Clock className={isPeriodComplete ? 'text-muted-foreground h-3.5 w-3.5' : 'text-primary h-3.5 w-3.5'} />
                 <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-                  Days Left
+                  {isPeriodComplete ? 'Status' : 'Days Left'}
                 </span>
               </div>
-              <div className="flex items-baseline gap-1">
-                <p className="text-primary text-4xl font-black">{daysRemaining}</p>
-                <span className="text-muted-foreground text-sm font-bold">/ {totalDays}</span>
-              </div>
+              {isPeriodComplete ? (
+                <p className="text-muted-foreground text-lg font-bold">Period Complete</p>
+              ) : (
+                <div className="flex items-baseline gap-1">
+                  <p className="text-primary text-4xl font-black">{daysRemaining}</p>
+                  <span className="text-muted-foreground text-sm font-bold">/ {totalDays}</span>
+                </div>
+              )}
             </div>
 
             {/* Progress Bar */}
@@ -201,7 +207,7 @@ export async function CompactRosterDisplay() {
 
           {/* Next Period - Right Side with Dual Links */}
           {nextPeriod && (
-            <div className="border-primary/30 bg-primary/5 h-full rounded-xl border-2 shadow-sm">
+            <div className="border-primary/30 bg-primary/5 self-start rounded-xl border-2 shadow-sm">
               {/* Header - Non-clickable */}
               <div className="p-5 pb-3">
                 <Badge className="border-primary bg-primary/10 text-primary mb-2 text-xs font-bold">

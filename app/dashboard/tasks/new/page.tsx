@@ -38,10 +38,10 @@ export default async function NewTaskPage() {
   const categories = categoriesResult.success ? categoriesResult.data : []
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-foreground text-3xl font-bold">Create New Task</h1>
+      <div>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Create New Task</h1>
         <p className="text-muted-foreground mt-2">Create a task and assign it to a team member</p>
       </div>
 

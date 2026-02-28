@@ -101,7 +101,7 @@ export default async function NotificationsPage() {
 
       {/* Page Title */}
       <div className="mb-6">
-        <h1 className="text-foreground text-3xl font-bold">Notifications</h1>
+        <h1 className="text-foreground text-xl font-semibold">Notifications</h1>
         <p className="text-muted-foreground mt-2">
           {unreadNotifications.length} unread notification
           {unreadNotifications.length !== 1 ? 's' : ''}

@@ -62,27 +62,23 @@ export function SkipLink({ href, children, className }: SkipLinkProps) {
       href={href}
       onClick={handleClick}
       className={cn(
-        // Hidden by default
         'sr-only',
-        // Visible on focus
-        'focus:not-sr-only',
-        'focus:absolute',
-        'focus:top-4',
-        'focus:left-4',
-        'focus:z-50',
-        // Styling
+        'focus-visible:not-sr-only',
+        'focus-visible:fixed',
+        'focus-visible:top-4',
+        'focus-visible:left-4',
+        'focus-visible:z-[9999]',
         'inline-block',
         'px-4',
-        'py-2',
+        'py-3',
         'bg-primary',
         'text-primary-foreground',
         'font-medium',
         'rounded-lg',
         'shadow-lg',
-        // Focus visible ring
         'focus-visible:ring-2',
         'focus-visible:ring-offset-2',
-        'focus-visible:ring-primary',
+        'focus-visible:ring-ring',
         'focus-visible:outline-none',
         className
       )}
@@ -114,7 +110,7 @@ export function SkipToMainContent() {
  * Pre-configured skip link for navigation
  */
 export function SkipToNavigation() {
-  return <SkipLink href="#navigation">Skip to navigation</SkipLink>
+  return <SkipLink href="#main-navigation">Skip to navigation</SkipLink>
 }
 
 /**

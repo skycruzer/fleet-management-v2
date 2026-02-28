@@ -15,6 +15,7 @@ import { ErrorBoundary } from '@/components/error-boundary'
 import { PilotPortalSidebar } from '@/components/layout/pilot-portal-sidebar'
 import { PortalToastHandler } from '@/components/portal/portal-toast-handler'
 import { QueryProvider } from '@/lib/react-query/query-provider'
+import { SkipNav } from '@/components/accessibility/skip-nav'
 
 export const metadata: Metadata = {
   title: 'Pilot Portal | Fleet Management',
@@ -54,6 +55,7 @@ export default async function PortalLayout({ children }: { children: React.React
 
   return (
     <ErrorBoundary>
+      <SkipNav />
       <QueryProvider>
         <div className="bg-background flex min-h-screen">
           {/* Pilot Portal Sidebar */}

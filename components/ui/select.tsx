@@ -19,9 +19,9 @@ const SelectTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       // Theme-aware: works on both light and dark backgrounds
-      'flex h-9 w-full items-center justify-between rounded-lg border px-3 py-2 text-sm whitespace-nowrap',
-      'border-input bg-background text-foreground',
-      'transition-all duration-200',
+      'flex h-10 w-full items-center justify-between rounded-lg border px-3 py-2 text-sm whitespace-nowrap',
+      'border-input bg-muted/40 text-foreground',
+      'transition-all duration-200 motion-reduce:transition-none',
       'data-[placeholder]:text-muted-foreground',
       'focus:ring-ring/20 focus:border-ring focus:ring-2 focus:outline-none',
       'disabled:cursor-not-allowed disabled:opacity-50',
@@ -137,7 +137,7 @@ const SelectItem = React.forwardRef<
       // Theme-aware: uses CSS variables for proper contrast
       'relative flex w-full cursor-pointer items-center rounded-md py-2 pr-8 pl-2 text-sm outline-none select-none',
       'text-popover-foreground',
-      'transition-colors duration-150',
+      'transition-colors duration-150 motion-reduce:transition-none',
       'hover:bg-accent hover:text-accent-foreground',
       'focus:bg-accent focus:text-accent-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',

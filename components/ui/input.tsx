@@ -8,18 +8,18 @@ const inputVariants = cva(
   // Base styles - Dark premium
   [
     'bg-muted/40 flex w-full rounded-lg border px-3 py-2 text-sm text-foreground',
-    'transition-all duration-200',
+    'transition-all duration-200 motion-reduce:transition-none',
     'file:text-foreground file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-muted-foreground',
     'border-border',
     'focus:ring-primary/20 focus:border-primary/50 focus:ring-2 focus:outline-none',
-    'disabled:bg-muted/20 disabled:cursor-not-allowed disabled:opacity-50',
+    'disabled:bg-[var(--color-disabled-bg)] disabled:text-[var(--color-disabled-foreground)] disabled:cursor-not-allowed',
   ],
   {
     variants: {
       size: {
-        default: 'h-9',
-        sm: 'h-8 text-xs',
+        default: 'h-10',
+        sm: 'h-9 text-xs',
         lg: 'h-11',
       },
     },

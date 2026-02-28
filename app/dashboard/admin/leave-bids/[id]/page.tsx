@@ -139,7 +139,7 @@ export default async function LeaveBidViewPage({ params }: PageProps) {
   const pilot = bid.pilots as any
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
+    <div className="space-y-6">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

@@ -21,7 +21,7 @@ const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root
         // Linear-inspired: clean checkbox with accent color
         'peer grid h-4 w-4 shrink-0 place-content-center',
         'border-border bg-background rounded border',
-        'transition-all duration-150',
+        'transition-all duration-150 motion-reduce:transition-none',
         'focus-visible:ring-ring/20 focus-visible:border-foreground/30 focus-visible:ring-2 focus-visible:outline-none',
         'data-[state=checked]:bg-accent data-[state=checked]:border-accent data-[state=checked]:text-accent-foreground',
         'disabled:cursor-not-allowed disabled:opacity-50',

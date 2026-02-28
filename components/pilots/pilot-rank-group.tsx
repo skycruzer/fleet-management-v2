@@ -92,11 +92,16 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-x-auto">
       {/* Rank Header */}
       <div
         className="hover:bg-muted/50 flex cursor-pointer items-center justify-between p-4 transition-colors"
+        role="button"
+        aria-expanded={isExpanded}
+        aria-controls={`rank-group-${rank.replace(/\s+/g, '-').toLowerCase()}`}
+        tabIndex={0}
         onClick={() => setIsExpanded(!isExpanded)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsExpanded(!isExpanded) } }}
       >
         <div className="flex flex-1 items-center gap-4">
           <RankBadge rank={rank} />
@@ -125,7 +130,7 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
 
       {/* Pilots Table */}
       {isExpanded && (
-        <div className="border-t">
+        <div id={`rank-group-${rank.replace(/\s+/g, '-').toLowerCase()}`} className="border-t">
           <Table>
             <TableHeader>
               <TableRow>

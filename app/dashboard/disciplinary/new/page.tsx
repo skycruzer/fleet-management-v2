@@ -38,11 +38,11 @@ export default async function NewDisciplinaryMatterPage() {
   const incidentTypes = incidentTypesResult.success ? incidentTypesResult.data : []
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-foreground text-3xl font-bold">Create Disciplinary Matter</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-foreground text-xl font-semibold">Create Disciplinary Matter</h1>
+        <p className="text-muted-foreground mt-1 text-sm">
           Create a new disciplinary matter and assign it for investigation
         </p>
       </div>

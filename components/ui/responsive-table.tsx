@@ -111,7 +111,7 @@ function TableView<T>({
                   col.width,
                   col.align === 'center' && 'text-center',
                   col.align === 'right' && 'text-right',
-                  col.sortable && 'hover:bg-muted/40 cursor-pointer transition-colors'
+                  col.sortable && 'hover:bg-muted/40 cursor-pointer transition-colors motion-reduce:transition-none'
                 )}
                 onClick={() => col.sortable && onSort(col.id)}
               >
@@ -135,7 +135,7 @@ function TableView<T>({
             <tr
               key={keyExtractor(row)}
               className={cn(
-                'bg-transparent transition-colors',
+                'bg-transparent transition-colors motion-reduce:transition-none',
                 onRowClick && 'hover:bg-muted/40 cursor-pointer'
               )}
               onClick={() => onRowClick?.(row)}
@@ -215,7 +215,7 @@ function CardView<T>({
         <div
           key={keyExtractor(row)}
           className={cn(
-            'border-border bg-background rounded-xl border p-4 transition-all duration-200',
+            'border-border bg-background rounded-xl border p-4 transition-all duration-200 motion-reduce:transition-none',
             onRowClick && 'hover:border-border/80 cursor-pointer hover:shadow-md'
           )}
           onClick={() => onRowClick?.(row)}

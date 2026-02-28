@@ -1,329 +1,448 @@
-// Maurice Rondeau — Published Roster Service
-// CRUD operations for uploaded roster PDFs and their parsed assignments.
+/**
+ * Published Roster Service
+ *
+ * Manages uploaded roster PDFs, parsing, and storage.
+ * Handles roster CRUD operations and pilot name matching.
+ *
+ * Developer: Maurice Rondeau
+ */
 
-import { createServiceRoleClient } from '@/lib/supabase/service-role'
-import { sanitizeRosterFilename } from '@/lib/validations/published-roster-schema'
-import { logError, ErrorSeverity } from '@/lib/error-logger'
-import { parseRosterPdf, toAssignmentInserts } from './roster-parser-service'
-import { ensureActivityCodesExist } from './activity-code-service'
+import { createClient } from '@/lib/supabase/server'
+import { ServiceResponse } from '@/lib/types/service-response'
 import type { Database } from '@/types/supabase'
+import type {
+  ParsedRosterData,
+  PilotAssignment,
+} from './roster-parser-service'
+import { searchPilots } from './pilot-service'
 
-type PublishedRoster = Database['public']['Tables']['published_rosters']['Row']
+const STORAGE_BUCKET = 'published-rosters'
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
-const BUCKET = 'published-rosters'
-const SIGNED_URL_EXPIRATION = 3600 // 1 hour
+export type PublishedRoster = Database['public']['Tables']['published_rosters']['Row']
 
-export interface UploadRosterResult {
-  success: boolean
-  roster?: PublishedRoster
-  captainCount?: number
-  foCount?: number
-  newActivityCodes?: string[]
-  unmatchedPilots?: string[]
-  error?: string
-}
+/**
+ * Uploads a roster PDF file, parses it, and stores assignments
+ */
+export async function uploadPublishedRoster(
+  file: File,
+  rosterPeriodCode: string,
+  uploadedByUserId: string
+): Promise<ServiceResponse<PublishedRoster>> {
+  try {
+    const supabase = await createClient()
 
-export interface RosterWithAssignments extends PublishedRoster {
-  assignments: Database['public']['Tables']['roster_assignments']['Row'][]
-}
-
-// ─── Upload & Parse ─────────────────────────────────────────────
-
-export async function uploadAndParseRoster(
-  fileBuffer: ArrayBuffer,
-  fileName: string,
-  uploadedBy: string,
-  options?: { replace?: boolean }
-): Promise<UploadRosterResult> {
-  const supabase = createServiceRoleClient()
-
-  // Make true copies — pdfjs-dist detaches the original ArrayBuffer on parse
-  const raw = new Uint8Array(fileBuffer)
-  const uploadBytes = raw.slice() // independent copy for storage upload
-  const fileSize = raw.byteLength
-
-  // 1. Parse the PDF first (fail fast if parsing fails)
-  const parsed = await parseRosterPdf(raw.slice().buffer as ArrayBuffer)
-
-  // 2. Check if roster already exists for this period
-  const { data: existing } = await supabase
-    .from('published_rosters')
-    .select('id')
-    .eq('roster_period_code', parsed.periodCode)
-    .single()
-
-  if (existing) {
-    if (options?.replace) {
-      // Delete existing roster (cascade deletes assignments), clean up storage
-      const deleteResult = await deletePublishedRoster(existing.id)
-      if (!deleteResult.success) {
-        return { success: false, error: `Failed to replace existing roster: ${deleteResult.error}` }
-      }
-    } else {
-      return { success: false, error: `Roster already exists for ${parsed.periodCode}` }
+    // Validate file
+    if (!file.name.endsWith('.pdf')) {
+      return ServiceResponse.error('Only PDF files are allowed')
     }
-  }
 
-  // 3. Ensure all activity codes from the PDF exist in the reference table
-  const allCodes = new Set<string>()
-  for (const pilot of [...parsed.captains, ...parsed.firstOfficers]) {
-    for (const a of pilot.assignments) {
-      if (a.activityCode) allCodes.add(a.activityCode)
+    if (file.size > MAX_FILE_SIZE) {
+      return ServiceResponse.error('File size exceeds 10MB limit')
     }
-  }
-  const { newCodes } = await ensureActivityCodesExist(Array.from(allCodes))
 
-  // 4. Upload PDF to storage
-  const sanitizedName = sanitizeRosterFilename(fileName)
-  const storagePath = `${parsed.periodCode.replace('/', '-')}/${Date.now()}-${sanitizedName}`
+    // Check if period already has a roster
+    const existing = await supabase
+      .from('published_rosters')
+      .select('id')
+      .eq('roster_period_code', rosterPeriodCode)
+      .single()
 
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET)
-    .upload(storagePath, uploadBytes, {
-      contentType: 'application/pdf',
-      cacheControl: '3600',
-      upsert: false,
-    })
+    if (existing.data) {
+      return ServiceResponse.error(
+        `Roster already uploaded for period ${rosterPeriodCode}`
+      )
+    }
 
-  if (uploadError) {
-    return { success: false, error: `Storage upload failed: ${uploadError.message}` }
-  }
+    // Upload file to storage
+    const fileBuffer = await file.arrayBuffer()
+    const filePath = `${rosterPeriodCode}/${file.name}`
 
-  // 5. Insert published_rosters record
-  const { data: roster, error: insertError } = await supabase
-    .from('published_rosters')
-    .insert({
-      roster_period_code: parsed.periodCode,
-      title: parsed.title,
-      file_path: storagePath,
-      file_name: fileName,
-      file_size: fileSize,
-      uploaded_by: uploadedBy,
-      parsed: true,
-      parsed_at: new Date().toISOString(),
-      captain_count: parsed.captains.length,
-      fo_count: parsed.firstOfficers.length,
-      period_start_date: parsed.startDate,
-      period_end_date: parsed.endDate,
-    })
-    .select()
-    .single()
+    const uploadResult = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(filePath, fileBuffer, { upsert: false })
 
-  if (insertError || !roster) {
-    // Clean up uploaded file
-    const { error: cleanupError } = await supabase.storage.from(BUCKET).remove([storagePath])
-    if (cleanupError) {
-      logError(new Error(`Orphaned storage file: ${storagePath}`), {
-        source: 'published-roster-service/uploadAndParseRoster',
-        severity: ErrorSeverity.MEDIUM,
-        metadata: { cleanupError: cleanupError.message },
+    if (uploadResult.error) {
+      return ServiceResponse.error(`File upload failed: ${uploadResult.error.message}`)
+    }
+
+    // Parse PDF to extract roster data
+    let parsedData: ParsedRosterData
+    try {
+      // Lazy-load PDF parser to avoid DOMMatrix issues during build
+      const { parseRosterPdf } = await import('./roster-parser-service')
+      parsedData = await parseRosterPdf(Buffer.from(fileBuffer))
+    } catch (parseError) {
+      // Clean up uploaded file on parse failure
+      await supabase.storage.from(STORAGE_BUCKET).remove([filePath])
+
+      const errorMsg =
+        parseError instanceof Error
+          ? parseError.message
+          : 'Unknown parsing error'
+      return ServiceResponse.error(`PDF parsing failed: ${errorMsg}`)
+    }
+
+    // Insert roster record
+    const rosterInsertResult = await supabase
+      .from('published_rosters')
+      .insert({
+        roster_period_code: parsedData.periodCode,
+        title: parsedData.rosterTitle,
+        file_path: filePath,
+        file_name: file.name,
+        file_size: file.size,
+        uploaded_by: uploadedByUserId,
+        parsed: true,
+        parsed_at: new Date().toISOString(),
+        captain_count: parsedData.captainCount,
+        fo_count: parsedData.foCount,
+        period_start_date: parsedData.dates.start,
+        period_end_date: parsedData.dates.end,
       })
+      .select()
+      .single()
+
+    if (rosterInsertResult.error) {
+      await supabase.storage.from(STORAGE_BUCKET).remove([filePath])
+      return ServiceResponse.error(`Database insert failed: ${rosterInsertResult.error.message}`)
     }
-    return { success: false, error: `Database insert failed: ${insertError?.message}` }
-  }
 
-  // 6. Build pilot name map for matching
-  const pilotMap = await buildPilotNameMap()
+    const rosterRecord = rosterInsertResult.data
 
-  // 7. Insert roster assignments
-  const assignmentInserts = toAssignmentInserts(parsed, roster.id, pilotMap)
-  const unmatchedPilots: string[] = []
+    // Insert roster assignments (pilots × 28 days)
+    const assignments = await buildAssignmentRecords(
+      parsedData.captains.concat(parsedData.firstOfficers),
+      rosterRecord.id,
+      parsedData.periodCode
+    )
 
-  // Track unmatched pilots
-  const seenPilots = new Set<string>()
-  for (const insert of assignmentInserts) {
-    const key = `${insert.pilot_last_name}_${insert.pilot_first_name}`
-    if (!insert.pilot_id && !seenPilots.has(key)) {
-      unmatchedPilots.push(`${insert.pilot_last_name} ${insert.pilot_first_name}`)
-      seenPilots.add(key)
-    }
-  }
+    if (assignments.length > 0) {
+      const assignmentResult = await supabase
+        .from('roster_assignments')
+        .insert(assignments)
 
-  // Batch insert assignments (Supabase supports bulk inserts)
-  if (assignmentInserts.length > 0) {
-    const { error: assignError } = await supabase
-      .from('roster_assignments')
-      .insert(assignmentInserts)
-
-    if (assignError) {
-      // Clean up on failure
-      await supabase.from('published_rosters').delete().eq('id', roster.id)
-      const { error: cleanupError } = await supabase.storage.from(BUCKET).remove([storagePath])
-      if (cleanupError) {
-        logError(new Error(`Orphaned storage file after assignment failure: ${storagePath}`), {
-          source: 'published-roster-service/uploadAndParseRoster',
-          severity: ErrorSeverity.MEDIUM,
-          metadata: { cleanupError: cleanupError.message },
-        })
+      if (assignmentResult.error) {
+        // Log but don't fail if assignments insert fails
+        console.error('Assignment insertion error:', assignmentResult.error)
       }
-      return { success: false, error: `Assignment insert failed: ${assignError.message}` }
     }
+
+    return ServiceResponse.success(rosterRecord as PublishedRoster)
+  } catch (error) {
+    const errorMsg =
+      error instanceof Error ? error.message : 'Unknown error'
+    return ServiceResponse.error(`Upload failed: ${errorMsg}`)
   }
-
-  return {
-    success: true,
-    roster,
-    captainCount: parsed.captains.length,
-    foCount: parsed.firstOfficers.length,
-    newActivityCodes: newCodes,
-    unmatchedPilots,
-  }
-}
-
-// ─── Read Operations ────────────────────────────────────────────
-
-export async function getPublishedRosters(filters?: { year?: number }): Promise<PublishedRoster[]> {
-  const supabase = createServiceRoleClient()
-  let query = supabase
-    .from('published_rosters')
-    .select('*')
-    .order('period_start_date', { ascending: false })
-
-  if (filters?.year) {
-    const yearStart = `${filters.year}-01-01`
-    const yearEnd = `${filters.year}-12-31`
-    query = query.gte('period_start_date', yearStart).lte('period_start_date', yearEnd)
-  }
-
-  const { data, error } = await query
-  if (error) throw new Error(`Failed to fetch published rosters: ${error.message}`)
-  return data
-}
-
-export async function getPublishedRosterByPeriod(
-  periodCode: string
-): Promise<PublishedRoster | null> {
-  const supabase = createServiceRoleClient()
-  const { data, error } = await supabase
-    .from('published_rosters')
-    .select('*')
-    .eq('roster_period_code', periodCode)
-    .single()
-
-  if (error && error.code !== 'PGRST116') {
-    throw new Error(`Failed to fetch roster: ${error.message}`)
-  }
-  return data
-}
-
-export async function getRosterAssignments(
-  publishedRosterId: string
-): Promise<Database['public']['Tables']['roster_assignments']['Row'][]> {
-  const supabase = createServiceRoleClient()
-  const { data, error } = await supabase
-    .from('roster_assignments')
-    .select('*')
-    .eq('published_roster_id', publishedRosterId)
-    .order('rank')
-    .order('pilot_last_name')
-    .order('day_number')
-
-  if (error) throw new Error(`Failed to fetch assignments: ${error.message}`)
-  return data
-}
-
-export async function getRosterWithAssignments(
-  periodCode: string
-): Promise<RosterWithAssignments | null> {
-  const roster = await getPublishedRosterByPeriod(periodCode)
-  if (!roster) return null
-
-  const assignments = await getRosterAssignments(roster.id)
-  return { ...roster, assignments }
 }
 
 /**
- * Get all roster period codes that have uploaded rosters.
- * Used by the period navigator to show which periods have data.
+ * Gets all published rosters with optional filters
+ */
+export async function getPublishedRosters(
+  filters?: {
+    year?: number
+    rosterId?: string
+  }
+): Promise<ServiceResponse<PublishedRoster[]>> {
+  try {
+    const supabase = await createClient()
+
+    let query = supabase
+      .from('published_rosters')
+      .select('*')
+      .order('period_start_date', { ascending: false })
+
+    if (filters?.rosterId) {
+      query = query.eq('id', filters.rosterId)
+    }
+
+    if (filters?.year) {
+      query = query
+        .gte('period_start_date', `${filters.year}-01-01`)
+        .lt('period_start_date', `${filters.year + 1}-01-01`)
+    }
+
+    const result = await query
+
+    if (result.error) {
+      return ServiceResponse.error(`Failed to fetch rosters: ${result.error.message}`)
+    }
+
+    return ServiceResponse.success((result.data || []) as PublishedRoster[])
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    return ServiceResponse.error(`Fetch failed: ${errorMsg}`)
+  }
+}
+
+/**
+ * Gets a published roster by ID with all assignments
+ */
+export async function getPublishedRosterById(
+  rosterId: string,
+  filters?: {
+    pilotId?: string
+    rank?: 'CAPTAIN' | 'FIRST_OFFICER'
+    activityCode?: string
+  }
+): Promise<
+  ServiceResponse<{
+    roster: PublishedRoster
+    assignments: any[]
+  }>
+> {
+  try {
+    const supabase = await createClient()
+
+    // Get roster
+    const rosterResult = await supabase
+      .from('published_rosters')
+      .select('*')
+      .eq('id', rosterId)
+      .single()
+
+    if (rosterResult.error) {
+      return ServiceResponse.notFound('Roster not found')
+    }
+
+    // Get assignments
+    let assignmentQuery = supabase
+      .from('roster_assignments')
+      .select('*')
+      .eq('published_roster_id', rosterId)
+
+    if (filters?.pilotId) {
+      assignmentQuery = assignmentQuery.eq('pilot_id', filters.pilotId)
+    }
+
+    if (filters?.rank) {
+      assignmentQuery = assignmentQuery.eq('rank', filters.rank)
+    }
+
+    if (filters?.activityCode) {
+      assignmentQuery = assignmentQuery.eq('activity_code', filters.activityCode)
+    }
+
+    const assignmentResult = await assignmentQuery
+
+    if (assignmentResult.error) {
+      return ServiceResponse.error(
+        `Failed to fetch assignments: ${assignmentResult.error.message}`
+      )
+    }
+
+    return ServiceResponse.success({
+      roster: rosterResult.data as PublishedRoster,
+      assignments: assignmentResult.data || [],
+    })
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    return ServiceResponse.error(`Fetch failed: ${errorMsg}`)
+  }
+}
+
+/**
+ * Deletes a published roster and all related assignments
+ */
+export async function deletePublishedRoster(
+  rosterId: string
+): Promise<ServiceResponse<void>> {
+  try {
+    const supabase = await createClient()
+
+    // Get roster to delete file
+    const rosterResult = await supabase
+      .from('published_rosters')
+      .select('file_path')
+      .eq('id', rosterId)
+      .single()
+
+    if (rosterResult.error) {
+      return ServiceResponse.notFound('Roster not found')
+    }
+
+    // Delete from storage
+    if (rosterResult.data.file_path) {
+      await supabase.storage
+        .from(STORAGE_BUCKET)
+        .remove([rosterResult.data.file_path])
+    }
+
+    // Delete roster (cascade will remove assignments)
+    const deleteResult = await supabase
+      .from('published_rosters')
+      .delete()
+      .eq('id', rosterId)
+
+    if (deleteResult.error) {
+      return ServiceResponse.error(
+        `Delete failed: ${deleteResult.error.message}`
+      )
+    }
+
+    return ServiceResponse.success(undefined)
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    return ServiceResponse.error(`Delete failed: ${errorMsg}`)
+  }
+}
+
+/**
+ * Gets a signed URL for PDF download
+ */
+export async function getSignedPdfUrl(
+  rosterId: string,
+  expiresIn: number = 3600
+): Promise<ServiceResponse<string>> {
+  try {
+    const supabase = await createClient()
+
+    const rosterResult = await supabase
+      .from('published_rosters')
+      .select('file_path')
+      .eq('id', rosterId)
+      .single()
+
+    if (rosterResult.error) {
+      return ServiceResponse.notFound('Roster not found')
+    }
+
+    const { data } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .createSignedUrl(rosterResult.data.file_path, expiresIn)
+
+    if (!data) {
+      return ServiceResponse.error('Failed to generate signed URL')
+    }
+
+    return ServiceResponse.success(data.signedUrl)
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    return ServiceResponse.error(`URL generation failed: ${errorMsg}`)
+  }
+}
+
+/**
+ * Gets all uploaded roster period codes
  */
 export async function getUploadedPeriodCodes(): Promise<string[]> {
-  const supabase = createServiceRoleClient()
-  const { data, error } = await supabase
-    .from('published_rosters')
-    .select('roster_period_code')
-    .order('period_start_date', { ascending: true })
+  try {
+    const supabase = await createClient()
 
-  if (error) throw new Error(`Failed to fetch period codes: ${error.message}`)
-  return data.map((r) => r.roster_period_code)
-}
+    const result = await supabase
+      .from('published_rosters')
+      .select('roster_period_code')
+      .order('roster_period_code', { ascending: false })
 
-// ─── PDF Access ─────────────────────────────────────────────────
+    if (result.error) {
+      console.error('Failed to fetch period codes:', result.error)
+      return []
+    }
 
-export async function getSignedPdfUrl(publishedRosterId: string): Promise<string | null> {
-  const supabase = createServiceRoleClient()
-
-  const { data: roster, error: dbError } = await supabase
-    .from('published_rosters')
-    .select('file_path')
-    .eq('id', publishedRosterId)
-    .single()
-
-  if (dbError && dbError.code !== 'PGRST116') {
-    throw new Error(`Failed to fetch roster for PDF URL: ${dbError.message}`)
+    // Extract unique period codes
+    const codes = result.data?.map((r) => r.roster_period_code) || []
+    return [...new Set(codes)]
+  } catch (error) {
+    console.error('Error fetching period codes:', error)
+    return []
   }
-  if (!roster) return null
-
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .createSignedUrl(roster.file_path, SIGNED_URL_EXPIRATION)
-
-  if (error) {
-    throw new Error(`Failed to create signed PDF URL: ${error.message}`)
-  }
-  return data.signedUrl
 }
-
-// ─── Delete ─────────────────────────────────────────────────────
-
-export async function deletePublishedRoster(
-  id: string
-): Promise<{ success: boolean; error?: string }> {
-  const supabase = createServiceRoleClient()
-
-  // Get file path before deleting
-  const { data: roster } = await supabase
-    .from('published_rosters')
-    .select('file_path')
-    .eq('id', id)
-    .single()
-
-  if (!roster) return { success: false, error: 'Roster not found' }
-
-  // Delete from storage (log but don't fail on storage cleanup errors)
-  const { error: storageError } = await supabase.storage.from(BUCKET).remove([roster.file_path])
-  if (storageError) {
-    logError(new Error(`Failed to delete storage file: ${roster.file_path}`), {
-      source: 'published-roster-service/deletePublishedRoster',
-      severity: ErrorSeverity.MEDIUM,
-      metadata: { storageError: storageError.message },
-    })
-  }
-
-  // Delete from database (cascade deletes assignments)
-  const { error } = await supabase.from('published_rosters').delete().eq('id', id)
-
-  if (error) return { success: false, error: error.message }
-  return { success: true }
-}
-
-// ─── Pilot Name Matching ────────────────────────────────────────
 
 /**
- * Build a map of "LASTNAME_FIRSTNAME" -> pilot UUID for matching
- * roster entries to pilot records. Case-insensitive.
+ * Gets a roster with assignments by period code
+ * Returns the roster merged with its assignments, or null if not found
  */
-async function buildPilotNameMap(): Promise<Map<string, string>> {
-  const supabase = createServiceRoleClient()
-  const { data: pilots, error } = await supabase.from('pilots').select('id, last_name, first_name')
+export async function getRosterWithAssignments(
+  periodCode: string
+): Promise<(PublishedRoster & { assignments: any[] }) | null> {
+  try {
+    const supabase = await createClient()
 
-  if (error) throw new Error(`Failed to load pilots for name matching: ${error.message}`)
-  if (!pilots) return new Map()
+    // Get roster by period code
+    const rosterResult = await supabase
+      .from('published_rosters')
+      .select('*')
+      .eq('roster_period_code', periodCode)
+      .single()
 
-  const map = new Map<string, string>()
+    if (rosterResult.error || !rosterResult.data) {
+      return null
+    }
+
+    const roster = rosterResult.data as PublishedRoster
+
+    // Get assignments for this roster
+    const assignmentResult = await supabase
+      .from('roster_assignments')
+      .select('*')
+      .eq('published_roster_id', roster.id)
+
+    if (assignmentResult.error) {
+      console.error('Failed to fetch assignments:', assignmentResult.error)
+      return {
+        ...roster,
+        assignments: [],
+      }
+    }
+
+    return {
+      ...roster,
+      assignments: assignmentResult.data || [],
+    }
+  } catch (error) {
+    console.error('Error fetching roster with assignments:', error)
+    return null
+  }
+}
+
+/**
+ * Builds roster assignment records from parsed pilot data
+ * Matches pilots to pilots table and creates assignment rows
+ */
+async function buildAssignmentRecords(
+  pilots: PilotAssignment[],
+  rosterId: string,
+  periodCode: string
+): Promise<any[]> {
+  const assignments: any[] = []
+
   for (const pilot of pilots) {
-    const key = `${pilot.last_name.toUpperCase()}_${pilot.first_name.toUpperCase()}`
-    map.set(key, pilot.id)
+    // Match pilot by last name and first name
+    let matchedPilotId: string | null = null
+
+    try {
+      // Search for pilot by last name first, then combine with first name
+      const searchTerm = `${pilot.pilotLastName} ${pilot.pilotFirstName}`
+      const matchedPilots = await searchPilots(searchTerm, {
+        role: pilot.rank === 'CAPTAIN' ? 'Captain' : 'First Officer',
+        status: 'active',
+      })
+
+      if (matchedPilots.length > 0) {
+        // Take the first match (most likely to be correct)
+        matchedPilotId = matchedPilots[0].id
+      }
+    } catch (error) {
+      // If pilot matching fails, log and continue with null pilot_id
+      console.warn(`Failed to match pilot ${pilot.pilotName}:`, error)
+    }
+
+    for (const assignment of pilot.assignments) {
+      assignments.push({
+        published_roster_id: rosterId,
+        roster_period_code: periodCode,
+        pilot_id: matchedPilotId,
+        pilot_name: pilot.pilotName,
+        pilot_last_name: pilot.pilotLastName,
+        pilot_first_name: pilot.pilotFirstName,
+        rank: pilot.rank,
+        day_number: assignment.dayNumber,
+        date: assignment.date,
+        activity_code: assignment.activityCode,
+      })
+    }
   }
 
-  return map
+  return assignments
 }

@@ -114,7 +114,7 @@ export function RetryIndicator({
             <div className="mt-2">
               <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
                 <div
-                  className="h-full bg-[var(--color-info)] transition-all duration-300"
+                  className="h-full bg-[var(--color-info)] transition-all duration-300 motion-reduce:transition-none"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -149,7 +149,7 @@ export function RetryIndicator({
           <div className="mt-2 space-y-2">
             <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
               <div
-                className="h-full bg-[var(--color-info)] transition-all duration-300 ease-in-out"
+                className="h-full bg-[var(--color-info)] transition-all duration-300 ease-in-out motion-reduce:transition-none"
                 style={{ width: `${progress}%` }}
               />
             </div>

@@ -35,6 +35,7 @@ const DialogOverlay = React.forwardRef<
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       'data-[state=closed]:duration-150 data-[state=open]:duration-200',
+      'motion-reduce:animate-none motion-reduce:transition-none',
       className
     )}
     {...props}
@@ -42,12 +43,23 @@ const DialogOverlay = React.forwardRef<
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
+type DialogSize = 'default' | 'sm' | 'lg' | 'xl' | 'full'
+
+const dialogSizeClasses: Record<DialogSize, string> = {
+  default: 'max-w-lg',
+  sm: 'max-w-md',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+  full: 'max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]',
+}
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     onEscapeKeyDown?: (event: Event) => void
+    size?: DialogSize
   }
->(({ className, children, onEscapeKeyDown, ...props }, ref) => (
+>(({ className, children, onEscapeKeyDown, size = 'default', ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
@@ -55,7 +67,7 @@ const DialogContent = React.forwardRef<
       className={cn(
         // Linear-inspired: enhanced shadow, rounded-xl, clean border
         // Uses z-modal (60) to appear above sidebars (z-40)
-        'fixed top-[50%] left-[50%] z-[var(--z-modal)] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
+        `fixed top-[50%] left-[50%] z-[var(--z-modal)] grid w-full ${dialogSizeClasses[size]} translate-x-[-50%] translate-y-[-50%]`,
         'bg-card border-border gap-4 border p-4 shadow-2xl sm:p-6',
         'data-[state=open]:animate-in data-[state=closed]:animate-out duration-200',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -63,6 +75,7 @@ const DialogContent = React.forwardRef<
         'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
         'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
         'origin-[--radix-dialog-content-transform-origin] rounded-xl',
+        'motion-reduce:animate-none motion-reduce:transition-none',
         className
       )}
       onEscapeKeyDown={onEscapeKeyDown}

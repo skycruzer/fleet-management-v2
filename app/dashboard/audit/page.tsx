@@ -143,10 +143,10 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-foreground text-3xl font-bold">Audit Logs</h1>
+      <div>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">Audit Logs</h1>
         <p className="text-muted-foreground mt-2">
           Complete audit trail of all system changes and activities
         </p>

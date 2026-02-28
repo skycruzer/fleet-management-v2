@@ -6,6 +6,7 @@ import {
   getUploadedPeriodCodes,
 } from '@/lib/services/published-roster-service'
 import { getActivityCodes } from '@/lib/services/activity-code-service'
+import { unwrapOr } from '@/lib/types/service-response'
 import { getCurrentRosterPeriodObject } from '@/lib/utils/roster-utils'
 import { PublishedRostersClient } from './published-rosters-client'
 
@@ -31,7 +32,7 @@ function RosterSkeleton() {
 async function PublishedRostersData() {
   const currentPeriod = getCurrentRosterPeriodObject()
 
-  const [uploadedCodes, activityCodes, rosterData] = await Promise.all([
+  const [uploadedCodes, activityCodesResponse, rosterData] = await Promise.all([
     getUploadedPeriodCodes(),
     getActivityCodes(),
     getRosterWithAssignments(currentPeriod.code),
@@ -42,7 +43,7 @@ async function PublishedRostersData() {
       initialPeriodCode={currentPeriod.code}
       initialRoster={rosterData}
       initialUploadedCodes={uploadedCodes}
-      activityCodes={activityCodes}
+      activityCodes={unwrapOr(activityCodesResponse, [])}
     />
   )
 }

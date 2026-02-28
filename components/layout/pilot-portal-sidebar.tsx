@@ -13,7 +13,7 @@ import {
   FileCheck,
   LogOut,
   ChevronRight,
-  Cloud,
+  LayoutDashboard,
   Menu,
   Settings,
   X,
@@ -254,10 +254,10 @@ export function PilotPortalSidebar({
             <div className="border-border bg-card border-t p-4">
               <button
                 onClick={handleLogout}
-                className="bg-destructive hover:bg-destructive/90 flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition-colors"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive/50 flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium transition-colors"
               >
                 <LogOut className="h-5 w-5" />
-                <span>Logout</span>
+                <span>Sign Out</span>
               </button>
             </div>
           }
@@ -266,16 +266,20 @@ export function PilotPortalSidebar({
           <nav className="p-4">
             <div className="space-y-1">
               {/* Dashboard Link */}
-              <Link href="/portal/dashboard" onClick={closeMobileMenu}>
+              <Link
+                href="/portal/dashboard"
+                onClick={closeMobileMenu}
+                aria-current={isActive('/portal/dashboard') ? 'page' : undefined}
+              >
                 <div
                   className={cn(
                     'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                     isActive('/portal/dashboard')
                       ? 'bg-primary/15 text-primary border-primary border-l-2'
-                      : 'text-foreground hover:bg-accent/50'
+                      : 'text-foreground hover:bg-muted'
                   )}
                 >
-                  <Cloud
+                  <LayoutDashboard
                     className={cn(
                       'h-5 w-5 transition-colors',
                       isActive('/portal/dashboard')
@@ -315,13 +319,18 @@ export function PilotPortalSidebar({
                 const active = isActive(item.href)
 
                 return (
-                  <Link key={item.href} href={item.href} onClick={closeMobileMenu}>
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMobileMenu}
+                    aria-current={active ? 'page' : undefined}
+                  >
                     <div
                       className={cn(
-                        'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
+                        'group relative flex min-h-[36px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                         active
-                          ? 'bg-primary/15 text-primary border-primary border-l-2'
-                          : 'text-foreground hover:bg-accent/50'
+                          ? 'border-primary bg-primary/10 text-primary border-l-[3px] pl-2.5'
+                          : 'text-foreground hover:bg-muted'
                       )}
                     >
                       <Icon
@@ -333,17 +342,7 @@ export function PilotPortalSidebar({
                         )}
                       />
 
-                      <div className="flex-1">
-                        <div className="font-semibold">{item.title}</div>
-                        <div
-                          className={cn(
-                            'text-sm',
-                            active ? 'text-primary/80' : 'text-muted-foreground'
-                          )}
-                        >
-                          {item.description}
-                        </div>
-                      </div>
+                      <span className="flex-1 font-semibold">{item.title}</span>
 
                       <ChevronRight
                         className={cn(

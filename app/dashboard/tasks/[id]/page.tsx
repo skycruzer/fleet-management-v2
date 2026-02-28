@@ -80,7 +80,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
       <div className="bg-card overflow-hidden rounded-lg shadow">
         <div className="border-border bg-muted border-b p-6">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
-            <h1 className="text-foreground text-3xl font-bold">{task.title}</h1>
+            <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">{task.title}</h1>
             <div className="flex flex-wrap gap-2">
               <span
                 className={`rounded-full px-3 py-1 text-sm font-medium ${statusColors[task.status] || statusColors.PENDING}`}

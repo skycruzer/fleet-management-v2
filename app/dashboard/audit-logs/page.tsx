@@ -79,11 +79,11 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="space-y-6">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-foreground text-3xl font-bold">Audit Logs</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-foreground text-xl font-semibold">Audit Logs</h1>
+        <p className="text-muted-foreground mt-1 text-sm">
           Complete audit trail of all system activities and changes
         </p>
       </div>

@@ -217,7 +217,7 @@ export function FileUpload({
       {/* Drop Zone */}
       <div
         className={cn(
-          'relative rounded-lg border-2 border-dashed transition-all duration-200',
+          'relative rounded-lg border-2 border-dashed transition-all duration-200 motion-reduce:transition-none',
           'bg-muted/20',
           // States
           isDragging && 'border-primary bg-primary/5',

@@ -25,8 +25,8 @@ export function LoginForm() {
     <form action={handleSubmit} className="space-y-5">
       {/* Error Message */}
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-[var(--color-danger-500)]/50 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div role="alert" aria-live="assertive" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{error}</span>
         </div>
       )}
@@ -43,9 +43,10 @@ export function LoginForm() {
             name="email"
             type="email"
             placeholder="admin@airniugini.com"
+            autoComplete="email"
             required
             disabled={isPending}
-            className="border-border bg-muted/50 text-foreground placeholder:text-muted-foreground/60 focus:border-muted-foreground focus:ring-muted-foreground/30 pl-10"
+            className="border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-muted-foreground focus:ring-muted-foreground/30 pl-10"
           />
         </div>
       </div>
@@ -62,9 +63,10 @@ export function LoginForm() {
             name="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
+            autoComplete="current-password"
             required
             disabled={isPending}
-            className="border-border bg-muted/50 text-foreground placeholder:text-muted-foreground/60 focus:border-muted-foreground focus:ring-muted-foreground/30 pr-10 pl-10"
+            className="border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:border-muted-foreground focus:ring-muted-foreground/30 pr-10 pl-10"
           />
           <button
             type="button"
@@ -78,12 +80,22 @@ export function LoginForm() {
         </div>
       </div>
 
+      {/* Forgot Password */}
+      <div className="text-right">
+        <a
+          href="/auth/forgot-password"
+          className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+        >
+          Forgot password?
+        </a>
+      </div>
+
       {/* Submit Button */}
       <div>
         <Button
           type="submit"
           disabled={isPending}
-          className="bg-muted text-foreground hover:bg-muted/80 relative w-full overflow-hidden shadow-lg transition-all disabled:opacity-50"
+          className="group bg-primary text-primary-foreground hover:bg-primary/90 relative w-full overflow-hidden shadow-lg transition-all disabled:opacity-50"
         >
           {isPending ? (
             <span className="relative z-10 flex items-center justify-center gap-2">
@@ -97,6 +109,21 @@ export function LoginForm() {
             </span>
           )}
         </Button>
+      </div>
+      {/* Cross-portal links */}
+      <div className="flex items-center justify-between pt-2 text-sm">
+        <a
+          href="/"
+          className="text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Back to home
+        </a>
+        <a
+          href="/portal/login"
+          className="text-primary hover:text-primary/80 font-medium transition-colors"
+        >
+          Pilot Portal →
+        </a>
       </div>
     </form>
   )

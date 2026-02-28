@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
       </div>
 
       {/* Main Card */}
-      <div className="relative w-full max-w-md">
+      <div className="relative w-full max-w-sm">
         <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
           {/* Logo and Title */}
           <div className="mb-8 text-center">
@@ -33,12 +33,12 @@ export default function AdminLoginPage() {
               <Image
                 src="/images/air-niugini-logo.jpg"
                 alt="Air Niugini"
-                width={64}
-                height={64}
-                className="h-16 w-16 rounded-xl object-contain shadow-lg"
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-xl object-contain shadow-lg"
               />
             </div>
-            <h1 className="text-foreground mb-2 text-3xl font-bold">Administration</h1>
+            <h1 className="text-foreground mb-2 text-xl font-semibold">Administration</h1>
             <div className="text-muted-foreground flex items-center justify-center gap-2">
               <Shield className="h-4 w-4" />
               <p className="text-sm">Fleet Management System</p>
