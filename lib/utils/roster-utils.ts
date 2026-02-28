@@ -219,7 +219,7 @@ const PERIODS_PER_YEAR = 13
 const KNOWN_ROSTER = {
   number: 13,
   year: 2025,
-  startDate: new Date('2025-11-08'),
+  startDate: new Date(2025, 10, 8), // Local midnight — month is 0-indexed (10 = November)
 }
 
 // ========================================
