@@ -13,6 +13,7 @@
 
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { formatDate } from '@/lib/utils/date-utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -351,8 +352,8 @@ export function FlightRequestReportForm() {
                               Selected: {field.value.join(', ')}
                             </p>
                             <p className="mt-1 text-xs text-[var(--color-info)]">
-                              Date Range: {new Date(dateRange.startDate).toLocaleDateString()} -{' '}
-                              {new Date(dateRange.endDate).toLocaleDateString()}
+                              Date Range: {formatDate(dateRange.startDate)} -{' '}
+                              {formatDate(dateRange.endDate)}
                             </p>
                           </div>
                         )

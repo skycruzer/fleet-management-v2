@@ -25,6 +25,20 @@ interface CertExpiryCardProps {
   className?: string
 }
 
+function computeBadge(
+  variant: CertExpiryVariant,
+  item: CertCheckItem,
+  now: number
+): { label: string; sublabel: string } {
+  const diffDays = Math.ceil(
+    (new Date(item.expiry_date).getTime() - now) / (1000 * 60 * 60 * 24)
+  )
+  if (variant === 'expired') {
+    return { label: `${Math.abs(diffDays)}d ago`, sublabel: 'expired' }
+  }
+  return { label: `${diffDays}d`, sublabel: 'remaining' }
+}
+
 const variantConfig: Record<
   CertExpiryVariant,
   {
@@ -34,7 +48,6 @@ const variantConfig: Record<
     textMutedClass: string
     rowBorderClass: string
     Icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>
-    badge: (item: CertCheckItem) => { label: string; sublabel: string }
   }
 > = {
   expired: {
@@ -44,12 +57,6 @@ const variantConfig: Record<
     textMutedClass: 'text-destructive/70',
     rowBorderClass: 'border-destructive/20',
     Icon: XCircle,
-    badge: (item) => {
-      const daysAgo = Math.abs(
-        Math.ceil((new Date(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-      )
-      return { label: `${daysAgo}d ago`, sublabel: 'expired' }
-    },
   },
   danger: {
     cardClass: 'border-destructive/20 bg-destructive/5',
@@ -58,12 +65,6 @@ const variantConfig: Record<
     textMutedClass: 'text-destructive/70',
     rowBorderClass: 'border-destructive/20',
     Icon: AlertTriangle,
-    badge: (item) => {
-      const daysLeft = Math.ceil(
-        (new Date(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      )
-      return { label: `${daysLeft}d`, sublabel: 'remaining' }
-    },
   },
   warning: {
     cardClass: 'border-warning/20 bg-warning/5',
@@ -72,12 +73,6 @@ const variantConfig: Record<
     textMutedClass: 'text-warning-text/70',
     rowBorderClass: 'border-warning/20',
     Icon: Clock,
-    badge: (item) => {
-      const daysLeft = Math.ceil(
-        (new Date(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      )
-      return { label: `${daysLeft}d`, sublabel: 'remaining' }
-    },
   },
 }
 
@@ -92,6 +87,8 @@ export function CertExpiryCard({
 
   const config = variantConfig[variant]
   const { Icon } = config
+  // Stable timestamp for the entire render pass — avoids hydration mismatch
+  const now = Date.now()
 
   return (
     <Card className={cn('p-5', config.cardClass, className)}>
@@ -104,7 +101,7 @@ export function CertExpiryCard({
 
       <div className="space-y-2">
         {checks.map((check) => {
-          const { label, sublabel } = config.badge(check)
+          const { label, sublabel } = computeBadge(variant, check, now)
           return (
             <div
               key={check.id}

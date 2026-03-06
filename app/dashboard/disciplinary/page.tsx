@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatters, getMatterStats } from '@/lib/services/disciplinary-service'
+import { formatDate } from '@/lib/utils/date-utils'
 import Link from 'next/link'
 import { DisciplinaryFilters } from './components/disciplinary-filters'
 // Force dynamic rendering to prevent static generation at build time
@@ -270,7 +271,7 @@ export default async function DisciplinaryPage({ searchParams }: DisciplinaryPag
                       </span>
                     </td>
                     <td className="text-muted-foreground px-6 py-4 text-sm">
-                      {new Date(matter.incident_date).toLocaleDateString()}
+                      {formatDate(matter.incident_date)}
                     </td>
                   </tr>
                 ))

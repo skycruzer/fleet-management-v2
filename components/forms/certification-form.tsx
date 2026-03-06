@@ -4,9 +4,12 @@
  *
  * Developer: Maurice Rondeau
  *
+ * DEDUPLICATION: This form uses useDeduplicatedSubmit to prevent
+ * duplicate submissions when users rapidly click the submit button.
+ *
  * CSRF PROTECTION: This form includes CSRF token protection for all submissions
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @since 2025-10-17
  * @updated 2025-10-27 - Added CSRF protection
  */
@@ -36,6 +39,7 @@ import { FormSelectWrapper, type SelectOption } from './form-select-wrapper'
 import { FormDatePickerWrapper } from './form-date-picker-wrapper'
 import { FormTextareaWrapper } from './form-textarea-wrapper'
 import { FormFieldWrapper } from './form-field-wrapper'
+import { useDeduplicatedSubmit } from '@/lib/hooks/use-deduplicated-submit'
 import { Loader2 } from 'lucide-react'
 
 type CertificationFormMode = 'create' | 'edit'
@@ -77,11 +81,21 @@ export function CertificationForm({
     },
   })
 
-  const handleSubmit = async (data: CertificationCreate | CertificationUpdate) => {
-    // Note: CSRF token is handled via fetchWithCsrf() in the parent component
-    // or via header in API calls. This form passes data to parent onSubmit.
-    await onSubmit(data)
-  }
+  // Deduplicated submit handler prevents duplicate submissions
+  // when users rapidly click the submit button
+  const { handleSubmit: deduplicatedSubmit, isSubmitting } = useDeduplicatedSubmit(
+    async (data: CertificationCreate | CertificationUpdate) => {
+      // Note: CSRF token is handled via fetchWithCsrf() in the parent component
+      // or via header in API calls. This form passes data to parent onSubmit.
+      await onSubmit(data)
+    },
+    {
+      key:
+        mode === 'create'
+          ? 'certification-form-create'
+          : `certification-form-edit-${(defaultValues as any)?.id || 'new'}`,
+    }
+  )
 
   return (
     <Card>
@@ -94,7 +108,7 @@ export function CertificationForm({
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <form onSubmit={form.handleSubmit(deduplicatedSubmit)}>
           <CardContent className="space-y-6">
             {/* Pilot and Check Type Selection */}
             <div className="space-y-4">
@@ -156,17 +170,28 @@ export function CertificationForm({
 
           <CardFooter className="flex justify-end gap-4">
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isLoading || isSubmitting}
+              >
                 Cancel
               </Button>
             )}
-            <Button type="submit" disabled={isLoading || csrfLoading || !csrfToken}>
-              {(isLoading || csrfLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {csrfLoading
-                ? 'Loading...'
-                : mode === 'create'
-                  ? 'Create Certification'
-                  : 'Update Certification'}
+            <Button type="submit" disabled={isLoading || isSubmitting || csrfLoading || !csrfToken}>
+              {(isLoading || isSubmitting || csrfLoading) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {isSubmitting
+                ? mode === 'create'
+                  ? 'Creating...'
+                  : 'Updating...'
+                : csrfLoading
+                  ? 'Loading...'
+                  : mode === 'create'
+                    ? 'Create Certification'
+                    : 'Update Certification'}
             </Button>
           </CardFooter>
         </form>

@@ -11,6 +11,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { formatDate } from '@/lib/utils/date-utils'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -414,7 +415,7 @@ export function FeedbackDashboardClient({
               {feedback.map((item) => (
                 <tr key={item.id} className="border-b">
                   <td className="px-4 py-3 text-sm">
-                    {new Date(item.created_at).toLocaleDateString()}
+                    {formatDate(item.created_at)}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {item.is_anonymous

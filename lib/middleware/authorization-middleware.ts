@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { validateAdminSession } from '@/lib/services/admin-auth-service'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 /**
  * User roles in the system
@@ -63,7 +64,10 @@ export async function getUserRole(userId: string): Promise<UserRole | null> {
 
     return userData.role as UserRole
   } catch (error) {
-    console.error('Error fetching user role:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/getUserRole',
+      severity: ErrorSeverity.HIGH,
+    })
     return null
   }
 }
@@ -138,6 +142,7 @@ export async function verifyResourceOwnership(
     }
 
     // Query resource to check ownership
+    // Table name is dynamic from resourceConfig, so `as any` is required for .from()
     const { data, error } = await supabase
       .from(resourceConfig.table as any)
       .select(resourceConfig.userColumn)
@@ -152,8 +157,8 @@ export async function verifyResourceOwnership(
       }
     }
 
-    // Check if user owns the resource
-    const ownerId = (data as any)[resourceConfig.userColumn]
+    // Dynamic column access requires type assertion since column name is a runtime variable
+    const ownerId = (data as unknown as Record<string, unknown>)[resourceConfig.userColumn]
 
     if (ownerId !== userId) {
       return {
@@ -165,7 +170,10 @@ export async function verifyResourceOwnership(
 
     return { authorized: true }
   } catch (error) {
-    console.error('Error verifying resource ownership:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/verifyResourceOwnership',
+      severity: ErrorSeverity.HIGH,
+    })
     return {
       authorized: false,
       error: 'Authorization check failed',
@@ -257,7 +265,10 @@ export async function verifyRequestAuthorization(
     // Verify resource ownership
     return await verifyResourceOwnership(user.id, resourceType, resourceId)
   } catch (error) {
-    console.error('Error in request authorization:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/verifyRequestAuthorization',
+      severity: ErrorSeverity.HIGH,
+    })
     return {
       authorized: false,
       error: 'Authorization failed',
@@ -318,7 +329,10 @@ export async function requireRole(
       statusCode: 401,
     }
   } catch (error) {
-    console.error('Error in role verification:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/requireRole',
+      severity: ErrorSeverity.HIGH,
+    })
     return {
       authorized: false,
       error: 'Role verification failed',

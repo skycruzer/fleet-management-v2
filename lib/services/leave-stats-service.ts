@@ -13,6 +13,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { differenceInDays, parseISO } from 'date-fns'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 export interface PilotLeaveStats {
   pilotId: string
@@ -58,7 +59,10 @@ export async function getApprovedDaysForYear(
     .lte('start_date', `${year}-12-31`)
 
   if (error) {
-    console.error('Error fetching approved days:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-stats-service/getApprovedDaysForYear',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return 0
   }
 
@@ -97,7 +101,10 @@ export async function getPendingDaysForYear(
     .lte('start_date', `${year}-12-31`)
 
   if (error) {
-    console.error('Error fetching pending days:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-stats-service/getPendingDaysForYear',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return 0
   }
 
@@ -133,7 +140,10 @@ export async function getPilotLeaveStats(
     .single()
 
   if (pilotError || !pilot) {
-    console.error('Error fetching pilot:', pilotError)
+    logError(pilotError instanceof Error ? pilotError : new Error(String(pilotError)), {
+      source: 'leave-stats-service/getPilotLeaveStats',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return null
   }
 
@@ -214,7 +224,10 @@ export async function getPriorityRanking(
     .order('seniority_number', { ascending: true })
 
   if (error || !pilots) {
-    console.error('Error fetching pilots:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-stats-service/getPriorityRanking',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return []
   }
 
@@ -262,7 +275,10 @@ export async function getAllPilotLeaveStats(
     .order('seniority_number', { ascending: true })
 
   if (error || !pilots) {
-    console.error('Error fetching pilots:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-stats-service/getAllPilotLeaveStats',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return []
   }
 

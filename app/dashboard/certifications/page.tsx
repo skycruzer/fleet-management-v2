@@ -17,6 +17,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { formatDate } from '@/lib/utils/date-utils'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -384,8 +385,8 @@ export default function CertificationsPage() {
       `${cert.pilot.first_name} ${cert.pilot.last_name}`,
       cert.pilot.employee_id,
       cert.check_type.check_description,
-      cert.completion_date ? new Date(cert.completion_date).toLocaleDateString() : 'N/A',
-      cert.expiry_date ? new Date(cert.expiry_date).toLocaleDateString() : 'N/A',
+      cert.completion_date ? formatDate(cert.completion_date) : 'N/A',
+      cert.expiry_date ? formatDate(cert.expiry_date) : 'N/A',
       cert.status.label,
       cert.status.daysUntilExpiry?.toString() || 'N/A',
     ])

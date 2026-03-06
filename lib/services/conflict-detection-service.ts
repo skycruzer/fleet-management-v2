@@ -141,8 +141,10 @@ export async function detectConflicts(
     })
 
     return result
-  } catch (error: any) {
-    logger.error('Error detecting conflicts', { error })
+  } catch (error: unknown) {
+    logger.error('Error detecting conflicts', {
+      error: error instanceof Error ? error : String(error),
+    })
     return {
       hasConflicts: false,
       conflicts: [],
@@ -220,8 +222,10 @@ export async function checkOverlappingRequests(requestInput: RequestInput): Prom
         })
       })
     }
-  } catch (error: any) {
-    logger.error('Error in checkOverlappingRequests', { error })
+  } catch (error: unknown) {
+    logger.error('Error in checkOverlappingRequests', {
+      error: error instanceof Error ? error : String(error),
+    })
   }
 
   return conflicts
@@ -306,8 +310,10 @@ export async function checkCrewAvailability(
         `Approving this request would leave only ${availableCrew} ${requestInput.rank}s available (1 above minimum)`
       )
     }
-  } catch (error: any) {
-    logger.error('Error in checkCrewAvailability', { error })
+  } catch (error: unknown) {
+    logger.error('Error in checkCrewAvailability', {
+      error: error instanceof Error ? error : String(error),
+    })
   }
 
   return { conflicts, warnings }
@@ -364,8 +370,10 @@ export async function checkDuplicateRequests(requestInput: RequestInput): Promis
         })
       })
     }
-  } catch (error: any) {
-    logger.error('Error in checkDuplicateRequests', { error })
+  } catch (error: unknown) {
+    logger.error('Error in checkDuplicateRequests', {
+      error: error instanceof Error ? error : String(error),
+    })
   }
 
   return conflicts
@@ -424,8 +432,10 @@ async function calculateCrewImpact(requestInput: RequestInput) {
       firstOfficersAfter: fosAfter,
       belowMinimum: captainsAfter < MINIMUM_CAPTAINS || fosAfter < MINIMUM_FIRST_OFFICERS,
     }
-  } catch (error: any) {
-    logger.error('Error calculating crew impact', { error })
+  } catch (error: unknown) {
+    logger.error('Error calculating crew impact', {
+      error: error instanceof Error ? error : String(error),
+    })
     return undefined
   }
 }

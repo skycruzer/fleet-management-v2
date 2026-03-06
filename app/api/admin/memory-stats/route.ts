@@ -7,10 +7,12 @@
  * Use for monitoring and alerting
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { unifiedCacheService } from '@/lib/services/unified-cache-service'
 import { redisCacheService } from '@/lib/services/redis-cache-service'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 /**
  * GET /api/admin/memory-stats
@@ -20,12 +22,18 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
  * @example
  * curl http://localhost:3000/api/admin/memory-stats
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     // Authentication check - admin only
     const auth = await getAuthenticatedAdmin()
     if (!auth.authenticated) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Explicit admin role check
+    const roleCheck = await requireRole(request, [UserRole.ADMIN])
+    if (!roleCheck.authorized) {
+      return NextResponse.json({ success: false, error: 'Insufficient permissions' }, { status: 403 })
     }
     // Node.js memory usage
     const memoryUsage = process.memoryUsage()
@@ -71,7 +79,10 @@ export async function GET() {
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Error fetching memory stats:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'api/admin/memory-stats/GET',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return NextResponse.json(
       {
         error: 'Failed to fetch memory statistics',

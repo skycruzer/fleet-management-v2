@@ -24,6 +24,7 @@ import {
   Download,
   FileText,
   RefreshCw,
+  Clock,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 
@@ -169,6 +170,12 @@ function AnalyticsPageContent() {
 
     try {
       setExporting(true)
+      toast({
+        title: 'Preparing Export',
+        description: `Generating your ${format.toUpperCase()} file...`,
+        variant: 'default',
+      })
+
       const response = await fetch('/api/analytics/export', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,12 +195,18 @@ function AnalyticsPageContent() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
+
+      toast({
+        title: 'Export Complete',
+        description: `Your ${format.toUpperCase()} file has been downloaded successfully.`,
+        variant: 'success',
+      })
     } catch (err) {
       console.error('Export error:', err)
       toast({
         variant: 'destructive',
         title: 'Export Failed',
-        description: 'Failed to export analytics data',
+        description: 'Failed to export analytics data. Please try again.',
       })
     } finally {
       setExporting(false)
@@ -552,7 +565,7 @@ function AnalyticsPageContent() {
         {/* Leave Analytics */}
         <Card className="p-6">
           <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
-            <Palmtree className="mr-2 h-5 w-5 text-[var(--color-success-600)]" aria-hidden="true" />
+            <Clock className="mr-2 h-5 w-5 text-[var(--color-success-600)]" aria-hidden="true" />
             Leave Request Analytics
           </h3>
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -581,7 +594,7 @@ function AnalyticsPageContent() {
           </div>
 
           <h4 className="text-foreground mb-3 font-medium">Leave Types Breakdown</h4>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {analytics.leave.byType.map((type) => (
               <div key={type.type} className="bg-muted/50 rounded-lg p-3">
                 <div className="text-foreground font-medium">{type.type}</div>

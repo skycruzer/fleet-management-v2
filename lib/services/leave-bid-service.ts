@@ -25,6 +25,7 @@ import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { notifyAllAdmins } from '@/lib/services/notification-service'
 import { sendAdminRequestNotificationEmail } from '@/lib/services/pilot-email-service'
 import type { ServiceResponse } from '@/lib/types/service-response'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 export interface LeaveBid {
   id: string
@@ -101,7 +102,10 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
       .maybeSingle()
 
     if (checkError) {
-      console.error('Error checking existing bid:', checkError)
+      logError(checkError instanceof Error ? checkError : new Error(String(checkError)), {
+        source: 'leave-bid-service/submitLeaveBid',
+        severity: ErrorSeverity.MEDIUM,
+      })
       return {
         success: false,
         error: 'Failed to check existing bid',
@@ -125,7 +129,10 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         .single()
 
       if (updateError || !updatedBid) {
-        console.error('Error updating leave bid:', updateError)
+        logError(updateError instanceof Error ? updateError : new Error(String(updateError)), {
+          source: 'leave-bid-service/submitLeaveBid',
+          severity: ErrorSeverity.MEDIUM,
+        })
         return {
           success: false,
           error: 'Failed to update leave bid',
@@ -138,7 +145,12 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         `${pilot.first_name} ${pilot.last_name} updated their leave bid for ${bidData.roster_period_code}`,
         'leave_bid_submitted',
         `/dashboard/admin/leave-bids/${updatedBid.id}`
-      ).catch((err) => console.error('Failed to notify admins:', err))
+      ).catch((err) =>
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          source: 'leave-bid-service/submitLeaveBid',
+          severity: ErrorSeverity.LOW,
+        })
+      )
 
       sendAdminRequestNotificationEmail({
         pilotName: `${pilot.first_name} ${pilot.last_name}`,
@@ -147,7 +159,12 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         startDate: bidData.roster_period_code,
         endDate: null,
         requestId: updatedBid.id,
-      }).catch((err) => console.error('Failed to send admin email:', err))
+      }).catch((err) =>
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          source: 'leave-bid-service/submitLeaveBid',
+          severity: ErrorSeverity.LOW,
+        })
+      )
 
       return {
         success: true,
@@ -172,7 +189,10 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         .single()
 
       if (createError || !newBid) {
-        console.error('Error creating leave bid:', createError)
+        logError(createError instanceof Error ? createError : new Error(String(createError)), {
+          source: 'leave-bid-service/submitLeaveBid',
+          severity: ErrorSeverity.MEDIUM,
+        })
         return {
           success: false,
           error: 'Failed to create leave bid',
@@ -185,7 +205,12 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         `${pilot.first_name} ${pilot.last_name} submitted a leave bid for ${bidData.roster_period_code}`,
         'leave_bid_submitted',
         `/dashboard/admin/leave-bids/${newBid.id}`
-      ).catch((err) => console.error('Failed to notify admins:', err))
+      ).catch((err) =>
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          source: 'leave-bid-service/submitLeaveBid',
+          severity: ErrorSeverity.LOW,
+        })
+      )
 
       sendAdminRequestNotificationEmail({
         pilotName: `${pilot.first_name} ${pilot.last_name}`,
@@ -194,7 +219,12 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
         startDate: bidData.roster_period_code,
         endDate: null,
         requestId: newBid.id,
-      }).catch((err) => console.error('Failed to send admin email:', err))
+      }).catch((err) =>
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          source: 'leave-bid-service/submitLeaveBid',
+          severity: ErrorSeverity.LOW,
+        })
+      )
 
       return {
         success: true,
@@ -202,7 +232,10 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
       }
     }
   } catch (error) {
-    console.error('Submit leave bid error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/submitLeaveBid',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return {
       success: false,
       error: 'Failed to submit leave bid',
@@ -237,7 +270,10 @@ export async function getCurrentPilotLeaveBids(): Promise<ServiceResponse<LeaveB
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching leave bids:', error)
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'leave-bid-service/getCurrentPilotLeaveBids',
+        severity: ErrorSeverity.MEDIUM,
+      })
       return {
         success: false,
         error: 'Failed to fetch leave bids',
@@ -249,7 +285,10 @@ export async function getCurrentPilotLeaveBids(): Promise<ServiceResponse<LeaveB
       data: (data || []) as LeaveBid[],
     }
   } catch (error) {
-    console.error('Get leave bids error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/getCurrentPilotLeaveBids',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return {
       success: false,
       error: 'Failed to fetch leave bids',
@@ -286,7 +325,10 @@ export async function getLeaveBidById(bidId: string): Promise<ServiceResponse<Le
       .single()
 
     if (error) {
-      console.error('Error fetching leave bid:', error)
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        source: 'leave-bid-service/getLeaveBidById',
+        severity: ErrorSeverity.MEDIUM,
+      })
       return {
         success: false,
         error: 'Leave bid not found',
@@ -298,7 +340,10 @@ export async function getLeaveBidById(bidId: string): Promise<ServiceResponse<Le
       data: data as LeaveBid,
     }
   } catch (error) {
-    console.error('Get leave bid error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/getLeaveBidById',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return {
       success: false,
       error: 'Failed to fetch leave bid',
@@ -388,7 +433,10 @@ export async function updateLeaveBid(
       .single()
 
     if (updateError || !updatedBid) {
-      console.error('Error updating leave bid:', updateError)
+      logError(updateError instanceof Error ? updateError : new Error(String(updateError)), {
+        source: 'leave-bid-service/updateLeaveBid',
+        severity: ErrorSeverity.MEDIUM,
+      })
       return {
         success: false,
         error: 'Failed to update leave bid',
@@ -400,7 +448,10 @@ export async function updateLeaveBid(
       data: updatedBid as LeaveBid,
     }
   } catch (error) {
-    console.error('Update leave bid error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/updateLeaveBid',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return {
       success: false,
       error: 'Failed to update leave bid',
@@ -459,7 +510,10 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
       .eq('pilot_id', pilot.pilot_id!)
 
     if (deleteError) {
-      console.error('Error cancelling leave bid:', deleteError)
+      logError(deleteError instanceof Error ? deleteError : new Error(String(deleteError)), {
+        source: 'leave-bid-service/cancelLeaveBid',
+        severity: ErrorSeverity.MEDIUM,
+      })
       return {
         success: false,
         error: 'Failed to cancel leave bid',
@@ -470,7 +524,10 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
       success: true,
     }
   } catch (error) {
-    console.error('Cancel leave bid error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/cancelLeaveBid',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return {
       success: false,
       error: 'Failed to cancel leave bid',
@@ -509,7 +566,10 @@ export async function adminDeleteLeaveBid(bidId: string): Promise<ServiceRespons
     const { error: deleteError } = await supabase.from('leave_bids').delete().eq('id', bidId)
 
     if (deleteError) {
-      console.error('Error deleting leave bid:', deleteError)
+      logError(deleteError instanceof Error ? deleteError : new Error(String(deleteError)), {
+        source: 'leave-bid-service/adminDeleteLeaveBid',
+        severity: ErrorSeverity.MEDIUM,
+      })
       return {
         success: false,
         error: 'Failed to delete leave bid',
@@ -520,7 +580,10 @@ export async function adminDeleteLeaveBid(bidId: string): Promise<ServiceRespons
       success: true,
     }
   } catch (error) {
-    console.error('Admin delete leave bid error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'leave-bid-service/adminDeleteLeaveBid',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return {
       success: false,
       error: 'Failed to delete leave bid',

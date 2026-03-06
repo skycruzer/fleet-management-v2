@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { formatDate } from '@/lib/utils/date-utils'
 import {
   PilotLeaveRequestSchema,
   type PilotLeaveRequestInput,
@@ -123,8 +124,8 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
                 <strong>Current Roster Period:</strong> {currentRosterPeriod.code}
               </p>
               <p className="mt-1 text-xs text-[var(--color-info)]">
-                {currentRosterPeriod.startDate.toLocaleDateString()} -{' '}
-                {currentRosterPeriod.endDate.toLocaleDateString()} (
+                {formatDate(currentRosterPeriod.startDate)} -{' '}
+                {formatDate(currentRosterPeriod.endDate)} (
                 {currentRosterPeriod.daysRemaining} days remaining)
               </p>
             </div>

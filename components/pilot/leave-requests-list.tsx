@@ -11,6 +11,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { formatDate } from '@/lib/utils/date-utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar, CheckCircle2, Clock, FileText, Plus, XCircle } from 'lucide-react'
@@ -155,10 +156,10 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
 
                   <div className="text-muted-foreground mt-2 space-y-1 text-sm">
                     <p>
-                      <strong>Dates:</strong> {new Date(request.start_date).toLocaleDateString()} -{' '}
+                      <strong>Dates:</strong> {formatDate(request.start_date)} -{' '}
                       {request.end_date
-                        ? new Date(request.end_date).toLocaleDateString()
-                        : new Date(request.start_date).toLocaleDateString()}
+                        ? formatDate(request.end_date)
+                        : formatDate(request.start_date)}
                     </p>
                     <p>
                       <strong>Days:</strong> {request.days_count ?? 1}
@@ -175,7 +176,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
                     )}
                     <p>
                       <strong>Submitted:</strong>{' '}
-                      {new Date(request.submission_date || request.created_at).toLocaleDateString()}
+                      {formatDate(request.submission_date || request.created_at)}
                     </p>
                   </div>
 
@@ -188,7 +189,7 @@ export default function LeaveRequestsList({ requests }: LeaveRequestsListProps) 
                       </p>
                       {request.reviewed_at && (
                         <p className="text-muted-foreground mt-1 text-xs">
-                          Reviewed on {new Date(request.reviewed_at).toLocaleDateString()}
+                          Reviewed on {formatDate(request.reviewed_at)}
                         </p>
                       )}
                     </div>

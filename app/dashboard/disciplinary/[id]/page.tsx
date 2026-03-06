@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getMatterWithTimeline, getIncidentTypes } from '@/lib/services/disciplinary-service'
+import { formatDate } from '@/lib/utils/date-utils'
 import DisciplinaryMatterForm from '@/components/disciplinary/disciplinary-matter-form'
 import Link from 'next/link'
 // Force dynamic rendering to prevent static generation at build time
@@ -130,7 +131,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
             </span>
             {matter.incident_date && (
               <span className="text-muted-foreground text-sm">
-                Incident: {new Date(matter.incident_date).toLocaleDateString()}
+                Incident: {formatDate(matter.incident_date)}
               </span>
             )}
           </div>
@@ -189,7 +190,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
             <div>
               <p className="text-muted-foreground text-sm font-medium">Due Date</p>
               <p className="text-foreground mt-1">
-                {new Date(matter.due_date).toLocaleDateString()}
+                {formatDate(matter.due_date)}
               </p>
             </div>
           )}
@@ -197,7 +198,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
             <div>
               <p className="text-muted-foreground text-sm font-medium">Resolved Date</p>
               <p className="text-foreground mt-1">
-                {new Date(matter.resolved_date).toLocaleDateString()}
+                {formatDate(matter.resolved_date)}
               </p>
             </div>
           )}

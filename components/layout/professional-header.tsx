@@ -10,6 +10,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatDate } from '@/lib/utils/date-utils'
 import { Bell, User, Settings, LogOut, HelpCircle, MessageSquare } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
@@ -106,7 +107,7 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
     if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`
     if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`
     if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`
-    return date.toLocaleDateString()
+    return formatDate(date)
   }
   const [showUserMenu, setShowUserMenu] = useState(false)
 

@@ -93,7 +93,7 @@ export async function login(
 
     // Find user by staff_id
     const { data: user, error: userError } = await supabase
-      .from('users' as any)
+      .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
       .select(
         'id, staff_id, email, name, password_hash, role, must_change_password, is_active, pilot_id, failed_login_attempts, locked_until'
       )
@@ -104,7 +104,8 @@ export async function login(
       return { success: false, error: 'Invalid staff ID or password' }
     }
 
-    const userData = user as any
+    // TODO: remove cast once 'users' table is in generated types
+    const userData = user as Record<string, any>
 
     // Check if account is active
     if (!userData.is_active) {
@@ -123,7 +124,7 @@ export async function login(
       }
       // Lockout expired, clear it
       await supabase
-        .from('users' as any)
+        .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
         .update({ locked_until: null, failed_login_attempts: 0 } as any)
         .eq('id', userData.id)
     }
@@ -138,7 +139,8 @@ export async function login(
     if (!passwordMatch) {
       // Record failed attempt
       const newAttempts = (userData.failed_login_attempts || 0) + 1
-      const updateData: any = { failed_login_attempts: newAttempts }
+      // TODO: replace with proper type once 'users' table is in generated types
+      const updateData: Record<string, string | number> = { failed_login_attempts: newAttempts }
 
       if (newAttempts >= MAX_FAILED_ATTEMPTS) {
         const lockUntil = new Date()
@@ -147,8 +149,8 @@ export async function login(
       }
 
       await supabase
-        .from('users' as any)
-        .update(updateData)
+        .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
+        .update(updateData as any)
         .eq('id', userData.id)
 
       return { success: false, error: 'Invalid staff ID or password' }
@@ -156,7 +158,7 @@ export async function login(
 
     // Successful login - clear failed attempts and update last login
     await supabase
-      .from('users' as any)
+      .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
       .update({
         failed_login_attempts: 0,
         locked_until: null,
@@ -279,7 +281,7 @@ export async function createUserAccount(
     const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_SALT_ROUNDS)
 
     const { data: newUser, error } = await supabase
-      .from('users' as any)
+      .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
       .insert({
         staff_id: data.staffId,
         email: data.email || null,
@@ -301,7 +303,8 @@ export async function createUserAccount(
       return { success: false, error: 'Failed to create user account' }
     }
 
-    const userData = newUser as any
+    // TODO: remove cast once 'users' table is in generated types
+    const userData = newUser as Record<string, any>
 
     return {
       success: true,
@@ -335,7 +338,7 @@ export async function changePassword(
 
     // Get current password hash
     const { data: user, error: userError } = await supabase
-      .from('users' as any)
+      .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
       .select('password_hash')
       .eq('id', userId)
       .single()
@@ -344,7 +347,8 @@ export async function changePassword(
       return { success: false, error: 'User not found' }
     }
 
-    const userData = user as any
+    // TODO: remove cast once 'users' table is in generated types
+    const userData = user as Record<string, any>
 
     // Verify old password
     const oldMatch = await bcrypt.compare(oldPassword, userData.password_hash)
@@ -365,7 +369,7 @@ export async function changePassword(
     const newHash = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS)
 
     const { error: updateError } = await supabase
-      .from('users' as any)
+      .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
       .update({
         password_hash: newHash,
         must_change_password: false,
@@ -396,7 +400,7 @@ export async function resetUserPassword(
     const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, BCRYPT_SALT_ROUNDS)
 
     const { error } = await supabase
-      .from('users' as any)
+      .from('users' as any) // TODO: regenerate types — 'users' table not in supabase.ts
       .update({
         password_hash: passwordHash,
         must_change_password: true,

@@ -12,6 +12,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { formatDate } from '@/lib/utils/date-utils'
 import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import {
   FlightRequestReviewSchema,
@@ -135,10 +136,10 @@ export default function FlightRequestReviewModal({
               </div>
               <div>
                 <p className="text-muted-foreground">
-                  <strong>Flight Date:</strong> {new Date(request.start_date).toLocaleDateString()}
+                  <strong>Flight Date:</strong> {formatDate(request.start_date)}
                 </p>
                 <p className="text-muted-foreground">
-                  <strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}
+                  <strong>Submitted:</strong> {formatDate(request.created_at)}
                 </p>
               </div>
             </div>
@@ -270,7 +271,7 @@ export default function FlightRequestReviewModal({
                 {request.reviewed_by && (
                   <p className="text-muted-foreground mt-3 text-xs">
                     Reviewed by {request.reviewer_name || 'Unknown'} on{' '}
-                    {request.reviewed_at && new Date(request.reviewed_at).toLocaleDateString()}
+                    {request.reviewed_at && formatDate(request.reviewed_at)}
                   </p>
                 )}
               </div>

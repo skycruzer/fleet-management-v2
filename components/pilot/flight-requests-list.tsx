@@ -10,6 +10,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatDate } from '@/lib/utils/date-utils'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,7 +86,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
 
               <div className="text-muted-foreground mt-2 space-y-1 text-sm">
                 <p>
-                  <strong>Flight Date:</strong> {new Date(request.start_date).toLocaleDateString()}
+                  <strong>Flight Date:</strong> {formatDate(request.start_date)}
                 </p>
                 <p>
                   <strong>Description:</strong> {request.description}
@@ -96,7 +97,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
                   </p>
                 )}
                 <p>
-                  <strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}
+                  <strong>Submitted:</strong> {formatDate(request.created_at)}
                 </p>
               </div>
 
@@ -108,7 +109,7 @@ export default function FlightRequestsList({ requests }: FlightRequestsListProps
                     <p className="text-muted-foreground mt-1 text-sm">{request.review_comments}</p>
                     {request.reviewed_at && (
                       <p className="text-muted-foreground mt-1 text-xs">
-                        Reviewed on {new Date(request.reviewed_at).toLocaleDateString()}
+                        Reviewed on {formatDate(request.reviewed_at)}
                       </p>
                     )}
                   </div>

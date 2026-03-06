@@ -12,6 +12,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
+import { formatDate } from '@/lib/utils/date-utils'
 import { Button } from '@/components/ui/button'
 import {
   CertificationStatCards,
@@ -167,7 +168,7 @@ export function CertificationsPageClient({
       cert.check_type?.check_code || '',
       cert.check_type?.check_description || '',
       cert.check_type?.category || 'Uncategorized',
-      cert.expiry_date ? new Date(cert.expiry_date).toLocaleDateString() : 'N/A',
+      cert.expiry_date ? formatDate(cert.expiry_date) : 'N/A',
       cert.status?.label || 'No Date',
       cert.status?.daysUntilExpiry?.toString() || 'N/A',
     ])

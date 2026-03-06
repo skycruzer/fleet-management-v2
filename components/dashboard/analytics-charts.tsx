@@ -21,7 +21,9 @@ import {
   Pie,
   Cell,
   Legend,
+  LabelList,
 } from 'recharts'
+import { motion, easeOut } from 'framer-motion'
 
 function useChartColors() {
   const [colors, setColors] = useState({
@@ -78,6 +80,42 @@ function useChartColors() {
   return colors
 }
 
+// Custom accessible tooltip component
+// Chart animation variants
+const chartVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+}
+
+// Chart animation transition
+const chartTransition = {
+  duration: 0.5,
+  ease: easeOut
+}
+
+function AccessibleTooltip({ active, payload, label }: any) {
+  if (active && payload && payload.length) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-background rounded-lg border border-border p-3 shadow-lg"
+        role="tooltip"
+        aria-live="polite"
+      >
+        <p className="text-foreground font-medium">{label}</p>
+        {payload.map((entry: any, index: number) => (
+          <p key={`tooltip-${index}`} className="text-muted-foreground text-sm">
+            {entry.name}: {entry.value}
+          </p>
+        ))}
+        <span className="sr-only">Chart data point</span>
+      </motion.div>
+    )
+  }
+  return null
+}
+
 interface PilotRankChartProps {
   captains: number
   firstOfficers: number
@@ -95,9 +133,13 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
   const axisTick = { fill: colors.axis, fontSize: 11 }
 
   return (
-    <div
+    <motion.div
       role="img"
       aria-label={`Pilot distribution: ${captains} Captains, ${firstOfficers} First Officers, ${inactive} Inactive`}
+      initial="hidden"
+      animate="visible"
+      variants={chartVariants}
+      transition={chartTransition}
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
@@ -106,16 +148,18 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
             { name: 'First Officers', count: firstOfficers },
             { name: 'Inactive', count: inactive },
           ]}
-          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+          margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
           <XAxis dataKey="name" tick={axisTick} />
           <YAxis tick={axisTick} />
-          <Tooltip contentStyle={tooltipStyle} />
-          <Bar dataKey="count" fill={colors.chart1} radius={[4, 4, 0, 0]} />
+          <Tooltip content={<AccessibleTooltip />} />
+          <Bar dataKey="count" fill={colors.chart1} radius={[4, 4, 0, 0]}>
+            <LabelList dataKey="count" position="top" className="text-xs fill-[var(--color-foreground)]" />
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </motion.div>
   )
 }
 
@@ -135,9 +179,13 @@ export function CertificationPieChart({ current, expiring, expired }: Certificat
   }
 
   return (
-    <div
+    <motion.div
       role="img"
       aria-label={`Certification status: ${current} Current, ${expiring} Expiring, ${expired} Expired`}
+      initial="hidden"
+      animate="visible"
+      variants={chartVariants}
+      transition={chartTransition}
     >
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
@@ -153,16 +201,17 @@ export function CertificationPieChart({ current, expiring, expired }: Certificat
             outerRadius={70}
             paddingAngle={3}
             dataKey="value"
+            label
           >
             <Cell fill={colors.chart2} />
             <Cell fill={colors.chart3} />
             <Cell fill="var(--color-destructive)" />
           </Pie>
-          <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
-          <Tooltip contentStyle={tooltipStyle} />
+          <Legend wrapperStyle={{ fontSize: '12px', color: colors.axis }} />
+          <Tooltip content={<AccessibleTooltip />} />
         </PieChart>
       </ResponsiveContainer>
-    </div>
+    </motion.div>
   )
 }
 
@@ -181,9 +230,13 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
   const axisTick = { fill: colors.axis, fontSize: 11 }
 
   return (
-    <div
+    <motion.div
       role="img"
       aria-label={`Leave type breakdown: ${data.map((t) => `${t.type} (${t.count} requests, ${t.totalDays} days)`).join(', ')}`}
+      initial="hidden"
+      animate="visible"
+      variants={chartVariants}
+      transition={chartTransition}
     >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
@@ -192,17 +245,21 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
             requests: t.count,
             days: t.totalDays,
           }))}
-          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+          margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
           <XAxis dataKey="name" tick={axisTick} />
           <YAxis tick={axisTick} />
-          <Tooltip contentStyle={tooltipStyle} />
-          <Legend wrapperStyle={{ fontSize: '11px', color: colors.axis }} />
-          <Bar dataKey="requests" fill={colors.chart4} radius={[4, 4, 0, 0]} name="Requests" />
-          <Bar dataKey="days" fill={colors.chart2} radius={[4, 4, 0, 0]} name="Total Days" />
+          <Tooltip content={<AccessibleTooltip />} />
+          <Legend wrapperStyle={{ fontSize: '12px', color: colors.axis }} />
+          <Bar dataKey="requests" fill={colors.chart4} radius={[4, 4, 0, 0]} name="Requests">
+            <LabelList dataKey="requests" position="top" className="text-xs fill-[var(--color-foreground)]" />
+          </Bar>
+          <Bar dataKey="days" fill={colors.chart2} radius={[4, 4, 0, 0]} name="Total Days">
+            <LabelList dataKey="days" position="top" className="text-xs fill-[var(--color-foreground)]" />
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </motion.div>
   )
 }

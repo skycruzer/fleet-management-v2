@@ -11,6 +11,7 @@
 import { useState, useMemo } from 'react'
 import type { FlightRequest } from '@/lib/services/pilot-flight-service'
 import { Plane } from 'lucide-react'
+import { formatDate } from '@/lib/utils/date-utils'
 import { EmptyState } from '@/components/ui/empty-state'
 import FlightRequestReviewModal from './flight-request-review-modal'
 
@@ -118,7 +119,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                     </p>
                     <p className="text-muted-foreground">
                       <strong>Flight Date:</strong>{' '}
-                      {new Date(request.start_date).toLocaleDateString()}
+                      {formatDate(request.start_date)}
                     </p>
                     <p className="text-muted-foreground">
                       <strong>Description:</strong>{' '}
@@ -128,7 +129,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                   <div>
                     <p className="text-muted-foreground">
                       <strong>Submitted:</strong>{' '}
-                      {new Date(request.created_at).toLocaleDateString()}
+                      {formatDate(request.created_at)}
                     </p>
                     {request.reason && (
                       <p className="text-muted-foreground">

@@ -11,6 +11,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatDate } from '@/lib/utils/date-utils'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -393,7 +394,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
                     </TableCell>
                     <TableCell>{getStatusBadge(bid.status)}</TableCell>
                     <TableCell>
-                      {bid.submitted_at ? new Date(bid.submitted_at).toLocaleDateString() : 'N/A'}
+                      {bid.submitted_at ? formatDate(bid.submitted_at) : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">

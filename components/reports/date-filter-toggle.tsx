@@ -12,6 +12,7 @@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Calendar, CalendarRange } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export type DateFilterMode = 'roster' | 'dateRange'
 
@@ -21,9 +22,9 @@ interface DateFilterToggleProps {
   className?: string
 }
 
-export function DateFilterToggle({ value, onValueChange, className = '' }: DateFilterToggleProps) {
+export function DateFilterToggle({ value, onValueChange, className }: DateFilterToggleProps) {
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={cn('space-y-2', className)}>
       <Label className="text-sm font-medium">Filter By</Label>
       <RadioGroup
         value={value}

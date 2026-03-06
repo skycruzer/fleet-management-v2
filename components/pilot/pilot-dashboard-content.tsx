@@ -12,6 +12,7 @@
  */
 
 import Link from 'next/link'
+import { formatDate } from '@/lib/utils/date-utils'
 
 interface PilotDashboardContentProps {
   dashboardData: any
@@ -114,8 +115,8 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
                 <div>
                   <p className="text-foreground font-medium">{request.request_type}</p>
                   <p className="text-muted-foreground text-sm">
-                    {new Date(request.start_date).toLocaleDateString()} -{' '}
-                    {new Date(request.end_date).toLocaleDateString()}
+                    {formatDate(request.start_date)} -{' '}
+                    {formatDate(request.end_date)}
                   </p>
                 </div>
                 <span

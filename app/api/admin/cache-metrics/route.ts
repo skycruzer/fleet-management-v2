@@ -13,10 +13,12 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
 import { unauthorizedResponse, forbiddenResponse } from '@/lib/utils/api-response-helper'
 import { redisCacheService, checkRedisHealth } from '@/lib/services/redis-cache-service'
 import { unifiedCacheService, getCacheStats } from '@/lib/services/unified-cache-service'
 import { getNoCacheHeaders } from '@/lib/utils/cache-headers'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 /**
  * GET /api/admin/cache-metrics
@@ -28,11 +30,17 @@ import { getNoCacheHeaders } from '@/lib/utils/cache-headers'
  * - Cache hit rate
  * - Top accessed keys
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   // Check authentication
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {
     return unauthorizedResponse()
+  }
+
+  // Check admin role
+  const roleCheck = await requireRole(request, [UserRole.ADMIN])
+  if (!roleCheck.authorized) {
+    return forbiddenResponse(roleCheck.error || 'Insufficient permissions')
   }
 
   try {
@@ -96,7 +104,10 @@ export async function GET(_request: NextRequest) {
       }
     )
   } catch (error) {
-    console.error('GET /api/admin/cache-metrics error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'api/admin/cache-metrics/GET',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return NextResponse.json(
       {
         success: false,
@@ -119,6 +130,12 @@ export async function POST(request: NextRequest) {
   const auth = await getAuthenticatedAdmin()
   if (!auth.authenticated) {
     return unauthorizedResponse()
+  }
+
+  // Check admin role
+  const roleCheck = await requireRole(request, [UserRole.ADMIN])
+  if (!roleCheck.authorized) {
+    return forbiddenResponse(roleCheck.error || 'Insufficient permissions')
   }
 
   try {
@@ -160,7 +177,10 @@ export async function POST(request: NextRequest) {
         )
     }
   } catch (error) {
-    console.error('POST /api/admin/cache-metrics error:', error)
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'api/admin/cache-metrics/POST',
+      severity: ErrorSeverity.MEDIUM,
+    })
     return NextResponse.json(
       {
         success: false,

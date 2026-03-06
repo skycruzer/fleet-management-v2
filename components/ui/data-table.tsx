@@ -136,7 +136,7 @@ export function DataTable<T extends Record<string, any>>({
                       size="sm"
                       className="data-[state=open]:bg-accent -ml-3 h-8"
                       onClick={() => handleSort(column.id)}
-                      aria-label={`Sort by ${column.header}${sortColumn === column.id ? `, currently sorted ${sortDirection}ending` : ''}`}
+                      aria-label={`Sort by ${column.header}${sortColumn === column.id ? `, currently sorted ${sortDirection === 'asc' ? 'ascending' : 'descending'}` : ''}`}
                       aria-pressed={sortColumn === column.id}
                     >
                       <span>{column.header}</span>

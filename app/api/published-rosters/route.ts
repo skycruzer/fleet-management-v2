@@ -13,8 +13,8 @@ import {
   uploadPublishedRoster,
 } from '@/lib/services/published-roster-service'
 
-// Maximum roster file size: 50MB
-const MAX_ROSTER_FILE_SIZE = 50 * 1024 * 1024
+// Maximum roster file size: 10MB
+const MAX_ROSTER_FILE_SIZE = 10 * 1024 * 1024
 
 export const GET = withRateLimit(async (request: NextRequest) => {
   try {
