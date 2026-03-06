@@ -336,6 +336,11 @@ export async function proxy(request: NextRequest) {
     return response
   }
 
+  // Allow CSRF token endpoint for all users (needed before login)
+  if (pathname === '/api/csrf') {
+    return response
+  }
+
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
     // Admin API routes - verify admin access
     // Check for custom admin session first (bcrypt authentication)
