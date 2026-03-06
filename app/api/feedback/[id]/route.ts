@@ -108,7 +108,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
     // Handle admin response
     if (body.adminResponse) {
-      const result = await addAdminResponse(id, body.adminResponse)
+      const result = await addAdminResponse(id, body.adminResponse, auth.userId!)
 
       if (!result.success) {
         return NextResponse.json({ success: false, error: result.error }, { status: 500 })

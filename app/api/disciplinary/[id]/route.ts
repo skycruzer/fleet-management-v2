@@ -159,7 +159,7 @@ export async function PATCH(_request: NextRequest, { params }: RouteParams) {
       resolution_notes: body.resolution_notes === '' ? null : body.resolution_notes,
     }
 
-    const result = await updateMatter(id, sanitizedBody)
+    const result = await updateMatter(id, sanitizedBody, auth.userId!)
 
     if (!result.success) {
       if (result.error === 'Matter not found') {

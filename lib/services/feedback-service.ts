@@ -356,26 +356,30 @@ export async function updateFeedbackStatus(
  */
 export async function addAdminResponse(
   feedbackId: string,
-  response: string
+  response: string,
+  adminUserId?: string
 ): Promise<ServiceResponse> {
   try {
     const supabase = createAdminClient()
 
-    // Verify admin authentication
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    let adminUserId: string | undefined = user?.id
-    if (!user) {
-      // Fallback to admin-session cookie auth
-      const adminSession = await getAuthenticatedAdmin()
-      if (!adminSession.authenticated || !adminSession.userId) {
-        return {
-          success: false,
-          error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+    // Use provided adminUserId or try to get from Supabase Auth
+    if (!adminUserId) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      adminUserId = user?.id
+
+      if (!adminUserId) {
+        // Fallback to admin-session cookie auth
+        const adminSession = await getAuthenticatedAdmin()
+        if (!adminSession.authenticated || !adminSession.userId) {
+          return {
+            success: false,
+            error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+          }
         }
+        adminUserId = adminSession.userId
       }
-      adminUserId = adminSession.userId
     }
 
     // Update the feedback with admin response and get pilot_id for notification

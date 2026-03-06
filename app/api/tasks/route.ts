@@ -195,6 +195,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       ...validation.data,
       assigned_to: validation.data.assigned_to ?? undefined,
       due_date: validation.data.due_date ?? undefined,
+      created_by: auth.userId!,
     }
     const result = await createTask(taskData)
 
