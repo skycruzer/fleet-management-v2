@@ -414,9 +414,7 @@ export function FeedbackDashboardClient({
             <tbody>
               {feedback.map((item) => (
                 <tr key={item.id} className="border-b">
-                  <td className="px-4 py-3 text-sm">
-                    {formatDate(item.created_at)}
-                  </td>
+                  <td className="px-4 py-3 text-sm">{formatDate(item.created_at)}</td>
                   <td className="px-4 py-3 text-sm">
                     {item.is_anonymous
                       ? 'Anonymous'

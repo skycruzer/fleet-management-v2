@@ -9,9 +9,7 @@ import { z } from 'zod'
  */
 
 // Helper to transform empty strings to null for optional UUID/string fields
-const emptyToNull = z
-  .string()
-  .transform((val) => (val === '' ? null : val))
+const emptyToNull = z.string().transform((val) => (val === '' ? null : val))
 
 // Unified task form schema - handles both create and update modes
 // This avoids TypeScript union type issues with react-hook-form
@@ -22,7 +20,12 @@ export const TaskFormSchema = z.object({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   assigned_to: emptyToNull.pipe(z.string().uuid('Invalid user ID format').nullable()).optional(),
   due_date: emptyToNull
-    .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').nullable())
+    .pipe(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format')
+        .nullable()
+    )
     .optional(),
   tags: z.array(z.string().min(1).max(50)).max(10, 'Maximum 10 tags allowed').optional(),
 })
@@ -36,7 +39,12 @@ export const TaskInputSchema = z.object({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
   assigned_to: emptyToNull.pipe(z.string().uuid('Invalid user ID format').nullable()).optional(),
   due_date: emptyToNull
-    .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').nullable())
+    .pipe(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format')
+        .nullable()
+    )
     .optional(),
   tags: z.array(z.string().min(1).max(50)).max(10, 'Maximum 10 tags allowed').optional(),
 })
@@ -59,7 +67,12 @@ export const TaskUpdateSchema = z.object({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   assigned_to: emptyToNull.pipe(z.string().uuid('Invalid user ID format').nullable()).optional(),
   due_date: emptyToNull
-    .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').nullable())
+    .pipe(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format')
+        .nullable()
+    )
     .optional(),
   tags: z.array(z.string().min(1).max(50)).max(10, 'Maximum 10 tags allowed').optional(),
 })

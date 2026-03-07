@@ -189,17 +189,13 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
           {matter.due_date && (
             <div>
               <p className="text-muted-foreground text-sm font-medium">Due Date</p>
-              <p className="text-foreground mt-1">
-                {formatDate(matter.due_date)}
-              </p>
+              <p className="text-foreground mt-1">{formatDate(matter.due_date)}</p>
             </div>
           )}
           {matter.resolved_date && (
             <div>
               <p className="text-muted-foreground text-sm font-medium">Resolved Date</p>
-              <p className="text-foreground mt-1">
-                {formatDate(matter.resolved_date)}
-              </p>
+              <p className="text-foreground mt-1">{formatDate(matter.resolved_date)}</p>
             </div>
           )}
         </div>

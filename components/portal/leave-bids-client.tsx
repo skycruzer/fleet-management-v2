@@ -393,9 +393,7 @@ export function LeaveBidsClient({ initialBids }: LeaveBidsClientProps) {
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(bid.status)}</TableCell>
-                    <TableCell>
-                      {bid.submitted_at ? formatDate(bid.submitted_at) : 'N/A'}
-                    </TableCell>
+                    <TableCell>{bid.submitted_at ? formatDate(bid.submitted_at) : 'N/A'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button variant="outline" size="sm" onClick={() => handleExportPDF(bid)}>

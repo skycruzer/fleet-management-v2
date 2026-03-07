@@ -84,13 +84,13 @@ function useChartColors() {
 // Chart animation variants
 const chartVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
+  visible: { opacity: 1, y: 0 },
 }
 
 // Chart animation transition
 const chartTransition = {
   duration: 0.5,
-  ease: easeOut
+  ease: easeOut,
 }
 
 function AccessibleTooltip({ active, payload, label }: any) {
@@ -99,7 +99,7 @@ function AccessibleTooltip({ active, payload, label }: any) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-background rounded-lg border border-border p-3 shadow-lg"
+        className="bg-background border-border rounded-lg border p-3 shadow-lg"
         role="tooltip"
         aria-live="polite"
       >
@@ -155,7 +155,11 @@ export function PilotRankChart({ captains, firstOfficers, inactive }: PilotRankC
           <YAxis tick={axisTick} />
           <Tooltip content={<AccessibleTooltip />} />
           <Bar dataKey="count" fill={colors.chart1} radius={[4, 4, 0, 0]}>
-            <LabelList dataKey="count" position="top" className="text-xs fill-[var(--color-foreground)]" />
+            <LabelList
+              dataKey="count"
+              position="top"
+              className="fill-[var(--color-foreground)] text-xs"
+            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -253,10 +257,18 @@ export function LeaveTypeChart({ data }: LeaveTypeChartProps) {
           <Tooltip content={<AccessibleTooltip />} />
           <Legend wrapperStyle={{ fontSize: '12px', color: colors.axis }} />
           <Bar dataKey="requests" fill={colors.chart4} radius={[4, 4, 0, 0]} name="Requests">
-            <LabelList dataKey="requests" position="top" className="text-xs fill-[var(--color-foreground)]" />
+            <LabelList
+              dataKey="requests"
+              position="top"
+              className="fill-[var(--color-foreground)] text-xs"
+            />
           </Bar>
           <Bar dataKey="days" fill={colors.chart2} radius={[4, 4, 0, 0]} name="Total Days">
-            <LabelList dataKey="days" position="top" className="text-xs fill-[var(--color-foreground)]" />
+            <LabelList
+              dataKey="days"
+              position="top"
+              className="fill-[var(--color-foreground)] text-xs"
+            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>

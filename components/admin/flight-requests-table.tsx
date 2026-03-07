@@ -118,8 +118,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                       {request.pilot_rank && ` (${request.pilot_rank})`}
                     </p>
                     <p className="text-muted-foreground">
-                      <strong>Flight Date:</strong>{' '}
-                      {formatDate(request.start_date)}
+                      <strong>Flight Date:</strong> {formatDate(request.start_date)}
                     </p>
                     <p className="text-muted-foreground">
                       <strong>Description:</strong>{' '}
@@ -128,8 +127,7 @@ export default function FlightRequestsTable({ requests }: FlightRequestsTablePro
                   </div>
                   <div>
                     <p className="text-muted-foreground">
-                      <strong>Submitted:</strong>{' '}
-                      {formatDate(request.created_at)}
+                      <strong>Submitted:</strong> {formatDate(request.created_at)}
                     </p>
                     {request.reason && (
                       <p className="text-muted-foreground">

@@ -100,43 +100,35 @@ export function useOptimisticCertificationUpdate() {
       const previousPilot = queryClient.getQueryData(['pilot', updatedCert.id])
 
       // Optimistically update certifications list
-      queryClient.setQueryData<CertificationsQueryData | undefined>(
-        ['certifications'],
-        (old) => {
-          if (!old?.data) return old
+      queryClient.setQueryData<CertificationsQueryData | undefined>(['certifications'], (old) => {
+        if (!old?.data) return old
 
-          return {
-            ...old,
-            data: old.data.map((cert) =>
-              cert.id === updatedCert.id
-                ? {
-                    ...cert,
-                    ...updatedCert,
-                    _optimistic: true,
-                    updated_at: new Date().toISOString(),
-                  }
-                : cert
-            ),
-          }
+        return {
+          ...old,
+          data: old.data.map((cert) =>
+            cert.id === updatedCert.id
+              ? {
+                  ...cert,
+                  ...updatedCert,
+                  _optimistic: true,
+                  updated_at: new Date().toISOString(),
+                }
+              : cert
+          ),
         }
-      )
+      })
 
       // Optimistically update pilot details if cached
-      queryClient.setQueryData<PilotQueryData | undefined>(
-        ['pilot', updatedCert.id],
-        (old) => {
-          if (!old) return old
+      queryClient.setQueryData<PilotQueryData | undefined>(['pilot', updatedCert.id], (old) => {
+        if (!old) return old
 
-          return {
-            ...old,
-            certifications: old.certifications?.map((cert) =>
-              cert.id === updatedCert.id
-                ? { ...cert, ...updatedCert, _optimistic: true }
-                : cert
-            ),
-          }
+        return {
+          ...old,
+          certifications: old.certifications?.map((cert) =>
+            cert.id === updatedCert.id ? { ...cert, ...updatedCert, _optimistic: true } : cert
+          ),
         }
-      )
+      })
 
       return { previousCertifications, previousPilot }
     },
@@ -219,30 +211,27 @@ export function useOptimisticCertificationCreate() {
       await queryClient.cancelQueries({ queryKey: ['certifications'] })
       const previousCertifications = queryClient.getQueryData(['certifications'])
 
-      queryClient.setQueryData<CertificationsQueryData | undefined>(
-        ['certifications'],
-        (old) => {
-          if (!old) return old
+      queryClient.setQueryData<CertificationsQueryData | undefined>(['certifications'], (old) => {
+        if (!old) return old
 
-          const optimisticCert: CertificationItem = {
-            id: `temp-${Date.now()}`,
-            pilot_id: newCert.pilot_id,
-            check_type_id: newCert.check_type_id,
-            check_date: newCert.check_date,
-            expiry_date: newCert.expiry_date,
-            notes: newCert.notes ?? null,
-            is_current: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            _optimistic: true,
-          }
-
-          return {
-            ...old,
-            data: [optimisticCert, ...(old.data || [])],
-          }
+        const optimisticCert: CertificationItem = {
+          id: `temp-${Date.now()}`,
+          pilot_id: newCert.pilot_id,
+          check_type_id: newCert.check_type_id,
+          check_date: newCert.check_date,
+          expiry_date: newCert.expiry_date,
+          notes: newCert.notes ?? null,
+          is_current: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          _optimistic: true,
         }
-      )
+
+        return {
+          ...old,
+          data: [optimisticCert, ...(old.data || [])],
+        }
+      })
 
       return { previousCertifications }
     },

@@ -115,8 +115,7 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
                 <div>
                   <p className="text-foreground font-medium">{request.request_type}</p>
                   <p className="text-muted-foreground text-sm">
-                    {formatDate(request.start_date)} -{' '}
-                    {formatDate(request.end_date)}
+                    {formatDate(request.start_date)} - {formatDate(request.end_date)}
                   </p>
                 </div>
                 <span

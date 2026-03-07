@@ -33,7 +33,10 @@ export async function GET(request: NextRequest) {
     // Explicit admin role check
     const roleCheck = await requireRole(request, [UserRole.ADMIN])
     if (!roleCheck.authorized) {
-      return NextResponse.json({ success: false, error: 'Insufficient permissions' }, { status: 403 })
+      return NextResponse.json(
+        { success: false, error: 'Insufficient permissions' },
+        { status: 403 }
+      )
     }
     // Node.js memory usage
     const memoryUsage = process.memoryUsage()

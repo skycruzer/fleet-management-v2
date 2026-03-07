@@ -30,9 +30,7 @@ function computeBadge(
   item: CertCheckItem,
   now: number
 ): { label: string; sublabel: string } {
-  const diffDays = Math.ceil(
-    (new Date(item.expiry_date).getTime() - now) / (1000 * 60 * 60 * 24)
-  )
+  const diffDays = Math.ceil((new Date(item.expiry_date).getTime() - now) / (1000 * 60 * 60 * 24))
   if (variant === 'expired') {
     return { label: `${Math.abs(diffDays)}d ago`, sublabel: 'expired' }
   }

@@ -125,8 +125,8 @@ export default function LeaveBidModal({ isOpen, onClose, onSuccess }: LeaveBidMo
               </p>
               <p className="mt-1 text-xs text-[var(--color-info)]">
                 {formatDate(currentRosterPeriod.startDate)} -{' '}
-                {formatDate(currentRosterPeriod.endDate)} (
-                {currentRosterPeriod.daysRemaining} days remaining)
+                {formatDate(currentRosterPeriod.endDate)} ({currentRosterPeriod.daysRemaining} days
+                remaining)
               </p>
             </div>
           )}
