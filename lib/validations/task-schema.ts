@@ -8,6 +8,11 @@ import { z } from 'zod'
  * @author Maurice Rondeau
  */
 
+// Helper to transform empty strings to null for optional UUID/string fields
+const emptyToNull = z
+  .string()
+  .transform((val) => (val === '' ? null : val))
+
 // Unified task form schema - handles both create and update modes
 // This avoids TypeScript union type issues with react-hook-form
 export const TaskFormSchema = z.object({
@@ -15,11 +20,9 @@ export const TaskFormSchema = z.object({
   description: z.string().max(5000, 'Description must be less than 5000 characters').optional(),
   status: z.enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'COMPLETED', 'CANCELLED']).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  assigned_to: z.string().uuid('Invalid user ID format').nullable().optional(),
-  due_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format')
-    .nullable()
+  assigned_to: emptyToNull.pipe(z.string().uuid('Invalid user ID format').nullable()).optional(),
+  due_date: emptyToNull
+    .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').nullable())
     .optional(),
   tags: z.array(z.string().min(1).max(50)).max(10, 'Maximum 10 tags allowed').optional(),
 })
@@ -31,11 +34,9 @@ export const TaskInputSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
   description: z.string().max(5000, 'Description must be less than 5000 characters').optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
-  assigned_to: z.string().uuid('Invalid user ID format').nullable().optional(),
-  due_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format')
-    .nullable()
+  assigned_to: emptyToNull.pipe(z.string().uuid('Invalid user ID format').nullable()).optional(),
+  due_date: emptyToNull
+    .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').nullable())
     .optional(),
   tags: z.array(z.string().min(1).max(50)).max(10, 'Maximum 10 tags allowed').optional(),
 })
@@ -56,11 +57,9 @@ export const TaskUpdateSchema = z.object({
     .optional(),
   status: z.enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'COMPLETED', 'CANCELLED']).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  assigned_to: z.string().uuid('Invalid user ID format').nullable().optional(),
-  due_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format')
-    .nullable()
+  assigned_to: emptyToNull.pipe(z.string().uuid('Invalid user ID format').nullable()).optional(),
+  due_date: emptyToNull
+    .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Due date must be in YYYY-MM-DD format').nullable())
     .optional(),
   tags: z.array(z.string().min(1).max(50)).max(10, 'Maximum 10 tags allowed').optional(),
 })

@@ -249,21 +249,27 @@ export async function verifyRequestAuthorization(
   try {
     const supabase = await createClient()
 
-    // Get authenticated user
+    // Try Supabase Auth first
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (!user) {
-      return {
-        authorized: false,
-        error: 'Unauthorized',
-        statusCode: 401,
-      }
+    if (user) {
+      return await verifyResourceOwnership(user.id, resourceType, resourceId)
     }
 
-    // Verify resource ownership
-    return await verifyResourceOwnership(user.id, resourceType, resourceId)
+    // Fallback to admin-session cookie (dual auth support)
+    const adminSession = await validateAdminSession()
+
+    if (adminSession.isValid && adminSession.user?.id) {
+      return await verifyResourceOwnership(adminSession.user.id, resourceType, resourceId)
+    }
+
+    return {
+      authorized: false,
+      error: 'Unauthorized',
+      statusCode: 401,
+    }
   } catch (error) {
     logError(error instanceof Error ? error : new Error(String(error)), {
       source: 'authorization-middleware/verifyRequestAuthorization',
