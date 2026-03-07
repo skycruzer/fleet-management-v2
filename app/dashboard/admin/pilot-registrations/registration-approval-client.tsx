@@ -87,7 +87,7 @@ export function RegistrationApprovalClient({ initialRegistrations }: Props) {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-AU', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

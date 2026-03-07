@@ -108,7 +108,7 @@ export function formatRetirementCountdown(countdown: RetirementCountdown | null)
  * @returns Formatted date string
  */
 export function formatRetirementDate(retirementDate: Date): string {
-  return retirementDate.toLocaleDateString('en-US', {
+  return retirementDate.toLocaleDateString('en-AU', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

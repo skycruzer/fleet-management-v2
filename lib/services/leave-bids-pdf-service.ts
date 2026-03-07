@@ -64,7 +64,7 @@ interface LeaveBidsSummary {
 function formatDate(dateString: string): string {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  return date.toLocaleDateString('en-AU', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 function getStatusColor(status: string): [number, number, number] {
@@ -137,7 +137,7 @@ export async function generateLeaveBidsPDF(
   // Subtitle
   doc.setFontSize(12)
   doc.setFont('helvetica', 'normal')
-  const subtitle = `Year: ${year}${statusFilter !== 'all' ? ` | Status: ${statusFilter.toUpperCase()}` : ''} | Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
+  const subtitle = `Year: ${year}${statusFilter !== 'all' ? ` | Status: ${statusFilter.toUpperCase()}` : ''} | Generated: ${new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' })}`
   doc.text(subtitle, pageWidth / 2, 22, { align: 'center' })
 
   // Statistics Summary

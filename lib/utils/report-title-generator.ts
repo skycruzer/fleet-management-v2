@@ -28,7 +28,7 @@ const BASE_TITLES: Record<ReportType, string> = {
  */
 function formatMonthYear(dateString: string): string {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  return date.toLocaleDateString('en-AU', { month: 'short', year: 'numeric' })
 }
 
 /**

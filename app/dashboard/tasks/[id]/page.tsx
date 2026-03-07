@@ -117,7 +117,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
                 <p
                   className={`font-medium ${isOverdue ? 'text-[var(--color-danger-600)]' : 'text-foreground'}`}
                 >
-                  {new Date(task.due_date).toLocaleDateString('en-US', {
+                  {new Date(task.due_date).toLocaleDateString('en-AU', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -134,7 +134,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
               <div>
                 <p className="text-muted-foreground text-sm">Created</p>
                 <p className="text-foreground font-medium">
-                  {new Date(task.created_at).toLocaleDateString('en-US', {
+                  {new Date(task.created_at).toLocaleDateString('en-AU', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -150,7 +150,7 @@ export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
               <div>
                 <p className="text-muted-foreground text-sm">Completed</p>
                 <p className="text-foreground font-medium">
-                  {new Date(task.completed_date).toLocaleDateString('en-US', {
+                  {new Date(task.completed_date).toLocaleDateString('en-AU', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',

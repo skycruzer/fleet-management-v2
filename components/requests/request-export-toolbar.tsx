@@ -88,7 +88,7 @@ function formatStatus(status: string): string {
 function formatPdfDate(dateStr: string | null): string {
   if (!dateStr) return '—'
   try {
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    return new Date(dateStr).toLocaleDateString('en-AU', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -147,7 +147,7 @@ export function RequestExportToolbar({ requests, filterSummary }: RequestExportT
       // Generated date
       doc.setFontSize(9)
       doc.text(
-        `Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`,
+        `Generated: ${new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`,
         pageWidth - 14,
         22,
         { align: 'right' }

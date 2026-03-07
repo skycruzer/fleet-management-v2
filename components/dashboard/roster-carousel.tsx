@@ -243,12 +243,12 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                       isNext ? 'text-primary/80' : 'text-muted-foreground'
                     }`}
                   >
-                    {new Date(period.startDate).toLocaleDateString('en-US', {
+                    {new Date(period.startDate).toLocaleDateString('en-AU', {
                       month: 'short',
                       day: 'numeric',
                     })}
                     {' - '}
-                    {new Date(period.endDate).toLocaleDateString('en-US', {
+                    {new Date(period.endDate).toLocaleDateString('en-AU', {
                       month: 'short',
                       day: 'numeric',
                     })}

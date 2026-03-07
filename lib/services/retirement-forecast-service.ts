@@ -643,7 +643,7 @@ export async function generateRetirementForecastPDF(retirementAge: number = 65):
   <div class="header">
     <h1>FLEET MANAGEMENT V2</h1>
     <h2>Retirement Forecast Report</h2>
-    <p>Generated: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <p>Generated: ${new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
   </div>
 
   <div class="summary">

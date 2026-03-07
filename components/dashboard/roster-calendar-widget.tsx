@@ -70,7 +70,7 @@ export function RosterCalendarWidget() {
   )
 
   const grid = getCalendarGrid(year, month)
-  const monthName = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const monthName = now.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' })
 
   return (
     <Card className="h-full p-4">
@@ -109,7 +109,7 @@ export function RosterCalendarWidget() {
 
           const isToday = isSameDay(date, today)
           const isInRP = isWithinRange(date, rpStart, rpEnd)
-          const label = `${date.getDate()} ${date.toLocaleDateString('en-US', { month: 'long' })}${isToday ? ', today' : ''}${isInRP ? `, ${currentRP.code}` : ''}`
+          const label = `${date.getDate()} ${date.toLocaleDateString('en-AU', { month: 'long' })}${isToday ? ', today' : ''}${isInRP ? `, ${currentRP.code}` : ''}`
 
           return (
             <div

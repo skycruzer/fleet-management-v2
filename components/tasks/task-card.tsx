@@ -61,7 +61,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return date.toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })
   }
 
   const overdue = isOverdue()

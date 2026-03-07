@@ -420,7 +420,7 @@ function AnalyticsPageContent() {
                               {pilot.rank} {pilot.name}
                             </span>
                             <span className="text-xs text-[var(--color-warning-500)]/80">
-                              {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
+                              {new Date(pilot.retirementDate).toLocaleDateString('en-AU', {
                                 month: 'short',
                                 year: 'numeric',
                               })}
@@ -454,7 +454,7 @@ function AnalyticsPageContent() {
                               {pilot.rank} {pilot.name}
                             </span>
                             <span className="text-xs text-[var(--color-badge-orange)]/80">
-                              {new Date(pilot.retirementDate).toLocaleDateString('en-US', {
+                              {new Date(pilot.retirementDate).toLocaleDateString('en-AU', {
                                 month: 'short',
                                 year: 'numeric',
                               })}

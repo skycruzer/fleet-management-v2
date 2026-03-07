@@ -161,7 +161,7 @@ export function RetirementInformationCard({
           <div className="text-muted-foreground flex items-center justify-between text-xs">
             <span>
               {commencementDate
-                ? `Started: ${new Date(commencementDate).toLocaleDateString('en-US', {
+                ? `Started: ${new Date(commencementDate).toLocaleDateString('en-AU', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',

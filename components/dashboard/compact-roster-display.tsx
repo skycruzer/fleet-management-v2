@@ -165,12 +165,12 @@ export async function CompactRosterDisplay() {
                 <span className="text-primary text-sm font-semibold">{currentPeriod.year}</span>
               </div>
               <p className="text-muted-foreground text-xs font-medium">
-                {new Date(currentPeriod.startDate).toLocaleDateString('en-US', {
+                {new Date(currentPeriod.startDate).toLocaleDateString('en-AU', {
                   month: 'short',
                   day: 'numeric',
                 })}{' '}
                 -{' '}
-                {new Date(currentPeriod.endDate).toLocaleDateString('en-US', {
+                {new Date(currentPeriod.endDate).toLocaleDateString('en-AU', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
@@ -232,12 +232,12 @@ export async function CompactRosterDisplay() {
                   <span className="text-primary text-sm font-semibold">{nextPeriod.year}</span>
                 </div>
                 <p className="text-muted-foreground text-xs font-medium">
-                  {new Date(nextPeriod.startDate).toLocaleDateString('en-US', {
+                  {new Date(nextPeriod.startDate).toLocaleDateString('en-AU', {
                     month: 'short',
                     day: 'numeric',
                   })}{' '}
                   -{' '}
-                  {new Date(nextPeriod.endDate).toLocaleDateString('en-US', {
+                  {new Date(nextPeriod.endDate).toLocaleDateString('en-AU', {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',

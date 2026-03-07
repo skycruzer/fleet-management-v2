@@ -184,8 +184,8 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     return {
-      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      date: date.toLocaleDateString('en-AU', { month: 'short', day: 'numeric', year: 'numeric' }),
+      time: date.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' }),
     }
   }
 

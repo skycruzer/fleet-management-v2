@@ -62,7 +62,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
   // Format functions
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-AU', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
@@ -71,7 +71,7 @@ export default async function RequestDetailPage({ params }: PageProps) {
 
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleString('en-US', {
+    return new Date(dateString).toLocaleString('en-AU', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',

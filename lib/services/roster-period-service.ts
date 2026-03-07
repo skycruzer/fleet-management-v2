@@ -635,7 +635,7 @@ export async function updateRosterPeriodStatus(
  * @returns Formatted date string (e.g., "Oct 11, 2025")
  */
 export function formatRosterDate(date: Date): string {
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('en-AU', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

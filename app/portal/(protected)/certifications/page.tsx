@@ -567,7 +567,7 @@ export default function CertificationsPage() {
 
                               <p className="text-muted-foreground text-xs">
                                 Expires:{' '}
-                                {new Date(cert.expiry_date).toLocaleDateString('en-US', {
+                                {new Date(cert.expiry_date).toLocaleDateString('en-AU', {
                                   month: 'short',
                                   day: 'numeric',
                                   year: 'numeric',
@@ -632,7 +632,7 @@ export default function CertificationsPage() {
                                     </p>
                                     <p className="text-muted-foreground text-xs">
                                       Expires:{' '}
-                                      {new Date(cert.expiry_date).toLocaleDateString('en-US', {
+                                      {new Date(cert.expiry_date).toLocaleDateString('en-AU', {
                                         month: 'short',
                                         day: 'numeric',
                                         year: 'numeric',

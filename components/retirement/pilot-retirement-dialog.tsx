@@ -171,7 +171,7 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
                   <div>
                     <div className="text-muted-foreground text-xs">Retirement Date</div>
                     <div className="text-foreground font-medium">
-                      {retirementDate.toLocaleDateString('en-US', {
+                      {retirementDate.toLocaleDateString('en-AU', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -185,7 +185,7 @@ export function PilotRetirementDialog({ pilotId, open, onClose }: PilotRetiremen
                   <div>
                     <div className="text-muted-foreground text-xs">Date of Birth</div>
                     <div className="text-foreground font-medium">
-                      {new Date(pilot.date_of_birth).toLocaleDateString('en-US', {
+                      {new Date(pilot.date_of_birth).toLocaleDateString('en-AU', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',

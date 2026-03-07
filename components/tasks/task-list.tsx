@@ -163,7 +163,7 @@ export default function TaskList({ tasks }: TaskListProps) {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return date.toLocaleDateString('en-AU', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   return (

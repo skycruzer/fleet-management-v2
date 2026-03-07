@@ -66,7 +66,7 @@ function getStatusColor(status: string): string {
 
 function formatDate(dateStr: string): string {
   try {
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    return new Date(dateStr).toLocaleDateString('en-AU', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -238,7 +238,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
 
   <div style="text-align: center; color: #6b7280; font-size: 12px; margin-top: 40px; padding: 20px; border-top: 1px solid #e5e7eb;">
     <p>Fleet Management System — Air Niugini B767 Operations</p>
-    <p>Generated on ${new Date().toLocaleString('en-US')}</p>
+    <p>Generated on ${new Date().toLocaleString('en-AU')}</p>
   </div>
 </body>
 </html>`

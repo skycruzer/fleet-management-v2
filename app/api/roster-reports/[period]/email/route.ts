@@ -229,7 +229,7 @@ export async function POST(request: NextRequest, { params }: { params: { period:
 
   <div class="footer">
     <p>Fleet Management System - Air Niugini B767 Operations</p>
-    <p>Generated on ${new Date(report.metadata.generatedAt).toLocaleString('en-US')}</p>
+    <p>Generated on ${new Date(report.metadata.generatedAt).toLocaleString('en-AU')}</p>
   </div>
 </body>
 </html>

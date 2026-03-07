@@ -137,13 +137,13 @@ export function LeaveApprovalCard({
   const alertLevel = getAlertLevel()
 
   // Format dates
-  const startDate = new Date(request.start_date).toLocaleDateString('en-US', {
+  const startDate = new Date(request.start_date).toLocaleDateString('en-AU', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   })
   const endDate = request.end_date
-    ? new Date(request.end_date).toLocaleDateString('en-US', {
+    ? new Date(request.end_date).toLocaleDateString('en-AU', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
@@ -364,7 +364,7 @@ export function LeaveApprovalCard({
       <div className="mt-4 border-t pt-4">
         <p className="text-muted-foreground text-xs">
           Submitted{' '}
-          {new Date(request.created_at).toLocaleDateString('en-US', {
+          {new Date(request.created_at).toLocaleDateString('en-AU', {
             month: 'short',
             day: 'numeric',
             year: 'numeric',

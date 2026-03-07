@@ -211,7 +211,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
         <div className="border-border mt-4 flex items-center justify-between border-t pt-4">
           <div className="text-muted-foreground text-xs">
             Since{' '}
-            {new Date(commencementDate).toLocaleDateString('en-US', {
+            {new Date(commencementDate).toLocaleDateString('en-AU', {
               year: 'numeric',
               month: 'short',
             })}

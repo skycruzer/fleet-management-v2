@@ -134,7 +134,7 @@ export function getDateAriaLabel(fieldName: string, value?: string): string {
   }
 
   const date = new Date(value)
-  const formatted = date.toLocaleDateString('en-US', {
+  const formatted = date.toLocaleDateString('en-AU', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

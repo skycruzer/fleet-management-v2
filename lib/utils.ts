@@ -9,9 +9,9 @@ export function cn(...inputs: ClassValue[]) {
  * Format a date to a localized string
  */
 export function formatDate(date: Date | string | number): string {
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
+  return new Date(date).toLocaleDateString('en-AU', {
     day: 'numeric',
+    month: 'short',
     year: 'numeric',
   })
 }
@@ -20,9 +20,9 @@ export function formatDate(date: Date | string | number): string {
  * Format a date to include time
  */
 export function formatDateTime(date: Date | string | number): string {
-  return new Date(date).toLocaleString('en-US', {
-    month: 'short',
+  return new Date(date).toLocaleString('en-AU', {
     day: 'numeric',
+    month: 'short',
     year: 'numeric',
     hour: 'numeric',
     minute: 'numeric',

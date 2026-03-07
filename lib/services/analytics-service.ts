@@ -743,7 +743,7 @@ export async function predictCrewShortages(
     for (let monthOffset = 0; monthOffset < 60; monthOffset++) {
       const targetDate = new Date(now)
       targetDate.setMonth(targetDate.getMonth() + monthOffset)
-      const monthLabel = targetDate.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+      const monthLabel = targetDate.toLocaleString('en-AU', { month: 'short', year: 'numeric' })
 
       // Calculate retirements this month
       let captainRetirements = 0
@@ -812,7 +812,7 @@ export async function predictCrewShortages(
     if (inCriticalPeriod) {
       const lastDate = new Date(now)
       lastDate.setMonth(lastDate.getMonth() + 59)
-      const lastMonth = lastDate.toLocaleString('en-US', { month: 'short', year: 'numeric' })
+      const lastMonth = lastDate.toLocaleString('en-AU', { month: 'short', year: 'numeric' })
       const severity: 'high' | 'critical' =
         maxCaptainShortage >= 3 || maxFirstOfficerShortage >= 3 ? 'critical' : 'high'
 

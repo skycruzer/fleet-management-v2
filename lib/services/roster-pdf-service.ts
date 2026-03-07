@@ -444,7 +444,7 @@ export function downloadPDF(pdfBlob: Blob, filename: string): void {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('en-AU', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -453,7 +453,7 @@ function formatDate(dateString: string): string {
 
 function formatDateTime(dateTimeString: string): string {
   const date = new Date(dateTimeString)
-  return date.toLocaleString('en-US', {
+  return date.toLocaleString('en-AU', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

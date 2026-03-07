@@ -146,7 +146,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-muted-foreground font-medium">Record Created</span>
             <span className="text-foreground">
-              {new Date(auditLog.created_at).toLocaleString('en-US', {
+              {new Date(auditLog.created_at).toLocaleString('en-AU', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',

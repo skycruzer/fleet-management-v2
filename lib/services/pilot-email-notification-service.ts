@@ -108,11 +108,11 @@ function getLeaveApprovedEmailHTML(pilot: PilotInfo, request: LeaveRequestInfo):
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">Start Date:</td>
-                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.startDate).toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">End Date:</td>
-                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.endDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.endDate).toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                       </tr>
                       ${
                         request.comments
@@ -219,11 +219,11 @@ function getLeaveDeniedemailHTML(
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">Start Date:</td>
-                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.startDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.startDate).toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">End Date:</td>
-                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.endDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.endDate).toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                       </tr>
                       ${
                         reason
@@ -326,7 +326,7 @@ function getFlightApprovedEmailHTML(pilot: PilotInfo, request: FlightRequestInfo
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">Date:</td>
-                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.requestedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #111827; text-align: right;">${new Date(request.requestedDate).toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                       </tr>
                       <tr>
                         <td style="padding: 8px 0; font-size: 14px; color: #6b7280; font-weight: 600;">Route:</td>
@@ -388,12 +388,12 @@ function getLeaveBidApprovedEmailHTML(pilot: PilotInfo, bid: LeaveBidInfo): stri
             : pref.priority === 3
               ? '3rd'
               : `${pref.priority}th`
-      const start = new Date(pref.startDate).toLocaleDateString('en-US', {
+      const start = new Date(pref.startDate).toLocaleDateString('en-AU', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
       })
-      const end = new Date(pref.endDate).toLocaleDateString('en-US', {
+      const end = new Date(pref.endDate).toLocaleDateString('en-AU', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -528,12 +528,12 @@ function getLeaveBidSubmittedEmailHTML(
             : pref.priority === 3
               ? '3rd'
               : `${pref.priority}th`
-      const start = new Date(pref.startDate).toLocaleDateString('en-US', {
+      const start = new Date(pref.startDate).toLocaleDateString('en-AU', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
       })
-      const end = new Date(pref.endDate).toLocaleDateString('en-US', {
+      const end = new Date(pref.endDate).toLocaleDateString('en-AU', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -653,12 +653,12 @@ function getLeaveBidRejectedEmailHTML(pilot: PilotInfo, bid: LeaveBidInfo): stri
             : pref.priority === 3
               ? '3rd'
               : `${pref.priority}th`
-      const start = new Date(pref.startDate).toLocaleDateString('en-US', {
+      const start = new Date(pref.startDate).toLocaleDateString('en-AU', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
       })
-      const end = new Date(pref.endDate).toLocaleDateString('en-US', {
+      const end = new Date(pref.endDate).toLocaleDateString('en-AU', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',

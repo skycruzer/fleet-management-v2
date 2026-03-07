@@ -220,7 +220,7 @@ function generateEmailHTML(data: {
         <div class="header">
           <h1>Certification Renewal Planning Report</h1>
           <p class="subtitle">B767 Fleet - Year ${year}</p>
-          <p class="subtitle">Generated on ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p class="subtitle">Generated on ${new Date().toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
 
         <div class="summary-box">

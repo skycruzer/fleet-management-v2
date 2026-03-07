@@ -81,12 +81,12 @@ export function RosterPeriodCard() {
           </Badge>
           <h4 className="text-foreground mb-2 text-3xl font-black">{currentPeriod.code}</h4>
           <p className="text-muted-foreground mb-4 text-sm">
-            {new Date(currentPeriod.startDate).toLocaleDateString('en-US', {
+            {new Date(currentPeriod.startDate).toLocaleDateString('en-AU', {
               month: 'short',
               day: 'numeric',
             })}{' '}
             -{' '}
-            {new Date(currentPeriod.endDate).toLocaleDateString('en-US', {
+            {new Date(currentPeriod.endDate).toLocaleDateString('en-AU', {
               month: 'short',
               day: 'numeric',
               year: 'numeric',
@@ -125,12 +125,12 @@ export function RosterPeriodCard() {
           </Badge>
           <h4 className="text-foreground mb-2 text-3xl font-black">{nextPeriod.code}</h4>
           <p className="text-muted-foreground mb-4 text-sm">
-            {new Date(nextPeriod.startDate).toLocaleDateString('en-US', {
+            {new Date(nextPeriod.startDate).toLocaleDateString('en-AU', {
               month: 'short',
               day: 'numeric',
             })}{' '}
             -{' '}
-            {new Date(nextPeriod.endDate).toLocaleDateString('en-US', {
+            {new Date(nextPeriod.endDate).toLocaleDateString('en-AU', {
               month: 'short',
               day: 'numeric',
               year: 'numeric',
