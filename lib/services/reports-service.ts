@@ -844,14 +844,16 @@ export async function generatePDF(
     // Logo not found — continue without it
   }
 
-  // Split title into base title and filter segments
-  const titleParts = report.title.split(' — ')
-  const baseTitle =
-    reportType === 'pilot-info'
-      ? titleParts.slice(0, 2).join(' — ') // "B767 Fleet — Pilot Information Report"
-      : titleParts[0]
+  // Split title: base title (before first " - ") and filter segments (after)
+  const filterSepIndex = report.title.indexOf(' - ')
+  const baseTitle = filterSepIndex > -1 ? report.title.substring(0, filterSepIndex) : report.title
   const filterSegments =
-    reportType === 'pilot-info' ? titleParts.slice(2).join(' — ') : titleParts.slice(1).join(' — ')
+    filterSepIndex > -1
+      ? report.title
+          .substring(filterSepIndex + 3)
+          .split(' - ')
+          .join('  |  ')
+      : ''
 
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
@@ -876,7 +878,7 @@ export async function generatePDF(
   // Filter info below separator
   let yPos = 32
   if (filterSegments) {
-    doc.setFontSize(9)
+    doc.setFontSize(8)
     doc.setFont('helvetica', 'italic')
     doc.setTextColor(80)
     doc.text(`Filters: ${filterSegments}`, 14, yPos)
@@ -885,25 +887,40 @@ export async function generatePDF(
     yPos += 6
   }
 
-  // Summary section
-  yPos += 4
-  doc.setFontSize(14)
+  // Summary section — multi-column grid layout
+  yPos += 2
+  doc.setFontSize(12)
   doc.setFont('helvetica', 'bold')
   doc.text('Summary', 14, yPos)
-
-  yPos += 10
-  doc.setFontSize(10)
-  doc.setFont('helvetica', 'normal')
+  yPos += 7
 
   if (report.summary) {
-    Object.entries(report.summary).forEach(([key, value]) => {
+    const entries = Object.entries(report.summary)
+    const colCount = 3
+    const colWidth = (pageWidth - 28) / colCount
+    const rowHeight = 6
+
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+
+    entries.forEach(([key, value], index) => {
+      const col = index % colCount
+      const row = Math.floor(index / colCount)
+      const x = 14 + col * colWidth
+      const y = yPos + row * rowHeight
       const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
-      doc.text(`${label}: ${value}`, 14, yPos)
-      yPos += 6
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${label}: `, x, y)
+      const labelWidth = doc.getTextWidth(`${label}: `)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`${value}`, x + labelWidth, y)
     })
+
+    const totalRows = Math.ceil(entries.length / colCount)
+    yPos += totalRows * rowHeight + 6
   }
 
-  yPos += 10
+  yPos += 4
 
   // Determine if we should group the data
   const shouldGroup =
