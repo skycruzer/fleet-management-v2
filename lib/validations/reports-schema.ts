@@ -122,6 +122,7 @@ export const ReportFiltersSchema = z.object({
   pilotGroupBy: z
     .enum([
       'none',
+      'rank',
       'captain',
       'first_officer',
       'training_captain',

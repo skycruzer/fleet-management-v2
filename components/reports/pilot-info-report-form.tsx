@@ -35,9 +35,10 @@ import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
 
 const PILOT_GROUP_OPTIONS = [
+  { value: 'rank', label: 'By Rank (Captains / First Officers)' },
   { value: 'none', label: 'No Grouping' },
-  { value: 'captain', label: 'Captains' },
-  { value: 'first_officer', label: 'First Officers' },
+  { value: 'captain', label: 'Captains Only' },
+  { value: 'first_officer', label: 'First Officers Only' },
   { value: 'line_captain', label: 'Line Captains' },
   { value: 'training_captain', label: 'Training Captains' },
   { value: 'examiner', label: 'Examiners' },
@@ -49,6 +50,7 @@ const formSchema = z.object({
   pilotGroupBy: z
     .enum([
       'none',
+      'rank',
       'captain',
       'first_officer',
       'training_captain',
@@ -56,7 +58,7 @@ const formSchema = z.object({
       'rhs_captain',
       'line_captain',
     ])
-    .default('none'),
+    .default('rank'),
   rankCaptain: z.boolean().default(false),
   rankFirstOfficer: z.boolean().default(false),
   qualLineCaptain: z.boolean().default(false),
@@ -91,7 +93,7 @@ export function PilotInfoReportForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       activeStatus: 'all',
-      pilotGroupBy: 'none',
+      pilotGroupBy: 'rank',
       rankCaptain: false,
       rankFirstOfficer: false,
       qualLineCaptain: false,

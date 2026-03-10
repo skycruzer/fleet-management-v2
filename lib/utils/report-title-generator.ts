@@ -19,7 +19,7 @@ const BASE_TITLES: Record<ReportType, string> = {
   'all-requests': 'All Requests Report',
   'flight-requests': 'Flight Requests Report',
   certifications: 'Certifications Report',
-  'pilot-info': 'Pilot Information Report',
+  'pilot-info': 'B767 Fleet — Pilot Information Report',
   forecast: 'Workforce Forecast',
 }
 

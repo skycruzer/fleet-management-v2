@@ -772,6 +772,16 @@ function groupDataByField(data: any[], field: string): Map<string, any[]> {
  * Returns a Map with group label as key and matching pilots as values.
  */
 function groupPilotsByCategory(data: any[], category: string): Map<string, any[]> {
+  // Special case: group by rank splits into Captains and First Officers
+  if (category === 'rank') {
+    const captains = data.filter((p: any) => p.rank === 'Captain')
+    const firstOfficers = data.filter((p: any) => p.rank === 'First Officer')
+    const result = new Map<string, any[]>()
+    if (captains.length > 0) result.set('Captains', captains)
+    if (firstOfficers.length > 0) result.set('First Officers', firstOfficers)
+    return result
+  }
+
   const matched: any[] = []
   const unmatched: any[] = []
 
@@ -1686,6 +1696,17 @@ export async function generatePilotInfoReport(
     rhsCaptains: enrichedData.filter((p: any) => p.qualifications.rhs_captain).length,
     atplHolders: enrichedData.filter((p: any) => p.licence_type === 'ATPL').length,
     cplHolders: enrichedData.filter((p: any) => p.licence_type === 'CPL').length,
+  }
+
+  // Sort by rank (Captains first) then seniority for consistent grouping
+  const pilotGroupBy = filters.pilotGroupBy || 'rank'
+  if (pilotGroupBy === 'rank' || pilotGroupBy === 'none') {
+    enrichedData.sort((a: any, b: any) => {
+      // Captains first, then First Officers
+      if (a.rank !== b.rank) return a.rank === 'Captain' ? -1 : 1
+      // Within rank, sort by seniority number
+      return (a.seniority_number || 999) - (b.seniority_number || 999)
+    })
   }
 
   // Generate dynamic title based on filters

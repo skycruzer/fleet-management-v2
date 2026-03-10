@@ -49,6 +49,7 @@ export interface ReportFilters {
   // Pilot Info Report grouping
   pilotGroupBy?:
     | 'none'
+    | 'rank'
     | 'captain'
     | 'first_officer'
     | 'training_captain'
