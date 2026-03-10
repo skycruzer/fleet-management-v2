@@ -107,7 +107,9 @@ export const ReportFiltersSchema = z.object({
   pageSize: z.number().int().min(1).max(200).optional(),
   // Pilot Info Report filters
   activeStatus: z.enum(['active', 'inactive', 'all']).optional(),
-  qualifications: z.array(z.enum(['line_captain', 'training_captain', 'examiner'])).optional(),
+  qualifications: z
+    .array(z.enum(['line_captain', 'training_captain', 'examiner', 'rhs_captain']))
+    .optional(),
   licenceType: z.array(z.enum(['ATPL', 'CPL'])).optional(),
   // Leave Bids Report filters
   year: z.number().int().min(2020).max(2050).optional(),

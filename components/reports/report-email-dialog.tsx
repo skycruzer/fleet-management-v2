@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import {
   Dialog,
   DialogContent,
@@ -96,7 +97,7 @@ export function ReportEmailDialog({
 
       const response = await fetch('/api/reports/email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({
           reportType,
           filters,
