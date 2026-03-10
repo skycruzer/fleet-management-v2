@@ -844,9 +844,18 @@ export async function generatePDF(
     // Logo not found — continue without it
   }
 
-  doc.setFontSize(16)
+  // Split title into base title and filter segments
+  const titleParts = report.title.split(' — ')
+  const baseTitle =
+    reportType === 'pilot-info'
+      ? titleParts.slice(0, 2).join(' — ') // "B767 Fleet — Pilot Information Report"
+      : titleParts[0]
+  const filterSegments =
+    reportType === 'pilot-info' ? titleParts.slice(2).join(' — ') : titleParts.slice(1).join(' — ')
+
+  doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
-  doc.text(report.title, 34, 15, { align: 'left' })
+  doc.text(baseTitle, 34, 15, { align: 'left' })
 
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
@@ -864,8 +873,20 @@ export async function generatePDF(
   doc.setLineWidth(0.3)
   doc.line(14, 28, pageWidth - 14, 28)
 
+  // Filter info below separator
+  let yPos = 32
+  if (filterSegments) {
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(80)
+    doc.text(`Filters: ${filterSegments}`, 14, yPos)
+    doc.setTextColor(0)
+    doc.setFont('helvetica', 'normal')
+    yPos += 6
+  }
+
   // Summary section
-  let yPos = 36
+  yPos += 4
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
   doc.text('Summary', 14, yPos)
