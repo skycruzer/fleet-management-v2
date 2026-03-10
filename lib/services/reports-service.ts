@@ -875,52 +875,45 @@ export async function generatePDF(
   doc.setLineWidth(0.3)
   doc.line(14, 28, pageWidth - 14, 28)
 
-  // Filter info below separator
-  let yPos = 32
+  // Filter + summary compact block below separator
+  let yPos = 31
   if (filterSegments) {
-    doc.setFontSize(8)
+    doc.setFontSize(7)
     doc.setFont('helvetica', 'italic')
-    doc.setTextColor(80)
+    doc.setTextColor(100)
     doc.text(`Filters: ${filterSegments}`, 14, yPos)
     doc.setTextColor(0)
     doc.setFont('helvetica', 'normal')
-    yPos += 6
+    yPos += 5
   }
-
-  // Summary section — multi-column grid layout
-  yPos += 2
-  doc.setFontSize(12)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Summary', 14, yPos)
-  yPos += 7
 
   if (report.summary) {
     const entries = Object.entries(report.summary)
-    const colCount = 3
+    const colCount = 4
     const colWidth = (pageWidth - 28) / colCount
-    const rowHeight = 6
+    const rowHeight = 4.5
 
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'normal')
-
+    doc.setFontSize(7)
     entries.forEach(([key, value], index) => {
       const col = index % colCount
       const row = Math.floor(index / colCount)
       const x = 14 + col * colWidth
       const y = yPos + row * rowHeight
       const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
-      doc.setFont('helvetica', 'bold')
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(100)
       doc.text(`${label}: `, x, y)
       const labelWidth = doc.getTextWidth(`${label}: `)
-      doc.setFont('helvetica', 'normal')
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(0)
       doc.text(`${value}`, x + labelWidth, y)
     })
 
     const totalRows = Math.ceil(entries.length / colCount)
-    yPos += totalRows * rowHeight + 6
+    yPos += totalRows * rowHeight + 3
   }
 
-  yPos += 4
+  yPos += 2
 
   // Determine if we should group the data
   const shouldGroup =
