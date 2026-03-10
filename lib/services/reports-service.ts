@@ -1536,10 +1536,11 @@ export async function generatePilotInfoReport(
     )
   }
 
-  // Filter by qualifications (for Captains only)
+  // Filter by qualifications (applies to Captains only — First Officers pass through)
   if (filters.qualifications && filters.qualifications.length > 0) {
     filteredData = filteredData.filter((pilot: any) => {
-      if (pilot.role !== 'Captain') return false
+      // Qualifications only apply to Captains — non-Captains are not excluded
+      if (pilot.role !== 'Captain') return true
       const quals = parseCaptainQualifications(pilot.captain_qualifications)
       if (!quals) return false
 
