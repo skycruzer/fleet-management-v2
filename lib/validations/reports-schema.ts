@@ -118,6 +118,18 @@ export const ReportFiltersSchema = z.object({
   forecastSections: z.array(z.enum(['retirement', 'succession', 'shortage'])).optional(),
   // Grouping support for PDF exports and previews
   groupBy: z.array(z.enum(['rosterPeriod', 'rank', 'category'])).optional(),
+  // Pilot Info Report grouping
+  pilotGroupBy: z
+    .enum([
+      'none',
+      'captain',
+      'first_officer',
+      'training_captain',
+      'examiner',
+      'rhs_captain',
+      'line_captain',
+    ])
+    .optional(),
 })
 
 /**

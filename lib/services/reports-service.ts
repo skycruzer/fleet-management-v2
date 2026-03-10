@@ -768,6 +768,49 @@ function groupDataByField(data: any[], field: string): Map<string, any[]> {
 }
 
 /**
+ * Group pilot data by role or qualification category.
+ * Returns a Map with group label as key and matching pilots as values.
+ */
+function groupPilotsByCategory(data: any[], category: string): Map<string, any[]> {
+  const matched: any[] = []
+  const unmatched: any[] = []
+
+  for (const pilot of data) {
+    let belongs = false
+    if (category === 'captain') {
+      belongs = pilot.rank === 'Captain'
+    } else if (category === 'first_officer') {
+      belongs = pilot.rank === 'First Officer'
+    } else if (category === 'line_captain') {
+      belongs = pilot.qualifications?.line_captain === true
+    } else if (category === 'training_captain') {
+      belongs = pilot.qualifications?.training_captain === true
+    } else if (category === 'examiner') {
+      belongs = pilot.qualifications?.examiner === true
+    } else if (category === 'rhs_captain') {
+      belongs = pilot.qualifications?.rhs_captain === true
+    }
+
+    if (belongs) matched.push(pilot)
+    else unmatched.push(pilot)
+  }
+
+  const labels: Record<string, string> = {
+    captain: 'Captains',
+    first_officer: 'First Officers',
+    line_captain: 'Line Captains',
+    training_captain: 'Training Captains',
+    examiner: 'Examiners',
+    rhs_captain: 'RHS Captains',
+  }
+
+  const result = new Map<string, any[]>()
+  if (matched.length > 0) result.set(labels[category] || category, matched)
+  if (unmatched.length > 0) result.set('Other Pilots', unmatched)
+  return result
+}
+
+/**
  * Generate PDF from Report Data
  * Phase 5.1: Added grouping support and Australian date format
  */
@@ -1158,38 +1201,73 @@ export async function generatePDF(
       grouping
     )
   } else if (reportType === 'pilot-info') {
-    autoTable(doc, {
-      startY: yPos,
-      head: [['Seniority', 'Employee ID', 'Name', 'Rank', 'Licence', 'Status', 'Qualifications']],
-
-      body: report.data.map((item: any) => [
-        item.seniority_number || 'N/A',
-        item.employee_id || 'N/A',
-        item.name || 'N/A',
-        item.rank || 'N/A',
-        item.licence_type || 'N/A',
-        item.is_active ? 'Active' : 'Inactive',
-        [
-          item.qualifications?.line_captain ? 'LC' : '',
-          item.qualifications?.training_captain ? 'TC' : '',
-          item.qualifications?.examiner ? 'EX' : '',
-          item.qualifications?.rhs_captain ? 'RHS' : '',
-        ]
-          .filter(Boolean)
-          .join(', ') || '-',
-      ]),
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [52, 152, 219] }, // Blue
-      didParseCell: (data) => {
-        // Color code status column (index 5)
-        if (data.column.index === 5 && data.section === 'body') {
-          const status = data.cell.text[0]
-          if (status === 'Inactive') {
-            data.cell.styles.textColor = [150, 150, 150] // Gray
-          }
+    const pilotGroupBy = report.filters?.pilotGroupBy
+    const pilotTableHead = [
+      ['Seniority', 'Employee ID', 'Name', 'Rank', 'Licence', 'Status', 'Qualifications'],
+    ]
+    const pilotTableStyles = { fontSize: 8 }
+    const pilotHeadStyles = { fillColor: [52, 152, 219] as [number, number, number] }
+    const pilotDidParseCell = (data: any) => {
+      if (data.column.index === 5 && data.section === 'body') {
+        const status = data.cell.text[0]
+        if (status === 'Inactive') {
+          data.cell.styles.textColor = [150, 150, 150]
         }
-      },
-    })
+      }
+    }
+    const pilotRowMapper = (item: any) => [
+      item.seniority_number || 'N/A',
+      item.employee_id || 'N/A',
+      item.name || 'N/A',
+      item.rank || 'N/A',
+      item.licence_type || 'N/A',
+      item.is_active ? 'Active' : 'Inactive',
+      [
+        item.qualifications?.line_captain ? 'LC' : '',
+        item.qualifications?.training_captain ? 'TC' : '',
+        item.qualifications?.examiner ? 'EX' : '',
+        item.qualifications?.rhs_captain ? 'RHS' : '',
+      ]
+        .filter(Boolean)
+        .join(', ') || '-',
+    ]
+
+    if (pilotGroupBy && pilotGroupBy !== 'none') {
+      // Group pilots by selected category
+      const grouped = groupPilotsByCategory(report.data, pilotGroupBy)
+      const sortedKeys = Array.from(grouped.keys()).sort()
+
+      for (const groupKey of sortedKeys) {
+        const groupData = grouped.get(groupKey) || []
+
+        // Group header
+        doc.setFontSize(11)
+        doc.setFont('helvetica', 'bold')
+        doc.text(`${groupKey} (${groupData.length})`, 14, yPos)
+        yPos += 6
+
+        autoTable(doc, {
+          startY: yPos,
+          head: pilotTableHead,
+          body: groupData.map(pilotRowMapper),
+          styles: pilotTableStyles,
+          headStyles: pilotHeadStyles,
+          didParseCell: pilotDidParseCell,
+        })
+
+        yPos = (doc as any).lastAutoTable?.finalY + 12 || yPos + 50
+      }
+    } else {
+      // Flat rendering (no grouping)
+      autoTable(doc, {
+        startY: yPos,
+        head: pilotTableHead,
+        body: report.data.map(pilotRowMapper),
+        styles: pilotTableStyles,
+        headStyles: pilotHeadStyles,
+        didParseCell: pilotDidParseCell,
+      })
+    }
   } else if (reportType === 'forecast') {
     // Group data by section
     const sections = ['Retirement Forecast', 'Succession Planning', 'Crew Shortage Predictions']

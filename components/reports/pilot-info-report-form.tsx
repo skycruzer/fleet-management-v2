@@ -18,6 +18,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ReportPreviewDialog } from '@/components/reports/report-preview-dialog'
 import { ReportEmailDialog } from '@/components/reports/report-email-dialog'
 import { Eye, Download, Mail, Loader2, Filter } from 'lucide-react'
@@ -27,8 +34,29 @@ import type { ReportFilters } from '@/types/reports'
 import { countActiveFilters } from '@/lib/utils/filter-count'
 import { Badge } from '@/components/ui/badge'
 
+const PILOT_GROUP_OPTIONS = [
+  { value: 'none', label: 'No Grouping' },
+  { value: 'captain', label: 'Captains' },
+  { value: 'first_officer', label: 'First Officers' },
+  { value: 'line_captain', label: 'Line Captains' },
+  { value: 'training_captain', label: 'Training Captains' },
+  { value: 'examiner', label: 'Examiners' },
+  { value: 'rhs_captain', label: 'RHS Captains' },
+] as const
+
 const formSchema = z.object({
   activeStatus: z.enum(['active', 'inactive', 'all']).default('all'),
+  pilotGroupBy: z
+    .enum([
+      'none',
+      'captain',
+      'first_officer',
+      'training_captain',
+      'examiner',
+      'rhs_captain',
+      'line_captain',
+    ])
+    .default('none'),
   rankCaptain: z.boolean().default(false),
   rankFirstOfficer: z.boolean().default(false),
   qualLineCaptain: z.boolean().default(false),
@@ -63,6 +91,7 @@ export function PilotInfoReportForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       activeStatus: 'all',
+      pilotGroupBy: 'none',
       rankCaptain: false,
       rankFirstOfficer: false,
       qualLineCaptain: false,
@@ -81,6 +110,11 @@ export function PilotInfoReportForm() {
     // Active status
     if (values.activeStatus !== 'all') {
       filters.activeStatus = values.activeStatus
+    }
+
+    // Pilot grouping
+    if (values.pilotGroupBy && values.pilotGroupBy !== 'none') {
+      filters.pilotGroupBy = values.pilotGroupBy
     }
 
     // Ranks
@@ -227,6 +261,37 @@ export function PilotInfoReportForm() {
                     </div>
                   </RadioGroup>
                 </FormControl>
+              </FormItem>
+            )}
+          />
+
+          {/* Group By */}
+          <FormField
+            control={form.control}
+            name="pilotGroupBy"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Group By</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value)
+                    handleFormChange()
+                  }}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="No Grouping" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {PILOT_GROUP_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </FormItem>
             )}
           />

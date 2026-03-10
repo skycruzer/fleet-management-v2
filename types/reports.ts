@@ -46,6 +46,15 @@ export interface ReportFilters {
   forecastSections?: ('retirement' | 'succession' | 'shortage')[]
   // Phase 5.1: Grouping support for PDF exports and previews
   groupBy?: ('rosterPeriod' | 'rank' | 'category')[]
+  // Pilot Info Report grouping
+  pilotGroupBy?:
+    | 'none'
+    | 'captain'
+    | 'first_officer'
+    | 'training_captain'
+    | 'examiner'
+    | 'rhs_captain'
+    | 'line_captain'
 }
 
 export interface PaginationMeta {
