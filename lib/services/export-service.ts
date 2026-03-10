@@ -159,23 +159,33 @@ export async function generateAnalyticsPDF(
     const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
     const logoData = readFileSync(logoPath)
     const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
-    doc.addImage(logoBase64, 'JPEG', 14, 8, 18, 18)
+    doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
   } catch {
     // Logo not found — continue without it
   }
 
   // Header
-  doc.setFontSize(20)
+  doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
-  doc.text(title, pageWidth / 2, 20, { align: 'center' })
+  doc.text(title, 34, 15, { align: 'left' })
+
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.setTextColor(100)
+  doc.text('Air Niugini — Fleet Management System', 34, 21, { align: 'left' })
+  doc.setTextColor(0)
 
   if (includeTimestamp) {
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Generated: ${format(new Date(), 'PPpp')}`, pageWidth / 2, 28, { align: 'center' })
+    doc.setFontSize(8)
+    doc.text(`Generated: ${format(new Date(), 'PPpp')}`, pageWidth - 14, 15, { align: 'right' })
   }
 
-  let yPos = 40
+  // Header separator
+  doc.setDrawColor(200)
+  doc.setLineWidth(0.3)
+  doc.line(14, 28, pageWidth - 14, 28)
+
+  let yPos = 36
 
   // Pilot Distribution
   doc.setFontSize(14)

@@ -786,28 +786,33 @@ export async function generatePDF(
     const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
     const logoData = readFileSync(logoPath)
     const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
-    doc.addImage(logoBase64, 'JPEG', 14, 8, 18, 18)
+    doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
   } catch {
     // Logo not found — continue without it
   }
 
-  doc.setFontSize(18)
+  doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
-  doc.text(report.title, pageWidth / 2, 16, { align: 'center' })
+  doc.text(report.title, 34, 15, { align: 'left' })
 
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(100)
-  doc.text('Air Niugini — Fleet Management System', pageWidth / 2, 22, { align: 'center' })
+  doc.text('Air Niugini — Fleet Management System', 34, 21, { align: 'left' })
   doc.setTextColor(0)
 
-  doc.setFontSize(10)
-  doc.text(`Generated: ${formatAustralianDateTime(report.generatedAt)}`, pageWidth / 2, 28, {
-    align: 'center',
+  doc.setFontSize(8)
+  doc.text(`Generated: ${formatAustralianDateTime(report.generatedAt)}`, pageWidth - 14, 15, {
+    align: 'right',
   })
 
+  // Header separator
+  doc.setDrawColor(200)
+  doc.setLineWidth(0.3)
+  doc.line(14, 28, pageWidth - 14, 28)
+
   // Summary section
-  let yPos = 40
+  let yPos = 36
   doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
   doc.text('Summary', 14, yPos)

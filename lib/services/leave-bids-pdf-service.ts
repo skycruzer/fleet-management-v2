@@ -124,21 +124,34 @@ export async function generateLeaveBidsPDF(
     const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
     const logoData = readFileSync(logoPath)
     const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
-    doc.addImage(logoBase64, 'JPEG', 14, 5, 18, 18)
+    doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
   } catch {
     // Logo not found — continue without it
   }
 
   // Title
-  doc.setFontSize(20)
+  doc.setFontSize(16)
   doc.setFont('helvetica', 'bold')
-  doc.text('Leave Bid Management Report', pageWidth / 2, 15, { align: 'center' })
+  doc.text('Leave Bid Management Report', 34, 15, { align: 'left' })
 
   // Subtitle
-  doc.setFontSize(12)
+  doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
-  const subtitle = `Year: ${year}${statusFilter !== 'all' ? ` | Status: ${statusFilter.toUpperCase()}` : ''} | Generated: ${new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' })}`
-  doc.text(subtitle, pageWidth / 2, 22, { align: 'center' })
+  const subtitle = `Year: ${year}${statusFilter !== 'all' ? ` | Status: ${statusFilter.toUpperCase()}` : ''}`
+  doc.text(subtitle, 34, 21, { align: 'left' })
+
+  doc.setFontSize(8)
+  doc.text(
+    `Generated: ${new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+    pageWidth - 14,
+    15,
+    { align: 'right' }
+  )
+
+  // Header separator
+  doc.setDrawColor(200)
+  doc.setLineWidth(0.3)
+  doc.line(14, 28, pageWidth - 14, 28)
 
   // Statistics Summary
   const pendingCount =
@@ -152,15 +165,15 @@ export async function generateLeaveBidsPDF(
 
   doc.setFontSize(10)
   doc.setFont('helvetica', 'bold')
-  doc.text('Summary Statistics:', 14, 30)
+  doc.text('Summary Statistics:', 14, 34)
 
   doc.setFont('helvetica', 'normal')
-  doc.text(`Total Bids: ${summary?.totalBids ?? bids.length}`, 14, 36)
-  doc.text(`Pending: ${pendingCount + processingCount}`, 60, 36)
-  doc.text(`Approved: ${approvedCount}`, 90, 36)
-  doc.text(`Rejected: ${rejectedCount}`, 125, 36)
+  doc.text(`Total Bids: ${summary?.totalBids ?? bids.length}`, 14, 40)
+  doc.text(`Pending: ${pendingCount + processingCount}`, 60, 40)
+  doc.text(`Approved: ${approvedCount}`, 90, 40)
+  doc.text(`Rejected: ${rejectedCount}`, 125, 40)
 
-  let yPosition = 42
+  let yPosition = 46
 
   // Enhanced summary stats
   if (summary) {

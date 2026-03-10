@@ -100,11 +100,12 @@ export async function generateRosterPDF(
     // ========================================================================
 
     // Company Logo
+    const pageWidth = doc.internal.pageSize.getWidth()
     try {
       const logoPath = join(process.cwd(), 'public', 'images', 'air-niugini-logo.jpg')
       const logoData = readFileSync(logoPath)
       const logoBase64 = `data:image/jpeg;base64,${logoData.toString('base64')}`
-      doc.addImage(logoBase64, 'JPEG', 14, 10, 18, 18)
+      doc.addImage(logoBase64, 'JPEG', 14, 8, 16, 16)
     } catch (error) {
       logger.warn('Failed to add logo to PDF', {
         error: error instanceof Error ? error : String(error),
@@ -112,36 +113,36 @@ export async function generateRosterPDF(
     }
 
     // Report Title
-    doc.setFontSize(20)
+    doc.setFontSize(16)
     doc.setFont('helvetica', 'bold')
-    doc.text('Roster Period Request Report', 105, currentY, { align: 'center' })
-    currentY += 10
+    doc.text('Roster Period Request Report', 34, 14, { align: 'left' })
 
     // Roster Period Information
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Roster Period: ${report.rosterPeriod.code}`, 105, currentY, { align: 'center' })
-    currentY += 7
-
     doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
     doc.text(
-      `${formatDate(report.rosterPeriod.startDate)} to ${formatDate(report.rosterPeriod.endDate)}`,
-      105,
-      currentY,
-      { align: 'center' }
+      `Roster Period: ${report.rosterPeriod.code} — ${formatDate(report.rosterPeriod.startDate)} to ${formatDate(report.rosterPeriod.endDate)}`,
+      34,
+      20,
+      { align: 'left' }
     )
-    currentY += 10
 
     // Report Metadata
-    doc.setFontSize(9)
+    doc.setFontSize(8)
     doc.setTextColor(100, 100, 100)
     doc.text(
       `Generated: ${formatDateTime(report.metadata.generatedAt)} | Type: ${report.metadata.reportType}`,
-      105,
-      currentY,
-      { align: 'center' }
+      pageWidth - 14,
+      14,
+      { align: 'right' }
     )
-    currentY += 15
+
+    // Header separator
+    doc.setTextColor(0)
+    doc.setDrawColor(200)
+    doc.setLineWidth(0.3)
+    doc.line(14, 28, pageWidth - 14, 28)
+    currentY = 36
 
     // ========================================================================
     // Statistics Summary Section
