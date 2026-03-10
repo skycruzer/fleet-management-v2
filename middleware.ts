@@ -13,7 +13,7 @@ import type { CookieOptions } from '@supabase/ssr'
  * Dual-role users (pilot + admin) can access both portals with separate logins.
  */
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Create response that can be modified
@@ -338,6 +338,11 @@ export async function proxy(request: NextRequest) {
 
   // Allow CSRF token endpoint for all users (needed before login)
   if (pathname === '/api/csrf') {
+    return response
+  }
+
+  // Allow cron job endpoints (authenticated via CRON_SECRET header, not session cookies)
+  if (pathname.startsWith('/api/cron')) {
     return response
   }
 
