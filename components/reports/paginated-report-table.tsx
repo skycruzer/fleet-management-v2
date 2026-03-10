@@ -505,6 +505,98 @@ export function PaginatedReportTable({
           ),
         },
         {
+          accessorKey: 'licence_number',
+          header: 'Lic #',
+          cell: ({ getValue }) => (
+            <div className="font-mono text-xs">{(getValue() as string) || '-'}</div>
+          ),
+        },
+        {
+          accessorKey: 'contract_type',
+          header: 'Contract',
+          cell: ({ getValue }) => <div className="text-xs">{(getValue() as string) || '-'}</div>,
+        },
+        {
+          accessorKey: 'date_of_birth',
+          header: 'DOB',
+          cell: ({ getValue }) => {
+            const v = getValue() as string
+            return (
+              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
+            )
+          },
+        },
+        {
+          accessorKey: 'nationality',
+          header: 'Nationality',
+          cell: ({ getValue }) => <div className="text-xs">{(getValue() as string) || '-'}</div>,
+        },
+        {
+          accessorKey: 'commencement_date',
+          header: 'Comm. Date',
+          cell: ({ getValue }) => {
+            const v = getValue() as string
+            return (
+              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
+            )
+          },
+        },
+        {
+          accessorKey: 'years_in_service',
+          header: 'Yrs Svc',
+          cell: ({ getValue }) => {
+            const v = getValue() as number | null
+            return <div className="text-xs">{v != null ? v : '-'}</div>
+          },
+        },
+        {
+          accessorKey: 'retirement_date',
+          header: 'Retire Date',
+          cell: ({ getValue }) => {
+            const v = getValue() as string
+            return (
+              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
+            )
+          },
+        },
+        {
+          accessorKey: 'years_to_retirement',
+          header: 'Yrs to Ret',
+          cell: ({ getValue }) => {
+            const v = getValue() as number | null
+            return <div className="text-xs">{v != null ? v : '-'}</div>
+          },
+        },
+        {
+          accessorKey: 'passport_number',
+          header: 'Passport #',
+          cell: ({ getValue }) => (
+            <div className="font-mono text-xs">{(getValue() as string) || '-'}</div>
+          ),
+        },
+        {
+          accessorKey: 'passport_expiry',
+          header: 'Pass. Exp',
+          cell: ({ getValue }) => {
+            const v = getValue() as string
+            return (
+              <div className="text-xs">{v ? new Date(v).toLocaleDateString('en-AU') : '-'}</div>
+            )
+          },
+        },
+        {
+          accessorKey: 'email',
+          header: 'Email',
+          cell: ({ getValue }) => (
+            <div className="max-w-[150px] truncate text-xs">{(getValue() as string) || '-'}</div>
+          ),
+        },
+        {
+          accessorKey: 'phone_number',
+          header: 'Phone',
+          cell: ({ getValue }) => <div className="text-xs">{(getValue() as string) || '-'}</div>,
+        },
+        {
           accessorKey: 'is_active',
           header: 'Status',
           cell: ({ getValue }) => {
@@ -527,8 +619,8 @@ export function PaginatedReportTable({
             return list.join(', ') || '-'
           },
           id: 'qualifications',
-          header: 'Qualifications',
-          cell: ({ getValue }) => <div className="text-sm">{getValue() as string}</div>,
+          header: 'Quals',
+          cell: ({ getValue }) => <div className="text-xs">{getValue() as string}</div>,
         },
         {
           accessorFn: (row) => {

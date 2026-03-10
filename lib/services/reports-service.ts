@@ -831,7 +831,8 @@ export async function generatePDF(
 ): Promise<Buffer> {
   const { default: jsPDF } = await import('jspdf')
   const { default: autoTable } = await import('jspdf-autotable')
-  const doc = new jsPDF()
+  const orientation = reportType === 'pilot-info' ? 'landscape' : 'portrait'
+  const doc = new jsPDF({ orientation })
   const pageWidth = doc.internal.pageSize.getWidth()
 
   // Logo + Header
@@ -1244,25 +1245,87 @@ export async function generatePDF(
   } else if (reportType === 'pilot-info') {
     const pilotGroupBy = report.filters?.pilotGroupBy
     const pilotTableHead = [
-      ['Seniority', 'Employee ID', 'Name', 'Rank', 'Licence', 'Status', 'Qualifications'],
+      [
+        '#',
+        'Emp ID',
+        'Name',
+        'Rank',
+        'Licence',
+        'Lic #',
+        'Contract',
+        'DOB',
+        'Nationality',
+        'Comm. Date',
+        'Yrs Svc',
+        'Retire Date',
+        'Yrs to Ret',
+        'Passport #',
+        'Pass. Exp',
+        'Email',
+        'Phone',
+        'Quals',
+      ],
     ]
-    const pilotTableStyles = { fontSize: 8 }
-    const pilotHeadStyles = { fillColor: [52, 152, 219] as [number, number, number] }
+    const pilotTableStyles = { fontSize: 6, cellPadding: 1.5 }
+    const pilotHeadStyles = {
+      fillColor: [52, 152, 219] as [number, number, number],
+      fontSize: 6,
+    }
+    const pilotColumnStyles: Record<number, any> = {
+      0: { cellWidth: 8 }, // Seniority
+      1: { cellWidth: 14 }, // Emp ID
+      2: { cellWidth: 28 }, // Name
+      3: { cellWidth: 14 }, // Rank
+      4: { cellWidth: 10 }, // Licence type
+      5: { cellWidth: 16 }, // Licence #
+      6: { cellWidth: 14 }, // Contract
+      7: { cellWidth: 16 }, // DOB
+      8: { cellWidth: 14 }, // Nationality
+      9: { cellWidth: 16 }, // Comm date
+      10: { cellWidth: 10 }, // Yrs service
+      11: { cellWidth: 16 }, // Retire date
+      12: { cellWidth: 10 }, // Yrs to ret
+      13: { cellWidth: 18 }, // Passport #
+      14: { cellWidth: 16 }, // Passport exp
+      15: { cellWidth: 30 }, // Email
+      16: { cellWidth: 20 }, // Phone
+      17: { cellWidth: 16 }, // Quals
+    }
     const pilotDidParseCell = (data: any) => {
-      if (data.column.index === 5 && data.section === 'body') {
-        const status = data.cell.text[0]
-        if (status === 'Inactive') {
+      // Inactive status row styling
+      if (data.section === 'body') {
+        const rowData = data.row.raw
+        if (Array.isArray(rowData) && rowData[3] === 'Inactive') {
           data.cell.styles.textColor = [150, 150, 150]
         }
       }
     }
+    const fmtDate = (d: string | null) =>
+      d
+        ? new Date(d).toLocaleDateString('en-AU', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          })
+        : '-'
     const pilotRowMapper = (item: any) => [
-      item.seniority_number || 'N/A',
-      item.employee_id || 'N/A',
-      item.name || 'N/A',
-      item.rank || 'N/A',
-      item.licence_type || 'N/A',
-      item.is_active ? 'Active' : 'Inactive',
+      item.seniority_number || '-',
+      item.employee_id || '-',
+      item.name || '-',
+      item.rank || '-',
+      item.licence_type || '-',
+      item.licence_number || '-',
+      item.contract_type || '-',
+      fmtDate(item.date_of_birth),
+      item.nationality || '-',
+      fmtDate(item.commencement_date),
+      item.years_in_service != null ? `${item.years_in_service}` : '-',
+      fmtDate(item.retirement_date),
+      item.years_to_retirement != null ? `${item.years_to_retirement}` : '-',
+      item.passport_number || '-',
+      fmtDate(item.passport_expiry),
+      item.email || '-',
+      item.phone_number || '-',
       [
         item.qualifications?.line_captain ? 'LC' : '',
         item.qualifications?.training_captain ? 'TC' : '',
@@ -1293,6 +1356,7 @@ export async function generatePDF(
           body: groupData.map(pilotRowMapper),
           styles: pilotTableStyles,
           headStyles: pilotHeadStyles,
+          columnStyles: pilotColumnStyles,
           didParseCell: pilotDidParseCell,
         })
 
@@ -1306,6 +1370,7 @@ export async function generatePDF(
         body: report.data.map(pilotRowMapper),
         styles: pilotTableStyles,
         headStyles: pilotHeadStyles,
+        columnStyles: pilotColumnStyles,
         didParseCell: pilotDidParseCell,
       })
     }
@@ -1623,6 +1688,13 @@ export async function generatePilotInfoReport(
       licence_number,
       is_active,
       captain_qualifications,
+      date_of_birth,
+      contract_type,
+      nationality,
+      email,
+      phone_number,
+      passport_number,
+      passport_expiry,
       pilot_checks (
         id,
         expiry_date,
@@ -1694,6 +1766,33 @@ export async function generatePilotInfoReport(
 
     const quals = parseCaptainQualifications(pilot.captain_qualifications)
 
+    // Compute retirement and service dates
+    const retirementAge = 65
+    const now = new Date()
+    let retirementDate: string | null = null
+    let yearsInService: number | null = null
+    let yearsToRetirement: number | null = null
+
+    if (pilot.date_of_birth) {
+      const dob = new Date(pilot.date_of_birth)
+      const retDate = new Date(dob)
+      retDate.setFullYear(retDate.getFullYear() + retirementAge)
+      retirementDate = retDate.toISOString().split('T')[0]
+      yearsToRetirement = Math.max(
+        0,
+        parseFloat(
+          ((retDate.getTime() - now.getTime()) / (365.25 * 24 * 60 * 60 * 1000)).toFixed(1)
+        )
+      )
+    }
+
+    if (pilot.commencement_date) {
+      const commDate = new Date(pilot.commencement_date)
+      yearsInService = parseFloat(
+        ((now.getTime() - commDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)).toFixed(1)
+      )
+    }
+
     return {
       id: pilot.id,
       employee_id: pilot.employee_id,
@@ -1704,6 +1803,16 @@ export async function generatePilotInfoReport(
       licence_type: pilot.licence_type,
       licence_number: pilot.licence_number,
       is_active: pilot.is_active,
+      date_of_birth: pilot.date_of_birth,
+      contract_type: pilot.contract_type,
+      nationality: pilot.nationality,
+      email: pilot.email,
+      phone_number: pilot.phone_number,
+      passport_number: pilot.passport_number,
+      passport_expiry: pilot.passport_expiry,
+      retirement_date: retirementDate,
+      years_in_service: yearsInService,
+      years_to_retirement: yearsToRetirement,
       qualifications: {
         line_captain: quals?.line_captain || false,
         training_captain: quals?.training_captain || false,
