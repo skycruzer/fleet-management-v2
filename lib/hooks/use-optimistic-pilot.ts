@@ -72,7 +72,7 @@ export function useOptimisticPilotUpdate() {
   >({
     mutationFn: async ({ id, ...data }) => {
       const response = await fetch(`/api/pilots/${id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
       })

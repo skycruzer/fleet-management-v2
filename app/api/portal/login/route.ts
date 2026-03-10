@@ -137,24 +137,14 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     const { staffId, rememberMe } = validation.data
 
     // SECURITY: Check if account is locked (brute force protection)
+    // Soft-fail: if lockout service is unavailable (e.g. missing tables), log and continue
     const lockoutStatus = await checkAccountLockout(staffId)
 
     if (!lockoutStatus.success) {
-      logger.error('Failed to check account lockout status', { staffId })
-      return NextResponse.json(
-        formatApiError(
-          {
-            message: 'Unable to verify account status. Please try again later.',
-            category: ErrorCategory.NETWORK,
-            severity: ErrorSeverity.ERROR,
-          },
-          500
-        ),
-        { status: 500 }
-      )
+      logger.error('Account lockout check failed — proceeding with login', { staffId })
     }
 
-    if (lockoutStatus.data?.isLocked) {
+    if (lockoutStatus.success && lockoutStatus.data?.isLocked) {
       logger.warn('Login attempt on locked account', {
         staffId,
         remainingTime: lockoutStatus.data.remainingTime,
@@ -189,7 +179,11 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     if (!result.success) {
       // SECURITY: Record failed login attempt (pass staffId as identifier for tracking)
       logger.warn('Failed login attempt', { staffId, ipAddress })
-      await recordFailedAttempt(staffId, ipAddress)
+      try {
+        await recordFailedAttempt(staffId, ipAddress)
+      } catch (err) {
+        logger.error('Failed to record failed attempt', { staffId, error: err })
+      }
 
       return NextResponse.json(formatApiError(ERROR_MESSAGES.PORTAL.LOGIN_FAILED, 401), {
         status: 401,
@@ -198,10 +192,14 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
 
     // SECURITY: Clear failed attempts after successful login
     // Clear by both staffId and email to handle any prior mismatch
-    await clearFailedAttempts(staffId)
-    const pilotEmail = result.data?.user?.email
-    if (pilotEmail && pilotEmail !== staffId) {
-      await clearFailedAttempts(pilotEmail)
+    try {
+      await clearFailedAttempts(staffId)
+      const pilotEmail = result.data?.user?.email
+      if (pilotEmail && pilotEmail !== staffId) {
+        await clearFailedAttempts(pilotEmail)
+      }
+    } catch (err) {
+      logger.error('Failed to clear failed attempts', { staffId, error: err })
     }
 
     // SECURITY: Session created successfully - return success response

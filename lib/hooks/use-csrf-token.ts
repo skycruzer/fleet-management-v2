@@ -145,6 +145,11 @@ export function getCsrfToken(): string {
  */
 export function csrfHeaders(): Record<string, string> {
   const token = getCsrfToken()
+  if (!token) {
+    console.warn(
+      '[CSRF] No csrf-token cookie found. Mutations will fail with 403. Ensure CsrfProvider has mounted.'
+    )
+  }
   return token ? { 'X-CSRF-Token': token } : {}
 }
 
