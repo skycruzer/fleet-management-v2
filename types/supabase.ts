@@ -216,151 +216,6 @@ export type Database = {
         }
         Relationships: []
       }
-      certification_email_log: {
-        Row: {
-          check_type_id: string
-          created_at: string | null
-          email_address: string
-          error_message: string | null
-          id: string
-          notification_level: Database['public']['Enums']['notification_level']
-          notification_status: Database['public']['Enums']['notification_status']
-          pilot_check_id: string
-          pilot_id: string
-          sent_at: string | null
-        }
-        Insert: {
-          check_type_id: string
-          created_at?: string | null
-          email_address: string
-          error_message?: string | null
-          id?: string
-          notification_level: Database['public']['Enums']['notification_level']
-          notification_status?: Database['public']['Enums']['notification_status']
-          pilot_check_id: string
-          pilot_id: string
-          sent_at?: string | null
-        }
-        Update: {
-          check_type_id?: string
-          created_at?: string | null
-          email_address?: string
-          error_message?: string | null
-          id?: string
-          notification_level?: Database['public']['Enums']['notification_level']
-          notification_status?: Database['public']['Enums']['notification_status']
-          pilot_check_id?: string
-          pilot_id?: string
-          sent_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'certification_email_log_check_type_id_fkey'
-            columns: ['check_type_id']
-            isOneToOne: false
-            referencedRelation: 'check_types'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_check_id_fkey'
-            columns: ['pilot_check_id']
-            isOneToOne: false
-            referencedRelation: 'detailed_expiring_checks'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_check_id_fkey'
-            columns: ['pilot_check_id']
-            isOneToOne: false
-            referencedRelation: 'expiring_checks'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_check_id_fkey'
-            columns: ['pilot_check_id']
-            isOneToOne: false
-            referencedRelation: 'expiring_checks_optimized'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_check_id_fkey'
-            columns: ['pilot_check_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_checks'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'captain_qualifications_summary'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_checks_overview'
-            referencedColumns: ['pilot_id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_qualification_summary'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_report_summary'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_requirements_compliance'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_summary_optimized'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_user_mappings'
-            referencedColumns: ['pilot_id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilot_warning_history'
-            referencedColumns: ['pilot_id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilots'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'certification_email_log_pilot_id_fkey'
-            columns: ['pilot_id']
-            isOneToOne: false
-            referencedRelation: 'pilots_with_contract_details'
-            referencedColumns: ['id']
-          },
-        ]
-      }
       certification_renewal_plans: {
         Row: {
           check_type_id: string
@@ -582,9 +437,7 @@ export type Database = {
           check_code: string
           check_description: string
           created_at: string
-          email_notifications_enabled: boolean | null
           id: string
-          reminder_days: number[] | null
           updated_at: string
         }
         Insert: {
@@ -592,9 +445,7 @@ export type Database = {
           check_code: string
           check_description: string
           created_at?: string
-          email_notifications_enabled?: boolean | null
           id?: string
-          reminder_days?: number[] | null
           updated_at?: string
         }
         Update: {
@@ -602,9 +453,7 @@ export type Database = {
           check_code?: string
           check_description?: string
           created_at?: string
-          email_notifications_enabled?: boolean | null
           id?: string
-          reminder_days?: number[] | null
           updated_at?: string
         }
         Relationships: []
@@ -4437,26 +4286,6 @@ export type Database = {
           status: string
         }[]
       }
-      get_expiring_certifications_with_email: {
-        Args: { days_threshold?: number }
-        Returns: {
-          check_category: string
-          check_code: string
-          check_description: string
-          check_type_id: string
-          days_until_expiry: number
-          email: string
-          email_notifications_enabled: boolean
-          employee_id: string
-          expiry_date: string
-          first_name: string
-          last_name: string
-          pilot_check_id: string
-          pilot_id: string
-          rank: string
-          reminder_days: number[]
-        }[]
-      }
       get_expiry_statistics: {
         Args: never
         Returns: {
@@ -4651,15 +4480,6 @@ export type Database = {
         | 'TRAINING_CAPTAIN'
         | 'CHECK_CAPTAIN'
       leave_type: 'RDO' | 'SDO' | 'ANN' | 'SCK' | 'LSL' | 'COMP' | 'MAT' | 'PAT' | 'UNPAID'
-      notification_level:
-        | '90_DAYS'
-        | '60_DAYS'
-        | '30_DAYS'
-        | '14_DAYS'
-        | '7_DAYS'
-        | 'EXPIRED'
-        | 'CRITICAL'
-      notification_status: 'PENDING' | 'SENT' | 'ACKNOWLEDGED' | 'FAILED' | 'CANCELLED'
       notification_type:
         | 'leave_request_submitted'
         | 'leave_request_approved'
@@ -4850,16 +4670,6 @@ export const Constants = {
         'CHECK_CAPTAIN',
       ],
       leave_type: ['RDO', 'SDO', 'ANN', 'SCK', 'LSL', 'COMP', 'MAT', 'PAT', 'UNPAID'],
-      notification_level: [
-        '90_DAYS',
-        '60_DAYS',
-        '30_DAYS',
-        '14_DAYS',
-        '7_DAYS',
-        'EXPIRED',
-        'CRITICAL',
-      ],
-      notification_status: ['PENDING', 'SENT', 'ACKNOWLEDGED', 'FAILED', 'CANCELLED'],
       notification_type: [
         'leave_request_submitted',
         'leave_request_approved',
