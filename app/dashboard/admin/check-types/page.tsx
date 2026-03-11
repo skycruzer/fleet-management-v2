@@ -1,6 +1,6 @@
 /**
  * Check Types Management Page
- * Manage certification check types, categories, and reminder settings
+ * Manage certification check types and categories
  *
  * Developer: Maurice Rondeau
  */
