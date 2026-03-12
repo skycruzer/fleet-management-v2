@@ -249,7 +249,7 @@ export default function CertificationsPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* Header */}
-      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
+      <header className="bg-card/80 sticky top-14 z-10 border-b backdrop-blur-sm lg:top-0">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -567,7 +567,7 @@ export default function CertificationsPage() {
 
                               <p className="text-muted-foreground text-xs">
                                 Expires:{' '}
-                                {new Date(cert.expiry_date).toLocaleDateString('en-AU', {
+                                {new Date(cert.expiry_date).toLocaleDateString('en-US', {
                                   month: 'short',
                                   day: 'numeric',
                                   year: 'numeric',
@@ -632,7 +632,7 @@ export default function CertificationsPage() {
                                     </p>
                                     <p className="text-muted-foreground text-xs">
                                       Expires:{' '}
-                                      {new Date(cert.expiry_date).toLocaleDateString('en-AU', {
+                                      {new Date(cert.expiry_date).toLocaleDateString('en-US', {
                                         month: 'short',
                                         day: 'numeric',
                                         year: 'numeric',

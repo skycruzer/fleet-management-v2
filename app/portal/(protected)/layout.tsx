@@ -62,7 +62,7 @@ export default async function PortalLayout({ children }: { children: React.React
           <PilotPortalSidebar pilotName={pilotName} employeeId={employeeId} />
 
           {/* Main Content */}
-          <main id="main-content" className="flex-1 pt-16 lg:ml-60 lg:pt-0">
+          <main id="main-content" className="flex-1 pt-14 lg:ml-60 lg:pt-0">
             {children}
           </main>
 

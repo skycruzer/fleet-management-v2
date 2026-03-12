@@ -151,20 +151,20 @@ export function PilotPortalSidebar({
   return (
     <>
       {/* Mobile Header with Hamburger */}
-      <div className="border-border bg-card/95 fixed top-0 right-0 left-0 z-[var(--z-header)] flex h-16 items-center justify-between border-b px-4 backdrop-blur-sm lg:hidden">
-        <div className="flex items-center gap-3">
+      <div className="border-border bg-card/95 fixed top-0 right-0 left-0 z-[var(--z-header)] flex h-14 items-center justify-between border-b px-4 backdrop-blur-sm lg:hidden">
+        <div className="flex min-w-0 items-center gap-2">
           <Image
             src="/images/air-niugini-logo.jpg"
             alt="Air Niugini"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-lg object-contain"
+            width={28}
+            height={28}
+            className="h-7 w-7 flex-shrink-0 rounded-md object-contain"
           />
-          <div>
-            <h1 className="text-foreground text-lg font-bold" tabIndex={-1}>
+          <div className="min-w-0">
+            <h1 className="text-foreground truncate text-sm font-semibold" tabIndex={-1}>
               B767 Pilot Portal
             </h1>
-            <p className="text-muted-foreground text-xs">Air Niugini Ltd</p>
+            <p className="text-muted-foreground truncate text-[10px]">Air Niugini Ltd</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -212,19 +212,20 @@ export function PilotPortalSidebar({
           header={
             <>
               {/* Logo Header */}
-              <div className="border-border bg-card flex h-16 items-center gap-3 border-b px-6">
+              <div className="border-border bg-card flex h-12 items-center gap-2 border-b px-4">
                 <Image
                   src="/images/air-niugini-logo.jpg"
                   alt="Air Niugini"
-                  width={40}
-                  height={40}
-                  className="h-10 w-10 rounded-lg object-contain"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 flex-shrink-0 rounded-md object-contain"
                 />
-                <div className="flex-1">
-                  <h1 className="text-foreground text-lg font-bold">B767 Pilot Portal</h1>
-                  <p className="text-muted-foreground text-xs">Air Niugini Ltd</p>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-foreground truncate text-sm font-semibold">
+                    B767 Pilot Portal
+                  </h1>
+                  <p className="text-muted-foreground truncate text-[10px]">Air Niugini Ltd</p>
                 </div>
-                {/* Notification Bell */}
                 <NotificationBell />
               </div>
 
