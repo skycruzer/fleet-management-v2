@@ -35,6 +35,7 @@ export interface RequestFilters {
   status?: string[]
   category?: string[]
   channel?: string[]
+  request_type?: string[]
   start_date_from?: string
   start_date_to?: string
   is_late?: boolean
@@ -108,6 +109,15 @@ const SUBMISSION_CHANNELS = [
   { value: 'PHONE', label: 'Phone' },
   { value: 'ORACLE', label: 'Oracle System' },
   { value: 'ADMIN_PORTAL', label: 'Admin Portal' },
+]
+
+const LEAVE_TYPES = [
+  { value: 'ANNUAL', label: 'Annual Leave' },
+  { value: 'SICK', label: 'Sick Leave' },
+  { value: 'LSL', label: 'Long Service Leave' },
+  { value: 'LWOP', label: 'Leave Without Pay' },
+  { value: 'MATERNITY', label: 'Maternity Leave' },
+  { value: 'COMPASSIONATE', label: 'Compassionate Leave' },
 ]
 
 // ============================================================================
@@ -186,6 +196,22 @@ export function RequestFiltersClient({
     onFiltersChange(newFilters)
   }
 
+  const handleLeaveTypeToggle = (leaveType: string) => {
+    const currentTypes = localFilters.request_type || []
+    const newTypes = currentTypes.includes(leaveType)
+      ? currentTypes.filter((t) => t !== leaveType)
+      : [...currentTypes, leaveType]
+
+    const newFilters = { ...localFilters }
+    if (newTypes.length === 0) {
+      delete newFilters.request_type
+    } else {
+      newFilters.request_type = newTypes
+    }
+    setLocalFilters(newFilters)
+    onFiltersChange(newFilters)
+  }
+
   const handleDateChange = (field: 'start_date_from' | 'start_date_to', value: string) => {
     const newFilters = { ...localFilters }
     if (value) {
@@ -224,6 +250,7 @@ export function RequestFiltersClient({
     if (localFilters.status && localFilters.status.length > 0) count++
     if (localFilters.category && localFilters.category.length > 0) count++
     if (localFilters.channel && localFilters.channel.length > 0) count++
+    if (localFilters.request_type && localFilters.request_type.length > 0) count++
     if (localFilters.start_date_from) count++
     if (localFilters.start_date_to) count++
     if (localFilters.is_late) count++
@@ -368,6 +395,31 @@ export function RequestFiltersClient({
             ))}
           </div>
         </div>
+
+        {/* Leave Type Filter - only show when category includes LEAVE or no category set */}
+        {(!localFilters.category ||
+          localFilters.category.length === 0 ||
+          localFilters.category.includes('LEAVE')) && (
+          <div className="space-y-2">
+            <Label>Leave Type</Label>
+            <div className="flex flex-wrap gap-2">
+              {LEAVE_TYPES.map((type) => (
+                <Button
+                  key={type.value}
+                  variant={localFilters.request_type?.includes(type.value) ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleLeaveTypeToggle(type.value)}
+                  className="text-sm"
+                >
+                  {type.label}
+                  {localFilters.request_type?.includes(type.value) && (
+                    <X className="ml-1 h-3 w-3" />
+                  )}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Advanced Filters Toggle */}
         <Button

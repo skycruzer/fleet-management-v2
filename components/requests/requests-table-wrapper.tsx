@@ -25,6 +25,7 @@ interface RequestsTableWrapperProps {
     status?: string
     category?: string
     channel?: string
+    request_type?: string
     is_late?: string
     is_past_deadline?: string
     start_date_from?: string
@@ -51,6 +52,7 @@ export async function RequestsTableWrapper({ searchParams }: RequestsTableWrappe
     submission_channel: params.channel
       ? (params.channel.split(',').filter(Boolean) as SubmissionChannel[])
       : undefined,
+    request_type: params.request_type ? params.request_type.split(',').filter(Boolean) : undefined,
     is_late_request: params.is_late === 'true' ? true : undefined,
     is_past_deadline: params.is_past_deadline === 'true' ? true : undefined,
     start_date_from: params.start_date_from || undefined,

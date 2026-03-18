@@ -160,6 +160,10 @@ export async function generateLeaveReport(
     query = query.in('workflow_status', filters.status)
   }
 
+  if (filters.requestType && filters.requestType.length > 0) {
+    query = query.in('request_type', filters.requestType)
+  }
+
   if (filters.rosterPeriod) {
     query = query.eq('roster_period', filters.rosterPeriod)
   }

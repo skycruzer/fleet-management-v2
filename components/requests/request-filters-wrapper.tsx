@@ -56,6 +56,10 @@ export function RequestFiltersWrapper() {
     'channel',
     parseAsString.withDefault('').withOptions(nuqsOptions)
   )
+  const [requestType, setRequestType] = useQueryState(
+    'request_type',
+    parseAsString.withDefault('').withOptions(nuqsOptions)
+  )
   const [isLate, setIsLate] = useQueryState(
     'is_late',
     parseAsBoolean.withDefault(false).withOptions(nuqsOptions)
@@ -79,6 +83,7 @@ export function RequestFiltersWrapper() {
     status: status ? status.split(',').filter(Boolean) : [],
     category: category ? category.split(',').filter(Boolean) : [],
     channel: channel ? channel.split(',').filter(Boolean) : [],
+    request_type: requestType ? requestType.split(',').filter(Boolean) : [],
     is_late: isLate,
     is_past_deadline: isPastDeadline,
     start_date_from: startDateFrom || undefined,
@@ -109,6 +114,13 @@ export function RequestFiltersWrapper() {
       setChannel(newFilters.channel.join(','))
     } else {
       setChannel(null)
+    }
+
+    // Update request type (comma-separated)
+    if (newFilters.request_type && newFilters.request_type.length > 0) {
+      setRequestType(newFilters.request_type.join(','))
+    } else {
+      setRequestType(null)
     }
 
     // Update boolean flags — set to null to remove from URL when false

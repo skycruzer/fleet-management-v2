@@ -55,6 +55,12 @@ const formSchema = z.object({
   statusRejected: z.boolean().default(false),
   rankCaptain: z.boolean().default(false),
   rankFirstOfficer: z.boolean().default(false),
+  leaveTypeAnnual: z.boolean().default(false),
+  leaveTypeSick: z.boolean().default(false),
+  leaveTypeLSL: z.boolean().default(false),
+  leaveTypeLWOP: z.boolean().default(false),
+  leaveTypeMaternity: z.boolean().default(false),
+  leaveTypeCompassionate: z.boolean().default(false),
 })
 
 export function LeaveReportForm() {
@@ -92,6 +98,12 @@ export function LeaveReportForm() {
       statusRejected: false,
       rankCaptain: false,
       rankFirstOfficer: false,
+      leaveTypeAnnual: false,
+      leaveTypeSick: false,
+      leaveTypeLSL: false,
+      leaveTypeLWOP: false,
+      leaveTypeMaternity: false,
+      leaveTypeCompassionate: false,
     },
   })
 
@@ -128,6 +140,15 @@ export function LeaveReportForm() {
     if (values.rankCaptain) ranks.push('Captain')
     if (values.rankFirstOfficer) ranks.push('First Officer')
     if (ranks.length > 0) filters.rank = ranks
+
+    const leaveTypes = []
+    if (values.leaveTypeAnnual) leaveTypes.push('ANNUAL')
+    if (values.leaveTypeSick) leaveTypes.push('SICK')
+    if (values.leaveTypeLSL) leaveTypes.push('LSL')
+    if (values.leaveTypeLWOP) leaveTypes.push('LWOP')
+    if (values.leaveTypeMaternity) leaveTypes.push('MATERNITY')
+    if (values.leaveTypeCompassionate) leaveTypes.push('COMPASSIONATE')
+    if (leaveTypes.length > 0) filters.requestType = leaveTypes
 
     return filters
   }
@@ -245,6 +266,14 @@ export function LeaveReportForm() {
     // Apply rank filters
     form.setValue('rankCaptain', filters.rank?.includes('Captain') || false)
     form.setValue('rankFirstOfficer', filters.rank?.includes('First Officer') || false)
+
+    // Apply leave type filters
+    form.setValue('leaveTypeAnnual', filters.requestType?.includes('ANNUAL') || false)
+    form.setValue('leaveTypeSick', filters.requestType?.includes('SICK') || false)
+    form.setValue('leaveTypeLSL', filters.requestType?.includes('LSL') || false)
+    form.setValue('leaveTypeLWOP', filters.requestType?.includes('LWOP') || false)
+    form.setValue('leaveTypeMaternity', filters.requestType?.includes('MATERNITY') || false)
+    form.setValue('leaveTypeCompassionate', filters.requestType?.includes('COMPASSIONATE') || false)
 
     // Trigger form change to prefetch data
     handleFormChange()
@@ -533,6 +562,127 @@ export function LeaveReportForm() {
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
                     <FormLabel className="cursor-pointer font-normal">First Officer</FormLabel>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Leave Type Filters */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Leave Type</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    form.reset({
+                      ...form.getValues(),
+                      leaveTypeAnnual: true,
+                      leaveTypeSick: true,
+                      leaveTypeLSL: true,
+                      leaveTypeLWOP: true,
+                      leaveTypeMaternity: true,
+                      leaveTypeCompassionate: true,
+                    })
+                  }}
+                  className="h-7 text-xs"
+                >
+                  Select All
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    form.reset({
+                      ...form.getValues(),
+                      leaveTypeAnnual: false,
+                      leaveTypeSick: false,
+                      leaveTypeLSL: false,
+                      leaveTypeLWOP: false,
+                      leaveTypeMaternity: false,
+                      leaveTypeCompassionate: false,
+                    })
+                  }}
+                  className="h-7 text-xs"
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <FormField
+                control={form.control}
+                name="leaveTypeAnnual"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Annual</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="leaveTypeSick"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Sick</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="leaveTypeLSL"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Long Service</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="leaveTypeLWOP"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Without Pay</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="leaveTypeMaternity"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Maternity</FormLabel>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="leaveTypeCompassionate"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="cursor-pointer font-normal">Compassionate</FormLabel>
                   </FormItem>
                 )}
               />

@@ -46,6 +46,7 @@ interface PageProps {
     status?: string
     category?: string
     channel?: string
+    request_type?: string
     is_late?: string
     is_past_deadline?: string
     stat_filter?: string
@@ -119,6 +120,12 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
     // Filter by channel
     if (searchParams.channel && r.submission_channel !== searchParams.channel) {
       return false
+    }
+
+    // Filter by leave type
+    if (searchParams.request_type) {
+      const types = searchParams.request_type.split(',')
+      if (!types.includes(r.request_type)) return false
     }
 
     // Filter by late flag
@@ -223,6 +230,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
                     status: searchParams.status,
                     category: 'LEAVE',
                     channel: searchParams.channel,
+                    request_type: searchParams.request_type,
                     is_late: searchParams.is_late,
                     is_past_deadline: searchParams.is_past_deadline,
                   })}
@@ -269,6 +277,7 @@ export default async function RequestsPage({ searchParams: searchParamsPromise }
                     status: searchParams.status,
                     category: 'FLIGHT',
                     channel: searchParams.channel,
+                    request_type: searchParams.request_type,
                     is_late: searchParams.is_late,
                     is_past_deadline: searchParams.is_past_deadline,
                   })}

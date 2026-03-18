@@ -197,6 +197,7 @@ export interface PilotRequestFilters {
   status?: WorkflowStatus[]
   request_category?: RequestCategory[]
   submission_channel?: SubmissionChannel[]
+  request_type?: string[]
   start_date_from?: string
   start_date_to?: string
   is_late_request?: boolean
@@ -545,6 +546,9 @@ export async function getAllPilotRequests(
       }
       if (filters.submission_channel && filters.submission_channel.length > 0) {
         query = query.in('submission_channel', filters.submission_channel)
+      }
+      if (filters.request_type && filters.request_type.length > 0) {
+        query = query.in('request_type', filters.request_type)
       }
       if (filters.start_date_from) {
         query = query.gte('start_date', filters.start_date_from)
