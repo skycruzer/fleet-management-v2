@@ -158,7 +158,7 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity motion-reduce:transition-none"
+        className="fixed inset-0 bg-black/50 transition-opacity motion-reduce:transition-none"
         onClick={handleBackdropClick}
         aria-hidden="true"
       />

@@ -205,8 +205,6 @@
   --shadow-inset: inset 0 1px 2px rgb(0 0 0 / 0.2);
   --shadow-primary: 0 1px 2px rgb(0 0 0 / 0.2), 0 0 12px oklch(0.5 0.14 245 / 0.12);
   --shadow-glow-accent: 0 0 0 3px oklch(0.5 0.14 245 / 0.2), 0 0 20px oklch(0.5 0.14 245 / 0.1);
-  --shadow-glow-success: 0 0 0 3px oklch(0.65 0.18 155 / 0.2), 0 0 20px oklch(0.65 0.18 155 / 0.1);
-  --shadow-glow-destructive: 0 0 0 3px oklch(0.6 0.22 25 / 0.2), 0 0 20px oklch(0.6 0.22 25 / 0.1);
 
   /* === INTERACTIVE STATE TOKENS === */
   --color-interactive-hover: oklch(0.98 0.005 80 / 0.04);
@@ -217,7 +215,6 @@
   --surface-elevated: oklch(0.2 0.008 270);
   --glass-bg: oklch(0.185 0.008 270 / 0.85);
   --glass-border: oklch(0.98 0.005 80 / 0.06);
-  --glow-primary: 0 0 30px oklch(0.5 0.14 245 / 0.15);
 
   /* === STATUS COLORS (Aviation-standard) === */
   --color-status-low: oklch(0.72 0.19 155);
@@ -415,8 +412,6 @@
   --shadow-inset: inset 0 1px 2px rgb(0 0 0 / 0.1);
   --shadow-primary: 0 1px 2px rgb(0 0 0 / 0.1), 0 0 12px oklch(0.42 0.16 245 / 0.08);
   --shadow-glow-accent: 0 0 0 3px oklch(0.42 0.16 245 / 0.15), 0 0 15px oklch(0.42 0.16 245 / 0.05);
-  --shadow-glow-success: 0 0 0 3px oklch(0.55 0.17 155 / 0.15);
-  --shadow-glow-destructive: 0 0 0 3px oklch(0.52 0.22 25 / 0.15);
 
   /* Interactive states - dark alphas for light bg */
   --color-interactive-hover: oklch(0.15 0.01 260 / 0.04);
@@ -427,7 +422,6 @@
   --surface-elevated: oklch(0.98 0.003 80);
   --glass-bg: oklch(0.995 0.002 80 / 0.85);
   --glass-border: oklch(0.15 0.01 260 / 0.06);
-  --glow-primary: 0 0 30px oklch(0.42 0.16 245 / 0.1);
 
   /* Gradient — navy/teal for light mode (asymmetric) */
   --gradient-aviation: linear-gradient(

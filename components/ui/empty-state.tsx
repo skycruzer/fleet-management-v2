@@ -74,7 +74,7 @@ export function EmptyState({
             }
             className={cn(
               'mb-6 flex items-center justify-center rounded-full',
-              'from-primary/15 to-primary/5 bg-gradient-to-br',
+              'bg-muted',
               isCompact ? 'h-16 w-16' : 'h-24 w-24'
             )}
             aria-hidden="true"

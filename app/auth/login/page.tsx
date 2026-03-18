@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
 
       {/* Main Card */}
       <div className="relative w-full max-w-sm">
-        <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="bg-card border-border p-8 shadow-lg">
           {/* Logo and Title */}
           <div className="mb-8 text-center">
             <div className="mb-4 inline-flex">

@@ -186,7 +186,7 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
   const displayEmail = userEmail || ''
 
   return (
-    <header className="border-border bg-background/80 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 border-b backdrop-blur-xl">
+    <header className="border-border bg-background/80 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-30 border-b backdrop-blur-sm">
       <div className="flex h-12 items-center justify-between px-4">
         {/* Left Section - Global Search */}
         <div className="flex flex-1 items-center gap-4">
@@ -235,7 +235,7 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
                   animate={{ opacity: 1, y: 0 }}
                   exit={shouldAnimate ? { opacity: 0, y: 4 } : { opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="border-border bg-popover absolute right-0 mt-1 w-80 rounded-lg border shadow-lg backdrop-blur-xl"
+                  className="border-border bg-popover absolute right-0 mt-1 w-80 rounded-lg border shadow-lg"
                   style={{ willChange: 'transform, opacity' }}
                 >
                   <div className="border-border border-b px-3 py-2.5">
@@ -331,7 +331,7 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
                   animate={{ opacity: 1, y: 0 }}
                   exit={shouldAnimate ? { opacity: 0, y: 4 } : { opacity: 0 }}
                   transition={{ duration: 0.1 }}
-                  className="border-border bg-popover absolute right-0 mt-1 w-52 rounded-lg border shadow-lg backdrop-blur-xl"
+                  className="border-border bg-popover absolute right-0 mt-1 w-52 rounded-lg border shadow-lg"
                   style={{ willChange: 'transform, opacity' }}
                 >
                   <div className="border-border border-b px-3 py-2.5">

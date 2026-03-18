@@ -92,7 +92,7 @@ export default function PilotLoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-card border-border rounded-xl border p-6 shadow-2xl">
+        <div className="bg-card border-border rounded-xl border p-6 shadow-lg">
           {/* Error — with shake animation */}
           <AnimatePresence mode="wait">
             {error && (

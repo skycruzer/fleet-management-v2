@@ -672,11 +672,11 @@ export function IllustratedEmptyState({
                 whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
               >
                 {action.href ? (
-                  <Button variant="aviation" onClick={action.onClick} asChild>
+                  <Button variant="default" onClick={action.onClick} asChild>
                     <a href={action.href}>{action.label}</a>
                   </Button>
                 ) : (
-                  <Button variant="aviation" onClick={action.onClick}>
+                  <Button variant="default" onClick={action.onClick}>
                     {action.label}
                   </Button>
                 )}

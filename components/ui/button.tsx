@@ -11,8 +11,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-[0_0_20px_oklch(0.55_0.12_250/0.15)]',
+        default: 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
         destructive:
           'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md focus-visible:ring-destructive/20',
         success:
@@ -23,10 +22,6 @@ const buttonVariants = cva(
         ghost: 'hover:bg-muted/50 hover:text-foreground',
         link: 'text-foreground underline-offset-4 hover:underline',
         soft: 'bg-accent/15 text-accent hover:bg-accent/25 hover:shadow-sm',
-        aviation:
-          'bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] text-primary-foreground shadow-md hover:shadow-[0_0_25px_var(--color-primary)/0.3] hover:bg-[position:right_center] transition-all duration-500 motion-reduce:transition-none',
-        critical:
-          'bg-gradient-to-r from-destructive to-[var(--color-danger-600)] text-destructive-foreground shadow-md hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:from-[var(--color-danger-600)] hover:to-destructive',
       },
       size: {
         default: 'h-11 px-4 py-2 has-[>svg]:px-3', // WCAG 2.5.5: 44px touch target minimum

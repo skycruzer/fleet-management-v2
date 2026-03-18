@@ -30,7 +30,7 @@ const DialogOverlay = React.forwardRef<
     className={cn(
       // Dark theme: darker overlay with strong blur
       // Uses z-modal (60) to appear above sidebars (z-40)
-      'fixed inset-0 z-[var(--z-modal)] bg-black/60 backdrop-blur-md',
+      'fixed inset-0 z-[var(--z-modal)] bg-black/50',
       // Enhanced animation timing for smoother feel
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',

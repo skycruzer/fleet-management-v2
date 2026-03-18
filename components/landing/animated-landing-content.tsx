@@ -168,7 +168,7 @@ function HeroSection() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={spring}>
               <Button
                 size="lg"
-                variant="aviation"
+                variant="default"
                 className="h-14 px-10 text-base font-semibold"
                 disabled={!!loadingPath}
                 onClick={() => handleNav('/auth/login')}
@@ -564,7 +564,7 @@ function CTASection() {
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} transition={spring}>
             <Button
               size="lg"
-              variant="aviation"
+              variant="default"
               className="h-12 px-8 text-base"
               disabled={!!loadingPath}
               onClick={() => handleNav('/auth/login')}

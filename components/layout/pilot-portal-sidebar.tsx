@@ -276,7 +276,7 @@ export function PilotPortalSidebar({
                   className={cn(
                     'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                     isActive('/portal/dashboard')
-                      ? 'bg-primary/15 text-primary border-primary border-l-2'
+                      ? 'bg-primary/10 text-primary border-primary border-l-2'
                       : 'text-foreground hover:bg-muted'
                   )}
                 >
@@ -330,7 +330,7 @@ export function PilotPortalSidebar({
                       className={cn(
                         'group relative flex min-h-[36px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                         active
-                          ? 'border-primary bg-primary/10 text-primary border-l-[3px] pl-2.5'
+                          ? 'border-primary bg-primary/10 text-primary border-l-2 pl-2.5'
                           : 'text-foreground hover:bg-muted'
                       )}
                     >
