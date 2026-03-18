@@ -77,7 +77,7 @@ export default async function PilotDashboardPage() {
             Your registration is awaiting administrator approval. You'll receive an email
             notification once your account has been approved.
           </p>
-          <form action="/api/pilot/logout" method="POST" className="mt-6">
+          <form action="/api/portal/logout" method="POST" className="mt-6">
             <button
               type="submit"
               className="bg-muted-foreground/60 hover:bg-muted-foreground/70 rounded-md px-4 py-2 text-sm font-medium text-white"
@@ -121,7 +121,7 @@ export default async function PilotDashboardPage() {
           </div>
           <div className="flex items-center space-x-4">
             <NotificationBell />
-            <form action="/api/pilot/logout" method="POST">
+            <form action="/api/portal/logout" method="POST">
               <button
                 type="submit"
                 className="bg-muted-foreground/60 hover:bg-muted-foreground/70 rounded-md px-4 py-2 text-sm font-medium text-white"

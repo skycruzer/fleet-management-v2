@@ -1,6 +1,7 @@
 /**
- * Leave Bid Update API Route
- * Allows administrators to update leave bid details and status
+ * Leave Bid API Route
+ * PATCH: Update leave bid details and status
+ * DELETE: Remove a leave bid (admin only)
  *
  * @version 2.0.0 - SECURITY: Added CSRF protection and rate limiting
  * @updated 2025-11-04 - Critical security hardening
@@ -12,8 +13,8 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { authRateLimit } from '@/lib/rate-limit'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { requireRole, UserRole } from '@/lib/middleware/authorization-middleware'
 import { revalidatePath } from 'next/cache'
-import { adminDeleteLeaveBid } from '@/lib/services/leave-bid-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,6 +42,15 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return NextResponse.json(
         { success: false, error: 'Too many requests. Please try again later.' },
         { status: 429 }
+      )
+    }
+
+    // SECURITY: Role check — only admins and managers can update leave bids
+    const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
+    if (!roleCheck.authorized) {
+      return NextResponse.json(
+        { success: false, error: roleCheck.error || 'Insufficient permissions' },
+        { status: roleCheck.statusCode || 403 }
       )
     }
 
@@ -126,18 +136,28 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       )
     }
 
-    // Delete leave bid via service layer
-    const result = await adminDeleteLeaveBid(id)
-
-    if (!result.success) {
+    // SECURITY: Role check — only admins can delete leave bids
+    const roleCheck = await requireRole(request, [UserRole.ADMIN])
+    if (!roleCheck.authorized) {
       return NextResponse.json(
-        { success: false, error: result.error || 'Failed to delete leave bid' },
-        { status: 404 }
+        { success: false, error: roleCheck.error || 'Insufficient permissions' },
+        { status: roleCheck.statusCode || 403 }
+      )
+    }
+
+    const supabase = createAdminClient()
+    const { error } = await supabase.from('leave_bids').delete().eq('id', id)
+
+    if (error) {
+      console.error('Error deleting leave bid:', error)
+      return NextResponse.json(
+        { success: false, error: 'Failed to delete leave bid' },
+        { status: 500 }
       )
     }
 
     // Revalidate leave bid paths
-    revalidatePath('/dashboard/admin/leave-bids')
+    revalidatePath('/dashboard/leave-bids')
     revalidatePath('/portal/leave-bids')
 
     return NextResponse.json({

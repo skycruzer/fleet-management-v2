@@ -4,8 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { authRateLimit } from '@/lib/rate-limit'
-import { logError, ErrorSeverity } from '@/lib/error-logger'
 import { getSignedPdfUrl } from '@/lib/services/published-roster-service'
+import { logError } from '@/lib/utils/logger'
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -28,10 +28,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
     return NextResponse.json({ success: true, data: { url } })
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), {
-      source: 'api/published-rosters/[id]/pdf/GET',
-      severity: ErrorSeverity.HIGH,
-    })
+    logError('Published roster PDF GET error', error, { route: '/api/published-rosters/[id]/pdf' })
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
   }
 }

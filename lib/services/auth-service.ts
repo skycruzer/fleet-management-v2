@@ -2,6 +2,13 @@
  * Unified Authentication Service
  * Developer: Maurice Rondeau
  *
+ * WARNING: This service references a `users` table that may not exist in the current
+ * database schema. All queries use `as any` casts. Three auth routes depend on this file:
+ *   - /api/auth/login
+ *   - /api/auth/change-password
+ *   - /api/auth/session
+ * Before using, verify the `users` table exists and regenerate types with `npm run db:types`.
+ *
  * Handles authentication for ALL user types (admin, manager, pilot).
  * Replaces: admin-auth-service.ts, session-service.ts, pilot-portal-service.ts (auth parts),
  *           account-lockout-service.ts, password-validation-service.ts
