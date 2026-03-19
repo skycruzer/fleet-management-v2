@@ -9,7 +9,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -21,7 +20,6 @@ import { EASING, DURATION } from '@/lib/animations/motion-variants'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function PilotLoginPage() {
-  const router = useRouter()
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -47,7 +45,10 @@ export default function PilotLoginPage() {
       const result = await response.json()
 
       if (result.success) {
-        router.push(result.redirect || '/portal/dashboard')
+        // Hard navigation to bypass Next.js Router Cache — ensures the new
+        // session cookie is sent fresh and middleware sees it on first attempt.
+        window.location.href = result.redirect || '/portal/dashboard'
+        return
       } else {
         setError(result.error?.message || result.error || 'Invalid credentials')
       }
