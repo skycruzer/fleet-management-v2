@@ -14,7 +14,7 @@
  * Architecture: Server Component wrapper with Client Component for animation
  */
 
-import { Calendar, Clock, ChevronRight, CalendarDays, Users, ClipboardCheck } from 'lucide-react'
+import { Clock, ChevronRight, CalendarDays, Users, ClipboardCheck } from 'lucide-react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -25,6 +25,7 @@ import {
   type RosterPeriod,
 } from '@/lib/utils/roster-utils'
 import { RosterCarousel } from './roster-carousel'
+import { RosterPeriodRefresher } from './roster-period-refresher'
 import { createClient } from '@/lib/supabase/server'
 
 // Get leave request counts for a roster period with type breakdown
@@ -122,6 +123,8 @@ export async function CompactRosterDisplay() {
 
   return (
     <Card className="border-border bg-card overflow-hidden border shadow-sm">
+      {/* Auto-refresh when roster period boundary is crossed */}
+      <RosterPeriodRefresher periodEndDate={currentPeriod.endDate.toISOString()} />
       {/* Header with Primary Background */}
       <div className="bg-primary px-6 py-4">
         <div className="flex items-center justify-between">
@@ -202,19 +205,92 @@ export async function CompactRosterDisplay() {
               )}
             </div>
 
-            {/* Progress Bar */}
-            <div className="space-y-2">
-              <div className="text-muted-foreground flex items-center justify-between text-xs font-medium">
-                <span>Progress</span>
-                <span>{Math.round(progressPercentage)}%</span>
-              </div>
-              <div className="bg-muted h-2.5 overflow-hidden rounded-full">
-                <div
-                  className="bg-primary h-full rounded-full shadow-sm transition-all duration-500"
-                  style={{ width: `${progressPercentage}%` }}
-                />
-              </div>
-            </div>
+            {/* Semi-Circular Arc Gauge */}
+            {(() => {
+              const arcRadius = 54
+              const arcStroke = 8
+              const svgWidth = 140
+              const svgHeight = 80
+              const centerX = svgWidth / 2
+              const centerY = 68
+              const circumference = Math.PI * arcRadius
+              const filledLength = (progressPercentage / 100) * circumference
+              const dashOffset = circumference - filledLength
+              // Calculate tick position angle (0% = left, 100% = right)
+              const tickAngle = Math.PI - (progressPercentage / 100) * Math.PI
+              const tickX = centerX + arcRadius * Math.cos(tickAngle)
+              const tickY = centerY - arcRadius * Math.sin(tickAngle)
+
+              return (
+                <div className="flex flex-col items-center">
+                  <div className="relative">
+                    <svg
+                      width={svgWidth}
+                      height={svgHeight}
+                      viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                      className="overflow-visible"
+                    >
+                      {/* Track arc */}
+                      <path
+                        d={`M ${centerX - arcRadius} ${centerY} A ${arcRadius} ${arcRadius} 0 0 1 ${centerX + arcRadius} ${centerY}`}
+                        fill="none"
+                        stroke="oklch(0.22 0.008 260)"
+                        strokeWidth={arcStroke}
+                        strokeLinecap="round"
+                      />
+                      {/* Filled arc */}
+                      <path
+                        d={`M ${centerX - arcRadius} ${centerY} A ${arcRadius} ${arcRadius} 0 0 1 ${centerX + arcRadius} ${centerY}`}
+                        fill="none"
+                        stroke="oklch(0.5 0.14 245)"
+                        strokeWidth={arcStroke}
+                        strokeLinecap="round"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={dashOffset}
+                      />
+                      {/* Animated tick dot at current position */}
+                      {!isPeriodComplete && progressPercentage > 0 && (
+                        <circle
+                          cx={tickX}
+                          cy={tickY}
+                          r={5}
+                          fill="oklch(0.5 0.14 245)"
+                          stroke="oklch(0.98 0 0)"
+                          strokeWidth={2}
+                        >
+                          <animate
+                            attributeName="r"
+                            values="4;6;4"
+                            dur="2s"
+                            repeatCount="indefinite"
+                          />
+                          <animate
+                            attributeName="opacity"
+                            values="1;0.7;1"
+                            dur="2s"
+                            repeatCount="indefinite"
+                          />
+                        </circle>
+                      )}
+                    </svg>
+                    {/* Center text overlay */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-end pb-1">
+                      <span
+                        className={`text-2xl leading-none font-black ${isPeriodComplete ? 'text-muted-foreground' : 'text-foreground'}`}
+                      >
+                        {isPeriodComplete ? '0' : daysRemaining}
+                      </span>
+                      <span className="text-muted-foreground mt-0.5 text-[10px] font-semibold tracking-wider uppercase">
+                        days left
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-muted-foreground mt-1 text-xs font-medium">
+                    {Math.round(progressPercentage)}% complete
+                  </span>
+                </div>
+              )
+            })()}
           </div>
 
           {/* Next Period - Right Side with Dual Links */}
