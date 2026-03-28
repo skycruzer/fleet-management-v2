@@ -7,12 +7,9 @@
  * Developer: Maurice Rondeau
  */
 
-import * as pdfjsLib from 'pdfjs-dist'
-
-// Configure worker for server-side parsing
-if (typeof window === 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
-}
+// pdfjs-dist is loaded lazily inside parseRosterPdf() using the legacy
+// build, which includes polyfills for DOMMatrix and other browser APIs
+// that are missing in Node.js / serverless environments.
 
 export interface PilotAssignment {
   pilotName: string
@@ -44,6 +41,8 @@ export interface ParsedRosterData {
  */
 export async function parseRosterPdf(pdfBuffer: Buffer): Promise<ParsedRosterData> {
   try {
+    // Use legacy build to avoid DOMMatrix errors in Node.js/serverless
+    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
     const pdf = await pdfjsLib.getDocument({ data: pdfBuffer }).promise
 
     let captains: PilotAssignment[] = []
