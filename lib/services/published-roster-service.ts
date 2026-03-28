@@ -55,7 +55,7 @@ export async function uploadPublishedRoster(
 
     const uploadResult = await supabase.storage
       .from(STORAGE_BUCKET)
-      .upload(filePath, fileBuffer, { upsert: false })
+      .upload(filePath, fileBuffer, { upsert: false, contentType: 'application/pdf' })
 
     if (uploadResult.error) {
       return ServiceResponse.error(`File upload failed: ${uploadResult.error.message}`)
