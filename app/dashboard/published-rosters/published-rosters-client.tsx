@@ -58,7 +58,7 @@ export function PublishedRostersClient({
   const [showPdfViewer, setShowPdfViewer] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const confirm = useConfirm()
+  const { confirm, ConfirmDialog } = useConfirm()
   const { csrfToken } = useCsrfToken()
 
   // Escape key exits fullscreen
@@ -355,6 +355,9 @@ export function PublishedRostersClient({
             />
           </>
         )}
+
+        {/* Confirm Dialog */}
+        <ConfirmDialog />
 
         {/* Upload Dialog */}
         <RosterUploadDialog
