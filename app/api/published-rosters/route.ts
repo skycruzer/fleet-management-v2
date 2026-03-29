@@ -119,6 +119,10 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       {
         success: true,
         data: result.data,
+        meta: {
+          captainCount: result.data?.captain_count ?? 0,
+          foCount: result.data?.fo_count ?? 0,
+        },
       },
       { status: 201 }
     )
