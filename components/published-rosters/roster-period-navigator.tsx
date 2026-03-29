@@ -2,7 +2,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
-import { ChevronLeft, ChevronRight, Upload, FileText } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Upload, FileText, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -26,7 +26,9 @@ interface RosterPeriodNavigatorProps {
   uploadedPeriodCodes: string[]
   onUploadClick: () => void
   onViewPdfClick?: () => void
+  onDeleteClick?: () => void
   hasPdf: boolean
+  isDeleting?: boolean
 }
 
 function buildPeriodFromCode(code: string): RosterPeriod {
@@ -80,7 +82,9 @@ export function RosterPeriodNavigator({
   uploadedPeriodCodes,
   onUploadClick,
   onViewPdfClick,
+  onDeleteClick,
   hasPdf,
+  isDeleting,
 }: RosterPeriodNavigatorProps) {
   const currentPeriod = buildPeriodFromCode(currentPeriodCode)
   const periodOptions = useMemo(() => generatePeriodOptions(), [])
@@ -156,6 +160,18 @@ export function RosterPeriodNavigator({
           <Button variant="outline" size="sm" onClick={onViewPdfClick} className="gap-1.5">
             <FileText className="h-4 w-4" />
             View PDF
+          </Button>
+        )}
+        {hasPdf && onDeleteClick && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onDeleteClick}
+            disabled={isDeleting}
+            className="text-destructive hover:bg-destructive hover:text-destructive-foreground gap-1.5"
+          >
+            <Trash2 className="h-4 w-4" />
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         )}
         <Button size="sm" onClick={onUploadClick} className="gap-1.5">

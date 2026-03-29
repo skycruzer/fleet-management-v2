@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { CalendarDays, Maximize2, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { useConfirm } from '@/components/ui/confirm-dialog'
+import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { RosterPeriodNavigator } from '@/components/published-rosters/roster-period-navigator'
 import { RosterToolbar, type RankFilter } from '@/components/published-rosters/roster-toolbar'
@@ -55,6 +57,9 @@ export function PublishedRostersClient({
   const [showUploadDialog, setShowUploadDialog] = useState(false)
   const [showPdfViewer, setShowPdfViewer] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const confirm = useConfirm()
+  const { csrfToken } = useCsrfToken()
 
   // Escape key exits fullscreen
   useEffect(() => {
@@ -144,6 +149,41 @@ export function PublishedRostersClient({
     router.refresh()
   }, [currentPeriodCode, uploadedCodes, fetchRosterForPeriod, router])
 
+  const handleDelete = useCallback(async () => {
+    if (!roster || !csrfToken) return
+
+    const confirmed = await confirm({
+      title: `Delete roster ${currentPeriodCode}?`,
+      description:
+        'This will permanently delete the uploaded roster and all parsed assignments. You can re-upload afterwards.',
+      confirmText: 'Delete',
+      variant: 'destructive',
+    })
+    if (!confirmed) return
+
+    setIsDeleting(true)
+    try {
+      const res = await fetch(`/api/published-rosters/${roster.id}`, {
+        method: 'DELETE',
+        headers: { 'x-csrf-token': csrfToken },
+      })
+      const json = await res.json()
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Delete failed')
+      }
+
+      setRoster(null)
+      setUploadedCodes((prev) => prev.filter((c) => c !== currentPeriodCode))
+      toast.success(`Roster ${currentPeriodCode} deleted`)
+      router.refresh()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete roster')
+    } finally {
+      setIsDeleting(false)
+    }
+  }, [roster, csrfToken, currentPeriodCode, confirm, router])
+
   return (
     <TooltipProvider>
       <div className="space-y-6">
@@ -160,7 +200,9 @@ export function PublishedRostersClient({
           uploadedPeriodCodes={uploadedCodes}
           onUploadClick={() => setShowUploadDialog(true)}
           onViewPdfClick={roster ? () => setShowPdfViewer(true) : undefined}
+          onDeleteClick={roster ? handleDelete : undefined}
           hasPdf={!!roster}
+          isDeleting={isDeleting}
         />
 
         {/* Loading State */}
