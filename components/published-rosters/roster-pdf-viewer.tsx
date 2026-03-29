@@ -25,7 +25,10 @@ export function RosterPdfViewer({
   rosterId,
   periodCode,
 }: RosterPdfViewerProps) {
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null)
+  // signedUrl: the Supabase signed URL (for download/open-in-new-tab)
+  // blobUrl: object URL from fetched blob (for iframe rendering — avoids CORS/X-Frame-Options)
+  const [signedUrl, setSignedUrl] = useState<string | null>(null)
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>('')
   const [downloading, setDownloading] = useState(false)
@@ -36,17 +39,25 @@ export function RosterPdfViewer({
     let cancelled = false
     setLoading(true)
     setError('')
-    setPdfUrl(null)
+    setSignedUrl(null)
+    setBlobUrl(null)
 
     fetch(`/api/published-rosters/${rosterId}/pdf`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch PDF URL')
         return res.json()
       })
-      .then((json) => {
+      .then(async (json) => {
         if (cancelled) return
         if (json.success && json.data?.url) {
-          setPdfUrl(json.data.url)
+          setSignedUrl(json.data.url)
+          // Fetch as blob for iframe display (cross-origin signed URLs block iframe embedding)
+          const pdfRes = await fetch(json.data.url)
+          if (cancelled) return
+          const blob = await pdfRes.blob()
+          if (cancelled) return
+          const url = URL.createObjectURL(blob)
+          setBlobUrl(url)
         } else {
           setError(json.error || 'Failed to load PDF')
         }
@@ -63,12 +74,18 @@ export function RosterPdfViewer({
     }
   }, [open, rosterId])
 
-  // Cross-origin download: fetch blob and trigger via object URL
+  // Clean up blob URL on unmount or close
+  useEffect(() => {
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl)
+    }
+  }, [blobUrl])
+
   const handleDownload = useCallback(async () => {
-    if (!pdfUrl) return
+    if (!signedUrl) return
     setDownloading(true)
     try {
-      const res = await fetch(pdfUrl)
+      const res = await fetch(signedUrl)
       const blob = await res.blob()
       const objectUrl = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -83,10 +100,12 @@ export function RosterPdfViewer({
     } finally {
       setDownloading(false)
     }
-  }, [pdfUrl, periodCode])
+  }, [signedUrl, periodCode])
 
   const handleClose = () => {
-    setPdfUrl(null)
+    if (blobUrl) URL.revokeObjectURL(blobUrl)
+    setSignedUrl(null)
+    setBlobUrl(null)
     setError('')
     onOpenChange(false)
   }
@@ -117,9 +136,9 @@ export function RosterPdfViewer({
             </div>
           )}
 
-          {pdfUrl && !loading && (
+          {blobUrl && !loading && (
             <iframe
-              src={`${pdfUrl}#toolbar=1&navpanes=0`}
+              src={`${blobUrl}#toolbar=1&navpanes=0`}
               className="h-full w-full"
               title={`Roster PDF — ${periodCode}`}
             />
@@ -127,10 +146,10 @@ export function RosterPdfViewer({
         </div>
 
         <DialogFooter>
-          {pdfUrl && (
+          {signedUrl && (
             <>
               <Button variant="outline" size="sm" asChild>
-                <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="gap-1.5">
+                <a href={signedUrl} target="_blank" rel="noopener noreferrer" className="gap-1.5">
                   <ExternalLink className="h-4 w-4" />
                   Open in New Tab
                 </a>
