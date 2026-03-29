@@ -159,8 +159,8 @@ export function ResetPasswordContent() {
 
   return (
     <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Aviation Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Aviation Background Elements — pointer-events-none prevents blocking form clicks */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           animate={{ x: ['-100%', '100%'] }}
           transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}

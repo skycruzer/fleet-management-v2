@@ -61,8 +61,8 @@ export default function PilotLoginPage() {
 
   return (
     <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Subtle background pattern — pointer-events-none prevents blocking form clicks */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)] bg-[size:4rem_4rem] opacity-20" />
         <div className="bg-primary/5 absolute -top-1/4 -left-1/4 h-96 w-96 rounded-full blur-3xl" />
         <div className="bg-primary/5 absolute -right-1/4 -bottom-1/4 h-96 w-96 rounded-full blur-3xl" />
@@ -71,7 +71,7 @@ export default function PilotLoginPage() {
         <ThemeToggle />
       </div>
       <motion.div
-        className="w-full max-w-sm"
+        className="relative z-10 w-full max-w-sm"
         initial={shouldAnimate ? { opacity: 0, y: 16, scale: 0.98 } : undefined}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: DURATION.slow, ease: EASING.easeOut }}

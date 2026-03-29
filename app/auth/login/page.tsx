@@ -14,8 +14,8 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 export default function AdminLoginPage() {
   return (
     <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Minimal Background Pattern */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Minimal Background Pattern — pointer-events-none prevents blocking form clicks */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {/* Grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_110%)] bg-[size:4rem_4rem] opacity-20" />
 
