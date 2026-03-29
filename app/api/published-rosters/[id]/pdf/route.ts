@@ -20,13 +20,16 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id } = await params
-    const url = await getSignedPdfUrl(id)
+    const result = await getSignedPdfUrl(id)
 
-    if (!url) {
-      return NextResponse.json({ success: false, error: 'PDF not found' }, { status: 404 })
+    if (!result.success || !result.data) {
+      return NextResponse.json(
+        { success: false, error: result.error || 'PDF not found' },
+        { status: 404 }
+      )
     }
 
-    return NextResponse.json({ success: true, data: { url } })
+    return NextResponse.json({ success: true, data: { url: result.data } })
   } catch (error) {
     logError('Published roster PDF GET error', error, { route: '/api/published-rosters/[id]/pdf' })
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 })
