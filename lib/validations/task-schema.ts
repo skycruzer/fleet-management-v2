@@ -9,7 +9,10 @@ import { z } from 'zod'
  */
 
 // Helper to transform empty strings to null for optional UUID/string fields
-const emptyToNull = z.string().transform((val) => (val === '' ? null : val))
+// Accepts string, null, or undefined — coerces empty strings to null
+const emptyToNull = z
+  .union([z.string(), z.null(), z.undefined()])
+  .transform((val) => (val === '' || val == null ? null : val))
 
 // Unified task form schema - handles both create and update modes
 // This avoids TypeScript union type issues with react-hook-form
@@ -63,7 +66,9 @@ export const TaskUpdateSchema = z.object({
     .max(5000, 'Description must be less than 5000 characters')
     .nullable()
     .optional(),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'COMPLETED', 'CANCELLED']).optional(),
+  status: z
+    .enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'BLOCKED', 'COMPLETED', 'CANCELLED'])
+    .optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   assigned_to: emptyToNull.pipe(z.string().uuid('Invalid user ID format').nullable()).optional(),
   due_date: emptyToNull
