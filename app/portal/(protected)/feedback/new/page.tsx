@@ -10,10 +10,30 @@
 'use client'
 
 import { useState } from 'react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import Link from 'next/link'
-import { MessageSquare, ArrowLeft, Send, CheckCircle, AlertCircle, EyeOff } from 'lucide-react'
+import {
+  MessageSquare,
+  ArrowLeft,
+  Send,
+  CheckCircle,
+  AlertCircle,
+  EyeOff,
+  Loader2,
+} from 'lucide-react'
 import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
 
 export default function NewFeedbackPage() {
@@ -46,6 +66,7 @@ export default function NewFeedbackPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...csrfHeaders(),
         },
         body: JSON.stringify(sanitizedData),
         credentials: 'include',
@@ -150,82 +171,76 @@ export default function NewFeedbackPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Category */}
-            <div>
-              <label htmlFor="category" className="text-foreground mb-2 block text-sm font-medium">
-                Category *
-              </label>
-              <select
-                id="category"
+            <div className="space-y-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="border-input bg-background text-foreground focus:border-primary focus:ring-primary w-full rounded-md border px-3 py-2 focus:ring-2 focus:outline-none"
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
                 required
               >
-                <option value="">Select a category</option>
-                <option value="operations">Flight Operations</option>
-                <option value="training">Training &amp; Development</option>
-                <option value="scheduling">Scheduling &amp; Rostering</option>
-                <option value="safety">Safety Concern</option>
-                <option value="equipment">Equipment &amp; Maintenance</option>
-                <option value="system">System Issue</option>
-                <option value="suggestion">General Suggestion</option>
-                <option value="other">Other</option>
-              </select>
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="operations">Flight Operations</SelectItem>
+                  <SelectItem value="training">Training & Development</SelectItem>
+                  <SelectItem value="scheduling">Scheduling & Rostering</SelectItem>
+                  <SelectItem value="safety">Safety Concern</SelectItem>
+                  <SelectItem value="equipment">Equipment & Maintenance</SelectItem>
+                  <SelectItem value="system">System Issue</SelectItem>
+                  <SelectItem value="suggestion">General Suggestion</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Subject */}
-            <div>
-              <label htmlFor="subject" className="text-foreground mb-2 block text-sm font-medium">
-                Subject *
-              </label>
-              <input
-                type="text"
+            <div className="space-y-2">
+              <Label htmlFor="subject">Subject *</Label>
+              <Input
                 id="subject"
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                className="border-input bg-background text-foreground focus:border-primary focus:ring-primary w-full rounded-md border px-3 py-2 focus:ring-2 focus:outline-none"
                 placeholder="Brief summary of your feedback"
                 required
                 minLength={5}
                 maxLength={200}
               />
-              <p className="text-muted-foreground mt-1 text-xs">
+              <p className="text-muted-foreground text-xs">
                 {formData.subject.length}/200 characters (min 5)
               </p>
             </div>
 
             {/* Message */}
-            <div>
-              <label htmlFor="message" className="text-foreground mb-2 block text-sm font-medium">
-                Message *
-              </label>
-              <textarea
+            <div className="space-y-2">
+              <Label htmlFor="message">Message *</Label>
+              <Textarea
                 id="message"
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="border-input bg-background text-foreground focus:border-primary focus:ring-primary w-full rounded-md border px-3 py-2 focus:ring-2 focus:outline-none"
                 placeholder="Provide details about your feedback, suggestion, or concern..."
                 required
                 rows={8}
                 minLength={10}
                 maxLength={5000}
               />
-              <p className="text-muted-foreground mt-1 text-xs">
+              <p className="text-muted-foreground text-xs">
                 {formData.message.length}/5000 characters (min 10)
               </p>
             </div>
 
             {/* Anonymous Option */}
             <div className="border-border rounded-lg border p-4">
-              <label htmlFor="is_anonymous" className="flex cursor-pointer items-start gap-3">
-                <input
-                  type="checkbox"
+              <div className="flex cursor-pointer items-start gap-3">
+                <Checkbox
                   id="is_anonymous"
                   checked={formData.is_anonymous}
-                  onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
-                  className="mt-1 h-4 w-4 rounded"
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_anonymous: checked === true })
+                  }
+                  className="mt-0.5"
                 />
-                <div>
+                <Label htmlFor="is_anonymous" className="cursor-pointer font-normal">
                   <div className="text-foreground flex items-center gap-2 text-sm font-medium">
                     <EyeOff className="h-4 w-4" />
                     Submit Anonymously
@@ -234,8 +249,8 @@ export default function NewFeedbackPage() {
                     Your name will be hidden from the feedback. Fleet management can still respond
                     but won&apos;t see who submitted it.
                   </p>
-                </div>
-              </label>
+                </Label>
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -253,7 +268,7 @@ export default function NewFeedbackPage() {
               <Button type="submit" disabled={submitting}>
                 {submitting ? (
                   <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Submitting...
                   </>
                 ) : (

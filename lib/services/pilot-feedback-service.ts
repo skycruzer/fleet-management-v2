@@ -21,7 +21,7 @@ import type {
   FeedbackStatusUpdate,
   FeedbackFilters,
 } from '@/lib/validations/pilot-feedback-schema'
-import type { ServiceResponse } from '@/lib/types/service-response'
+import { ServiceResponse } from '@/lib/types/service-response'
 
 export interface Feedback {
   id: string
@@ -63,9 +63,14 @@ export async function submitFeedback(
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error:
+          'Your account is not fully set up. Please contact fleet management to link your pilot record.',
       }
     }
 
@@ -74,7 +79,7 @@ export async function submitFeedback(
     const { data: feedback, error } = await supabase
       .from('pilot_feedback')
       .insert({
-        pilot_id: pilot.pilot_id!,
+        pilot_id: pilot.pilot_id,
         category: feedbackData.category,
         subject: feedbackData.subject,
         message: feedbackData.message,
@@ -126,10 +131,11 @@ export async function getCurrentPilotFeedback(): Promise<ServiceResponse<Feedbac
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
+      return { success: true, data: [] }
     }
 
     // Fetch feedback
@@ -137,7 +143,7 @@ export async function getCurrentPilotFeedback(): Promise<ServiceResponse<Feedbac
     const { data: feedback, error } = await supabase
       .from('pilot_feedback')
       .select('*')
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -173,9 +179,13 @@ export async function getFeedbackById(feedbackId: string): Promise<ServiceRespon
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error: 'Your account is not fully set up. Please contact fleet management.',
       }
     }
 
@@ -185,7 +195,7 @@ export async function getFeedbackById(feedbackId: string): Promise<ServiceRespon
       .from('pilot_feedback')
       .select('*')
       .eq('id', feedbackId)
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .single()
 
     if (error) {
@@ -300,10 +310,7 @@ export async function updateFeedbackStatus(
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
     }
 
     const { error } = await supabase
@@ -352,10 +359,7 @@ export async function addAdminResponse(
     } = await supabase.auth.getUser()
 
     if (!user) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
     }
 
     const { error } = await supabase

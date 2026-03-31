@@ -10,6 +10,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -63,7 +64,7 @@ export default function NotificationsPage() {
     try {
       const response = await fetch('/api/portal/notifications', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ notificationId }),
         credentials: 'include',
       })
@@ -90,7 +91,7 @@ export default function NotificationsPage() {
     try {
       const response = await fetch('/api/portal/notifications', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({ markAll: true }),
         credentials: 'include',
       })
@@ -115,6 +116,7 @@ export default function NotificationsPage() {
     try {
       const response = await fetch(`/api/portal/notifications?id=${notificationId}`, {
         method: 'DELETE',
+        headers: { ...csrfHeaders() },
         credentials: 'include',
       })
 

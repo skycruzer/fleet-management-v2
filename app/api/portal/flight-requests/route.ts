@@ -28,6 +28,7 @@ import { ERROR_MESSAGES, formatApiError } from '@/lib/utils/error-messages'
 import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 import { validateCsrf } from '@/lib/middleware/csrf-middleware'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { statusFromErrorCode } from '@/lib/utils/api-response-helper'
 import { revalidatePath } from 'next/cache'
 
 /**
@@ -63,6 +64,7 @@ export const POST = withRateLimit(async (request: NextRequest) => {
     const result = await submitPilotFlightRequest(validation.data)
 
     if (!result.success) {
+      const status = statusFromErrorCode((result as { errorCode?: string }).errorCode, 500)
       return NextResponse.json(
         formatApiError(
           {
@@ -70,9 +72,9 @@ export const POST = withRateLimit(async (request: NextRequest) => {
             category: ERROR_MESSAGES.FLIGHT.CREATE_FAILED.category,
             severity: ERROR_MESSAGES.FLIGHT.CREATE_FAILED.severity,
           },
-          500
+          status
         ),
-        { status: 500 }
+        { status }
       )
     }
 
@@ -107,6 +109,7 @@ export async function GET(_request: NextRequest) {
     const result = await getCurrentPilotFlightRequests()
 
     if (!result.success) {
+      const status = statusFromErrorCode((result as { errorCode?: string }).errorCode, 500)
       return NextResponse.json(
         formatApiError(
           {
@@ -114,9 +117,9 @@ export async function GET(_request: NextRequest) {
             category: ERROR_MESSAGES.FLIGHT.FETCH_FAILED.category,
             severity: ERROR_MESSAGES.FLIGHT.FETCH_FAILED.severity,
           },
-          500
+          status
         ),
-        { status: 500 }
+        { status }
       )
     }
 

@@ -31,11 +31,9 @@ import {
 } from '@/lib/services/roster-period-service'
 import { sendRequestLifecycleEmail } from '@/lib/services/pilot-email-service'
 
-export interface ServiceResponse<T = void> {
-  success: boolean
-  data?: T
-  error?: string
-}
+// Use canonical ServiceResponse (includes errorCode field + static builder methods)
+export { ServiceResponse } from '@/lib/types/service-response'
+import { ServiceResponse } from '@/lib/types/service-response'
 
 /**
  * Submit Leave Request (Pilot Self-Service)
@@ -55,9 +53,16 @@ export async function submitPilotLeaveRequest(
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    // Validate pilot has a linked pilots table record
+    if (!pilot.pilot_id) {
+      console.error('Pilot has no linked pilots record:', { pilotUserId: pilot.id })
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error:
+          'Your account is not fully set up. Please contact fleet management to link your pilot record.',
       }
     }
 
@@ -67,7 +72,7 @@ export async function submitPilotLeaveRequest(
     const { data: pilotDetails, error: pilotError } = await supabase
       .from('pilots')
       .select('first_name, last_name, role, employee_id')
-      .eq('id', pilot.pilot_id!)
+      .eq('id', pilot.pilot_id)
       .single()
 
     if (pilotError || !pilotDetails) {
@@ -82,7 +87,7 @@ export async function submitPilotLeaveRequest(
     // IMPORTANT: Use pilot.pilot_id (foreign key to pilots table), NOT pilot.id (pilot_users table ID)
     // Database uses DATE type for start_date/end_date, so send YYYY-MM-DD format only
     const leaveRequestData = {
-      pilot_id: pilot.pilot_id!,
+      pilot_id: pilot.pilot_id,
       name: `${pilotDetails.first_name} ${pilotDetails.last_name}`,
       rank: (pilotDetails.role as 'Captain' | 'First Officer') || 'First Officer',
       employee_number: pilotDetails.employee_id || '',
@@ -144,10 +149,11 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
+      return { success: true, data: [] }
     }
 
     // Query leave requests from pilot_requests table (unified table)
@@ -155,7 +161,7 @@ export async function getCurrentPilotLeaveRequests(): Promise<ServiceResponse<Le
       .from('pilot_requests')
       .select('*')
       .eq('request_category', 'LEAVE')
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -195,10 +201,7 @@ export async function updatePilotLeaveRequest(
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
     }
 
     // Verify request belongs to pilot and is editable
@@ -279,13 +282,14 @@ export async function updatePilotLeaveRequest(
     }
 
     // Send email notification about the edit (fire-and-forget)
-    sendRequestLifecycleEmail(pilot.pilot_id!, 'edited', {
-      requestCategory: 'LEAVE',
-      requestType: updates.request_type,
-      startDate: updates.start_date,
-      endDate: updates.end_date || null,
-      reason: updates.reason || null,
-    }).catch((err: unknown) => console.error('Failed to send leave edit email:', err))
+    if (pilot.pilot_id)
+      sendRequestLifecycleEmail(pilot.pilot_id, 'edited', {
+        requestCategory: 'LEAVE',
+        requestType: updates.request_type,
+        startDate: updates.start_date,
+        endDate: updates.end_date || null,
+        reason: updates.reason || null,
+      }).catch((err: unknown) => console.error('Failed to send leave edit email:', err))
 
     return {
       success: true,
@@ -313,10 +317,7 @@ export async function cancelPilotLeaveRequest(requestId: string): Promise<Servic
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
     }
 
     // Verify request belongs to pilot
@@ -398,9 +399,13 @@ export async function getPilotLeaveStats(): Promise<
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        success: true,
+        data: { total: 0, submitted: 0, in_review: 0, approved: 0, denied: 0, withdrawn: 0 },
       }
     }
 
@@ -410,7 +415,7 @@ export async function getPilotLeaveStats(): Promise<
       .from('pilot_requests')
       .select('workflow_status')
       .eq('request_category', 'LEAVE')
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
 
     if (error) {
       return {

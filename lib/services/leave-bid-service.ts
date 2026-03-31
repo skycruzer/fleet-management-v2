@@ -24,7 +24,7 @@ import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { notifyAllAdmins } from '@/lib/services/notification-service'
 import { sendAdminRequestNotificationEmail } from '@/lib/services/pilot-email-service'
-import type { ServiceResponse } from '@/lib/types/service-response'
+import { ServiceResponse } from '@/lib/types/service-response'
 import { logError, ErrorSeverity } from '@/lib/error-logger'
 
 export interface LeaveBid {
@@ -73,9 +73,14 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error:
+          'Your account is not fully set up. Please contact fleet management to link your pilot record.',
       }
     }
 
@@ -97,7 +102,7 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
     const { data: existingBid, error: checkError } = await supabase
       .from('leave_bids')
       .select('id')
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .eq('roster_period_code', bidData.roster_period_code)
       .maybeSingle()
 
@@ -175,7 +180,7 @@ export async function submitLeaveBid(bidData: LeaveBidInput): Promise<ServiceRes
       const { data: newBid, error: createError } = await supabase
         .from('leave_bids')
         .insert({
-          pilot_id: pilot.pilot_id!,
+          pilot_id: pilot.pilot_id,
           roster_period_code: bidData.roster_period_code,
           preferred_dates: bidData.preferred_dates,
           alternative_dates: bidData.alternative_dates,
@@ -257,16 +262,17 @@ export async function getCurrentPilotLeaveBids(): Promise<ServiceResponse<LeaveB
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
+      return { success: true, data: [] }
     }
 
     const { data, error } = await supabase
       .from('leave_bids')
       .select('*, leave_bid_options(*)')
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -311,9 +317,13 @@ export async function getLeaveBidById(bidId: string): Promise<ServiceResponse<Le
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error: 'Your account is not fully set up. Please contact fleet management.',
       }
     }
 
@@ -321,7 +331,7 @@ export async function getLeaveBidById(bidId: string): Promise<ServiceResponse<Le
       .from('leave_bids')
       .select('*')
       .eq('id', bidId)
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .single()
 
     if (error) {
@@ -371,9 +381,13 @@ export async function updateLeaveBid(
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error: 'Your account is not fully set up. Please contact fleet management.',
       }
     }
 
@@ -382,7 +396,7 @@ export async function updateLeaveBid(
       .from('leave_bids')
       .select('*')
       .eq('id', bidId)
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .single()
 
     if (fetchError || !existingBid) {
@@ -428,7 +442,7 @@ export async function updateLeaveBid(
       .from('leave_bids')
       .update(updateData)
       .eq('id', bidId)
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .select()
       .single()
 
@@ -474,9 +488,13 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
     // Get current authenticated pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error: 'Your account is not fully set up. Please contact fleet management.',
       }
     }
 
@@ -485,7 +503,7 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
       .from('leave_bids')
       .select('id, status')
       .eq('id', bidId)
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
       .single()
 
     if (fetchError || !bid) {
@@ -507,7 +525,7 @@ export async function cancelLeaveBid(bidId: string): Promise<ServiceResponse> {
       .from('leave_bids')
       .delete()
       .eq('id', bidId)
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
 
     if (deleteError) {
       logError(deleteError instanceof Error ? deleteError : new Error(String(deleteError)), {

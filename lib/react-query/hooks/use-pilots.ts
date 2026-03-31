@@ -159,6 +159,8 @@ export function useUpdatePilot() {
     },
     onError: (error) => {
       console.error('Failed to update pilot:', error)
+      // Error is propagated to the calling component via mutation.error / mutation.isError
+      // Components using this hook should check mutation.isError and display the error
     },
   })
 }

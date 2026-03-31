@@ -33,13 +33,23 @@ export const HTTP_STATUS = {
 /**
  * Map ServiceResponse error codes to HTTP status codes
  */
-const ERROR_CODE_TO_STATUS: Record<string, number> = {
+export const ERROR_CODE_TO_STATUS: Record<string, number> = {
   UNAUTHORIZED: HTTP_STATUS.UNAUTHORIZED,
   FORBIDDEN: HTTP_STATUS.FORBIDDEN,
   NOT_FOUND: HTTP_STATUS.NOT_FOUND,
   VALIDATION_ERROR: HTTP_STATUS.BAD_REQUEST,
   CONFLICT: HTTP_STATUS.CONFLICT,
   RATE_LIMIT_EXCEEDED: HTTP_STATUS.TOO_MANY_REQUESTS,
+}
+
+/**
+ * Derive HTTP status from a ServiceResponse error code, falling back to the given default.
+ */
+export function statusFromErrorCode(
+  errorCode: string | undefined,
+  fallback = HTTP_STATUS.INTERNAL_SERVER_ERROR
+): number {
+  return errorCode ? ERROR_CODE_TO_STATUS[errorCode] || fallback : fallback
 }
 
 /**

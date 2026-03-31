@@ -12,6 +12,7 @@
 'use client'
 
 import { useState } from 'react'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,11 +59,12 @@ export function EditableContactCard({ email, phone, address }: EditableContactCa
     try {
       const res = await fetch('/api/portal/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify({
           email: formEmail,
           phone_number: formPhone || null,
         }),
+        credentials: 'include',
       })
 
       const data = await res.json()

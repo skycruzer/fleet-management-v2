@@ -13,6 +13,7 @@
  * Supports single-day (start_date only) and multi-day requests (start_date + end_date).
  */
 
+import { ServiceResponse } from '@/lib/types/service-response'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { ERROR_MESSAGES } from '@/lib/utils/error-messages'
@@ -27,12 +28,6 @@ import {
   sendAdminRequestNotificationEmail,
 } from '@/lib/services/pilot-email-service'
 import { notifyAllAdmins } from '@/lib/services/notification-service'
-
-export interface ServiceResponse<T = void> {
-  success: boolean
-  data?: T
-  error?: string
-}
 
 export interface FlightRequest {
   id: string
@@ -84,9 +79,16 @@ export async function submitPilotFlightRequest(
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    // Validate pilot has a linked pilots table record
+    if (!pilot.pilot_id) {
+      console.error('Pilot has no linked pilots record:', { pilotUserId: pilot.id })
       return {
         success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        error:
+          'Your account is not fully set up. Please contact fleet management to link your pilot record.',
       }
     }
 
@@ -94,7 +96,7 @@ export async function submitPilotFlightRequest(
     const { data: pilotDetails, error: pilotError } = await supabase
       .from('pilots')
       .select('id, employee_id, first_name, last_name, role')
-      .eq('id', pilot.pilot_id!)
+      .eq('id', pilot.pilot_id)
       .single()
 
     if (pilotError || !pilotDetails) {
@@ -249,10 +251,7 @@ export async function getCurrentPilotFlightRequests(): Promise<ServiceResponse<F
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
     }
 
     // Query RDO/SDO requests from pilot_requests table with request_category filter
@@ -324,10 +323,7 @@ export async function updatePilotFlightRequest(
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
     }
 
     // Verify request belongs to pilot and is SUBMITTED
@@ -437,14 +433,15 @@ export async function updatePilotFlightRequest(
     }
 
     // Send email notification about the edit (fire-and-forget)
-    sendRequestLifecycleEmail(pilot.pilot_id!, 'edited', {
-      requestCategory: 'FLIGHT',
-      requestType: updates.request_type,
-      startDate: updates.start_date,
-      endDate: updates.end_date || null,
-      description: updates.description || null,
-      reason: updates.reason || null,
-    }).catch((err: unknown) => console.error('Failed to send flight edit email:', err))
+    if (pilot.pilot_id)
+      sendRequestLifecycleEmail(pilot.pilot_id, 'edited', {
+        requestCategory: 'FLIGHT',
+        requestType: updates.request_type,
+        startDate: updates.start_date,
+        endDate: updates.end_date || null,
+        description: updates.description || null,
+        reason: updates.reason || null,
+      }).catch((err: unknown) => console.error('Failed to send flight edit email:', err))
 
     return {
       success: true,
@@ -472,10 +469,7 @@ export async function cancelPilotFlightRequest(requestId: string): Promise<Servi
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
-      return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
-      }
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
     }
 
     // Verify request belongs to pilot and is SUBMITTED
@@ -560,9 +554,13 @@ export async function getPilotFlightStats(): Promise<
     // Get current pilot
     const pilot = await getCurrentPilot()
     if (!pilot) {
+      return ServiceResponse.unauthorized(ERROR_MESSAGES.AUTH.UNAUTHORIZED.message)
+    }
+
+    if (!pilot.pilot_id) {
       return {
-        success: false,
-        error: ERROR_MESSAGES.AUTH.UNAUTHORIZED.message,
+        success: true,
+        data: { total: 0, submitted: 0, under_review: 0, approved: 0, denied: 0 },
       }
     }
 
@@ -572,7 +570,7 @@ export async function getPilotFlightStats(): Promise<
       .from('pilot_requests')
       .select('workflow_status')
       .eq('request_category', 'FLIGHT')
-      .eq('pilot_id', pilot.pilot_id!)
+      .eq('pilot_id', pilot.pilot_id)
 
     if (error) {
       return {

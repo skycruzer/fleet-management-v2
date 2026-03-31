@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotRequirements } from '@/lib/services/admin-service'
 import { sanitizeError } from '@/lib/utils/error-sanitizer'
+import { validateCsrf } from '@/lib/middleware/csrf-middleware'
+import { withRateLimit } from '@/lib/middleware/rate-limit-middleware'
 
 /**
  * GET /api/portal/profile
@@ -114,8 +117,12 @@ export async function GET() {
  * PUT /api/portal/profile
  * Update pilot contact information (email & phone number)
  */
-export async function PUT(request: NextRequest) {
+export const PUT = withRateLimit(async (request: NextRequest) => {
   try {
+    // CSRF validation
+    const csrfError = await validateCsrf(request)
+    if (csrfError) return csrfError
+
     const supabase = createAdminClient()
 
     const pilot = await getCurrentPilot()
@@ -158,14 +165,21 @@ export async function PUT(request: NextRequest) {
 
     // Also update the linked pilots table if it exists
     if (pilot.pilot_id) {
-      await supabase
+      const { error: pilotUpdateError } = await supabase
         .from('pilots')
         .update({
           phone_number: phone_number?.trim() || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', pilot.pilot_id)
+
+      if (pilotUpdateError) {
+        console.error('Update linked pilots table error:', pilotUpdateError)
+      }
     }
+
+    revalidatePath('/portal/profile')
+    revalidatePath('/portal/dashboard')
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
@@ -176,4 +190,4 @@ export async function PUT(request: NextRequest) {
     })
     return NextResponse.json(sanitized, { status: sanitized.statusCode })
   }
-}
+})

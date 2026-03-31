@@ -21,6 +21,7 @@ import {
   PilotLeaveRequestSchema,
   type PilotLeaveRequestInput,
 } from '@/lib/validations/pilot-leave-schema'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -118,6 +119,7 @@ export default function NewLeaveRequestPage() {
 
       const response = await fetch('/api/portal/upload/medical-certificate', {
         method: 'POST',
+        headers: { ...csrfHeaders() },
         body: formData,
         credentials: 'include',
       })
@@ -167,7 +169,7 @@ export default function NewLeaveRequestPage() {
 
       const response = await fetch('/api/portal/leave-requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(submitData),
         credentials: 'include',
       })

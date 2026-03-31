@@ -19,7 +19,8 @@
  * @author Maurice Rondeau
  */
 
-import { QueryClient, DefaultOptions } from '@tanstack/react-query'
+import { QueryClient, DefaultOptions, MutationCache } from '@tanstack/react-query'
+import { toast } from '@/hooks/use-toast'
 
 /**
  * Default Query Configuration
@@ -74,6 +75,16 @@ export const defaultQueryOptions: DefaultOptions = {
 export function makeQueryClient() {
   return new QueryClient({
     defaultOptions: defaultQueryOptions,
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        const message = error instanceof Error ? error.message : 'An unexpected error occurred'
+        toast({
+          title: 'Operation failed',
+          description: message,
+          variant: 'destructive',
+        })
+      },
+    }),
   })
 }
 

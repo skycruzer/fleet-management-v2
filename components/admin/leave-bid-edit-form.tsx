@@ -34,6 +34,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
+import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
 import { useConfirm } from '@/components/ui/confirm-dialog'
 
@@ -100,7 +101,11 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
     try {
       const response = await fetch(`/api/admin/leave-bids/${bid.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken && { 'x-csrf-token': csrfToken }),
+        },
+        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           reviewed_at: formData.status !== bid.status ? new Date().toISOString() : bid.reviewed_at,
@@ -322,6 +327,30 @@ export function LeaveBidEditForm({ bid, userId }: LeaveBidEditFormProps) {
                         days
                       </p>
                     </div>
+                    {(() => {
+                      const rps = getAffectedRosterPeriods(
+                        new Date(option.start_date),
+                        new Date(option.end_date)
+                      )
+                      return rps.length > 0 ? (
+                        <div>
+                          <p className="text-muted-foreground text-xs font-medium">
+                            Roster Period{rps.length > 1 ? 's' : ''}
+                          </p>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {rps.map((rp) => (
+                              <Badge
+                                key={rp.code}
+                                variant="outline"
+                                className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] px-1.5 py-0 text-[10px] text-[var(--color-info)]"
+                              >
+                                {rp.code}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null
+                    })()}
                   </div>
                 </div>
               ))}

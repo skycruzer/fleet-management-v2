@@ -42,7 +42,10 @@ export async function createClient() {
             logError(error as Error, {
               source: 'SupabaseClient',
               severity: ErrorSeverity.HIGH,
-              metadata: { operation: 'getAll' },
+              metadata: {
+                operation: 'getAll',
+                warning: 'Auth session will be missing — mutations may fail with permission denied',
+              },
             })
             return []
           }

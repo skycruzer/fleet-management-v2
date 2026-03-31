@@ -17,6 +17,7 @@ import {
   FlightRequestSchema,
   type FlightRequestInput,
 } from '@/lib/validations/flight-request-schema'
+import { csrfHeaders } from '@/lib/hooks/use-csrf-token'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -78,7 +79,7 @@ export default function NewFlightRequestPage() {
     try {
       const response = await fetch('/api/portal/flight-requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(data),
         credentials: 'include',
       })
