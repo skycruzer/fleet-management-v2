@@ -5,7 +5,9 @@ import { getTasks, getTaskStats } from '@/lib/services/task-service'
 import TaskKanban from '@/components/tasks/task-kanban'
 import TaskList from '@/components/tasks/task-list'
 import Link from 'next/link'
-// Force dynamic rendering to prevent static generation at build time
+
+export const dynamic = 'force-dynamic'
+
 /**
  * Task Management Dashboard (Admin)
  *

@@ -9,6 +9,8 @@ import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTaskById } from '@/lib/services/task-service'
 import TaskForm from '@/components/tasks/task-form'
 
+export const dynamic = 'force-dynamic'
+
 interface TaskEditPageProps {
   params: Promise<{ id: string }>
 }

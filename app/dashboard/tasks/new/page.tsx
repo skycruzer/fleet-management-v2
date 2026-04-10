@@ -3,7 +3,9 @@ import { redirect } from 'next/navigation'
 import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
 import { getTaskCategories } from '@/lib/services/task-service'
 import TaskForm from '@/components/tasks/task-form'
-// Force dynamic rendering to prevent static generation at build time
+
+export const dynamic = 'force-dynamic'
+
 /**
  * New Task Page (Admin)
  *

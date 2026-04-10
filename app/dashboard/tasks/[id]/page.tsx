@@ -10,6 +10,8 @@ import { getTaskById } from '@/lib/services/task-service'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, User, CheckCircle, Clock } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 interface TaskDetailPageProps {
   params: Promise<{ id: string }>
 }
