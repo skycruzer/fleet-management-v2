@@ -1,0 +1,364 @@
+/**
+ * Authorization Middleware
+ *
+ * Provides resource ownership verification and role-based access control (RBAC).
+ *
+ * @version 1.0.0 - SECURITY: Authorization layer for resource access
+ * @updated 2025-11-04 - Phase 2C implementation
+ * @author Maurice Rondeau
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+import { validateAdminSession } from '@/lib/services/admin-auth-service'
+import { logError, ErrorSeverity } from '@/lib/error-logger'
+
+/**
+ * User roles in the system
+ */
+export enum UserRole {
+  ADMIN = 'Admin',
+  MANAGER = 'Manager',
+  USER = 'User',
+  PILOT = 'Pilot',
+}
+
+/**
+ * Resource types that can be owned
+ */
+export enum ResourceType {
+  TASK = 'task',
+  LEAVE_REQUEST = 'leave_request',
+  FLIGHT_REQUEST = 'flight_request',
+  FEEDBACK = 'feedback',
+  DISCIPLINARY = 'disciplinary_action',
+  LEAVE_BID = 'leave_bid',
+  CERTIFICATION = 'pilot_check',
+}
+
+/**
+ * Authorization result
+ */
+interface AuthorizationResult {
+  authorized: boolean
+  error?: string
+  statusCode?: number
+}
+
+/**
+ * Get user's role from database
+ */
+export async function getUserRole(userId: string): Promise<UserRole | null> {
+  try {
+    const supabase = await createClient()
+
+    const { data: userData, error } = await supabase
+      .from('an_users')
+      .select('role')
+      .eq('id', userId)
+      .single()
+
+    if (error || !userData) {
+      return null
+    }
+
+    return userData.role as UserRole
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/getUserRole',
+      severity: ErrorSeverity.HIGH,
+    })
+    return null
+  }
+}
+
+/**
+ * Check if user has required role
+ *
+ * @param userId - User ID to check
+ * @param requiredRoles - Array of allowed roles
+ * @returns Authorization result
+ */
+export async function verifyUserRole(
+  userId: string,
+  requiredRoles: UserRole[]
+): Promise<AuthorizationResult> {
+  const userRole = await getUserRole(userId)
+
+  if (!userRole) {
+    return {
+      authorized: false,
+      error: 'User role not found',
+      statusCode: 404,
+    }
+  }
+
+  if (!requiredRoles.includes(userRole)) {
+    return {
+      authorized: false,
+      error: 'Insufficient permissions',
+      statusCode: 403,
+    }
+  }
+
+  return { authorized: true }
+}
+
+/**
+ * Verify resource ownership
+ *
+ * Checks if the authenticated user owns the specified resource.
+ * Admins and Managers bypass ownership checks.
+ *
+ * @param userId - Authenticated user ID
+ * @param resourceType - Type of resource
+ * @param resourceId - Resource ID to check
+ * @returns Authorization result
+ */
+export async function verifyResourceOwnership(
+  userId: string,
+  resourceType: ResourceType,
+  resourceId: string
+): Promise<AuthorizationResult> {
+  try {
+    // Check if user is Admin or Manager (bypass ownership check)
+    const userRole = await getUserRole(userId)
+
+    if (userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) {
+      return { authorized: true }
+    }
+
+    const supabase = await createClient()
+
+    // Map resource type to table and user column
+    const resourceConfig = getResourceConfig(resourceType)
+
+    if (!resourceConfig) {
+      return {
+        authorized: false,
+        error: 'Unknown resource type',
+        statusCode: 400,
+      }
+    }
+
+    // Query resource to check ownership
+    // Table name is dynamic from resourceConfig, so `as any` is required for .from()
+    const { data, error } = await supabase
+      .from(resourceConfig.table as any)
+      .select(resourceConfig.userColumn)
+      .eq('id', resourceId)
+      .single()
+
+    if (error || !data) {
+      return {
+        authorized: false,
+        error: 'Resource not found',
+        statusCode: 404,
+      }
+    }
+
+    // Dynamic column access requires type assertion since column name is a runtime variable
+    const ownerId = (data as unknown as Record<string, unknown>)[resourceConfig.userColumn]
+
+    if (ownerId !== userId) {
+      return {
+        authorized: false,
+        error: 'You do not have permission to access this resource',
+        statusCode: 403,
+      }
+    }
+
+    return { authorized: true }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/verifyResourceOwnership',
+      severity: ErrorSeverity.HIGH,
+    })
+    return {
+      authorized: false,
+      error: 'Authorization check failed',
+      statusCode: 500,
+    }
+  }
+}
+
+/**
+ * Get database configuration for resource type
+ */
+function getResourceConfig(resourceType: ResourceType): {
+  table: string
+  userColumn: string
+} | null {
+  const configs: Record<ResourceType, { table: string; userColumn: string }> = {
+    [ResourceType.TASK]: {
+      table: 'tasks',
+      userColumn: 'created_by',
+    },
+    [ResourceType.LEAVE_REQUEST]: {
+      table: 'pilot_requests',
+      userColumn: 'pilot_id',
+    },
+    [ResourceType.FLIGHT_REQUEST]: {
+      table: 'pilot_requests',
+      userColumn: 'pilot_id',
+    },
+    [ResourceType.FEEDBACK]: {
+      table: 'pilot_feedback',
+      userColumn: 'pilot_id',
+    },
+    [ResourceType.DISCIPLINARY]: {
+      table: 'disciplinary_matters',
+      userColumn: 'pilot_id',
+    },
+    [ResourceType.LEAVE_BID]: {
+      table: 'leave_bids',
+      userColumn: 'pilot_id',
+    },
+    [ResourceType.CERTIFICATION]: {
+      table: 'pilot_checks',
+      userColumn: 'pilot_id',
+    },
+  }
+
+  return configs[resourceType] || null
+}
+
+/**
+ * Middleware helper to verify request authorization
+ *
+ * Usage in API routes:
+ * ```typescript
+ * const authResult = await verifyRequestAuthorization(
+ *   request,
+ *   ResourceType.TASK,
+ *   taskId
+ * )
+ * if (!authResult.authorized) {
+ *   return NextResponse.json(
+ *     { success: false, error: authResult.error },
+ *     { status: authResult.statusCode }
+ *   )
+ * }
+ * ```
+ */
+export async function verifyRequestAuthorization(
+  request: NextRequest,
+  resourceType: ResourceType,
+  resourceId: string
+): Promise<AuthorizationResult> {
+  try {
+    const supabase = await createClient()
+
+    // Try Supabase Auth first
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (user) {
+      return await verifyResourceOwnership(user.id, resourceType, resourceId)
+    }
+
+    // Fallback to admin-session cookie (dual auth support)
+    const adminSession = await validateAdminSession()
+
+    if (adminSession.isValid && adminSession.user?.id) {
+      return await verifyResourceOwnership(adminSession.user.id, resourceType, resourceId)
+    }
+
+    return {
+      authorized: false,
+      error: 'Unauthorized',
+      statusCode: 401,
+    }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/verifyRequestAuthorization',
+      severity: ErrorSeverity.HIGH,
+    })
+    return {
+      authorized: false,
+      error: 'Authorization failed',
+      statusCode: 500,
+    }
+  }
+}
+
+/**
+ * Require specific role for endpoint
+ *
+ * Supports dual authentication:
+ * 1. Supabase Auth (standard)
+ * 2. Admin-session cookie (bcrypt-based fallback)
+ *
+ * Usage:
+ * ```typescript
+ * const roleCheck = await requireRole(request, [UserRole.ADMIN, UserRole.MANAGER])
+ * if (!roleCheck.authorized) {
+ *   return NextResponse.json(
+ *     { success: false, error: roleCheck.error },
+ *     { status: roleCheck.statusCode }
+ *   )
+ * }
+ * ```
+ */
+export async function requireRole(
+  request: NextRequest,
+  requiredRoles: UserRole[]
+): Promise<AuthorizationResult> {
+  try {
+    const supabase = await createClient()
+
+    // Try Supabase Auth first
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (user) {
+      return await verifyUserRole(user.id, requiredRoles)
+    }
+
+    // Fallback to admin-session cookie (dual auth support)
+    const adminSession = await validateAdminSession()
+
+    if (adminSession.isValid && adminSession.user?.id) {
+      // Admin-session users are authenticated admins - check if Admin role is allowed
+      if (requiredRoles.includes(UserRole.ADMIN)) {
+        return { authorized: true }
+      }
+      // For other roles, verify against the database
+      return await verifyUserRole(adminSession.user.id, requiredRoles)
+    }
+
+    return {
+      authorized: false,
+      error: 'Unauthorized',
+      statusCode: 401,
+    }
+  } catch (error) {
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      source: 'authorization-middleware/requireRole',
+      severity: ErrorSeverity.HIGH,
+    })
+    return {
+      authorized: false,
+      error: 'Role verification failed',
+      statusCode: 500,
+    }
+  }
+}
+
+/**
+ * Check if user is admin
+ */
+export async function isAdmin(userId: string): Promise<boolean> {
+  const role = await getUserRole(userId)
+  return role === UserRole.ADMIN
+}
+
+/**
+ * Check if user is manager or admin
+ */
+export async function isManagerOrAdmin(userId: string): Promise<boolean> {
+  const role = await getUserRole(userId)
+  return role === UserRole.ADMIN || role === UserRole.MANAGER
+}

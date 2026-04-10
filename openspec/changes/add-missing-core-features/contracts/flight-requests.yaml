@@ -1,0 +1,390 @@
+openapi: 3.0.3
+info:
+  title: Flight Requests API
+  description: Pilot flight request submission and admin review endpoints
+  version: 1.0.0
+
+servers:
+  - url: https://fleet-management-v2.vercel.app/api
+    description: Production
+  - url: http://localhost:3000/api
+    description: Local Development
+
+tags:
+  - name: Pilot
+    description: Pilot-facing flight request endpoints
+  - name: Admin
+    description: Admin review and approval endpoints
+
+paths:
+  /pilot/flight-requests:
+    get:
+      tags:
+        - Pilot
+      summary: Get pilot's flight requests
+      description: Retrieve all flight requests submitted by authenticated pilot
+      operationId: getPilotFlightRequests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by request status
+          schema:
+            type: string
+            enum: [PENDING, UNDER_REVIEW, APPROVED, DENIED]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Flight requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightRequestListResponse'
+
+    post:
+      tags:
+        - Pilot
+      summary: Submit flight request
+      description: Create new flight request for admin review
+      operationId: submitFlightRequest
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightRequestInput'
+            examples:
+              additionalFlight:
+                summary: Request for additional flight
+                value:
+                  request_type: additional_flight
+                  route: POM-LAE
+                  start_date: '2025-11-15'
+                  end_date: '2025-11-15'
+                  reason: Requesting additional flight on POM-LAE route to cover operational demand during peak period
+              routeChange:
+                summary: Request for route change
+                value:
+                  request_type: route_change
+                  route: HGU-RAB
+                  start_date: '2025-11-20'
+                  end_date: '2025-11-27'
+                  reason: Prefer to switch from current LAE-MAG route to HGU-RAB for personal scheduling reasons
+                  additional_details: Available all days during this period
+      responses:
+        '201':
+          description: Flight request submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightRequestResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /dashboard/flight-requests:
+    get:
+      tags:
+        - Admin
+      summary: Get all flight requests
+      description: Retrieve all flight requests for admin review (requires admin/manager role)
+      operationId: getAllFlightRequests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [PENDING, UNDER_REVIEW, APPROVED, DENIED]
+        - name: pilot_id
+          in: query
+          description: Filter by pilot ID
+          schema:
+            type: string
+            format: uuid
+        - name: start_date_from
+          in: query
+          description: Filter requests starting from this date
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Flight requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightRequestListResponse'
+        '403':
+          description: Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /dashboard/flight-requests/{id}:
+    get:
+      tags:
+        - Admin
+      summary: Get flight request details
+      operationId: getFlightRequest
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Flight request details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightRequestResponse'
+        '404':
+          description: Flight request not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Admin
+      summary: Review flight request
+      description: Approve or deny flight request (admin/manager only)
+      operationId: reviewFlightRequest
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightRequestReviewInput'
+            examples:
+              approve:
+                summary: Approve request
+                value:
+                  status: APPROVED
+                  admin_comments: Request approved. Flight scheduled for POM-LAE on Nov 15.
+              deny:
+                summary: Deny request
+                value:
+                  status: DENIED
+                  admin_comments: Unable to accommodate due to crew scheduling conflicts.
+      responses:
+        '200':
+          description: Request reviewed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightRequestResponse'
+        '400':
+          description: Invalid status transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    FlightRequestInput:
+      type: object
+      required:
+        - request_type
+        - route
+        - start_date
+        - end_date
+        - reason
+      properties:
+        request_type:
+          type: string
+          enum: [additional_flight, route_change, schedule_swap, other]
+        route:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: POM-LAE
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason:
+          type: string
+          minLength: 10
+          maxLength: 1000
+        additional_details:
+          type: string
+          maxLength: 2000
+          nullable: true
+
+    FlightRequestReviewInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [UNDER_REVIEW, APPROVED, DENIED]
+        admin_comments:
+          type: string
+          maxLength: 1000
+          nullable: true
+
+    FlightRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pilot_id:
+          type: string
+          format: uuid
+        pilot_name:
+          type: string
+          example: John Smith
+        pilot_rank:
+          type: string
+          enum: [Captain, First Officer]
+        request_type:
+          type: string
+          enum: [additional_flight, route_change, schedule_swap, other]
+        route:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason:
+          type: string
+        additional_details:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [PENDING, UNDER_REVIEW, APPROVED, DENIED]
+        reviewed_by:
+          type: string
+          format: uuid
+          nullable: true
+        reviewed_by_name:
+          type: string
+          nullable: true
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        admin_comments:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FlightRequestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/FlightRequest'
+        metadata:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+
+    FlightRequestListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightRequest'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            pageSize:
+              type: integer
+            totalCount:
+              type: integer
+            totalPages:
+              type: integer
+            hasNext:
+              type: boolean
+            hasPrevious:
+              type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              nullable: true

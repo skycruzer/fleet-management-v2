@@ -1,0 +1,199 @@
+/**
+ * Unified Certification Form Component
+ * Handles both create and edit modes for certification management
+ *
+ * Developer: Maurice Rondeau
+ *
+ * DEDUPLICATION: This form uses useDeduplicatedSubmit to prevent
+ * duplicate submissions when users rapidly click the submit button.
+ *
+ * CSRF PROTECTION: This form includes CSRF token protection for all submissions
+ *
+ * @version 1.2.0
+ * @since 2025-10-17
+ * @updated 2025-10-27 - Added CSRF protection
+ */
+
+'use client'
+
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useCsrfToken } from '@/lib/providers/csrf-provider'
+import {
+  CertificationCreateSchema,
+  CertificationUpdateSchema,
+  type CertificationCreate,
+  type CertificationUpdate,
+} from '@/lib/validations/certification-validation'
+import { Form } from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { FormSelectWrapper, type SelectOption } from './form-select-wrapper'
+import { FormDatePickerWrapper } from './form-date-picker-wrapper'
+import { FormTextareaWrapper } from './form-textarea-wrapper'
+import { FormFieldWrapper } from './form-field-wrapper'
+import { useDeduplicatedSubmit } from '@/lib/hooks/use-deduplicated-submit'
+import { Loader2 } from 'lucide-react'
+
+type CertificationFormMode = 'create' | 'edit'
+
+export interface CertificationFormProps {
+  mode: CertificationFormMode
+  defaultValues?: Partial<CertificationCreate | CertificationUpdate>
+  onSubmit: (data: CertificationCreate | CertificationUpdate) => Promise<void>
+  onCancel?: () => void
+  isLoading?: boolean
+  pilots?: SelectOption[]
+  checkTypes?: SelectOption[]
+  showPilotSelect?: boolean
+}
+
+export function CertificationForm({
+  mode,
+  defaultValues,
+  onSubmit,
+  onCancel,
+  isLoading = false,
+  pilots = [],
+  checkTypes = [],
+  showPilotSelect = true,
+}: CertificationFormProps) {
+  // CSRF token for form protection
+  const { csrfToken, isLoading: csrfLoading } = useCsrfToken()
+
+  const form = useForm<CertificationCreate | CertificationUpdate>({
+    resolver: zodResolver(
+      mode === 'create' ? CertificationCreateSchema : CertificationUpdateSchema
+    ),
+    defaultValues: defaultValues ?? {
+      pilot_id: '',
+      check_type_id: '',
+      expiry_date: null,
+    },
+  })
+
+  // Deduplicated submit handler prevents duplicate submissions
+  // when users rapidly click the submit button
+  const { handleSubmit: deduplicatedSubmit, isSubmitting } = useDeduplicatedSubmit(
+    async (data: CertificationCreate | CertificationUpdate) => {
+      // Note: CSRF token is handled via fetchWithCsrf() in the parent component
+      // or via header in API calls. This form passes data to parent onSubmit.
+      await onSubmit(data)
+    },
+    {
+      key:
+        mode === 'create'
+          ? 'certification-form-create'
+          : `certification-form-edit-${(defaultValues as any)?.id || 'new'}`,
+    }
+  )
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{mode === 'create' ? 'Add New Certification' : 'Edit Certification'}</CardTitle>
+        <CardDescription>
+          {mode === 'create'
+            ? 'Enter the certification details to create a new record'
+            : 'Update the certification information below'}
+        </CardDescription>
+      </CardHeader>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(deduplicatedSubmit)}>
+          <CardContent className="space-y-6">
+            {/* Pilot and Check Type Selection */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Certification Details</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {showPilotSelect && (
+                  <FormSelectWrapper
+                    name="pilot_id"
+                    label="Pilot"
+                    options={pilots}
+                    placeholder="Select pilot"
+                    required
+                    description="Select the pilot for this certification"
+                  />
+                )}
+                <FormSelectWrapper
+                  name="check_type_id"
+                  label="Check Type"
+                  options={checkTypes}
+                  placeholder="Select check type"
+                  required
+                  description="Type of certification or check"
+                />
+              </div>
+            </div>
+
+            {/* Date Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Date Information</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <FormDatePickerWrapper
+                  name="expiry_date"
+                  label="Expiry Date"
+                  description="Date when this certification expires"
+                />
+              </div>
+
+              <FormFieldWrapper
+                name="expiry_roster_period"
+                label="Expiry Roster Period"
+                placeholder="RP12/2025"
+                description="Format: RP1/2025 through RP13/2025"
+              />
+            </div>
+
+            {/* Additional Information */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Additional Information</h3>
+              <FormTextareaWrapper
+                name="notes"
+                label="Notes"
+                placeholder="Add any additional notes or comments..."
+                rows={4}
+                maxLength={500}
+                description="Optional notes about this certification"
+              />
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex justify-end gap-4">
+            {onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isLoading || isSubmitting}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" disabled={isLoading || isSubmitting || csrfLoading || !csrfToken}>
+              {(isLoading || isSubmitting || csrfLoading) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {isSubmitting
+                ? mode === 'create'
+                  ? 'Creating...'
+                  : 'Updating...'
+                : csrfLoading
+                  ? 'Loading...'
+                  : mode === 'create'
+                    ? 'Create Certification'
+                    : 'Update Certification'}
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
+  )
+}

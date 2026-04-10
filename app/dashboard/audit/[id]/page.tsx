@@ -1,0 +1,200 @@
+import { createClient } from '@/lib/supabase/server'
+import { redirect, notFound } from 'next/navigation'
+import { getAuthenticatedAdmin } from '@/lib/middleware/admin-auth-helper'
+import { getAuditLogById } from '@/lib/services/audit-service'
+import AuditLogDetail from '@/components/audit/audit-log-detail'
+import Link from 'next/link'
+// Force dynamic rendering to prevent static generation at build time
+/**
+ * Audit Log Detail Page (Admin)
+ *
+ * Detailed view of a single audit log record.
+ * Displays full audit entry including old/new value comparison.
+ *
+ * @spec 001-missing-core-features (US4, T073)
+ */
+
+interface AuditDetailPageProps {
+  params: {
+    id: string
+  }
+}
+
+export default async function AuditDetailPage({ params }: AuditDetailPageProps) {
+  // Check authentication (supports both Supabase Auth and admin-session cookie)
+  const auth = await getAuthenticatedAdmin()
+  if (!auth.authenticated) {
+    redirect('/auth/login')
+  }
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(params.id)) {
+    notFound()
+  }
+
+  // Fetch audit log
+  const auditLog = await getAuditLogById(params.id)
+
+  if (!auditLog) {
+    notFound()
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Back Button */}
+      <div className="mb-6">
+        <Link
+          href="/dashboard/audit"
+          className="inline-flex items-center gap-2 text-sm text-[var(--color-primary-600)] hover:text-[var(--color-primary-700)]"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to Audit Logs
+        </Link>
+      </div>
+
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Audit Log Detail
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Complete details of audit record #{params.id.slice(0, 8)}
+        </p>
+      </div>
+
+      {/* Audit Log Metadata */}
+      <div className="bg-card border-border mb-8 rounded-lg border p-6 shadow-sm">
+        <h2 className="text-foreground mb-4 text-lg font-semibold">Record Information</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">User</p>
+            <p className="text-foreground mt-1">{auditLog.user_email || 'System'}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">Action</p>
+            <p className="mt-1">
+              <span
+                className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                  auditLog.action === 'INSERT'
+                    ? 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]'
+                    : auditLog.action === 'UPDATE'
+                      ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
+                      : auditLog.action === 'DELETE'
+                        ? 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]'
+                        : 'text-foreground bg-muted/30'
+                }`}
+              >
+                {auditLog.action}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">Table</p>
+            <p className="text-foreground mt-1 font-mono text-sm">{auditLog.table_name}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">Record ID</p>
+            <p className="text-foreground mt-1 font-mono text-sm">{auditLog.record_id || 'N/A'}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">Timestamp</p>
+            <p className="text-foreground mt-1">{new Date(auditLog.created_at).toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-sm font-medium">Audit ID</p>
+            <p className="text-muted-foreground mt-1 font-mono text-xs">{auditLog.id}</p>
+          </div>
+        </div>
+
+        {auditLog.description && (
+          <div className="mt-4">
+            <p className="text-muted-foreground text-sm font-medium">Description</p>
+            <p className="text-foreground mt-1">{auditLog.description}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Audit Log Detail Component (Old/New Values) */}
+      <AuditLogDetail auditLog={auditLog} />
+
+      {/* Metadata Section */}
+      <div className="bg-card border-border mt-8 rounded-lg border p-6 shadow-sm">
+        <h2 className="text-foreground mb-4 text-lg font-semibold">Additional Metadata</h2>
+        <div className="space-y-3 text-sm">
+          {auditLog.ip_address && (
+            <div className="border-border flex flex-col gap-1 border-b pb-2 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-muted-foreground font-medium">IP Address</span>
+              <span className="text-foreground font-mono">{auditLog.ip_address}</span>
+            </div>
+          )}
+          {auditLog.user_agent && (
+            <div className="border-border flex flex-col gap-1 border-b pb-2 sm:flex-row sm:items-start sm:justify-between">
+              <span className="text-muted-foreground font-medium">User Agent</span>
+              <span className="text-foreground max-w-md truncate text-right font-mono text-xs">
+                {auditLog.user_agent}
+              </span>
+            </div>
+          )}
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-muted-foreground font-medium">Record Created</span>
+            <span className="text-foreground">
+              {new Date(auditLog.created_at).toLocaleString('en-AU', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short',
+              })}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Actions */}
+      <div className="mt-8 flex justify-between">
+        <Link
+          href="/dashboard/audit"
+          className="text-foreground/80 border-border hover:bg-muted/30 inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to Audit Logs
+        </Link>
+
+        {auditLog.record_id && (
+          <Link
+            href={`/dashboard/audit?recordId=${auditLog.record_id}`}
+            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary-600)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-primary-700)] focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2 focus:outline-none"
+          >
+            View All Changes to This Record
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
+            </svg>
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,138 @@
+
+> fleet-management-v2@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.6
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · serverActions
+     · optimizePackageImports
+
+   Creating an optimized production build ...
+ ✓ (serwist) Bundling the service worker script with the URL '/sw.js' and the scope '/'...
+ ✓ Compiled successfully in 5.3s
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+[Upstash Redis] The 'url' property is missing or undefined in your Redis config.
+[Upstash Redis] The 'token' property is missing or undefined in your Redis config.
+   Generating static pages (0/41) ...
+[Upstash Redis] The 'url' property is missing or undefined in your Redis config.
+[Upstash Redis] The 'token' property is missing or undefined in your Redis config.
+   Generating static pages (10/41) 
+   Generating static pages (20/41) 
+   Generating static pages (30/41) 
+ ✓ Generating static pages (41/41)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                   Size  First Load JS
+┌ ○ /                                                        180 B         107 kB
+├ ○ /_not-found                                            1.01 kB         104 kB
+├ ƒ /api/analytics                                           267 B         103 kB
+├ ƒ /api/audit                                               267 B         103 kB
+├ ƒ /api/audit/[id]                                          267 B         103 kB
+├ ƒ /api/audit/export                                        267 B         103 kB
+├ ƒ /api/auth/logout                                         267 B         103 kB
+├ ƒ /api/auth/signout                                        267 B         103 kB
+├ ƒ /api/certifications                                      267 B         103 kB
+├ ƒ /api/certifications/[id]                                 267 B         103 kB
+├ ƒ /api/check-types                                         267 B         103 kB
+├ ƒ /api/contract-types                                      267 B         103 kB
+├ ƒ /api/dashboard/flight-requests                           267 B         103 kB
+├ ƒ /api/dashboard/flight-requests/[id]                      267 B         103 kB
+├ ƒ /api/disciplinary                                        267 B         103 kB
+├ ƒ /api/disciplinary/[id]                                   267 B         103 kB
+├ ƒ /api/leave-requests                                      267 B         103 kB
+├ ƒ /api/pilot/flight-requests                               267 B         103 kB
+├ ƒ /api/pilot/flight-requests/[id]                          267 B         103 kB
+├ ƒ /api/pilot/leave                                         267 B         103 kB
+├ ƒ /api/pilot/leave/[id]                                    267 B         103 kB
+├ ƒ /api/pilot/login                                         267 B         103 kB
+├ ƒ /api/pilot/logout                                        267 B         103 kB
+├ ƒ /api/pilot/register                                      267 B         103 kB
+├ ƒ /api/pilots                                              267 B         103 kB
+├ ƒ /api/pilots/[id]                                         267 B         103 kB
+├ ƒ /api/portal/certifications                               267 B         103 kB
+├ ƒ /api/portal/flight-requests                              267 B         103 kB
+├ ƒ /api/portal/leave-requests                               267 B         103 kB
+├ ƒ /api/portal/login                                        267 B         103 kB
+├ ƒ /api/portal/logout                                       267 B         103 kB
+├ ƒ /api/portal/profile                                      267 B         103 kB
+├ ƒ /api/portal/register                                     267 B         103 kB
+├ ƒ /api/portal/registration-approval                        267 B         103 kB
+├ ƒ /api/portal/stats                                        267 B         103 kB
+├ ƒ /api/renewal-planning/[planId]/confirm                   267 B         103 kB
+├ ƒ /api/renewal-planning/[planId]/reschedule                267 B         103 kB
+├ ƒ /api/renewal-planning/clear                              267 B         103 kB
+├ ƒ /api/renewal-planning/email                              267 B         103 kB
+├ ƒ /api/renewal-planning/export                             267 B         103 kB
+├ ƒ /api/renewal-planning/export-pdf                         267 B         103 kB
+├ ƒ /api/renewal-planning/generate                           267 B         103 kB
+├ ƒ /api/renewal-planning/pilot/[pilotId]                    267 B         103 kB
+├ ƒ /api/renewal-planning/roster-period/[period]             267 B         103 kB
+├ ƒ /api/settings                                            267 B         103 kB
+├ ƒ /api/settings/[id]                                       267 B         103 kB
+├ ƒ /api/tasks                                               267 B         103 kB
+├ ƒ /api/tasks/[id]                                          267 B         103 kB
+├ ƒ /api/users                                               267 B         103 kB
+├ ○ /auth/login                                            3.16 kB         173 kB
+├ ƒ /dashboard                                             6.82 kB         169 kB
+├ ƒ /dashboard/admin                                         180 B         107 kB
+├ ƒ /dashboard/admin/check-types                             180 B         107 kB
+├ ƒ /dashboard/admin/settings                              3.68 kB         138 kB
+├ ƒ /dashboard/admin/users/new                             5.81 kB         143 kB
+├ ƒ /dashboard/analytics                                   6.05 kB         117 kB
+├ ƒ /dashboard/audit                                       3.27 kB         110 kB
+├ ƒ /dashboard/audit-logs                                    916 B         108 kB
+├ ƒ /dashboard/audit/[id]                                  1.57 kB         108 kB
+├ ƒ /dashboard/certifications                              3.17 kB         118 kB
+├ ƒ /dashboard/certifications/[id]/edit                    5.12 kB         120 kB
+├ ƒ /dashboard/certifications/new                          6.23 kB         144 kB
+├ ƒ /dashboard/disciplinary                                  945 B         108 kB
+├ ƒ /dashboard/disciplinary/[id]                             184 B         118 kB
+├ ƒ /dashboard/disciplinary/new                              168 B         114 kB
+├ ƒ /dashboard/flight-requests                             3.58 kB         130 kB
+├ ƒ /dashboard/leave                                       5.05 kB         165 kB
+├ ƒ /dashboard/leave/new                                   6.94 kB         145 kB
+├ ƒ /dashboard/pilots                                      8.26 kB         199 kB
+├ ƒ /dashboard/pilots/[id]                                 10.1 kB         188 kB
+├ ƒ /dashboard/pilots/[id]/edit                            4.49 kB         147 kB
+├ ƒ /dashboard/pilots/new                                  2.74 kB         145 kB
+├ ƒ /dashboard/renewal-planning                            5.12 kB         153 kB
+├ ƒ /dashboard/renewal-planning/calendar                     167 B         107 kB
+├ ƒ /dashboard/renewal-planning/generate                   14.1 kB         129 kB
+├ ƒ /dashboard/renewal-planning/roster-period/[...period]    180 B         107 kB
+├ ƒ /dashboard/tasks                                       20.7 kB         127 kB
+├ ƒ /dashboard/tasks/[id]                                  2.14 kB         132 kB
+├ ƒ /dashboard/tasks/new                                   2.13 kB         128 kB
+├ ○ /docs                                                    180 B         107 kB
+├ ○ /login                                                 3.62 kB         170 kB
+├ ○ /offline                                               2.94 kB         106 kB
+├ ƒ /pilot/dashboard                                       2.04 kB         109 kB
+├ ƒ /pilot/flight-requests                                 2.82 kB         129 kB
+├ ƒ /pilot/leave                                           2.89 kB         129 kB
+├ ƒ /pilot/login                                           2.02 kB         131 kB
+├ ƒ /pilot/register                                        2.32 kB         132 kB
+├ ƒ /portal/certifications                                 6.52 kB         121 kB
+├ ƒ /portal/dashboard                                      2.42 kB         153 kB
+├ ƒ /portal/feedback                                       4.91 kB         120 kB
+├ ƒ /portal/flight-requests                                2.52 kB         128 kB
+├ ƒ /portal/flight-requests/new                             6.3 kB         177 kB
+├ ƒ /portal/leave-requests                                 2.19 kB         128 kB
+├ ƒ /portal/leave-requests/new                             6.13 kB         177 kB
+├ ○ /portal/login                                          5.77 kB         143 kB
+├ ƒ /portal/notifications                                   3.1 kB         119 kB
+├ ƒ /portal/profile                                        5.37 kB         127 kB
+└ ○ /portal/register                                       5.91 kB         177 kB
++ First Load JS shared by all                               103 kB
+  ├ chunks/4bd1b696-182b6b13bdad92e3.js                    54.2 kB
+  ├ chunks/6061-3b78f0bdf83e42df.js                        46.9 kB
+  └ other shared chunks (total)                            2.02 kB
+
+
+ƒ Middleware                                                114 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,98 @@
+/**
+ * Pilot Registration Page
+ * /pilot/register
+ *
+ * Server Component that renders the pilot registration form.
+ * Part of User Story 1: Pilot Portal Authentication & Dashboard (US1)
+ *
+ * @version 1.0.0
+ * @since 2025-10-22
+ * @spec 001-missing-core-features
+ */
+
+import { Metadata } from 'next'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import PilotRegisterForm from '@/components/pilot/pilot-register-form'
+
+export const metadata: Metadata = {
+  title: 'Pilot Registration | Fleet Management',
+  description:
+    'Register for access to the pilot portal. Your registration will be reviewed by an administrator.',
+}
+
+// Force dynamic rendering to prevent static generation at build time
+export const dynamic = 'force-dynamic'
+/**
+ * Pilot Registration Page
+ * Server Component - checks if user is already authenticated
+ */
+export default async function PilotRegisterPage() {
+  const supabase = await createClient()
+
+  // Check if user is already authenticated
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (user) {
+    // Check if user is an approved pilot
+    const { data: pilotUser } = await supabase
+      .from('pilot_users')
+      .select('id, registration_approved')
+      .eq('id', user.id)
+      .single()
+
+    if (pilotUser?.registration_approved) {
+      // Already registered and approved, redirect to dashboard
+      redirect('/pilot/dashboard')
+    }
+  }
+
+  return (
+    <div className="from-primary/5 to-primary/15 flex min-h-screen items-center justify-center bg-gradient-to-br px-4 py-12">
+      <div className="w-full max-w-2xl space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="text-foreground text-3xl font-bold tracking-tight">Pilot Registration</h1>
+          <p className="text-muted-foreground mt-2 text-sm">
+            Register for access to the pilot portal. Your registration will be reviewed by an
+            administrator.
+          </p>
+        </div>
+
+        {/* Registration Form */}
+        <div className="bg-card rounded-lg p-8 shadow-lg">
+          <PilotRegisterForm />
+
+          {/* Login Link */}
+          <div className="mt-6 text-center">
+            <p className="text-muted-foreground text-sm">
+              Already have an account?{' '}
+              <Link href="/pilot/login" className="text-primary hover:text-primary/80 font-medium">
+                Sign in here
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Info Box */}
+        <div className="rounded-lg border border-[var(--color-info)]/20 bg-[var(--color-info-bg)] p-4">
+          <h3 className="text-sm font-medium text-[var(--color-info)]">Registration Process</h3>
+          <ul className="mt-2 space-y-1 text-sm text-[var(--color-info)]">
+            <li>• Submit your registration with valid Air Niugini credentials</li>
+            <li>• An administrator will review your application</li>
+            <li>• You'll receive an email notification once approved</li>
+            <li>• After approval, you can log in to access the pilot portal</li>
+          </ul>
+        </div>
+
+        {/* Footer */}
+        <p className="text-muted-foreground text-center text-xs">
+          Air Niugini B767 Fleet Management System
+        </p>
+      </div>
+    </div>
+  )
+}

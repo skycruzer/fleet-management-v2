@@ -1,0 +1,34 @@
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║           EMERGENCY FIX: Disable RLS Temporarily (1 minute)              ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+❌ ISSUE: The previous SQL didn't fix the recursive RLS policies.
+
+✅ QUICK FIX: Disable RLS temporarily on an_users table
+
+📋 STEPS:
+   1. Open Supabase SQL Editor:
+      https://app.supabase.com/project/wgdmgvonqysflwdiiols/sql/new
+
+   2. Run this ONE LINE:
+      
+      ALTER TABLE an_users DISABLE ROW LEVEL SECURITY;
+
+   3. Click 'Run' button
+
+   4. Test login immediately at:
+      http://localhost:3000/auth/login
+
+🔐 CREDENTIALS:
+   Email: skycruzer@icloud.com
+   Password: mron2393
+
+⚠️  NOTE:
+   - This disables RLS security checks on an_users table
+   - Admin login will work IMMEDIATELY after running this
+   - You can re-enable RLS later with proper policies
+   - For now, this gets you into the dashboard
+
+═══════════════════════════════════════════════════════════════════════════
+

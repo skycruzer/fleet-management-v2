@@ -1,0 +1,39 @@
+node_modules
+node_modules_broken_*
+node_modules_old
+
+# Next.js
+.next/
+out/
+
+# Build outputs
+storybook-static/
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# Test outputs
+test-results/
+playwright-report/
+test-screenshots/
+screenshots/
+
+# Backups
+*.backup
+node_modules_old/
+
+# Environment files
+.env.local
+.env.test.local
+.env.production
+
+# Vercel
+.vercel/
+
+# Debug logs
+firebase-debug.log
+
+# IDE / tooling
+.worktrees/
+.playwright-mcp/
+.kombai/
+.serena/

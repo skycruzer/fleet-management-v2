@@ -1,0 +1,305 @@
+================================================================================
+        FLEET MANAGEMENT V2 - COMPREHENSIVE INVENTORY SUMMARY
+================================================================================
+
+PROJECT: Modern B767 Pilot Management System
+FRAMEWORK: Next.js 15.5.4 + React 19.1.0 + TypeScript 5.7.3
+DATABASE: Supabase PostgreSQL (Project: wgdmgvonqysflwdiiols)
+GENERATED: October 22, 2025
+
+================================================================================
+                                STATISTICS
+================================================================================
+
+ROUTES & PAGES:
+  ├─ Admin Dashboard Routes .......... 8 sections
+  ├─ Pilot Portal Routes ............ 6 sections  
+  ├─ Auth Routes .................... 3 pages
+  └─ Total Pages .................... 20+ page files
+
+COMPONENTS:
+  ├─ UI Components (shadcn/ui) ....... 53 components
+  ├─ Portal Components ............... 8 components
+  ├─ Form Components ................. 10 components
+  ├─ Feature Components .............. 14 components
+  └─ Total Components ................ 85+ components
+
+API ROUTES:
+  ├─ Pilot Management ................ 2 routes
+  ├─ Certification Management ........ 2 routes
+  ├─ Leave Management ................ 1 route
+  ├─ Check Types ..................... 1 route
+  ├─ Settings ....................... 2 routes
+  ├─ Analytics ....................... 1 route
+  ├─ Users ........................... 1 route
+  ├─ Auth ............................ 1 route
+  └─ Total API Routes ................ 11 routes
+
+SERVICES (Business Logic Layer):
+  ├─ Pilot Service ................... Full CRUD + qualifications
+  ├─ Certification Service ........... Full CRUD + expiry tracking
+  ├─ Leave Service ................... Full CRUD + workflow
+  ├─ Leave Eligibility Service ....... Complex rank-separated logic
+  ├─ Expiring Certifications Service . Expiry calculations
+  ├─ Dashboard Service ............... Metrics aggregation
+  ├─ Analytics Service ............... Data processing
+  ├─ PDF Service ..................... Report generation
+  ├─ Cache Service ................... Performance caching
+  ├─ Audit Service ................... Operation logging
+  ├─ Admin Service ................... System administration
+  ├─ User Service .................... User management
+  ├─ Pilot Portal Service ............ Pilot-specific ops
+  ├─ Check Types Service ............. Check type management
+  └─ Total Services .................. 14 services
+
+CUSTOM HOOKS:
+  ├─ Form Hooks ...................... 2 hooks
+  ├─ State Management ................ 2 hooks
+  ├─ Accessibility ................... 2 hooks
+  ├─ UI State ........................ 2 hooks
+  └─ Total Hooks ..................... 8 custom hooks
+
+UTILITIES:
+  ├─ Date/Time Utils ................. 3 modules
+  ├─ Certification Utils ............. 2 modules
+  ├─ Form Utils ...................... 2 modules
+  ├─ API/Response Utils .............. 3 modules
+  ├─ Roster/Export Utils ............. 2 modules
+  ├─ Optimization Utils .............. 3 modules
+  ├─ Core Utilities .................. 2 modules
+  ├─ Infrastructure Utils ............ 3 modules
+  └─ Total Utils ..................... 20+ modules
+
+VALIDATION SCHEMAS (Zod):
+  ├─ Pilot Validation ................ ✓
+  ├─ Certification Validation ........ ✓
+  ├─ Leave Validation ................ ✓
+  ├─ User Validation ................. ✓
+  ├─ Dashboard Validation ............ ✓
+  ├─ Analytics Validation ............ ✓
+  └─ Total Schemas ................... 7 schemas
+
+E2E TESTS:
+  ├─ Authentication Tests ............ auth.spec.ts
+  ├─ Pilot Management Tests .......... pilots.spec.ts
+  ├─ Certification Tests ............. certifications.spec.ts
+  ├─ Leave Request Tests ............. leave-requests.spec.ts
+  ├─ Dashboard Tests ................. dashboard.spec.ts
+  ├─ Flight Request Tests ............ flight-requests.spec.ts
+  ├─ Portal Tests (2 files) .......... portal-*.spec.ts
+  ├─ Feedback Tests .................. feedback.spec.ts
+  ├─ Accessibility Tests ............. accessibility.spec.ts
+  ├─ Performance Tests ............... performance.spec.ts
+  ├─ PWA Tests ....................... pwa.spec.ts
+  ├─ Rate Limiting Tests ............. rate-limiting.spec.ts
+  ├─ Mobile Navigation Tests ......... mobile-navigation.spec.ts
+  ├─ Example Tests ................... example.spec.ts
+  └─ Total Test Files ................ 15 test files
+
+DATABASE:
+  ├─ Main Tables ..................... 8 tables
+  ├─ Total Records ................... ~800+ records
+  ├─ Database Views .................. 6 read-only views
+  ├─ Database Functions .............. 5 functions
+  ├─ Indexes ......................... Multiple per table
+  └─ Current Size .................... Optimized & indexed
+
+================================================================================
+                            MAJOR FEATURE COVERAGE
+================================================================================
+
+ADMIN DASHBOARD:
+  ✓ Pilot Management (CRUD + qualifications)
+  ✓ Certification Tracking (with FAA color coding)
+  ✓ Leave Request Management (with eligibility checking)
+  ✓ Analytics & Reporting (fleet-wide metrics)
+  ✓ System Settings (configuration)
+  ✓ Check Type Management (category-based)
+  ✓ User Management (roles & permissions)
+  ✓ Dashboard Overview (metrics aggregation)
+
+PILOT PORTAL:
+  ✓ Personal Dashboard (metrics & alerts)
+  ✓ My Certifications (view + PDF export)
+  ✓ Leave Requests (submit + track)
+  ✓ Flight Requests (submit + manage)
+  ✓ Feedback System (submit + view history)
+
+CORE FEATURES:
+  ✓ Authentication & Authorization
+  ✓ Role-Based Access Control (Admin, Manager, Pilot)
+  ✓ 28-Day Roster Period System (with calculations)
+  ✓ FAA Compliance Tracking (color-coded status)
+  ✓ Leave Eligibility Logic (rank-separated minimum crew)
+  ✓ Captain Qualifications (JSONB tracking)
+  ✓ Seniority System (priority-based approval)
+  ✓ PDF Report Generation
+  ✓ Audit Logging (all CRUD operations)
+  ✓ Error Handling & Standardized Messages
+  ✓ Performance Caching
+  ✓ Rate Limiting
+  ✓ Offline Support (PWA)
+  ✓ Mobile Responsiveness
+  ✓ Accessibility (WCAG compliance)
+  ✓ Dark Mode Support
+  ✓ Service Worker
+
+================================================================================
+                            FILE LOCATIONS
+================================================================================
+
+PAGES & ROUTES:              /app/
+API ROUTES:                  /app/api/
+COMPONENTS:                  /components/
+BUSINESS LOGIC:              /lib/services/
+CUSTOM HOOKS:                /lib/hooks/
+UTILITIES:                   /lib/utils/
+VALIDATION SCHEMAS:          /lib/validations/
+SUPABASE CLIENTS:            /lib/supabase/
+TYPE DEFINITIONS:            /types/
+E2E TESTS:                   /e2e/
+STORYBOOK STORIES:           /components/**/*.stories.tsx
+CONFIGURATION:               root directory
+
+================================================================================
+                        CRITICAL ARCHITECTURE RULES
+================================================================================
+
+1. SERVICE LAYER IS MANDATORY
+   - All database operations must go through /lib/services/
+   - NEVER call Supabase directly from API routes or components
+   - Services act as the single source of truth for data access
+
+2. THREE SUPABASE CLIENTS
+   - lib/supabase/client.ts      ← Use in Client Components
+   - lib/supabase/server.ts      ← Use in Server Components/API Routes
+   - lib/supabase/middleware.ts  ← Use in middleware.ts
+
+3. BUSINESS LOGIC RULES
+   - 28-day roster periods (RP1-RP13, anchor: RP12/2025 = 2025-10-11)
+   - Certifications: Red/Yellow/Green status (expires in 0/30/30+ days)
+   - Leave eligibility: Min 10 Captains + 10 First Officers available
+   - Rank separation: Captains and First Officers evaluated independently
+   - Seniority priority: Lower number = higher priority
+   - Captain qualifications: Stored as JSONB (4 fields)
+
+4. FORM HANDLING
+   - All forms use React Hook Form + Zod validation
+   - Validation schemas in /lib/validations/
+   - Standardized error messages in /lib/utils/error-messages.ts
+   - Constraint error handling in /lib/utils/constraint-error-handler.ts
+
+5. COMPONENT DEVELOPMENT
+   - Use shadcn/ui as base components
+   - Create Storybook stories for new components
+   - Test with Playwright for user interactions
+   - Ensure accessibility (WCAG WCAG 2.1 AA)
+
+================================================================================
+                        WHAT'S ALREADY BUILT
+================================================================================
+
+✓ Complete Admin Dashboard with 8 management sections
+✓ Complete Pilot Portal with 6 user-facing sections
+✓ All CRUD operations for Pilots, Certifications, Leave, Check Types
+✓ Complex leave eligibility logic (rank-separated minimum crew)
+✓ FAA compliance tracking with color-coded status
+✓ Roster period system (28-day cycles with calculations)
+✓ Captain qualification management (JSONB type-safe)
+✓ PDF report generation
+✓ Analytics & dashboard metrics
+✓ Authentication & authorization with role-based access
+✓ Audit logging for all operations
+✓ Error handling with standardized messages
+✓ Form validation with Zod
+✓ Performance caching with TTL
+✓ Rate limiting with Upstash Redis
+✓ Offline support via PWA/Service Worker
+✓ Mobile responsive design
+✓ Dark mode support
+✓ Accessibility features (WCAG compliance)
+✓ 15 E2E test suites covering all major features
+✓ Storybook component documentation
+✓ TypeScript strict mode with 2000+ type definitions
+
+================================================================================
+                        WHAT'S NOT YET BUILT
+================================================================================
+
+- Advanced filtering/search on data tables (partially implemented)
+- CSV/Excel export (partially implemented)
+- Real-time collaboration features
+- Native mobile apps (iOS/Android)
+- Advanced predictive analytics
+- Machine learning integration
+- Video/document upload
+- SMS notifications
+- Email notifications (partially)
+- Advanced reporting builder
+- Integration with external systems
+- Data synchronization across devices
+- Blockchain/audit trail visualization
+- Advanced permission system (currently basic roles)
+
+================================================================================
+                        USING THE INVENTORY
+================================================================================
+
+TWO DETAILED DOCUMENTS CREATED:
+
+1. EXISTING_INVENTORY.md (32 KB, 1089 lines)
+   - Complete detailed reference with file paths
+   - Every page, component, API route, service documented
+   - Database schema details with all tables/views/functions
+   - Business logic rules and patterns
+   - Perfect for: Detailed lookups, understanding specific features
+
+2. INVENTORY_QUICK_REFERENCE.md (9.3 KB)
+   - Quick lookup tables and quick reference
+   - Command reference
+   - Architecture overview
+   - Don't duplicate checklist
+   - Perfect for: Fast lookups while developing
+
+THIS FILE: Summary statistics and big-picture overview
+
+================================================================================
+                            KEY TAKEAWAYS
+================================================================================
+
+✓ Fleet Management V2 is FEATURE-COMPLETE for core pilot management
+✓ Service layer pattern is MANDATORY - never bypass it
+✓ 14 services handle all business logic and data access
+✓ 85+ production-ready components with shadcn/ui
+✓ 15 E2E test suites providing comprehensive coverage
+✓ Database is optimized with proper indexes and functions
+✓ PWA support means offline functionality is available
+✓ Accessibility built in (WCAG compliance)
+✓ Dark mode and mobile responsive out of the box
+
+BEFORE ADDING ANYTHING:
+→ Check EXISTING_INVENTORY.md for what already exists
+→ Reuse existing services, components, and utilities
+→ Follow the established architecture patterns
+→ Maintain the 28-day roster period business logic
+→ Keep FAA compliance rules in mind
+
+================================================================================
+                        NEXT STEPS FOR DEVELOPMENT
+================================================================================
+
+1. Read EXISTING_INVENTORY.md for detailed reference
+2. Read INVENTORY_QUICK_REFERENCE.md for fast lookups
+3. Review CLAUDE.md for development standards and patterns
+4. Check what you want to build against the inventory
+5. Reuse existing services, components, and utilities
+6. Follow established patterns for new features
+7. Run npm run validate before committing
+8. Write E2E tests for new functionality
+
+================================================================================
+Generated: October 22, 2025
+Project: Fleet Management V2 v0.1.0
+Framework: Next.js 15.5.4 + React 19.1.0 + TypeScript 5.7.3
+Database: Supabase PostgreSQL (wgdmgvonqysflwdiiols)
+================================================================================

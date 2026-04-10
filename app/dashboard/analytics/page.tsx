@@ -1,0 +1,750 @@
+/**
+ * Analytics Dashboard Page
+ * Comprehensive fleet analytics and KPI visualization
+ * Author: Maurice Rondeau
+ * Date: February 2026
+ */
+
+'use client'
+
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Loader2,
+  BarChart3,
+  Plane,
+  Target,
+  AlertTriangle,
+  Calendar,
+  CheckCircle,
+  Palmtree,
+  Info,
+  Download,
+  FileText,
+  RefreshCw,
+  Clock,
+} from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+
+const ChartLoadingFallback = () => <div className="bg-muted animate-shimmer h-64 rounded-xl" />
+
+const PilotRankChart = dynamic(
+  () => import('@/components/dashboard/analytics-charts').then((mod) => mod.PilotRankChart),
+  { ssr: false, loading: ChartLoadingFallback }
+)
+
+const CertificationPieChart = dynamic(
+  () => import('@/components/dashboard/analytics-charts').then((mod) => mod.CertificationPieChart),
+  { ssr: false, loading: ChartLoadingFallback }
+)
+
+const LeaveTypeChart = dynamic(
+  () => import('@/components/dashboard/analytics-charts').then((mod) => mod.LeaveTypeChart),
+  { ssr: false, loading: ChartLoadingFallback }
+)
+
+interface AnalyticsData {
+  pilot: {
+    total: number
+    active: number
+    inactive: number
+    captains: number
+    firstOfficers: number
+    retirementPlanning: {
+      retiringIn2Years: number
+      retiringIn5Years: number
+      pilotsRetiringIn2Years: Array<{
+        id: string
+        name: string
+        rank: string
+        retirementDate: string
+        yearsToRetirement: number
+      }>
+      pilotsRetiringIn5Years: Array<{
+        id: string
+        name: string
+        rank: string
+        retirementDate: string
+        yearsToRetirement: number
+      }>
+    }
+  }
+  certification: {
+    total: number
+    current: number
+    expiring: number
+    expired: number
+    complianceRate: number
+    categoryBreakdown: Array<{
+      category: string
+      current: number
+      expiring: number
+      expired: number
+    }>
+  }
+  leave: {
+    total: number
+    pending: number
+    approved: number
+    denied: number
+    byType: Array<{
+      type: string
+      count: number
+      totalDays: number
+    }>
+  }
+  fleet: {
+    utilization: number
+    availability: number
+    readiness: number
+    pilotAvailability: {
+      available: number
+      onLeave: number
+    }
+    complianceStatus: {
+      fullyCompliant: number
+      minorIssues: number
+      majorIssues: number
+    }
+  }
+  risk: {
+    overallRiskScore: number
+    riskFactors: Array<{
+      factor: string
+      severity: string
+      impact: number
+      description: string
+    }>
+    criticalAlerts: Array<{
+      id: string
+      type: string
+      severity: string
+      title: string
+      description: string
+      affectedItems: number
+    }>
+  }
+}
+
+// Analytics page content
+function AnalyticsPageContent() {
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchAnalytics()
+  }, [])
+
+  async function fetchAnalytics() {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/analytics')
+      const result = await response.json()
+
+      if (result.success) {
+        setAnalytics(result.data)
+      } else {
+        setError(result.error || 'Failed to fetch analytics')
+      }
+    } catch (err) {
+      setError('Failed to fetch analytics data')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    await fetchAnalytics()
+  }
+
+  async function handleExport(format: 'csv' | 'pdf') {
+    if (!analytics) return
+
+    try {
+      setExporting(true)
+      toast({
+        title: 'Preparing Export',
+        description: `Generating your ${format.toUpperCase()} file...`,
+        variant: 'default',
+      })
+
+      const response = await fetch('/api/analytics/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ format, data: analytics }),
+        credentials: 'include',
+      })
+
+      if (!response.ok) throw new Error('Export failed')
+
+      // Download the file
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `fleet-analytics-${new Date().toISOString().split('T')[0]}.${format === 'pdf' ? 'txt' : 'csv'}`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast({
+        title: 'Export Complete',
+        description: `Your ${format.toUpperCase()} file has been downloaded successfully.`,
+        variant: 'success',
+      })
+    } catch (err) {
+      console.error('Export error:', err)
+      toast({
+        variant: 'destructive',
+        title: 'Export Failed',
+        description: 'Failed to export analytics data. Please try again.',
+      })
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  // Render analytics content
+  const renderAnalyticsContent = () => {
+    if (loading) {
+      return (
+        <div className="space-y-4">
+          <Card className="p-8 text-center">
+            <div className="flex items-center justify-center space-x-2">
+              <Loader2 className="text-primary h-6 w-6 animate-spin" aria-hidden="true" />
+              <p className="text-muted-foreground text-sm">Loading analytics...</p>
+            </div>
+          </Card>
+        </div>
+      )
+    }
+
+    if (error || !analytics) {
+      return (
+        <div className="space-y-4">
+          <Card className="p-8 text-center">
+            <div className="space-y-3">
+              <AlertTriangle className="text-destructive mx-auto h-10 w-10" aria-hidden="true" />
+              <div>
+                <h3 className="text-foreground mb-1 text-lg font-bold">Error</h3>
+                <p className="text-muted-foreground text-sm">
+                  {error || 'Analytics data not available'}
+                </p>
+              </div>
+              <Button onClick={handleRefresh}>Try Again</Button>
+            </div>
+          </Card>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-4">
+        {/* Analytics Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-foreground text-lg font-semibold">Fleet Analytics Dashboard</h2>
+            <p className="text-muted-foreground mt-0.5 text-sm">
+              Comprehensive analytics and key performance indicators
+            </p>
+          </div>
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            {refreshing ? (
+              <span className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                <span>Refreshing...</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                Refresh Data
+              </span>
+            )}
+          </Button>
+        </div>
+
+        {/* Critical Alerts Section */}
+        {analytics.risk.criticalAlerts.length > 0 && (
+          <Card className="border-destructive/20 bg-destructive/5 p-4">
+            <div className="flex items-start space-x-2">
+              <AlertTriangle
+                className="text-destructive mt-0.5 h-5 w-5 shrink-0"
+                aria-hidden="true"
+              />
+              <div className="flex-1">
+                <h3 className="text-foreground mb-2 text-base font-bold">Critical Alerts</h3>
+                <div className="space-y-1.5">
+                  {analytics.risk.criticalAlerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="border-destructive/30 bg-destructive/5 rounded-lg border p-3"
+                    >
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-foreground font-medium">{alert.title}</span>
+                        <span
+                          className={`rounded px-2 py-1 text-xs font-medium ${
+                            alert.severity === 'critical'
+                              ? 'bg-destructive text-destructive-foreground'
+                              : 'bg-warning text-warning-foreground'
+                          }`}
+                        >
+                          {alert.severity.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground text-sm">{alert.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Fleet Readiness Overview */}
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+          <Card className="border-primary/20 from-primary/10 to-primary/20 bg-gradient-to-br p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <BarChart3 className="text-primary h-8 w-8" aria-hidden="true" />
+              <span className="text-primary text-2xl font-bold">
+                {analytics.fleet.utilization}%
+              </span>
+            </div>
+            <h3 className="text-muted-foreground text-xs font-medium uppercase">
+              Fleet Utilization
+            </h3>
+            <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
+          </Card>
+
+          <Card className="border-success/20 from-success/10 to-success/20 bg-gradient-to-br p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <Plane className="text-success h-8 w-8" aria-hidden="true" />
+              <span className="text-success text-2xl font-bold">
+                {analytics.fleet.availability}%
+              </span>
+            </div>
+            <h3 className="text-muted-foreground text-xs font-medium uppercase">
+              Pilot Availability
+            </h3>
+            <p className="text-muted-foreground mt-0.5 text-xs">
+              {analytics.fleet.pilotAvailability.available} available,{' '}
+              {analytics.fleet.pilotAvailability.onLeave} on leave
+            </p>
+          </Card>
+
+          <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-[var(--color-category-simulator)]/20 p-4">
+            <div className="mb-2 flex items-center justify-between">
+              <Target className="text-primary h-8 w-8" aria-hidden="true" />
+              <span className="text-primary-foreground text-2xl font-bold">
+                {analytics.fleet.readiness}%
+              </span>
+            </div>
+            <h3 className="text-muted-foreground text-xs font-medium uppercase">Fleet Readiness</h3>
+            <p className="text-muted-foreground mt-0.5 text-xs">Overall operational readiness</p>
+          </Card>
+        </div>
+
+        {/* Pilot Analytics */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
+          <Card className="p-4">
+            <h3 className="text-foreground mb-3 border-b pb-1.5 text-base font-semibold">
+              Pilot Distribution
+            </h3>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="bg-muted/50 rounded-lg p-3">
+                <div className="text-foreground text-2xl font-bold">{analytics.pilot.total}</div>
+                <div className="text-muted-foreground text-xs">Total Pilots</div>
+              </div>
+              <div className="rounded-lg bg-[var(--color-success-muted)] p-3">
+                <div className="text-2xl font-bold text-[var(--color-success-500)]">
+                  {analytics.pilot.active}
+                </div>
+                <div className="text-muted-foreground text-xs">Active</div>
+              </div>
+              <div className="bg-primary/5 rounded-lg p-3">
+                <div className="text-2xl font-bold text-[var(--color-primary-400)]">
+                  {analytics.pilot.captains}
+                </div>
+                <div className="text-muted-foreground text-xs">Captains</div>
+              </div>
+              <div className="rounded-lg bg-[var(--color-badge-indigo-bg)] p-3">
+                <div className="text-2xl font-bold text-[var(--color-badge-indigo)]">
+                  {analytics.pilot.firstOfficers}
+                </div>
+                <div className="text-muted-foreground text-xs">First Officers</div>
+              </div>
+            </div>
+            {/* Pilot Rank Bar Chart */}
+            <div className="mt-4 h-48">
+              <PilotRankChart
+                captains={analytics.pilot.captains}
+                firstOfficers={analytics.pilot.firstOfficers}
+                inactive={analytics.pilot.inactive}
+              />
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
+              Retirement Planning
+            </h3>
+            <div className="space-y-4">
+              <div className="rounded-lg border border-[var(--color-status-medium-border)] bg-[var(--color-warning-muted)] p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-muted-foreground text-sm">Retiring in 2 Years</div>
+                    <div className="mt-1 text-2xl font-bold text-[var(--color-warning-500)]">
+                      {analytics.pilot.retirementPlanning.retiringIn2Years} pilots
+                    </div>
+                    {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {analytics.pilot.retirementPlanning.pilotsRetiringIn2Years.map((pilot) => (
+                          <div
+                            key={pilot.id}
+                            className="bg-foreground/5 flex items-center justify-between rounded-md px-3 py-2 text-sm"
+                          >
+                            <span className="font-medium text-[var(--color-warning-500)]">
+                              {pilot.rank} {pilot.name}
+                            </span>
+                            <span className="text-xs text-[var(--color-warning-500)]/80">
+                              {new Date(pilot.retirementDate).toLocaleDateString('en-AU', {
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <AlertTriangle
+                    className="h-8 w-8 flex-shrink-0 text-[var(--color-danger-600)]"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+              <div className="rounded-lg border border-[var(--color-badge-orange-border)] bg-[var(--color-badge-orange-bg)] p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-muted-foreground text-sm">Retiring in 3-5 Years</div>
+                    <div className="mt-1 text-2xl font-bold text-[var(--color-badge-orange)]">
+                      {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length} pilots
+                    </div>
+                    {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {analytics.pilot.retirementPlanning.pilotsRetiringIn5Years.map((pilot) => (
+                          <div
+                            key={pilot.id}
+                            className="bg-foreground/5 flex items-center justify-between rounded-md px-3 py-2 text-sm"
+                          >
+                            <span className="font-medium text-[var(--color-badge-orange)]">
+                              {pilot.rank} {pilot.name}
+                            </span>
+                            <span className="text-xs text-[var(--color-badge-orange)]/80">
+                              {new Date(pilot.retirementDate).toLocaleDateString('en-AU', {
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Calendar
+                    className="h-8 w-8 flex-shrink-0 text-[var(--color-warning-600)]"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Certification Analytics */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2">
+          <Card className="p-6">
+            <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+              <CheckCircle
+                className="mr-2 h-5 w-5 text-[var(--color-success-600)]"
+                aria-hidden="true"
+              />
+              Certification Status
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted/50 rounded-lg p-4">
+                <div className="text-foreground text-3xl font-bold">
+                  {analytics.certification.total}
+                </div>
+                <div className="text-muted-foreground text-sm">Total Certifications</div>
+              </div>
+              <div className="rounded-lg bg-[var(--color-success-muted)] p-4">
+                <div className="text-3xl font-bold text-[var(--color-success-500)]">
+                  {analytics.certification.current}
+                </div>
+                <div className="text-muted-foreground text-sm">Current</div>
+              </div>
+              <div className="rounded-lg bg-[var(--color-warning-muted)] p-4">
+                <div className="text-3xl font-bold text-[var(--color-warning-500)]">
+                  {analytics.certification.expiring}
+                </div>
+                <div className="text-muted-foreground text-sm">Expiring (≤30 days)</div>
+              </div>
+              <div className="rounded-lg bg-[var(--color-destructive-muted)] p-4">
+                <div className="text-3xl font-bold text-[var(--color-danger-500)]">
+                  {analytics.certification.expired}
+                </div>
+                <div className="text-muted-foreground text-sm">Expired</div>
+              </div>
+            </div>
+            <div className="bg-primary/5 mt-4 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
+                <span className="text-2xl font-bold text-[var(--color-primary-400)]">
+                  {analytics.certification.complianceRate}%
+                </span>
+              </div>
+            </div>
+            {/* Certification Status Pie Chart */}
+            <div className="mt-4 h-52">
+              <CertificationPieChart
+                current={analytics.certification.current}
+                expiring={analytics.certification.expiring}
+                expired={analytics.certification.expired}
+              />
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-foreground mb-4 border-b pb-2 text-lg font-semibold">
+              Category Breakdown
+            </h3>
+            <div className="space-y-3">
+              {analytics.certification.categoryBreakdown.map((category) => (
+                <div key={category.category} className="bg-muted/50 rounded-lg p-3">
+                  <div className="text-foreground mb-2 font-medium">{category.category}</div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="text-center">
+                      <div className="font-bold text-[var(--color-success-500)]">
+                        {category.current}
+                      </div>
+                      <div className="text-muted-foreground">Current</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-[var(--color-warning-500)]">
+                        {category.expiring}
+                      </div>
+                      <div className="text-muted-foreground">Expiring</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-bold text-[var(--color-danger-500)]">
+                        {category.expired}
+                      </div>
+                      <div className="text-muted-foreground">Expired</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Leave Analytics */}
+        <Card className="p-6">
+          <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+            <Clock className="mr-2 h-5 w-5 text-[var(--color-success-600)]" aria-hidden="true" />
+            Leave Request Analytics
+          </h3>
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="bg-muted/50 rounded-lg p-4">
+              <div className="text-foreground text-3xl font-bold">{analytics.leave.total}</div>
+              <div className="text-muted-foreground text-sm">Total Requests</div>
+            </div>
+            <div className="rounded-lg bg-[var(--color-warning-muted)] p-4">
+              <div className="text-3xl font-bold text-[var(--color-warning-500)]">
+                {analytics.leave.pending}
+              </div>
+              <div className="text-muted-foreground text-sm">Pending</div>
+            </div>
+            <div className="rounded-lg bg-[var(--color-success-muted)] p-4">
+              <div className="text-3xl font-bold text-[var(--color-success-500)]">
+                {analytics.leave.approved}
+              </div>
+              <div className="text-muted-foreground text-sm">Approved</div>
+            </div>
+            <div className="rounded-lg bg-[var(--color-destructive-muted)] p-4">
+              <div className="text-3xl font-bold text-[var(--color-danger-500)]">
+                {analytics.leave.denied}
+              </div>
+              <div className="text-muted-foreground text-sm">Denied</div>
+            </div>
+          </div>
+
+          <h4 className="text-foreground mb-3 font-medium">Leave Types Breakdown</h4>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {analytics.leave.byType.map((type) => (
+              <div key={type.type} className="bg-muted/50 rounded-lg p-3">
+                <div className="text-foreground font-medium">{type.type}</div>
+                <div className="text-muted-foreground mt-1 text-sm">
+                  {type.count} {type.count === 1 ? 'request' : 'requests'} • {type.totalDays}{' '}
+                  {type.totalDays === 1 ? 'day' : 'days'}
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Leave by Type Bar Chart */}
+          {analytics.leave.byType.length > 0 && (
+            <div className="mt-6 h-56">
+              <LeaveTypeChart data={analytics.leave.byType} />
+            </div>
+          )}
+        </Card>
+
+        {/* Risk Analytics */}
+        <Card className="p-6">
+          <h3 className="text-foreground mb-4 flex items-center border-b pb-2 text-lg font-semibold">
+            <AlertTriangle
+              className="mr-2 h-5 w-5 text-[var(--color-danger-600)]"
+              aria-hidden="true"
+            />
+            Risk Assessment
+          </h3>
+          <div className="mb-6">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-card-foreground text-sm font-medium">Overall Risk Score</span>
+              <span
+                className={`text-3xl font-bold ${
+                  analytics.risk.overallRiskScore > 50
+                    ? 'text-[var(--color-danger-500)]'
+                    : analytics.risk.overallRiskScore > 25
+                      ? 'text-[var(--color-warning-500)]'
+                      : 'text-[var(--color-success-500)]'
+                }`}
+              >
+                {analytics.risk.overallRiskScore}/100
+              </span>
+            </div>
+            <div className="bg-muted h-3 w-full rounded-full">
+              <div
+                className={`h-3 rounded-full ${
+                  analytics.risk.overallRiskScore > 50
+                    ? 'bg-destructive'
+                    : analytics.risk.overallRiskScore > 25
+                      ? 'bg-warning'
+                      : 'bg-success'
+                }`}
+                style={{ width: `${analytics.risk.overallRiskScore}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {analytics.risk.riskFactors.map((factor, index) => (
+              <div key={index} className="bg-muted/50 rounded-lg p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-foreground font-medium">{factor.factor}</span>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      factor.severity === 'critical'
+                        ? 'bg-destructive text-destructive-foreground'
+                        : factor.severity === 'high'
+                          ? 'text-destructive-foreground bg-(--color-badge-orange)'
+                          : factor.severity === 'medium'
+                            ? 'bg-warning text-warning-foreground'
+                            : 'bg-success text-success-foreground'
+                    }`}
+                  >
+                    {factor.severity.toUpperCase()}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-sm">{factor.description}</p>
+                <div className="text-muted-foreground mt-2 text-xs">
+                  Impact: {factor.impact.toFixed(1)}%
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Export Section */}
+        <Card className="bg-primary/5 border-primary/20 p-6">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start space-x-3">
+              <Info className="h-6 w-6 text-[var(--color-primary-600)]" aria-hidden="true" />
+              <div className="flex-1">
+                <p className="text-foreground text-sm font-medium">Analytics Dashboard</p>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  Data refreshes automatically. Export your analytics data for offline analysis and
+                  reporting.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => handleExport('csv')}
+                disabled={exporting}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                {exporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                )}
+                Export CSV
+              </Button>
+              <Button
+                onClick={() => handleExport('pdf')}
+                disabled={exporting}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                {exporting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <FileText className="h-4 w-4" aria-hidden="true" />
+                )}
+                Export Report
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
+          Analytics
+        </h1>
+        <p className="text-muted-foreground mt-1 text-sm">
+          View fleet analytics and key performance indicators
+        </p>
+      </div>
+
+      {renderAnalyticsContent()}
+    </div>
+  )
+}
+
+// Main page component
+export default function AnalyticsPage() {
+  return <AnalyticsPageContent />
+}

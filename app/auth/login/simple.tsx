@@ -1,0 +1,157 @@
+/**
+ * Simplified Admin Login (No Animations)
+ * For debugging blank screen issue
+ */
+
+'use client'
+
+import { useState } from 'react'
+import { createClient } from '../../../lib/supabase/client'
+import { useRouter } from 'next/navigation'
+
+export default function SimpleAdminLogin() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      const supabase = createClient()
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setError(error.message)
+        console.error('Login error:', error)
+        return
+      }
+
+      if (data.session) {
+        router.refresh()
+        await new Promise((resolve) => setTimeout(resolve, 100))
+        router.push('/dashboard')
+      }
+    } catch (err) {
+      console.error('Caught error:', err)
+      setError('An unexpected error occurred')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#1c1410',
+        padding: '20px',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '400px',
+          background: '#292018',
+          padding: '40px',
+          borderRadius: '8px',
+        }}
+      >
+        <h1 style={{ color: 'white', marginBottom: '30px', textAlign: 'center' }}>
+          Admin Login (Simple)
+        </h1>
+
+        {error && (
+          <div
+            style={{
+              background: '#7f1d1d',
+              color: '#fecaca',
+              padding: '12px',
+              borderRadius: '4px',
+              marginBottom: '20px',
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ color: '#d4c8b8', display: 'block', marginBottom: '8px' }}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@airniugini.com"
+              required
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#3d3028',
+                border: '1px solid #5a4a3a',
+                borderRadius: '4px',
+                color: 'white',
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ color: '#d4c8b8', display: 'block', marginBottom: '8px' }}>
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#3d3028',
+                border: '1px solid #5a4a3a',
+                borderRadius: '4px',
+                color: 'white',
+              }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: 'var(--color-primary)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              fontWeight: '500',
+            }}
+          >
+            {loading ? 'Loading...' : 'Sign In'}
+          </button>
+        </form>
+
+        <p style={{ color: '#7a6a5a', textAlign: 'center', marginTop: '20px', fontSize: '14px' }}>
+          Use your admin credentials to sign in
+        </p>
+      </div>
+    </div>
+  )
+}

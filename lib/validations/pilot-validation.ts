@@ -1,0 +1,375 @@
+/**
+ * Pilot Validation Schemas
+ * Comprehensive Zod validation for pilot CRUD operations
+ *
+ * @version 1.0.0
+ * @since 2025-10-17
+ */
+
+import { z } from 'zod'
+
+// ===================================
+// ENUMS & CONSTANTS
+// ===================================
+
+export const PilotRoleEnum = z.enum(['Captain', 'First Officer'], {
+  message: 'Rank must be either "Captain" or "First Officer"',
+})
+
+export const CaptainQualificationEnum = z.enum(['line_captain', 'training_captain', 'examiner'], {
+  message: 'Invalid captain qualification. Must be line_captain, training_captain, or examiner',
+})
+
+export const PilotLicenceTypeEnum = z.enum(['ATPL', 'CPL'], {
+  message: 'Licence type must be ATPL (Airline Transport) or CPL (Commercial)',
+})
+
+// ===================================
+// BASE SCHEMAS
+// ===================================
+
+/**
+ * Employee ID validation: Must be 4-6 digits
+ */
+const employeeIdSchema = z
+  .string()
+  .min(1, 'Employee ID is required')
+  .regex(/^\d{4,6}$/, 'Employee ID must be 4-6 digits')
+
+/**
+ * Name validation: 1-50 characters, letters only
+ */
+const nameSchema = z
+  .string()
+  .min(1, 'Name is required')
+  .max(50, 'Name cannot exceed 50 characters')
+  .regex(/^[a-zA-Z\s'-]+$/, 'Name can only contain letters, spaces, hyphens, and apostrophes')
+
+/**
+ * Optional name validation
+ * Note: Uses * (zero or more) in regex to allow empty strings from HTML forms
+ */
+const optionalNameSchema = z
+  .string()
+  .max(50, 'Name cannot exceed 50 characters')
+  .refine((val) => !val || /^[a-zA-Z\s'-]+$/.test(val), {
+    message: 'Name can only contain letters, spaces, hyphens, and apostrophes',
+  })
+  .optional()
+  .nullable()
+
+/**
+ * Phone number validation: International format with digits, spaces, dashes, plus sign
+ */
+const phoneNumberSchema = z
+  .string()
+  .refine((val) => !val || (/^[+\d\s-]+$/.test(val) && val.length >= 7 && val.length <= 20), {
+    message: 'Phone number must be 7-20 characters with digits, spaces, dashes, or plus sign',
+  })
+  .optional()
+  .nullable()
+
+/**
+ * Date validation: Accepts YYYY-MM-DD format (HTML date input) or ISO datetime
+ * HTML date inputs return YYYY-MM-DD, but ISO datetime is also accepted for API flexibility
+ */
+const dateSchema = z
+  .string()
+  .refine(
+    (val) => {
+      if (!val) return true // Allow empty for optional fields
+      // Accept YYYY-MM-DD (HTML date input) or full ISO datetime
+      const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/
+      const isoDatetimePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
+      return dateOnlyPattern.test(val) || isoDatetimePattern.test(val)
+    },
+    { message: 'Must be a valid date (YYYY-MM-DD)' }
+  )
+  .optional()
+  .nullable()
+
+/**
+ * Passport number validation
+ * Uses refine to allow empty strings from HTML forms
+ */
+const passportNumberSchema = z
+  .string()
+  .refine((val) => !val || (val.length >= 5 && val.length <= 20 && /^[A-Z0-9]+$/.test(val)), {
+    message: 'Passport number must be 5-20 uppercase letters and numbers',
+  })
+  .optional()
+  .nullable()
+
+/**
+ * Nationality validation
+ * Uses refine to allow empty strings from HTML forms
+ */
+const nationalitySchema = z
+  .string()
+  .refine((val) => !val || (val.length >= 2 && val.length <= 50), {
+    message: 'Nationality must be 2-50 characters',
+  })
+  .optional()
+  .nullable()
+
+/**
+ * Licence number validation
+ * 5-20 uppercase alphanumeric characters and hyphens
+ * Uses refine to allow empty strings from HTML forms
+ */
+const licenceNumberSchema = z
+  .string()
+  .transform((val) => (val ? val.toUpperCase().trim() : val))
+  .refine((val) => !val || (val.length >= 5 && val.length <= 20 && /^[A-Z0-9-]+$/.test(val)), {
+    message: 'Licence number must be 5-20 uppercase letters, numbers, or hyphens',
+  })
+  .optional()
+  .nullable()
+
+/**
+ * Seniority number validation: 1-999
+ */
+const seniorityNumberSchema = z
+  .number()
+  .int('Seniority number must be an integer')
+  .min(1, 'Seniority number must be at least 1')
+  .max(999, 'Seniority number cannot exceed 999')
+  .optional()
+  .nullable()
+
+// ===================================
+// CAPTAIN QUALIFICATIONS SCHEMA
+// ===================================
+
+export const CaptainQualificationsSchema = z.object({
+  line_captain: z.boolean().optional().default(false),
+  training_captain: z.boolean().optional().default(false),
+  examiner: z.boolean().optional().default(false),
+  rhs_captain_expiry: dateSchema,
+})
+
+export type CaptainQualifications = z.infer<typeof CaptainQualificationsSchema>
+
+// ===================================
+// PILOT CREATE SCHEMA
+// ===================================
+
+export const PilotCreateSchema = z
+  .object({
+    employee_id: employeeIdSchema,
+    first_name: nameSchema,
+    middle_name: optionalNameSchema,
+    last_name: nameSchema,
+    email: z.string().email('Must be a valid email address').optional().nullable(),
+    phone_number: phoneNumberSchema,
+    role: PilotRoleEnum,
+    contract_type: z.string().optional().nullable(),
+    nationality: nationalitySchema,
+    passport_number: passportNumberSchema,
+    passport_expiry: dateSchema,
+    licence_type: PilotLicenceTypeEnum.optional().nullable(),
+    licence_number: licenceNumberSchema,
+    date_of_birth: dateSchema,
+    commencement_date: dateSchema,
+    seniority_number: seniorityNumberSchema,
+    is_active: z.boolean().default(true),
+    captain_qualifications: z.array(CaptainQualificationEnum).optional().nullable(),
+  })
+  .refine(
+    (data) => {
+      // If passport number is provided, passport expiry must also be provided
+      if (data.passport_number && !data.passport_expiry) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Passport expiry date is required when passport number is provided',
+      path: ['passport_expiry'],
+    }
+  )
+  .refine(
+    (data) => {
+      // If date_of_birth is provided, validate age (must be at least 18)
+      if (data.date_of_birth) {
+        const birthDate = new Date(data.date_of_birth)
+        const today = new Date()
+        const age = today.getFullYear() - birthDate.getFullYear()
+        return age >= 18
+      }
+      return true
+    },
+    {
+      message: 'Pilot must be at least 18 years old',
+      path: ['date_of_birth'],
+    }
+  )
+  .refine(
+    (data) => {
+      // If passport_expiry is provided, it must be in the future
+      if (data.passport_expiry) {
+        const expiryDate = new Date(data.passport_expiry)
+        const today = new Date()
+        return expiryDate > today
+      }
+      return true
+    },
+    {
+      message: 'Passport expiry date must be in the future',
+      path: ['passport_expiry'],
+    }
+  )
+  .refine(
+    (data) => {
+      // If captain qualifications are provided, role must be Captain
+      if (data.captain_qualifications && data.captain_qualifications.length > 0) {
+        return data.role === 'Captain'
+      }
+      return true
+    },
+    {
+      message: 'Captain qualifications can only be assigned to Captains',
+      path: ['captain_qualifications'],
+    }
+  )
+
+// Input type for forms (before transforms)
+export type PilotCreate = z.input<typeof PilotCreateSchema>
+// Output type for validated data (after transforms)
+export type PilotCreateOutput = z.infer<typeof PilotCreateSchema>
+
+// ===================================
+// PILOT UPDATE SCHEMA
+// ===================================
+
+export const PilotUpdateSchema = z
+  .object({
+    employee_id: employeeIdSchema.optional(),
+    first_name: nameSchema.optional(),
+    middle_name: optionalNameSchema,
+    last_name: nameSchema.optional(),
+    email: z.string().email('Must be a valid email address').optional().nullable(),
+    phone_number: phoneNumberSchema,
+    role: PilotRoleEnum.optional(),
+    contract_type: z.string().optional().nullable(),
+    nationality: nationalitySchema,
+    passport_number: passportNumberSchema,
+    passport_expiry: dateSchema,
+    licence_type: PilotLicenceTypeEnum.optional().nullable(),
+    licence_number: licenceNumberSchema,
+    date_of_birth: dateSchema,
+    commencement_date: dateSchema,
+    seniority_number: seniorityNumberSchema,
+    is_active: z.preprocess((val) => {
+      // Convert string to boolean for radio buttons
+      if (val === 'true' || val === true) return true
+      if (val === 'false' || val === false) return false
+      return val
+    }, z.boolean().optional()),
+    captain_qualifications: z.array(CaptainQualificationEnum).optional().nullable(),
+  })
+  .partial()
+  .refine(
+    (data) => {
+      if (data.passport_number && !data.passport_expiry) {
+        return false
+      }
+      return true
+    },
+    {
+      message: 'Passport expiry date is required when passport number is provided',
+      path: ['passport_expiry'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.date_of_birth) {
+        const birthDate = new Date(data.date_of_birth)
+        const today = new Date()
+        const age = today.getFullYear() - birthDate.getFullYear()
+        return age >= 18
+      }
+      return true
+    },
+    {
+      message: 'Pilot must be at least 18 years old',
+      path: ['date_of_birth'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.passport_expiry) {
+        const expiryDate = new Date(data.passport_expiry)
+        const today = new Date()
+        return expiryDate > today
+      }
+      return true
+    },
+    {
+      message: 'Passport expiry date must be in the future',
+      path: ['passport_expiry'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.captain_qualifications && data.captain_qualifications.length > 0 && data.role) {
+        return data.role === 'Captain'
+      }
+      return true
+    },
+    {
+      message: 'Captain qualifications can only be assigned to Captains',
+      path: ['captain_qualifications'],
+    }
+  )
+
+// Input type for forms (before transforms)
+export type PilotUpdate = z.input<typeof PilotUpdateSchema>
+// Output type for validated data (after transforms)
+export type PilotUpdateOutput = z.infer<typeof PilotUpdateSchema>
+
+// ===================================
+// PILOT SEARCH SCHEMA
+// ===================================
+
+export const PilotSearchSchema = z.object({
+  searchTerm: z.string().max(100, 'Search term cannot exceed 100 characters').optional(),
+  filters: z
+    .object({
+      role: z.enum(['Captain', 'First Officer', 'all']).optional(),
+      status: z.enum(['active', 'inactive', 'all']).optional(),
+    })
+    .optional(),
+})
+
+export type PilotSearch = z.infer<typeof PilotSearchSchema>
+
+// ===================================
+// PILOT ID SCHEMA
+// ===================================
+
+export const PilotIdSchema = z.string().uuid('Pilot ID must be a valid UUID')
+
+export type PilotId = z.infer<typeof PilotIdSchema>
+
+// ===================================
+// EMPLOYEE ID CHECK SCHEMA
+// ===================================
+
+export const EmployeeIdCheckSchema = z.object({
+  employeeId: employeeIdSchema,
+  excludePilotId: z.string().uuid().optional(),
+})
+
+export type EmployeeIdCheck = z.infer<typeof EmployeeIdCheckSchema>
+
+// ===================================
+// SENIORITY CALCULATION SCHEMA
+// ===================================
+
+export const SeniorityCalculationSchema = z.object({
+  commencementDate: z.string().datetime({ message: 'Must be a valid ISO datetime string' }),
+  excludePilotId: z.string().uuid().optional(),
+})
+
+export type SeniorityCalculation = z.infer<typeof SeniorityCalculationSchema>

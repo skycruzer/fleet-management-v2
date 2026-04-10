@@ -1,0 +1,203 @@
+'use client'
+
+/**
+ * Flight Requests List Component
+ *
+ * Displays list of pilot's flight requests with status and cancel functionality.
+ *
+ * @spec 001-missing-core-features (US3, T063)
+ */
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { formatDate } from '@/lib/utils/date-utils'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import type { FlightRequest } from '@/lib/services/pilot-flight-service'
+
+interface FlightRequestsListProps {
+  requests: FlightRequest[]
+}
+
+export default function FlightRequestsList({ requests }: FlightRequestsListProps) {
+  const router = useRouter()
+  const [cancelingId, setCancelingId] = useState<string | null>(null)
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null)
+
+  const handleCancel = async (requestId: string) => {
+    setCancelingId(requestId)
+
+    try {
+      const response = await fetch(`/api/portal/flight-requests?id=${requestId}`, {
+        method: 'DELETE',
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        alert(result.error || 'Failed to cancel flight request')
+        return
+      }
+
+      // Refresh to show updated list
+      router.refresh()
+    } catch (error) {
+      alert('An unexpected error occurred')
+    } finally {
+      setCancelingId(null)
+    }
+  }
+
+  if (requests.length === 0) {
+    return (
+      <div className="border-border rounded-lg border-2 border-dashed p-8 text-center">
+        <p className="text-muted-foreground">No flight requests yet</p>
+        <p className="text-muted-foreground mt-1 text-sm">
+          Submit your first flight request using the form on the left
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {requests.map((request) => (
+        <div
+          key={request.id}
+          className="border-border rounded-lg border p-4 transition-shadow hover:shadow-md"
+        >
+          <div className="flex items-start justify-between">
+            {/* Request Details */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3">
+                <h3 className="text-foreground font-medium">
+                  {formatRequestType(request.request_type)}
+                </h3>
+                <StatusBadge status={request.workflow_status} />
+              </div>
+
+              <div className="text-muted-foreground mt-2 space-y-1 text-sm">
+                <p>
+                  <strong>Flight Date:</strong> {formatDate(request.start_date)}
+                </p>
+                <p>
+                  <strong>Description:</strong> {request.description}
+                </p>
+                {request.reason && (
+                  <p>
+                    <strong>Reason:</strong> {request.reason}
+                  </p>
+                )}
+                <p>
+                  <strong>Submitted:</strong> {formatDate(request.created_at)}
+                </p>
+              </div>
+
+              {/* Admin Comments */}
+              {(request.workflow_status === 'APPROVED' || request.workflow_status === 'DENIED') &&
+                request.review_comments && (
+                  <div className="bg-muted/30 mt-3 rounded-md p-3">
+                    <p className="text-foreground text-sm font-medium">Reviewer Comments:</p>
+                    <p className="text-muted-foreground mt-1 text-sm">{request.review_comments}</p>
+                    {request.reviewed_at && (
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        Reviewed on {formatDate(request.reviewed_at)}
+                      </p>
+                    )}
+                  </div>
+                )}
+            </div>
+
+            {/* Cancel Button */}
+            {(request.workflow_status === 'SUBMITTED' ||
+              request.workflow_status === 'IN_REVIEW') && (
+              <button
+                onClick={() => setConfirmCancelId(request.id)}
+                disabled={cancelingId === request.id}
+                className="ml-4 rounded-md bg-[var(--color-destructive-muted)] px-3 py-1.5 text-sm font-medium text-[var(--color-danger-400)] transition-colors hover:bg-[var(--color-danger-500)]/20 focus:ring-2 focus:ring-[var(--color-danger-500)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {cancelingId === request.id ? 'Canceling...' : 'Cancel'}
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog
+        open={!!confirmCancelId}
+        onOpenChange={(open) => !open && setConfirmCancelId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Flight Request</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this flight request? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Request</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (confirmCancelId) {
+                  handleCancel(confirmCancelId)
+                  setConfirmCancelId(null)
+                }
+              }}
+            >
+              Cancel Request
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  )
+}
+
+// Helper function to format request type
+function formatRequestType(type: string): string {
+  return type
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+// Status Badge Component
+function StatusBadge({
+  status,
+}: {
+  status: 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'APPROVED' | 'DENIED' | 'WITHDRAWN'
+}) {
+  const badgeStyles: Record<string, string> = {
+    DRAFT: 'bg-muted/30 text-muted-foreground',
+    SUBMITTED: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
+    IN_REVIEW: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-400)]',
+    APPROVED: 'bg-[var(--color-success-muted)] text-[var(--color-success-400)]',
+    DENIED: 'bg-[var(--color-destructive-muted)] text-[var(--color-danger-400)]',
+    WITHDRAWN: 'bg-muted/30 text-foreground',
+  }
+
+  const labels: Record<string, string> = {
+    DRAFT: 'Draft',
+    SUBMITTED: 'Submitted',
+    IN_REVIEW: 'In Review',
+    APPROVED: 'Approved',
+    DENIED: 'Denied',
+    WITHDRAWN: 'Withdrawn',
+  }
+
+  return (
+    <span className={`rounded-full px-3 py-1 text-xs font-medium ${badgeStyles[status]}`}>
+      {labels[status]}
+    </span>
+  )
+}

@@ -1,0 +1,204 @@
+LEAVE REQUEST SYSTEM - FILE STRUCTURE & DEPENDENCIES
+
+├── SERVICES (lib/services/)
+│   ├── leave-service.ts ⭐ CORE
+│   │   ├─ Exports: LeaveRequest, LeaveRequestFormData, LeaveRequestStats
+│   │   ├─ Key Fns: getAllLeaveRequests, createLeaveRequestServer, updateLeaveRequestStatus
+│   │   └─ Calls: Supabase, audit-service, error-logger
+│   │
+│   ├── leave-eligibility-service.ts 🧠 COMPLEX LOGIC
+│   │   ├─ Exports: CrewRequirements, CrewAvailability, LeaveEligibilityCheck, ConflictingRequest
+│   │   ├─ Key Fns: checkLeaveEligibility, calculateCrewAvailability, getConflictingPendingRequests
+│   │   └─ Calls: Supabase, date-fns
+│   │
+│   └── pilot-leave-service.ts 👤 PILOT WRAPPER
+│       ├─ Exports: ServiceResponse
+│       ├─ Key Fns: submitPilotLeaveRequest, getCurrentPilotLeaveRequests, cancelPilotLeaveRequest
+│       └─ Calls: leave-service, pilot-portal-service, error-logger
+│
+├── VALIDATION (lib/validations/)
+│   ├── leave-validation.ts 📋 ADMIN SCHEMAS
+│   │   ├─ Exports: LeaveRequestCreateSchema, LeaveRequestUpdateSchema, etc.
+│   │   └─ Date Format: ISO datetime (e.g., "2025-10-26T15:30:00.000Z")
+│   │
+│   └── pilot-leave-schema.ts 📋 PILOT SCHEMAS
+│       ├─ Exports: PilotLeaveRequestSchema, PilotLeaveCancelSchema
+│       ├─ Date Format: YYYY-MM-DD (e.g., "2025-10-26")
+│       └─ Helpers: isLateRequest(), getTodayISO()
+│
+├── API ROUTES (app/api/)
+│   ├── ADMIN ROUTES
+│   │   ├── leave-requests/route.ts
+│   │   │   ├─ GET: getAllLeaveRequests → List with filters
+│   │   │   └─ POST: createLeaveRequestServer → Create new
+│   │   │
+│   │   └── leave-requests/[id]/review/route.ts
+│   │       └─ PUT: updateLeaveRequestStatus → Approve/deny
+│   │
+│   ├── PILOT PORTAL ROUTES
+│   │   └── portal/leave-requests/route.ts
+│   │       ├─ POST: submitPilotLeaveRequest → Create new
+│   │       ├─ GET: getCurrentPilotLeaveRequests → List mine
+│   │       └─ DELETE: cancelPilotLeaveRequest → Cancel pending
+│   │
+│   └── LEGACY PILOT ROUTES
+│       └── pilot/leave/route.ts
+│           ├─ GET: getCurrentPilotLeaveRequests
+│           └─ POST: submitPilotLeaveRequest
+│
+├── PAGES (app/)
+│   ├── ADMIN DASHBOARD PAGES
+│   │   ├── dashboard/leave/page.tsx ⭐ MAIN PAGE
+│   │   │   ├─ Server Component
+│   │   │   ├─ Fetches: getAllLeaveRequests()
+│   │   │   ├─ Renders: Stats + <LeaveRequestsClient>
+│   │   │   └─ Actions: "Submit Leave Request" button
+│   │   │
+│   │   └── dashboard/leave/new/page.tsx
+│   │       ├─ Server Component
+│   │       └─ Renders: <LeaveRequestForm> (create mode)
+│   │
+│   └── PILOT PORTAL PAGES
+│       ├── portal/(protected)/leave-requests/page.tsx
+│       │   ├─ Server Component
+│       │   ├─ Fetches: getCurrentPilotLeaveRequests()
+│       │   └─ Renders: Request list with filters
+│       │
+│       └── portal/(protected)/leave-requests/new/page.tsx
+│           ├─ Server Component
+│           └─ Renders: <LeaveRequestForm> (pilot mode)
+│
+├── COMPONENTS (components/)
+│   ├── LEAVE MANAGEMENT UI
+│   │   ├── leave/leave-requests-client.tsx 🔄 CLIENT
+│   │   │   ├─ Filters: By roster period
+│   │   │   ├─ Groups: By type → role → sort by date
+│   │   │   ├─ Stats: Calculated in real-time
+│   │   │   └─ Modal: <LeaveReviewModal>
+│   │   │
+│   │   ├── leave/leave-request-group.tsx 🔄 CLIENT
+│   │   │   ├─ Expandable: Yes (click to toggle)
+│   │   │   ├─ Stats: Total, pending, approved, denied, days
+│   │   │   └─ Sorting: By start date within group
+│   │   │
+│   │   └── leave/leave-review-modal.tsx 🔄 CLIENT
+│   │       ├─ Dialog: Approve/deny interface
+│   │       ├─ Shows: Request details + crew impact
+│   │       ├─ Seniority: Comparison if multiple requesting
+│   │       └─ Action: PUT /api/leave-requests/[id]/review
+│   │
+│   └── FORM COMPONENTS
+│       ├── forms/leave-request-form.tsx 🔄 CLIENT (ADMIN)
+│       │   ├─ Mode: Create or Edit
+│       │   ├─ Fields: Pilot select, type, dates, reason, method
+│       │   ├─ Validation: LeaveRequestCreateSchema
+│       │   └─ Calls: POST /api/leave-requests
+│       │
+│       └── portal/leave-request-form.tsx 🔄 CLIENT (PILOT)
+│           ├─ Mode: Create only
+│           ├─ Fields: Type, dates (YYYY-MM-DD), reason
+│           ├─ Validation: PilotLeaveRequestSchema
+│           └─ Calls: POST /api/portal/leave-requests
+│
+├── TYPES (types/)
+│   └── supabase.ts
+│       └─ Generated types from Supabase schema
+│           ├─ leave_requests table type definitions
+│           └─ Related table types (pilots, an_users, etc.)
+│
+└── DATABASE (supabase/)
+    └── migrations/
+        └─ Contains: leave_requests table definition
+            ├─ Columns: All fields from LeaveRequest interface
+            ├─ Indexes: pilot_id, status, created_at, etc.
+            └─ Constraints: UNIQUE(pilot_id, start_date, end_date)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DATA FLOW EXAMPLES
+
+1. ADMIN CREATE REQUEST
+   Form → POST /api/leave-requests → LeaveRequestCreateSchema.parse()
+   → createLeaveRequestServer() → Database INSERT → Audit Log → Response
+
+2. PILOT SUBMIT REQUEST
+   Form → POST /api/portal/leave-requests → PilotLeaveRequestSchema.parse()
+   → submitPilotLeaveRequest() → leave-service.createLeaveRequestServer()
+   → Database INSERT → Response
+
+3. ADMIN REVIEWS REQUEST
+   Dashboard → <LeaveReviewModal> → PUT /api/leave-requests/[id]/review
+   → updateLeaveRequestStatus() → RPC approve_leave_request()
+   → Atomic: Status UPDATE + Audit Log → Response
+
+4. ELIGIBILITY CHECK (Background)
+   checkLeaveEligibility() → calculateCrewAvailability() + getConflictingPendingRequests()
+   → Determines: isEligible, recommendation, conflicts → LeaveEligibilityCheck
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DEPENDENCY GRAPH
+
+┌─────────────────────────────────────────────────────────────┐
+│                    UI (Components)                          │
+├─────────────────────────────────────────────────────────────┤
+│ LeaveRequestForm → POST /api/leave-requests                 │
+│ LeaveRequestsClient → LeaveRequestGroup → LeaveReviewModal │
+│ Portal Forms → POST /api/portal/leave-requests              │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│               API Routes (Validation)                       │
+├─────────────────────────────────────────────────────────────┤
+│ LeaveRequestCreateSchema (admin)                            │
+│ PilotLeaveRequestSchema (pilot)                             │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│               Service Layer (Business Logic)               │
+├─────────────────────────────────────────────────────────────┤
+│ leave-service.ts                                            │
+│ ├─ createLeaveRequestServer()                              │
+│ ├─ updateLeaveRequestStatus()                              │
+│ └─ checkLeaveConflicts()                                   │
+│                                                             │
+│ leave-eligibility-service.ts                               │
+│ ├─ checkLeaveEligibility()                                 │
+│ ├─ calculateCrewAvailability()                             │
+│ └─ getConflictingPendingRequests()                         │
+│                                                             │
+│ pilot-leave-service.ts                                     │
+│ ├─ submitPilotLeaveRequest()                               │
+│ └─ getCurrentPilotLeaveRequests()                           │
+└─────────────────────────────────────────────────────────────┘
+                            ↓
+┌─────────────────────────────────────────────────────────────┐
+│              Database & External Services                  │
+├─────────────────────────────────────────────────────────────┤
+│ Supabase (PostgreSQL)                                       │
+│ ├─ leave_requests table                                    │
+│ ├─ pilots table (joined)                                   │
+│ └─ an_users table (joined)                                 │
+│                                                             │
+│ Audit Service (audit-service.ts)                           │
+│ ├─ createAuditLog() - called on all CRUD ops              │
+│                                                             │
+│ Error Logger (error-logger.ts)                             │
+│ └─ logError() - called on exceptions                       │
+└─────────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KEY PATTERNS
+
+✓ Service Layer Pattern: All DB ops through services
+✓ Validation Pattern: Zod schemas at API boundary
+✓ Error Handling: Custom error types (DuplicateLeaveRequestError)
+✓ Audit Logging: Automatic logging via service layer
+✓ Type Safety: Full TypeScript with inference
+✓ Component Pattern: Server + Client components
+✓ Form Pattern: React Hook Form + Zod
+✓ State Management: Optimistic updates in components
+✓ Authorization: Ownership checks in services
+✓ Data Normalization: Single source of truth in database
+
