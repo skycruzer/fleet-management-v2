@@ -119,9 +119,9 @@ export function RosterCalendarWidget() {
               aria-current={isToday ? 'date' : undefined}
               className={`flex aspect-square items-center justify-center text-xs ${
                 isToday
-                  ? 'bg-primary text-primary-foreground rounded-full font-bold'
+                  ? 'bg-foreground text-background rounded-full font-bold'
                   : isInRP
-                    ? 'bg-primary/10 text-primary rounded font-semibold'
+                    ? 'bg-[var(--color-info-bg)] text-[var(--color-info)] rounded font-semibold'
                     : 'text-muted-foreground'
               }`}
             >
@@ -138,7 +138,7 @@ export function RosterCalendarWidget() {
         </p>
         <Link
           href="/dashboard/renewal-planning"
-          className="text-primary mt-1 inline-block text-xs hover:underline"
+          className="text-[var(--color-info)] mt-1 inline-block text-xs hover:underline"
         >
           View full calendar →
         </Link>

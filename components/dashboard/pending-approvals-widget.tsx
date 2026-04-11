@@ -63,7 +63,7 @@ export async function PendingApprovalsWidget() {
       )}
 
       <div className="border-border mt-3 border-t pt-3">
-        <Link href="/dashboard/requests" className="text-primary text-xs hover:underline">
+        <Link href="/dashboard/requests" className="text-[var(--color-info)] text-xs hover:underline">
           View all requests →
         </Link>
       </div>

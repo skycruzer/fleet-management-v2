@@ -185,21 +185,21 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                 key={periodKey}
                 className={`group relative flex w-[180px] flex-shrink-0 flex-col overflow-hidden rounded-xl border-2 shadow-md transition-all ${
                   isNext
-                    ? 'border-primary bg-primary/10'
+                    ? 'border-[var(--color-info-border)] bg-[var(--color-info-bg)]'
                     : 'border-border bg-card'
                 }`}
                 style={{ pointerEvents: 'auto' }}
               >
                 {/* Hover Background Tint */}
                 {isNext && (
-                  <div className="absolute inset-0 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10" />
+                  <div className="absolute inset-0 bg-[var(--color-info)]/0 transition-colors duration-300 group-hover:bg-[var(--color-info)]/10" />
                 )}
 
                 {/* Header - Non-clickable */}
                 <div className="relative z-10 p-3 pb-2">
                   <div className="mb-2 flex items-center justify-between">
                     {isNext ? (
-                      <Badge className="bg-primary text-primary-foreground h-5 px-2 text-[9px] font-black shadow-lg">
+                      <Badge className="bg-[var(--color-info)] text-white h-5 px-2 text-[9px] font-black shadow-lg">
                         NEXT UP
                       </Badge>
                     ) : (
@@ -212,11 +212,11 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                     )}
                     <div
                       className={`flex h-6 w-6 items-center justify-center rounded-lg ${
-                        isNext ? 'bg-primary shadow-md' : 'bg-muted'
+                        isNext ? 'bg-[var(--color-info)] shadow-md' : 'bg-muted'
                       }`}
                     >
                       <Calendar
-                        className={`h-3.5 w-3.5 ${isNext ? 'text-primary-foreground' : 'text-muted-foreground'}`}
+                        className={`h-3.5 w-3.5 ${isNext ? 'text-white' : 'text-muted-foreground'}`}
                       />
                     </div>
                   </div>
@@ -225,14 +225,14 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                   <div className="mb-2">
                     <h4
                       className={`mb-1 text-xl font-black tracking-tight ${
-                        isNext ? 'text-primary' : 'text-foreground'
+                        isNext ? 'text-[var(--color-info)]' : 'text-foreground'
                       }`}
                     >
                       {period.code}
                     </h4>
                     <div
                       className={`h-0.5 w-10 rounded-full ${
-                        isNext ? 'bg-primary' : 'bg-muted-foreground'
+                        isNext ? 'bg-[var(--color-info)]' : 'bg-muted-foreground'
                       }`}
                     />
                   </div>
@@ -240,7 +240,7 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                   {/* Date Range */}
                   <p
                     className={`text-[10px] leading-tight font-semibold ${
-                      isNext ? 'text-primary/80' : 'text-muted-foreground'
+                      isNext ? 'text-[var(--color-info)]/80' : 'text-muted-foreground'
                     }`}
                   >
                     {new Date(period.startDate).toLocaleDateString('en-AU', {
@@ -262,18 +262,18 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                     <Link
                       href={`/dashboard/leave?period=${period.code}`}
                       className={`flex flex-col gap-0.5 px-3 py-2 transition-colors ${
-                        isNext ? 'hover:bg-primary/10' : 'hover:bg-muted'
+                        isNext ? 'hover:bg-[var(--color-info)]/10' : 'hover:bg-muted'
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
                         <Users
                           className={`h-3 w-3 flex-shrink-0 ${
-                            isNext ? 'text-primary' : 'text-muted-foreground'
+                            isNext ? 'text-[var(--color-info)]' : 'text-muted-foreground'
                           }`}
                         />
                         <span
                           className={`text-[10px] font-bold ${
-                            isNext ? 'text-primary' : 'text-foreground'
+                            isNext ? 'text-[var(--color-info)]' : 'text-foreground'
                           }`}
                         >
                           {period.leaveRequests.total} leave
@@ -296,7 +296,7 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                                 <span
                                   key={type}
                                   className={`text-[8px] font-medium ${
-                                    isNext ? 'text-primary/80' : 'text-muted-foreground'
+                                    isNext ? 'text-[var(--color-info)]/80' : 'text-muted-foreground'
                                   }`}
                                 >
                                   {type}:{count}
@@ -317,17 +317,17 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                     <Link
                       href={`/dashboard/renewal-planning/roster-period/${period.code}`}
                       className={`flex items-center gap-1.5 px-3 py-2 transition-colors ${
-                        isNext ? 'hover:bg-primary/10' : 'hover:bg-muted'
+                        isNext ? 'hover:bg-[var(--color-info)]/10' : 'hover:bg-muted'
                       }`}
                     >
                       <ClipboardCheck
                         className={`h-3 w-3 flex-shrink-0 ${
-                          isNext ? 'text-primary' : 'text-muted-foreground'
+                          isNext ? 'text-[var(--color-info)]' : 'text-muted-foreground'
                         }`}
                       />
                       <span
                         className={`text-[10px] font-bold ${
-                          isNext ? 'text-primary' : 'text-foreground'
+                          isNext ? 'text-[var(--color-info)]' : 'text-foreground'
                         }`}
                       >
                         {period.certChecks} cert{period.certChecks !== 1 ? 's' : ''}
@@ -342,12 +342,12 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                       <Link
                         href={`/dashboard/renewal-planning/roster-period/${period.code}`}
                         className={`flex items-center gap-1.5 px-3 py-2 transition-colors ${
-                          isNext ? 'hover:bg-primary/10' : 'hover:bg-muted'
+                          isNext ? 'hover:bg-[var(--color-info)]/10' : 'hover:bg-muted'
                         }`}
                       >
                         <span
                           className={`text-[10px] font-semibold ${
-                            isNext ? 'text-primary' : 'text-muted-foreground'
+                            isNext ? 'text-[var(--color-info)]' : 'text-muted-foreground'
                           }`}
                         >
                           View Details

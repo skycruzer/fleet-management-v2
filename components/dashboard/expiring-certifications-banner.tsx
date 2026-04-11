@@ -131,11 +131,11 @@ export function ExpiringCertificationsBanner({ actionItems }: ExpiringCertificat
               {/* Low Priority */}
               <div className="bg-card rounded-lg p-4 text-center shadow-sm">
                 <div className="mb-2 flex items-center justify-center">
-                  <div className="bg-primary-100 flex h-10 w-10 items-center justify-center rounded-full">
-                    <AlertCircle className="text-primary-600 h-5 w-5" />
+                  <div className="bg-[var(--color-info-bg)] flex h-10 w-10 items-center justify-center rounded-full">
+                    <AlertCircle className="text-[var(--color-info)] h-5 w-5" />
                   </div>
                 </div>
-                <p className="text-primary-600 text-2xl font-black">{lowPriorityCount}</p>
+                <p className="text-[var(--color-info)] text-2xl font-black">{lowPriorityCount}</p>
                 <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                   Notice
                 </p>

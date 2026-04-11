@@ -88,9 +88,9 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
               <div className="flex items-center gap-2">
                 <h3 className="text-foreground font-semibold">{fullName}</h3>
                 {isCaptain && (
-                  <div className="bg-accent-100 flex items-center gap-1 rounded-full px-2 py-0.5">
-                    <Star className="text-accent-600 h-3 w-3" />
-                    <span className="text-accent-700 text-xs font-semibold">CPT</span>
+                  <div className="bg-[var(--color-warning-muted)] flex items-center gap-1 rounded-full px-2 py-0.5">
+                    <Star className="text-[var(--color-warning-500)] h-3 w-3" />
+                    <span className="text-[var(--color-warning-600)] text-xs font-semibold">CPT</span>
                   </div>
                 )}
               </div>
@@ -113,7 +113,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
         {isCaptain && qualifications && (
           <div className="mb-4 flex flex-wrap gap-2">
             {qualifications.lineCaptain && (
-              <span className="bg-primary/10 text-primary rounded-full px-2 py-1 text-xs font-medium">
+              <span className="bg-[var(--color-info-bg)] text-[var(--color-info)] rounded-full px-2 py-1 text-xs font-medium">
                 Line Captain
               </span>
             )}
@@ -123,7 +123,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
               </span>
             )}
             {qualifications.examiner && (
-              <span className="bg-accent/10 text-accent rounded-full px-2 py-1 text-xs font-medium">
+              <span className="bg-[var(--color-info-bg)] text-[var(--color-info)] rounded-full px-2 py-1 text-xs font-medium">
                 Examiner
               </span>
             )}
@@ -219,7 +219,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
           <motion.button
             whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
             whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-            className="bg-primary-600 hover:bg-primary-700 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
+            className="bg-foreground hover:bg-foreground/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
           >
             View Profile
           </motion.button>

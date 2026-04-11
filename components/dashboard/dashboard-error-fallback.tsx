@@ -22,7 +22,7 @@ export function DashboardErrorFallback({ section }: { section: string }) {
       <span className="text-destructive text-sm">Failed to load {section}.</span>
       <button
         onClick={() => router.refresh()}
-        className="text-primary text-xs underline hover:no-underline"
+        className="text-[var(--color-info)] text-xs underline hover:no-underline"
         aria-label={`Reload ${section}`}
       >
         Reload

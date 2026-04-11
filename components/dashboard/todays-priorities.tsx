@@ -63,7 +63,7 @@ export async function TodaysPriorities() {
 
     // Always show roster period info
     items.push({
-      icon: <Calendar className="text-primary h-4 w-4" aria-hidden="true" />,
+      icon: <Calendar className="text-muted-foreground h-4 w-4" aria-hidden="true" />,
       label: `${priorities.rosterAlert.currentPeriod} ends in ${priorities.rosterAlert.daysRemaining} day${priorities.rosterAlert.daysRemaining === 1 ? '' : 's'}`,
       count: `${priorities.rosterAlert.daysRemaining}d`,
       href: '/dashboard/renewal-planning',

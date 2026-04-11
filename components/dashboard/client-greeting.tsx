@@ -37,12 +37,12 @@ export function ClientGreeting({ displayName, role, initials }: ClientGreetingPr
       <div
         role="img"
         aria-label={`User avatar${initials ? `, initials ${initials}` : ''}`}
-        className="bg-primary/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full"
+        className="bg-[var(--color-muted)] flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full"
       >
         {initials ? (
-          <span className="text-primary text-lg font-semibold">{initials}</span>
+          <span className="text-foreground text-lg font-semibold">{initials}</span>
         ) : (
-          <UserIcon className="text-primary h-6 w-6" aria-hidden="true" />
+          <UserIcon className="text-muted-foreground h-6 w-6" aria-hidden="true" />
         )}
       </div>
 

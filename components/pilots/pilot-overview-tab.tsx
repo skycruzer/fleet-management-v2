@@ -121,56 +121,51 @@ export function PilotOverviewTab({
         className="grid grid-cols-1 gap-4 md:grid-cols-3"
       >
         <motion.div variants={getVariants(fadeIn)}>
-          <Card className="group relative overflow-hidden border-[var(--color-status-low-border)] bg-[var(--color-status-low-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-low)]/10" />
-            <div className="relative flex items-center justify-between">
+          <Card className="border-border bg-card p-6 shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-[var(--color-status-low)]">Current</p>
-                <p className="text-4xl font-bold text-[var(--color-status-low)]">
+                <p className="text-muted-foreground mb-1 text-sm font-medium">Current</p>
+                <p className="text-foreground text-4xl font-bold">
                   {pilot.certificationStatus.current}
                 </p>
-                <p className="mt-1 text-xs text-[var(--color-status-low)]">Certifications</p>
+                <p className="text-muted-foreground mt-1 text-xs">Certifications</p>
               </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-status-low)]/20">
-                <CheckCircle2 className="h-7 w-7 text-[var(--color-status-low)]" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--color-status-low-bg)]">
+                <CheckCircle2 className="h-6 w-6 text-[var(--color-status-low)]" />
               </div>
             </div>
           </Card>
         </motion.div>
 
         <motion.div variants={getVariants(fadeIn)}>
-          <Card className="group relative overflow-hidden border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-medium)]/10" />
-            <div className="relative flex items-center justify-between">
+          <Card className="border-border bg-card p-6 shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-[var(--color-status-medium)]">
-                  Expiring Soon
-                </p>
-                <p className="text-4xl font-bold text-[var(--color-status-medium)]">
+                <p className="text-muted-foreground mb-1 text-sm font-medium">Expiring Soon</p>
+                <p className="text-foreground text-4xl font-bold">
                   {pilot.certificationStatus.expiring}
                 </p>
-                <p className="mt-1 text-xs text-[var(--color-status-medium)]">Within 30 days</p>
+                <p className="text-muted-foreground mt-1 text-xs">Within 30 days</p>
               </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-status-medium)]/20">
-                <AlertCircle className="h-7 w-7 text-[var(--color-status-medium)]" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--color-status-medium-bg)]">
+                <AlertCircle className="h-6 w-6 text-[var(--color-status-medium)]" />
               </div>
             </div>
           </Card>
         </motion.div>
 
         <motion.div variants={getVariants(fadeIn)}>
-          <Card className="group relative overflow-hidden border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)] p-6 transition-all hover:shadow-lg">
-            <div className="absolute top-0 right-0 h-20 w-20 translate-x-6 -translate-y-6 rounded-full bg-[var(--color-status-high)]/10" />
-            <div className="relative flex items-center justify-between">
+          <Card className="border-border bg-card p-6 shadow-[var(--shadow-card)]">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="mb-1 text-sm font-medium text-[var(--color-status-high)]">Expired</p>
-                <p className="text-4xl font-bold text-[var(--color-status-high)]">
+                <p className="text-muted-foreground mb-1 text-sm font-medium">Expired</p>
+                <p className="text-foreground text-4xl font-bold">
                   {pilot.certificationStatus.expired}
                 </p>
-                <p className="mt-1 text-xs text-[var(--color-status-high)]">Needs renewal</p>
+                <p className="text-muted-foreground mt-1 text-xs">Needs renewal</p>
               </div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-status-high)]/20">
-                <XCircle className="h-7 w-7 text-[var(--color-status-high)]" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--color-status-high-bg)]">
+                <XCircle className="h-6 w-6 text-[var(--color-status-high)]" />
               </div>
             </div>
           </Card>
@@ -220,8 +215,8 @@ export function PilotOverviewTab({
           <PilotInfoCard
             title="Personal Information"
             icon={User}
-            iconBg="bg-primary/10"
-            iconColor="text-primary"
+            iconBg="bg-[var(--color-info-bg)]"
+            iconColor="text-[var(--color-info)]"
             items={[
               { icon: User, label: 'Full Name', value: fullName },
               { icon: Calendar, label: 'Date of Birth', value: formatDate(pilot.date_of_birth) },

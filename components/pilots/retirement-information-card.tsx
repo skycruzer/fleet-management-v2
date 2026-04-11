@@ -48,7 +48,7 @@ export function RetirementInformationCard({
       <Card>
         <CardHeader>
           <h3 className="flex items-center gap-2 text-lg font-semibold">
-            <Clock className="h-5 w-5 text-[var(--color-category-simulator)]" />
+            <Clock className="text-muted-foreground h-5 w-5" />
             Retirement Information
           </h3>
         </CardHeader>
@@ -115,19 +115,11 @@ export function RetirementInformationCard({
   const isWarning = countdown.totalDays <= 730 // Less than 2 years
 
   return (
-    <Card
-      className={
-        isUrgent
-          ? 'border-[var(--color-status-high-border)] bg-[var(--color-status-high-bg)]'
-          : isWarning
-            ? 'border-[var(--color-status-medium-border)] bg-[var(--color-status-medium-bg)]'
-            : ''
-      }
-    >
+    <Card className="border-border bg-card shadow-[var(--shadow-card)]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-lg font-semibold">
-            <Clock className="h-5 w-5 text-[var(--color-category-simulator)]" />
+            <Clock className="text-muted-foreground h-5 w-5" />
             Retirement Information
           </h3>
           <Badge variant="outline" className="text-xs">
@@ -137,14 +129,14 @@ export function RetirementInformationCard({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Countdown Display */}
-        <div className="rounded-lg border border-[var(--color-category-simulator)]/30 bg-[var(--color-category-simulator-bg)] p-6">
-          <div className="mb-2 text-sm font-medium text-[var(--color-category-simulator)]">
+        <div className="rounded-lg bg-[var(--color-muted)] p-6">
+          <div className="text-muted-foreground mb-2 text-sm font-medium">
             Time Until Retirement
           </div>
-          <div className="text-4xl font-bold text-[var(--color-category-simulator)]">
+          <div className="text-foreground text-4xl font-bold tracking-[-0.02em]">
             {formatRetirementCountdown(countdown)}
           </div>
-          <div className="mt-3 flex items-center gap-2 text-sm text-[var(--color-category-simulator)]">
+          <div className="text-muted-foreground mt-3 flex items-center gap-2 text-sm">
             <Calendar className="h-4 w-4" />
             Retirement Date:{' '}
             <span className="font-semibold">{formatRetirementDate(countdown.retirementDate)}</span>
@@ -175,11 +167,11 @@ export function RetirementInformationCard({
 
         {/* Years of Service */}
         {yearsOfService && (
-          <div className="flex items-center gap-2 rounded-lg border border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4">
-            <TrendingUp className="h-5 w-5 text-[var(--color-info)]" />
+          <div className="flex items-center gap-3 rounded-lg bg-[var(--color-muted)] p-4">
+            <TrendingUp className="text-muted-foreground h-5 w-5" />
             <div>
-              <div className="text-sm font-medium text-[var(--color-info)]">Years of Service</div>
-              <div className="text-2xl font-bold text-[var(--color-info)]">
+              <div className="text-muted-foreground text-sm font-medium">Years of Service</div>
+              <div className="text-foreground text-2xl font-bold">
                 {yearsOfService} years
               </div>
             </div>
