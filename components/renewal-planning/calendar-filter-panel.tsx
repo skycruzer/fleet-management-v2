@@ -196,7 +196,7 @@ export function CalendarFilterPanel({
                 <div
                   className={cn(
                     'flex cursor-pointer items-center justify-between rounded-md p-2 transition-colors',
-                    isSelected ? 'bg-primary/10' : 'hover:bg-muted/50'
+                    isSelected ? 'bg-[var(--color-info-bg)]' : 'hover:bg-muted/50'
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -253,7 +253,7 @@ export function CalendarFilterPanel({
                           key={checkType.checkCode}
                           className={cn(
                             'flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm transition-colors',
-                            isCheckSelected ? 'bg-primary/5' : 'hover:bg-muted/30'
+                            isCheckSelected ? 'bg-[var(--color-info-bg)]' : 'hover:bg-muted/30'
                           )}
                           onClick={() => handleCheckCodeToggle(checkType.checkCode, category.id)}
                         >
@@ -311,7 +311,7 @@ export function CalendarFilterPanel({
                 key={level.id}
                 className={cn(
                   'flex cursor-pointer items-center gap-2 rounded-md p-2 transition-colors',
-                  isSelected ? 'bg-primary/10' : 'hover:bg-muted/50'
+                  isSelected ? 'bg-[var(--color-info-bg)]' : 'hover:bg-muted/50'
                 )}
                 onClick={() =>
                   handleUtilizationChange(level.id as CalendarFilters['utilizationLevel'])

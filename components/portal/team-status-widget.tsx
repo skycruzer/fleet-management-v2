@@ -63,7 +63,7 @@ export function TeamStatusWidget({ teamMembers, currentPilotRank }: TeamStatusWi
   return (
     <Card className="p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Users className="text-primary h-5 w-5" />
+        <Users className="text-[var(--color-info)] h-5 w-5" />
         <h3 className="text-foreground text-lg font-semibold">Team Status</h3>
         <Badge variant="outline" className="ml-auto">
           {currentPilotRank}s

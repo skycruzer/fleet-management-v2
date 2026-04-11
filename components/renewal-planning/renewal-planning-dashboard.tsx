@@ -157,7 +157,7 @@ export function RenewalPlanningDashboard({
   if (isAutoGenerating) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 p-8">
-        <Loader2 className="text-primary h-12 w-12 animate-spin" />
+        <Loader2 className="text-[var(--color-info)] h-12 w-12 animate-spin" />
         <h2 className="text-foreground text-xl font-semibold">Generating Renewal Plans...</h2>
         <p className="text-muted-foreground text-sm">
           Auto-generating plans for all categories across 12 months. This may take a moment.
@@ -297,7 +297,7 @@ export function RenewalPlanningDashboard({
               <p className="text-muted-foreground text-sm">Planning Year</p>
               <p className="text-foreground text-2xl font-bold">{selectedYear}</p>
             </div>
-            <Calendar className="text-primary h-8 w-8" />
+            <Calendar className="text-[var(--color-info)] h-8 w-8" />
           </div>
         </Card>
 
@@ -307,7 +307,7 @@ export function RenewalPlanningDashboard({
               <p className="text-muted-foreground text-sm">Total Planned</p>
               <p className="text-foreground text-2xl font-bold">{totalPlanned}</p>
             </div>
-            <Calendar className="text-primary h-8 w-8" />
+            <Calendar className="text-[var(--color-info)] h-8 w-8" />
           </div>
         </Card>
 

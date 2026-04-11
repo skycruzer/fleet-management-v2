@@ -142,7 +142,7 @@ export default function NotificationsPage() {
       flight_denied: 'bg-[var(--color-badge-orange)]',
       certification_expiring: 'bg-[var(--color-warning-500)]',
       certification_expired: 'bg-[var(--color-danger-600)]',
-      task_assigned: 'bg-primary/50',
+      task_assigned: 'bg-[var(--color-info-bg)]0',
       registration_approved: 'bg-[var(--color-success-600)]',
       registration_denied: 'bg-[var(--color-danger-600)]',
       system_alert: 'bg-muted-foreground',

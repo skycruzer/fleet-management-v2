@@ -130,7 +130,7 @@ export const AllVariants: Story = {
           <Badge className="bg-[var(--color-destructive-muted)] text-[var(--color-danger-500)] hover:bg-[var(--color-destructive-muted)]">
             Red
           </Badge>
-          <Badge className="bg-primary/10 text-primary-foreground hover:bg-primary/10">
+          <Badge className="bg-[var(--color-info-bg)] text-[var(--color-info)]-foreground hover:bg-[var(--color-info-bg)]">
             Purple
           </Badge>
           <Badge className="bg-[var(--color-status-high-bg)] text-[var(--color-status-high)] hover:bg-[var(--color-status-high-bg)]">

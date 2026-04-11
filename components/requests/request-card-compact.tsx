@@ -121,7 +121,7 @@ export function RequestCardCompact({
       <div className="p-2.5 sm:p-3">
         <div className="flex items-center gap-2.5">
           {/* Category Icon */}
-          <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+          <div className="bg-[var(--color-info-bg)] text-[var(--color-info)] flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
             <CategoryIcon className="h-5 w-5" />
           </div>
 

@@ -183,7 +183,7 @@ export default function ResetPasswordPage() {
           {/* Loading State */}
           {isValidating && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="text-primary h-8 w-8 animate-spin" />
+              <Loader2 className="text-[var(--color-info)] h-8 w-8 animate-spin" />
               <p className="text-muted-foreground mt-4 text-sm">Validating reset link...</p>
             </div>
           )}
@@ -385,7 +385,7 @@ export default function ResetPasswordPage() {
 
               <Link
                 href="/portal/login"
-                className="text-primary hover:text-primary/80 flex items-center justify-center text-sm font-medium transition-colors"
+                className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 flex items-center justify-center text-sm font-medium transition-colors"
               >
                 Back to Login
               </Link>

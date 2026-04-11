@@ -99,7 +99,7 @@ export default function NewFeedbackPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <MessageSquare className="text-primary h-8 w-8" />
+              <MessageSquare className="text-[var(--color-info)] h-8 w-8" />
               <div>
                 <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
                   Submit Feedback

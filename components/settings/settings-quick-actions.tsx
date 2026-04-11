@@ -33,8 +33,8 @@ export function SettingsQuickActions({ userData, onSuccess }: SettingsQuickActio
           className="h-auto justify-start gap-3 p-4 text-left"
           onClick={() => setEditProfileOpen(true)}
         >
-          <div className="bg-primary/10 rounded-lg p-2">
-            <User className="text-primary h-4 w-4" />
+          <div className="bg-[var(--color-info-bg)] rounded-lg p-2">
+            <User className="text-[var(--color-info)] h-4 w-4" />
           </div>
           <div>
             <p className="font-semibold">Edit Profile</p>
@@ -61,8 +61,8 @@ export function SettingsQuickActions({ userData, onSuccess }: SettingsQuickActio
           className="h-auto justify-start gap-3 p-4 text-left"
           onClick={() => setNotificationSettingsOpen(true)}
         >
-          <div className="bg-primary/10 rounded-lg p-2">
-            <Bell className="text-primary h-4 w-4" />
+          <div className="bg-[var(--color-info-bg)] rounded-lg p-2">
+            <Bell className="text-[var(--color-info)] h-4 w-4" />
           </div>
           <div>
             <p className="font-semibold">Notifications</p>

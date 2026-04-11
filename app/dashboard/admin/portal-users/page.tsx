@@ -50,7 +50,7 @@ export default async function PortalUsersPage() {
               <p className="text-foreground text-2xl font-bold">{summary.total}</p>
             </div>
             <div className="bg-muted/30 rounded-lg p-3">
-              <Users className="text-primary h-6 w-6" />
+              <Users className="text-[var(--color-info)] h-6 w-6" />
             </div>
           </div>
         </Card>

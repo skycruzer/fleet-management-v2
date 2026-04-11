@@ -185,7 +185,7 @@ export function NotificationBell() {
             <div className="border-border border-t p-3">
               <Link
                 href="/portal/notifications"
-                className="text-primary hover:text-primary/80 block text-center text-sm font-medium"
+                className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 block text-center text-sm font-medium"
                 onClick={() => setIsOpen(false)}
               >
                 View All Notifications

@@ -30,7 +30,7 @@ export default function AboutPage() {
       <header className="bg-card sticky top-0 z-10 border-b">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-3">
-            <Info className="text-primary h-8 w-8" />
+            <Info className="text-[var(--color-info)] h-8 w-8" />
             <div>
               <h1 className="text-foreground text-xl font-bold">About</h1>
               <p className="text-muted-foreground text-xs">Application information</p>
@@ -43,10 +43,10 @@ export default function AboutPage() {
         {/* App Info Card */}
         <Card className="overflow-hidden">
           {/* App Header */}
-          <div className="bg-primary/5 border-b p-6">
+          <div className="bg-[var(--color-info-bg)] border-b p-6">
             <div className="flex items-center space-x-4">
-              <div className="bg-primary/10 flex h-16 w-16 items-center justify-center rounded-xl">
-                <Plane className="text-primary h-8 w-8" />
+              <div className="bg-[var(--color-info-bg)] flex h-16 w-16 items-center justify-center rounded-xl">
+                <Plane className="text-[var(--color-info)] h-8 w-8" />
               </div>
               <div>
                 <h2 className="text-foreground text-2xl font-bold">{appName}</h2>

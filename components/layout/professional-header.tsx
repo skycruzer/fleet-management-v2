@@ -258,7 +258,7 @@ export function ProfessionalHeader({ userName, userEmail }: ProfessionalHeaderPr
                           onClick={() => handleNotificationClick(notification)}
                           className={cn(
                             'border-border hover:bg-muted/50 w-full border-b px-3 py-2.5 text-left transition-colors',
-                            !notification.read && 'bg-primary/5'
+                            !notification.read && 'bg-[var(--color-info-bg)]'
                           )}
                         >
                           <div className="flex items-start gap-2">

@@ -378,7 +378,7 @@ export function SettingsClient({ settings }: SettingsClientProps) {
                       variant="outline"
                       size="sm"
                       disabled={isProtected(setting)}
-                      className="hover:bg-primary hover:text-primary-foreground"
+                      className="hover:bg-primary hover:text-[var(--color-info)]-foreground"
                       onClick={() => handleEdit(setting)}
                     >
                       {isProtected(setting) ? 'View' : 'Edit'}

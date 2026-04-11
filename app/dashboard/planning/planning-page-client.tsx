@@ -32,7 +32,7 @@ function AnalyticsLoadingFallback() {
   return (
     <Card className="p-8 text-center">
       <div className="flex items-center justify-center space-x-2">
-        <Loader2 className="text-primary h-6 w-6 animate-spin" aria-hidden="true" />
+        <Loader2 className="text-[var(--color-info)] h-6 w-6 animate-spin" aria-hidden="true" />
         <p className="text-muted-foreground text-sm">Loading analytics...</p>
       </div>
     </Card>

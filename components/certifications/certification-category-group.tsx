@@ -190,7 +190,7 @@ export function CertificationCategoryGroup({
                           variant="outline"
                           onClick={() => onEdit(cert.id, cert.expiry_date)}
                           disabled={editingCertId !== null}
-                          className="hover:bg-primary hover:text-primary-foreground"
+                          className="hover:bg-primary hover:text-[var(--color-info)]-foreground"
                         >
                           Edit
                         </Button>

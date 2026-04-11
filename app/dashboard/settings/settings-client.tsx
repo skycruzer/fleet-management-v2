@@ -100,8 +100,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
                   : 'Never'}
               </p>
             </div>
-            <div className="bg-primary/10 rounded-full p-3">
-              <User className="text-primary h-6 w-6" />
+            <div className="bg-[var(--color-info-bg)] rounded-full p-3">
+              <User className="text-[var(--color-info)] h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -112,8 +112,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
               <p className="text-muted-foreground text-sm font-medium">Security Level</p>
               <p className="text-foreground text-2xl font-bold">High</p>
             </div>
-            <div className="bg-primary/10 rounded-full p-3">
-              <Shield className="text-primary h-6 w-6" />
+            <div className="bg-[var(--color-info-bg)] rounded-full p-3">
+              <Shield className="text-[var(--color-info)] h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -178,8 +178,8 @@ export function SettingsClient({ initialUserData }: SettingsClientProps) {
       {/* Application Information */}
       <Card className="p-6">
         <div className="mb-6 flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2">
-            <Building2 className="text-primary h-5 w-5" />
+          <div className="bg-[var(--color-info-bg)] rounded-lg p-2">
+            <Building2 className="text-[var(--color-info)] h-5 w-5" />
           </div>
           <div>
             <h2 className="text-foreground text-xl font-semibold">Application Information</h2>

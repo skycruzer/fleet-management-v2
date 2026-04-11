@@ -173,9 +173,9 @@ export function RosterUploadDialog({
               <div
                 className={cn(
                   'cursor-pointer rounded-lg border-2 border-dashed p-8 transition-colors',
-                  isDragging && 'border-primary bg-primary/5',
+                  isDragging && 'border-primary bg-[var(--color-info-bg)]',
                   errorMsg && 'border-destructive bg-destructive/5',
-                  !isDragging && !errorMsg && 'border-border hover:border-primary/50'
+                  !isDragging && !errorMsg && 'border-border hover:border-[var(--color-info-border)]'
                 )}
                 onDragEnter={(e) => {
                   e.preventDefault()
@@ -224,7 +224,7 @@ export function RosterUploadDialog({
 
         {uploadState === 'uploading' && (
           <div className="flex flex-col items-center gap-3 py-8">
-            <Loader2 className="text-primary h-10 w-10 animate-spin" />
+            <Loader2 className="text-[var(--color-info)] h-10 w-10 animate-spin" />
             <p className="text-muted-foreground text-sm">
               Parsing roster PDF and extracting assignments...
             </p>

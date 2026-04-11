@@ -19,7 +19,7 @@ const RANK_CONFIG: Record<RankKey, RankConfig> = {
     label: 'Captain',
     abbreviation: 'CPT',
     variant: 'default',
-    className: 'border-primary/20 bg-primary/10 text-primary',
+    className: 'border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info)]',
   },
   first_officer: {
     label: 'First Officer',

@@ -110,7 +110,7 @@ function ExpiryGroupAccordion({ group }: { group: ExpiryGroup }) {
                 <div key={category}>
                   {/* Category Header */}
                   <div className="mb-3 flex items-center space-x-2">
-                    <div className="bg-primary/10 text-primary rounded px-2 py-1">
+                    <div className="bg-[var(--color-info-bg)] text-[var(--color-info)] rounded px-2 py-1">
                       <span className="text-xs font-semibold tracking-wide uppercase">
                         {category}
                       </span>
@@ -126,7 +126,7 @@ function ExpiryGroupAccordion({ group }: { group: ExpiryGroup }) {
                       <Link
                         key={cert.id}
                         href={`/dashboard/certifications/${cert.id}/edit`}
-                        className="border-border hover:border-primary/50 bg-card block rounded-lg border p-4 transition-all hover:shadow-md"
+                        className="border-border hover:border-[var(--color-info-border)] bg-card block rounded-lg border p-4 transition-all hover:shadow-md"
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">

@@ -242,7 +242,7 @@ export async function CompactRosterDisplay() {
                       <path
                         d={`M ${centerX - arcRadius} ${centerY} A ${arcRadius} ${arcRadius} 0 0 1 ${centerX + arcRadius} ${centerY}`}
                         fill="none"
-                        stroke="oklch(0.58 0.22 260)"
+                        stroke="var(--color-info)"
                         strokeWidth={arcStroke}
                         strokeLinecap="round"
                         strokeDasharray={circumference}
@@ -254,7 +254,7 @@ export async function CompactRosterDisplay() {
                           cx={tickX}
                           cy={tickY}
                           r={5}
-                          fill="oklch(0.58 0.22 260)"
+                          fill="var(--color-info)"
                           stroke="oklch(0.98 0 0)"
                           strokeWidth={2}
                         >

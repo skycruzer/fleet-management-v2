@@ -72,7 +72,7 @@ export default async function PilotLoginPage() {
               Don't have an account?{' '}
               <Link
                 href="/pilot/register"
-                className="text-primary hover:text-primary/80 font-medium"
+                className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 font-medium"
               >
                 Register here
               </Link>

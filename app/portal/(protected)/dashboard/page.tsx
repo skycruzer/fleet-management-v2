@@ -231,12 +231,12 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
         {/* Quick Actions */}
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Link href="/portal/leave-requests/new" className="group">
-            <Card className="hover:border-primary/30 hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200">
-              <div className="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
-                <Calendar className="text-primary h-6 w-6" aria-hidden="true" />
+            <Card className="hover:border-[var(--color-info-border)] hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200">
+              <div className="bg-[var(--color-info-bg)] flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
+                <Calendar className="text-[var(--color-info)] h-6 w-6" aria-hidden="true" />
               </div>
               <div>
-                <h3 className="text-foreground group-hover:text-primary font-semibold">
+                <h3 className="text-foreground group-hover:text-[var(--color-info)] font-semibold">
                   Submit Leave Request
                 </h3>
                 <p className="text-muted-foreground text-sm">Request time off</p>
@@ -244,12 +244,12 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
             </Card>
           </Link>
           <Link href="/portal/flight-requests/new" className="group">
-            <Card className="hover:border-primary/30 hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200">
-              <div className="bg-primary/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
-                <Plane className="text-primary h-6 w-6" aria-hidden="true" />
+            <Card className="hover:border-[var(--color-info-border)] hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200">
+              <div className="bg-[var(--color-info-bg)] flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
+                <Plane className="text-[var(--color-info)] h-6 w-6" aria-hidden="true" />
               </div>
               <div>
-                <h3 className="text-foreground group-hover:text-primary font-semibold">
+                <h3 className="text-foreground group-hover:text-[var(--color-info)] font-semibold">
                   Submit RDO/SDO Request
                 </h3>
                 <p className="text-muted-foreground text-sm">Request rest day changes</p>
@@ -315,8 +315,8 @@ export default async function PilotDashboardPage() {
       <div className="bg-muted/30 flex min-h-screen items-center justify-center p-6">
         <Card className="max-w-md p-8 text-center">
           <div className="mb-4 flex justify-center">
-            <div className="bg-primary/10 rounded-full p-4">
-              <Clock className="text-primary h-12 w-12" aria-hidden="true" />
+            <div className="bg-[var(--color-info-bg)] rounded-full p-4">
+              <Clock className="text-[var(--color-info)] h-12 w-12" aria-hidden="true" />
             </div>
           </div>
           <h2 className="text-foreground mb-2 text-2xl font-bold">Registration Pending</h2>
@@ -328,7 +328,7 @@ export default async function PilotDashboardPage() {
             <p className="text-foreground mb-1 text-sm font-medium">Need urgent access?</p>
             <p className="text-muted-foreground text-sm">
               Contact your fleet management administrator or email{' '}
-              <a href="mailto:support@pxb767office.app" className="text-primary hover:underline">
+              <a href="mailto:support@pxb767office.app" className="text-[var(--color-info)] hover:underline">
                 support@pxb767office.app
               </a>
             </p>

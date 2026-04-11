@@ -188,7 +188,7 @@ export function LeaveCalendarClient({
         <Card className="fixed right-4 bottom-4 z-50 max-h-[80vh] w-96 overflow-y-auto p-6 shadow-2xl">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CalendarIcon className="text-primary h-5 w-5" />
+              <CalendarIcon className="text-[var(--color-info)] h-5 w-5" />
               <h3 className="text-lg font-semibold">{format(selectedDay.date, 'MMMM d, yyyy')}</h3>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setSelectedDay(null)}>

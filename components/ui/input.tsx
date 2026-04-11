@@ -11,7 +11,7 @@ const inputVariants = cva(
     'transition-all duration-200 motion-reduce:transition-none',
     'file:text-[#1c2024] file:border-0 file:bg-transparent file:text-sm file:font-medium',
     'placeholder:text-[#60646c]',
-    'focus:border-[#3b82f6] focus:ring-[3px] focus:ring-[#3b82f6]/20 focus:outline-none',
+    'focus:border-[var(--color-ring)] focus:ring-[3px] focus:ring-[var(--color-ring)]/20 focus:outline-none',
     'disabled:bg-[#f8f8f8] disabled:text-[#a0a0a0] disabled:cursor-not-allowed',
   ],
   {

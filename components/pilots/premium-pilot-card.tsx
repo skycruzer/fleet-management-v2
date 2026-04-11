@@ -71,7 +71,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
       className="group hover:border-primary border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
     >
       {/* Background tint on hover */}
-      <div className="absolute inset-0 bg-primary/0 transition-colors group-hover:bg-primary/5" />
+      <div className="absolute inset-0 bg-primary/0 transition-colors group-hover:bg-[var(--color-info-bg)]" />
 
       <div className="relative">
         {/* Header */}

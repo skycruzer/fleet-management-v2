@@ -140,7 +140,7 @@ export function CommentThread({
               {comment.author?.name || 'Unknown'}
             </span>
             {comment.user_type === 'admin' && (
-              <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-[10px] font-medium">
+              <span className="bg-[var(--color-info-bg)] text-[var(--color-info)] rounded px-1.5 py-0.5 text-[10px] font-medium">
                 Admin
               </span>
             )}

@@ -180,7 +180,7 @@ export function LeaveApprovalCard({
         </div>
 
         {/* Request Type Badge */}
-        <Badge className="bg-primary-600 text-white">{request.request_type}</Badge>
+        <Badge className="bg-foreground text-background">{request.request_type}</Badge>
       </div>
 
       {/* Dates */}

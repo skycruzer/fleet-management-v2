@@ -104,9 +104,9 @@ export default async function CertificationsPage() {
       {/* Quick Stats - ONLY Expiring/Expired */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Total Requiring Attention */}
-        <Card className="border-primary/20 bg-primary/5 p-6">
+        <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <AlertCircle className="text-primary h-8 w-8" aria-hidden="true" />
+            <AlertCircle className="text-[var(--color-info)] h-8 w-8" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{totalExpiring}</p>
               <p className="text-muted-foreground text-sm font-medium">Requiring Attention</p>

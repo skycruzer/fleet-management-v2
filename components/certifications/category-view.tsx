@@ -110,8 +110,8 @@ function CategoryAccordion({
         aria-controls={`category-${category.name}`}
       >
         <div className="flex items-center gap-2.5">
-          <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
-            <FolderOpen className="text-primary h-5 w-5" aria-hidden="true" />
+          <div className="bg-[var(--color-info-bg)] flex h-8 w-8 items-center justify-center rounded-full">
+            <FolderOpen className="text-[var(--color-info)] h-5 w-5" aria-hidden="true" />
           </div>
           <div>
             <h3 className="text-foreground font-semibold">{category.name}</h3>

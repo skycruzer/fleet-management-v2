@@ -179,7 +179,7 @@ export function PilotRankGroup({ rank, pilots, defaultExpanded = true }: PilotRa
                         <Button
                           variant="outline"
                           size="sm"
-                          className="hover:bg-primary hover:text-primary-foreground text-xs"
+                          className="hover:bg-primary hover:text-[var(--color-info)]-foreground text-xs"
                         >
                           Edit
                         </Button>

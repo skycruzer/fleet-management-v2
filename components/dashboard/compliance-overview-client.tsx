@@ -267,7 +267,7 @@ export function ComplianceOverviewClient({
                       className={cn(
                         'h-full rounded-full',
                         color === 'success' && 'bg-success-500',
-                        color === 'primary' && 'bg-primary-500',
+                        color === 'primary' && 'bg-foreground',
                         color === 'warning' && 'bg-warning-500',
                         color === 'danger' && 'bg-danger-500'
                       )}

@@ -176,7 +176,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                   If this error persists, please contact{' '}
                   <a
                     href="mailto:mrondeau@airniugini.com.pg"
-                    className="text-primary font-medium hover:underline"
+                    className="text-[var(--color-info)] font-medium hover:underline"
                   >
                     mrondeau@airniugini.com.pg
                   </a>

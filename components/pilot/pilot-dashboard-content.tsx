@@ -100,7 +100,7 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
       <div className="bg-card rounded-lg p-6 shadow">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-foreground text-xl font-bold">Recent Leave Requests</h2>
-          <Link href="/pilot/leave" className="text-primary hover:text-primary/80 text-sm">
+          <Link href="/pilot/leave" className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 text-sm">
             View All
           </Link>
         </div>
@@ -156,7 +156,7 @@ function StatCard({
     blue: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
     yellow: 'bg-[var(--color-status-medium-bg)] text-[var(--color-status-medium)]',
     red: 'bg-[var(--color-status-high-bg)] text-[var(--color-status-high)]',
-    purple: 'bg-primary/10 text-primary',
+    purple: 'bg-[var(--color-info-bg)] text-[var(--color-info)]',
   }
 
   return (

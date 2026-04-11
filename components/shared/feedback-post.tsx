@@ -373,7 +373,7 @@ export function FeedbackPost({
         <h3
           className={cn(
             'text-foreground mb-2 text-lg font-semibold',
-            onViewDetails && 'hover:text-primary cursor-pointer'
+            onViewDetails && 'hover:text-[var(--color-info)] cursor-pointer'
           )}
           onClick={() => onViewDetails?.(feedback)}
         >
@@ -385,7 +385,7 @@ export function FeedbackPost({
 
         {/* Legacy B767 Office Response (if exists) */}
         {feedback.admin_response && (
-          <div className="border-primary/20 bg-primary/5 mt-4 rounded-lg border p-3">
+          <div className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] mt-4 rounded-lg border p-3">
             <div className="mb-1 flex items-center gap-2">
               <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-medium text-white">
                 A

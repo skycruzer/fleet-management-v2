@@ -300,7 +300,7 @@ export function RenewalPlanPreviewModal({
       <DialogContent className="flex max-h-[90vh] max-w-5xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
-            <Calendar className="text-primary h-5 w-5" />
+            <Calendar className="text-[var(--color-info)] h-5 w-5" />
             Renewal Plan Preview - {year}
           </DialogTitle>
           <DialogDescription>

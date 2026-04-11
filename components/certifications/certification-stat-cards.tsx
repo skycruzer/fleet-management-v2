@@ -37,7 +37,7 @@ export function CertificationStatCards({
       value: stats.total,
       icon: FileCheck,
       iconClass: 'text-primary',
-      bgClass: 'bg-primary/10',
+      bgClass: 'bg-[var(--color-info-bg)]',
     },
     {
       key: 'current' as const,

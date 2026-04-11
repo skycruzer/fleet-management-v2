@@ -101,7 +101,7 @@ export default async function AdminPage() {
                 certification types
               </p>
             </div>
-            <div className="bg-primary/10 group-hover:bg-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full transition-all group-hover:scale-105 sm:size-12 lg:size-14">
+            <div className="bg-[var(--color-info-bg)] group-hover:bg-[var(--color-info-bg)] flex size-11 shrink-0 items-center justify-center rounded-full transition-all group-hover:scale-105 sm:size-12 lg:size-14">
               <FileText className="text-primary size-5 sm:size-6 lg:size-7" />
             </div>
           </div>
@@ -155,7 +155,7 @@ export default async function AdminPage() {
               variant="outline"
               className="group h-auto w-full justify-start gap-3 p-4 text-left transition-all hover:shadow-md sm:gap-4 sm:p-5 lg:p-6"
             >
-              <div className="bg-primary/10 group-hover:bg-primary/20 flex size-10 shrink-0 items-center justify-center rounded-lg transition-all group-hover:scale-105 sm:size-11 lg:size-12">
+              <div className="bg-[var(--color-info-bg)] group-hover:bg-[var(--color-info-bg)] flex size-10 shrink-0 items-center justify-center rounded-lg transition-all group-hover:scale-105 sm:size-11 lg:size-12">
                 <List className="text-primary size-4 sm:size-5" />
               </div>
               <div className="min-w-0 flex-1">

@@ -102,8 +102,8 @@ export const semanticColors = {
   warning: '#f59e0b',
   error: '#ef4444',
   info: '#38bdf8',
-  primary: '#3b82f6',
-  accent: '#06b6d4',
+  primary: '#000000',
+  accent: '#0d74ce',
 } as const
 
 // ============================================================================

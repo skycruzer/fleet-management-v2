@@ -60,7 +60,7 @@ export function RecentActivityWidget({ activities, maxItems = 5 }: RecentActivit
     return (
       <Card className="p-6">
         <div className="mb-4 flex items-center gap-2">
-          <Clock className="text-primary h-5 w-5" />
+          <Clock className="text-[var(--color-info)] h-5 w-5" />
           <h3 className="text-foreground text-lg font-semibold">Recent Activity</h3>
         </div>
         <p className="text-muted-foreground py-8 text-center text-sm">
@@ -73,7 +73,7 @@ export function RecentActivityWidget({ activities, maxItems = 5 }: RecentActivit
   return (
     <Card className="p-6">
       <div className="mb-4 flex items-center gap-2">
-        <Clock className="text-primary h-5 w-5" />
+        <Clock className="text-[var(--color-info)] h-5 w-5" />
         <h3 className="text-foreground text-lg font-semibold">Recent Activity</h3>
       </div>
 
@@ -88,8 +88,8 @@ export function RecentActivityWidget({ activities, maxItems = 5 }: RecentActivit
               className="flex items-start gap-3 border-b pb-4 last:border-0 last:pb-0"
             >
               {/* Activity Icon */}
-              <div className="bg-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
-                <Icon className="text-primary h-5 w-5" />
+              <div className="bg-[var(--color-info-bg)] flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
+                <Icon className="text-[var(--color-info)] h-5 w-5" />
               </div>
 
               {/* Activity Content */}

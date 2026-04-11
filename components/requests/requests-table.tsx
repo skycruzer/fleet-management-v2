@@ -381,7 +381,7 @@ export function RequestsTable({
     <>
       {/* Bulk Actions Bar */}
       {enableSelection && selectedIds.size > 0 && (
-        <div className="bg-primary/10 border-primary/20 mb-4 rounded-lg border p-4">
+        <div className="bg-[var(--color-info-bg)] border-[var(--color-info-border)] mb-4 rounded-lg border p-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">
               {selectedIds.size} request{selectedIds.size !== 1 ? 's' : ''} selected

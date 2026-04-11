@@ -349,7 +349,7 @@ export function RequestCardsGrid({
 
       {/* Bulk Action Bar (appears when items selected) */}
       {selectedIds.size > 0 && (
-        <Card className="border-primary/20 bg-primary/5 sticky top-0 z-10 p-3">
+        <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] sticky top-0 z-10 p-3">
           <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <Checkbox

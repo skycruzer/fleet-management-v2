@@ -149,7 +149,7 @@ export default function FeedbackPage() {
       <div className="bg-card border-border border-b px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <MessageSquare className="text-primary h-8 w-8" />
+            <MessageSquare className="text-[var(--color-info)] h-8 w-8" />
             <div>
               <h1 className="text-foreground text-2xl font-bold">Feedback</h1>
               <p className="text-muted-foreground text-sm">

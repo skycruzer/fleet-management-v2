@@ -371,7 +371,7 @@ export function PortalUsersTable() {
                           {user.pilot_id ? (
                             <Link
                               href={`/dashboard/pilots/${user.pilot_id}`}
-                              className="text-primary hover:underline"
+                              className="text-[var(--color-info)] hover:underline"
                             >
                               {user.first_name} {user.last_name}
                             </Link>

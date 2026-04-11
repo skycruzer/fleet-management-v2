@@ -77,7 +77,7 @@ function FlyingPlane() {
       }}
       className="absolute inset-0 flex items-center justify-center"
     >
-      <Plane className="text-primary h-8 w-8" />
+      <Plane className="text-[var(--color-info)] h-8 w-8" />
     </motion.div>
   )
 }
@@ -330,7 +330,7 @@ export function LoadingPlane({ className }: { className?: string }) {
   if (!shouldAnimate) {
     return (
       <div className={cn('flex items-center justify-center', className)}>
-        <Plane className="text-primary h-6 w-6" />
+        <Plane className="text-[var(--color-info)] h-6 w-6" />
       </div>
     )
   }
@@ -348,7 +348,7 @@ export function LoadingPlane({ className }: { className?: string }) {
         }}
         className="absolute inset-y-0 flex items-center"
       >
-        <Plane className="text-primary h-6 w-6" />
+        <Plane className="text-[var(--color-info)] h-6 w-6" />
       </motion.div>
       {/* Contrail */}
       <motion.div

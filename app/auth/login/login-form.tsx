@@ -122,7 +122,7 @@ export function LoginForm() {
         </Link>
         <Link
           href="/portal/login"
-          className="text-primary hover:text-primary/80 font-medium transition-colors"
+          className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 font-medium transition-colors"
         >
           Pilot Portal →
         </Link>

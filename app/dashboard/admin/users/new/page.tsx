@@ -155,7 +155,7 @@ export default function NewUserPage() {
             </div>
 
             {/* Role Descriptions */}
-            <div className="bg-primary/5 space-y-3 rounded-lg border border-[var(--color-primary-500)]/20 p-4">
+            <div className="bg-[var(--color-info-bg)] space-y-3 rounded-lg border border-[var(--color-primary-500)]/20 p-4">
               <p className="text-foreground text-sm font-medium">Role Permissions:</p>
               <ul className="text-card-foreground space-y-2 text-sm">
                 <li className="flex items-start space-x-2">

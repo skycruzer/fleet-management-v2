@@ -219,7 +219,7 @@ export default function PilotLoginPage() {
               </div>
               <Link
                 href="/portal/forgot-password"
-                className="text-primary hover:text-primary/80 text-sm font-medium"
+                className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 text-sm font-medium"
               >
                 Forgot password?
               </Link>

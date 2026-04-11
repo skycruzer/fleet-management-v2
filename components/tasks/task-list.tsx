@@ -306,7 +306,7 @@ export default function TaskList({ tasks }: TaskListProps) {
                 <tr key={task.id} className="hover:bg-muted/50">
                   <td className="px-6 py-4">
                     <Link href={`/dashboard/tasks/${task.id}`} className="block">
-                      <div className="text-foreground hover:text-primary font-medium">
+                      <div className="text-foreground hover:text-[var(--color-info)] font-medium">
                         {task.title}
                       </div>
                       {task.description && (
@@ -363,7 +363,7 @@ export default function TaskList({ tasks }: TaskListProps) {
                   <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                     <Link
                       href={`/dashboard/tasks/${task.id}`}
-                      className="text-primary hover:text-primary/80"
+                      className="text-[var(--color-info)] hover:text-[var(--color-info)]/80"
                     >
                       View
                     </Link>

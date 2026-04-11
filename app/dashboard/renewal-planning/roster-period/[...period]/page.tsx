@@ -105,7 +105,7 @@ export default async function RosterPeriodDetailPage({ params }: PageProps) {
                 {summary.totalPlannedRenewals} / {summary.totalCapacity}
               </p>
             </div>
-            <Calendar className="text-primary h-8 w-8" />
+            <Calendar className="text-[var(--color-info)] h-8 w-8" />
           </div>
         </Card>
 

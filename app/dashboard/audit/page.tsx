@@ -213,9 +213,9 @@ export default async function AuditPage({ searchParams }: AuditPageProps) {
               <p className="text-muted-foreground text-sm font-medium">Tables Monitored</p>
               <p className="text-foreground mt-2 text-3xl font-bold">{stats.totalTables}</p>
             </div>
-            <div className="bg-primary/10 rounded-full p-3">
+            <div className="bg-[var(--color-info-bg)] rounded-full p-3">
               <svg
-                className="text-primary h-6 w-6"
+                className="text-[var(--color-info)] h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

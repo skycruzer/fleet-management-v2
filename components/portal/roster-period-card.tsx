@@ -60,7 +60,7 @@ export function RosterPeriodCard() {
   }
 
   return (
-    <Card className="border-primary/20 bg-card overflow-hidden border-2">
+    <Card className="border-[var(--color-info-border)] bg-card overflow-hidden border-2">
       {/* Header */}
       <div className="bg-primary px-6 py-4">
         <div className="flex items-center gap-3">
@@ -75,7 +75,7 @@ export function RosterPeriodCard() {
       {/* Content */}
       <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-2">
         {/* Current Period */}
-        <div className="bg-primary/5 rounded-lg p-5">
+        <div className="bg-[var(--color-info-bg)] rounded-lg p-5">
           <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground mb-3">
             ACTIVE PERIOD
           </Badge>
@@ -95,7 +95,7 @@ export function RosterPeriodCard() {
 
           {/* Countdown */}
           <div className="flex items-baseline gap-2">
-            <Clock className="text-primary h-5 w-5" />
+            <Clock className="text-[var(--color-info)] h-5 w-5" />
             <span className="text-primary text-4xl font-black">{daysRemaining}</span>
             <span className="text-muted-foreground text-sm font-medium">
               {daysRemaining === 1 ? 'day' : 'days'} remaining

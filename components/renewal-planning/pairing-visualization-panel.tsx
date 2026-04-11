@@ -99,8 +99,8 @@ export function PairingVisualizationPanel({
       <Card className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-primary/10 rounded-lg p-2">
-              <BarChart3 className="text-primary h-5 w-5" />
+            <div className="bg-[var(--color-info-bg)] rounded-lg p-2">
+              <BarChart3 className="text-[var(--color-info)] h-5 w-5" />
             </div>
             <div>
               <h3 className="font-semibold">Pairing Statistics</h3>

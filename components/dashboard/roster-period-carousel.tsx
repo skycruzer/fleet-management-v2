@@ -225,7 +225,7 @@ export function RosterPeriodCarousel() {
                     key={`${roster.code}-${index}`}
                     className={`w-64 flex-shrink-0 p-4 transition-all hover:shadow-md ${
                       index === 0
-                        ? 'border-primary/20 bg-primary/5/50'
+                        ? 'border-[var(--color-info-border)] bg-[var(--color-info-bg)]/50'
                         : 'border-border bg-background'
                     }`}
                   >

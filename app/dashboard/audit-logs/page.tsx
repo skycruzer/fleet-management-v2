@@ -72,7 +72,7 @@ export default async function AuditLogsPage({ searchParams }: AuditLogsPageProps
       case 'SOFT_DELETE':
         return 'bg-[var(--color-badge-orange-bg)] text-[var(--color-badge-orange)]'
       case 'RESTORE':
-        return 'bg-primary/10 text-primary-foreground'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]-foreground'
       default:
         return 'bg-muted/30 text-foreground'
     }

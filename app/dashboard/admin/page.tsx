@@ -88,7 +88,7 @@ export default async function AdminPage() {
               </p>
             </div>
             <div className="bg-muted/30 rounded-lg p-3">
-              <Users className="text-primary h-6 w-6" />
+              <Users className="text-[var(--color-info)] h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -101,7 +101,7 @@ export default async function AdminPage() {
               <p className="text-muted-foreground text-sm">certification types</p>
             </div>
             <div className="bg-muted/30 rounded-lg p-3">
-              <FileText className="text-primary h-6 w-6" />
+              <FileText className="text-[var(--color-info)] h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -114,7 +114,7 @@ export default async function AdminPage() {
               <p className="text-muted-foreground text-sm">total records</p>
             </div>
             <div className="bg-muted/30 rounded-lg p-3">
-              <Database className="text-primary h-6 w-6" />
+              <Database className="text-[var(--color-info)] h-6 w-6" />
             </div>
           </div>
         </Card>
@@ -127,7 +127,7 @@ export default async function AdminPage() {
           <Link href="/dashboard/admin/users/new">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
               <div className="bg-muted/30 rounded-lg p-3">
-                <UserPlus className="text-primary h-5 w-5" />
+                <UserPlus className="text-[var(--color-info)] h-5 w-5" />
               </div>
               <div>
                 <p className="font-semibold">Add New User</p>
@@ -139,7 +139,7 @@ export default async function AdminPage() {
           <Link href="/dashboard/admin/check-types">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
               <div className="bg-muted/30 rounded-lg p-3">
-                <List className="text-primary h-5 w-5" />
+                <List className="text-[var(--color-info)] h-5 w-5" />
               </div>
               <div>
                 <p className="font-semibold">Manage Check Types</p>
@@ -151,7 +151,7 @@ export default async function AdminPage() {
           <Link href="/dashboard/admin/settings">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
               <div className="bg-muted/30 rounded-lg p-3">
-                <Settings className="text-primary h-5 w-5" />
+                <Settings className="text-[var(--color-info)] h-5 w-5" />
               </div>
               <div>
                 <p className="font-semibold">System Settings</p>
@@ -163,7 +163,7 @@ export default async function AdminPage() {
           <Link href="/dashboard/admin/pilot-registrations">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
               <div className="bg-muted/30 rounded-lg p-3">
-                <UserCheck className="text-primary h-5 w-5" />
+                <UserCheck className="text-[var(--color-info)] h-5 w-5" />
               </div>
               <div>
                 <p className="font-semibold">Pilot Registrations</p>
@@ -175,7 +175,7 @@ export default async function AdminPage() {
           <Link href="/dashboard/admin/portal-users">
             <Button variant="outline" className="h-auto w-full justify-start gap-4 p-6 text-left">
               <div className="bg-muted/30 rounded-lg p-3">
-                <Monitor className="text-primary h-5 w-5" />
+                <Monitor className="text-[var(--color-info)] h-5 w-5" />
               </div>
               <div>
                 <p className="font-semibold">Portal Users</p>

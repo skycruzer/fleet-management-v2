@@ -132,7 +132,7 @@ export default function PilotLoginForm() {
                     }
                   : { duration: 0 }
               }
-              className="absolute inset-0 bg-primary/10"
+              className="absolute inset-0 bg-[var(--color-info-bg)]"
             />
           )}
         </AnimatePresence>

@@ -88,7 +88,7 @@ export default async function DisciplinaryDetailPage({ params }: DisciplinaryDet
       case 'ACTION_TAKEN':
         return 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
       case 'APPEALED':
-        return 'bg-primary/10 text-primary-foreground'
+        return 'bg-[var(--color-info-bg)] text-[var(--color-info)]-foreground'
       default:
         return 'bg-muted/30 text-foreground'
     }

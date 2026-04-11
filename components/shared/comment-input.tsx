@@ -145,7 +145,7 @@ export function CommentInput({
               'absolute top-1/2 right-1 -translate-y-1/2',
               isReplyMode ? 'h-7 w-7' : 'h-8 w-8',
               content.trim() && !isSubmitting
-                ? 'text-primary hover:text-primary/80'
+                ? 'text-[var(--color-info)] hover:text-[var(--color-info)]/80'
                 : 'text-muted-foreground'
             )}
           >

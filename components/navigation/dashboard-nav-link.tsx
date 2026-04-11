@@ -24,7 +24,7 @@ export function DashboardNavLink({ href, icon, children, className }: DashboardN
       className={cn(
         'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
         isActive
-          ? 'bg-primary/10 text-primary'
+          ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]'
           : 'text-card-foreground hover:bg-muted hover:text-foreground',
         className
       )}

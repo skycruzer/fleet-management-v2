@@ -35,7 +35,7 @@ function StatCard({ icon: Icon, label, value, iconBg, iconColor, total, accent }
     <div
       className={cn(
         'bg-card border-border relative overflow-hidden rounded-xl border p-5 shadow-sm transition-shadow hover:shadow-md',
-        accent && 'border-primary/20'
+        accent && 'border-[var(--color-info-border)]'
       )}
     >
       <div className="flex items-center gap-4">
@@ -78,7 +78,7 @@ export function PilotStatsBar({
         icon={Users}
         label="Total Pilots"
         value={totalPilots}
-        iconBg="bg-primary/10"
+        iconBg="bg-[var(--color-info-bg)]"
         iconColor="text-primary"
         total={totalPilots}
         accent

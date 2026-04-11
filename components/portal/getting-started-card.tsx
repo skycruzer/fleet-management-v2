@@ -41,7 +41,7 @@ export function GettingStartedCard() {
 
   return (
     <div className="mb-8">
-      <Card className="border-primary/20 bg-primary/5">
+      <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)]">
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
@@ -53,19 +53,19 @@ export function GettingStartedCard() {
               </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <FileCheck className="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
+                  <FileCheck className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
                   <span className="text-foreground">View your certifications and expiry dates</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
+                  <Calendar className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
                   <span className="text-foreground">Submit leave and RDO/SDO requests</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Plane className="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
+                  <Plane className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
                   <span className="text-foreground">Track your leave bid status</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <MessageSquare className="text-primary h-4 w-4 shrink-0" aria-hidden="true" />
+                  <MessageSquare className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
                   <span className="text-foreground">Submit feedback to management</span>
                 </div>
               </div>
