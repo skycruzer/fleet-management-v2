@@ -71,7 +71,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
       className="group hover:border-primary border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
     >
       {/* Background tint on hover */}
-      <div className="absolute inset-0 bg-primary/0 transition-colors group-hover:bg-[var(--color-info-bg)]" />
+      <div className="bg-primary/0 absolute inset-0 transition-colors group-hover:bg-[var(--color-info-bg)]" />
 
       <div className="relative">
         {/* Header */}
@@ -88,9 +88,11 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
               <div className="flex items-center gap-2">
                 <h3 className="text-foreground font-semibold">{fullName}</h3>
                 {isCaptain && (
-                  <div className="bg-[var(--color-warning-muted)] flex items-center gap-1 rounded-full px-2 py-0.5">
-                    <Star className="text-[var(--color-warning-500)] h-3 w-3" />
-                    <span className="text-[var(--color-warning-600)] text-xs font-semibold">CPT</span>
+                  <div className="flex items-center gap-1 rounded-full bg-[var(--color-warning-muted)] px-2 py-0.5">
+                    <Star className="h-3 w-3 text-[var(--color-warning-500)]" />
+                    <span className="text-xs font-semibold text-[var(--color-warning-600)]">
+                      CPT
+                    </span>
                   </div>
                 )}
               </div>
@@ -113,7 +115,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
         {isCaptain && qualifications && (
           <div className="mb-4 flex flex-wrap gap-2">
             {qualifications.lineCaptain && (
-              <span className="bg-[var(--color-info-bg)] text-[var(--color-info)] rounded-full px-2 py-1 text-xs font-medium">
+              <span className="rounded-full bg-[var(--color-info-bg)] px-2 py-1 text-xs font-medium text-[var(--color-info)]">
                 Line Captain
               </span>
             )}
@@ -123,7 +125,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
               </span>
             )}
             {qualifications.examiner && (
-              <span className="bg-[var(--color-info-bg)] text-[var(--color-info)] rounded-full px-2 py-1 text-xs font-medium">
+              <span className="rounded-full bg-[var(--color-info-bg)] px-2 py-1 text-xs font-medium text-[var(--color-info)]">
                 Examiner
               </span>
             )}

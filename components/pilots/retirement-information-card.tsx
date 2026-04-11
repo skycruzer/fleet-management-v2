@@ -171,9 +171,7 @@ export function RetirementInformationCard({
             <TrendingUp className="text-muted-foreground h-5 w-5" />
             <div>
               <div className="text-muted-foreground text-sm font-medium">Years of Service</div>
-              <div className="text-foreground text-2xl font-bold">
-                {yearsOfService} years
-              </div>
+              <div className="text-foreground text-2xl font-bold">{yearsOfService} years</div>
             </div>
           </div>
         )}

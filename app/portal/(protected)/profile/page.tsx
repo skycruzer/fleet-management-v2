@@ -410,8 +410,8 @@ export default async function ProfilePage() {
           {/* Personal Information */}
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="bg-[var(--color-info-bg)] flex h-10 w-10 items-center justify-center rounded-lg">
-                <User className="text-[var(--color-info)] h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
+                <User className="h-5 w-5 text-[var(--color-info)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">Personal Information</h3>
             </div>
@@ -529,7 +529,7 @@ export default async function ProfilePage() {
           <Card className="h-full p-6 transition-all hover:shadow-md">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
               <div className="bg-[var(--color-info-bg)]0/10 flex h-10 w-10 items-center justify-center rounded-lg">
-                <Award className="text-[var(--color-info)] h-5 w-5" />
+                <Award className="h-5 w-5 text-[var(--color-info)]" />
               </div>
               <h3 className="text-foreground text-lg font-semibold">Professional Details</h3>
             </div>

@@ -165,7 +165,9 @@ export async function CompactRosterDisplay() {
                 <h4 className="text-foreground text-3xl font-black tracking-tight">
                   {currentPeriod.code}
                 </h4>
-                <span className="text-[var(--color-info)] text-sm font-semibold">{currentPeriod.year}</span>
+                <span className="text-sm font-semibold text-[var(--color-info)]">
+                  {currentPeriod.year}
+                </span>
               </div>
               <p className="text-muted-foreground text-xs font-medium">
                 {new Date(currentPeriod.startDate).toLocaleDateString('en-AU', {
@@ -188,7 +190,7 @@ export async function CompactRosterDisplay() {
                   className={
                     isPeriodComplete
                       ? 'text-muted-foreground h-3.5 w-3.5'
-                      : 'text-[var(--color-info)] h-3.5 w-3.5'
+                      : 'h-3.5 w-3.5 text-[var(--color-info)]'
                   }
                 />
                 <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
@@ -295,17 +297,19 @@ export async function CompactRosterDisplay() {
 
           {/* Next Period - Right Side with Dual Links */}
           {nextPeriod && (
-            <div className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] self-start rounded-xl border-2 shadow-sm">
+            <div className="self-start rounded-xl border-2 border-[var(--color-info-border)] bg-[var(--color-info-bg)] shadow-sm">
               {/* Header - Non-clickable */}
               <div className="p-5 pb-3">
-                <Badge className="bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info-border)] mb-2 text-xs font-bold">
+                <Badge className="mb-2 border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-xs font-bold text-[var(--color-info)]">
                   NEXT UP
                 </Badge>
                 <div className="mb-1 flex items-baseline gap-2">
                   <h4 className="text-foreground text-3xl font-black tracking-tight">
                     {nextPeriod.code}
                   </h4>
-                  <span className="text-[var(--color-info)] text-sm font-semibold">{nextPeriod.year}</span>
+                  <span className="text-sm font-semibold text-[var(--color-info)]">
+                    {nextPeriod.year}
+                  </span>
                 </div>
                 <p className="text-muted-foreground text-xs font-medium">
                   {new Date(nextPeriod.startDate).toLocaleDateString('en-AU', {
@@ -322,15 +326,15 @@ export async function CompactRosterDisplay() {
               </div>
 
               {/* Dual-Link Sections */}
-              <div className="border-[var(--color-info-border)] flex flex-col border-t-2">
+              <div className="flex flex-col border-t-2 border-[var(--color-info-border)]">
                 {/* Leave Requests Link */}
                 {nextPeriodLeave.total > 0 && (
                   <Link
                     href={`/dashboard/leave?period=${nextPeriod.code}`}
-                    className="group border-[var(--color-info-border)] hover:bg-[var(--color-info)]/10 flex flex-col gap-1 border-b px-5 py-3 transition-colors"
+                    className="group flex flex-col gap-1 border-b border-[var(--color-info-border)] px-5 py-3 transition-colors hover:bg-[var(--color-info)]/10"
                   >
                     <div className="flex items-center gap-2">
-                      <Users className="text-[var(--color-info)] h-4 w-4" />
+                      <Users className="h-4 w-4 text-[var(--color-info)]" />
                       <span className="text-foreground flex-1 text-xs font-semibold">
                         {nextPeriodLeave.total} leave request
                         {nextPeriodLeave.total !== 1 ? 's' : ''}
@@ -340,7 +344,7 @@ export async function CompactRosterDisplay() {
                           </span>
                         )}
                       </span>
-                      <ChevronRight className="text-[var(--color-info)] h-4 w-4 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
+                      <ChevronRight className="h-4 w-4 text-[var(--color-info)] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
                     </div>
                     {/* Request Type Breakdown */}
                     {nextPeriodLeave.byType && Object.keys(nextPeriodLeave.byType).length > 0 && (
@@ -350,7 +354,7 @@ export async function CompactRosterDisplay() {
                           .map(([type, count]) => (
                             <span
                               key={type}
-                              className="bg-[var(--color-info-bg)] text-[var(--color-info)] rounded px-1.5 py-0.5 text-xs font-medium"
+                              className="rounded bg-[var(--color-info-bg)] px-1.5 py-0.5 text-xs font-medium text-[var(--color-info)]"
                             >
                               {type}: {count}
                             </span>
@@ -364,14 +368,14 @@ export async function CompactRosterDisplay() {
                 {nextPeriodCertChecks > 0 && (
                   <Link
                     href={`/dashboard/renewal-planning/roster-period/${nextPeriod.code}`}
-                    className="group hover:bg-[var(--color-info)]/10 flex items-center gap-2 px-5 py-3 transition-colors"
+                    className="group flex items-center gap-2 px-5 py-3 transition-colors hover:bg-[var(--color-info)]/10"
                   >
-                    <ClipboardCheck className="text-[var(--color-info)] h-4 w-4" />
+                    <ClipboardCheck className="h-4 w-4 text-[var(--color-info)]" />
                     <span className="text-foreground flex-1 text-xs font-semibold">
                       {nextPeriodCertChecks} cert check{nextPeriodCertChecks !== 1 ? 's' : ''}{' '}
                       planned
                     </span>
-                    <ChevronRight className="text-[var(--color-info)] h-4 w-4 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
+                    <ChevronRight className="h-4 w-4 text-[var(--color-info)] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
                   </Link>
                 )}
 
@@ -379,12 +383,12 @@ export async function CompactRosterDisplay() {
                 {nextPeriodLeave.total === 0 && nextPeriodCertChecks === 0 && (
                   <Link
                     href={`/dashboard/renewal-planning/roster-period/${nextPeriod.code}`}
-                    className="group hover:bg-[var(--color-info)]/10 flex items-center gap-2 px-5 py-3 transition-colors"
+                    className="group flex items-center gap-2 px-5 py-3 transition-colors hover:bg-[var(--color-info)]/10"
                   >
                     <span className="text-muted-foreground flex-1 text-xs font-semibold">
                       View Details
                     </span>
-                    <ChevronRight className="text-[var(--color-info)] h-4 w-4 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
+                    <ChevronRight className="h-4 w-4 text-[var(--color-info)] opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100" />
                   </Link>
                 )}
               </div>

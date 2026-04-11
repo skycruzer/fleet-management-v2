@@ -53,7 +53,10 @@ export function SupportContactButtons() {
             </div>
             <h3 className="text-foreground mb-2 text-lg font-semibold">{channel.title}</h3>
             <p className="text-muted-foreground mb-4 text-sm">{channel.description}</p>
-            <a href={channel.action} className="text-[var(--color-info)] text-sm font-medium hover:underline">
+            <a
+              href={channel.action}
+              className="text-sm font-medium text-[var(--color-info)] hover:underline"
+            >
               {channel.actionLabel} &rarr;
             </a>
           </Card>

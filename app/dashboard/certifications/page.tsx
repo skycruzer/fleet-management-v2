@@ -522,8 +522,8 @@ export default function CertificationsPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="bg-[var(--color-info-bg)] flex h-10 w-10 items-center justify-center rounded-full">
-              <CheckCircle className="text-[var(--color-info)] h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-info-bg)]">
+              <CheckCircle className="h-5 w-5 text-[var(--color-info)]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{statusCounts.all}</p>

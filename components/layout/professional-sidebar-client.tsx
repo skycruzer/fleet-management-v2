@@ -186,7 +186,7 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
             'group relative flex min-h-[36px] items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-100',
             isCollapsed && 'justify-center px-0',
             active
-              ? 'bg-[var(--color-info-bg)] text-[var(--color-info)] rounded-full'
+              ? 'rounded-full bg-[var(--color-info-bg)] text-[var(--color-info)]'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
           )}
         >

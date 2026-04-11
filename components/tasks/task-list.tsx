@@ -306,7 +306,7 @@ export default function TaskList({ tasks }: TaskListProps) {
                 <tr key={task.id} className="hover:bg-muted/50">
                   <td className="px-6 py-4">
                     <Link href={`/dashboard/tasks/${task.id}`} className="block">
-                      <div className="text-foreground hover:text-[var(--color-info)] font-medium">
+                      <div className="text-foreground font-medium hover:text-[var(--color-info)]">
                         {task.title}
                       </div>
                       {task.description && (

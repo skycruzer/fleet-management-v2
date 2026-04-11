@@ -749,7 +749,7 @@ export function LeaveBidReviewTable({ bids }: LeaveBidReviewTableProps) {
                                     >
                                       <div className="mb-2 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                          <span className="bg-[var(--color-info-bg)] text-[var(--color-info)] flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold">
+                                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-info-bg)] text-xs font-bold text-[var(--color-info)]">
                                             {option.priority}
                                           </span>
                                           <span className="text-muted-foreground text-xs font-medium">

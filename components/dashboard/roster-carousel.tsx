@@ -199,7 +199,7 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                 <div className="relative z-10 p-3 pb-2">
                   <div className="mb-2 flex items-center justify-between">
                     {isNext ? (
-                      <Badge className="bg-[var(--color-info)] text-white h-5 px-2 text-[9px] font-black shadow-lg">
+                      <Badge className="h-5 bg-[var(--color-info)] px-2 text-[9px] font-black text-white shadow-lg">
                         NEXT UP
                       </Badge>
                     ) : (

@@ -49,7 +49,7 @@ export function PilotProfileHeader({
     <motion.div
       initial={shouldAnimate ? { opacity: 0, y: -12 } : { opacity: 1 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-[var(--color-border)] bg-card p-6 shadow-[var(--shadow-card)] sm:p-8"
+      className="bg-card rounded-2xl border border-[var(--color-border)] p-6 shadow-[var(--shadow-card)] sm:p-8"
     >
       {/* Top row: Avatar + Identity + Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -58,9 +58,7 @@ export function PilotProfileHeader({
           <div
             className={cn(
               'flex-shrink-0 rounded-full p-0.5 ring-3',
-              pilot.is_active
-                ? 'ring-[var(--color-status-low)]'
-                : 'ring-[var(--color-border)]'
+              pilot.is_active ? 'ring-[var(--color-status-low)]' : 'ring-[var(--color-border)]'
             )}
           >
             <div
@@ -68,7 +66,7 @@ export function PilotProfileHeader({
                 'flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold sm:h-20 sm:w-20 sm:text-2xl',
                 isCaptain
                   ? 'bg-[var(--color-warning-muted)] text-[var(--color-warning-500)]'
-                  : 'bg-[var(--color-muted)] text-foreground'
+                  : 'text-foreground bg-[var(--color-muted)]'
               )}
             >
               {isCaptain ? (
@@ -90,7 +88,7 @@ export function PilotProfileHeader({
                   'rounded-full px-3 py-1 text-sm font-semibold',
                   pilot.is_active
                     ? 'bg-[var(--color-status-low-bg)] text-[var(--color-status-low)] ring-1 ring-[var(--color-status-low-border)]'
-                    : 'bg-[var(--color-muted)] text-muted-foreground ring-1 ring-[var(--color-border)]'
+                    : 'text-muted-foreground bg-[var(--color-muted)] ring-1 ring-[var(--color-border)]'
                 )}
               >
                 {pilot.is_active ? 'Active' : 'Inactive'}

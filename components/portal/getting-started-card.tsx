@@ -53,19 +53,28 @@ export function GettingStartedCard() {
               </p>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <FileCheck className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
+                  <FileCheck
+                    className="h-4 w-4 shrink-0 text-[var(--color-info)]"
+                    aria-hidden="true"
+                  />
                   <span className="text-foreground">View your certifications and expiry dates</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
+                  <Calendar
+                    className="h-4 w-4 shrink-0 text-[var(--color-info)]"
+                    aria-hidden="true"
+                  />
                   <span className="text-foreground">Submit leave and RDO/SDO requests</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Plane className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
+                  <Plane className="h-4 w-4 shrink-0 text-[var(--color-info)]" aria-hidden="true" />
                   <span className="text-foreground">Track your leave bid status</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <MessageSquare className="text-[var(--color-info)] h-4 w-4 shrink-0" aria-hidden="true" />
+                  <MessageSquare
+                    className="h-4 w-4 shrink-0 text-[var(--color-info)]"
+                    aria-hidden="true"
+                  />
                   <span className="text-foreground">Submit feedback to management</span>
                 </div>
               </div>

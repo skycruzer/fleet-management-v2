@@ -77,7 +77,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
       <div className="mb-2 flex items-start justify-between gap-2">
         <Link
           href={`/dashboard/tasks/${task.id}`}
-          className="text-foreground hover:text-[var(--color-info)] flex-1 font-semibold"
+          className="text-foreground flex-1 font-semibold hover:text-[var(--color-info)]"
         >
           {task.title}
         </Link>
@@ -219,7 +219,7 @@ export default function TaskCard({ task, isDragging = false, onClick }: TaskCard
       <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
         <Link
           href={`/dashboard/tasks/${task.id}`}
-          className="bg-background text-muted-foreground hover:text-[var(--color-info)] rounded-md p-1 shadow-sm"
+          className="bg-background text-muted-foreground rounded-md p-1 shadow-sm hover:text-[var(--color-info)]"
           title="View details"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

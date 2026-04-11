@@ -39,7 +39,7 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
         <CardHeader className="border-b">
           <div className="flex items-center gap-3">
             <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
-              <Calendar className="text-[var(--color-info)] h-5 w-5" />
+              <Calendar className="h-5 w-5 text-[var(--color-info)]" />
             </div>
             <div>
               <CardTitle className="text-xl">Leave Bids</CardTitle>
@@ -136,7 +136,7 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                <Calendar className="text-[var(--color-info)] h-5 w-5" />
+                <Calendar className="h-5 w-5 text-[var(--color-info)]" />
               </div>
               <div>
                 <CardTitle className="text-xl">Leave Bids</CardTitle>
@@ -186,7 +186,7 @@ export function LeaveBidStatusCard({ bids }: LeaveBidStatusCardProps) {
                         className="border-border bg-muted flex items-center justify-between rounded-md border p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="bg-[var(--color-info-bg)] text-[var(--color-info)] flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-info-bg)] text-sm font-bold text-[var(--color-info)]">
                             {option.priority}
                           </span>
                           <div>

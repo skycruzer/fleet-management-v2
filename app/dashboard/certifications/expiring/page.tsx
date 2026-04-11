@@ -106,7 +106,7 @@ export default async function CertificationsPage() {
         {/* Total Requiring Attention */}
         <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <AlertCircle className="text-[var(--color-info)] h-8 w-8" aria-hidden="true" />
+            <AlertCircle className="h-8 w-8 text-[var(--color-info)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{totalExpiring}</p>
               <p className="text-muted-foreground text-sm font-medium">Requiring Attention</p>

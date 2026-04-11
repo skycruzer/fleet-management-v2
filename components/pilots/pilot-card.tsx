@@ -64,9 +64,7 @@ export function PilotCard({ pilot }: PilotCardProps) {
             <div
               className={cn(
                 'flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white',
-                isCaptain
-                  ? 'bg-[var(--color-warning-500)]'
-                  : 'bg-primary'
+                isCaptain ? 'bg-[var(--color-warning-500)]' : 'bg-primary'
               )}
             >
               {initials}

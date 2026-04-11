@@ -27,7 +27,6 @@ import { RouteChangeFocusManager } from '@/components/ui/route-change-focus'
 import { GlobalAnnouncer } from '@/components/accessibility/announcer'
 import './globals.css'
 
-
 export const metadata: Metadata = {
   title: {
     default: 'Fleet Management V2',

@@ -75,7 +75,7 @@ export function CollapsibleWidget({
               <div className="flex items-center gap-2">
                 <h3 className="text-foreground truncate text-sm font-medium">{title}</h3>
                 {badge && (
-                  <span className="bg-[var(--color-muted)] text-muted-foreground inline-flex items-center rounded-sm px-1.5 py-0.5 font-mono text-xs font-medium">
+                  <span className="text-muted-foreground inline-flex items-center rounded-sm bg-[var(--color-muted)] px-1.5 py-0.5 font-mono text-xs font-medium">
                     {badge}
                   </span>
                 )}

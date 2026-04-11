@@ -80,7 +80,7 @@ export default function AuditLogTimeline({ logs, highlightRecordId }: AuditLogTi
       case 'LOGIN':
         return (
           <svg
-            className="text-[var(--color-info)] h-6 w-6"
+            className="h-6 w-6 text-[var(--color-info)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

@@ -234,7 +234,7 @@ export function PilotPortalSidebar({
                 <div className="border-border bg-card border-b p-4">
                   <div className="flex items-center gap-3">
                     <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full">
-                      <UserCircle className="text-[var(--color-info)] h-7 w-7" />
+                      <UserCircle className="h-7 w-7 text-[var(--color-info)]" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-foreground font-semibold">{pilotRank || 'Pilot'}</p>
@@ -276,7 +276,7 @@ export function PilotPortalSidebar({
                   className={cn(
                     'group relative flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                     isActive('/portal/dashboard')
-                      ? 'bg-[var(--color-info-bg)] text-[var(--color-info)] rounded-full'
+                      ? 'rounded-full bg-[var(--color-info-bg)] text-[var(--color-info)]'
                       : 'text-foreground hover:bg-muted'
                   )}
                 >
@@ -330,7 +330,7 @@ export function PilotPortalSidebar({
                       className={cn(
                         'group relative flex min-h-[36px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                         active
-                          ? 'bg-[var(--color-info-bg)] text-[var(--color-info)] rounded-full'
+                          ? 'rounded-full bg-[var(--color-info-bg)] text-[var(--color-info)]'
                           : 'text-foreground hover:bg-muted'
                       )}
                     >

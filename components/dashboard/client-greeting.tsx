@@ -37,7 +37,7 @@ export function ClientGreeting({ displayName, role, initials }: ClientGreetingPr
       <div
         role="img"
         aria-label={`User avatar${initials ? `, initials ${initials}` : ''}`}
-        className="bg-[var(--color-muted)] flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full"
+        className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-muted)]"
       >
         {initials ? (
           <span className="text-foreground text-lg font-semibold">{initials}</span>

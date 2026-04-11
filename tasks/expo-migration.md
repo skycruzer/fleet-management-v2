@@ -1,9 +1,11 @@
 # Expo Design System Migration
 
 ## Overview
+
 Replace the current MiniMax blue/white design with the Expo monochromatic, gallery-paced aesthetic. Remove AI slop patterns throughout.
 
 ## AI Slop to Remove
+
 - Gratuitous gradients (`gradient-aviation`, `gradient-horizon`, `gradient-sky`, animated text gradients)
 - Aviation-themed decorative elements (`.altitude-accent`, `.horizon-line`, `.runway-pattern`, `.bg-sky-gradient`, `.fly-across` plane animation)
 - Purple glow shadows (remnant from old indigo scheme)
@@ -15,6 +17,7 @@ Replace the current MiniMax blue/white design with the Expo monochromatic, galle
 - Decorative color for the sake of color (badge rainbow palette in non-semantic contexts)
 
 ## AI Slop to Remember (avoid in new code)
+
 - No decorative gradients — visual richness from content, not decoration
 - No brand-tinted shadows (purple/blue glow effects)
 - No aviation theme ornamentation
@@ -27,6 +30,7 @@ Replace the current MiniMax blue/white design with the Expo monochromatic, galle
 ---
 
 ## Phase 1: Foundation (CSS Variables + Fonts)
+
 Biggest lever — cascades changes to every component automatically.
 
 - [ ] 1.1 Update `app/globals.css` color tokens to Expo palette
@@ -66,6 +70,7 @@ Biggest lever — cascades changes to every component automatically.
 - [ ] 1.7 Build verification
 
 ## Phase 2: Layout Chrome (Sidebar + Header + Navigation)
+
 These affect every page — update once, visible everywhere.
 
 - [ ] 2.1 Update `professional-sidebar.tsx` / `professional-sidebar-client.tsx`
@@ -77,6 +82,7 @@ These affect every page — update once, visible everywhere.
 - [ ] 2.7 Build verification
 
 ## Phase 3: Base UI Components (shadcn/ui)
+
 - [ ] 3.1 Button — Expo variants (white-border default, black pill CTA)
 - [ ] 3.2 Card — Pure White on Cloud Gray, Border Lavender, whisper shadow
 - [ ] 3.3 Input / Textarea — Clean borders, 6px radius
@@ -90,6 +96,7 @@ These affect every page — update once, visible everywhere.
 - [ ] 3.11 Build verification
 
 ## Phase 4: Admin Dashboard Pages (Batch 1 — Core, ~15 files)
+
 - [ ] 4.1 Dashboard home
 - [ ] 4.2 Pilots pages (4)
 - [ ] 4.3 Certifications pages (4)
@@ -97,6 +104,7 @@ These affect every page — update once, visible everywhere.
 - [ ] 4.5 Build verification
 
 ## Phase 5: Admin Dashboard Pages (Batch 2 — Secondary, ~15 files)
+
 - [ ] 5.1 Analytics
 - [ ] 5.2 Reports
 - [ ] 5.3 Renewal planning (4)
@@ -105,12 +113,14 @@ These affect every page — update once, visible everywhere.
 - [ ] 5.6 Build verification
 
 ## Phase 6: Admin Dashboard Pages (Batch 3 — Admin + Misc, ~20 files)
+
 - [ ] 6.1 Admin sub-pages (9)
 - [ ] 6.2 Audit logs, feedback, help, support, FAQs
 - [ ] 6.3 Notifications, settings, planning, published-rosters
 - [ ] 6.4 Build verification
 
 ## Phase 7: Pilot Portal Pages (~21 files)
+
 - [ ] 7.1 Auth pages (5)
 - [ ] 7.2 Dashboard, profile, settings, about
 - [ ] 7.3 Certifications, requests, flight-requests, leave-requests, leave-bids
@@ -118,6 +128,7 @@ These affect every page — update once, visible everywhere.
 - [ ] 7.5 Build verification
 
 ## Phase 8: Auth + Static + Cleanup (~15 files)
+
 - [ ] 8.1 Auth pages
 - [ ] 8.2 Static pages (home, docs, privacy, terms, offline)
 - [ ] 8.3 Not-found + error pages

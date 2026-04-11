@@ -87,8 +87,8 @@ export default function SettingsPage() {
 
       <div className="mb-6">
         <div className="flex items-center gap-3">
-          <div className="bg-[var(--color-info-bg)] flex h-10 w-10 items-center justify-center rounded-lg">
-            <Settings className="text-[var(--color-info)] h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
+            <Settings className="h-5 w-5 text-[var(--color-info)]" />
           </div>
           <div>
             <h1 className="text-foreground text-2xl font-bold">Settings</h1>

@@ -193,7 +193,7 @@ export function ResetPasswordContent() {
           {/* Loading State */}
           {isValidating && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="text-[var(--color-info)] h-12 w-12 animate-spin" />
+              <Loader2 className="h-12 w-12 animate-spin text-[var(--color-info)]" />
               <p className="text-muted-foreground mt-4 text-sm">Validating reset link...</p>
             </div>
           )}
@@ -417,7 +417,7 @@ export function ResetPasswordContent() {
 
               <Link
                 href="/portal/login"
-                className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 flex items-center justify-center text-sm font-medium transition-colors"
+                className="flex items-center justify-center text-sm font-medium text-[var(--color-info)] transition-colors hover:text-[var(--color-info)]/80"
               >
                 Back to Login
               </Link>

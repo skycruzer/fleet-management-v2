@@ -197,9 +197,11 @@ function DocCard({
   topics: string[]
 }) {
   return (
-    <Card className="hover:border-[var(--color-info-border)] transition-all duration-300 hover:shadow-lg">
+    <Card className="transition-all duration-300 hover:border-[var(--color-info-border)] hover:shadow-lg">
       <CardHeader>
-        <div className="text-primary bg-[var(--color-info-bg)] mb-3 w-fit rounded-lg p-3">{icon}</div>
+        <div className="text-primary mb-3 w-fit rounded-lg bg-[var(--color-info-bg)] p-3">
+          {icon}
+        </div>
         <CardTitle className="text-xl">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>

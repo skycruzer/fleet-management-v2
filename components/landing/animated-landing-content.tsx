@@ -107,8 +107,8 @@ function HeroSection() {
             variants={item}
             className="text-muted-foreground max-w-2xl text-lg leading-relaxed sm:text-xl"
           >
-            Streamline pilot certification tracking, leave management, and compliance monitoring with
-            our comprehensive aviation operations platform.
+            Streamline pilot certification tracking, leave management, and compliance monitoring
+            with our comprehensive aviation operations platform.
           </motion.p>
 
           {/* CTA Buttons — Expo: black pill primary, white-border secondary */}

@@ -70,7 +70,10 @@ export default async function PilotRegisterPage() {
           <div className="mt-6 text-center">
             <p className="text-muted-foreground text-sm">
               Already have an account?{' '}
-              <Link href="/pilot/login" className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 font-medium">
+              <Link
+                href="/pilot/login"
+                className="font-medium text-[var(--color-info)] hover:text-[var(--color-info)]/80"
+              >
                 Sign in here
               </Link>
             </p>

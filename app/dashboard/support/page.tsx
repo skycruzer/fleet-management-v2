@@ -96,7 +96,7 @@ export default function SupportPage() {
                   <div className="bg-muted mb-4 w-fit rounded-lg p-3">
                     <Icon className="text-foreground h-6 w-6" />
                   </div>
-                  <h3 className="text-foreground group-hover:text-[var(--color-info)] mb-2 text-lg font-semibold">
+                  <h3 className="text-foreground mb-2 text-lg font-semibold group-hover:text-[var(--color-info)]">
                     {link.title}
                   </h3>
                   <p className="text-muted-foreground text-sm">{link.description}</p>
@@ -117,8 +117,8 @@ export default function SupportPage() {
               href={`/dashboard/faqs#${issue.toLowerCase().replace(/\s+/g, '-')}`}
               className="group hover:border-primary hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-4 transition-all"
             >
-              <FileQuestion className="text-muted-foreground group-hover:text-[var(--color-info)] h-5 w-5" />
-              <span className="text-foreground group-hover:text-[var(--color-info)] text-sm font-medium">
+              <FileQuestion className="text-muted-foreground h-5 w-5 group-hover:text-[var(--color-info)]" />
+              <span className="text-foreground text-sm font-medium group-hover:text-[var(--color-info)]">
                 {issue}
               </span>
             </Link>

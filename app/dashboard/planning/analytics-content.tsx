@@ -178,7 +178,7 @@ export default function AnalyticsContent() {
     return (
       <Card className="p-8 text-center">
         <div className="flex items-center justify-center space-x-2">
-          <Loader2 className="text-[var(--color-info)] h-6 w-6 animate-spin" aria-hidden="true" />
+          <Loader2 className="h-6 w-6 animate-spin text-[var(--color-info)]" aria-hidden="true" />
           <p className="text-muted-foreground text-sm">Loading analytics...</p>
         </div>
       </Card>
@@ -294,7 +294,7 @@ export default function AnalyticsContent() {
 
         <Card className="border-border bg-card p-4">
           <div className="mb-2 flex items-center justify-between">
-            <Target className="text-[var(--color-info)] h-8 w-8" aria-hidden="true" />
+            <Target className="h-8 w-8 text-[var(--color-info)]" aria-hidden="true" />
             <span className="text-primary-foreground text-2xl font-bold">
               {analytics.fleet.readiness}%
             </span>
@@ -321,7 +321,7 @@ export default function AnalyticsContent() {
               </div>
               <div className="text-muted-foreground text-xs">Active</div>
             </div>
-            <div className="bg-[var(--color-info-bg)] rounded-lg p-3">
+            <div className="rounded-lg bg-[var(--color-info-bg)] p-3">
               <div className="text-2xl font-bold text-[var(--color-primary-400)]">
                 {analytics.pilot.captains}
               </div>
@@ -406,7 +406,7 @@ export default function AnalyticsContent() {
               <div className="text-muted-foreground text-xs">Expired</div>
             </div>
           </div>
-          <div className="bg-[var(--color-info-bg)] mt-3 rounded-lg p-3">
+          <div className="mt-3 rounded-lg bg-[var(--color-info-bg)] p-3">
             <div className="flex items-center justify-between">
               <span className="text-card-foreground text-sm font-medium">Compliance Rate</span>
               <span className="text-xl font-bold text-[var(--color-primary-400)]">
@@ -558,7 +558,7 @@ export default function AnalyticsContent() {
       </Card>
 
       {/* Export Section */}
-      <Card className="bg-[var(--color-info-bg)] border-[var(--color-info-border)] p-4">
+      <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Info className="h-5 w-5 text-[var(--color-primary-600)]" aria-hidden="true" />

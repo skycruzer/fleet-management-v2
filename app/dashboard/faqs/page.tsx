@@ -260,7 +260,7 @@ export default function FAQPage() {
           {filteredCategories.map((category) => (
             <Card key={category.category} className="p-6">
               <div className="mb-6 flex items-center gap-3">
-                <FileQuestion className="text-[var(--color-info)] h-6 w-6" />
+                <FileQuestion className="h-6 w-6 text-[var(--color-info)]" />
                 <h2 className="text-foreground text-xl font-semibold">{category.category}</h2>
               </div>
               <Accordion type="single" collapsible className="w-full">

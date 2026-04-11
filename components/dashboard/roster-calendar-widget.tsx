@@ -121,7 +121,7 @@ export function RosterCalendarWidget() {
                 isToday
                   ? 'bg-foreground text-background rounded-full font-bold'
                   : isInRP
-                    ? 'bg-[var(--color-info-bg)] text-[var(--color-info)] rounded font-semibold'
+                    ? 'rounded bg-[var(--color-info-bg)] font-semibold text-[var(--color-info)]'
                     : 'text-muted-foreground'
               }`}
             >
@@ -138,7 +138,7 @@ export function RosterCalendarWidget() {
         </p>
         <Link
           href="/dashboard/renewal-planning"
-          className="text-[var(--color-info)] mt-1 inline-block text-xs hover:underline"
+          className="mt-1 inline-block text-xs text-[var(--color-info)] hover:underline"
         >
           View full calendar →
         </Link>

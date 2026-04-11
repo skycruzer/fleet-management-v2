@@ -100,7 +100,10 @@ export default function PilotDashboardContent({ dashboardData }: PilotDashboardC
       <div className="bg-card rounded-lg p-6 shadow">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-foreground text-xl font-bold">Recent Leave Requests</h2>
-          <Link href="/pilot/leave" className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 text-sm">
+          <Link
+            href="/pilot/leave"
+            className="text-sm text-[var(--color-info)] hover:text-[var(--color-info)]/80"
+          >
             View All
           </Link>
         </div>

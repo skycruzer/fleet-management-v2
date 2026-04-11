@@ -50,7 +50,7 @@ export default async function CheckTypesPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <ClipboardList className="text-[var(--color-info)] h-8 w-8" aria-hidden="true" />
+            <ClipboardList className="h-8 w-8 text-[var(--color-info)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{checkTypes.length}</p>
               <p className="text-muted-foreground text-sm font-medium">Total Check Types</p>
@@ -59,7 +59,7 @@ export default async function CheckTypesPage() {
         </Card>
         <Card className="border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-6">
           <div className="flex items-center space-x-3">
-            <Tag className="text-[var(--color-info)] h-8 w-8" aria-hidden="true" />
+            <Tag className="h-8 w-8 text-[var(--color-info)]" aria-hidden="true" />
             <div>
               <p className="text-foreground text-2xl font-bold">{categories.length}</p>
               <p className="text-muted-foreground text-sm font-medium">Categories</p>

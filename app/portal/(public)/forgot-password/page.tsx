@@ -177,7 +177,7 @@ export default function ForgotPasswordPage() {
           {/* Back to Login Link */}
           <Link
             href="/portal/login"
-            className="text-[var(--color-info)] hover:text-[var(--color-info)]/80 flex items-center justify-center gap-2 text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 text-sm font-medium text-[var(--color-info)] transition-colors hover:text-[var(--color-info)]/80"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to Login

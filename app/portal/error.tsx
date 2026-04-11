@@ -81,7 +81,10 @@ export default function PortalError({
         {/* Help Text */}
         <p className="text-muted-foreground mt-6 text-center text-sm">
           If this problem persists, please contact{' '}
-          <a href="mailto:mrondeau@airniugini.com.pg" className="text-[var(--color-info)] hover:underline">
+          <a
+            href="mailto:mrondeau@airniugini.com.pg"
+            className="text-[var(--color-info)] hover:underline"
+          >
             mrondeau@airniugini.com.pg
           </a>
         </p>

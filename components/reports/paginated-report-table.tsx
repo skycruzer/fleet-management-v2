@@ -941,7 +941,7 @@ export function PaginatedReportTable({
                         <td colSpan={columns.length} className="p-3">
                           <button
                             onClick={row.getToggleExpandedHandler()}
-                            className="hover:text-[var(--color-info)] flex items-center gap-2 transition-colors"
+                            className="flex items-center gap-2 transition-colors hover:text-[var(--color-info)]"
                           >
                             <ChevronDown
                               className={`h-4 w-4 transition-transform ${

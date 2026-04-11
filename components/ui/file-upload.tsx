@@ -225,7 +225,9 @@ export function FileUpload({
           displayError && 'border-destructive bg-destructive/5',
           uploadSuccess && 'border-[var(--color-success-500)] bg-[var(--color-success-500)]/5',
           disabled && 'cursor-not-allowed opacity-50',
-          !disabled && !hasFile && 'hover:border-[var(--color-info-border)] hover:bg-muted/40 cursor-pointer',
+          !disabled &&
+            !hasFile &&
+            'hover:bg-muted/40 cursor-pointer hover:border-[var(--color-info-border)]',
           !hasFile && !displayError && 'border-border'
         )}
         onDragEnter={handleDragEnter}
@@ -261,7 +263,7 @@ export function FileUpload({
           {isUploading ? (
             // Uploading state
             <div className="flex flex-col items-center justify-center space-y-2">
-              <Loader2 className="text-[var(--color-info)] h-10 w-10 animate-spin" />
+              <Loader2 className="h-10 w-10 animate-spin text-[var(--color-info)]" />
               <p className="text-muted-foreground text-sm">Uploading...</p>
             </div>
           ) : hasFile ? (
@@ -283,8 +285,8 @@ export function FileUpload({
                     <FileText className="h-8 w-8 text-[var(--color-danger-500)]" />
                   </div>
                 ) : (
-                  <div className="bg-[var(--color-info-bg)] flex h-16 w-16 items-center justify-center rounded-lg">
-                    <ImageIcon className="text-[var(--color-info)] h-8 w-8" />
+                  <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
+                    <ImageIcon className="h-8 w-8 text-[var(--color-info)]" />
                   </div>
                 )}
               </div>
