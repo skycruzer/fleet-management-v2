@@ -348,22 +348,16 @@ export function ProfessionalSidebarClient({ appTitle }: ProfessionalSidebarClien
               </button>
             )}
 
-            <motion.div
-              id="nav-section-more"
-              animate={
-                isCollapsed || moreExpanded
-                  ? { height: 'auto', opacity: 1 }
-                  : { height: 0, opacity: 0 }
-              }
-              initial={false}
-              transition={{ duration: shouldAnimate ? 0.15 : 0 }}
-              className="space-y-0.5 overflow-hidden"
-              role="group"
-              aria-label="More navigation links"
-              style={{ willChange: 'height, opacity' }}
-            >
-              {enrichedItems.more.map(renderNavItem)}
-            </motion.div>
+            {(isCollapsed || moreExpanded) && (
+              <div
+                id="nav-section-more"
+                className="space-y-0.5"
+                role="group"
+                aria-label="More navigation links"
+              >
+                {enrichedItems.more.map(renderNavItem)}
+              </div>
+            )}
           </div>
         </nav>
       </SidebarShell>

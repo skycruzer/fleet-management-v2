@@ -6,7 +6,7 @@ node_modules_broken_*
 *.log
 screenshots
 test-screenshots
-tasks
+/tasks
 .claude
 .planning
 openspec
