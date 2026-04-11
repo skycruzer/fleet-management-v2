@@ -129,7 +129,7 @@ export async function PilotRequirementsCard() {
         <div className="bg-primary px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg backdrop-blur-sm">
+              <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg">
                 <Users className="text-primary-foreground h-5 w-5" aria-hidden="true" />
               </div>
               <div>
@@ -170,7 +170,7 @@ export async function PilotRequirementsCard() {
       <div className="bg-primary px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg backdrop-blur-sm">
+            <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg">
               <Users className="text-primary-foreground h-5 w-5" />
             </div>
             <div>
@@ -180,7 +180,7 @@ export async function PilotRequirementsCard() {
               <p className="text-primary-foreground/70 text-xs">Required vs Actual Levels</p>
             </div>
           </div>
-          <Badge className="bg-primary-foreground/20 text-primary-foreground text-xs font-bold shadow-md backdrop-blur-sm">
+          <Badge className="bg-primary-foreground/20 text-primary-foreground text-xs font-bold shadow-md">
             CRITICAL
           </Badge>
         </div>
@@ -193,10 +193,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               captainsStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
+                ? 'border-success-200 bg-[var(--color-success-muted)]'
                 : captainsStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
+                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
+                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`Captains staffing: ${counts.totalCaptains} of ${requiredCaptains}, ${getStatusLabel(captainsPercentage)}`}
@@ -267,10 +267,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               firstOfficersStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
+                ? 'border-success-200 bg-[var(--color-success-muted)]'
                 : firstOfficersStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
+                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
+                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`First Officers staffing: ${counts.totalFirstOfficers} of ${requiredFirstOfficers}, ${getStatusLabel(firstOfficersPercentage)}`}
@@ -341,10 +341,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               examinersStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
+                ? 'border-success-200 bg-[var(--color-success-muted)]'
                 : examinersStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
+                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
+                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`Examiners staffing: ${counts.totalExaminers} of ${requiredExaminers}, ${getStatusLabel(examinersPercentage)}`}
@@ -413,10 +413,10 @@ export async function PilotRequirementsCard() {
           <div
             className={`rounded-xl border-2 p-4 shadow-sm transition-all hover:scale-[1.02] ${
               trainingCaptainsStatus === 'success'
-                ? 'border-success-200 from-success-50 bg-gradient-to-br to-[var(--color-success-muted)]'
+                ? 'border-success-200 bg-[var(--color-success-muted)]'
                 : trainingCaptainsStatus === 'warning'
-                  ? 'border-warning-200 from-warning-50 bg-gradient-to-br to-[var(--color-badge-orange-bg)]'
-                  : 'border-danger-200 from-danger-50 bg-gradient-to-br to-[var(--color-destructive-muted)]'
+                  ? 'border-warning-200 bg-[var(--color-warning-muted)]'
+                  : 'border-danger-200 bg-[var(--color-destructive-muted)]'
             }`}
             role="region"
             aria-label={`Training Captains staffing: ${counts.totalTrainingCaptains} of ${requiredTrainingCaptains}, ${getStatusLabel(trainingCaptainsPercentage)}`}

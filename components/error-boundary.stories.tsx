@@ -73,7 +73,7 @@ export const CustomFallback: Story = {
   render: () => (
     <ErrorBoundary
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[var(--color-destructive-muted)] to-[var(--color-badge-orange-bg)]">
+        <div className="flex min-h-screen items-center justify-center bg-[var(--color-destructive-muted)]">
           <div className="space-y-4 p-8 text-center">
             <h1 className="text-4xl font-bold text-[var(--color-danger-600)]">Oops!</h1>
             <p className="text-muted-foreground text-lg">

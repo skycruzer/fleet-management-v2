@@ -2,11 +2,10 @@
 
 @theme {
   /* =========================================================================
-   * MINIMAX-INSPIRED DESIGN SYSTEM — Blue/White
+   * EXPO-INSPIRED DESIGN SYSTEM — Monochromatic, Gallery-Paced
    * Developer: Maurice Rondeau
-   * Philosophy: White-dominant, blue primary, clean & approachable product UI
-   * Primary: Brand Blue (hue 260) | Accent: Light Blue | Status: Green/Amber/Red
-   * Palette ref: minimax.hailuoai.com — #1456f0 brand, #3b82f6 primary, #ffffff white
+   * Philosophy: Luminous cool-white canvas, pure black headlines, pill geometry
+   * Palette ref: expo.dev — #000000 primary, #f0f0f3 canvas, #60646c slate
    * WCAG 2.2 AA Accessible | Dual theme (light default + dark)
    *
    * COLOR NAMING CONVENTION:
@@ -16,128 +15,130 @@
    * - success:     Component-level + semantic (no ambiguity)
    * - status-low/medium/high: Traffic-light status indicators only
    * - category-*:  Training/certification domain colors only
-   * - info:        Informational variant (blue hue 260) for alerts, badges, notices
+   * - info:        Informational variant for alerts, badges, notices
    * ========================================================================= */
 
-  /* === PRIMARY (Blue — Main CTA, active states) === */
-  --color-primary-50: oklch(0.97 0.01 260);
-  --color-primary-100: oklch(0.94 0.03 260);
-  --color-primary-200: oklch(0.88 0.06 260);
-  --color-primary-300: oklch(0.78 0.12 260);
-  --color-primary-400: oklch(0.68 0.18 260);
-  --color-primary-500: oklch(0.58 0.22 260);
-  --color-primary-600: oklch(0.52 0.22 260);
-  --color-primary-700: oklch(0.45 0.2 260);
-  --color-primary-800: oklch(0.38 0.16 260);
-  --color-primary-900: oklch(0.28 0.1 260);
+  /* === PRIMARY (Expo Black — Headlines, CTAs) === */
+  --color-primary-50: #f5f5f5;
+  --color-primary-100: #e5e5e5;
+  --color-primary-200: #cccccc;
+  --color-primary-300: #999999;
+  --color-primary-400: #666666;
+  --color-primary-500: #333333;
+  --color-primary-600: #1c2024;
+  --color-primary-700: #111111;
+  --color-primary-800: #0a0a0a;
+  --color-primary-900: #000000;
 
-  --color-primary: oklch(0.58 0.22 260);
-  --color-primary-foreground: oklch(1.0 0 0);
+  --color-primary: #000000;
+  --color-primary-foreground: #ffffff;
 
-  /* === ACCENT (Lighter Blue — Secondary actions, highlights) === */
-  --color-accent-50: oklch(0.97 0.01 260);
-  --color-accent-100: oklch(0.95 0.02 260);
-  --color-accent-200: oklch(0.92 0.04 260);
-  --color-accent-300: oklch(0.85 0.08 260);
-  --color-accent-400: oklch(0.75 0.14 260);
-  --color-accent-500: oklch(0.65 0.18 260);
-  --color-accent-600: oklch(0.55 0.18 260);
-  --color-accent-700: oklch(0.48 0.16 260);
-  --color-accent-800: oklch(0.38 0.12 260);
-  --color-accent-900: oklch(0.28 0.08 260);
+  /* === ACCENT (Subtle cool gray — secondary actions, highlights) === */
+  --color-accent-50: #fafafa;
+  --color-accent-100: #f5f5f5;
+  --color-accent-200: #eeeeee;
+  --color-accent-300: #e0e0e0;
+  --color-accent-400: #bdbdbd;
+  --color-accent-500: #9e9e9e;
+  --color-accent-600: #757575;
+  --color-accent-700: #616161;
+  --color-accent-800: #424242;
+  --color-accent-900: #212121;
 
-  --color-accent: oklch(0.95 0.02 260);
-  --color-accent-foreground: oklch(0.2 0.015 250);
+  --color-accent: #f5f5f5;
+  --color-accent-foreground: #1c2024;
 
-  /* === SEMANTIC: SUCCESS (Green — Current certs, approved) === */
-  --color-success-50: oklch(0.96 0.04 155);
-  --color-success-100: oklch(0.92 0.06 155);
-  --color-success-200: oklch(0.85 0.1 155);
-  --color-success-500: oklch(0.5 0.17 155);
-  --color-success-600: oklch(0.45 0.16 155);
-  --color-success-700: oklch(0.4 0.15 155);
-  --color-success: oklch(0.5 0.17 155);
-  --color-success-foreground: oklch(1.0 0 0);
-  --color-success-muted: oklch(0.65 0.18 155 / 0.08);
-  --color-success-muted-foreground: oklch(0.5 0.17 155);
+  /* === SEMANTIC: SUCCESS (Muted green — current certs, approved) === */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success: #16a34a;
+  --color-success-foreground: #ffffff;
+  --color-success-muted: rgba(22, 163, 74, 0.08);
+  --color-success-muted-foreground: #16a34a;
 
-  /* === SEMANTIC: WARNING (Amber — Expiring certs ≤30 days) === */
-  --color-warning-50: oklch(0.97 0.04 85);
-  --color-warning-100: oklch(0.94 0.07 85);
-  --color-warning-200: oklch(0.89 0.12 85);
-  --color-warning-300: oklch(0.85 0.14 85);
-  --color-warning-400: oklch(0.82 0.15 85);
-  --color-warning-500: oklch(0.7 0.15 70);
-  --color-warning-600: oklch(0.62 0.14 65);
-  --color-warning-700: oklch(0.55 0.13 60);
-  --color-warning-800: oklch(0.48 0.12 55);
-  --color-warning: oklch(0.55 0.15 70);
-  --color-warning-foreground: oklch(0.15 0.01 70);
-  --color-warning-text: oklch(0.5 0.16 85);
-  --color-warning-muted: oklch(0.78 0.16 75 / 0.08);
-  --color-warning-muted-foreground: oklch(0.55 0.15 70);
+  /* === SEMANTIC: WARNING (Deep amber — expiring certs ≤30 days) === */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #ab6400;
+  --color-warning-600: #92400e;
+  --color-warning-700: #78350f;
+  --color-warning-800: #5c2d0e;
+  --color-warning: #ab6400;
+  --color-warning-foreground: #ffffff;
+  --color-warning-text: #92400e;
+  --color-warning-muted: rgba(171, 100, 0, 0.08);
+  --color-warning-muted-foreground: #ab6400;
 
-  /* === SEMANTIC: DESTRUCTIVE (Red — Expired, errors, danger) === */
-  --color-danger-50: oklch(0.96 0.02 25);
-  --color-danger-100: oklch(0.92 0.04 25);
-  --color-danger-200: oklch(0.87 0.08 25);
-  --color-danger-500: oklch(0.52 0.22 25);
-  --color-danger-600: oklch(0.48 0.22 25);
-  --color-danger-700: oklch(0.43 0.2 25);
-  --color-destructive: oklch(0.52 0.22 25);
-  --color-destructive-foreground: oklch(1.0 0 0);
-  --color-destructive-muted: oklch(0.6 0.22 25 / 0.08);
-  --color-destructive-muted-foreground: oklch(0.52 0.22 25);
+  /* === SEMANTIC: DESTRUCTIVE (Red — expired, errors, danger) === */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-200: #fecaca;
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-destructive-muted: rgba(220, 38, 38, 0.08);
+  --color-destructive-muted-foreground: #dc2626;
 
-  /* === NEUTRAL (Cool neutrals — hue 250 for clean white aesthetic) === */
-  --color-slate-50: oklch(0.98 0.003 250);
-  --color-slate-100: oklch(0.96 0.004 250);
-  --color-slate-200: oklch(0.91 0.005 250);
-  --color-slate-300: oklch(0.82 0.006 250);
-  --color-slate-400: oklch(0.65 0.006 250);
-  --color-slate-500: oklch(0.55 0.006 250);
-  --color-slate-600: oklch(0.45 0.006 250);
-  --color-slate-700: oklch(0.35 0.006 250);
-  --color-slate-800: oklch(0.25 0.005 250);
-  --color-slate-900: oklch(0.15 0.005 250);
+  /* === NEUTRAL (Cool neutrals — Expo's grayscale spectrum) === */
+  --color-slate-50: #fafafa;
+  --color-slate-100: #f5f5f5;
+  --color-slate-200: #e5e5e5;
+  --color-slate-300: #d4d4d4;
+  --color-slate-400: #a3a3a3;
+  --color-slate-500: #737373;
+  --color-slate-600: #60646c;
+  --color-slate-700: #555860;
+  --color-slate-800: #363a3f;
+  --color-slate-900: #1c2024;
 
-  --color-secondary: oklch(0.95 0.005 250);
-  --color-secondary-foreground: oklch(0.35 0.006 250);
+  --color-secondary: #f0f0f3;
+  --color-secondary-foreground: #555860;
 
-  /* === BACKGROUNDS & SURFACES (White-dominant — MiniMax #ffffff inspired) === */
-  --color-background: oklch(1.0 0 0);
-  --color-foreground: oklch(0.23 0.01 250);
+  /* === BACKGROUNDS & SURFACES (Cloud Gray canvas, Pure White cards) === */
+  --color-background: #f0f0f3;
+  --color-foreground: #1c2024;
 
-  --color-card: oklch(1.0 0 0);
-  --color-card-foreground: oklch(0.23 0.01 250);
+  --color-card: #ffffff;
+  --color-card-foreground: #1c2024;
 
-  --color-popover: oklch(1.0 0 0);
-  --color-popover-foreground: oklch(0.23 0.01 250);
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1c2024;
 
   /* === SURFACE ELEVATION SYSTEM === */
-  --color-surface-0: oklch(1.0 0 0);
-  --color-surface-1: oklch(0.98 0.003 250);
-  --color-surface-2: oklch(0.95 0.005 250);
-  --color-surface-3: oklch(0.91 0.005 250);
+  --color-surface-0: #f0f0f3;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #fafafa;
+  --color-surface-3: #f5f5f5;
 
   /* === BORDERS & INPUTS === */
-  --color-border: oklch(0.91 0.005 250);
-  --color-input: oklch(0.91 0.005 250);
-  --color-ring: oklch(0.58 0.22 260);
+  --color-border: #e0e1e6;
+  --color-input: #d9d9e0;
+  --color-ring: #2547d0;
 
   /* === MUTED === */
-  --color-muted: oklch(0.95 0.005 250);
-  --color-muted-foreground: oklch(0.42 0.02 250);
+  --color-muted: #f0f0f3;
+  --color-muted-foreground: #60646c;
 
-  /* === DISABLED STATE (WCAG 5.0:1 contrast) === */
-  --color-disabled-foreground: oklch(0.55 0.006 250);
-  --color-disabled-bg: oklch(0.95 0.005 250);
+  /* === DISABLED STATE === */
+  --color-disabled-foreground: #b0b4ba;
+  --color-disabled-bg: #f0f0f3;
 
-  /* === BORDER RADIUS (MiniMax — generous rounding) === */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.8125rem;
-  --radius-lg: 1.25rem;
-  --radius-xl: 1.5rem;
+  /* === BORDER RADIUS (Expo — pill geometry signature) === */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
   --radius-pill: 9999px;
 
   /* === LAYOUT TOKENS === */
@@ -145,12 +146,12 @@
   --layout-header-height: 3.5rem;
   --layout-mobile-header: 4rem;
 
-  /* === SPACING SCALE === */
+  /* === SPACING SCALE (8px base, gallery-paced sections) === */
   --spacing-page: 1rem;
   --spacing-page-sm: 1.5rem;
   --spacing-page-lg: 2rem;
-  --spacing-section: 2rem;
-  --spacing-card: 1.25rem;
+  --spacing-section: 3rem;
+  --spacing-card: 1.5rem;
 
   /* === Z-INDEX SCALE === */
   --z-dropdown: 10;
@@ -196,320 +197,290 @@
     1
   );
 
-  /* === SHADOWS (MiniMax — purple-tinted brand glow + light standard) === */
-  --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.06);
-  --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.08);
-  --shadow-elevated: 0 12px 16px -4px rgba(36, 36, 36, 0.08);
+  /* === SHADOWS (Expo — whisper-soft, background contrast is primary depth) === */
+  --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 3px 6px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.07);
+  --shadow-elevated: 0 10px 20px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05);
 
   /* === INTERACTIVE SHADOWS === */
-  --shadow-interactive: 0 2px 6px -1px rgb(0 0 0 / 0.08);
-  --shadow-interactive-hover: 0 6px 16px -3px rgb(0 0 0 / 0.1);
-  --shadow-inset: inset 0 1px 2px rgb(0 0 0 / 0.06);
-  --shadow-primary: 0 0 15px rgba(44, 30, 116, 0.16);
-  --shadow-glow-accent: 0 0 15px rgba(44, 30, 116, 0.16), 6.5px 2px 17.5px rgba(44, 30, 116, 0.11);
+  --shadow-interactive: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-interactive-hover: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 
   /* === INTERACTIVE STATE TOKENS === */
-  --color-interactive-hover: oklch(0.15 0.005 250 / 0.04);
-  --color-interactive-active: oklch(0.15 0.005 250 / 0.06);
-  --color-interactive-selected: oklch(0.15 0.005 250 / 0.08);
+  --color-interactive-hover: rgba(0, 0, 0, 0.04);
+  --color-interactive-active: rgba(0, 0, 0, 0.06);
+  --color-interactive-selected: rgba(0, 0, 0, 0.08);
 
   /* === ELEVATED SURFACES === */
-  --surface-elevated: oklch(0.98 0.003 250);
-  --glass-bg: oklch(1.0 0 0 / 0.85);
-  --glass-border: oklch(0.15 0.005 250 / 0.06);
+  --surface-elevated: #ffffff;
 
-  /* === STATUS COLORS (Aviation-standard — adjusted for white backgrounds) === */
-  --color-status-low: oklch(0.55 0.17 155);
-  --color-status-low-bg: oklch(0.65 0.18 155 / 0.08);
-  --color-status-low-border: oklch(0.65 0.18 155 / 0.25);
-  --color-status-medium: oklch(0.7 0.15 70);
-  --color-status-medium-bg: oklch(0.78 0.16 75 / 0.08);
-  --color-status-medium-border: oklch(0.78 0.16 75 / 0.25);
-  --color-status-high: oklch(0.52 0.22 25);
-  --color-status-high-bg: oklch(0.6 0.22 25 / 0.08);
-  --color-status-high-border: oklch(0.6 0.22 25 / 0.25);
+  /* === STATUS COLORS (Aviation-standard) === */
+  --color-status-low: #16a34a;
+  --color-status-low-bg: rgba(22, 163, 74, 0.08);
+  --color-status-low-border: rgba(22, 163, 74, 0.25);
+  --color-status-medium: #ab6400;
+  --color-status-medium-bg: rgba(171, 100, 0, 0.08);
+  --color-status-medium-border: rgba(171, 100, 0, 0.25);
+  --color-status-high: #dc2626;
+  --color-status-high-bg: rgba(220, 38, 38, 0.08);
+  --color-status-high-border: rgba(220, 38, 38, 0.25);
+  --color-status-high-foreground: #dc2626;
 
-  /* === CATEGORY COLORS (Training/certification — adjusted for white bg) === */
-  --color-category-flight: oklch(0.55 0.14 230);
-  --color-category-flight-bg: oklch(0.65 0.14 230 / 0.08);
-  --color-category-flight-border: oklch(0.65 0.14 230 / 0.2);
-  --color-category-simulator: oklch(0.5 0.15 290);
-  --color-category-simulator-bg: oklch(0.55 0.15 290 / 0.08);
-  --color-category-simulator-border: oklch(0.55 0.15 290 / 0.2);
-  --color-category-ground: oklch(0.55 0.17 155);
-  --color-category-ground-bg: oklch(0.65 0.18 155 / 0.08);
-  --color-category-ground-border: oklch(0.65 0.18 155 / 0.2);
-  --color-category-medical: oklch(0.55 0.17 350);
-  --color-category-medical-bg: oklch(0.6 0.17 350 / 0.08);
-  --color-category-medical-border: oklch(0.6 0.17 350 / 0.2);
+  /* === CATEGORY COLORS (Training/certification) === */
+  --color-category-flight: #2563eb;
+  --color-category-flight-bg: rgba(37, 99, 235, 0.08);
+  --color-category-flight-border: rgba(37, 99, 235, 0.2);
+  --color-category-simulator: #7c3aed;
+  --color-category-simulator-bg: rgba(124, 58, 237, 0.08);
+  --color-category-simulator-border: rgba(124, 58, 237, 0.2);
+  --color-category-ground: #16a34a;
+  --color-category-ground-bg: rgba(22, 163, 74, 0.08);
+  --color-category-ground-border: rgba(22, 163, 74, 0.2);
+  --color-category-medical: #db2777;
+  --color-category-medical-bg: rgba(219, 39, 119, 0.08);
+  --color-category-medical-border: rgba(219, 39, 119, 0.2);
 
-  /* === INFO/NEUTRAL ACCENT === */
-  --color-info: oklch(0.55 0.14 260);
-  --color-info-bg: oklch(0.65 0.14 260 / 0.08);
-  --color-info-border: oklch(0.65 0.14 260 / 0.2);
-  --color-info-foreground: oklch(0.48 0.14 260);
+  /* === INFO/LINK ACCENT (Expo Link Cobalt) === */
+  --color-info: #0d74ce;
+  --color-info-bg: rgba(13, 116, 206, 0.08);
+  --color-info-border: rgba(13, 116, 206, 0.2);
+  --color-info-foreground: #0d74ce;
 
-  /* === CHART COLORS (Light mode optimized) === */
-  --color-chart-1: oklch(0.5 0.15 260);
-  --color-chart-2: oklch(0.5 0.17 155);
-  --color-chart-3: oklch(0.6 0.15 70);
-  --color-chart-4: oklch(0.5 0.16 310);
-  --color-chart-5: oklch(0.5 0.14 195);
-  --color-chart-grid: oklch(0.15 0 0 / 0.08);
-  --color-chart-axis: oklch(0.4 0.01 250);
-  --color-chart-tooltip-bg: oklch(1.0 0 0);
-  --color-chart-tooltip-text: oklch(0.23 0.01 250);
-  --color-chart-tooltip-border: oklch(0.15 0 0 / 0.1);
+  /* === CHART COLORS === */
+  --color-chart-1: #1c2024;
+  --color-chart-2: #60646c;
+  --color-chart-3: #0d74ce;
+  --color-chart-4: #ab6400;
+  --color-chart-5: #16a34a;
+  --color-chart-grid: rgba(0, 0, 0, 0.06);
+  --color-chart-axis: #60646c;
+  --color-chart-tooltip-bg: #ffffff;
+  --color-chart-tooltip-text: #1c2024;
+  --color-chart-tooltip-border: rgba(0, 0, 0, 0.1);
 
-  /* === TYPOGRAPHY SCALE (1.2× minor third, 14px dashboard-optimized) === */
-  --text-xs: 0.694rem;
-  --text-sm: 0.833rem;
+  /* === TYPOGRAPHY SCALE (Inter — 1.2× minor third) === */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
   --text-base: 1rem;
-  --text-lg: 1.2rem;
-  --text-xl: 1.44rem;
-  --text-2xl: 1.728rem;
-  --text-3xl: 2.074rem;
-  --text-4xl: 2.488rem;
-  --text-5xl: 2.986rem;
-  --text-6xl: 3.583rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+  --text-5xl: 3rem;
+  --text-6xl: 4rem;
 
-  /* === PILOT PORTAL ACCENT (Teal — differentiation from admin blue) === */
-  --color-portal-accent-50: oklch(0.97 0.03 195);
-  --color-portal-accent-100: oklch(0.94 0.06 195);
-  --color-portal-accent-200: oklch(0.89 0.1 195);
-  --color-portal-accent-300: oklch(0.82 0.13 195);
-  --color-portal-accent-400: oklch(0.75 0.14 195);
-  --color-portal-accent-500: oklch(0.65 0.14 195);
-  --color-portal-accent-600: oklch(0.55 0.13 195);
-  --color-portal-accent: oklch(0.65 0.14 195);
-  --color-portal-accent-foreground: oklch(1.0 0 0);
+  /* === PILOT PORTAL ACCENT (Slate differentiation from admin) === */
+  --color-portal-accent-50: #f8fafc;
+  --color-portal-accent-100: #f1f5f9;
+  --color-portal-accent-200: #e2e8f0;
+  --color-portal-accent-300: #cbd5e1;
+  --color-portal-accent-400: #94a3b8;
+  --color-portal-accent-500: #64748b;
+  --color-portal-accent-600: #475569;
+  --color-portal-accent: #475569;
+  --color-portal-accent-foreground: #ffffff;
 
-  /* === BADGE COLOR TOKENS (Semantic badge colors) === */
-  --color-badge-blue: oklch(0.55 0.14 260);
-  --color-badge-blue-bg: oklch(0.6 0.13 260 / 0.08);
-  --color-badge-blue-border: oklch(0.6 0.13 260 / 0.25);
-  --color-badge-purple: oklch(0.5 0.15 290);
-  --color-badge-purple-bg: oklch(0.55 0.15 290 / 0.08);
-  --color-badge-purple-border: oklch(0.55 0.15 290 / 0.25);
-  --color-badge-pink: oklch(0.55 0.17 350);
-  --color-badge-pink-bg: oklch(0.6 0.17 350 / 0.08);
-  --color-badge-pink-border: oklch(0.6 0.17 350 / 0.25);
-  --color-badge-cyan: oklch(0.55 0.14 195);
-  --color-badge-cyan-bg: oklch(0.55 0.14 195 / 0.08);
-  --color-badge-cyan-border: oklch(0.55 0.14 195 / 0.25);
-  --color-badge-indigo: oklch(0.5 0.12 260);
-  --color-badge-indigo-bg: oklch(0.55 0.12 260 / 0.08);
-  --color-badge-indigo-border: oklch(0.55 0.12 260 / 0.25);
-  --color-badge-orange: oklch(0.6 0.15 55);
-  --color-badge-orange-bg: oklch(0.65 0.15 55 / 0.08);
-  --color-badge-orange-border: oklch(0.65 0.15 55 / 0.25);
-
-  /* === GRADIENTS (Blue — asymmetric for visual direction) === */
-  --gradient-aviation: linear-gradient(
-    135deg,
-    oklch(0.45 0.22 260) 0%,
-    oklch(0.58 0.22 260) 40%,
-    oklch(0.65 0.14 230) 100%
-  );
-  --gradient-horizon: linear-gradient(
-    180deg,
-    oklch(0.95 0.005 250) 0%,
-    oklch(0.98 0.003 250) 35%,
-    oklch(1.0 0 0) 65%,
-    oklch(0.98 0.003 250) 100%
-  );
-  --gradient-sky: linear-gradient(180deg, oklch(0.58 0.22 260 / 0.05) 0%, transparent 100%);
+  /* === BADGE COLOR TOKENS (Muted, monochromatic-leaning) === */
+  --color-badge-blue: #0d74ce;
+  --color-badge-blue-bg: rgba(13, 116, 206, 0.08);
+  --color-badge-blue-border: rgba(13, 116, 206, 0.2);
+  --color-badge-purple: #7c3aed;
+  --color-badge-purple-bg: rgba(124, 58, 237, 0.08);
+  --color-badge-purple-border: rgba(124, 58, 237, 0.2);
+  --color-badge-pink: #db2777;
+  --color-badge-pink-bg: rgba(219, 39, 119, 0.08);
+  --color-badge-pink-border: rgba(219, 39, 119, 0.2);
+  --color-badge-cyan: #0891b2;
+  --color-badge-cyan-bg: rgba(8, 145, 178, 0.08);
+  --color-badge-cyan-border: rgba(8, 145, 178, 0.2);
+  --color-badge-indigo: #4f46e5;
+  --color-badge-indigo-bg: rgba(79, 70, 229, 0.08);
+  --color-badge-indigo-border: rgba(79, 70, 229, 0.2);
+  --color-badge-orange: #c2410c;
+  --color-badge-orange-bg: rgba(194, 65, 12, 0.08);
+  --color-badge-orange-border: rgba(194, 65, 12, 0.2);
 }
 
 /* === DARK MODE OVERRIDES === */
 .dark {
-  --color-primary: oklch(0.62 0.2 260);
-  --color-primary-foreground: oklch(1.0 0 0);
-  --color-primary-50: oklch(0.2 0.04 260);
-  --color-primary-100: oklch(0.25 0.06 260);
-  --color-primary-200: oklch(0.3 0.08 260);
-  --color-primary-300: oklch(0.4 0.12 260);
-  --color-primary-400: oklch(0.5 0.16 260);
-  --color-primary-500: oklch(0.58 0.22 260);
-  --color-primary-600: oklch(0.65 0.2 260);
-  --color-primary-700: oklch(0.72 0.16 260);
-  --color-primary-800: oklch(0.82 0.1 260);
-  --color-primary-900: oklch(0.92 0.04 260);
+  --color-primary: #ffffff;
+  --color-primary-foreground: #000000;
+  --color-primary-50: #0a0a0a;
+  --color-primary-100: #171717;
+  --color-primary-200: #262626;
+  --color-primary-300: #404040;
+  --color-primary-400: #525252;
+  --color-primary-500: #737373;
+  --color-primary-600: #a3a3a3;
+  --color-primary-700: #d4d4d4;
+  --color-primary-800: #e5e5e5;
+  --color-primary-900: #fafafa;
 
-  --color-accent: oklch(0.22 0.015 250);
-  --color-accent-foreground: oklch(0.95 0.005 250);
+  --color-accent: #1a1a1a;
+  --color-accent-foreground: #e5e5e5;
 
-  --color-background: oklch(0.18 0.015 250);
-  --color-foreground: oklch(0.95 0.005 250);
+  --color-background: #0f0f0f;
+  --color-foreground: #e5e5e5;
 
-  --color-card: oklch(0.22 0.015 250);
-  --color-card-foreground: oklch(0.95 0.005 250);
+  --color-card: #1a1a1a;
+  --color-card-foreground: #e5e5e5;
 
-  --color-popover: oklch(0.22 0.015 250);
-  --color-popover-foreground: oklch(0.95 0.005 250);
+  --color-popover: #1a1a1a;
+  --color-popover-foreground: #e5e5e5;
 
-  --color-secondary: oklch(0.25 0.012 250);
-  --color-secondary-foreground: oklch(0.82 0.006 250);
+  --color-secondary: #1a1a1a;
+  --color-secondary-foreground: #a3a3a3;
 
-  --color-muted: oklch(0.25 0.012 250);
-  --color-muted-foreground: oklch(0.7 0.006 250);
+  --color-muted: #1a1a1a;
+  --color-muted-foreground: #a3a3a3;
 
-  --color-disabled-foreground: oklch(0.5 0.006 250);
-  --color-disabled-bg: oklch(0.28 0.01 250);
+  --color-disabled-foreground: #525252;
+  --color-disabled-bg: #1a1a1a;
 
-  --color-border: oklch(0.3 0.01 250);
-  --color-input: oklch(0.3 0.01 250);
-  --color-ring: oklch(0.62 0.2 260);
+  --color-border: #2a2a2a;
+  --color-input: #2a2a2a;
+  --color-ring: #476cff;
 
-  --color-surface-0: oklch(0.18 0.015 250);
-  --color-surface-1: oklch(0.22 0.015 250);
-  --color-surface-2: oklch(0.28 0.012 250);
-  --color-surface-3: oklch(0.35 0.01 250);
+  --color-surface-0: #0f0f0f;
+  --color-surface-1: #1a1a1a;
+  --color-surface-2: #222222;
+  --color-surface-3: #2a2a2a;
 
   /* Semantic colors — brighter for dark backgrounds */
-  --color-success-50: oklch(0.7 0.18 145 / 0.08);
-  --color-success-100: oklch(0.7 0.18 145 / 0.15);
-  --color-success-200: oklch(0.7 0.18 145 / 0.25);
-  --color-success-500: oklch(0.72 0.19 155);
-  --color-success-600: oklch(0.65 0.18 155);
-  --color-success-700: oklch(0.55 0.17 155);
-  --color-success: oklch(0.65 0.18 155);
-  --color-success-foreground: oklch(1.0 0 0);
-  --color-success-muted: oklch(0.7 0.18 145 / 0.12);
-  --color-success-muted-foreground: oklch(0.72 0.19 155);
+  --color-success-50: rgba(34, 197, 94, 0.08);
+  --color-success-100: rgba(34, 197, 94, 0.15);
+  --color-success-200: rgba(34, 197, 94, 0.25);
+  --color-success-500: #4ade80;
+  --color-success-600: #22c55e;
+  --color-success-700: #16a34a;
+  --color-success: #22c55e;
+  --color-success-foreground: #ffffff;
+  --color-success-muted: rgba(34, 197, 94, 0.12);
+  --color-success-muted-foreground: #4ade80;
 
-  --color-warning-50: oklch(0.8 0.16 85 / 0.06);
-  --color-warning-100: oklch(0.8 0.16 85 / 0.15);
-  --color-warning-200: oklch(0.8 0.16 85 / 0.2);
-  --color-warning-300: oklch(0.88 0.15 85);
-  --color-warning-400: oklch(0.84 0.16 85);
-  --color-warning-500: oklch(0.84 0.16 85);
-  --color-warning-600: oklch(0.8 0.16 85);
-  --color-warning-700: oklch(0.72 0.15 70);
-  --color-warning-800: oklch(0.62 0.14 65);
-  --color-warning: oklch(0.8 0.16 85);
-  --color-warning-foreground: oklch(0.15 0.01 70);
-  --color-warning-text: oklch(0.8 0.16 85);
-  --color-warning-muted: oklch(0.8 0.16 85 / 0.12);
-  --color-warning-muted-foreground: oklch(0.84 0.16 85);
+  --color-warning-50: rgba(245, 158, 11, 0.06);
+  --color-warning-100: rgba(245, 158, 11, 0.15);
+  --color-warning-200: rgba(245, 158, 11, 0.2);
+  --color-warning-300: #fbbf24;
+  --color-warning-400: #f59e0b;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning: #f59e0b;
+  --color-warning-foreground: #000000;
+  --color-warning-text: #fbbf24;
+  --color-warning-muted: rgba(245, 158, 11, 0.12);
+  --color-warning-muted-foreground: #fbbf24;
 
-  --color-danger-50: oklch(0.65 0.22 25 / 0.08);
-  --color-danger-100: oklch(0.65 0.22 25 / 0.15);
-  --color-danger-200: oklch(0.65 0.22 25 / 0.25);
-  --color-danger-500: oklch(0.65 0.22 25);
-  --color-danger-600: oklch(0.6 0.22 25);
-  --color-danger-700: oklch(0.52 0.22 25);
-  --color-destructive: oklch(0.6 0.22 25);
-  --color-destructive-foreground: oklch(1.0 0 0);
-  --color-destructive-muted: oklch(0.65 0.22 25 / 0.12);
-  --color-destructive-muted-foreground: oklch(0.65 0.22 25);
+  --color-danger-50: rgba(239, 68, 68, 0.08);
+  --color-danger-100: rgba(239, 68, 68, 0.15);
+  --color-danger-200: rgba(239, 68, 68, 0.25);
+  --color-danger-400: #f87171;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-destructive-muted: rgba(239, 68, 68, 0.12);
+  --color-destructive-muted-foreground: #f87171;
 
   /* Shadows — heavier for dark backgrounds */
-  --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-card: 0 2px 8px -2px rgb(0 0 0 / 0.35), 0 1px 2px 0 rgb(0 0 0 / 0.2);
-  --shadow-elevated: 0 8px 24px -4px rgb(0 0 0 / 0.3), 0 2px 6px -1px rgb(0 0 0 / 0.15);
-  --shadow-interactive: 0 4px 12px -2px rgb(0 0 0 / 0.4);
-  --shadow-interactive-hover: 0 8px 24px -4px rgb(0 0 0 / 0.5);
-  --shadow-inset: inset 0 1px 2px rgb(0 0 0 / 0.2);
-  --shadow-primary: 0 0 15px rgba(44, 30, 116, 0.25);
-  --shadow-glow-accent: 0 0 15px rgba(44, 30, 116, 0.25), 6.5px 2px 17.5px rgba(44, 30, 116, 0.18);
+  --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 2px 8px -2px rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-elevated: 0 8px 24px -4px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-interactive: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+  --shadow-interactive-hover: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 
   /* Interactive states */
-  --color-interactive-hover: oklch(0.98 0.005 250 / 0.04);
-  --color-interactive-active: oklch(0.98 0.005 250 / 0.06);
-  --color-interactive-selected: oklch(0.98 0.005 250 / 0.08);
+  --color-interactive-hover: rgba(255, 255, 255, 0.04);
+  --color-interactive-active: rgba(255, 255, 255, 0.06);
+  --color-interactive-selected: rgba(255, 255, 255, 0.08);
 
   /* Elevated surfaces */
-  --surface-elevated: oklch(0.25 0.012 250);
-  --glass-bg: oklch(0.22 0.015 250 / 0.85);
-  --glass-border: oklch(0.98 0.005 250 / 0.06);
+  --surface-elevated: #1a1a1a;
 
-  /* Gradient — blue for dark mode */
-  --gradient-aviation: linear-gradient(
-    135deg,
-    oklch(0.4 0.2 260) 0%,
-    oklch(0.55 0.22 260) 40%,
-    oklch(0.6 0.14 230) 100%
-  );
-
-  /* Badge colors for dark mode — brighter */
-  --color-badge-blue: oklch(0.72 0.13 260);
-  --color-badge-blue-bg: oklch(0.72 0.13 260 / 0.12);
-  --color-badge-blue-border: oklch(0.72 0.13 260 / 0.3);
-  --color-badge-purple: oklch(0.68 0.15 290);
-  --color-badge-purple-bg: oklch(0.68 0.15 290 / 0.12);
-  --color-badge-purple-border: oklch(0.68 0.15 290 / 0.3);
-  --color-badge-pink: oklch(0.7 0.17 350);
-  --color-badge-pink-bg: oklch(0.7 0.17 350 / 0.12);
-  --color-badge-pink-border: oklch(0.7 0.17 350 / 0.3);
-  --color-badge-cyan: oklch(0.8 0.14 195);
-  --color-badge-cyan-bg: oklch(0.8 0.14 195 / 0.12);
-  --color-badge-cyan-border: oklch(0.8 0.14 195 / 0.3);
-  --color-badge-indigo: oklch(0.65 0.12 260);
-  --color-badge-indigo-bg: oklch(0.65 0.12 260 / 0.12);
-  --color-badge-indigo-border: oklch(0.65 0.12 260 / 0.3);
-  --color-badge-orange: oklch(0.75 0.15 55);
-  --color-badge-orange-bg: oklch(0.75 0.15 55 / 0.12);
-  --color-badge-orange-border: oklch(0.75 0.15 55 / 0.3);
+  /* Badge colors — brighter for dark bg */
+  --color-badge-blue: #47a3f3;
+  --color-badge-blue-bg: rgba(71, 163, 243, 0.12);
+  --color-badge-blue-border: rgba(71, 163, 243, 0.3);
+  --color-badge-purple: #a78bfa;
+  --color-badge-purple-bg: rgba(167, 139, 250, 0.12);
+  --color-badge-purple-border: rgba(167, 139, 250, 0.3);
+  --color-badge-pink: #f472b6;
+  --color-badge-pink-bg: rgba(244, 114, 182, 0.12);
+  --color-badge-pink-border: rgba(244, 114, 182, 0.3);
+  --color-badge-cyan: #22d3ee;
+  --color-badge-cyan-bg: rgba(34, 211, 238, 0.12);
+  --color-badge-cyan-border: rgba(34, 211, 238, 0.3);
+  --color-badge-indigo: #818cf8;
+  --color-badge-indigo-bg: rgba(129, 140, 248, 0.12);
+  --color-badge-indigo-border: rgba(129, 140, 248, 0.3);
+  --color-badge-orange: #fb923c;
+  --color-badge-orange-bg: rgba(251, 146, 60, 0.12);
+  --color-badge-orange-border: rgba(251, 146, 60, 0.3);
 
   /* Status colors — brighter for dark bg */
-  --color-status-low: oklch(0.72 0.19 155);
-  --color-status-low-bg: oklch(0.7 0.18 145 / 0.12);
-  --color-status-low-border: oklch(0.7 0.18 145 / 0.3);
-  --color-status-medium: oklch(0.84 0.16 85);
-  --color-status-medium-bg: oklch(0.8 0.16 85 / 0.12);
-  --color-status-medium-border: oklch(0.8 0.16 85 / 0.3);
-  --color-status-high: oklch(0.65 0.22 25);
-  --color-status-high-bg: oklch(0.65 0.22 25 / 0.12);
-  --color-status-high-border: oklch(0.65 0.22 25 / 0.3);
+  --color-status-low: #4ade80;
+  --color-status-low-bg: rgba(74, 222, 128, 0.12);
+  --color-status-low-border: rgba(74, 222, 128, 0.3);
+  --color-status-medium: #f59e0b;
+  --color-status-medium-bg: rgba(245, 158, 11, 0.12);
+  --color-status-medium-border: rgba(245, 158, 11, 0.3);
+  --color-status-high: #ef4444;
+  --color-status-high-bg: rgba(239, 68, 68, 0.12);
+  --color-status-high-border: rgba(239, 68, 68, 0.3);
 
   /* Category colors — brighter for dark bg */
-  --color-category-flight: oklch(0.72 0.14 230);
-  --color-category-flight-bg: oklch(0.72 0.14 230 / 0.1);
-  --color-category-flight-border: oklch(0.72 0.14 230 / 0.25);
-  --color-category-simulator: oklch(0.68 0.15 290);
-  --color-category-simulator-bg: oklch(0.68 0.15 290 / 0.1);
-  --color-category-simulator-border: oklch(0.68 0.15 290 / 0.25);
-  --color-category-ground: oklch(0.72 0.18 155);
-  --color-category-ground-bg: oklch(0.72 0.18 155 / 0.1);
-  --color-category-ground-border: oklch(0.72 0.18 155 / 0.25);
-  --color-category-medical: oklch(0.7 0.17 350);
-  --color-category-medical-bg: oklch(0.7 0.17 350 / 0.1);
-  --color-category-medical-border: oklch(0.7 0.17 350 / 0.25);
+  --color-category-flight: #60a5fa;
+  --color-category-flight-bg: rgba(96, 165, 250, 0.1);
+  --color-category-flight-border: rgba(96, 165, 250, 0.25);
+  --color-category-simulator: #a78bfa;
+  --color-category-simulator-bg: rgba(167, 139, 250, 0.1);
+  --color-category-simulator-border: rgba(167, 139, 250, 0.25);
+  --color-category-ground: #4ade80;
+  --color-category-ground-bg: rgba(74, 222, 128, 0.1);
+  --color-category-ground-border: rgba(74, 222, 128, 0.25);
+  --color-category-medical: #f472b6;
+  --color-category-medical-bg: rgba(244, 114, 182, 0.1);
+  --color-category-medical-border: rgba(244, 114, 182, 0.25);
 
   /* Info — brighter for dark bg */
-  --color-info: oklch(0.72 0.14 260);
-  --color-info-bg: oklch(0.72 0.14 260 / 0.1);
-  --color-info-border: oklch(0.72 0.14 260 / 0.25);
-  --color-info-foreground: oklch(0.78 0.12 260);
+  --color-info: #47a3f3;
+  --color-info-bg: rgba(71, 163, 243, 0.1);
+  --color-info-border: rgba(71, 163, 243, 0.25);
+  --color-info-foreground: #60a5fa;
 
   /* Chart colors — brighter for dark bg */
-  --color-chart-1: oklch(0.72 0.14 260);
-  --color-chart-2: oklch(0.72 0.18 155);
-  --color-chart-3: oklch(0.8 0.16 85);
-  --color-chart-4: oklch(0.7 0.16 310);
-  --color-chart-5: oklch(0.72 0.14 195);
-  --color-chart-grid: oklch(0.98 0 0 / 0.06);
-  --color-chart-axis: oklch(0.6 0.01 250);
-  --color-chart-tooltip-bg: oklch(0.22 0.015 250);
-  --color-chart-tooltip-text: oklch(0.9 0.005 250);
-  --color-chart-tooltip-border: oklch(0.98 0 0 / 0.1);
+  --color-chart-1: #e5e5e5;
+  --color-chart-2: #a3a3a3;
+  --color-chart-3: #47a3f3;
+  --color-chart-4: #f59e0b;
+  --color-chart-5: #4ade80;
+  --color-chart-grid: rgba(255, 255, 255, 0.06);
+  --color-chart-axis: #737373;
+  --color-chart-tooltip-bg: #1a1a1a;
+  --color-chart-tooltip-text: #e5e5e5;
+  --color-chart-tooltip-border: rgba(255, 255, 255, 0.1);
 
-  /* Neutral slate — same hue as light, adjusted lightness */
-  --color-slate-50: oklch(0.98 0.003 250);
-  --color-slate-100: oklch(0.96 0.004 250);
-  --color-slate-200: oklch(0.91 0.005 250);
-  --color-slate-300: oklch(0.82 0.006 250);
-  --color-slate-400: oklch(0.65 0.006 250);
-  --color-slate-500: oklch(0.55 0.006 250);
-  --color-slate-600: oklch(0.45 0.006 250);
-  --color-slate-700: oklch(0.35 0.006 250);
-  --color-slate-800: oklch(0.25 0.005 250);
-  --color-slate-900: oklch(0.15 0.005 250);
+  /* Neutral slate — dark mode */
+  --color-slate-50: #fafafa;
+  --color-slate-100: #f5f5f5;
+  --color-slate-200: #e5e5e5;
+  --color-slate-300: #d4d4d4;
+  --color-slate-400: #a3a3a3;
+  --color-slate-500: #737373;
+  --color-slate-600: #525252;
+  --color-slate-700: #404040;
+  --color-slate-800: #262626;
+  --color-slate-900: #171717;
 
-  /* Portal accent — teal for dark mode */
-  --color-portal-accent: oklch(0.72 0.14 195);
-  --color-portal-accent-foreground: oklch(1.0 0 0);
+  /* Portal accent — dark mode */
+  --color-portal-accent: #94a3b8;
+  --color-portal-accent-foreground: #0f172a;
 }
 
 /* === BASE STYLES === */
@@ -521,20 +492,20 @@
   body {
     @apply bg-background text-foreground;
     font-family:
-      var(--font-dm-sans),
-      'Helvetica Neue',
-      Helvetica,
-      Arial,
+      var(--font-inter),
+      'Inter',
+      -apple-system,
+      system-ui,
       sans-serif;
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
-    line-height: 1.5;
+    line-height: 1.4;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography — MiniMax hierarchy: Outfit for headings, DM Sans for body */
+  /* Typography — Expo: Inter only, weight IS the hierarchy */
   h1,
   h2,
   h3,
@@ -542,58 +513,85 @@
   h5,
   h6 {
     @apply leading-tight;
-    font-family: var(--font-outfit), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:
+      var(--font-inter),
+      'Inter',
+      -apple-system,
+      system-ui,
+      sans-serif;
+    color: #000000;
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    color: #fafafa;
   }
 
   h1 {
     font-size: var(--text-3xl);
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
   }
 
   h2 {
     font-size: var(--text-2xl);
     font-weight: 600;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
   h3 {
     font-size: var(--text-xl);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: -0.01em;
   }
 
   h4 {
     font-size: var(--text-lg);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0;
   }
 
   p {
-    line-height: 1.5;
+    line-height: 1.4;
+    color: #1c2024;
+  }
+
+  .dark p {
+    color: #d4d4d4;
+  }
+
+  a {
+    color: #0d74ce;
+  }
+
+  a:hover {
+    color: #0a5ea8;
   }
 }
 
 /* === DASHBOARD LAYOUT (14px base for data-dense views) === */
 .dashboard-layout {
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
-/* Component styles removed — all components use CVA-based React components (Button, Card, Input) */
-
-/* Utility styles */
+/* === UTILITIES === */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 
   /* =========================================================================
-   * ANIMATION KEYFRAMES
-   * Subtle, professional micro-interactions
+   * ANIMATION KEYFRAMES — Functional micro-interactions only
    * ========================================================================= */
 
-  /* Accordion expand / collapse — used by components/ui/accordion.tsx */
+  /* Accordion expand / collapse */
   @keyframes accordion-down {
     from {
       height: 0;
@@ -618,21 +616,6 @@
 
   .animate-accordion-up {
     animation: accordion-up 200ms ease-out;
-  }
-
-  /* Success feedback — subtle bounce */
-  @keyframes success-bounce {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  }
-
-  .animate-success-bounce {
-    animation: success-bounce 0.4s ease-out;
   }
 
   /* Error feedback — shake */
@@ -685,7 +668,7 @@
     animation: slide-out-right 0.15s ease-in;
   }
 
-  /* Slide in from top (mobile toasts, dropdowns) */
+  /* Slide in from top */
   @keyframes slide-in-top {
     0% {
       transform: translateY(-10px);
@@ -701,10 +684,10 @@
     animation: slide-in-top 0.2s ease-out;
   }
 
-  /* Fade in up (page sections, cards) */
+  /* Fade in up (cards, sections) */
   @keyframes fade-in-up {
     0% {
-      transform: translateY(20px);
+      transform: translateY(12px);
       opacity: 0;
     }
     100% {
@@ -717,7 +700,7 @@
     animation: fade-in-up 0.25s ease-out;
   }
 
-  /* Fade in (skeleton-to-content transition) */
+  /* Fade in */
   @keyframes fade-in {
     0% {
       opacity: 0;
@@ -747,7 +730,7 @@
     animation: scale-in 0.2s ease-out;
   }
 
-  /* Progress bar animation */
+  /* Progress bar */
   @keyframes progress-shrink {
     0% {
       width: 100%;
@@ -757,11 +740,11 @@
     }
   }
 
-  /* Staggered list entrance — apply .stagger-in to parent */
+  /* Staggered list entrance */
   @keyframes stagger-in {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
@@ -813,7 +796,6 @@
 
     .animate-accordion-down,
     .animate-accordion-up,
-    .animate-success-bounce,
     .animate-shake,
     .animate-slide-in-right,
     .animate-slide-out-right,
@@ -840,7 +822,7 @@
   /* Custom scrollbar */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.15 0.005 250 / 0.1) transparent;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -852,28 +834,20 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: oklch(0.15 0.005 250 / 0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 3px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.15 0.005 250 / 0.2);
+    background: rgba(0, 0, 0, 0.2);
   }
 
   .scrollbar-thumb-border {
-    scrollbar-color: oklch(0.15 0.005 250 / 0.1) transparent;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
   }
 
   .scrollbar-track-transparent {
-    scrollbar-color: oklch(0.15 0.005 250 / 0.1) transparent;
-  }
-
-  /* Touch feedback ripple effect */
-  @keyframes ripple {
-    to {
-      transform: scale(100);
-      opacity: 0;
-    }
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
   }
 
   /* Roster carousel auto-scroll animation */
@@ -895,7 +869,7 @@
     animation-play-state: paused;
   }
 
-  /* Shimmer animation — upgraded gradient wave */
+  /* Shimmer animation — clean monochromatic */
   @keyframes shimmer {
     0% {
       background-position: 200% 0;
@@ -909,10 +883,10 @@
     animation: shimmer 1.5s ease-in-out infinite;
     background: linear-gradient(
       90deg,
-      oklch(0.15 0.005 250 / 0.03) 0%,
-      oklch(0.15 0.005 250 / 0.06) 40%,
-      oklch(0.15 0.005 250 / 0.03) 60%,
-      oklch(0.15 0.005 250 / 0.06) 100%
+      rgba(0, 0, 0, 0.03) 0%,
+      rgba(0, 0, 0, 0.06) 40%,
+      rgba(0, 0, 0, 0.03) 60%,
+      rgba(0, 0, 0, 0.06) 100%
     );
     background-size: 200% 100%;
   }
@@ -932,7 +906,7 @@
     animation: subtle-pulse 1.5s ease-in-out infinite;
   }
 
-  /* Touch-optimized tap highlights */
+  /* Touch-optimized utilities */
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
@@ -943,7 +917,7 @@
     min-height: 44px;
   }
 
-  /* Smooth scroll for mobile */
+  /* Smooth scroll */
   @media (prefers-reduced-motion: no-preference) {
     html {
       scroll-behavior: smooth;
@@ -957,19 +931,14 @@
 
   /* =========================================================================
    * WCAG 2.2 AA Enhanced Focus Indicators
-   * Color: navy primary — matches primary for consistency
    * ========================================================================= */
 
-  /* Primary focus indicator for all interactive elements.
-   * Excludes tabindex="-1" (programmatic focus targets like h1 on route change)
-   * so headings never show a visible ring when focused by RouteChangeFocusManager. */
   *:focus-visible:not([tabindex='-1']) {
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
     border-radius: 6px;
   }
 
-  /* Specific focus indicators for common interactive elements */
   button:focus-visible,
   a:focus-visible,
   input:focus-visible,
@@ -986,12 +955,10 @@
     outline-offset: 2px;
   }
 
-  /* Remove default outline (only when focus-visible styles are applied) */
   *:focus:not(:focus-visible) {
     outline: none;
   }
 
-  /* Enhanced focus for form inputs and textareas */
   input[type='text']:focus-visible,
   input[type='email']:focus-visible,
   input[type='password']:focus-visible,
@@ -1003,10 +970,10 @@
   textarea:focus-visible {
     outline: 2px solid var(--color-ring);
     outline-offset: 0px;
-    box-shadow: 0 0 0 3px oklch(0.58 0.22 260 / 0.15);
+    box-shadow: 0 0 0 3px rgba(37, 71, 208, 0.15);
   }
 
-  /* Autofill style overrides — prevent browser yellow/blue on dark surfaces */
+  /* Autofill overrides */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
@@ -1019,7 +986,7 @@
     transition: background-color 5000s ease-in-out 0s;
   }
 
-  /* High contrast mode support */
+  /* High contrast mode */
   @media (prefers-contrast: high) {
     *:focus-visible:not([tabindex='-1']) {
       outline: 3px solid currentColor;
@@ -1027,22 +994,22 @@
     }
   }
 
-  /* Skip to main content link */
+  /* Skip to main content */
   .skip-to-main:focus-visible {
     position: fixed;
     top: 16px;
     left: 16px;
     z-index: 9999;
     padding: 12px 16px;
-    background-color: oklch(1.0 0 0);
-    color: oklch(0.23 0.01 250);
+    background-color: #ffffff;
+    color: #1c2024;
     border-radius: 8px;
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
   }
 
-  /* Screen reader only utility class */
+  /* Screen reader only */
   .sr-only {
     position: absolute;
     width: 1px;
@@ -1055,7 +1022,6 @@
     border-width: 0;
   }
 
-  /* Screen reader only — but visible on focus (for skip links) */
   .sr-only-focusable:focus {
     position: static;
     width: auto;
@@ -1067,48 +1033,19 @@
     white-space: normal;
   }
 
-  /* === NAVY/TEAL THEME PREMIUM UTILITIES === */
-
-  /* Glow hover effect for cards and interactive elements */
-  .glow-hover:hover {
-    box-shadow: 0 0 30px rgba(44, 30, 116, 0.12);
-  }
-
-  /* Gradient text utility (primary → accent) */
-  .text-gradient-primary {
-    background: linear-gradient(135deg, oklch(0.58 0.22 260), oklch(0.65 0.14 230));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Glass surface utility */
-  .glass {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  /* Glass surface — stronger blur */
-  .glass-strong {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  /* =========================================================================
-   * AVIATION-THEMED DESIGN ELEMENTS
-   * Visual identity elements for fleet management aesthetic
-   * ========================================================================= */
-
-  /* Display font utility for headlines */
+  /* Display font utility — same as body in Expo (Inter only) */
   .font-display {
-    font-family: var(--font-outfit), var(--font-dm-sans), system-ui, sans-serif;
+    font-family:
+      var(--font-inter),
+      'Inter',
+      -apple-system,
+      system-ui,
+      sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.03em;
   }
 
-  /* Hide scrollbar utility for overflow containers */
+  /* Hide scrollbar */
   .scrollbar-none {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -1117,102 +1054,7 @@
     display: none;
   }
 
-  /* Subtle noise texture for depth on dark surfaces */
-  .bg-noise {
-    position: relative;
-  }
-
-  .bg-noise::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    opacity: 0.02;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Horizon line decorative element */
-  .horizon-line {
-    position: relative;
-  }
-
-  .horizon-line::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      oklch(0.58 0.22 260 / 0.3) 20%,
-      oklch(0.65 0.14 230 / 0.5) 50%,
-      oklch(0.58 0.22 260 / 0.3) 80%,
-      transparent 100%
-    );
-  }
-
-  /* Sky gradient overlay for hero sections */
-  .bg-sky-gradient {
-    background: linear-gradient(
-      180deg,
-      oklch(0.58 0.22 260 / 0.03) 0%,
-      transparent 40%,
-      transparent 100%
-    );
-  }
-
-  /* Aviation gradient text */
-  .text-gradient-aviation {
-    background: var(--gradient-aviation);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: gradient-shift 8s ease infinite;
-  }
-
-  @keyframes gradient-shift {
-    0%,
-    100% {
-      background-position: 0% center;
-    }
-    50% {
-      background-position: 100% center;
-    }
-  }
-
-  /* Runway markings decorative pattern */
-  .runway-pattern {
-    background-image: repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 20px,
-      oklch(0.15 0.005 250 / 0.03) 20px,
-      oklch(0.15 0.005 250 / 0.03) 22px
-    );
-  }
-
-  /* Altitude indicator accent */
-  .altitude-accent {
-    position: relative;
-    padding-left: 1rem;
-  }
-
-  .altitude-accent::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, oklch(0.58 0.22 260) 0%, oklch(0.65 0.14 230) 100%);
-    border-radius: 2px;
-  }
-
-  /* Pilot portal warm accent utilities */
+  /* Pilot portal accent utilities */
   .portal-accent {
     color: var(--color-portal-accent);
   }
@@ -1222,48 +1064,21 @@
   }
 
   .bg-portal-accent-muted {
-    background-color: oklch(0.65 0.14 195 / 0.12);
+    background-color: rgba(71, 85, 105, 0.08);
   }
 
   .border-portal-accent {
     border-color: var(--color-portal-accent);
   }
 
-  /* =========================================================================
-   * CELEBRATION ANIMATIONS
-   * Micro-interactions for key moments
-   * ========================================================================= */
-
-  /* Flying plane animation for loading states */
-  @keyframes fly-across {
-    0% {
-      transform: translateX(-100%) translateY(0);
-      opacity: 0;
-    }
-    10% {
-      opacity: 1;
-    }
-    90% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateX(100vw) translateY(-20px);
-      opacity: 0;
-    }
-  }
-
-  .animate-fly-across {
-    animation: fly-across 2s ease-in-out;
-  }
-
-  /* Success checkmark animation */
+  /* Success check animation (kept — functional feedback) */
   @keyframes success-check {
     0% {
       transform: scale(0) rotate(-45deg);
       opacity: 0;
     }
     50% {
-      transform: scale(1.2) rotate(0deg);
+      transform: scale(1.1) rotate(0deg);
     }
     100% {
       transform: scale(1) rotate(0deg);
@@ -1272,121 +1087,65 @@
   }
 
   .animate-success-check {
-    animation: success-check 0.5s ease-out forwards;
+    animation: success-check 0.4s ease-out forwards;
   }
 
-  /* Confetti burst animation */
-  @keyframes confetti-fall {
-    0% {
-      transform: translateY(-10px) rotate(0deg);
-      opacity: 1;
-    }
+  /* Success bounce — kept for form feedback */
+  @keyframes success-bounce {
+    0%,
     100% {
-      transform: translateY(100px) rotate(720deg);
-      opacity: 0;
-    }
-  }
-
-  .animate-confetti {
-    animation: confetti-fall 1s ease-out forwards;
-  }
-
-  /* Pulse ring for success states */
-  @keyframes pulse-ring {
-    0% {
       transform: scale(1);
-      opacity: 1;
     }
-    100% {
-      transform: scale(1.5);
+    50% {
+      transform: scale(1.03);
+    }
+  }
+
+  .animate-success-bounce {
+    animation: success-bounce 0.3s ease-out;
+  }
+
+  /* Ripple — kept for touch feedback */
+  @keyframes ripple {
+    to {
+      transform: scale(100);
       opacity: 0;
-    }
-  }
-
-  .animate-pulse-ring {
-    animation: pulse-ring 0.6s ease-out;
-  }
-
-  /* Float animation for decorative elements */
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  /* Gentle rotate for icons */
-  @keyframes gentle-rotate {
-    0%,
-    100% {
-      transform: rotate(-3deg);
-    }
-    50% {
-      transform: rotate(3deg);
-    }
-  }
-
-  .animate-gentle-rotate {
-    animation: gentle-rotate 4s ease-in-out infinite;
-  }
-
-  /* Reduced motion support for new animations */
-  @media (prefers-reduced-motion: reduce) {
-    .animate-fly-across,
-    .animate-success-check,
-    .animate-confetti,
-    .animate-pulse-ring,
-    .animate-float,
-    .animate-gentle-rotate,
-    .text-gradient-aviation {
-      animation: none !important;
     }
   }
 }
 
 /* === DARK MODE UTILITY OVERRIDES === */
 
-/* Scrollbar — dark mode */
 .dark .scrollbar-thin {
-  scrollbar-color: oklch(0.95 0.005 250 / 0.1) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: oklch(0.95 0.005 250 / 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.95 0.005 250 / 0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Shimmer — dark mode */
 .dark .animate-shimmer {
   background: linear-gradient(
     90deg,
-    oklch(0.95 0.005 250 / 0.03) 0%,
-    oklch(0.95 0.005 250 / 0.06) 40%,
-    oklch(0.95 0.005 250 / 0.03) 60%,
-    oklch(0.95 0.005 250 / 0.06) 100%
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(255, 255, 255, 0.03) 60%,
+    rgba(255, 255, 255, 0.06) 100%
   );
   background-size: 200% 100%;
 }
 
-/* Skip-to-main — dark mode */
 .dark .skip-to-main:focus-visible {
-  background-color: oklch(0.22 0.015 250);
-  color: oklch(0.95 0.005 250);
-  outline: 2px solid oklch(0.62 0.2 260);
-  box-shadow: 0 4px 6px oklch(0.15 0.005 250 / 0.15);
+  background-color: #1a1a1a;
+  color: #e5e5e5;
+  outline: 2px solid #476cff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* Focus ring shadow — dark mode */
 .dark input[type='text']:focus-visible,
 .dark input[type='email']:focus-visible,
 .dark input[type='password']:focus-visible,
@@ -1396,5 +1155,5 @@
 .dark input[type='search']:focus-visible,
 .dark input[type='date']:focus-visible,
 .dark textarea:focus-visible {
-  box-shadow: 0 0 0 3px oklch(0.62 0.2 260 / 0.2);
+  box-shadow: 0 0 0 3px rgba(71, 108, 255, 0.2);
 }

@@ -249,15 +249,15 @@ export default function CertificationsPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* Header */}
-      <header className="bg-card/80 sticky top-14 z-10 border-b backdrop-blur-sm lg:top-0">
+      <header className="bg-card sticky top-14 z-10 border-b lg:top-0">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--color-success-600)] to-[var(--color-success-500)]"
+                className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-success-muted)]"
                 aria-hidden="true"
               >
-                <FileText className="h-6 w-6 text-white" aria-hidden="true" />
+                <FileText className="h-6 w-6 text-[var(--color-success-600)]" aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">

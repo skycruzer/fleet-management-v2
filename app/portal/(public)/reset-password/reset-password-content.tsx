@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Loader2,
   Key,
-  Cloud,
   Shield,
   ArrowRight,
 } from 'lucide-react'
@@ -159,43 +158,9 @@ export function ResetPasswordContent() {
 
   return (
     <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Aviation Background Elements — pointer-events-none prevents blocking form clicks */}
+      {/* Subtle background dot pattern */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-10 left-0"
-        >
-          <Cloud className="h-24 w-32 text-white/20" />
-        </motion.div>
-
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 50, repeat: Infinity, ease: 'linear', delay: 5 }}
-          className="absolute top-32 left-0"
-        >
-          <Cloud className="h-32 w-40 text-white/15" />
-        </motion.div>
-
-        <motion.div
-          animate={{ x: ['-100%', '100%'] }}
-          transition={{ duration: 45, repeat: Infinity, ease: 'linear', delay: 10 }}
-          className="absolute bottom-32 left-0"
-        >
-          <Cloud className="h-28 w-36 text-white/25" />
-        </motion.div>
-
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-20 right-20 h-96 w-96 rounded-full bg-gradient-to-br from-orange-300/30 to-amber-400/30 blur-3xl"
-        />
-
-        <motion.div
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
-          className="absolute bottom-20 left-20 h-96 w-96 rounded-full bg-gradient-to-tr from-emerald-200/30 to-teal-300/30 blur-3xl"
-        />
+        <div className="bg-muted/30 absolute inset-0 bg-[radial-gradient(circle,var(--color-border)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
       </div>
 
       {/* Main Card */}
@@ -205,7 +170,7 @@ export function ResetPasswordContent() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="bg-card border-border p-8 shadow-2xl backdrop-blur-sm">
+        <Card className="bg-card border-border p-8 shadow-lg">
           {/* Header */}
           <div className="mb-8 text-center">
             <motion.div

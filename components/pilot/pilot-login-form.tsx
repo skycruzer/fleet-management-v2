@@ -132,7 +132,7 @@ export default function PilotLoginForm() {
                     }
                   : { duration: 0 }
               }
-              className="via-primary/30 absolute inset-0 bg-gradient-to-r from-transparent to-transparent"
+              className="absolute inset-0 bg-primary/10"
             />
           )}
         </AnimatePresence>

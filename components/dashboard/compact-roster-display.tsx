@@ -129,7 +129,7 @@ export async function CompactRosterDisplay() {
       <div className="bg-primary px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg backdrop-blur-sm">
+            <div className="bg-primary-foreground/20 flex h-10 w-10 items-center justify-center rounded-lg">
               <CalendarDays className="text-primary-foreground h-5 w-5" />
             </div>
             <div>
@@ -139,7 +139,7 @@ export async function CompactRosterDisplay() {
               <p className="text-primary-foreground/70 text-xs">28-day operational cycle</p>
             </div>
           </div>
-          <Badge className="bg-primary-foreground/20 text-primary-foreground text-xs font-bold shadow-md backdrop-blur-sm">
+          <Badge className="bg-primary-foreground/20 text-primary-foreground text-xs font-bold">
             {isPeriodComplete ? 'COMPLETE' : 'ACTIVE'}
           </Badge>
         </div>

@@ -621,7 +621,7 @@ export function IllustratedEmptyState({
           initial={shouldAnimate ? { opacity: 0 } : { opacity: 1 }}
           animate={{ opacity: 1 }}
           transition={shouldAnimate ? { delay: 0.15 } : { duration: 0 }}
-          className="font-display text-foreground mb-3 text-2xl font-semibold"
+          className="text-foreground mb-3 text-2xl font-semibold"
         >
           {title}
         </motion.h3>

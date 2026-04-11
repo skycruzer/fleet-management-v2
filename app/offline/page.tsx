@@ -29,12 +29,12 @@ export default function Offline() {
   }, [])
 
   return (
-    <div className="from-background to-muted/30 flex min-h-screen items-center justify-center bg-gradient-to-br p-4">
+    <div className="bg-background flex min-h-screen items-center justify-center p-4">
       <div className="bg-card w-full max-w-2xl overflow-hidden rounded-xl shadow-2xl">
         {/* Header */}
         <div className="bg-[var(--color-primary-500)] p-8">
           <div className="mb-4 flex items-center justify-center">
-            <div className="rounded-full bg-white/10 p-4 backdrop-blur-sm">
+            <div className="rounded-full bg-white/10 p-4">
               <WifiOff className="h-16 w-16 text-white" />
             </div>
           </div>
@@ -164,14 +164,14 @@ export default function Offline() {
           </div>
 
           {/* Auto-Retry Notice */}
-          <div className="rounded-lg border border-[var(--color-primary-500)]/20 bg-gradient-to-r from-[var(--color-primary-500)]/10 to-[var(--color-primary-500)]/5 p-4">
+          <div className="bg-card border-border rounded-lg border p-4">
             <p className="text-center text-xs text-[var(--color-info)]">
               The application will automatically retry connecting once your internet is restored
             </p>
           </div>
 
           {/* Support Contact */}
-          <div className="border-border rounded-lg border bg-gradient-to-r from-white/[0.06] to-white/[0.03] p-4">
+          <div className="bg-card border-border rounded-lg border p-4">
             <p className="text-muted-foreground text-center text-xs">
               Still having connection issues?{' '}
               <a
@@ -185,7 +185,7 @@ export default function Offline() {
         </div>
 
         {/* Footer */}
-        <div className="border-border border-t bg-gradient-to-r from-white/[0.06] to-white/[0.03] px-8 py-4">
+        <div className="border-border bg-card border-t px-8 py-4">
           <div className="flex flex-col items-center justify-between gap-2 text-xs sm:flex-row">
             <p className="text-muted-foreground">
               Fleet Management V2 - B767 Pilot Management System

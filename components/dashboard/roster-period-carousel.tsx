@@ -107,7 +107,7 @@ export function RosterPeriodCarousel() {
     <div className="w-full max-w-full space-y-6 overflow-hidden" style={{ minWidth: 0 }}>
       {/* Current Roster Period with Countdown */}
       <Card
-        className="to-primary/10 w-full border-[var(--color-info-border)] bg-gradient-to-r from-[var(--color-info-bg)] p-6"
+        className="w-full border-[var(--color-info-border)] bg-[var(--color-info-bg)] p-6"
         style={{ minWidth: 0 }}
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

@@ -45,7 +45,7 @@ export function ExpiringCertificationsBanner({ actionItems }: ExpiringCertificat
         variants={getVariants(fadeInUp)}
         initial="hidden"
         animate="visible"
-        className="border-success-200 from-success-50 overflow-hidden rounded-xl border-2 bg-gradient-to-br to-[var(--color-success-muted)] shadow-sm"
+        className="overflow-hidden rounded-xl border-2 border-[var(--color-success-muted)] bg-[var(--color-success-muted)] shadow-sm"
       >
         <div className="p-6 text-center">
           <CheckCircle2 className="text-success-500 mx-auto mb-3 h-16 w-16" />
@@ -76,13 +76,13 @@ export function ExpiringCertificationsBanner({ actionItems }: ExpiringCertificat
             variants={getVariants(fadeInUp)}
             initial="hidden"
             animate="visible"
-            className="group border-warning-300 from-warning-50 hover:border-warning-400 cursor-pointer overflow-hidden rounded-xl border-2 bg-gradient-to-br via-[var(--color-badge-orange-bg)] to-[var(--color-destructive-muted)] shadow-md transition-all hover:scale-[1.02] hover:shadow-xl"
+            className="group cursor-pointer overflow-hidden rounded-xl border-2 border-[var(--color-warning-muted)] bg-[var(--color-warning-muted)] shadow-md transition-all hover:scale-[1.02] hover:shadow-xl"
           >
             {/* Header Section */}
-            <div className="from-warning-500 bg-gradient-to-r to-[var(--color-badge-orange)] px-6 py-4">
+            <div className="bg-[var(--color-warning-500)] px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
                     <AlertCircle className="h-6 w-6 text-white" />
                   </div>
                   <div>

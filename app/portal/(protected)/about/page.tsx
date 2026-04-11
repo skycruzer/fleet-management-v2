@@ -25,9 +25,9 @@ export default function AboutPage() {
   const buildYear = new Date().getFullYear()
 
   return (
-    <div className="via-background min-h-screen bg-gradient-to-br from-[var(--color-info-bg)] to-[var(--color-info-bg)]">
+    <div className="bg-background min-h-screen">
       {/* Header */}
-      <header className="bg-card/80 sticky top-0 z-10 border-b backdrop-blur-sm">
+      <header className="bg-card sticky top-0 z-10 border-b">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-3">
             <Info className="text-primary h-8 w-8" />

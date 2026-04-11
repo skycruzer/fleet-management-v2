@@ -70,8 +70,8 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className="group hover:border-primary border-border bg-card relative overflow-hidden rounded-lg border p-6 shadow-sm transition-all hover:shadow-lg"
     >
-      {/* Background gradient on hover */}
-      <div className="from-primary-50/0 to-primary-100/0 absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity group-hover:opacity-100" />
+      {/* Background tint on hover */}
+      <div className="absolute inset-0 bg-primary/0 transition-colors group-hover:bg-primary/5" />
 
       <div className="relative">
         {/* Header */}
@@ -79,7 +79,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
           <div className="flex items-center gap-3">
             {/* Avatar with status ring */}
             <div className={cn('rounded-full p-0.5 ring-2', getStatusRingColor())}>
-              <div className="from-primary-500 to-primary-700 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br">
+              <div className="bg-primary flex h-12 w-12 items-center justify-center rounded-full">
                 <User className="h-6 w-6 text-white" />
               </div>
             </div>
@@ -228,7 +228,7 @@ export function PremiumPilotCard({ pilot }: PilotCardProps) {
         {/* Bottom accent border */}
         <div
           className={cn(
-            'from-primary-500 to-primary-700 absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r transition-all duration-300 group-hover:w-full'
+            'bg-primary absolute bottom-0 left-0 h-1 w-0 transition-all duration-300 group-hover:w-full'
           )}
         />
       </div>

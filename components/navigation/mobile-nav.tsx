@@ -32,7 +32,7 @@ export function MobileNav({ user, navLinks }: MobileNavProps) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       {/* Mobile Header - Touch-optimized */}
-      <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-40 border-b backdrop-blur lg:hidden">
+      <header className="border-border bg-card sticky top-0 z-40 border-b lg:hidden">
         <div className="flex h-12 items-center justify-between px-3">
           <Link href="/dashboard" className="flex items-center gap-2">
             <div className="bg-accent flex h-7 w-7 items-center justify-center rounded-md">

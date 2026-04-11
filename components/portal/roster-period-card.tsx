@@ -60,9 +60,9 @@ export function RosterPeriodCard() {
   }
 
   return (
-    <Card className="border-primary/20 from-card to-muted/30 overflow-hidden border-2 bg-gradient-to-br">
+    <Card className="border-primary/20 bg-card overflow-hidden border-2">
       {/* Header */}
-      <div className="from-primary to-primary/90 bg-gradient-to-r px-6 py-4">
+      <div className="bg-primary px-6 py-4">
         <div className="flex items-center gap-3">
           <CalendarDays className="h-6 w-6 text-white" />
           <div>
@@ -106,7 +106,7 @@ export function RosterPeriodCard() {
           <div className="mt-4">
             <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
               <div
-                className="from-primary to-primary/90 h-full bg-gradient-to-r transition-all duration-500"
+                className="bg-primary h-full transition-all duration-500"
                 style={{
                   width: `${((28 - daysRemaining) / 28) * 100}%`,
                 }}

@@ -756,7 +756,7 @@ export default function EditPilotPage() {
         )}
 
         {/* Sticky Bottom Action Bar */}
-        <div className="bg-background/95 sticky bottom-0 z-10 -mx-4 flex items-center justify-end gap-3 border-t px-4 py-4 backdrop-blur-sm sm:-mx-0 sm:px-0">
+        <div className="bg-card sticky bottom-0 z-10 -mx-4 flex items-center justify-end gap-3 border-t px-4 py-4 sm:-mx-0 sm:px-0">
           <Link
             href={`/dashboard/pilots/${pilotId}`}
             className={isSubmitting ? 'pointer-events-none' : ''}

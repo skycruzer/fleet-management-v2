@@ -62,7 +62,7 @@ export function EmptyState({
         transition={shouldAnimate ? { duration: 0.3, ease: EASING.easeOut } : { duration: 0 }}
         className="flex flex-col items-center"
       >
-        {/* Icon with accent-tinted gradient background */}
+        {/* Icon with accent-tinted background */}
         {Icon && (
           <motion.div
             initial={iconVariants.initial}

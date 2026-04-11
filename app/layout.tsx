@@ -1,24 +1,23 @@
 import type { Metadata, Viewport } from 'next'
-import { GeistMono } from 'geist/font/mono'
-import { DM_Sans, Outfit } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Toaster } from '@/components/ui/toaster'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 
-// DM Sans — Geometric sans-serif for UI text, body, buttons, navigation
-const dmSans = DM_Sans({
+// Inter — Expo's sole typeface, used at weights 400–700 for full expressive range
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-dm-sans',
+  variable: '--font-inter',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
 })
 
-// Outfit — Geometric display font for headings and product names
-const outfit = Outfit({
+// JetBrains Mono — Code/monospace contexts
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-outfit',
+  variable: '--font-mono',
   display: 'swap',
-  weight: ['500', '600', '700'],
+  weight: ['400', '500', '600'],
 })
 import { ErrorBoundary } from '@/components/error-boundary'
 import { OfflineIndicator } from '@/components/ui/offline-indicator'
@@ -28,7 +27,6 @@ import { RouteChangeFocusManager } from '@/components/ui/route-change-focus'
 import { GlobalAnnouncer } from '@/components/accessibility/announcer'
 import './globals.css'
 
-// GeistMono retained for code/monospace contexts
 
 export const metadata: Metadata = {
   title: {
@@ -86,8 +84,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FFFFFF' },
-    { media: '(prefers-color-scheme: dark)', color: '#181e25' },
+    { media: '(prefers-color-scheme: light)', color: '#f0f0f3' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f0f0f' },
   ],
 }
 
@@ -98,7 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
-        className={`${dmSans.variable} ${GeistMono.variable} ${outfit.variable} bg-background min-h-screen font-sans antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} bg-background min-h-screen font-sans antialiased`}
       >
         <ErrorBoundary>
           <Providers>

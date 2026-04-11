@@ -4,19 +4,19 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center rounded-[9999px] border font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
       variant: {
-        default: 'border-primary/20 bg-primary/10 text-primary',
-        secondary: 'border-transparent bg-secondary text-secondary-foreground',
-        destructive: 'border-destructive/20 bg-destructive/10 text-destructive',
-        outline: 'border-border text-foreground',
-        warning: 'border-warning/20 bg-warning/10 text-warning',
-        success: 'border-success/20 bg-success/10 text-success',
-        info: 'border-[var(--color-info-border)] bg-[var(--color-info-bg)] text-[var(--color-info-foreground)]',
+        default: 'border-[#e0e1e6] bg-[#f0f0f3] text-[#1c2024]',
+        secondary: 'border-transparent bg-[#f0f0f3] text-[#60646c]',
+        destructive: 'border-transparent bg-[#fff0f0] text-[#cd2b31]',
+        outline: 'border-[#e0e1e6] bg-transparent text-[#1c2024]',
+        warning: 'border-transparent bg-[#fff4e0] text-[#ad5700]',
+        success: 'border-transparent bg-[#e9f9ee] text-[#18794e]',
+        info: 'border-transparent bg-[#edf6ff] text-[#0d74ce]',
         // Dot variant with animated pulse for live status
-        dot: 'pl-2.5 before:mr-1.5 before:size-1.5 before:rounded-full before:bg-current before:animate-pulse border-transparent bg-secondary text-secondary-foreground',
+        dot: 'pl-2.5 before:mr-1.5 before:size-1.5 before:rounded-full before:bg-current before:animate-pulse border-transparent bg-[#f0f0f3] text-[#60646c]',
       },
       size: {
         sm: 'px-1.5 py-0 text-[0.65rem]',

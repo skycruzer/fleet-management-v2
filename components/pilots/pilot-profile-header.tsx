@@ -50,7 +50,7 @@ export function PilotProfileHeader({
     <motion.div
       initial={shouldAnimate ? { opacity: 0, y: -20 } : { opacity: 1 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--color-surface-2)] via-[var(--color-surface-1)] to-[var(--color-surface-0)] p-6 text-white shadow-2xl sm:p-8"
+      className="relative overflow-hidden rounded-2xl bg-card p-6 text-white shadow-2xl sm:p-8"
     >
       {/* Background pattern */}
       <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
@@ -70,8 +70,8 @@ export function PilotProfileHeader({
                 className={cn(
                   'flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold sm:h-20 sm:w-20 sm:text-2xl',
                   isCaptain
-                    ? 'bg-white/20 text-[var(--color-warning-500)] backdrop-blur-sm'
-                    : 'bg-white/20 text-white backdrop-blur-sm'
+                    ? 'bg-white/20 text-[var(--color-warning-500)]'
+                    : 'bg-white/20 text-white'
                 )}
               >
                 {isCaptain ? (
@@ -88,7 +88,7 @@ export function PilotProfileHeader({
                 <RankBadge rank={pilot.role} className="backdrop-blur-sm" />
                 <span
                   className={cn(
-                    'rounded-full px-3 py-1 text-sm font-semibold backdrop-blur-sm',
+                    'rounded-full px-3 py-1 text-sm font-semibold',
                     pilot.is_active
                       ? 'bg-[var(--color-status-low)]/30 ring-1 ring-[var(--color-status-low)]/50'
                       : 'bg-white/20 ring-1 ring-white/30'
@@ -97,7 +97,7 @@ export function PilotProfileHeader({
                   {pilot.is_active ? 'Active' : 'Inactive'}
                 </span>
                 {pilot.seniority_number && (
-                  <span className="rounded-full bg-[var(--color-warning-muted)] px-3 py-1 text-sm font-semibold ring-1 ring-[var(--color-warning-500)]/50 backdrop-blur-sm">
+                  <span className="rounded-full bg-[var(--color-warning-muted)] px-3 py-1 text-sm font-semibold ring-1 ring-[var(--color-warning-500)]/50">
                     Seniority #{pilot.seniority_number}
                   </span>
                 )}
@@ -146,27 +146,27 @@ export function PilotProfileHeader({
 
         {/* Quick Stats */}
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
+          <div className="rounded-lg bg-white/10 p-3">
             <div className="mb-0.5 flex items-center gap-1.5 text-sm font-medium text-white/80">
               <Shield className="h-3.5 w-3.5" aria-hidden="true" />
               Employee ID
             </div>
             <div className="text-lg font-bold sm:text-xl">{pilot.employee_id}</div>
           </div>
-          <div className="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
+          <div className="rounded-lg bg-white/10 p-3">
             <div className="mb-0.5 flex items-center gap-1.5 text-sm font-medium text-white/80">
               <Briefcase className="h-3.5 w-3.5" aria-hidden="true" />
               Contract
             </div>
             <div className="text-lg font-bold sm:text-xl">{pilot.contract_type || 'Not Set'}</div>
           </div>
-          <div className="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
+          <div className="rounded-lg bg-white/10 p-3">
             <div className="mb-0.5 text-sm font-medium text-white/80">Current Certs</div>
             <div className="text-lg font-bold text-[var(--color-status-low)] sm:text-xl">
               {pilot.certificationStatus.current}
             </div>
           </div>
-          <div className="rounded-lg bg-white/10 p-3 backdrop-blur-sm">
+          <div className="rounded-lg bg-white/10 p-3">
             <div className="mb-0.5 text-sm font-medium text-white/80">Attention</div>
             <div
               className={cn(

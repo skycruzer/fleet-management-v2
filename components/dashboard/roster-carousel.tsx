@@ -138,9 +138,9 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
         setShowScrollControls(false)
       }}
     >
-      {/* Enhanced Gradient Fade Edges with stronger effect */}
-      <div className="from-background via-background/80 pointer-events-none absolute top-0 left-0 z-10 h-full w-16 bg-gradient-to-r to-transparent" />
-      <div className="from-background via-background/80 pointer-events-none absolute top-0 right-0 z-10 h-full w-16 bg-gradient-to-l to-transparent" />
+      {/* Solid Fade Edges */}
+      <div className="bg-background pointer-events-none absolute top-0 left-0 z-10 h-full w-4 opacity-80" />
+      <div className="bg-background pointer-events-none absolute top-0 right-0 z-10 h-full w-4 opacity-80" />
 
       {/* Left Navigation Button */}
       {showScrollControls && canScrollLeft && (
@@ -185,14 +185,14 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
                 key={periodKey}
                 className={`group relative flex w-[180px] flex-shrink-0 flex-col overflow-hidden rounded-xl border-2 shadow-md transition-all ${
                   isNext
-                    ? 'border-primary from-primary/10 via-primary/5 to-accent/10 bg-gradient-to-br'
+                    ? 'border-primary bg-primary/10'
                     : 'border-border bg-card'
                 }`}
                 style={{ pointerEvents: 'auto' }}
               >
-                {/* Animated Background Glow */}
+                {/* Hover Background Tint */}
                 {isNext && (
-                  <div className="from-primary/20 to-accent/20 absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-primary/0 transition-colors duration-300 group-hover:bg-primary/10" />
                 )}
 
                 {/* Header - Non-clickable */}
@@ -365,7 +365,7 @@ export function RosterCarousel({ periods }: RosterCarouselProps) {
       {/* Pause Indicator - More prominent */}
       {isPaused && (
         <div className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2">
-          <Badge className="bg-foreground/90 text-background px-3 py-1.5 text-xs font-semibold shadow-lg backdrop-blur-md">
+          <Badge className="bg-foreground/90 text-background px-3 py-1.5 text-xs font-semibold shadow-lg">
             ⏸ Paused - Hover to interact
           </Badge>
         </div>

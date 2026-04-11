@@ -65,8 +65,8 @@ export function PilotCard({ pilot }: PilotCardProps) {
               className={cn(
                 'flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white',
                 isCaptain
-                  ? 'bg-gradient-to-br from-[var(--color-warning-500)] to-[var(--color-warning-600)]'
-                  : 'bg-gradient-to-br from-[var(--color-primary-600)] to-[var(--color-primary-800)]'
+                  ? 'bg-[var(--color-warning-500)]'
+                  : 'bg-primary'
               )}
             >
               {initials}

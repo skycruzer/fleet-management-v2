@@ -6,32 +6,36 @@ import { cn } from '@/lib/utils'
 import { ButtonSpinner } from './spinner'
 
 const buttonVariants = cva(
-  // Base styles with enhanced focus glow using design system variables
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 ease-out motion-reduce:transition-none disabled:pointer-events-none disabled:text-[var(--color-disabled-foreground)] disabled:bg-[var(--color-disabled-bg)] [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-[3px] focus-visible:ring-accent/20 aria-invalid:ring-destructive/20 aria-invalid:border-destructive active:scale-[0.98]",
+  // Expo design system — clean, minimal buttons with subtle shadow hover
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[0.375rem] text-sm font-medium transition-shadow duration-150 ease-out motion-reduce:transition-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*="size-"])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
+        // Expo default: white bg, 1px border, dark text
+        default:
+          'bg-white text-[#1c2024] border border-[#d9d9e0] shadow-sm hover:shadow-md dark:bg-[#1c2024] dark:text-[#edeef0] dark:border-[#3a3f47] dark:hover:shadow-md',
+        // Expo primary/CTA: black bg, white text, pill-shaped
+        primary:
+          'bg-[#000000] text-white rounded-full shadow-sm hover:shadow-md dark:bg-white dark:text-[#000000]',
         destructive:
-          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 hover:shadow-md focus-visible:ring-destructive/20',
-        success:
-          'bg-success text-success-foreground shadow-sm hover:bg-success/90 hover:shadow-md focus-visible:ring-success/20',
+          'bg-destructive text-destructive-foreground shadow-sm hover:shadow-md focus-visible:ring-destructive/20',
         outline:
-          'border border-border bg-transparent hover:bg-muted/50 hover:border-border hover:shadow-sm',
-        secondary: 'bg-muted/60 text-secondary-foreground hover:bg-muted/80 hover:shadow-sm',
-        ghost: 'hover:bg-muted/50 hover:text-foreground',
-        link: 'text-foreground underline-offset-4 hover:underline',
-        soft: 'bg-accent/15 text-accent hover:bg-accent/25 hover:shadow-sm',
+          'border border-[#d9d9e0] bg-transparent text-[#1c2024] hover:shadow-md dark:border-[#3a3f47] dark:text-[#edeef0]',
+        secondary:
+          'bg-[#f0f0f3] text-[#1c2024] shadow-sm hover:shadow-md dark:bg-[#2b2f36] dark:text-[#edeef0]',
+        ghost:
+          'text-[#1c2024] hover:bg-[#f0f0f3] dark:text-[#edeef0] dark:hover:bg-[#2b2f36]',
+        link: 'text-[#1c2024] underline-offset-4 hover:underline dark:text-[#edeef0]',
       },
       size: {
-        default: 'h-11 px-4 py-2 has-[>svg]:px-3', // WCAG 2.5.5: 44px touch target minimum
-        sm: 'h-9 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5', // Compact variant, use sparingly in tight UI
-        lg: 'h-12 rounded-lg px-6 has-[>svg]:px-4', // Increased from h-11 for visual hierarchy
-        pill: 'h-9 rounded-full px-4 has-[>svg]:px-3', // MiniMax pill — nav tabs, filter toggles
-        'pill-sm': 'h-8 rounded-full px-3 text-xs has-[>svg]:px-2', // Compact pill
-        icon: 'size-11', // WCAG 2.5.5: 44px touch target minimum
-        'icon-sm': 'size-9', // Compact variant, use sparingly
-        'icon-lg': 'size-12', // Increased from size-11 for consistency with lg
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+        sm: 'h-8 px-3 py-1.5 gap-1.5 text-xs has-[>svg]:px-2.5',
+        lg: 'h-10 px-6 py-2.5 has-[>svg]:px-4',
+        pill: 'h-9 rounded-full px-4 has-[>svg]:px-3',
+        'pill-sm': 'h-8 rounded-full px-3 text-xs has-[>svg]:px-2',
+        icon: 'size-9',
+        'icon-sm': 'size-8',
+        'icon-lg': 'size-10',
       },
     },
     defaultVariants: {

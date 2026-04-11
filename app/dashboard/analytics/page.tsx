@@ -316,7 +316,7 @@ function AnalyticsPageContent() {
 
         {/* Fleet Readiness Overview */}
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
-          <Card className="border-primary/20 from-primary/10 to-primary/20 bg-gradient-to-br p-4">
+          <Card className="border-border bg-card p-4">
             <div className="mb-2 flex items-center justify-between">
               <BarChart3 className="text-primary h-8 w-8" aria-hidden="true" />
               <span className="text-primary text-2xl font-bold">
@@ -329,7 +329,7 @@ function AnalyticsPageContent() {
             <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
           </Card>
 
-          <Card className="border-success/20 from-success/10 to-success/20 bg-gradient-to-br p-4">
+          <Card className="border-border bg-card p-4">
             <div className="mb-2 flex items-center justify-between">
               <Plane className="text-success h-8 w-8" aria-hidden="true" />
               <span className="text-success text-2xl font-bold">
@@ -345,7 +345,7 @@ function AnalyticsPageContent() {
             </p>
           </Card>
 
-          <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-[var(--color-category-simulator)]/20 p-4">
+          <Card className="border-border bg-card p-4">
             <div className="mb-2 flex items-center justify-between">
               <Target className="text-primary h-8 w-8" aria-hidden="true" />
               <span className="text-primary-foreground text-2xl font-bold">

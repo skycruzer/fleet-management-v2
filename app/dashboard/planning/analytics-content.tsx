@@ -265,7 +265,7 @@ export default function AnalyticsContent() {
 
       {/* Fleet Readiness Overview */}
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-[var(--color-primary-500)]/20 bg-gradient-to-br from-[var(--color-primary-500)]/10 to-[var(--color-primary-500)]/20 p-4">
+        <Card className="border-border bg-card p-4">
           <div className="mb-2 flex items-center justify-between">
             <BarChart3 className="h-8 w-8 text-[var(--color-primary-400)]" aria-hidden="true" />
             <span className="text-2xl font-bold text-[var(--color-primary-400)]">
@@ -276,7 +276,7 @@ export default function AnalyticsContent() {
           <p className="text-muted-foreground mt-0.5 text-xs">Certification compliance rate</p>
         </Card>
 
-        <Card className="border-[var(--color-success-500)]/20 bg-gradient-to-br from-[var(--color-success-500)]/10 to-[var(--color-success-500)]/20 p-4">
+        <Card className="border-border bg-card p-4">
           <div className="mb-2 flex items-center justify-between">
             <Plane className="h-8 w-8 text-[var(--color-success-500)]" aria-hidden="true" />
             <span className="text-2xl font-bold text-[var(--color-success-500)]">
@@ -292,7 +292,7 @@ export default function AnalyticsContent() {
           </p>
         </Card>
 
-        <Card className="border-primary/20 from-primary/5 bg-gradient-to-br to-[var(--color-category-simulator)]/20 p-4">
+        <Card className="border-border bg-card p-4">
           <div className="mb-2 flex items-center justify-between">
             <Target className="text-primary h-8 w-8" aria-hidden="true" />
             <span className="text-primary-foreground text-2xl font-bold">

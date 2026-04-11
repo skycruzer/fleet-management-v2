@@ -10,7 +10,7 @@ const cardVariants = cva(
       variant: {
         default: 'border-border bg-card shadow-[var(--shadow-card)]',
         elevated: 'border-border bg-card shadow-[var(--shadow-elevated)]',
-        featured: 'border-border bg-card shadow-[var(--shadow-primary)]',
+        featured: 'border-border bg-card shadow-[var(--shadow-elevated)]',
       },
       padding: {
         compact: '[&>[class*=p-]]:p-3',

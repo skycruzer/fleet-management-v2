@@ -146,7 +146,7 @@ export function SuccessCelebration({
               <div className="bg-success/20 text-success mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
                 <Check className="h-8 w-8" />
               </div>
-              <p className="font-display text-lg font-semibold">{message}</p>
+              <p className="text-lg font-semibold">{message}</p>
             </div>
           </div>
         )}
@@ -233,7 +233,7 @@ export function SuccessCelebration({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="font-display relative z-10 text-lg font-semibold"
+              className="relative z-10 text-lg font-semibold"
             >
               {message}
             </motion.p>
@@ -363,7 +363,7 @@ export function LoadingPlane({ className }: { className?: string }) {
         }}
         className="absolute inset-y-0 flex items-center"
       >
-        <div className="via-primary/30 h-0.5 w-16 bg-gradient-to-r from-transparent to-transparent" />
+        <div className="bg-primary/30 h-0.5 w-16" />
       </motion.div>
     </div>
   )

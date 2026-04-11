@@ -15,7 +15,7 @@ export const metadata = {
 
 export default function DocsPage() {
   return (
-    <div className="via-background min-h-screen bg-gradient-to-br from-[var(--color-info-bg)] to-[var(--color-info-bg)]">
+    <div className="bg-background min-h-screen">
       <div className="container mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-8">

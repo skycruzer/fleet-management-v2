@@ -83,7 +83,7 @@ export function OfflineIndicator() {
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+                <div className="rounded-lg bg-white/20 p-2">
                   <WifiOff className="h-5 w-5" />
                 </div>
                 <div>
@@ -122,7 +122,7 @@ export function OfflineIndicator() {
         >
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+              <div className="rounded-lg bg-white/20 p-2">
                 <Wifi className="h-5 w-5" />
               </div>
               <div>

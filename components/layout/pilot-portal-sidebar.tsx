@@ -151,7 +151,7 @@ export function PilotPortalSidebar({
   return (
     <>
       {/* Mobile Header with Hamburger */}
-      <div className="border-border bg-card/95 fixed top-0 right-0 left-0 z-[var(--z-header)] flex h-14 items-center justify-between border-b px-4 backdrop-blur-sm lg:hidden">
+      <div className="border-border bg-card fixed top-0 right-0 left-0 z-[var(--z-header)] flex h-14 items-center justify-between border-b px-4 lg:hidden">
         <div className="flex min-w-0 items-center gap-2">
           <Image
             src="/images/air-niugini-logo.jpg"

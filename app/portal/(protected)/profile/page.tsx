@@ -577,7 +577,7 @@ export default async function ProfilePage() {
                 parseCaptainQualifications(profile.captain_qualifications).map((qual, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-warning-500)] to-[var(--color-warning-400)] px-4 py-2 text-sm font-semibold text-white shadow-md"
+                    className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-muted)] px-4 py-2 text-sm font-semibold text-[var(--color-warning-600)]"
                   >
                     <Star className="h-4 w-4" />
                     {qual}

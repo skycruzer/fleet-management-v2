@@ -51,7 +51,7 @@ export default async function PilotRegisterPage() {
   }
 
   return (
-    <div className="from-primary/5 to-primary/15 flex min-h-screen items-center justify-center bg-gradient-to-br px-4 py-12">
+    <div className="bg-background flex min-h-screen items-center justify-center px-4 py-12">
       <div className="w-full max-w-2xl space-y-8">
         {/* Header */}
         <div className="text-center">

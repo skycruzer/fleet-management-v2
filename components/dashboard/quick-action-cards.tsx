@@ -49,7 +49,7 @@ export function QuickActionCards() {
           <Link
             key={action.href}
             href={action.href}
-            className="group border-border flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-glow-accent)]"
+            className="group border-border flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-interactive-hover)]"
             aria-label={`${action.title}: ${action.description}`}
           >
             <div className="bg-primary/10 group-hover:bg-primary/15 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg transition-colors">
