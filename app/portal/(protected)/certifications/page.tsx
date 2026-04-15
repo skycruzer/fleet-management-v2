@@ -25,7 +25,7 @@ import {
   LayoutGrid,
   List,
 } from 'lucide-react'
-import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { PageHead } from '@/components/ui/page-head'
 import { CardGridSkeleton } from '@/components/ui/skeleton'
 
 interface Certification {
@@ -248,30 +248,12 @@ export default function CertificationsPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      {/* Header */}
-      <header className="bg-card sticky top-14 z-10 border-b lg:top-0">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-success-muted)]"
-                aria-hidden="true"
-              >
-                <FileText className="h-6 w-6 text-[var(--color-success-600)]" aria-hidden="true" />
-              </div>
-              <div>
-                <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-                  My Certifications
-                </h1>
-                <p className="text-muted-foreground text-xs">{stats.total} total certifications</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHead
+        title="My Certifications"
+        description={`${stats.total} total · ${stats.expired} expired · ${stats.critical} critical · ${stats.warning} warning · ${stats.current} current`}
+      />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <PageBreadcrumbs rootPath="portal" />
         {/* Statistics Cards */}
         <div
           className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5"

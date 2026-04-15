@@ -38,8 +38,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ArrowLeft, Plane, AlertCircle, CheckCircle } from 'lucide-react'
+import { Plane, AlertCircle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import { PageHead } from '@/components/ui/page-head'
 
 const REQUEST_TYPES = [
   {
@@ -143,177 +144,177 @@ export default function NewFlightRequestPage() {
   }
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Link href="/portal/requests?tab=rdo-sdo">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold">Submit RDO/SDO Request</h1>
-          <p className="text-muted-foreground mt-1">
-            Request a Rostered Day Off (RDO) or Substitute Day Off (SDO)
-          </p>
-        </div>
-      </div>
+    <div>
+      <PageHead
+        title="Submit RDO/SDO request"
+        description="Request a Rostered Day Off (RDO) or Substitute Day Off (SDO)"
+        breadcrumbs={
+          <Link
+            href="/portal/requests?tab=rdo-sdo"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            ← My Requests
+          </Link>
+        }
+      />
+      <main className="container mx-auto space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <Card className="mx-auto max-w-2xl">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardHeader>
+              <CardTitle>RDO/SDO Request Details</CardTitle>
+              <CardDescription>
+                Provide detailed information about your RDO/SDO request for management review
+              </CardDescription>
+            </CardHeader>
 
-      <Card className="mx-auto max-w-2xl">
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardHeader>
-            <CardTitle>RDO/SDO Request Details</CardTitle>
-            <CardDescription>
-              Provide detailed information about your RDO/SDO request for management review
-            </CardDescription>
-          </CardHeader>
+            <CardContent className="space-y-6">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-          <CardContent className="space-y-6">
-            {error && (
-              <Alert variant="destructive">
+              {/* Request Type */}
+              <div className="space-y-2">
+                <Label htmlFor="request_type">Request Type *</Label>
+                <Select
+                  onValueChange={(value) =>
+                    form.setValue('request_type', value as FlightRequestInput['request_type'])
+                  }
+                  defaultValue={form.getValues('request_type')}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select request type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REQUEST_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        <div>
+                          <div className="font-medium">{type.label}</div>
+                          <div className="text-muted-foreground text-xs">{type.description}</div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.request_type && (
+                  <p className="text-sm text-[var(--color-danger-500)]">
+                    {form.formState.errors.request_type.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Start Date */}
+              <div className="space-y-2">
+                <Label htmlFor="start_date">Start Date *</Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  {...form.register('start_date')}
+                  disabled={isLoading}
+                />
+                <p className="text-muted-foreground text-xs">
+                  Select the start date of your RDO/SDO request
+                </p>
+                {form.formState.errors.start_date && (
+                  <p className="text-sm text-[var(--color-danger-500)]">
+                    {form.formState.errors.start_date.message}
+                  </p>
+                )}
+              </div>
+
+              {/* End Date */}
+              <div className="space-y-2">
+                <Label htmlFor="end_date">End Date (Optional)</Label>
+                <Input
+                  id="end_date"
+                  type="date"
+                  {...form.register('end_date')}
+                  disabled={isLoading}
+                />
+                <p className="text-muted-foreground text-xs">
+                  Leave blank for single-day request. For multi-day requests, select the end date
+                  (max 90 days)
+                </p>
+                {form.formState.errors.end_date && (
+                  <p className="text-sm text-[var(--color-danger-500)]">
+                    {form.formState.errors.end_date.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Provide additional details about your RDO/SDO request (optional)..."
+                  rows={4}
+                  maxLength={2000}
+                  {...form.register('description')}
+                  disabled={isLoading}
+                />
+                <p className="text-muted-foreground text-xs">
+                  {form.watch('description')?.length || 0}/2000 characters
+                  {form.watch('description') &&
+                  (form.watch('description')?.length ?? 0) < 10 &&
+                  (form.watch('description')?.length ?? 0) > 0
+                    ? ' (minimum 10 characters if provided)'
+                    : ''}
+                </p>
+                {form.formState.errors.description && (
+                  <p className="text-sm text-[var(--color-danger-500)]">
+                    {form.formState.errors.description.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Reason (Optional) */}
+              <div className="space-y-2">
+                <Label htmlFor="reason">Reason (Optional)</Label>
+                <Textarea
+                  id="reason"
+                  placeholder="Additional reasoning for your request..."
+                  rows={3}
+                  maxLength={1000}
+                  {...form.register('reason')}
+                  disabled={isLoading}
+                />
+                <p className="text-muted-foreground text-xs">
+                  {form.watch('reason')?.length || 0}/1000 characters
+                </p>
+                {form.formState.errors.reason && (
+                  <p className="text-sm text-[var(--color-danger-500)]">
+                    {form.formState.errors.reason.message}
+                  </p>
+                )}
+              </div>
+
+              <Alert>
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                  <strong>Note:</strong> RDO/SDO requests are subject to operational requirements
+                  and crew availability. Submit requests at least 21 days in advance for best
+                  approval chances.
+                </AlertDescription>
               </Alert>
-            )}
+            </CardContent>
 
-            {/* Request Type */}
-            <div className="space-y-2">
-              <Label htmlFor="request_type">Request Type *</Label>
-              <Select
-                onValueChange={(value) =>
-                  form.setValue('request_type', value as FlightRequestInput['request_type'])
-                }
-                defaultValue={form.getValues('request_type')}
-                disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select request type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {REQUEST_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      <div>
-                        <div className="font-medium">{type.label}</div>
-                        <div className="text-muted-foreground text-xs">{type.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.request_type && (
-                <p className="text-sm text-[var(--color-danger-500)]">
-                  {form.formState.errors.request_type.message}
-                </p>
-              )}
-            </div>
-
-            {/* Start Date */}
-            <div className="space-y-2">
-              <Label htmlFor="start_date">Start Date *</Label>
-              <Input
-                id="start_date"
-                type="date"
-                {...form.register('start_date')}
-                disabled={isLoading}
-              />
-              <p className="text-muted-foreground text-xs">
-                Select the start date of your RDO/SDO request
-              </p>
-              {form.formState.errors.start_date && (
-                <p className="text-sm text-[var(--color-danger-500)]">
-                  {form.formState.errors.start_date.message}
-                </p>
-              )}
-            </div>
-
-            {/* End Date */}
-            <div className="space-y-2">
-              <Label htmlFor="end_date">End Date (Optional)</Label>
-              <Input
-                id="end_date"
-                type="date"
-                {...form.register('end_date')}
-                disabled={isLoading}
-              />
-              <p className="text-muted-foreground text-xs">
-                Leave blank for single-day request. For multi-day requests, select the end date (max
-                90 days)
-              </p>
-              {form.formState.errors.end_date && (
-                <p className="text-sm text-[var(--color-danger-500)]">
-                  {form.formState.errors.end_date.message}
-                </p>
-              )}
-            </div>
-
-            {/* Description */}
-            <div className="space-y-2">
-              <Label htmlFor="description">Description (Optional)</Label>
-              <Textarea
-                id="description"
-                placeholder="Provide additional details about your RDO/SDO request (optional)..."
-                rows={4}
-                maxLength={2000}
-                {...form.register('description')}
-                disabled={isLoading}
-              />
-              <p className="text-muted-foreground text-xs">
-                {form.watch('description')?.length || 0}/2000 characters
-                {form.watch('description') &&
-                (form.watch('description')?.length ?? 0) < 10 &&
-                (form.watch('description')?.length ?? 0) > 0
-                  ? ' (minimum 10 characters if provided)'
-                  : ''}
-              </p>
-              {form.formState.errors.description && (
-                <p className="text-sm text-[var(--color-danger-500)]">
-                  {form.formState.errors.description.message}
-                </p>
-              )}
-            </div>
-
-            {/* Reason (Optional) */}
-            <div className="space-y-2">
-              <Label htmlFor="reason">Reason (Optional)</Label>
-              <Textarea
-                id="reason"
-                placeholder="Additional reasoning for your request..."
-                rows={3}
-                maxLength={1000}
-                {...form.register('reason')}
-                disabled={isLoading}
-              />
-              <p className="text-muted-foreground text-xs">
-                {form.watch('reason')?.length || 0}/1000 characters
-              </p>
-              {form.formState.errors.reason && (
-                <p className="text-sm text-[var(--color-danger-500)]">
-                  {form.formState.errors.reason.message}
-                </p>
-              )}
-            </div>
-
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Note:</strong> RDO/SDO requests are subject to operational requirements and
-                crew availability. Submit requests at least 21 days in advance for best approval
-                chances.
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-
-          <CardFooter className="flex justify-between">
-            <Link href="/portal/requests?tab=rdo-sdo">
-              <Button type="button" variant="outline" disabled={isLoading}>
-                Cancel
+            <CardFooter className="flex justify-between">
+              <Link href="/portal/requests?tab=rdo-sdo">
+                <Button type="button" variant="outline" disabled={isLoading}>
+                  Cancel
+                </Button>
+              </Link>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Submitting...' : 'Submit Request'}
               </Button>
-            </Link>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Submitting...' : 'Submit Request'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+            </CardFooter>
+          </form>
+        </Card>
+      </main>
     </div>
   )
 }

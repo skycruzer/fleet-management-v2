@@ -14,6 +14,7 @@ import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { getCurrentPilotLeaveBids } from '@/lib/services/leave-bid-service'
 import { LeaveBidsClient } from '@/components/portal/leave-bids-client'
 import { getAffectedRosterPeriods } from '@/lib/utils/roster-utils'
+import { PageHead } from '@/components/ui/page-head'
 
 export const metadata: Metadata = {
   title: 'My Leave Bids | Pilot Portal',
@@ -73,15 +74,14 @@ export default async function LeaveBidsPage() {
   })
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold">My Leave Bids</h1>
-        <p className="text-muted-foreground mt-1">
-          View your submitted leave bids and their approval status
-        </p>
-      </div>
-
-      <LeaveBidsClient initialBids={leaveBids} />
+    <div>
+      <PageHead
+        title="My Leave Bids"
+        description="View your submitted leave bids and their approval status"
+      />
+      <main className="container mx-auto space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <LeaveBidsClient initialBids={leaveBids} />
+      </main>
     </div>
   )
 }

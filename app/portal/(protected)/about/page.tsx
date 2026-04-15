@@ -8,7 +8,8 @@
 
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Info, Code, Calendar, Shield, Plane } from 'lucide-react'
+import { PageHead } from '@/components/ui/page-head'
+import { Info, Code, Calendar, Shield } from 'lucide-react'
 
 // Read version from package.json at build time
 import packageJson from '@/package.json'
@@ -26,39 +27,21 @@ export default function AboutPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      {/* Header */}
-      <header className="bg-card sticky top-0 z-10 border-b">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-3">
-            <Info className="h-8 w-8 text-[var(--color-info)]" />
-            <div>
-              <h1 className="text-foreground text-xl font-bold">About</h1>
-              <p className="text-muted-foreground text-xs">Application information</p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHead title="About" description={`${appName} · v${appVersion}`} />
 
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* App Info Card */}
         <Card className="overflow-hidden">
-          {/* App Header */}
-          <div className="border-b bg-[var(--color-info-bg)] p-6">
-            <div className="flex items-center space-x-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[var(--color-info-bg)]">
-                <Plane className="h-8 w-8 text-[var(--color-info)]" />
-              </div>
-              <div>
-                <h2 className="text-foreground text-2xl font-bold">{appName}</h2>
-                <div className="mt-1 flex items-center space-x-2">
-                  <Badge variant="secondary">v{appVersion}</Badge>
-                  <Badge variant="outline">Pilot Portal</Badge>
-                </div>
+          <div className="border-border border-b p-6">
+            <div>
+              <h2 className="text-foreground text-2xl font-bold">{appName}</h2>
+              <div className="mt-2 flex items-center space-x-2">
+                <Badge variant="secondary">v{appVersion}</Badge>
+                <Badge variant="outline">Pilot Portal</Badge>
               </div>
             </div>
           </div>
 
-          {/* App Details */}
           <div className="divide-y">
             {/* Developer */}
             <div className="flex items-center justify-between p-4">

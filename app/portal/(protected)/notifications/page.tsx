@@ -15,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { PageHead } from '@/components/ui/page-head'
 import { formatDistanceToNow } from 'date-fns'
 
 interface Notification {
@@ -155,115 +156,123 @@ export default function NotificationsPage() {
 
   if (isLoading) {
     return (
-      <div className="px-4 py-6 sm:px-6 lg:px-8">
-        <Card>
-          <CardContent className="p-12 text-center">
-            <p>Loading notifications...</p>
-          </CardContent>
-        </Card>
+      <div>
+        <PageHead title="Notifications" description="Loading…" />
+        <main className="px-4 py-6 sm:px-6 lg:px-8">
+          <Card>
+            <CardContent className="p-12 text-center">
+              <p className="text-muted-foreground">Loading notifications…</p>
+            </CardContent>
+          </Card>
+        </main>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight lg:text-2xl">Notifications</h1>
-          <p className="text-muted-foreground mt-1">
-            {unreadCount > 0
-              ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
-              : 'All caught up!'}
-          </p>
-        </div>
+    <div>
+      <PageHead
+        title="Notifications"
+        description={
+          unreadCount > 0
+            ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`
+            : 'All caught up.'
+        }
+        action={
+          unreadCount > 0 ? (
+            <Button onClick={markAllAsRead} variant="outline" size="sm" disabled={markingAllAsRead}>
+              {markingAllAsRead ? 'Marking…' : 'Mark all as read'}
+            </Button>
+          ) : undefined
+        }
+      />
 
-        {unreadCount > 0 && (
-          <Button onClick={markAllAsRead} variant="outline" disabled={markingAllAsRead}>
-            {markingAllAsRead ? 'Marking...' : 'Mark All as Read'}
-          </Button>
+      <main className="space-y-4 px-4 py-6 sm:px-6 lg:px-8">
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
-      </div>
 
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {notifications.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <p className="text-muted-foreground">No notifications yet</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {notifications.map((notification) => (
-            <Card
-              key={notification.id}
-              className={
-                notification.read ? 'opacity-70' : 'border-l-4 border-l-[var(--color-primary-500)]'
-              }
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="mb-2 flex items-center gap-2">
-                      <Badge className={getNotificationBadgeColor(notification.type)}>
-                        {notification.type.replace(/_/g, ' ')}
-                      </Badge>
-                      {!notification.read && (
-                        <Badge variant="outline" className="bg-[var(--color-info-bg)]">
-                          New
+        {notifications.length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <p className="text-muted-foreground">No notifications yet</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {notifications.map((notification) => (
+              <Card
+                key={notification.id}
+                className={
+                  notification.read
+                    ? 'opacity-70'
+                    : 'border-l-4 border-l-[var(--color-primary-500)]'
+                }
+              >
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="mb-2 flex items-center gap-2">
+                        <Badge className={getNotificationBadgeColor(notification.type)}>
+                          {notification.type.replace(/_/g, ' ')}
                         </Badge>
-                      )}
+                        {!notification.read && (
+                          <Badge variant="outline" className="bg-[var(--color-info-bg)]">
+                            New
+                          </Badge>
+                        )}
+                      </div>
+                      <CardTitle className="text-xl">{notification.title}</CardTitle>
+                      <CardDescription className="mt-1">
+                        {formatDistanceToNow(new Date(notification.created_at), {
+                          addSuffix: true,
+                        })}
+                      </CardDescription>
                     </div>
-                    <CardTitle className="text-xl">{notification.title}</CardTitle>
-                    <CardDescription className="mt-1">
-                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                    </CardDescription>
-                  </div>
 
-                  <div className="flex gap-2">
-                    {!notification.read && (
+                    <div className="flex gap-2">
+                      {!notification.read && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => markAsRead(notification.id)}
+                          disabled={markingAsReadId === notification.id}
+                        >
+                          {markingAsReadId === notification.id ? 'Marking...' : 'Mark as Read'}
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => markAsRead(notification.id)}
-                        disabled={markingAsReadId === notification.id}
+                        onClick={() => deleteNotification(notification.id)}
+                        disabled={deletingId === notification.id}
                       >
-                        {markingAsReadId === notification.id ? 'Marking...' : 'Mark as Read'}
+                        {deletingId === notification.id ? 'Deleting...' : 'Delete'}
                       </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteNotification(notification.id)}
-                      disabled={deletingId === notification.id}
-                    >
-                      {deletingId === notification.id ? 'Deleting...' : 'Delete'}
-                    </Button>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
+                </CardHeader>
 
-              <CardContent>
-                <p className="text-muted-foreground">{notification.message}</p>
+                <CardContent>
+                  <p className="text-muted-foreground">{notification.message}</p>
 
-                {notification.link && (
-                  <Button
-                    variant="link"
-                    className="mt-4 p-0"
-                    onClick={() => (window.location.href = notification.link!)}
-                  >
-                    View Details →
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                  {notification.link && (
+                    <Button
+                      variant="link"
+                      className="mt-4 p-0"
+                      onClick={() => (window.location.href = notification.link!)}
+                    >
+                      View Details →
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   )
 }

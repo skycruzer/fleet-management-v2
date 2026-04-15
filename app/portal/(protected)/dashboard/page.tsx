@@ -1,13 +1,6 @@
 /**
  * Pilot Dashboard Page
  * Developer: Maurice Rondeau
- *
- * Personal stats, quick actions, and activity overview for pilots.
- * Includes: Stats overview, leave bids, roster period info, retirement card.
- *
- * Future enhancements (P3):
- * - Certifications expiry timeline
- * - Recent leave/flight requests summary
  */
 
 export const dynamic = 'force-dynamic'
@@ -23,15 +16,8 @@ import { getCurrentPilot as getAuthPilot } from '@/lib/auth/pilot-helpers'
 import { getPilotPortalStats } from '@/lib/services/pilot-portal-service'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import {
-  Clock,
-  AlertTriangle,
-  XCircle,
-  Calendar,
-  Plane,
-  ShieldCheck,
-  ChevronRight,
-} from 'lucide-react'
+import { PageHead } from '@/components/ui/page-head'
+import { Clock, AlertTriangle, Calendar, Plane, ShieldCheck, ChevronRight } from 'lucide-react'
 import { RetirementInformationCard } from '@/components/pilots/retirement-information-card'
 import { LeaveBidStatusCard } from '@/components/portal/leave-bid-status-card'
 import { RosterPeriodCard } from '@/components/portal/roster-period-card'
@@ -40,48 +26,66 @@ import { CertExpiryCard } from '@/components/portal/cert-expiry-card'
 function DashboardSkeleton() {
   return (
     <div className="min-h-screen">
-      {/* Page Header Skeleton */}
       <div className="border-border bg-background border-b px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
-        <div className="space-y-2">
-          <div className="animate-shimmer bg-muted h-8 w-64 rounded-lg" />
-        </div>
+        <div className="animate-shimmer bg-muted h-8 w-64 rounded-lg" />
       </div>
-
-      <main className="space-y-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        {/* Roster Period Skeleton */}
+      <main className="space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
+        </div>
         <div className="animate-shimmer bg-muted h-32 rounded-lg" />
-
-        {/* Certification Compliance Skeleton */}
-        <div className="animate-shimmer bg-muted h-24 rounded-lg" />
-
-        {/* Multiple Card Skeletons */}
-        <div className="space-y-4">
-          <div className="animate-shimmer bg-muted h-6 w-48 rounded-lg" />
-          <div className="animate-shimmer bg-muted h-28 rounded-lg" />
-        </div>
-
-        {/* Quick Actions Skeleton */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
-          <div className="animate-shimmer bg-muted h-24 rounded-lg" />
-        </div>
-
-        {/* Statistics Cards Skeleton */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="animate-shimmer bg-muted h-28 rounded-lg" />
-          <div className="animate-shimmer bg-muted h-28 rounded-lg" />
-        </div>
+        <div className="animate-shimmer bg-muted h-40 rounded-lg" />
       </main>
     </div>
   )
 }
 
+function StatCard({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  tone = 'default',
+  href,
+}: {
+  label: string
+  value: React.ReactNode
+  sub?: React.ReactNode
+  icon: React.ElementType
+  tone?: 'default' | 'success' | 'warning' | 'danger'
+  href?: string
+}) {
+  const toneClass =
+    tone === 'success'
+      ? 'text-success'
+      : tone === 'warning'
+        ? 'text-warning'
+        : tone === 'danger'
+          ? 'text-destructive'
+          : 'text-foreground'
+
+  const card = (
+    <Card className="hover:border-foreground/20 hover:bg-muted/40 p-4 transition-colors duration-200">
+      <div className="mb-2 flex items-center justify-between">
+        <Icon className={`h-5 w-5 ${toneClass}`} aria-hidden="true" />
+        {href && <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />}
+      </div>
+      <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">{label}</p>
+      <p className={`mt-1 text-2xl font-semibold ${toneClass}`}>{value}</p>
+      {sub && <p className="text-muted-foreground mt-0.5 text-xs">{sub}</p>}
+    </Card>
+  )
+
+  return href ? <Link href={href}>{card}</Link> : card
+}
+
 async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
-  // Fetch pilot portal stats using the pilots table ID
   const statsResult = await getPilotPortalStats(pilotUser.pilot_id || pilotUser.id)
   const stats = statsResult.success && statsResult.data ? statsResult.data : null
 
-  // Fetch complete pilot data from pilots table for retirement info using service layer
   let pilotData = null
   if (pilotUser.pilot_id) {
     const { getPilotDetailsWithRetirement } = await import('@/lib/services/pilot-portal-service')
@@ -89,223 +93,176 @@ async function PilotDashboardContent({ pilotUser }: { pilotUser: any }) {
     pilotData = pilotResult.success ? pilotResult.data : null
   }
 
-  // Use default retirement age (system_settings table doesn't exist yet)
   const retirementAge = 65
   const fullName = pilotData
     ? [pilotData.first_name, pilotData.middle_name, pilotData.last_name].filter(Boolean).join(' ')
     : [pilotUser.first_name, pilotUser.middle_name, pilotUser.last_name].filter(Boolean).join(' ')
 
-  // Fetch leave bids for this pilot using service layer
   const { getPilotLeaveBids } = await import('@/lib/services/pilot-portal-service')
   const leaveBidsResult = await getPilotLeaveBids(pilotUser.pilot_id || pilotUser.id, 5)
   const leaveBids = leaveBidsResult.success ? leaveBidsResult.data : []
 
+  const complianceTone =
+    !stats || stats.compliance_rate >= 90
+      ? 'success'
+      : stats.compliance_rate >= 70
+        ? 'warning'
+        : 'danger'
+
+  const hasExpired = (stats?.expired_certifications || 0) > 0
+  const hasCritical = (stats?.critical_certifications || 0) > 0
+  const hasUpcoming = (stats?.upcoming_checks || 0) > 0
+  const hasAnyCertAttention = hasExpired || hasCritical || hasUpcoming
+
   return (
     <div className="min-h-screen">
-      {/* Page Header - Linear-inspired: clean, minimal border */}
-      <div className="border-border bg-background border-b px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
-        <div>
-          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-            Welcome, {pilotUser.rank} {pilotUser.first_name} {pilotUser.last_name}
-          </h1>
-        </div>
-      </div>
+      <PageHead
+        title={`Welcome, ${pilotUser.rank} ${pilotUser.first_name} ${pilotUser.last_name}`}
+        description={
+          stats
+            ? `${stats.compliance_rate}% compliance · ${stats.total_certifications} certifications tracked`
+            : undefined
+        }
+      />
 
-      <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        {/* Roster Period Display */}
-        <div className="mb-8">
-          <RosterPeriodCard />
-        </div>
-
-        {/* Certification Compliance */}
+      <main className="space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* Overview KPIs */}
         {stats && (
-          <div className="mb-8">
-            <Link href="/portal/certifications">
-              <Card className="hover:border-foreground/20 hover:bg-muted/40 p-5 transition-all duration-200">
-                <div className="mb-2 flex items-center justify-between">
-                  <ShieldCheck
-                    className={`h-6 w-6 ${
-                      stats.compliance_rate >= 90
-                        ? 'text-success'
-                        : stats.compliance_rate >= 70
-                          ? 'text-warning'
-                          : 'text-destructive'
-                    }`}
-                    aria-hidden="true"
-                  />
-                  <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />
-                </div>
-                <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                  Certification Compliance
-                </h3>
-                <div className="mt-2 space-y-1">
-                  <p
-                    className={`text-2xl font-semibold ${
-                      stats.compliance_rate >= 90
-                        ? 'text-success'
-                        : stats.compliance_rate >= 70
-                          ? 'text-warning'
-                          : 'text-destructive'
-                    }`}
-                  >
-                    {stats.compliance_rate}%
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    {stats.active_certifications} of {stats.total_certifications} certifications
-                    current
-                  </p>
-                </div>
-              </Card>
-            </Link>
-          </div>
-        )}
-
-        {/* 30-Day Expiry Countdown */}
-        {stats &&
-          ((stats.critical_certifications || 0) > 0 || (stats.caution_certifications || 0) > 0) && (
-            <div className="mb-8 space-y-4">
-              <h2 className="text-foreground text-lg font-semibold tracking-tight">
-                30-Day Expiry Countdown
-              </h2>
-              <CertExpiryCard
-                variant="danger"
-                title="Warning — Expiring within 14 days"
-                description=""
-                checks={stats.critical_certifications_details ?? []}
+          <section>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <StatCard
+                label="Compliance"
+                value={`${stats.compliance_rate}%`}
+                sub={`${stats.active_certifications}/${stats.total_certifications} current`}
+                icon={ShieldCheck}
+                tone={complianceTone}
+                href="/portal/certifications"
               />
-              <CertExpiryCard
-                variant="warning"
-                title="Caution — Expiring within 15–30 days"
-                description=""
-                checks={stats.caution_certifications_details ?? []}
+              <StatCard
+                label="Expiring · 30d"
+                value={(stats.critical_certifications || 0) + (stats.caution_certifications || 0)}
+                sub={hasExpired ? `${stats.expired_certifications} expired` : 'action required'}
+                icon={AlertTriangle}
+                tone={hasExpired || hasCritical ? 'danger' : hasUpcoming ? 'warning' : 'success'}
+                href="/portal/certifications"
+              />
+              <StatCard
+                label="Pending leave"
+                value={stats.pending_leave_requests || 0}
+                sub="awaiting review"
+                icon={Calendar}
+                href="/portal/requests?tab=leave"
+              />
+              <StatCard
+                label="Pending RDO/SDO"
+                value={stats.pending_flight_requests || 0}
+                sub="awaiting review"
+                icon={Plane}
+                href="/portal/requests?tab=rdo-sdo"
               />
             </div>
-          )}
+          </section>
+        )}
 
-        {/* Retirement Information Card - Moved from Profile */}
+        {/* Roster period */}
+        <section>
+          <RosterPeriodCard />
+        </section>
+
+        {/* Certification attention — consolidated from prior duplicate sections */}
+        {stats && hasAnyCertAttention && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-foreground text-base font-semibold tracking-tight">
+                Certifications requiring attention
+              </h2>
+              <Link
+                href="/portal/certifications"
+                className="text-muted-foreground hover:text-foreground text-sm"
+              >
+                View all →
+              </Link>
+            </div>
+            {hasExpired && (
+              <CertExpiryCard
+                variant="expired"
+                title="Expired"
+                description={`${stats.expired_certifications} certification${stats.expired_certifications !== 1 ? 's' : ''} expired — renew immediately.`}
+                checks={stats.expired_certifications_details ?? []}
+              />
+            )}
+            {hasCritical && (
+              <CertExpiryCard
+                variant="danger"
+                title="Critical — within 14 days"
+                description={`${stats.critical_certifications} certification${stats.critical_certifications !== 1 ? 's' : ''} expiring soon.`}
+                checks={stats.critical_certifications_details ?? []}
+              />
+            )}
+            {hasUpcoming && (
+              <CertExpiryCard
+                variant="warning"
+                title="Upcoming — within 60 days"
+                description={`${stats.upcoming_checks} certification${stats.upcoming_checks !== 1 ? 's' : ''} — plan renewals.`}
+                checks={stats.upcoming_checks_details ?? []}
+              />
+            )}
+          </section>
+        )}
+
+        {/* Leave bid status */}
+        <section>
+          <LeaveBidStatusCard bids={(leaveBids as any) || []} />
+        </section>
+
+        {/* Retirement */}
         {pilotData && (
-          <div className="mb-8">
+          <section>
             <RetirementInformationCard
               dateOfBirth={pilotData.date_of_birth}
               commencementDate={pilotData.commencement_date}
               retirementAge={retirementAge}
               pilotName={fullName}
             />
-          </div>
+          </section>
         )}
 
-        {/* Leave Bid Status */}
-        <div className="mb-8">
-          <LeaveBidStatusCard bids={(leaveBids as any) || []} />
-        </div>
-
-        {/* Certification Status Summary */}
-        {((stats?.expired_certifications || 0) > 0 ||
-          (stats?.critical_certifications || 0) > 0 ||
-          (stats?.upcoming_checks || 0) > 0) && (
-          <div className="mb-8 space-y-4">
-            <h2 className="text-foreground text-lg font-semibold tracking-tight">
-              Certification Status
-            </h2>
-            <CertExpiryCard
-              variant="expired"
-              title="Expired Certifications"
-              description={`You have ${stats?.expired_certifications || 0} expired certification${(stats?.expired_certifications || 0) !== 1 ? 's' : ''}. Please renew immediately.`}
-              checks={stats?.expired_certifications_details ?? []}
-            />
-            <CertExpiryCard
-              variant="danger"
-              title="Critical — Expiring Within 2 Weeks"
-              description={`${stats?.critical_certifications || 0} certification${(stats?.critical_certifications || 0) !== 1 ? 's' : ''} expiring soon. Action required.`}
-              checks={stats?.critical_certifications_details ?? []}
-            />
-            <CertExpiryCard
-              variant="warning"
-              title="Upcoming — Expiring Within 60 Days"
-              description={`${stats?.upcoming_checks || 0} certification${(stats?.upcoming_checks || 0) !== 1 ? 's' : ''} expiring soon. Plan renewals accordingly.`}
-              checks={stats?.upcoming_checks_details ?? []}
-            />
+        {/* Quick actions */}
+        <section className="space-y-3">
+          <h2 className="text-foreground text-base font-semibold tracking-tight">Quick actions</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Link href="/portal/leave-requests/new" className="group">
+              <Card className="hover:border-foreground/20 hover:bg-muted/40 flex items-center gap-4 p-4 transition-colors duration-200">
+                <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-md">
+                  <Calendar className="text-foreground h-5 w-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <h3 className="text-foreground text-sm font-semibold">Submit leave request</h3>
+                  <p className="text-muted-foreground text-xs">Annual, sick, LSL, LWOP, and more</p>
+                </div>
+              </Card>
+            </Link>
+            <Link href="/portal/flight-requests/new" className="group">
+              <Card className="hover:border-foreground/20 hover:bg-muted/40 flex items-center gap-4 p-4 transition-colors duration-200">
+                <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-md">
+                  <Plane className="text-foreground h-5 w-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <h3 className="text-foreground text-sm font-semibold">Submit RDO/SDO</h3>
+                  <p className="text-muted-foreground text-xs">Request a rest-day change</p>
+                </div>
+              </Card>
+            </Link>
           </div>
-        )}
-
-        {/* Quick Actions */}
-        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Link href="/portal/leave-requests/new" className="group">
-            <Card className="hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200 hover:border-[var(--color-info-border)]">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
-                <Calendar className="h-6 w-6 text-[var(--color-info)]" aria-hidden="true" />
-              </div>
-              <div>
-                <h3 className="text-foreground font-semibold group-hover:text-[var(--color-info)]">
-                  Submit Leave Request
-                </h3>
-                <p className="text-muted-foreground text-sm">Request time off</p>
-              </div>
-            </Card>
-          </Link>
-          <Link href="/portal/flight-requests/new" className="group">
-            <Card className="hover:bg-muted/40 flex items-center gap-4 p-5 transition-all duration-200 hover:border-[var(--color-info-border)]">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
-                <Plane className="h-6 w-6 text-[var(--color-info)]" aria-hidden="true" />
-              </div>
-              <div>
-                <h3 className="text-foreground font-semibold group-hover:text-[var(--color-info)]">
-                  Submit RDO/SDO Request
-                </h3>
-                <p className="text-muted-foreground text-sm">Request rest day changes</p>
-              </div>
-            </Card>
-          </Link>
-        </div>
-
-        {/* Statistics Cards - Linear-inspired: clean, minimal */}
-        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Pending Leave Requests */}
-          <Link href="/portal/requests?tab=leave">
-            <Card className="hover:border-foreground/20 hover:bg-muted/40 p-5 transition-all duration-200">
-              <div className="mb-2 flex items-center justify-between">
-                <Calendar className="text-accent h-6 w-6" aria-hidden="true" />
-              </div>
-              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                Leave Requests
-              </h3>
-              <div className="mt-2 space-y-1">
-                <p className="text-foreground text-2xl font-semibold">
-                  {stats?.pending_leave_requests || 0}
-                </p>
-                <p className="text-muted-foreground text-xs">Pending requests</p>
-              </div>
-            </Card>
-          </Link>
-
-          {/* RDO/SDO Requests */}
-          <Link href="/portal/requests?tab=rdo-sdo">
-            <Card className="hover:border-foreground/20 hover:bg-muted/40 p-5 transition-all duration-200">
-              <div className="mb-2 flex items-center justify-between">
-                <Plane className="text-accent h-6 w-6" aria-hidden="true" />
-              </div>
-              <h3 className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                RDO/SDO Requests
-              </h3>
-              <div className="mt-2 space-y-1">
-                <p className="text-foreground text-2xl font-semibold">
-                  {stats?.pending_flight_requests || 0}
-                </p>
-                <p className="text-muted-foreground text-xs">Pending requests</p>
-              </div>
-            </Card>
-          </Link>
-        </div>
+        </section>
       </main>
     </div>
   )
 }
 
 export default async function PilotDashboardPage() {
-  // Get pilot user data (layout already handles authentication, this is just for data)
   const pilotUser = await getAuthPilot()
 
-  // This should never happen because layout redirects, but keep as safeguard
   if (!pilotUser) {
     redirect('/portal/login')
   }

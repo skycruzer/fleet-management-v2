@@ -25,16 +25,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import Link from 'next/link'
-import {
-  MessageSquare,
-  ArrowLeft,
-  Send,
-  CheckCircle,
-  AlertCircle,
-  EyeOff,
-  Loader2,
-} from 'lucide-react'
-import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { Send, CheckCircle, AlertCircle, EyeOff, Loader2 } from 'lucide-react'
+import { PageHead } from '@/components/ui/page-head'
 
 export default function NewFeedbackPage() {
   const [formData, setFormData] = useState({
@@ -94,33 +86,17 @@ export default function NewFeedbackPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      {/* Header */}
-      <header className="bg-card sticky top-0 z-10 border-b">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <MessageSquare className="h-8 w-8 text-[var(--color-info)]" />
-              <div>
-                <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-                  Submit Feedback
-                </h1>
-                <p className="text-muted-foreground text-xs">
-                  Share your suggestions and report issues
-                </p>
-              </div>
-            </div>
-            <Link href="/portal/feedback">
-              <Button variant="outline" size="sm">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Feedback
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PageHead
+        title="Submit feedback"
+        description="Share your suggestions and report issues"
+        breadcrumbs={
+          <Link href="/portal/feedback" className="text-muted-foreground hover:text-foreground">
+            ← Back to Feedback
+          </Link>
+        }
+      />
 
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <PageBreadcrumbs rootPath="portal" />
         {/* Success Message */}
         {submitSuccess && (
           <div className="mb-6 rounded-xl border border-[var(--color-success-500)]/30 bg-[var(--color-success-muted)] p-6 text-center">
