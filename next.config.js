@@ -116,7 +116,10 @@ const nextConfig = {
               "font-src 'self' data:",
               // vitals.vercel-insights.com — Vercel Web Vitals reporting
               "connect-src 'self' https://wgdmgvonqysflwdiiols.supabase.co wss://wgdmgvonqysflwdiiols.supabase.co https://vitals.vercel-insights.com https://va.vercel-scripts.com",
-              "frame-ancestors 'none'",
+              // 'self' lets our own pages embed our own resources (e.g. the
+              // roster PDF iframe) while still blocking cross-origin clickjacking.
+              // Matches the intent of X-Frame-Options: SAMEORIGIN above.
+              "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
             ].join('; '),
