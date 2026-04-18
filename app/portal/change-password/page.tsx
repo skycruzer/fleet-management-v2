@@ -11,8 +11,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
-import { Plane, Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react'
+import { Lock, Eye, EyeOff, AlertCircle, Loader2, ShieldCheck } from 'lucide-react'
 
 export default function ChangePasswordPage() {
   const router = useRouter()
@@ -79,31 +80,24 @@ export default function ChangePasswordPage() {
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Logo & Title */}
         <div className="mb-8 text-center">
-          <div className="bg-primary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-            <Plane className="h-6 w-6 text-white" />
-          </div>
-          <h1 className="text-foreground text-xl font-semibold">Change Password</h1>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight">Change password</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            You must change your password before continuing
+            You must change your password before continuing.
           </p>
         </div>
 
-        {/* Change Password Card */}
-        <div className="bg-card border-border rounded-lg border p-6">
-          {/* Info Banner */}
-          <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-warning-500)]/20 bg-[var(--color-warning-muted)] p-3 text-sm text-[var(--color-warning-400)]">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <span>For security, please set a new personal password.</span>
-          </div>
+        <div className="bg-card border-border rounded-xl border p-6">
+          <Alert className="mb-4">
+            <ShieldCheck className="h-4 w-4" />
+            <AlertDescription>For security, please set a new personal password.</AlertDescription>
+          </Alert>
 
-          {/* Error */}
           {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <span>{error}</span>
-            </div>
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -125,7 +119,7 @@ export default function ChangePasswordPage() {
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-background w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -157,7 +151,7 @@ export default function ChangePasswordPage() {
                   minLength={8}
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-background w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -189,7 +183,7 @@ export default function ChangePasswordPage() {
                   minLength={8}
                   disabled={isLoading}
                   autoComplete="new-password"
-                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-background w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -207,18 +201,14 @@ export default function ChangePasswordPage() {
             </div>
 
             {/* Submit */}
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full disabled:opacity-50"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full disabled:opacity-50">
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Changing password...
+                  Changing password…
                 </span>
               ) : (
-                'Change Password'
+                'Change password'
               )}
             </Button>
           </form>

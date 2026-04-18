@@ -12,9 +12,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { PageHead } from '@/components/ui/page-head'
 import { useCsrfToken } from '@/lib/hooks/use-csrf-token'
-import { Lock, Eye, EyeOff, AlertCircle, CheckCircle2, Loader2, Settings } from 'lucide-react'
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -82,159 +82,153 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-4 lg:p-8">
-      <PageBreadcrumbs />
+    <div>
+      <PageHead title="Settings" description="Manage your account and security" />
 
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
-            <Settings className="h-5 w-5 text-[var(--color-info)]" />
+      <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* Password Change Card */}
+        <Card className="max-w-lg p-6">
+          <div className="mb-4">
+            <h2 className="text-foreground text-lg font-semibold">Change Password</h2>
+            <p className="text-muted-foreground text-sm">
+              Update your password to keep your account secure.
+            </p>
           </div>
-          <div>
-            <h1 className="text-foreground text-2xl font-bold">Settings</h1>
-            <p className="text-muted-foreground text-sm">Manage your account and security</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Password Change Card */}
-      <Card className="max-w-lg p-6">
-        <div className="mb-4">
-          <h2 className="text-foreground text-lg font-semibold">Change Password</h2>
-          <p className="text-muted-foreground text-sm">
-            Update your password to keep your account secure.
-          </p>
-        </div>
-
-        {/* Success Alert */}
-        {success && (
-          <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-3 text-sm text-[var(--color-success-400)]">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <span>{success}</span>
-          </div>
-        )}
-
-        {/* Error Alert */}
-        {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handlePasswordChange} className="space-y-4">
-          {/* Current Password */}
-          <div>
-            <label
-              htmlFor="oldPassword"
-              className="text-foreground/80 mb-1.5 block text-sm font-medium"
-            >
-              Current Password
-            </label>
-            <div className="relative">
-              <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-              <input
-                id="oldPassword"
-                name="oldPassword"
-                type={showOldPassword ? 'text' : 'password'}
-                placeholder="Enter current password"
-                required
-                disabled={isLoading}
-                autoComplete="current-password"
-                className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
-              />
-              <button
-                type="button"
-                onClick={() => setShowOldPassword(!showOldPassword)}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
-                disabled={isLoading}
-              >
-                {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+          {/* Success Alert */}
+          {success && (
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-3 text-sm text-[var(--color-success-400)]">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>{success}</span>
             </div>
-          </div>
+          )}
 
-          {/* New Password */}
-          <div>
-            <label
-              htmlFor="newPassword"
-              className="text-foreground/80 mb-1.5 block text-sm font-medium"
-            >
-              New Password
-            </label>
-            <div className="relative">
-              <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-              <input
-                id="newPassword"
-                name="newPassword"
-                type={showNewPassword ? 'text' : 'password'}
-                placeholder="At least 8 characters"
-                required
-                minLength={8}
-                disabled={isLoading}
-                autoComplete="new-password"
-                className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
-                disabled={isLoading}
-              >
-                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
             </div>
-          </div>
+          )}
 
-          {/* Confirm New Password */}
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="text-foreground/80 mb-1.5 block text-sm font-medium"
-            >
-              Confirm New Password
-            </label>
-            <div className="relative">
-              <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Re-enter new password"
-                required
-                minLength={8}
-                disabled={isLoading}
-                autoComplete="new-password"
-                className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
-                disabled={isLoading}
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            {/* Current Password */}
+            <div>
+              <label
+                htmlFor="oldPassword"
+                className="text-foreground/80 mb-1.5 block text-sm font-medium"
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+                Current Password
+              </label>
+              <div className="relative">
+                <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                <input
+                  id="oldPassword"
+                  name="oldPassword"
+                  type={showOldPassword ? 'text' : 'password'}
+                  placeholder="Enter current password"
+                  required
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
+                  disabled={isLoading}
+                >
+                  {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Submit */}
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 w-full disabled:opacity-50"
-          >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Changing password...
-              </span>
-            ) : (
-              'Change Password'
-            )}
-          </Button>
-        </form>
-      </Card>
+            {/* New Password */}
+            <div>
+              <label
+                htmlFor="newPassword"
+                className="text-foreground/80 mb-1.5 block text-sm font-medium"
+              >
+                New Password
+              </label>
+              <div className="relative">
+                <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                <input
+                  id="newPassword"
+                  name="newPassword"
+                  type={showNewPassword ? 'text' : 'password'}
+                  placeholder="At least 8 characters"
+                  required
+                  minLength={8}
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
+                  disabled={isLoading}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm New Password */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="text-foreground/80 mb-1.5 block text-sm font-medium"
+              >
+                Confirm New Password
+              </label>
+              <div className="relative">
+                <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Re-enter new password"
+                  required
+                  minLength={8}
+                  disabled={isLoading}
+                  autoComplete="new-password"
+                  className="text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 border-border bg-muted/30 w-full rounded-md border py-2 pr-9 pl-9 text-sm focus:ring-2 focus:outline-none disabled:opacity-50"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2"
+                  disabled={isLoading}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full disabled:opacity-50"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Changing password...
+                </span>
+              ) : (
+                'Change Password'
+              )}
+            </Button>
+          </form>
+        </Card>
+      </main>
     </div>
   )
 }

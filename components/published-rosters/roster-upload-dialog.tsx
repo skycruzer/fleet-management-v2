@@ -303,7 +303,7 @@ export function RosterUploadDialog({
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              {errorMsg.includes('already exists') ? (
+              {errorMsg.includes('already uploaded') ? (
                 <Button variant="destructive" onClick={() => handleUpload(true)}>
                   Replace Existing
                 </Button>

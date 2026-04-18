@@ -17,6 +17,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Link from 'next/link'
 import {
   Lock,
@@ -26,7 +27,6 @@ import {
   CheckCircle2,
   Loader2,
   Key,
-  Shield,
   ArrowRight,
 } from 'lucide-react'
 
@@ -165,12 +165,8 @@ export default function ResetPasswordPage() {
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Logo & Title */}
         <div className="mb-8 text-center">
-          <div className="bg-primary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-            <Shield className="h-6 w-6 text-white" />
-          </div>
-          <h1 className="text-foreground text-xl font-semibold">Set New Password</h1>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight">Set new password</h1>
           {email && (
             <p className="text-muted-foreground mt-1 text-sm">
               for <span className="text-foreground font-medium">{email}</span>
@@ -178,62 +174,48 @@ export default function ResetPasswordPage() {
           )}
         </div>
 
-        {/* Card */}
-        <div className="bg-card border-border rounded-lg border p-6">
-          {/* Loading State */}
+        <div className="bg-card border-border rounded-xl border p-6">
           {isValidating && (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-[var(--color-info)]" />
-              <p className="text-muted-foreground mt-4 text-sm">Validating reset link...</p>
+              <Loader2 className="text-muted-foreground h-8 w-8 animate-spin" />
+              <p className="text-muted-foreground mt-4 text-sm">Validating reset link…</p>
             </div>
           )}
 
-          {/* Invalid Token */}
           {!isValidating && !tokenValid && (
             <div className="space-y-4">
-              <div className="flex items-start gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-danger-400)]" />
-                <div>
-                  <p className="font-medium text-[var(--color-danger-400)]">Invalid Reset Link</p>
-                  <p className="mt-1 text-[var(--color-danger-400)]/80">{error}</p>
-                </div>
-              </div>
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Invalid reset link</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
 
               <Link href="/portal/forgot-password">
-                <Button className="bg-primary hover:bg-primary/90 w-full text-white">
-                  Request New Reset Link
+                <Button className="w-full">
+                  Request new reset link
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
           )}
 
-          {/* Success Message */}
           {!isValidating && tokenValid && success && (
-            <div className="space-y-4">
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-success-muted)]">
-                  <CheckCircle2 className="h-6 w-6 text-[var(--color-success-400)]" />
-                </div>
-                <p className="text-foreground text-lg font-semibold">
-                  Password Reset Successfully!
-                </p>
-                <p className="text-muted-foreground mt-2 text-sm">
-                  You&apos;ll be redirected to login in a few seconds...
-                </p>
-              </div>
+            <div className="flex flex-col items-center py-4 text-center">
+              <CheckCircle2 className="text-foreground mb-3 h-10 w-10" aria-hidden="true" />
+              <p className="text-foreground text-lg font-semibold">Password reset</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                You&apos;ll be redirected to login in a few seconds…
+              </p>
             </div>
           )}
 
-          {/* Reset Form */}
           {!isValidating && tokenValid && !success && (
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Error Message */}
               {error && (
-                <div className="flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>{error}</span>
-                </div>
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
 
               {/* Password Field */}
@@ -252,7 +234,7 @@ export default function ResetPasswordPage() {
                     placeholder="Enter new password"
                     {...form.register('password')}
                     disabled={isLoading}
-                    className="focus:border-primary focus:ring-primary/20 border-border bg-muted/40 pr-9 pl-9 text-sm focus:ring-2"
+                    className="pr-9 pl-9"
                   />
                   <button
                     type="button"
@@ -332,7 +314,7 @@ export default function ResetPasswordPage() {
                     placeholder="Confirm new password"
                     {...form.register('confirmPassword')}
                     disabled={isLoading}
-                    className="focus:border-primary focus:ring-primary/20 border-border bg-muted/40 pr-9 pl-9 text-sm focus:ring-2"
+                    className="pr-9 pl-9"
                   />
                   <button
                     type="button"
@@ -353,20 +335,19 @@ export default function ResetPasswordPage() {
                 )}
               </div>
 
-              {/* Submit Button */}
               <Button
                 type="submit"
                 disabled={isLoading || !password || !confirmPassword}
-                className="bg-primary hover:bg-primary/90 w-full text-white disabled:opacity-50"
+                className="w-full disabled:opacity-50"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Resetting Password...
+                    Resetting password…
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    Reset Password
+                    Reset password
                     <Key className="h-4 w-4" />
                   </span>
                 )}
@@ -374,7 +355,6 @@ export default function ResetPasswordPage() {
             </form>
           )}
 
-          {/* Footer Link */}
           {!isValidating && !success && (
             <>
               <div className="my-6 flex items-center">
@@ -385,9 +365,9 @@ export default function ResetPasswordPage() {
 
               <Link
                 href="/portal/login"
-                className="flex items-center justify-center text-sm font-medium text-[var(--color-info)] transition-colors hover:text-[var(--color-info)]/80"
+                className="text-foreground/80 hover:text-foreground flex items-center justify-center text-sm font-medium transition-colors"
               >
-                Back to Login
+                Back to login
               </Link>
             </>
           )}

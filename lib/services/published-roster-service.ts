@@ -19,17 +19,23 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 export type PublishedRoster = Database['public']['Tables']['published_rosters']['Row']
 
 /**
- * Uploads a roster PDF file, parses it, and stores assignments
+ * Uploads a roster PDF file, parses it, and stores assignments.
+ *
+ * Flow: parse first → validate UI selection matches PDF → check for existing
+ * row → (optionally replace) → upload file → insert row + assignments.
+ *
+ * The check and the insert both key off the PDF-extracted periodCode so the
+ * pre-check can never disagree with the unique-constraint outcome.
  */
 export async function uploadPublishedRoster(
   file: File,
   rosterPeriodCode: string,
-  uploadedByUserId: string
+  uploadedByUserId: string,
+  options: { replace?: boolean } = {}
 ): Promise<ServiceResponse<PublishedRoster>> {
   try {
     const supabase = createServiceRoleClient()
 
-    // Validate file
     if (!file.name.endsWith('.pdf')) {
       return ServiceResponse.error('Only PDF files are allowed')
     }
@@ -38,48 +44,79 @@ export async function uploadPublishedRoster(
       return ServiceResponse.error('File size exceeds 10MB limit')
     }
 
-    // Check if period already has a roster
-    const existing = await supabase
-      .from('published_rosters')
-      .select('id')
-      .eq('roster_period_code', rosterPeriodCode)
-      .single()
-
-    if (existing.data) {
-      return ServiceResponse.error(`Roster already uploaded for period ${rosterPeriodCode}`)
+    // 1. Parse PDF first — authoritative period code comes from the PDF itself
+    const fileBuffer = await file.arrayBuffer()
+    let parsedData: ParsedRosterData
+    try {
+      const { parseRosterPdf } = await import('./roster-parser-service')
+      parsedData = await parseRosterPdf(Buffer.from(fileBuffer))
+    } catch (parseError) {
+      const errorMsg = parseError instanceof Error ? parseError.message : 'Unknown parsing error'
+      return ServiceResponse.error(`PDF parsing failed: ${errorMsg}`)
     }
 
-    // Upload file to storage
-    const fileBuffer = await file.arrayBuffer()
-    const filePath = `${rosterPeriodCode}/${file.name}`
+    // Normalize to padded form so "RP5/2026" from an older PDF matches "RP05/2026"
+    const parsedCode = normalizePeriodCode(parsedData.periodCode)
+    const selectedCode = normalizePeriodCode(rosterPeriodCode)
+
+    // 2. Guard against the user picking the wrong PDF for the selected period
+    if (parsedCode !== selectedCode) {
+      return ServiceResponse.error(
+        `PDF is for ${parsedCode} but you selected ${selectedCode}. ` +
+          `Please select the correct period or upload the matching PDF.`
+      )
+    }
+
+    // 3. Check for an existing roster for this period (keyed by the parsed code)
+    const existing = await supabase
+      .from('published_rosters')
+      .select('id, file_path')
+      .eq('roster_period_code', parsedCode)
+      .maybeSingle()
+
+    if (existing.error) {
+      return ServiceResponse.error(`Existence check failed: ${existing.error.message}`)
+    }
+
+    if (existing.data) {
+      if (!options.replace) {
+        return ServiceResponse.error(
+          `Roster already uploaded for period ${parsedCode}. Use Replace to overwrite.`
+        )
+      }
+
+      // Replace: delete old storage file and DB row (cascade removes assignments)
+      if (existing.data.file_path) {
+        await supabase.storage.from(STORAGE_BUCKET).remove([existing.data.file_path])
+      }
+      const deleteResult = await supabase
+        .from('published_rosters')
+        .delete()
+        .eq('id', existing.data.id)
+
+      if (deleteResult.error) {
+        return ServiceResponse.error(
+          `Failed to remove existing roster: ${deleteResult.error.message}`
+        )
+      }
+    }
+
+    // 4. Upload file to storage (keyed by the normalized period code)
+    const filePath = `${parsedCode}/${file.name}`
 
     const uploadResult = await supabase.storage
       .from(STORAGE_BUCKET)
-      .upload(filePath, fileBuffer, { upsert: false, contentType: 'application/pdf' })
+      .upload(filePath, fileBuffer, { upsert: true, contentType: 'application/pdf' })
 
     if (uploadResult.error) {
       return ServiceResponse.error(`File upload failed: ${uploadResult.error.message}`)
     }
 
-    // Parse PDF to extract roster data
-    let parsedData: ParsedRosterData
-    try {
-      // Lazy-load PDF parser to avoid DOMMatrix issues during build
-      const { parseRosterPdf } = await import('./roster-parser-service')
-      parsedData = await parseRosterPdf(Buffer.from(fileBuffer))
-    } catch (parseError) {
-      // Clean up uploaded file on parse failure
-      await supabase.storage.from(STORAGE_BUCKET).remove([filePath])
-
-      const errorMsg = parseError instanceof Error ? parseError.message : 'Unknown parsing error'
-      return ServiceResponse.error(`PDF parsing failed: ${errorMsg}`)
-    }
-
-    // Insert roster record
+    // 5. Insert roster record
     const rosterInsertResult = await supabase
       .from('published_rosters')
       .insert({
-        roster_period_code: parsedData.periodCode,
+        roster_period_code: parsedCode,
         title: parsedData.rosterTitle,
         file_path: filePath,
         file_name: file.name,
@@ -102,18 +139,18 @@ export async function uploadPublishedRoster(
 
     const rosterRecord = rosterInsertResult.data
 
-    // Insert roster assignments (pilots × 28 days)
+    // 6. Insert per-pilot per-day assignments
     const assignments = await buildAssignmentRecords(
       parsedData.captains.concat(parsedData.firstOfficers),
       rosterRecord.id,
-      parsedData.periodCode
+      parsedCode
     )
 
     if (assignments.length > 0) {
       const assignmentResult = await supabase.from('roster_assignments').insert(assignments)
 
       if (assignmentResult.error) {
-        // Log but don't fail if assignments insert fails
+        // Non-fatal: the roster row is in and retrievable; log for follow-up
         console.error('Assignment insertion error:', assignmentResult.error)
       }
     }
@@ -123,6 +160,16 @@ export async function uploadPublishedRoster(
     const errorMsg = error instanceof Error ? error.message : 'Unknown error'
     return ServiceResponse.error(`Upload failed: ${errorMsg}`)
   }
+}
+
+/**
+ * Normalizes a roster period code to the canonical "RPNN/YYYY" form so older
+ * rows stored as "RP5/2026" match the current "RP05/2026" UI format.
+ */
+function normalizePeriodCode(code: string): string {
+  const match = code.trim().match(/^RP(\d{1,2})\/(\d{4})$/)
+  if (!match) return code.trim()
+  return `RP${match[1].padStart(2, '0')}/${match[2]}`
 }
 
 /**

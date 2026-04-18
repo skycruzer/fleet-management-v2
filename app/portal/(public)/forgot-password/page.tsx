@@ -16,16 +16,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Link from 'next/link'
-import {
-  Mail,
-  ArrowRight,
-  AlertCircle,
-  CheckCircle2,
-  Loader2,
-  ChevronLeft,
-  Key,
-} from 'lucide-react'
+import { Mail, ArrowRight, AlertCircle, CheckCircle2, Loader2, ChevronLeft } from 'lucide-react'
 
 const ForgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -79,39 +72,30 @@ export default function ForgotPasswordPage() {
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        {/* Logo & Title */}
         <div className="mb-8 text-center">
-          <div className="bg-primary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg">
-            <Key className="h-6 w-6 text-white" />
-          </div>
-          <h1 className="text-foreground text-xl font-semibold">Reset Password</h1>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight">Reset password</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Enter your email address and we&apos;ll send you a reset link
+            Enter your email address and we&apos;ll send you a reset link.
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-card border-border rounded-lg border p-6">
-          {/* Success Message */}
+        <div className="bg-card border-border rounded-xl border p-6">
           {success && (
-            <div className="mb-4 flex items-start gap-2 rounded-md border border-[var(--color-success-500)]/20 bg-[var(--color-success-muted)] p-3 text-sm">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-success-400)]" />
-              <div>
-                <p className="font-medium text-[var(--color-success-400)]">Email Sent!</p>
-                <p className="mt-1 text-[var(--color-success-400)]/80">
-                  If an account exists with this email, you&apos;ll receive password reset
-                  instructions shortly.
-                </p>
-              </div>
-            </div>
+            <Alert className="mb-4">
+              <CheckCircle2 className="h-4 w-4" />
+              <AlertTitle>Email sent</AlertTitle>
+              <AlertDescription>
+                If an account exists with this email, you&apos;ll receive password reset
+                instructions shortly.
+              </AlertDescription>
+            </Alert>
           )}
 
-          {/* Error Message */}
           {error && (
-            <div className="mb-4 flex items-center gap-2 rounded-md border border-[var(--color-danger-500)]/20 bg-[var(--color-destructive-muted)] p-3 text-sm text-[var(--color-danger-400)]">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <span>{error}</span>
-            </div>
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
 
           {/* Form */}
@@ -132,21 +116,20 @@ export default function ForgotPasswordPage() {
                   placeholder="captain@airniugini.com.pg"
                   {...form.register('email')}
                   disabled={isLoading || success}
-                  className="focus:border-primary focus:ring-primary/20 border-border bg-muted/40 pl-9 text-sm focus:ring-2"
+                  className="pl-9"
                 />
               </div>
               {form.formState.errors.email && (
-                <p className="mt-1 text-sm text-[var(--color-danger-400)]">
+                <p className="text-destructive mt-1 text-sm">
                   {form.formState.errors.email.message}
                 </p>
               )}
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               disabled={isLoading || !email || success}
-              className="bg-primary hover:bg-primary/90 w-full text-white disabled:opacity-50"
+              className="w-full disabled:opacity-50"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
@@ -174,13 +157,12 @@ export default function ForgotPasswordPage() {
             <div className="border-border flex-1 border-t" />
           </div>
 
-          {/* Back to Login Link */}
           <Link
             href="/portal/login"
-            className="flex items-center justify-center gap-2 text-sm font-medium text-[var(--color-info)] transition-colors hover:text-[var(--color-info)]/80"
+            className="text-foreground/80 hover:text-foreground flex items-center justify-center gap-2 text-sm font-medium transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
-            Back to Login
+            Back to login
           </Link>
         </div>
 

@@ -103,10 +103,10 @@ export default function PilotRegisterPage() {
   if (success) {
     return (
       <div className="bg-background flex min-h-screen items-center justify-center px-4">
-        <Card className="bg-card w-full max-w-md shadow-lg">
+        <Card className="bg-card w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-[var(--color-success-400)]">
-              Registration Submitted!
+            <CardTitle className="text-foreground text-2xl font-semibold tracking-tight">
+              Registration submitted
             </CardTitle>
             <CardDescription>
               Your registration has been submitted for admin approval.
@@ -130,11 +130,13 @@ export default function PilotRegisterPage() {
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center px-4 py-8">
-      <Card className="bg-card w-full max-w-2xl shadow-lg">
+      <Card className="bg-card w-full max-w-2xl">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-foreground text-2xl font-bold">Pilot Registration</CardTitle>
+          <CardTitle className="text-foreground text-2xl font-semibold tracking-tight">
+            Pilot Registration
+          </CardTitle>
           <CardDescription>
-            Complete this form to request access to the pilot portal
+            Complete this form to request access to the pilot portal.
           </CardDescription>
         </CardHeader>
 
@@ -336,9 +338,9 @@ export default function PilotRegisterPage() {
               Already have an account?{' '}
               <Link
                 href="/portal/login"
-                className="text-primary font-medium hover:text-[var(--color-primary-500)]"
+                className="text-foreground hover:text-foreground/80 font-medium underline-offset-4 hover:underline"
               >
-                Sign in here
+                Sign in
               </Link>
             </div>
           </CardFooter>

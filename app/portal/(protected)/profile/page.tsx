@@ -29,7 +29,7 @@ import {
 import { format, differenceInYears, differenceInMonths } from 'date-fns'
 import { ProfileAnimationWrapper } from './profile-animation-wrapper'
 import { EditableContactCard } from './editable-contact-card'
-import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { PageHead } from '@/components/ui/page-head'
 import { getCurrentPilot } from '@/lib/auth/pilot-helpers'
 import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { getPilotRequirements } from '@/lib/services/admin-service'
@@ -396,219 +396,217 @@ export default async function ProfilePage() {
 
   return (
     <ProfileAnimationWrapper>
-      <div className="space-y-6 pb-12">
-        <PageBreadcrumbs rootPath="portal" />
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-            My Profile
-          </h1>
-        </div>
+      <div className="pb-12">
+        <PageHead title="My Profile" description={fullName} />
 
-        {/* Information Grid */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Personal Information */}
-          <Card className="h-full p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
-                <User className="h-5 w-5 text-[var(--color-info)]" />
-              </div>
-              <h3 className="text-foreground text-lg font-semibold">Personal Information</h3>
-            </div>
-            <div className="space-y-4">
-              <InfoRow icon={User} label="Full Name" value={fullName} />
-              <InfoRow
-                icon={Calendar}
-                label="Date of Birth"
-                value={formatDate(profile.date_of_birth)}
-              />
-              <InfoRow
-                icon={TrendingUp}
-                label="Age"
-                value={`${calculateAge(profile.date_of_birth)} years`}
-              />
-              <InfoRow
-                icon={MapPin}
-                label="Nationality"
-                value={profile.nationality || 'Not specified'}
-              />
-            </div>
-          </Card>
-
-          {/* Employment Information */}
-          <Card className="h-full p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-success-muted)]">
-                <Briefcase className="h-5 w-5 text-[var(--color-success-600)]" />
-              </div>
-              <h3 className="text-foreground text-lg font-semibold">Employment Details</h3>
-            </div>
-            <div className="space-y-4">
-              <InfoRow
-                icon={Shield}
-                label="Employee ID"
-                value={profile.employee_id || 'Not assigned'}
-              />
-              <InfoRow icon={Award} label="Rank" value={profile.rank || profile.role || 'N/A'} />
-              <InfoRow
-                icon={Star}
-                label="Seniority Number"
-                value={profile.seniority_number ? `#${profile.seniority_number}` : 'Not assigned'}
-              />
-              <InfoRow
-                icon={Briefcase}
-                label="Contract Type"
-                value={profile.contract_type || 'Not specified'}
-              />
-              <InfoRow
-                icon={Calendar}
-                label="Commencement Date"
-                value={formatDate(profile.commencement_date)}
-              />
-              <InfoRow
-                icon={Clock}
-                label="Years in Service"
-                value={calculateYearsOfService(profile.commencement_date)}
-              />
-            </div>
-          </Card>
-
-          {/* Contact Information (Editable) */}
-          <EditableContactCard
-            email={profile.email}
-            phone={profile.phone}
-            address={profile.address}
-          />
-
-          {/* Passport Information */}
-          <Card className="h-full p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
-                <Shield className="h-5 w-5 text-[var(--color-primary-600)]" />
-              </div>
-              <h3 className="text-foreground text-lg font-semibold">
-                Passport & License Information
-              </h3>
-            </div>
-            <div className="space-y-4">
-              {profile.licence_number && (
-                <InfoRow icon={Shield} label="Licence Number" value={profile.licence_number} />
-              )}
-              {profile.licence_type && (
-                <div className="flex items-start gap-3">
-                  <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
-                    <Plane className="text-muted-foreground h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-muted-foreground text-xs font-medium">Licence Type</p>
-                    <Badge className="mt-1 border-0 bg-[var(--color-info-bg)] text-[var(--color-info)]">
-                      {profile.licence_type}
-                    </Badge>
-                  </div>
+        <div className="space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          {/* Information Grid */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Personal Information */}
+            <Card className="h-full p-6 transition-all hover:shadow-md">
+              <div className="mb-4 flex items-center gap-3 border-b pb-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
+                  <User className="h-5 w-5 text-[var(--color-info)]" />
                 </div>
-              )}
-              {profile.passport_number && (
-                <InfoRow icon={Shield} label="Passport Number" value={profile.passport_number} />
-              )}
-              {profile.passport_expiry && (
+                <h3 className="text-foreground text-lg font-semibold">Personal Information</h3>
+              </div>
+              <div className="space-y-4">
+                <InfoRow icon={User} label="Full Name" value={fullName} />
                 <InfoRow
                   icon={Calendar}
-                  label="Passport Expiry"
-                  value={formatDate(profile.passport_expiry)}
+                  label="Date of Birth"
+                  value={formatDate(profile.date_of_birth)}
                 />
-              )}
-              {!profile.licence_number && !profile.passport_number && (
-                <p className="text-muted-foreground text-sm italic">
-                  No passport or licence information available
-                </p>
-              )}
-            </div>
-          </Card>
-
-          {/* Professional Details */}
-          <Card className="h-full p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="bg-[var(--color-info-bg)]0/10 flex h-10 w-10 items-center justify-center rounded-lg">
-                <Award className="h-5 w-5 text-[var(--color-info)]" />
+                <InfoRow
+                  icon={TrendingUp}
+                  label="Age"
+                  value={`${calculateAge(profile.date_of_birth)} years`}
+                />
+                <InfoRow
+                  icon={MapPin}
+                  label="Nationality"
+                  value={profile.nationality || 'Not specified'}
+                />
               </div>
-              <h3 className="text-foreground text-lg font-semibold">Professional Details</h3>
-            </div>
-            <div className="space-y-4">
-              {profile.role === 'Captain' && profile.rhs_captain_expiry && (
+            </Card>
+
+            {/* Employment Information */}
+            <Card className="h-full p-6 transition-all hover:shadow-md">
+              <div className="mb-4 flex items-center gap-3 border-b pb-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-success-muted)]">
+                  <Briefcase className="h-5 w-5 text-[var(--color-success-600)]" />
+                </div>
+                <h3 className="text-foreground text-lg font-semibold">Employment Details</h3>
+              </div>
+              <div className="space-y-4">
+                <InfoRow
+                  icon={Shield}
+                  label="Employee ID"
+                  value={profile.employee_id || 'Not assigned'}
+                />
+                <InfoRow icon={Award} label="Rank" value={profile.rank || profile.role || 'N/A'} />
+                <InfoRow
+                  icon={Star}
+                  label="Seniority Number"
+                  value={profile.seniority_number ? `#${profile.seniority_number}` : 'Not assigned'}
+                />
+                <InfoRow
+                  icon={Briefcase}
+                  label="Contract Type"
+                  value={profile.contract_type || 'Not specified'}
+                />
                 <InfoRow
                   icon={Calendar}
-                  label="RHS Captain Expiry"
-                  value={formatDate(profile.rhs_captain_expiry)}
+                  label="Commencement Date"
+                  value={formatDate(profile.commencement_date)}
                 />
-              )}
-              {profile.qualification_notes ? (
-                <div className="flex items-start gap-3">
-                  <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
-                    <FileText className="text-muted-foreground h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-muted-foreground text-xs font-medium">Qualification Notes</p>
-                    <p className="text-foreground mt-0.5 text-sm font-semibold whitespace-pre-wrap">
-                      {profile.qualification_notes}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-muted-foreground flex items-center gap-3">
-                  <FileText className="h-4 w-4" />
-                  <p className="text-sm">No qualification notes recorded</p>
-                </div>
-              )}
-            </div>
-          </Card>
-        </div>
-
-        {/* Captain Qualifications - Only show if Captain */}
-        {(profile.role === 'Captain' || profile.rank === 'Captain') && (
-          <Card className="p-6 transition-all hover:shadow-md">
-            <div className="mb-4 flex items-center gap-3 border-b pb-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-warning-muted)]">
-                <Award className="h-5 w-5 text-[var(--color-warning-600)]" />
+                <InfoRow
+                  icon={Clock}
+                  label="Years in Service"
+                  value={calculateYearsOfService(profile.commencement_date)}
+                />
               </div>
-              <h3 className="text-foreground text-lg font-semibold">Captain Qualifications</h3>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {parseCaptainQualifications(profile.captain_qualifications).length > 0 ? (
-                parseCaptainQualifications(profile.captain_qualifications).map((qual, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-muted)] px-4 py-2 text-sm font-semibold text-[var(--color-warning-600)]"
-                  >
-                    <Star className="h-4 w-4" />
-                    {qual}
-                  </span>
-                ))
-              ) : (
-                <p className="text-muted-foreground">No qualifications recorded</p>
-              )}
-            </div>
-          </Card>
-        )}
+            </Card>
 
-        {/* Info Notice */}
-        <Card className="border-[var(--color-primary-500)]/20 bg-[var(--color-info-bg)] p-6">
-          <div className="flex items-start space-x-3">
-            <Clock className="text-primary mt-0.5 h-5 w-5" />
-            <div>
-              <p className="text-foreground font-medium">Update Required?</p>
-              <p className="text-muted-foreground mt-1 text-sm">
-                You can update your email and phone number directly from the Contact Information
-                section above. For other changes, please contact Fleet Management via the Feedback
-                page.
-              </p>
-              <Link href="/portal/feedback">
-                <Button variant="outline" className="mt-4">
-                  Contact Fleet Management
-                </Button>
-              </Link>
-            </div>
+            {/* Contact Information (Editable) */}
+            <EditableContactCard
+              email={profile.email}
+              phone={profile.phone}
+              address={profile.address}
+            />
+
+            {/* Passport Information */}
+            <Card className="h-full p-6 transition-all hover:shadow-md">
+              <div className="mb-4 flex items-center gap-3 border-b pb-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-info-bg)]">
+                  <Shield className="h-5 w-5 text-[var(--color-primary-600)]" />
+                </div>
+                <h3 className="text-foreground text-lg font-semibold">
+                  Passport & License Information
+                </h3>
+              </div>
+              <div className="space-y-4">
+                {profile.licence_number && (
+                  <InfoRow icon={Shield} label="Licence Number" value={profile.licence_number} />
+                )}
+                {profile.licence_type && (
+                  <div className="flex items-start gap-3">
+                    <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
+                      <Plane className="text-muted-foreground h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-muted-foreground text-xs font-medium">Licence Type</p>
+                      <Badge className="mt-1 border-0 bg-[var(--color-info-bg)] text-[var(--color-info)]">
+                        {profile.licence_type}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+                {profile.passport_number && (
+                  <InfoRow icon={Shield} label="Passport Number" value={profile.passport_number} />
+                )}
+                {profile.passport_expiry && (
+                  <InfoRow
+                    icon={Calendar}
+                    label="Passport Expiry"
+                    value={formatDate(profile.passport_expiry)}
+                  />
+                )}
+                {!profile.licence_number && !profile.passport_number && (
+                  <p className="text-muted-foreground text-sm italic">
+                    No passport or licence information available
+                  </p>
+                )}
+              </div>
+            </Card>
+
+            {/* Professional Details */}
+            <Card className="h-full p-6 transition-all hover:shadow-md">
+              <div className="mb-4 flex items-center gap-3 border-b pb-3">
+                <div className="bg-[var(--color-info-bg)]0/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <Award className="h-5 w-5 text-[var(--color-info)]" />
+                </div>
+                <h3 className="text-foreground text-lg font-semibold">Professional Details</h3>
+              </div>
+              <div className="space-y-4">
+                {profile.role === 'Captain' && profile.rhs_captain_expiry && (
+                  <InfoRow
+                    icon={Calendar}
+                    label="RHS Captain Expiry"
+                    value={formatDate(profile.rhs_captain_expiry)}
+                  />
+                )}
+                {profile.qualification_notes ? (
+                  <div className="flex items-start gap-3">
+                    <div className="bg-muted mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
+                      <FileText className="text-muted-foreground h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-muted-foreground text-xs font-medium">
+                        Qualification Notes
+                      </p>
+                      <p className="text-foreground mt-0.5 text-sm font-semibold whitespace-pre-wrap">
+                        {profile.qualification_notes}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground flex items-center gap-3">
+                    <FileText className="h-4 w-4" />
+                    <p className="text-sm">No qualification notes recorded</p>
+                  </div>
+                )}
+              </div>
+            </Card>
           </div>
-        </Card>
+
+          {/* Captain Qualifications - Only show if Captain */}
+          {(profile.role === 'Captain' || profile.rank === 'Captain') && (
+            <Card className="p-6 transition-all hover:shadow-md">
+              <div className="mb-4 flex items-center gap-3 border-b pb-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-warning-muted)]">
+                  <Award className="h-5 w-5 text-[var(--color-warning-600)]" />
+                </div>
+                <h3 className="text-foreground text-lg font-semibold">Captain Qualifications</h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {parseCaptainQualifications(profile.captain_qualifications).length > 0 ? (
+                  parseCaptainQualifications(profile.captain_qualifications).map((qual, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center gap-2 rounded-full bg-[var(--color-warning-muted)] px-4 py-2 text-sm font-semibold text-[var(--color-warning-600)]"
+                    >
+                      <Star className="h-4 w-4" />
+                      {qual}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground">No qualifications recorded</p>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* Info Notice */}
+          <Card className="border-[var(--color-primary-500)]/20 bg-[var(--color-info-bg)] p-6">
+            <div className="flex items-start space-x-3">
+              <Clock className="text-primary mt-0.5 h-5 w-5" />
+              <div>
+                <p className="text-foreground font-medium">Update Required?</p>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  You can update your email and phone number directly from the Contact Information
+                  section above. For other changes, please contact Fleet Management via the Feedback
+                  page.
+                </p>
+                <Link href="/portal/feedback">
+                  <Button variant="outline" className="mt-4">
+                    Contact Fleet Management
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </ProfileAnimationWrapper>
   )

@@ -1,0 +1,3799 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pilot Portal — 5 Design Variants</title>
+    <style>
+      /* ============================================================
+   SHARED CHROME — variant switcher, outer layout
+   ============================================================ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        color: #111;
+        background: #f4f4f5;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+      .shell-nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #0b0b0f;
+        color: #fff;
+        padding: 12px 24px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        border-bottom: 1px solid #222;
+        flex-wrap: wrap;
+      }
+      .shell-nav .brand {
+        font-weight: 600;
+        margin-right: auto;
+        letter-spacing: 0.02em;
+        font-size: 13px;
+        color: #fff;
+      }
+      .shell-nav .brand span {
+        color: #888;
+        font-weight: 400;
+        margin-left: 8px;
+      }
+      .shell-nav button {
+        background: transparent;
+        color: #9ca3af;
+        border: 1px solid #2a2a30;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-family: inherit;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.12s;
+      }
+      .shell-nav button.active {
+        background: #fff;
+        color: #000;
+        border-color: #fff;
+      }
+      .shell-nav button:hover:not(.active) {
+        color: #fff;
+        border-color: #444;
+      }
+      .variant {
+        display: none;
+      }
+      .variant.active {
+        display: block;
+      }
+      .variant-intro {
+        padding: 32px 32px 12px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .variant-intro h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .variant-intro p {
+        margin: 0;
+        color: #555;
+        font-size: 14px;
+        max-width: 720px;
+      }
+      .variant-intro .meta {
+        margin-top: 12px;
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+        color: #777;
+      }
+      .variant-intro .meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .variant-intro .meta span::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #999;
+      }
+      .screens {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 12px 32px 60px;
+      }
+      .screen-wrap {
+        margin-bottom: 32px;
+      }
+      .screen-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #888;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      .screen-frame {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #d4d4d8;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+
+      /* ============================================================
+   V1 — OPS CONSOLE
+   dense, mono, dark bg, FAA-dispatch tone
+   ============================================================ */
+      .v1 {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 13px;
+        color: #e6edf3;
+        background: #0d1117;
+      }
+      .v1 a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      .v1 .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        background: #161b22;
+        border-bottom: 1px solid #30363d;
+        font-size: 12px;
+        color: #7d8590;
+      }
+      .v1 .topbar .logo {
+        color: #e6edf3;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .v1 .topbar .session {
+        display: flex;
+        gap: 16px;
+      }
+      .v1 .topbar .session b {
+        color: #e6edf3;
+        font-weight: 500;
+      }
+      .v1 .tabs {
+        display: flex;
+        background: #010409;
+        border-bottom: 1px solid #30363d;
+      }
+      .v1 .tabs a {
+        padding: 8px 14px;
+        color: #7d8590;
+        border-right: 1px solid #30363d;
+        font-size: 12px;
+      }
+      .v1 .tabs a.on {
+        color: #e6edf3;
+        background: #0d1117;
+        border-bottom: 2px solid #58a6ff;
+        margin-bottom: -1px;
+      }
+      .v1 .tabs a:hover {
+        color: #e6edf3;
+      }
+      .v1 .body {
+        padding: 16px;
+      }
+      .v1 .row {
+        display: flex;
+        gap: 8px;
+        padding: 8px 12px;
+        border-bottom: 1px solid #21262d;
+        align-items: center;
+        font-size: 12px;
+      }
+      .v1 .row:hover {
+        background: #161b22;
+      }
+      .v1 .row .code {
+        color: #7d8590;
+        width: 90px;
+        flex-shrink: 0;
+      }
+      .v1 .row .label {
+        color: #e6edf3;
+        flex: 1;
+      }
+      .v1 .row .meta {
+        color: #7d8590;
+        font-size: 11px;
+      }
+      .v1 .panel {
+        border: 1px solid #30363d;
+        background: #0d1117;
+        margin-bottom: 12px;
+      }
+      .v1 .panel-head {
+        padding: 8px 12px;
+        background: #161b22;
+        border-bottom: 1px solid #30363d;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #7d8590;
+      }
+      .v1 .panel-head .actions a {
+        font-size: 11px;
+        margin-left: 12px;
+        text-transform: none;
+      }
+      .v1 .panel-body {
+        padding: 0;
+      }
+      .v1 .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .v1 .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .v1 .kpi {
+        padding: 12px;
+        border: 1px solid #30363d;
+        background: #0d1117;
+      }
+      .v1 .kpi .k {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #7d8590;
+      }
+      .v1 .kpi .v {
+        font-size: 22px;
+        color: #e6edf3;
+        margin-top: 4px;
+        font-weight: 500;
+      }
+      .v1 .kpi .sub {
+        font-size: 11px;
+        color: #7d8590;
+        margin-top: 2px;
+      }
+      .v1 .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+      .v1 .dot.ok {
+        background: #3fb950;
+      }
+      .v1 .dot.warn {
+        background: #d29922;
+      }
+      .v1 .dot.crit {
+        background: #f85149;
+      }
+      .v1 .dot.info {
+        background: #58a6ff;
+      }
+      .v1 .dot.mute {
+        background: #6e7681;
+      }
+      .v1 .status {
+        display: inline-block;
+        padding: 1px 6px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border: 1px solid currentColor;
+        border-radius: 2px;
+      }
+      .v1 .status.pending {
+        color: #d29922;
+      }
+      .v1 .status.approved {
+        color: #3fb950;
+      }
+      .v1 .status.denied {
+        color: #f85149;
+      }
+      .v1 .status.review {
+        color: #58a6ff;
+      }
+      .v1 .btn {
+        background: #238636;
+        color: #fff;
+        border: 1px solid #2ea043;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-family: inherit;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .v1 .btn:hover {
+        background: #2ea043;
+      }
+      .v1 .btn.ghost {
+        background: transparent;
+        color: #e6edf3;
+        border-color: #30363d;
+      }
+      .v1 .btn.ghost:hover {
+        background: #21262d;
+        border-color: #6e7681;
+      }
+      .v1 .input {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        color: #e6edf3;
+        padding: 6px 10px;
+        font-family: inherit;
+        font-size: 13px;
+        border-radius: 3px;
+        width: 100%;
+      }
+      .v1 .input:focus {
+        outline: none;
+        border-color: #58a6ff;
+      }
+      .v1 .label-s {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #7d8590;
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 500;
+      }
+      .v1 .progress {
+        height: 2px;
+        background: #21262d;
+        border-radius: 1px;
+        overflow: hidden;
+        margin: 8px 0;
+      }
+      .v1 .progress > i {
+        display: block;
+        height: 100%;
+        background: #3fb950;
+      }
+      .v1 .muted {
+        color: #7d8590;
+      }
+      .v1 .alert {
+        padding: 8px 12px;
+        border-left: 3px solid #d29922;
+        background: rgba(210, 153, 34, 0.08);
+        font-size: 12px;
+        color: #e6edf3;
+        margin-bottom: 12px;
+      }
+      .v1 .alert.crit {
+        border-color: #f85149;
+        background: rgba(248, 81, 73, 0.08);
+      }
+      .v1 .login-wrap {
+        min-height: 520px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+      }
+      .v1 .login-card {
+        width: 360px;
+        border: 1px solid #30363d;
+        background: #0d1117;
+        padding: 24px;
+      }
+      .v1 .login-head {
+        border-bottom: 1px solid #30363d;
+        padding-bottom: 14px;
+        margin-bottom: 16px;
+      }
+      .v1 .login-head .sys {
+        font-size: 10px;
+        color: #7d8590;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .v1 .login-head h1 {
+        font-size: 16px;
+        margin: 4px 0 0;
+        color: #e6edf3;
+        font-weight: 500;
+      }
+      .v1 .fgroup {
+        margin-bottom: 12px;
+      }
+      .v1 .form-foot {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        margin: 12px 0 16px;
+        color: #7d8590;
+      }
+      .v1 .form-foot a {
+        color: #58a6ff;
+      }
+      .v1 .chk {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+      }
+      .v1 .chk i {
+        width: 12px;
+        height: 12px;
+        border: 1px solid #30363d;
+        display: inline-block;
+        border-radius: 2px;
+      }
+
+      /* V1 form / new-leave */
+      .v1 .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .v1 .form-footer {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px;
+        border-top: 1px solid #30363d;
+        background: #161b22;
+        margin: 12px -12px -12px;
+      }
+
+      /* ============================================================
+   V2 — AIRLINE CALM
+   generous whitespace, warm off-white, settings-app feel
+   ============================================================ */
+      .v2 {
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          'Helvetica Neue',
+          sans-serif;
+        color: #1a1a1a;
+        background: #faf9f7;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+      .v2 a {
+        color: #2c5f2d;
+        text-decoration: none;
+      }
+      .v2 .topbar {
+        padding: 20px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e8e6e0;
+        background: #fff;
+      }
+      .v2 .topbar .logo {
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .v2 .topbar .logo small {
+        display: block;
+        font-size: 11px;
+        font-weight: 400;
+        color: #6b6b6b;
+        margin-top: 2px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .v2 .topbar .nav {
+        display: flex;
+        gap: 28px;
+      }
+      .v2 .topbar .nav a {
+        font-size: 14px;
+        color: #4a4a4a;
+        padding: 4px 0;
+      }
+      .v2 .topbar .nav a.on {
+        color: #1a1a1a;
+        border-bottom: 2px solid #2c5f2d;
+        padding-bottom: 2px;
+      }
+      .v2 .hero {
+        padding: 40px 32px 24px;
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .v2 .hero h1 {
+        font-size: 26px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin: 0 0 6px;
+      }
+      .v2 .hero p {
+        color: #6b6b6b;
+        font-size: 15px;
+        margin: 0;
+      }
+      .v2 .container {
+        padding: 8px 32px 48px;
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .v2 .section {
+        margin-bottom: 32px;
+      }
+      .v2 .section-title {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6b6b6b;
+        margin: 0 0 12px;
+        padding: 0 4px;
+      }
+      .v2 .card {
+        background: #fff;
+        border: 1px solid #e8e6e0;
+        border-radius: 12px;
+        padding: 24px;
+      }
+      .v2 .card + .card {
+        margin-top: 12px;
+      }
+      .v2 .card h3 {
+        margin: 0 0 4px;
+        font-size: 17px;
+        font-weight: 500;
+      }
+      .v2 .card .desc {
+        color: #6b6b6b;
+        font-size: 14px;
+        margin: 0;
+      }
+      .v2 .kgrid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .v2 .kcard {
+        background: #fff;
+        border: 1px solid #e8e6e0;
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .v2 .kcard .k {
+        font-size: 13px;
+        color: #6b6b6b;
+        margin: 0;
+      }
+      .v2 .kcard .v {
+        font-size: 32px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin: 8px 0 4px;
+        color: #1a1a1a;
+      }
+      .v2 .kcard .sub {
+        font-size: 13px;
+        color: #6b6b6b;
+      }
+      .v2 .kcard.ok .v {
+        color: #2c5f2d;
+      }
+      .v2 .pill {
+        display: inline-block;
+        padding: 3px 10px;
+        font-size: 12px;
+        border-radius: 999px;
+        font-weight: 500;
+      }
+      .v2 .pill.ok {
+        background: #eef5ef;
+        color: #2c5f2d;
+      }
+      .v2 .pill.warn {
+        background: #fdf5e6;
+        color: #8a6d1d;
+      }
+      .v2 .pill.crit {
+        background: #faeae8;
+        color: #9c3a2f;
+      }
+      .v2 .pill.info {
+        background: #eef0f6;
+        color: #3a4a7a;
+      }
+      .v2 .pill.mute {
+        background: #f2f1ee;
+        color: #6b6b6b;
+      }
+      .v2 .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 0;
+        border-bottom: 1px solid #efede8;
+      }
+      .v2 .row:last-child {
+        border-bottom: none;
+      }
+      .v2 .row .left h4 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 500;
+      }
+      .v2 .row .left p {
+        margin: 2px 0 0;
+        color: #6b6b6b;
+        font-size: 13px;
+      }
+      .v2 .btn {
+        background: #2c5f2d;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-family: inherit;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: 500;
+      }
+      .v2 .btn:hover {
+        background: #244d25;
+      }
+      .v2 .btn.ghost {
+        background: #fff;
+        color: #1a1a1a;
+        border: 1px solid #d4d2cc;
+      }
+      .v2 .btn.ghost:hover {
+        background: #f4f2ec;
+      }
+      .v2 .input {
+        background: #fff;
+        border: 1px solid #d4d2cc;
+        padding: 11px 14px;
+        font-family: inherit;
+        font-size: 15px;
+        border-radius: 8px;
+        width: 100%;
+        color: #1a1a1a;
+      }
+      .v2 .input:focus {
+        outline: none;
+        border-color: #2c5f2d;
+        box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+      }
+      .v2 .label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #1a1a1a;
+        display: block;
+        margin-bottom: 6px;
+      }
+      .v2 .help {
+        font-size: 13px;
+        color: #6b6b6b;
+        margin-top: 6px;
+      }
+      .v2 .tabs {
+        display: flex;
+        gap: 24px;
+        border-bottom: 1px solid #e8e6e0;
+        margin-bottom: 24px;
+      }
+      .v2 .tabs a {
+        padding: 12px 0;
+        font-size: 14px;
+        color: #6b6b6b;
+        font-weight: 500;
+      }
+      .v2 .tabs a.on {
+        color: #1a1a1a;
+        border-bottom: 2px solid #2c5f2d;
+        margin-bottom: -1px;
+      }
+      .v2 .notice {
+        padding: 16px 20px;
+        background: #fdf5e6;
+        border: 1px solid #f0d9a7;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #6b4d17;
+        margin-bottom: 20px;
+      }
+      .v2 .notice.info {
+        background: #eef0f6;
+        border-color: #cdd4e8;
+        color: #3a4a7a;
+      }
+      .v2 .login-wrap {
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        background: #faf9f7;
+      }
+      .v2 .login-card {
+        width: 400px;
+        background: #fff;
+        border: 1px solid #e8e6e0;
+        border-radius: 16px;
+        padding: 36px 32px;
+      }
+      .v2 .login-brand {
+        text-align: center;
+        margin-bottom: 28px;
+      }
+      .v2 .login-brand .mark {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: #2c5f2d;
+        margin: 0 auto 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 600;
+      }
+      .v2 .login-brand h1 {
+        font-size: 19px;
+        font-weight: 500;
+        margin: 0;
+      }
+      .v2 .login-brand p {
+        font-size: 13px;
+        color: #6b6b6b;
+        margin: 4px 0 0;
+      }
+
+      /* ============================================================
+   V3 — MOBILE-FIRST CARDS
+   phone-framed, stacked cards, bottom nav
+   ============================================================ */
+      .v3 {
+        background: #e5e5ea;
+        padding: 32px 0;
+        display: flex;
+        justify-content: center;
+      }
+      .v3 .phone {
+        width: 390px;
+        background: #f2f2f7;
+        border-radius: 36px;
+        border: 1px solid #c7c7cc;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        position: relative;
+        min-height: 780px;
+        display: flex;
+        flex-direction: column;
+      }
+      .v3 .phone .statusbar {
+        background: #fff;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        color: #1c1c1e;
+      }
+      .v3 .phone .topbar {
+        background: #fff;
+        padding: 12px 16px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e5e5ea;
+      }
+      .v3 .phone .topbar h1 {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 0;
+        color: #1c1c1e;
+      }
+      .v3 .phone .topbar .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #007aff;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .v3 .phone .scroll {
+        flex: 1;
+        overflow: hidden;
+        padding: 16px 16px 80px;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          'SF Pro Text',
+          sans-serif;
+        color: #1c1c1e;
+      }
+      .v3 .phone .tabbar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-top: 1px solid #c7c7cc;
+        padding: 10px 20px 22px;
+        display: flex;
+        justify-content: space-around;
+      }
+      .v3 .phone .tabbar .t {
+        text-align: center;
+        font-size: 10px;
+        color: #8e8e93;
+        font-weight: 500;
+      }
+      .v3 .phone .tabbar .t i {
+        display: block;
+        width: 24px;
+        height: 24px;
+        margin: 0 auto 2px;
+        border: 1.5px solid currentColor;
+        border-radius: 4px;
+      }
+      .v3 .phone .tabbar .t.on {
+        color: #007aff;
+      }
+      .v3 .phone .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 12px;
+        font-family: inherit;
+      }
+      .v3 .phone .card h3 {
+        margin: 0 0 4px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1c1c1e;
+      }
+      .v3 .phone .card p {
+        margin: 0;
+        font-size: 13px;
+        color: #636366;
+      }
+      .v3 .phone .kbig {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .v3 .phone .kbig .v {
+        font-size: 40px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0;
+        color: #1c1c1e;
+      }
+      .v3 .phone .kbig .k {
+        font-size: 13px;
+        color: #636366;
+        margin: 4px 0 0;
+        font-weight: 500;
+      }
+      .v3 .phone .kbig.ok .v {
+        color: #34c759;
+      }
+      .v3 .phone .kbig.warn .v {
+        color: #ff9500;
+      }
+      .v3 .phone .krow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .v3 .phone .krow .ksmall {
+        background: #fff;
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .v3 .phone .krow .ksmall .v {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0 0 2px;
+        color: #1c1c1e;
+      }
+      .v3 .phone .krow .ksmall .k {
+        font-size: 12px;
+        color: #636366;
+        margin: 0;
+      }
+      .v3 .phone .list-card {
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+      .v3 .phone .list-card .item {
+        padding: 14px 16px;
+        border-bottom: 1px solid #e5e5ea;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .v3 .phone .list-card .item:last-child {
+        border: none;
+      }
+      .v3 .phone .list-card .item .n {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1c1c1e;
+      }
+      .v3 .phone .list-card .item .m {
+        font-size: 12px;
+        color: #636366;
+        margin-top: 2px;
+      }
+      .v3 .phone .list-card .item .chev {
+        color: #c7c7cc;
+        font-size: 18px;
+      }
+      .v3 .phone .pill {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .v3 .phone .pill.ok {
+        background: #d1f2d9;
+        color: #1e7a37;
+      }
+      .v3 .phone .pill.warn {
+        background: #ffe9cc;
+        color: #9a5b00;
+      }
+      .v3 .phone .pill.crit {
+        background: #ffd4d1;
+        color: #a3261c;
+      }
+      .v3 .phone .pill.info {
+        background: #d1e3ff;
+        color: #0b4fa3;
+      }
+      .v3 .phone .pill.mute {
+        background: #e5e5ea;
+        color: #636366;
+      }
+      .v3 .phone .btn {
+        background: #007aff;
+        color: #fff;
+        border: none;
+        padding: 14px;
+        font-size: 15px;
+        font-family: inherit;
+        cursor: pointer;
+        border-radius: 12px;
+        font-weight: 600;
+        width: 100%;
+      }
+      .v3 .phone .btn.ghost {
+        background: #e5e5ea;
+        color: #007aff;
+      }
+      .v3 .phone .input {
+        background: #f2f2f7;
+        border: 1px solid transparent;
+        padding: 13px 14px;
+        font-family: inherit;
+        font-size: 15px;
+        border-radius: 10px;
+        width: 100%;
+        color: #1c1c1e;
+      }
+      .v3 .phone .input:focus {
+        outline: none;
+        background: #fff;
+        border-color: #007aff;
+      }
+      .v3 .phone .label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #636366;
+        display: block;
+        margin-bottom: 6px;
+        padding: 0 4px;
+      }
+      .v3 .phone .field {
+        margin-bottom: 14px;
+      }
+      .v3 .phone .notice {
+        padding: 12px 14px;
+        background: #fff4d6;
+        border-radius: 10px;
+        font-size: 13px;
+        color: #6b5016;
+        margin-bottom: 14px;
+      }
+      .v3 .phone .notice.info {
+        background: #e8f0ff;
+        color: #0b4fa3;
+      }
+      .v3 .phone .login-brand {
+        text-align: center;
+        padding: 40px 0 24px;
+      }
+      .v3 .phone .login-brand .mark {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: #007aff;
+        margin: 0 auto 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 20px;
+      }
+      .v3 .phone .login-brand h1 {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0;
+        color: #1c1c1e;
+      }
+      .v3 .phone .login-brand p {
+        font-size: 14px;
+        color: #636366;
+        margin: 4px 0 0;
+      }
+      .v3 .phone .sectitle {
+        font-size: 13px;
+        font-weight: 600;
+        color: #636366;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin: 16px 4px 8px;
+      }
+
+      /* ============================================================
+   V4 — STATUS BOARD
+   FIDS-inspired, black bg, tiled, uppercase
+   ============================================================ */
+      .v4 {
+        background: #000;
+        color: #fff;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
+        font-size: 14px;
+      }
+      .v4 .topbar {
+        padding: 16px 24px;
+        border-bottom: 2px solid #1a1a1a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #0a0a0a;
+      }
+      .v4 .topbar .logo {
+        font-weight: 700;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .v4 .topbar .logo span {
+        color: #ffb020;
+        margin-right: 8px;
+      }
+      .v4 .topbar .meta {
+        display: flex;
+        gap: 28px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #888;
+      }
+      .v4 .topbar .meta b {
+        color: #fff;
+        font-weight: 500;
+        margin-left: 6px;
+      }
+      .v4 .topbar .meta .live::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #30d158;
+        margin-right: 8px;
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .v4 .body {
+        padding: 24px;
+      }
+      .v4 .grid {
+        display: grid;
+        gap: 2px;
+        margin-bottom: 24px;
+      }
+      .v4 .grid.g4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .v4 .grid.g3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .v4 .grid.g2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .v4 .tile {
+        background: #0f0f0f;
+        padding: 24px;
+        border: 1px solid #1a1a1a;
+      }
+      .v4 .tile .k {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #888;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .v4 .tile .v {
+        font-size: 48px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .v4 .tile .sub {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #666;
+        margin-top: 8px;
+      }
+      .v4 .tile.ok {
+        background: #0a1f10;
+        border-color: #30d158;
+      }
+      .v4 .tile.ok .v,
+      .v4 .tile.ok .k {
+        color: #30d158;
+      }
+      .v4 .tile.warn {
+        background: #2a1e05;
+        border-color: #ffb020;
+      }
+      .v4 .tile.warn .v,
+      .v4 .tile.warn .k {
+        color: #ffb020;
+      }
+      .v4 .tile.crit {
+        background: #2a0a0a;
+        border-color: #ff3b30;
+      }
+      .v4 .tile.crit .v,
+      .v4 .tile.crit .k {
+        color: #ff3b30;
+      }
+      .v4 .tile.info {
+        background: #0a1628;
+        border-color: #0a84ff;
+      }
+      .v4 .tile.info .v,
+      .v4 .tile.info .k {
+        color: #0a84ff;
+      }
+      .v4 .section-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #888;
+        font-weight: 600;
+        margin: 24px 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #1a1a1a;
+      }
+      .v4 .board {
+        border: 1px solid #1a1a1a;
+        background: #0a0a0a;
+      }
+      .v4 .board-head {
+        display: grid;
+        grid-template-columns: 120px 1fr 140px 120px 100px;
+        padding: 12px 16px;
+        background: #0f0f0f;
+        border-bottom: 1px solid #1a1a1a;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #666;
+        font-weight: 700;
+      }
+      .v4 .board-row {
+        display: grid;
+        grid-template-columns: 120px 1fr 140px 120px 100px;
+        padding: 14px 16px;
+        border-bottom: 1px solid #1a1a1a;
+        font-size: 13px;
+        align-items: center;
+        font-variant-numeric: tabular-nums;
+      }
+      .v4 .board-row:last-child {
+        border: none;
+      }
+      .v4 .board-row:hover {
+        background: #101010;
+      }
+      .v4 .board-row .id {
+        color: #666;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+      }
+      .v4 .board-row .nm {
+        font-weight: 500;
+        color: #fff;
+      }
+      .v4 .board-row .sub {
+        font-size: 11px;
+        color: #666;
+        margin-top: 2px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .v4 .stat {
+        display: inline-block;
+        padding: 3px 10px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        border-radius: 2px;
+      }
+      .v4 .stat.ok {
+        background: #30d158;
+        color: #000;
+      }
+      .v4 .stat.warn {
+        background: #ffb020;
+        color: #000;
+      }
+      .v4 .stat.crit {
+        background: #ff3b30;
+        color: #fff;
+      }
+      .v4 .stat.info {
+        background: #0a84ff;
+        color: #fff;
+      }
+      .v4 .stat.mute {
+        background: #2a2a2a;
+        color: #999;
+      }
+      .v4 .btn {
+        background: #ffb020;
+        color: #000;
+        border: none;
+        padding: 12px 24px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .v4 .btn:hover {
+        background: #fff;
+      }
+      .v4 .btn.ghost {
+        background: transparent;
+        color: #fff;
+        border: 1px solid #333;
+      }
+      .v4 .btn.ghost:hover {
+        background: #1a1a1a;
+        border-color: #666;
+      }
+      .v4 .input {
+        background: #0a0a0a;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 14px 16px;
+        font-family: inherit;
+        font-size: 14px;
+        width: 100%;
+        border-radius: 0;
+      }
+      .v4 .input:focus {
+        outline: none;
+        border-color: #ffb020;
+      }
+      .v4 .label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: #888;
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 700;
+      }
+      .v4 .login-wrap {
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        background: #000;
+      }
+      .v4 .login-card {
+        width: 420px;
+      }
+      .v4 .login-card h1 {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0 0 4px;
+        text-transform: uppercase;
+      }
+      .v4 .login-card h1 span {
+        color: #ffb020;
+      }
+      .v4 .login-card .sub {
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 11px;
+        margin-bottom: 32px;
+      }
+
+      /* ============================================================
+   V5 — LINEAR-STYLE PRO
+   compact rows, keyboard hints, subtle borders
+   ============================================================ */
+      .v5 {
+        font-family:
+          'Inter',
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          sans-serif;
+        color: #0a0a0a;
+        background: #fafafa;
+        font-size: 13.5px;
+        line-height: 1.5;
+      }
+      .v5 a {
+        color: #5e6ad2;
+        text-decoration: none;
+      }
+      .v5 .topbar {
+        padding: 10px 20px;
+        background: #fff;
+        border-bottom: 1px solid #eaeaea;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .v5 .topbar .logo {
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: -0.01em;
+      }
+      .v5 .topbar .sep {
+        color: #c4c4c4;
+      }
+      .v5 .topbar .crumb {
+        color: #666;
+        font-size: 13px;
+      }
+      .v5 .topbar .crumb b {
+        color: #0a0a0a;
+        font-weight: 500;
+      }
+      .v5 .topbar .spacer {
+        flex: 1;
+      }
+      .v5 .topbar .kbd {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: #f4f4f5;
+        border: 1px solid #eaeaea;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #666;
+        cursor: pointer;
+      }
+      .v5 .topbar .kbd kbd {
+        background: #fff;
+        border: 1px solid #e4e4e7;
+        border-bottom-width: 2px;
+        padding: 0 5px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: #0a0a0a;
+      }
+      .v5 .pagehead {
+        padding: 24px 32px 16px;
+        background: #fff;
+        border-bottom: 1px solid #eaeaea;
+      }
+      .v5 .pagehead h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .v5 .pagehead p {
+        margin: 4px 0 0;
+        color: #666;
+        font-size: 13px;
+      }
+      .v5 .filters {
+        padding: 10px 32px;
+        background: #fff;
+        border-bottom: 1px solid #eaeaea;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .v5 .filters .chip {
+        padding: 4px 10px;
+        font-size: 12px;
+        background: #f4f4f5;
+        border: 1px solid #eaeaea;
+        border-radius: 6px;
+        color: #666;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .v5 .filters .chip.on {
+        background: #eceefb;
+        border-color: #d4d8f2;
+        color: #5e6ad2;
+      }
+      .v5 .filters .chip:hover:not(.on) {
+        border-color: #c4c4c4;
+      }
+      .v5 .filters .spacer {
+        flex: 1;
+      }
+      .v5 .filters .count {
+        font-size: 12px;
+        color: #999;
+      }
+      .v5 .body {
+        padding: 20px 32px 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .v5 .section {
+        margin-bottom: 32px;
+      }
+      .v5 .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .v5 .section-title h3 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #0a0a0a;
+        letter-spacing: -0.01em;
+      }
+      .v5 .section-title .tag {
+        font-size: 11px;
+        color: #999;
+        padding: 1px 6px;
+        background: #f4f4f5;
+        border-radius: 4px;
+      }
+      .v5 .list {
+        border: 1px solid #eaeaea;
+        border-radius: 8px;
+        background: #fff;
+        overflow: hidden;
+      }
+      .v5 .list-head {
+        display: grid;
+        grid-template-columns: 100px 1fr 160px 140px 32px;
+        padding: 8px 16px;
+        background: #fafafa;
+        border-bottom: 1px solid #eaeaea;
+        font-size: 11px;
+        color: #666;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .v5 .list-row {
+        display: grid;
+        grid-template-columns: 100px 1fr 160px 140px 32px;
+        padding: 10px 16px;
+        border-bottom: 1px solid #f4f4f5;
+        align-items: center;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .v5 .list-row:last-child {
+        border: none;
+      }
+      .v5 .list-row:hover {
+        background: #fafafa;
+      }
+      .v5 .list-row .id {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: #999;
+        font-size: 12px;
+      }
+      .v5 .list-row .name {
+        font-weight: 500;
+        color: #0a0a0a;
+      }
+      .v5 .list-row .sub {
+        font-size: 12px;
+        color: #666;
+        margin-top: 1px;
+      }
+      .v5 .list-row .chev {
+        color: #c4c4c4;
+        font-size: 14px;
+        text-align: right;
+      }
+      .v5 .kgrid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+      .v5 .kcard {
+        background: #fff;
+        border: 1px solid #eaeaea;
+        border-radius: 8px;
+        padding: 14px 16px;
+      }
+      .v5 .kcard .k {
+        font-size: 12px;
+        color: #666;
+        margin: 0 0 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .v5 .kcard .k i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .v5 .kcard .v {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin: 0;
+        color: #0a0a0a;
+      }
+      .v5 .kcard .d {
+        font-size: 12px;
+        color: #666;
+        margin: 2px 0 0;
+      }
+      .v5 .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 500;
+        border: 1px solid transparent;
+      }
+      .v5 .pill i {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+      }
+      .v5 .pill.ok {
+        background: #e8f6ec;
+        color: #1a6b2b;
+        border-color: #c7e7cf;
+      }
+      .v5 .pill.ok i {
+        background: #1a6b2b;
+      }
+      .v5 .pill.warn {
+        background: #fdf2d8;
+        color: #805a0d;
+        border-color: #f0d88a;
+      }
+      .v5 .pill.warn i {
+        background: #805a0d;
+      }
+      .v5 .pill.crit {
+        background: #fbe3e1;
+        color: #8a2520;
+        border-color: #f0b6b0;
+      }
+      .v5 .pill.crit i {
+        background: #8a2520;
+      }
+      .v5 .pill.info {
+        background: #eceefb;
+        color: #3e48a8;
+        border-color: #d4d8f2;
+      }
+      .v5 .pill.info i {
+        background: #3e48a8;
+      }
+      .v5 .pill.mute {
+        background: #f4f4f5;
+        color: #666;
+        border-color: #eaeaea;
+      }
+      .v5 .pill.mute i {
+        background: #999;
+      }
+      .v5 .btn {
+        background: #5e6ad2;
+        color: #fff;
+        border: none;
+        padding: 7px 14px;
+        font-size: 13px;
+        font-family: inherit;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .v5 .btn:hover {
+        background: #4f5abf;
+      }
+      .v5 .btn .kb {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0 5px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .v5 .btn.ghost {
+        background: #fff;
+        color: #0a0a0a;
+        border: 1px solid #eaeaea;
+      }
+      .v5 .btn.ghost:hover {
+        background: #fafafa;
+        border-color: #d4d4d8;
+      }
+      .v5 .input {
+        background: #fff;
+        border: 1px solid #eaeaea;
+        padding: 7px 10px;
+        font-family: inherit;
+        font-size: 13px;
+        border-radius: 6px;
+        width: 100%;
+        color: #0a0a0a;
+      }
+      .v5 .input:focus {
+        outline: none;
+        border-color: #5e6ad2;
+        box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.12);
+      }
+      .v5 .label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #0a0a0a;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      .v5 .label .opt {
+        font-size: 11px;
+        color: #999;
+        font-weight: 400;
+      }
+      .v5 .field {
+        margin-bottom: 16px;
+      }
+      .v5 .field .hint {
+        font-size: 11px;
+        color: #666;
+        margin-top: 4px;
+      }
+      .v5 .form {
+        border: 1px solid #eaeaea;
+        border-radius: 8px;
+        background: #fff;
+        padding: 20px;
+      }
+      .v5 .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .v5 .form-foot {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 20px;
+        margin: 16px -20px -20px;
+        border-top: 1px solid #eaeaea;
+        background: #fafafa;
+      }
+      .v5 .tabs {
+        display: flex;
+        gap: 2px;
+        background: #f4f4f5;
+        padding: 3px;
+        border-radius: 7px;
+        width: fit-content;
+      }
+      .v5 .tabs a {
+        padding: 5px 12px;
+        font-size: 12.5px;
+        color: #666;
+        font-weight: 500;
+        border-radius: 5px;
+      }
+      .v5 .tabs a.on {
+        background: #fff;
+        color: #0a0a0a;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .v5 .alert {
+        padding: 10px 14px;
+        border: 1px solid;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .v5 .alert.warn {
+        background: #fdf2d8;
+        border-color: #f0d88a;
+        color: #805a0d;
+      }
+      .v5 .alert.info {
+        background: #eceefb;
+        border-color: #d4d8f2;
+        color: #3e48a8;
+      }
+      .v5 .alert i {
+        margin-top: 1px;
+      }
+      .v5 .login-wrap {
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+      }
+      .v5 .login-card {
+        width: 360px;
+      }
+      .v5 .login-card .brand {
+        margin-bottom: 32px;
+      }
+      .v5 .login-card .brand .mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: #5e6ad2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 16px;
+      }
+      .v5 .login-card .brand h1 {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 0;
+      }
+      .v5 .login-card .brand p {
+        margin: 4px 0 0;
+        color: #666;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="shell-nav">
+      <span class="brand"
+        >Pilot Portal <span>· 5 design explorations · same data · click a variant</span></span
+      >
+      <button data-target="v1" class="active">V1 · Ops Console</button>
+      <button data-target="v2">V2 · Airline Calm</button>
+      <button data-target="v3">V3 · Mobile Cards</button>
+      <button data-target="v4">V4 · Status Board</button>
+      <button data-target="v5">V5 · Linear Pro</button>
+    </header>
+
+    <!-- ========================================================== -->
+    <!-- V1 — OPS CONSOLE                                            -->
+    <!-- ========================================================== -->
+    <main class="variant active" data-v="v1">
+      <div class="variant-intro">
+        <h2>V1 · Ops Console</h2>
+        <p>
+          Dense monospace layout built for power users who live in the portal daily. Status codes,
+          tabular data, minimal chrome. Reads like a dispatch terminal.
+        </p>
+        <div class="meta">
+          <span>All-mono typography</span>
+          <span>Dark surface</span>
+          <span>11–13px base</span>
+          <span>Highest info density</span>
+        </div>
+      </div>
+
+      <div class="screens">
+        <!-- V1 · Login -->
+        <div class="screen-wrap">
+          <div class="screen-label">01 · Login</div>
+          <div class="screen-frame v1">
+            <div class="login-wrap">
+              <div class="login-card">
+                <div class="login-head">
+                  <div class="sys">AIR-NIUGINI · B767-OPS · PORTAL-3.2</div>
+                  <h1>~/ crew-session-init</h1>
+                </div>
+                <div class="fgroup">
+                  <label class="label-s">Staff ID</label>
+                  <input class="input" value="ANG-2847" />
+                </div>
+                <div class="fgroup">
+                  <label class="label-s">Password</label>
+                  <input class="input" type="password" value="••••••••••" />
+                </div>
+                <div class="form-foot">
+                  <span class="chk"><i></i> Remember session · 30d</span>
+                  <a href="#">forgot-password</a>
+                </div>
+                <button class="btn" style="width: 100%">AUTHENTICATE &rarr;</button>
+                <div
+                  style="
+                    margin-top: 16px;
+                    font-size: 10px;
+                    color: #6e7681;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    text-align: center;
+                  "
+                >
+                  Session &middot; TLS1.3 &middot; last login 2026-04-14 07:12Z
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V1 · Dashboard -->
+        <div class="screen-wrap">
+          <div class="screen-label">02 · Dashboard</div>
+          <div class="screen-frame v1">
+            <div class="topbar">
+              <div class="logo">AIR-NIUGINI · B767-PORTAL</div>
+              <div class="session">
+                <span>PILOT <b>CPT RONDEAU M</b></span>
+                <span>SENIORITY <b>#14</b></span>
+                <span>ROSTER <b>RP5/2026</b></span>
+                <span>UTC <b>2026-04-15 14:22Z</b></span>
+              </div>
+            </div>
+            <div class="tabs">
+              <a class="on">dashboard</a><a>requests</a><a>certifications</a><a>notifications</a
+              ><a>profile</a><a>feedback</a>
+            </div>
+            <div class="body">
+              <div class="grid-3" style="margin-bottom: 12px">
+                <div class="kpi">
+                  <div class="k">Compliance rate</div>
+                  <div class="v">91.7%</div>
+                  <div class="progress"><i style="width: 91.7%"></i></div>
+                  <div class="sub">22 of 24 certifications current</div>
+                </div>
+                <div class="kpi">
+                  <div class="k">Pending · leave</div>
+                  <div class="v">02</div>
+                  <div class="sub"><span class="dot warn"></span>awaiting review</div>
+                </div>
+                <div class="kpi">
+                  <div class="k">Pending · RDO/SDO</div>
+                  <div class="v">01</div>
+                  <div class="sub"><span class="dot warn"></span>awaiting review</div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <span>Roster period · current</span>
+                  <div class="actions"><a href="#">view rp-calendar</a></div>
+                </div>
+                <div class="panel-body">
+                  <div class="row">
+                    <span class="code">RP5/2026</span
+                    ><span class="label">28 Mar — 24 Apr · week 4 of 4</span
+                    ><span class="meta">ends in 9 days</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">RP6/2026</span
+                    ><span class="label">25 Apr — 22 May · upcoming</span
+                    ><span class="meta">starts in 10 days</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">RP7/2026</span
+                    ><span class="label">23 May — 19 Jun · upcoming</span
+                    ><span class="meta">bid window open</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="panel">
+                  <div class="panel-head">
+                    <span>Expiring certifications · 30d</span>
+                    <div class="actions"><a href="#">all 24</a></div>
+                  </div>
+                  <div class="panel-body">
+                    <div class="row">
+                      <span class="dot crit"></span><span class="label">Line Check</span
+                      ><span class="meta">expires 2026-04-27 · 12d</span>
+                    </div>
+                    <div class="row">
+                      <span class="dot warn"></span><span class="label">Dangerous Goods</span
+                      ><span class="meta">expires 2026-05-13 · 28d</span>
+                    </div>
+                    <div class="row">
+                      <span class="dot ok"></span><span class="label">PPC · B767-300ER</span
+                      ><span class="meta">expires 2026-07-02 · 78d</span>
+                    </div>
+                    <div class="row">
+                      <span class="dot ok"></span><span class="label">Medical · Class 1</span
+                      ><span class="meta">expires 2026-09-15 · 153d</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <div class="panel-head">
+                    <span>Pending requests</span>
+                    <div class="actions"><a href="#">new</a></div>
+                  </div>
+                  <div class="panel-body">
+                    <div class="row">
+                      <span class="code">LV-00421</span
+                      ><span class="label">ANNUAL · 15—22 Jul · 8d</span
+                      ><span class="status pending">pending</span>
+                    </div>
+                    <div class="row">
+                      <span class="code">LV-00419</span
+                      ><span class="label">COMPAS · 03—04 May · 2d</span
+                      ><span class="status review">review</span>
+                    </div>
+                    <div class="row">
+                      <span class="code">RDO-0218</span><span class="label">RDO · 28 Apr · 1d</span
+                      ><span class="status pending">pending</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel" style="margin-top: 12px">
+                <div class="panel-head">
+                  <span>Leave bid · RP1/2027</span>
+                  <div class="actions"><a href="#">view bid-table</a></div>
+                </div>
+                <div class="panel-body">
+                  <div class="row">
+                    <span class="code">BID-0014</span
+                    ><span class="label">Submitted · priority rank 4 of 12 captains</span
+                    ><span class="status approved">active</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V1 · Requests -->
+        <div class="screen-wrap">
+          <div class="screen-label">03 · My Requests</div>
+          <div class="screen-frame v1">
+            <div class="topbar">
+              <div class="logo">AIR-NIUGINI · B767-PORTAL</div>
+              <div class="session"><span>CPT RONDEAU M · #14 · RP5/2026</span></div>
+            </div>
+            <div class="tabs">
+              <a>dashboard</a><a class="on">requests</a><a>certifications</a><a>notifications</a
+              ><a>profile</a><a>feedback</a>
+            </div>
+            <div class="body">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  margin-bottom: 12px;
+                  align-items: center;
+                "
+              >
+                <div>
+                  <div style="font-size: 14px; color: #e6edf3">&gt; ls ~/requests</div>
+                  <div class="muted" style="font-size: 11px; margin-top: 4px">
+                    filter · [leave] [rdo-sdo] all · pending · approved · denied
+                  </div>
+                </div>
+                <button class="btn">+ new request</button>
+              </div>
+
+              <div class="tabs" style="margin-bottom: 0">
+                <a class="on">leave &nbsp;<span class="muted">12</span></a>
+                <a>rdo/sdo &nbsp;<span class="muted">05</span></a>
+              </div>
+
+              <div class="panel">
+                <div class="panel-head">
+                  <span>Leave requests · 12 total · 2 pending</span>
+                  <div class="actions"><a href="#">export csv</a><a href="#">filters</a></div>
+                </div>
+                <div class="panel-body">
+                  <div class="row">
+                    <span class="code">LV-00421</span
+                    ><span class="label">ANNUAL · 15—22 Jul 2026 · 8 days</span
+                    ><span class="meta">sub 2026-04-10</span
+                    ><span class="status pending">pending</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">LV-00419</span
+                    ><span class="label">COMPAS · 03—04 May 2026 · 2 days</span
+                    ><span class="meta">sub 2026-04-02</span
+                    ><span class="status review">review</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">LV-00402</span
+                    ><span class="label">ANNUAL · 12—19 Feb 2026 · 8 days</span
+                    ><span class="meta">sub 2026-01-03</span
+                    ><span class="status approved">approved</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">LV-00388</span
+                    ><span class="label">SICK · 08—09 Jan 2026 · 2 days</span
+                    ><span class="meta">sub 2026-01-08</span
+                    ><span class="status approved">approved</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">LV-00365</span
+                    ><span class="label">ANNUAL · 14—21 Dec 2025 · 8 days</span
+                    ><span class="meta">sub 2025-10-20</span
+                    ><span class="status approved">approved</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">LV-00341</span
+                    ><span class="label">LSL · 01—28 Oct 2025 · 28 days</span
+                    ><span class="meta">sub 2025-08-14</span
+                    ><span class="status denied">denied</span>
+                  </div>
+                  <div class="row">
+                    <span class="code">LV-00319</span
+                    ><span class="label">ANNUAL · 18—25 Aug 2025 · 8 days</span
+                    ><span class="meta">sub 2025-06-30</span
+                    ><span class="status approved">approved</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V1 · New Leave -->
+        <div class="screen-wrap">
+          <div class="screen-label">04 · New Leave Request</div>
+          <div class="screen-frame v1">
+            <div class="topbar">
+              <div class="logo">AIR-NIUGINI · B767-PORTAL</div>
+              <div class="session"><span>CPT RONDEAU M · #14 · RP5/2026</span></div>
+            </div>
+            <div class="tabs">
+              <a>dashboard</a><a class="on">requests &gt; new</a><a>certifications</a
+              ><a>notifications</a><a>profile</a>
+            </div>
+            <div class="body">
+              <div style="font-size: 13px; color: #e6edf3; margin-bottom: 4px">
+                &gt; new leave-request --interactive
+              </div>
+              <div class="muted" style="font-size: 11px; margin-bottom: 16px">
+                submit request for fleet management review. 21d advance notice preferred.
+              </div>
+
+              <div class="panel">
+                <div class="panel-head"><span>Request details</span></div>
+                <div class="panel-body" style="padding: 12px">
+                  <div class="alert">⚠ advance-notice &lt; 21d · late-request flag will be set</div>
+
+                  <div class="fgroup">
+                    <label class="label-s">request-type *</label>
+                    <input class="input" value="ANNUAL · Annual Leave" readonly />
+                    <div class="muted" style="font-size: 10px; margin-top: 4px">
+                      options: annual · sick · lsl · lwop · maternity · compassionate
+                    </div>
+                  </div>
+
+                  <div class="form-grid">
+                    <div>
+                      <label class="label-s">start-date *</label
+                      ><input class="input" value="2026-05-03" />
+                    </div>
+                    <div>
+                      <label class="label-s">end-date *</label
+                      ><input class="input" value="2026-05-10" />
+                    </div>
+                  </div>
+
+                  <div class="fgroup">
+                    <label class="label-s">duration</label>
+                    <input class="input" value="8 days · crosses RP6/RP7 boundary" readonly />
+                  </div>
+
+                  <div class="fgroup">
+                    <label class="label-s">reason (optional · max 500)</label>
+                    <textarea class="input" rows="4" style="font-family: inherit; resize: vertical">
+Family obligations. Booking prior to peak season to minimize impact on RP6 rostering.</textarea
+                    >
+                    <div class="muted" style="font-size: 10px; margin-top: 4px">
+                      143/500 · plain-text only
+                    </div>
+                  </div>
+
+                  <div class="alert">
+                    ℹ leave-eligibility: 6 captains on leave in window · min-crew <b>OK</b> · your
+                    seniority rank #14 in bid queue
+                  </div>
+
+                  <div class="form-footer">
+                    <button class="btn ghost">cancel</button>
+                    <button class="btn">submit →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========================================================== -->
+    <!-- V2 — AIRLINE CALM                                           -->
+    <!-- ========================================================== -->
+    <main class="variant" data-v="v2">
+      <div class="variant-intro">
+        <h2>V2 · Airline Calm</h2>
+        <p>
+          Generous whitespace, soft borders, muted deep-green accent. Reads like a well-designed
+          settings app. Prioritizes clarity and low cognitive load over density.
+        </p>
+        <div class="meta">
+          <span>All-sans typography</span>
+          <span>Warm off-white</span>
+          <span>15–17px base</span>
+          <span>Lowest cognitive load</span>
+        </div>
+      </div>
+
+      <div class="screens">
+        <!-- V2 · Login -->
+        <div class="screen-wrap">
+          <div class="screen-label">01 · Login</div>
+          <div class="screen-frame v2">
+            <div class="login-wrap">
+              <div class="login-card">
+                <div class="login-brand">
+                  <div class="mark">AN</div>
+                  <h1>Pilot Portal</h1>
+                  <p>Air Niugini · B767 Fleet</p>
+                </div>
+                <div style="margin-bottom: 18px">
+                  <label class="label">Staff ID</label>
+                  <input class="input" value="ANG-2847" />
+                </div>
+                <div style="margin-bottom: 14px">
+                  <label class="label">Password</label>
+                  <input class="input" type="password" value="••••••••••" />
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 22px;
+                    font-size: 14px;
+                  "
+                >
+                  <label
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;
+                      color: #4a4a4a;
+                      cursor: pointer;
+                    "
+                  >
+                    <span
+                      style="
+                        width: 18px;
+                        height: 18px;
+                        border: 1.5px solid #2c5f2d;
+                        background: #2c5f2d;
+                        border-radius: 4px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #fff;
+                      "
+                      >✓</span
+                    >
+                    Remember me for 30 days
+                  </label>
+                  <a href="#">Forgot password?</a>
+                </div>
+                <button class="btn" style="width: 100%; padding: 13px">Sign in</button>
+                <p style="text-align: center; font-size: 12px; color: #6b6b6b; margin: 18px 0 0">
+                  Contact your administrator if you need account access.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V2 · Dashboard -->
+        <div class="screen-wrap">
+          <div class="screen-label">02 · Dashboard</div>
+          <div class="screen-frame v2">
+            <div class="topbar">
+              <div class="logo">Pilot Portal<small>Air Niugini · B767</small></div>
+              <div class="nav">
+                <a class="on">Home</a><a>Requests</a><a>Certifications</a><a>Notifications</a
+                ><a>Profile</a>
+              </div>
+              <div
+                style="
+                  width: 36px;
+                  height: 36px;
+                  border-radius: 50%;
+                  background: #eef5ef;
+                  color: #2c5f2d;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: 600;
+                  font-size: 13px;
+                "
+              >
+                MR
+              </div>
+            </div>
+
+            <div class="hero">
+              <h1>Good afternoon, Captain Rondeau</h1>
+              <p>
+                You're in roster period RP5/2026, which ends in 9 days. Everything looks on track.
+              </p>
+            </div>
+
+            <div class="container">
+              <div class="section">
+                <h3 class="section-title">At a glance</h3>
+                <div class="kgrid">
+                  <div class="kcard ok">
+                    <p class="k">Certification compliance</p>
+                    <p class="v">91.7%</p>
+                    <p class="sub">22 of 24 certifications current</p>
+                  </div>
+                  <div class="kcard">
+                    <p class="k">Retirement outlook</p>
+                    <p class="v">8y 4m</p>
+                    <p class="sub">Retirement date · 24 Aug 2034</p>
+                  </div>
+                  <div class="kcard">
+                    <p class="k">Pending leave requests</p>
+                    <p class="v">2</p>
+                    <p class="sub">Awaiting fleet management review</p>
+                  </div>
+                  <div class="kcard">
+                    <p class="k">Pending RDO/SDO</p>
+                    <p class="v">1</p>
+                    <p class="sub">Awaiting fleet management review</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3 class="section-title">Roster period</h3>
+                <div class="card">
+                  <div class="row">
+                    <div class="left">
+                      <h4>RP5/2026 · Current</h4>
+                      <p>28 March — 24 April, 2026 · Week 4 of 4</p>
+                    </div>
+                    <span class="pill info">9 days remaining</span>
+                  </div>
+                  <div class="row">
+                    <div class="left">
+                      <h4>RP6/2026 · Next</h4>
+                      <p>25 April — 22 May, 2026</p>
+                    </div>
+                    <span class="pill mute">Starts in 10 days</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3 class="section-title">Expiring certifications</h3>
+                <div class="card">
+                  <div class="row">
+                    <div class="left">
+                      <h4>Line Check</h4>
+                      <p>Expires 27 April 2026 · 12 days</p>
+                    </div>
+                    <span class="pill crit">Critical</span>
+                  </div>
+                  <div class="row">
+                    <div class="left">
+                      <h4>Dangerous Goods Awareness</h4>
+                      <p>Expires 13 May 2026 · 28 days</p>
+                    </div>
+                    <span class="pill warn">Caution</span>
+                  </div>
+                  <div class="row">
+                    <div class="left">
+                      <h4>PPC · B767-300ER</h4>
+                      <p>Expires 2 July 2026 · 78 days</p>
+                    </div>
+                    <span class="pill ok">Current</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3 class="section-title">Quick actions</h3>
+                <div class="kgrid">
+                  <div class="card" style="padding: 20px 24px; cursor: pointer">
+                    <h3 style="margin-bottom: 4px">Submit leave request</h3>
+                    <p class="desc">Annual, sick, long service, or unpaid leave</p>
+                  </div>
+                  <div class="card" style="padding: 20px 24px; cursor: pointer">
+                    <h3 style="margin-bottom: 4px">Submit RDO/SDO</h3>
+                    <p class="desc">Request a rest or standard day off change</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V2 · Requests -->
+        <div class="screen-wrap">
+          <div class="screen-label">03 · My Requests</div>
+          <div class="screen-frame v2">
+            <div class="topbar">
+              <div class="logo">Pilot Portal<small>Air Niugini · B767</small></div>
+              <div class="nav">
+                <a>Home</a><a class="on">Requests</a><a>Certifications</a><a>Notifications</a
+                ><a>Profile</a>
+              </div>
+              <div
+                style="
+                  width: 36px;
+                  height: 36px;
+                  border-radius: 50%;
+                  background: #eef5ef;
+                  color: #2c5f2d;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: 600;
+                  font-size: 13px;
+                "
+              >
+                MR
+              </div>
+            </div>
+
+            <div
+              class="hero"
+              style="display: flex; justify-content: space-between; align-items: flex-end"
+            >
+              <div>
+                <h1>My Requests</h1>
+                <p>Your leave and RDO/SDO requests in one place.</p>
+              </div>
+              <button class="btn">+ New Leave Request</button>
+            </div>
+
+            <div class="container">
+              <div class="tabs">
+                <a class="on">Leave · 12</a>
+                <a>RDO/SDO · 5</a>
+              </div>
+
+              <div class="card" style="padding: 0">
+                <div class="row" style="padding: 20px 24px">
+                  <div class="left">
+                    <h4>Annual Leave · 15–22 July 2026</h4>
+                    <p>8 days · submitted 10 Apr · ref LV-00421</p>
+                  </div>
+                  <span class="pill warn">Pending review</span>
+                </div>
+                <div class="row" style="padding: 20px 24px">
+                  <div class="left">
+                    <h4>Compassionate Leave · 3–4 May 2026</h4>
+                    <p>2 days · submitted 2 Apr · ref LV-00419</p>
+                  </div>
+                  <span class="pill info">In review</span>
+                </div>
+                <div class="row" style="padding: 20px 24px">
+                  <div class="left">
+                    <h4>Annual Leave · 12–19 February 2026</h4>
+                    <p>8 days · submitted 3 Jan · ref LV-00402</p>
+                  </div>
+                  <span class="pill ok">Approved</span>
+                </div>
+                <div class="row" style="padding: 20px 24px">
+                  <div class="left">
+                    <h4>Sick Leave · 8–9 January 2026</h4>
+                    <p>2 days · submitted 8 Jan · ref LV-00388</p>
+                  </div>
+                  <span class="pill ok">Approved</span>
+                </div>
+                <div class="row" style="padding: 20px 24px">
+                  <div class="left">
+                    <h4>Annual Leave · 14–21 December 2025</h4>
+                    <p>8 days · submitted 20 Oct · ref LV-00365</p>
+                  </div>
+                  <span class="pill ok">Approved</span>
+                </div>
+                <div class="row" style="padding: 20px 24px">
+                  <div class="left">
+                    <h4>Long Service Leave · 1–28 October 2025</h4>
+                    <p>28 days · submitted 14 Aug · ref LV-00341</p>
+                  </div>
+                  <span class="pill crit">Declined</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V2 · New Leave -->
+        <div class="screen-wrap">
+          <div class="screen-label">04 · New Leave Request</div>
+          <div class="screen-frame v2">
+            <div class="topbar">
+              <div class="logo">Pilot Portal<small>Air Niugini · B767</small></div>
+              <div class="nav">
+                <a>Home</a><a class="on">Requests</a><a>Certifications</a><a>Notifications</a>
+              </div>
+              <div
+                style="
+                  width: 36px;
+                  height: 36px;
+                  border-radius: 50%;
+                  background: #eef5ef;
+                  color: #2c5f2d;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: 600;
+                  font-size: 13px;
+                "
+              >
+                MR
+              </div>
+            </div>
+
+            <div class="hero">
+              <p style="font-size: 13px; margin-bottom: 4px"><a href="#">← My Requests</a></p>
+              <h1>Submit a leave request</h1>
+              <p>
+                Leave requests should be submitted at least 21 days in advance. Late requests are
+                reviewed based on operational needs.
+              </p>
+            </div>
+
+            <div class="container">
+              <div class="card" style="max-width: 640px">
+                <div class="notice">
+                  <strong>Heads up:</strong> This request is within 21 days of departure. It'll be
+                  flagged as a late request and may be subject to additional review.
+                </div>
+
+                <div style="margin-bottom: 20px">
+                  <label class="label">Leave type</label>
+                  <input class="input" value="Annual Leave" />
+                  <p class="help">
+                    Annual, Sick, Long Service, Unpaid, Maternity, or Compassionate.
+                  </p>
+                </div>
+
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 16px;
+                    margin-bottom: 20px;
+                  "
+                >
+                  <div>
+                    <label class="label">Start date</label>
+                    <input class="input" value="2026-05-03" />
+                  </div>
+                  <div>
+                    <label class="label">End date</label>
+                    <input class="input" value="2026-05-10" />
+                  </div>
+                </div>
+
+                <div class="notice info">
+                  <strong>8 days requested</strong> · crosses RP6 boundary · 6 captains already on
+                  leave in this window, minimum crew levels remain met.
+                </div>
+
+                <div style="margin-bottom: 20px">
+                  <label class="label"
+                    >Reason <span style="font-weight: 400; color: #6b6b6b">(optional)</span></label
+                  >
+                  <textarea class="input" rows="4" style="font-family: inherit">
+Family obligations. Booking prior to peak season to minimize impact on RP6 rostering.</textarea
+                  >
+                  <p class="help">143 of 500 characters.</p>
+                </div>
+
+                <div
+                  style="
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 12px;
+                    padding-top: 20px;
+                    border-top: 1px solid #efede8;
+                    margin-top: 8px;
+                  "
+                >
+                  <button class="btn ghost">Cancel</button>
+                  <button class="btn">Submit request</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========================================================== -->
+    <!-- V3 — MOBILE-FIRST CARDS                                     -->
+    <!-- ========================================================== -->
+    <main class="variant" data-v="v3">
+      <div class="variant-intro">
+        <h2>V3 · Mobile-First Cards</h2>
+        <p>
+          Designed phone-first. Large tap targets, vertically stacked cards, persistent bottom nav.
+          Strong for pilots checking in on the move; desktop renders the same frame centered.
+        </p>
+        <div class="meta">
+          <span>All-sans typography</span>
+          <span>iOS-flavored</span>
+          <span>44px tap targets</span>
+          <span>Bottom tab navigation</span>
+        </div>
+      </div>
+
+      <div class="screens">
+        <!-- V3 · Login -->
+        <div class="screen-wrap">
+          <div class="screen-label">01 · Login</div>
+          <div class="screen-frame v3">
+            <div class="phone">
+              <div class="statusbar"><span>9:41</span><span>•••• 🔋</span></div>
+              <div class="scroll" style="padding-top: 0">
+                <div class="login-brand">
+                  <div class="mark">AN</div>
+                  <h1>Pilot Portal</h1>
+                  <p>Air Niugini · B767</p>
+                </div>
+                <div class="field">
+                  <label class="label">Staff ID</label>
+                  <input class="input" value="ANG-2847" />
+                </div>
+                <div class="field">
+                  <label class="label">Password</label>
+                  <input class="input" type="password" value="••••••••••" />
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-bottom: 18px;
+                    padding: 0 4px;
+                  "
+                >
+                  <span
+                    style="
+                      width: 22px;
+                      height: 22px;
+                      border-radius: 6px;
+                      background: #007aff;
+                      color: #fff;
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 13px;
+                    "
+                    >✓</span
+                  >
+                  <span style="font-size: 14px">Remember me · 30 days</span>
+                </div>
+                <button class="btn">Sign in</button>
+                <p
+                  style="
+                    text-align: center;
+                    font-size: 14px;
+                    color: #007aff;
+                    margin: 18px 0;
+                    font-weight: 500;
+                  "
+                >
+                  Forgot password?
+                </p>
+                <p style="text-align: center; font-size: 12px; color: #8e8e93; margin-top: 40px">
+                  Contact your administrator for account access.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V3 · Dashboard -->
+        <div class="screen-wrap">
+          <div class="screen-label">02 · Dashboard</div>
+          <div class="screen-frame v3">
+            <div class="phone">
+              <div class="statusbar"><span>9:41</span><span>•••• 🔋</span></div>
+              <div class="topbar">
+                <h1>Home</h1>
+                <div class="avatar">MR</div>
+              </div>
+              <div class="scroll">
+                <p
+                  style="
+                    font-size: 22px;
+                    font-weight: 700;
+                    letter-spacing: -0.02em;
+                    margin: 0 4px 4px;
+                  "
+                >
+                  Good afternoon,<br />Captain Rondeau
+                </p>
+                <p style="font-size: 13px; color: #636366; margin: 0 4px 18px">
+                  RP5/2026 ends in 9 days
+                </p>
+
+                <div class="kbig ok">
+                  <p class="v">91.7%</p>
+                  <p class="k">Certification compliance</p>
+                </div>
+
+                <div class="krow">
+                  <div class="ksmall">
+                    <p class="v">2</p>
+                    <p class="k">Pending leave</p>
+                  </div>
+                  <div class="ksmall">
+                    <p class="v">1</p>
+                    <p class="k">Pending RDO/SDO</p>
+                  </div>
+                </div>
+
+                <p class="sectitle">Expiring soon</p>
+                <div class="list-card">
+                  <div class="item">
+                    <div>
+                      <div class="n">Line Check</div>
+                      <div class="m">Expires 27 Apr · 12 days</div>
+                    </div>
+                    <span class="pill crit">Critical</span>
+                  </div>
+                  <div class="item">
+                    <div>
+                      <div class="n">Dangerous Goods</div>
+                      <div class="m">Expires 13 May · 28 days</div>
+                    </div>
+                    <span class="pill warn">Caution</span>
+                  </div>
+                </div>
+
+                <p class="sectitle">Pending requests</p>
+                <div class="list-card">
+                  <div class="item">
+                    <div>
+                      <div class="n">Annual Leave · 15–22 Jul</div>
+                      <div class="m">Submitted 10 Apr</div>
+                    </div>
+                    <span class="pill warn">Pending</span>
+                  </div>
+                  <div class="item">
+                    <div>
+                      <div class="n">Compassionate · 3–4 May</div>
+                      <div class="m">Submitted 2 Apr</div>
+                    </div>
+                    <span class="pill info">Review</span>
+                  </div>
+                </div>
+
+                <p class="sectitle">Quick actions</p>
+                <button class="btn" style="margin-bottom: 10px">+ New leave request</button>
+                <button class="btn ghost">+ New RDO/SDO request</button>
+              </div>
+              <div class="tabbar">
+                <div class="t on"><i></i>Home</div>
+                <div class="t"><i></i>Requests</div>
+                <div class="t"><i></i>Certs</div>
+                <div class="t"><i></i>Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V3 · Requests -->
+        <div class="screen-wrap">
+          <div class="screen-label">03 · My Requests</div>
+          <div class="screen-frame v3">
+            <div class="phone">
+              <div class="statusbar"><span>9:41</span><span>•••• 🔋</span></div>
+              <div class="topbar">
+                <h1>Requests</h1>
+                <div
+                  style="
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    background: #007aff;
+                    color: #fff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 700;
+                  "
+                >
+                  +
+                </div>
+              </div>
+              <div class="scroll">
+                <div style="display: flex; gap: 8px; margin-bottom: 14px">
+                  <span class="pill info" style="padding: 7px 14px; font-size: 13px"
+                    >Leave · 12</span
+                  >
+                  <span class="pill mute" style="padding: 7px 14px; font-size: 13px"
+                    >RDO/SDO · 5</span
+                  >
+                </div>
+
+                <p class="sectitle">Pending</p>
+                <div class="list-card">
+                  <div class="item">
+                    <div>
+                      <div class="n">Annual · 15–22 Jul 2026</div>
+                      <div class="m">8 days · ref LV-00421</div>
+                    </div>
+                    <span class="pill warn">Pending</span>
+                  </div>
+                  <div class="item">
+                    <div>
+                      <div class="n">Compassionate · 3–4 May</div>
+                      <div class="m">2 days · ref LV-00419</div>
+                    </div>
+                    <span class="pill info">Review</span>
+                  </div>
+                </div>
+
+                <p class="sectitle">History</p>
+                <div class="list-card">
+                  <div class="item">
+                    <div>
+                      <div class="n">Annual · 12–19 Feb 2026</div>
+                      <div class="m">8 days · ref LV-00402</div>
+                    </div>
+                    <span class="pill ok">Approved</span>
+                  </div>
+                  <div class="item">
+                    <div>
+                      <div class="n">Sick · 8–9 Jan 2026</div>
+                      <div class="m">2 days · ref LV-00388</div>
+                    </div>
+                    <span class="pill ok">Approved</span>
+                  </div>
+                  <div class="item">
+                    <div>
+                      <div class="n">Annual · 14–21 Dec 2025</div>
+                      <div class="m">8 days · ref LV-00365</div>
+                    </div>
+                    <span class="pill ok">Approved</span>
+                  </div>
+                  <div class="item">
+                    <div>
+                      <div class="n">LSL · 1–28 Oct 2025</div>
+                      <div class="m">28 days · ref LV-00341</div>
+                    </div>
+                    <span class="pill crit">Declined</span>
+                  </div>
+                </div>
+              </div>
+              <div class="tabbar">
+                <div class="t"><i></i>Home</div>
+                <div class="t on"><i></i>Requests</div>
+                <div class="t"><i></i>Certs</div>
+                <div class="t"><i></i>Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V3 · New Leave -->
+        <div class="screen-wrap">
+          <div class="screen-label">04 · New Leave Request</div>
+          <div class="screen-frame v3">
+            <div class="phone">
+              <div class="statusbar"><span>9:41</span><span>•••• 🔋</span></div>
+              <div class="topbar">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <span style="font-size: 20px; color: #007aff">←</span>
+                  <h1>New leave</h1>
+                </div>
+                <span style="font-size: 15px; color: #007aff; font-weight: 600">Save</span>
+              </div>
+              <div class="scroll">
+                <div class="notice">⚠️ Less than 21 days advance notice. Flagged as late.</div>
+
+                <div class="field">
+                  <label class="label">Leave type</label>
+                  <div
+                    class="input"
+                    style="display: flex; justify-content: space-between; align-items: center"
+                  >
+                    <span>Annual Leave</span>
+                    <span style="color: #8e8e93">▾</span>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Start date</label>
+                  <input class="input" value="Sunday, 3 May 2026" />
+                </div>
+
+                <div class="field">
+                  <label class="label">End date</label>
+                  <input class="input" value="Sunday, 10 May 2026" />
+                </div>
+
+                <div class="notice info">
+                  8 days requested · RP6/2026 · 6 captains on leave · min crew met ✓
+                </div>
+
+                <div class="field">
+                  <label class="label">Reason (optional)</label>
+                  <textarea class="input" rows="4" style="font-family: inherit; resize: vertical">
+Family obligations. Booking prior to peak season.</textarea
+                  >
+                </div>
+
+                <button class="btn" style="margin-top: 8px">Submit request</button>
+                <button class="btn ghost" style="margin-top: 10px">Cancel</button>
+              </div>
+              <div class="tabbar">
+                <div class="t"><i></i>Home</div>
+                <div class="t on"><i></i>Requests</div>
+                <div class="t"><i></i>Certs</div>
+                <div class="t"><i></i>Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========================================================== -->
+    <!-- V4 — STATUS BOARD                                           -->
+    <!-- ========================================================== -->
+    <main class="variant" data-v="v4">
+      <div class="variant-intro">
+        <h2>V4 · Status Board</h2>
+        <p>
+          Dashboard as flight-information display. Big colored tiles, uppercase labels, color-coded
+          urgency. Scan from across the room. Best for at-a-glance readiness, weakest for
+          deep-editing flows (they still work, just quieter).
+        </p>
+        <div class="meta">
+          <span>All-sans, condensed weights</span>
+          <span>Black surface</span>
+          <span>14px base / 48px hero numerics</span>
+          <span>FIDS aesthetic</span>
+        </div>
+      </div>
+
+      <div class="screens">
+        <!-- V4 · Login -->
+        <div class="screen-wrap">
+          <div class="screen-label">01 · Login</div>
+          <div class="screen-frame v4">
+            <div class="login-wrap">
+              <div class="login-card">
+                <h1><span>◆</span> CREW ACCESS</h1>
+                <div class="sub">Air Niugini · B767 Fleet · Terminal 3.2</div>
+
+                <div style="margin-bottom: 18px">
+                  <label class="label">Staff ID</label>
+                  <input class="input" value="ANG-2847" />
+                </div>
+                <div style="margin-bottom: 18px">
+                  <label class="label">Password</label>
+                  <input class="input" type="password" value="••••••••••" />
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 24px;
+                    font-size: 11px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.12em;
+                    color: #888;
+                  "
+                >
+                  <label style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+                    <span
+                      style="width: 14px; height: 14px; background: #ffb020; display: inline-block"
+                    ></span>
+                    REMEMBER · 30D
+                  </label>
+                  <a href="#" style="color: #ffb020">RESET PASSWORD</a>
+                </div>
+                <button class="btn" style="width: 100%">AUTHENTICATE</button>
+
+                <div
+                  style="
+                    margin-top: 32px;
+                    padding-top: 20px;
+                    border-top: 1px solid #1a1a1a;
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.15em;
+                    color: #666;
+                    text-align: center;
+                  "
+                >
+                  SECURE SESSION · TLS 1.3 · NODE POM-1
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V4 · Dashboard -->
+        <div class="screen-wrap">
+          <div class="screen-label">02 · Dashboard</div>
+          <div class="screen-frame v4">
+            <div class="topbar">
+              <div class="logo"><span>◆</span>CPT RONDEAU M · ANG-2847 · SEN #14</div>
+              <div class="meta">
+                <span>RP <b>5/2026</b></span>
+                <span>DAYS LEFT <b>09</b></span>
+                <span class="live">LIVE · 14:22Z</span>
+              </div>
+            </div>
+
+            <div class="body">
+              <div class="g4 grid">
+                <div class="tile ok">
+                  <div class="k">COMPLIANCE</div>
+                  <div class="v">91.7%</div>
+                  <div class="sub">22 / 24 CURRENT</div>
+                </div>
+                <div class="tile warn">
+                  <div class="k">EXPIRING · 30D</div>
+                  <div class="v">02</div>
+                  <div class="sub">ACTION REQUIRED</div>
+                </div>
+                <div class="tile info">
+                  <div class="k">PENDING LEAVE</div>
+                  <div class="v">02</div>
+                  <div class="sub">AWAITING REVIEW</div>
+                </div>
+                <div class="tile info">
+                  <div class="k">PENDING RDO/SDO</div>
+                  <div class="v">01</div>
+                  <div class="sub">AWAITING REVIEW</div>
+                </div>
+              </div>
+
+              <div class="section-title">CERTIFICATIONS · NEXT 90 DAYS</div>
+              <div class="board">
+                <div class="board-head">
+                  <span>EXPIRES</span><span>CHECK</span><span>STATUS</span><span>DAYS</span
+                  ><span></span>
+                </div>
+                <div class="board-row">
+                  <span class="id">2026-04-27</span>
+                  <div>
+                    <div class="nm">LINE CHECK</div>
+                    <div class="sub">PIC · B767-300ER</div>
+                  </div>
+                  <span><span class="stat crit">CRITICAL</span></span>
+                  <span>12</span>
+                  <span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">2026-05-13</span>
+                  <div>
+                    <div class="nm">DANGEROUS GOODS</div>
+                    <div class="sub">AWARENESS TRAINING</div>
+                  </div>
+                  <span><span class="stat warn">CAUTION</span></span>
+                  <span>28</span>
+                  <span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">2026-07-02</span>
+                  <div>
+                    <div class="nm">PPC</div>
+                    <div class="sub">B767-300ER PROFICIENCY</div>
+                  </div>
+                  <span><span class="stat ok">CURRENT</span></span>
+                  <span>78</span>
+                  <span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">2026-09-15</span>
+                  <div>
+                    <div class="nm">MEDICAL CLASS 1</div>
+                    <div class="sub">CASA AVIATION MEDICAL</div>
+                  </div>
+                  <span><span class="stat ok">CURRENT</span></span>
+                  <span>153</span>
+                  <span style="text-align: right">→</span>
+                </div>
+              </div>
+
+              <div class="section-title">ACTIVE REQUESTS</div>
+              <div class="board">
+                <div class="board-head">
+                  <span>REF</span><span>REQUEST</span><span>DATES</span><span>STATUS</span
+                  ><span></span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00421</span>
+                  <div>
+                    <div class="nm">ANNUAL LEAVE</div>
+                    <div class="sub">8 DAYS · SUBMITTED 2026-04-10</div>
+                  </div>
+                  <span>15 — 22 JUL</span>
+                  <span><span class="stat warn">PENDING</span></span>
+                  <span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00419</span>
+                  <div>
+                    <div class="nm">COMPASSIONATE</div>
+                    <div class="sub">2 DAYS · SUBMITTED 2026-04-02</div>
+                  </div>
+                  <span>03 — 04 MAY</span>
+                  <span><span class="stat info">REVIEW</span></span>
+                  <span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">RDO-0218</span>
+                  <div>
+                    <div class="nm">RDO REQUEST</div>
+                    <div class="sub">SINGLE DAY · SUBMITTED 2026-04-13</div>
+                  </div>
+                  <span>28 APR</span>
+                  <span><span class="stat warn">PENDING</span></span>
+                  <span style="text-align: right">→</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V4 · Requests -->
+        <div class="screen-wrap">
+          <div class="screen-label">03 · My Requests</div>
+          <div class="screen-frame v4">
+            <div class="topbar">
+              <div class="logo"><span>◆</span>REQUESTS · CPT RONDEAU M</div>
+              <div class="meta">
+                <span>TOTAL <b>17</b></span
+                ><span>PENDING <b>03</b></span
+                ><span>APPROVED <b>12</b></span>
+              </div>
+            </div>
+
+            <div class="body">
+              <div style="display: flex; gap: 12px; margin-bottom: 24px">
+                <button class="btn">+ NEW LEAVE REQUEST</button>
+                <button class="btn ghost">+ NEW RDO/SDO</button>
+                <div style="flex: 1"></div>
+                <button class="btn ghost">EXPORT CSV</button>
+                <button class="btn ghost">FILTER</button>
+              </div>
+
+              <div class="g3 grid">
+                <div class="tile warn">
+                  <div class="k">LEAVE · PENDING</div>
+                  <div class="v" style="font-size: 36px">02</div>
+                </div>
+                <div class="tile ok">
+                  <div class="k">LEAVE · APPROVED YTD</div>
+                  <div class="v" style="font-size: 36px">08</div>
+                </div>
+                <div class="tile crit">
+                  <div class="k">LEAVE · DECLINED</div>
+                  <div class="v" style="font-size: 36px">01</div>
+                </div>
+              </div>
+
+              <div class="section-title">LEAVE · ALL REQUESTS</div>
+              <div class="board">
+                <div class="board-head">
+                  <span>REF</span><span>REQUEST</span><span>DATES</span><span>STATUS</span
+                  ><span></span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00421</span>
+                  <div>
+                    <div class="nm">ANNUAL</div>
+                    <div class="sub">8 DAYS · RP7/2026</div>
+                  </div>
+                  <span>15—22 JUL</span><span><span class="stat warn">PENDING</span></span
+                  ><span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00419</span>
+                  <div>
+                    <div class="nm">COMPASSIONATE</div>
+                    <div class="sub">2 DAYS · RP6/2026</div>
+                  </div>
+                  <span>03—04 MAY</span><span><span class="stat info">REVIEW</span></span
+                  ><span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00402</span>
+                  <div>
+                    <div class="nm">ANNUAL</div>
+                    <div class="sub">8 DAYS · RP3/2026</div>
+                  </div>
+                  <span>12—19 FEB</span><span><span class="stat ok">APPROVED</span></span
+                  ><span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00388</span>
+                  <div>
+                    <div class="nm">SICK</div>
+                    <div class="sub">2 DAYS · RP2/2026</div>
+                  </div>
+                  <span>08—09 JAN</span><span><span class="stat ok">APPROVED</span></span
+                  ><span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00365</span>
+                  <div>
+                    <div class="nm">ANNUAL</div>
+                    <div class="sub">8 DAYS · RP1/2026</div>
+                  </div>
+                  <span>14—21 DEC</span><span><span class="stat ok">APPROVED</span></span
+                  ><span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00341</span>
+                  <div>
+                    <div class="nm">LONG SERVICE</div>
+                    <div class="sub">28 DAYS · RP10/2025</div>
+                  </div>
+                  <span>01—28 OCT</span><span><span class="stat crit">DECLINED</span></span
+                  ><span style="text-align: right">→</span>
+                </div>
+                <div class="board-row">
+                  <span class="id">LV-00319</span>
+                  <div>
+                    <div class="nm">ANNUAL</div>
+                    <div class="sub">8 DAYS · RP8/2025</div>
+                  </div>
+                  <span>18—25 AUG</span><span><span class="stat ok">APPROVED</span></span
+                  ><span style="text-align: right">→</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V4 · New Leave -->
+        <div class="screen-wrap">
+          <div class="screen-label">04 · New Leave Request</div>
+          <div class="screen-frame v4">
+            <div class="topbar">
+              <div class="logo"><span>◆</span>NEW REQUEST · LEAVE</div>
+              <div class="meta">
+                <span>PILOT <b>RONDEAU M</b></span
+                ><span>SEN <b>#14</b></span>
+              </div>
+            </div>
+
+            <div class="body" style="max-width: 720px">
+              <div class="tile warn" style="margin-bottom: 16px">
+                <div class="k">⚠ LATE REQUEST FLAGGED</div>
+                <div class="v" style="font-size: 18px; margin-top: 6px">
+                  ADVANCE NOTICE &lt; 21 DAYS
+                </div>
+                <div class="sub">SUBJECT TO OPERATIONAL REVIEW</div>
+              </div>
+
+              <div style="margin-bottom: 20px">
+                <label class="label">REQUEST TYPE</label>
+                <input class="input" value="ANNUAL LEAVE" />
+              </div>
+
+              <div class="g2 grid" style="gap: 16px; margin-bottom: 20px">
+                <div>
+                  <label class="label">START DATE</label>
+                  <input class="input" value="2026-05-03" />
+                </div>
+                <div>
+                  <label class="label">END DATE</label>
+                  <input class="input" value="2026-05-10" />
+                </div>
+              </div>
+
+              <div class="g3 grid" style="gap: 2px; margin-bottom: 24px">
+                <div class="tile info" style="padding: 16px">
+                  <div class="k">DURATION</div>
+                  <div class="v" style="font-size: 28px">08 DAYS</div>
+                </div>
+                <div class="tile info" style="padding: 16px">
+                  <div class="k">ROSTER</div>
+                  <div class="v" style="font-size: 28px">RP6</div>
+                  <div class="sub">2026</div>
+                </div>
+                <div class="tile ok" style="padding: 16px">
+                  <div class="k">MIN-CREW</div>
+                  <div class="v" style="font-size: 28px">OK</div>
+                  <div class="sub">6 CPT ON LEAVE</div>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 24px">
+                <label class="label">REASON (OPTIONAL)</label>
+                <textarea class="input" rows="4" style="font-family: inherit">
+Family obligations. Booking prior to peak season to minimize RP6 rostering impact.</textarea
+                >
+              </div>
+
+              <div style="display: flex; gap: 12px">
+                <button class="btn">SUBMIT REQUEST →</button>
+                <button class="btn ghost">CANCEL</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========================================================== -->
+    <!-- V5 — LINEAR-STYLE PRO                                       -->
+    <!-- ========================================================== -->
+    <main class="variant" data-v="v5">
+      <div class="variant-intro">
+        <h2>V5 · Linear-style Pro</h2>
+        <p>
+          Borrowed from modern issue-tracker UX: compact rows, command-palette hint (⌘K), pill
+          filters, tight typography. Fastest for daily operators once the shortcuts are learned.
+        </p>
+        <div class="meta">
+          <span>Inter-style typography</span>
+          <span>Near-white surface</span>
+          <span>13.5px base</span>
+          <span>Keyboard-first</span>
+        </div>
+      </div>
+
+      <div class="screens">
+        <!-- V5 · Login -->
+        <div class="screen-wrap">
+          <div class="screen-label">01 · Login</div>
+          <div class="screen-frame v5">
+            <div class="login-wrap">
+              <div class="login-card">
+                <div class="brand">
+                  <div class="mark">A</div>
+                  <h1>Sign in to Pilot Portal</h1>
+                  <p>Air Niugini · B767 Fleet</p>
+                </div>
+                <div class="field">
+                  <label class="label">Staff ID</label>
+                  <input class="input" value="ANG-2847" />
+                </div>
+                <div class="field">
+                  <label class="label"
+                    >Password <a class="opt" href="#" style="color: #5e6ad2">Forgot?</a></label
+                  >
+                  <input class="input" type="password" value="••••••••••" />
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-bottom: 20px;
+                    font-size: 13px;
+                    color: #666;
+                  "
+                >
+                  <span
+                    style="
+                      width: 16px;
+                      height: 16px;
+                      border: 1px solid #5e6ad2;
+                      background: #5e6ad2;
+                      color: #fff;
+                      border-radius: 4px;
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 11px;
+                    "
+                    >✓</span
+                  >
+                  Remember me for 30 days
+                </div>
+                <button class="btn" style="width: 100%; justify-content: center; padding: 9px">
+                  Continue <span class="kb">↵</span>
+                </button>
+                <p style="font-size: 12px; color: #999; text-align: center; margin: 28px 0 0">
+                  Need help? Contact your administrator.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V5 · Dashboard -->
+        <div class="screen-wrap">
+          <div class="screen-label">02 · Dashboard</div>
+          <div class="screen-frame v5">
+            <div class="topbar">
+              <span class="logo">Pilot Portal</span>
+              <span class="sep">/</span>
+              <span class="crumb"><b>Captain Rondeau</b></span>
+              <span class="sep">/</span>
+              <span class="crumb">Home</span>
+              <div class="spacer"></div>
+              <span class="kbd">Search… <kbd>⌘K</kbd></span>
+            </div>
+
+            <div class="pagehead">
+              <h1>Home</h1>
+              <p>Roster period RP5/2026 · 9 days remaining · compliance 91.7%</p>
+            </div>
+
+            <div class="body">
+              <div class="section">
+                <div class="section-title"><h3>Overview</h3></div>
+                <div class="kgrid">
+                  <div class="kcard">
+                    <p class="k"><i style="background: #1a6b2b"></i>Compliance</p>
+                    <p class="v">91.7%</p>
+                    <p class="d">22 of 24 certs current</p>
+                  </div>
+                  <div class="kcard">
+                    <p class="k"><i style="background: #805a0d"></i>Expiring · 30d</p>
+                    <p class="v">2</p>
+                    <p class="d">1 critical · 1 caution</p>
+                  </div>
+                  <div class="kcard">
+                    <p class="k"><i style="background: #3e48a8"></i>Pending leave</p>
+                    <p class="v">2</p>
+                    <p class="d">Awaiting review</p>
+                  </div>
+                  <div class="kcard">
+                    <p class="k"><i style="background: #3e48a8"></i>Pending RDO/SDO</p>
+                    <p class="v">1</p>
+                    <p class="d">Awaiting review</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">
+                  <h3>Expiring certifications</h3>
+                  <a href="#" style="font-size: 12px">View all · 24</a>
+                </div>
+                <div class="list">
+                  <div class="list-head">
+                    <span>Due</span><span>Check</span><span>Status</span><span>Days left</span
+                    ><span></span>
+                  </div>
+                  <div class="list-row">
+                    <span class="id">04-27</span>
+                    <div>
+                      <div class="name">Line Check</div>
+                      <div class="sub">PIC · B767-300ER</div>
+                    </div>
+                    <span
+                      ><span class="pill crit"><i></i>Critical</span></span
+                    >
+                    <span>12 days</span>
+                    <span class="chev">›</span>
+                  </div>
+                  <div class="list-row">
+                    <span class="id">05-13</span>
+                    <div>
+                      <div class="name">Dangerous Goods</div>
+                      <div class="sub">Awareness training</div>
+                    </div>
+                    <span
+                      ><span class="pill warn"><i></i>Caution</span></span
+                    >
+                    <span>28 days</span>
+                    <span class="chev">›</span>
+                  </div>
+                  <div class="list-row">
+                    <span class="id">07-02</span>
+                    <div>
+                      <div class="name">PPC</div>
+                      <div class="sub">B767-300ER proficiency</div>
+                    </div>
+                    <span
+                      ><span class="pill ok"><i></i>Current</span></span
+                    >
+                    <span>78 days</span>
+                    <span class="chev">›</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">
+                  <h3>Active requests</h3>
+                  <a href="#" style="font-size: 12px">View all · 3</a>
+                </div>
+                <div class="list">
+                  <div class="list-head">
+                    <span>Ref</span><span>Request</span><span>Status</span><span>Dates</span
+                    ><span></span>
+                  </div>
+                  <div class="list-row">
+                    <span class="id">LV-00421</span>
+                    <div>
+                      <div class="name">Annual Leave</div>
+                      <div class="sub">8 days · submitted 10 Apr</div>
+                    </div>
+                    <span
+                      ><span class="pill warn"><i></i>Pending</span></span
+                    >
+                    <span>15–22 Jul</span>
+                    <span class="chev">›</span>
+                  </div>
+                  <div class="list-row">
+                    <span class="id">LV-00419</span>
+                    <div>
+                      <div class="name">Compassionate Leave</div>
+                      <div class="sub">2 days · submitted 2 Apr</div>
+                    </div>
+                    <span
+                      ><span class="pill info"><i></i>In review</span></span
+                    >
+                    <span>3–4 May</span>
+                    <span class="chev">›</span>
+                  </div>
+                  <div class="list-row">
+                    <span class="id">RDO-0218</span>
+                    <div>
+                      <div class="name">RDO Request</div>
+                      <div class="sub">1 day · submitted 13 Apr</div>
+                    </div>
+                    <span
+                      ><span class="pill warn"><i></i>Pending</span></span
+                    >
+                    <span>28 Apr</span>
+                    <span class="chev">›</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V5 · Requests -->
+        <div class="screen-wrap">
+          <div class="screen-label">03 · My Requests</div>
+          <div class="screen-frame v5">
+            <div class="topbar">
+              <span class="logo">Pilot Portal</span>
+              <span class="sep">/</span>
+              <span class="crumb"><b>Requests</b></span>
+              <div class="spacer"></div>
+              <span class="kbd">Search requests… <kbd>⌘K</kbd></span>
+            </div>
+
+            <div class="pagehead">
+              <div style="display: flex; justify-content: space-between; align-items: flex-end">
+                <div>
+                  <h1>Requests</h1>
+                  <p>17 total · 3 pending · 13 approved · 1 declined</p>
+                </div>
+                <button class="btn">+ New request <span class="kb">C</span></button>
+              </div>
+              <div class="tabs" style="margin-top: 14px">
+                <a class="on">Leave · 12</a>
+                <a>RDO/SDO · 5</a>
+              </div>
+            </div>
+
+            <div class="filters">
+              <span class="chip on">All · 12</span>
+              <span class="chip">Pending · 2</span>
+              <span class="chip">Approved · 9</span>
+              <span class="chip">Declined · 1</span>
+              <span class="chip">+ Filter</span>
+              <div class="spacer"></div>
+              <span class="count">Sorted: newest</span>
+            </div>
+
+            <div class="body">
+              <div class="list">
+                <div class="list-head">
+                  <span>Ref</span><span>Request</span><span>Status</span><span>Dates</span
+                  ><span></span>
+                </div>
+                <div class="list-row">
+                  <span class="id">LV-00421</span>
+                  <div>
+                    <div class="name">Annual Leave</div>
+                    <div class="sub">8 days · submitted 10 Apr · RP7/2026</div>
+                  </div>
+                  <span
+                    ><span class="pill warn"><i></i>Pending</span></span
+                  ><span>15–22 Jul 2026</span><span class="chev">›</span>
+                </div>
+                <div class="list-row">
+                  <span class="id">LV-00419</span>
+                  <div>
+                    <div class="name">Compassionate Leave</div>
+                    <div class="sub">2 days · submitted 2 Apr · RP6/2026</div>
+                  </div>
+                  <span
+                    ><span class="pill info"><i></i>In review</span></span
+                  ><span>3–4 May 2026</span><span class="chev">›</span>
+                </div>
+                <div class="list-row">
+                  <span class="id">LV-00402</span>
+                  <div>
+                    <div class="name">Annual Leave</div>
+                    <div class="sub">8 days · submitted 3 Jan · RP3/2026</div>
+                  </div>
+                  <span
+                    ><span class="pill ok"><i></i>Approved</span></span
+                  ><span>12–19 Feb 2026</span><span class="chev">›</span>
+                </div>
+                <div class="list-row">
+                  <span class="id">LV-00388</span>
+                  <div>
+                    <div class="name">Sick Leave</div>
+                    <div class="sub">2 days · submitted 8 Jan · RP2/2026</div>
+                  </div>
+                  <span
+                    ><span class="pill ok"><i></i>Approved</span></span
+                  ><span>8–9 Jan 2026</span><span class="chev">›</span>
+                </div>
+                <div class="list-row">
+                  <span class="id">LV-00365</span>
+                  <div>
+                    <div class="name">Annual Leave</div>
+                    <div class="sub">8 days · submitted 20 Oct · RP1/2026</div>
+                  </div>
+                  <span
+                    ><span class="pill ok"><i></i>Approved</span></span
+                  ><span>14–21 Dec 2025</span><span class="chev">›</span>
+                </div>
+                <div class="list-row">
+                  <span class="id">LV-00341</span>
+                  <div>
+                    <div class="name">Long Service Leave</div>
+                    <div class="sub">28 days · submitted 14 Aug · RP10/2025</div>
+                  </div>
+                  <span
+                    ><span class="pill crit"><i></i>Declined</span></span
+                  ><span>1–28 Oct 2025</span><span class="chev">›</span>
+                </div>
+                <div class="list-row">
+                  <span class="id">LV-00319</span>
+                  <div>
+                    <div class="name">Annual Leave</div>
+                    <div class="sub">8 days · submitted 30 Jun · RP8/2025</div>
+                  </div>
+                  <span
+                    ><span class="pill ok"><i></i>Approved</span></span
+                  ><span>18–25 Aug 2025</span><span class="chev">›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- V5 · New Leave -->
+        <div class="screen-wrap">
+          <div class="screen-label">04 · New Leave Request</div>
+          <div class="screen-frame v5">
+            <div class="topbar">
+              <span class="logo">Pilot Portal</span>
+              <span class="sep">/</span>
+              <span class="crumb">Requests</span>
+              <span class="sep">/</span>
+              <span class="crumb"><b>New leave request</b></span>
+              <div class="spacer"></div>
+              <span style="font-size: 12px; color: #999"
+                >Press
+                <kbd
+                  style="
+                    background: #f4f4f5;
+                    border: 1px solid #e4e4e7;
+                    padding: 0 5px;
+                    border-radius: 3px;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                    font-size: 11px;
+                  "
+                  >esc</kbd
+                >
+                to cancel</span
+              >
+            </div>
+
+            <div class="pagehead">
+              <h1>New leave request</h1>
+              <p>Requests should be submitted at least 21 days in advance.</p>
+            </div>
+
+            <div class="body" style="max-width: 720px">
+              <div class="alert warn">
+                <i>⚠</i>
+                <div>
+                  <strong>Late request.</strong> Less than 21 days advance notice. This request will
+                  be flagged and reviewed based on operational requirements.
+                </div>
+              </div>
+
+              <div class="form">
+                <div class="field">
+                  <label class="label">Leave type <span class="opt">Required</span></label>
+                  <input class="input" value="Annual Leave" />
+                </div>
+
+                <div class="form-grid">
+                  <div class="field">
+                    <label class="label">Start date <span class="opt">Required</span></label>
+                    <input class="input" value="2026-05-03" />
+                  </div>
+                  <div class="field">
+                    <label class="label">End date <span class="opt">Required</span></label>
+                    <input class="input" value="2026-05-10" />
+                  </div>
+                </div>
+
+                <div class="alert info" style="margin-top: 4px; margin-bottom: 16px">
+                  <i>ℹ</i>
+                  <div>
+                    8 days · RP6/2026 · 6 captains on leave in window ·
+                    <strong>minimum crew met</strong>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Reason <span class="opt">Optional · 143/500</span></label>
+                  <textarea class="input" rows="4" style="font-family: inherit">
+Family obligations. Booking prior to peak season to minimize impact on RP6 rostering.</textarea
+                  >
+                  <p class="hint">Plain-text context visible to fleet management.</p>
+                </div>
+
+                <div class="form-foot">
+                  <button class="btn ghost">
+                    Cancel <span class="kb" style="background: #f4f4f5; color: #666">esc</span>
+                  </button>
+                  <button class="btn">Submit request <span class="kb">⌘↵</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const buttons = document.querySelectorAll('.shell-nav button')
+      const variants = document.querySelectorAll('.variant')
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const t = btn.dataset.target
+          buttons.forEach((b) => b.classList.toggle('active', b === btn))
+          variants.forEach((v) => v.classList.toggle('active', v.dataset.v === t))
+          window.scrollTo(0, 0)
+        })
+      })
+
+      // Keyboard nav: 1-5 switches variants
+      document.addEventListener('keydown', (e) => {
+        if (e.target.matches('input, textarea, select')) return
+        const n = parseInt(e.key)
+        if (n >= 1 && n <= 5) buttons[n - 1]?.click()
+      })
+    </script>
+  </body>
+</html>

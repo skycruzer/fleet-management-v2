@@ -2,14 +2,7 @@
 
 /**
  * Leave Request Submission Page
- *
  * Developer: Maurice Rondeau
- *
- * Allows pilots to submit new leave requests with date selection
- * and automatic late request flag calculation.
- * For SICK leave, pilots can optionally attach a medical certificate.
- *
- * @spec 001-missing-core-features (US2)
  */
 
 import { useState, useCallback } from 'react'
@@ -26,14 +19,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Select,
@@ -43,7 +29,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FileUpload } from '@/components/ui/file-upload'
-import { ArrowLeft, Calendar, AlertCircle } from 'lucide-react'
+import { PageHead } from '@/components/ui/page-head'
+import { Calendar, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 
 const LEAVE_TYPES = [
@@ -62,8 +49,6 @@ export default function NewLeaveRequestPage() {
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isLateRequest, setIsLateRequest] = useState(false)
-
-  // Medical certificate upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string>('')
@@ -79,53 +64,41 @@ export default function NewLeaveRequestPage() {
     },
   })
 
-  // Watch leave type to show/hide file upload
   const watchRequestType = form.watch('request_type')
 
-  // Check if request is late (less than 21 days advance notice)
   const checkLateRequest = (startDate: string) => {
     if (!startDate) return
-
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-
     const start = new Date(startDate)
     const daysDiff = Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-
     setIsLateRequest(daysDiff < 21)
   }
 
-  // Handle file selection
   const handleFileSelect = useCallback((file: File | null) => {
     setSelectedFile(file)
     setUploadError('')
   }, [])
 
-  // Handle file removal
   const handleFileRemove = useCallback(() => {
     setSelectedFile(null)
     setUploadError('')
     form.setValue('source_attachment_url', null)
   }, [form])
 
-  // Upload medical certificate to storage
   const uploadMedicalCertificate = async (file: File): Promise<string | null> => {
     setIsUploading(true)
     setUploadError('')
-
     try {
       const formData = new FormData()
       formData.append('file', file)
-
       const response = await fetch('/api/portal/upload/medical-certificate', {
         method: 'POST',
         headers: { ...csrfHeaders() },
         body: formData,
         credentials: 'include',
       })
-
       const result = await response.json()
-
       if (!response.ok || !result.success) {
         const errorMessage =
           typeof result.error === 'string'
@@ -134,7 +107,6 @@ export default function NewLeaveRequestPage() {
         setUploadError(errorMessage)
         return null
       }
-
       return result.data?.url || null
     } catch {
       setUploadError('Failed to upload medical certificate. Please try again.')
@@ -150,34 +122,25 @@ export default function NewLeaveRequestPage() {
     setUploadError('')
 
     try {
-      // If sick leave with a file selected, upload it first
       let attachmentUrl: string | null = null
       if (data.request_type === 'SICK' && selectedFile) {
         attachmentUrl = await uploadMedicalCertificate(selectedFile)
         if (!attachmentUrl && uploadError) {
-          // Upload failed, stop submission
           setIsLoading(false)
           return
         }
       }
 
-      // Submit leave request with attachment URL if available
-      const submitData = {
-        ...data,
-        source_attachment_url: attachmentUrl,
-      }
-
+      const submitData = { ...data, source_attachment_url: attachmentUrl }
       const response = await fetch('/api/portal/leave-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
         body: JSON.stringify(submitData),
         credentials: 'include',
       })
-
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        // Handle error - ensure we display a string, not an object
         const errorMessage =
           typeof result.error === 'string'
             ? result.error
@@ -187,15 +150,11 @@ export default function NewLeaveRequestPage() {
         return
       }
 
-      // Show success message
       setSuccess(true)
       setIsLoading(false)
 
-      // Wait for user to see success, then refresh cache and redirect
       await new Promise((resolve) => setTimeout(resolve, 1500))
-      // Invalidate TanStack Query cache
       await queryClient.invalidateQueries({ queryKey: ['leave-requests'] })
-      // CRITICAL: Refresh cache BEFORE navigation (Next.js 16 requirement)
       router.refresh()
       await new Promise((resolve) => setTimeout(resolve, 300))
       router.push('/portal/requests?tab=leave')
@@ -207,195 +166,185 @@ export default function NewLeaveRequestPage() {
 
   if (success) {
     return (
-      <div className="container mx-auto p-6">
-        <Card className="mx-auto max-w-2xl">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-[var(--color-success-600)]">
-              Request Submitted!
-            </CardTitle>
-            <CardDescription>Your leave request has been submitted for review.</CardDescription>
-          </CardHeader>
-          <CardContent>
+      <div>
+        <PageHead
+          title="Request submitted"
+          description="Your leave request has been sent for review."
+        />
+        <main className="px-4 py-8 sm:px-6 lg:px-8">
+          <Card className="mx-auto max-w-2xl p-6">
             <Alert>
               <Calendar className="h-4 w-4" />
               <AlertDescription>
-                You will receive a notification once your request is reviewed by fleet management.
+                You will receive a notification once fleet management reviews your request.
               </AlertDescription>
             </Alert>
-          </CardContent>
-          <CardFooter className="justify-center">
-            <p className="text-muted-foreground text-sm">Redirecting to your leave requests...</p>
-          </CardFooter>
-        </Card>
+            <p className="text-muted-foreground mt-4 text-center text-sm">
+              Redirecting to your requests…
+            </p>
+          </Card>
+        </main>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <div className="flex items-center gap-4">
-        <Link href="/portal/requests?tab=leave">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-foreground text-xl font-semibold tracking-tight lg:text-2xl">
-            Submit Leave Request
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">Request time off from your roster</p>
-        </div>
-      </div>
+    <div>
+      <PageHead
+        title="Submit leave request"
+        description="Requests should be submitted at least 21 days in advance."
+        breadcrumbs={
+          <Link
+            href="/portal/requests?tab=leave"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            ← My Requests
+          </Link>
+        }
+      />
 
-      <Card className="mx-auto max-w-2xl">
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardHeader>
-            <CardTitle>Leave Request Details</CardTitle>
-            <CardDescription>Submit your leave request for management approval</CardDescription>
-          </CardHeader>
+      <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <Card className="mx-auto max-w-2xl">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="space-y-6 p-6">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-          <CardContent className="space-y-6">
-            {error && (
-              <Alert variant="destructive">
+              {isLateRequest && (
+                <Alert
+                  variant="default"
+                  className="border-[var(--color-warning-500)] bg-[var(--color-warning-muted)]"
+                >
+                  <AlertCircle className="h-4 w-4 text-[var(--color-warning-600)]" />
+                  <AlertDescription className="text-[var(--color-warning-600)]">
+                    Late request (less than 21 days advance notice). Approval is subject to
+                    operational requirements.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="request_type">Leave type *</Label>
+                <Select
+                  onValueChange={(value) => form.setValue('request_type', value as any)}
+                  defaultValue={form.getValues('request_type')}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select leave type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAVE_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.request_type && (
+                  <p className="text-destructive text-sm">
+                    {form.formState.errors.request_type.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="start_date">Start date *</Label>
+                  <Input
+                    id="start_date"
+                    type="date"
+                    {...form.register('start_date')}
+                    onChange={(e) => {
+                      form.register('start_date').onChange(e)
+                      checkLateRequest(e.target.value)
+                    }}
+                    disabled={isLoading}
+                  />
+                  {form.formState.errors.start_date && (
+                    <p className="text-destructive text-sm">
+                      {form.formState.errors.start_date.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="end_date">End date *</Label>
+                  <Input
+                    id="end_date"
+                    type="date"
+                    {...form.register('end_date')}
+                    disabled={isLoading}
+                  />
+                  {form.formState.errors.end_date && (
+                    <p className="text-destructive text-sm">
+                      {form.formState.errors.end_date.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reason">
+                  Reason <span className="text-muted-foreground font-normal">(optional)</span>
+                </Label>
+                <Textarea
+                  id="reason"
+                  placeholder="Provide additional context for your leave request…"
+                  rows={4}
+                  maxLength={500}
+                  {...form.register('reason')}
+                  disabled={isLoading}
+                />
+                <p className="text-muted-foreground text-xs">
+                  {form.watch('reason')?.length || 0}/500 characters
+                </p>
+                {form.formState.errors.reason && (
+                  <p className="text-destructive text-sm">{form.formState.errors.reason.message}</p>
+                )}
+              </div>
+
+              {watchRequestType === 'SICK' && (
+                <div className="space-y-2">
+                  <FileUpload
+                    label="Medical certificate (optional)"
+                    helperText="Attach a medical certificate to support your sick leave. Admins may request this during review if needed."
+                    value={selectedFile}
+                    onFileSelect={handleFileSelect}
+                    onFileRemove={handleFileRemove}
+                    disabled={isLoading || isUploading}
+                    isUploading={isUploading}
+                    error={uploadError}
+                  />
+                </div>
+              )}
+
+              <Alert>
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {isLateRequest && (
-              <Alert
-                variant="default"
-                className="border-[var(--color-warning-500)] bg-[var(--color-warning-muted)]"
-              >
-                <AlertCircle className="h-4 w-4 text-[var(--color-warning-600)]" />
-                <AlertDescription className="text-[var(--color-warning-600)]">
-                  This is a late request (less than 21 days advance notice). Approval is subject to
-                  operational requirements.
+                <AlertDescription>
+                  <strong>Note:</strong> Leave requests should be submitted at least 21 days in
+                  advance. Late requests may be denied based on operational requirements.
                 </AlertDescription>
               </Alert>
-            )}
+            </CardContent>
 
-            {/* Leave Type */}
-            <div className="space-y-2">
-              <Label htmlFor="request_type">Leave Type *</Label>
-              <Select
-                onValueChange={(value) => form.setValue('request_type', value as any)}
-                defaultValue={form.getValues('request_type')}
-                disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select leave type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEAVE_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.request_type && (
-                <p className="text-sm text-[var(--color-danger-500)]">
-                  {form.formState.errors.request_type.message}
-                </p>
-              )}
-            </div>
-
-            {/* Date Range */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="start_date">Start Date *</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  {...form.register('start_date')}
-                  onChange={(e) => {
-                    form.register('start_date').onChange(e)
-                    checkLateRequest(e.target.value)
-                  }}
-                  disabled={isLoading}
-                />
-                {form.formState.errors.start_date && (
-                  <p className="text-sm text-[var(--color-danger-500)]">
-                    {form.formState.errors.start_date.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="end_date">End Date *</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  {...form.register('end_date')}
-                  disabled={isLoading}
-                />
-                {form.formState.errors.end_date && (
-                  <p className="text-sm text-[var(--color-danger-500)]">
-                    {form.formState.errors.end_date.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Reason (Optional) */}
-            <div className="space-y-2">
-              <Label htmlFor="reason">Reason (Optional)</Label>
-              <Textarea
-                id="reason"
-                placeholder="Provide additional context for your leave request..."
-                rows={4}
-                maxLength={500}
-                {...form.register('reason')}
-                disabled={isLoading}
-              />
-              <p className="text-muted-foreground text-xs">
-                {form.watch('reason')?.length || 0}/500 characters
-              </p>
-              {form.formState.errors.reason && (
-                <p className="text-sm text-[var(--color-danger-500)]">
-                  {form.formState.errors.reason.message}
-                </p>
-              )}
-            </div>
-
-            {/* Medical Certificate Upload (Only for Sick Leave) */}
-            {watchRequestType === 'SICK' && (
-              <div className="space-y-2">
-                <FileUpload
-                  label="Medical Certificate (Optional)"
-                  helperText="You can attach a medical certificate to support your sick leave request. Admins may request this during review if needed."
-                  value={selectedFile}
-                  onFileSelect={handleFileSelect}
-                  onFileRemove={handleFileRemove}
-                  disabled={isLoading || isUploading}
-                  isUploading={isUploading}
-                  error={uploadError}
-                />
-              </div>
-            )}
-
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Important:</strong> Leave requests should be submitted at least 21 days in
-                advance. Late requests may be denied based on operational requirements.
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-
-          <CardFooter className="flex justify-between">
-            <Link href="/portal/requests?tab=leave">
-              <Button type="button" variant="outline" disabled={isLoading}>
-                Cancel
+            <div className="border-border flex justify-end gap-2 border-t px-6 py-4">
+              <Link href="/portal/requests?tab=leave">
+                <Button type="button" variant="outline" disabled={isLoading}>
+                  Cancel
+                </Button>
+              </Link>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Submitting…' : 'Submit request'}
               </Button>
-            </Link>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Submitting...' : 'Submit Request'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+            </div>
+          </form>
+        </Card>
+      </main>
     </div>
   )
 }

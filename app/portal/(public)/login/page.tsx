@@ -1,22 +1,16 @@
 /**
  * Pilot Portal Login Page
  * Developer: Maurice Rondeau
- *
- * Clean Nova-style: centered card on dark navy premium background.
- * Enhanced with entrance animation, error shake, and button press feedback.
  */
 
 'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Image from 'next/image'
 import { IdCard, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react'
-import { useAnimationSettings } from '@/lib/hooks/use-reduced-motion'
-import { EASING, DURATION } from '@/lib/animations/motion-variants'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function PilotLoginPage() {
@@ -24,7 +18,6 @@ export default function PilotLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  const { shouldAnimate } = useAnimationSettings()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -41,12 +34,8 @@ export default function PilotLoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ staffId, password, rememberMe }),
       })
-
       const result = await response.json()
-
       if (result.success) {
-        // Hard navigation to bypass Next.js Router Cache — ensures the new
-        // session cookie is sent fresh and middleware sees it on first attempt.
         window.location.href = result.redirect || '/portal/dashboard'
         return
       } else {
@@ -60,73 +49,42 @@ export default function PilotLoginPage() {
   }
 
   return (
-    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Subtle background pattern — pointer-events-none prevents blocking form clicks */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle,var(--color-border)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-20" />
-      </div>
+    <div className="bg-background relative flex min-h-screen items-center justify-center px-4">
       <div className="fixed top-4 right-4 z-10">
         <ThemeToggle />
       </div>
-      <motion.div
-        className="relative z-10 w-full max-w-sm"
-        initial={shouldAnimate ? { opacity: 0, y: 16, scale: 0.98 } : undefined}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: DURATION.slow, ease: EASING.easeOut }}
-      >
-        {/* Logo & Title */}
+
+      <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Image
             src="/images/air-niugini-logo.jpg"
             alt="Air Niugini"
             width={48}
             height={48}
-            className="mx-auto mb-0 h-14 w-14 rounded-xl object-contain shadow-lg"
+            className="mx-auto h-12 w-12 rounded-xl object-contain"
           />
-          <p className="text-muted-foreground mt-1 text-xs font-medium tracking-wide">
+          <p className="text-muted-foreground mt-3 text-xs font-medium tracking-wide">
             Air Niugini Ltd
           </p>
-          <h1 className="text-foreground text-xl font-semibold">B767 Pilot Portal</h1>
+          <h1 className="text-foreground text-xl font-semibold tracking-tight">
+            B767 Pilot Portal
+          </h1>
           <p className="text-muted-foreground mt-1 text-sm">Crew member access</p>
         </div>
 
-        {/* Login Card */}
-        <div className="bg-card border-border rounded-xl border p-6 shadow-lg">
-          {/* Error — with shake animation */}
-          <AnimatePresence mode="wait">
-            {error && (
-              <motion.div
-                key="error"
-                initial={shouldAnimate ? { opacity: 0, x: 0 } : { opacity: 1 }}
-                animate={
-                  shouldAnimate
-                    ? {
-                        opacity: 1,
-                        x: [0, -6, 6, -4, 4, 0],
-                        transition: {
-                          x: { duration: 0.4, times: [0, 0.15, 0.35, 0.55, 0.75, 1] },
-                          opacity: { duration: DURATION.fast },
-                        },
-                      }
-                    : { opacity: 1 }
-                }
-                exit={
-                  shouldAnimate
-                    ? { opacity: 0, transition: { duration: DURATION.fast } }
-                    : undefined
-                }
-                role="alert"
-                aria-live="assertive"
-                className="border-destructive/20 bg-destructive/5 text-destructive mb-4 flex items-center gap-2 rounded-md border p-3 text-sm"
-              >
-                <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-                <span>{error}</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="bg-card border-border rounded-xl border p-6">
+          {error && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="border-destructive/20 bg-destructive/5 text-destructive mb-4 flex items-center gap-2 rounded-md border p-3 text-sm"
+            >
+              <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>{error}</span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Staff ID */}
             <div>
               <label
                 htmlFor="staffId"
@@ -149,7 +107,6 @@ export default function PilotLoginPage() {
               </div>
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -182,7 +139,6 @@ export default function PilotLoginPage() {
               </div>
             </div>
 
-            {/* Remember Me + Forgot Password */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <button
@@ -219,42 +175,29 @@ export default function PilotLoginPage() {
               </div>
               <Link
                 href="/portal/forgot-password"
-                className="text-sm font-medium text-[var(--color-info)] hover:text-[var(--color-info)]/80"
+                className="text-foreground hover:text-foreground/80 text-sm font-medium"
               >
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit — with press feedback */}
-            <motion.div
-              whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
-              transition={{ duration: 0.1 }}
-            >
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="bg-primary hover:bg-primary/90 w-full text-white disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Signing in...
-                  </span>
-                ) : (
-                  'Sign In'
-                )}
-              </Button>
-            </motion.div>
+            <Button type="submit" disabled={isLoading} className="w-full disabled:opacity-50">
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Signing in…
+                </span>
+              ) : (
+                'Sign in'
+              )}
+            </Button>
           </form>
         </div>
 
-        {/* Footer */}
-        <div className="mt-6 flex flex-col items-center gap-2 text-xs">
-          <p className="text-muted-foreground">
-            Contact your administrator if you need account access.
-          </p>
-        </div>
-      </motion.div>
+        <p className="text-muted-foreground mt-6 text-center text-xs">
+          Contact your administrator if you need account access.
+        </p>
+      </div>
     </div>
   )
 }

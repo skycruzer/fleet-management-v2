@@ -107,7 +107,9 @@ export const POST = withRateLimit(async (request: NextRequest) => {
       )
     }
 
-    const result = await uploadPublishedRoster(file, rosterPeriodCode, auth.userId!)
+    const replace = formData.get('replace') === 'true'
+
+    const result = await uploadPublishedRoster(file, rosterPeriodCode, auth.userId!, { replace })
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 })

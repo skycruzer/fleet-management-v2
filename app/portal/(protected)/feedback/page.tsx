@@ -17,7 +17,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { MessageSquare, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { PageBreadcrumbs } from '@/components/navigation/page-breadcrumbs'
+import { PageHead } from '@/components/ui/page-head'
 import { FeedbackPost, type FeedbackPostData } from '@/components/shared/feedback-post'
 
 interface PilotSession {
@@ -141,30 +141,18 @@ export default function FeedbackPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Breadcrumbs */}
-      <div className="px-8 pt-6">
-        <PageBreadcrumbs rootPath="portal" />
-      </div>
-      {/* Page Header */}
-      <div className="bg-card border-border border-b px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <MessageSquare className="h-8 w-8 text-[var(--color-info)]" />
-            <div>
-              <h1 className="text-foreground text-2xl font-bold">Feedback</h1>
-              <p className="text-muted-foreground text-sm">
-                View your feedback and conversations with fleet management
-              </p>
-            </div>
-          </div>
+      <PageHead
+        title="Feedback"
+        description="View your feedback and conversations with fleet management"
+        action={
           <Link href="/portal/feedback/new">
-            <Button>
+            <Button size="sm">
               <MessageSquare className="mr-2 h-4 w-4" />
-              Submit Feedback
+              Submit feedback
             </Button>
           </Link>
-        </div>
-      </div>
+        }
+      />
 
       <main className="px-8 py-8">
         {/* Statistics */}
