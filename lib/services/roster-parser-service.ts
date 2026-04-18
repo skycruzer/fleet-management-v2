@@ -7,6 +7,8 @@
  * Developer: Maurice Rondeau
  */
 
+import { getRosterPeriodFromDate } from '@/lib/utils/roster-utils'
+
 // Polyfill DOMMatrix for serverless environments (Vercel) where it's missing.
 // pdfjs-dist requires it even in the legacy build as of v5.x.
 if (typeof globalThis.DOMMatrix === 'undefined') {
@@ -111,9 +113,22 @@ export interface ParsedRosterData {
 }
 
 /**
- * Parses a B767 roster PDF and extracts structured roster data
+ * Parses a B767 roster PDF and extracts structured roster data.
+ *
+ * The period code is derived from the PDF's **date grid** (via
+ * getRosterPeriodFromDate), not from the title text. Titles are often
+ * typo'd or reformatted by the airline; the 28-day date grid is the
+ * canonical signal for which roster period the PDF represents.
+ *
+ * @param pdfBuffer PDF file bytes
+ * @param hintPeriodCode Optional "RPNN/YYYY" — used only to disambiguate
+ *   year when the grid straddles a year boundary (e.g., Dec → Jan).
+ *   Never used to override what the grid actually says.
  */
-export async function parseRosterPdf(pdfBuffer: Buffer): Promise<ParsedRosterData> {
+export async function parseRosterPdf(
+  pdfBuffer: Buffer,
+  hintPeriodCode?: string
+): Promise<ParsedRosterData> {
   try {
     // Use legacy build for broadest Node.js compatibility
     const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs')
@@ -125,7 +140,11 @@ export async function parseRosterPdf(pdfBuffer: Buffer): Promise<ParsedRosterDat
     let firstOfficers: PilotAssignment[] = []
     let periodCode = ''
     let rosterTitle = ''
+    let titleDerivedCode = ''
     const dateRange = { start: '', end: '' }
+
+    const hintYear = hintPeriodCode?.match(/\/(\d{4})$/)?.[1]
+    const yearHint = hintYear ? parseInt(hintYear, 10) : new Date().getFullYear()
 
     // Process all pages
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
@@ -133,28 +152,15 @@ export async function parseRosterPdf(pdfBuffer: Buffer): Promise<ParsedRosterDat
       const textContent = await page.getTextContent()
       const items = textContent.items as any[]
 
-      // On first page, extract title and dates
+      // On first page, extract title (informational) and dates (authoritative)
       if (pageNum === 1) {
-        const titleMatch = extractTitle(items)
-        if (titleMatch) {
-          rosterTitle = titleMatch
-          // Try "RP05/2026" format first
-          const rpMatch = titleMatch.match(/RP(\d{1,2})\/(\d{4})/)
-          if (rpMatch) {
-            periodCode = rpMatch[0]
-          } else {
-            // Try "ROSTER PERIOD 05 ... 2026" format
-            const longMatch = titleMatch.match(/ROSTER\s+PERIOD\s+(\d{1,2})\b.*?(\d{4})/i)
-            if (longMatch) {
-              periodCode = `RP${longMatch[1].padStart(2, '0')}/${longMatch[2]}`
-            }
-          }
+        const titleInfo = extractTitle(items)
+        if (titleInfo) {
+          rosterTitle = titleInfo.title
+          titleDerivedCode = titleInfo.periodCode
         }
 
-        // Extract year from period code for date parsing
-        const yearMatch = periodCode.match(/\/(\d{4})$/)
-        const rosterYear = yearMatch ? parseInt(yearMatch[1]) : undefined
-        const dates = extractDateHeaders(items, rosterYear)
+        const dates = extractDateHeaders(items, yearHint)
         if (dates.length > 0) {
           dateRange.start = dates[0]
           dateRange.end = dates[dates.length - 1]
@@ -181,8 +187,37 @@ export async function parseRosterPdf(pdfBuffer: Buffer): Promise<ParsedRosterDat
       }
     }
 
+    // Authoritative: derive the period from the date grid
+    if (dateRange.start) {
+      const firstDate = new Date(`${dateRange.start}T00:00:00Z`)
+      if (!Number.isNaN(firstDate.getTime())) {
+        const derived = getRosterPeriodFromDate(firstDate)
+        periodCode = derived.code
+      }
+    }
+
+    // Fallback: title-based code if the date grid couldn't be parsed
+    if (!periodCode && titleDerivedCode) {
+      periodCode = titleDerivedCode
+    }
+
     if (!periodCode) {
-      throw new Error('Could not extract roster period code from PDF')
+      throw new Error(
+        'Could not determine roster period from PDF. Neither the date grid nor the title was readable.'
+      )
+    }
+
+    // If the title disagrees with the grid, the grid wins. Log for visibility.
+    if (titleDerivedCode && titleDerivedCode !== periodCode) {
+      console.warn(
+        `Roster PDF title says ${titleDerivedCode} but the date grid is for ${periodCode}. ` +
+          `Trusting the date grid.`
+      )
+    }
+
+    // Make sure downstream code always has a non-empty title for display
+    if (!rosterTitle) {
+      rosterTitle = `Roster ${periodCode}`
     }
 
     if (captains.length === 0 && firstOfficers.length === 0) {
@@ -205,21 +240,73 @@ export async function parseRosterPdf(pdfBuffer: Buffer): Promise<ParsedRosterDat
 }
 
 /**
- * Extracts the roster title/header from PDF text items
+ * Extracts the roster title and any title-embedded period code.
+ *
+ * First tries individual items for a clean "title line" for display.
+ * Then concatenates the whole page's text and sweeps it for any known
+ * period-code pattern — handles cases where the title is split across
+ * multiple PDF text items, or uses an unusual layout.
+ *
+ * Returns null only when neither a title line nor a period code can be
+ * found. The caller should still attempt date-grid extraction as the
+ * authoritative source.
  */
-function extractTitle(items: any[]): string | null {
+function extractTitle(
+  items: any[]
+): { title: string; periodCode: string } | null {
+  let title = ''
+
   for (const item of items) {
     const text = item.str.toUpperCase()
-    // Match "ROSTER PERIOD XX" line (primary format in newer PDFs)
     if (text.includes('ROSTER PERIOD') && text.match(/\d{4}/)) {
-      return item.str
+      title = item.str
+      break
     }
-    // Legacy format: "B767" combined with "ROSTER" or "ANALYTIC" in same item
     if (text.includes('B767') && (text.includes('ROSTER') || text.includes('ANALYTIC'))) {
-      return item.str
+      title = item.str
+      break
     }
   }
-  return null
+
+  // Build a single normalized blob of the first-page text for fallback matching
+  const joined = items
+    .map((i: any) => (typeof i?.str === 'string' ? i.str : ''))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+
+  const periodCode = findPeriodCodeInText(joined)
+
+  if (!title && !periodCode) {
+    return null
+  }
+
+  return { title: title || periodCode, periodCode }
+}
+
+/**
+ * Scans arbitrary text for a roster period code in any of the known formats.
+ * Returns the canonical "RPNN/YYYY" form, or '' if nothing matches.
+ */
+function findPeriodCodeInText(text: string): string {
+  // Canonical form: "RP05/2026" or "RP5/2026"
+  const slash = text.match(/RP\s*(\d{1,2})\s*\/\s*(\d{4})/i)
+  if (slash) {
+    return `RP${slash[1].padStart(2, '0')}/${slash[2]}`
+  }
+
+  // "RP05 ART 2026" / "RP05 2026" — code followed by a 4-digit year
+  const spaced = text.match(/\bRP\s*(\d{1,2})\b[^\d]{0,40}(\d{4})\b/i)
+  if (spaced) {
+    return `RP${spaced[1].padStart(2, '0')}/${spaced[2]}`
+  }
+
+  // "ROSTER PERIOD 05 ... 2026"
+  const long = text.match(/ROSTER\s+PERIOD\s+(\d{1,2})\b[^\d]{0,80}(\d{4})\b/i)
+  if (long) {
+    return `RP${long[1].padStart(2, '0')}/${long[2]}`
+  }
+
+  return ''
 }
 
 /**

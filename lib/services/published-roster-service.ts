@@ -44,12 +44,13 @@ export async function uploadPublishedRoster(
       return ServiceResponse.error('File size exceeds 10MB limit')
     }
 
-    // 1. Parse PDF first — authoritative period code comes from the PDF itself
+    // 1. Parse PDF first — authoritative period code comes from the date grid.
+    //    Pass the UI-selected code as a year-disambiguation hint only.
     const fileBuffer = await file.arrayBuffer()
     let parsedData: ParsedRosterData
     try {
       const { parseRosterPdf } = await import('./roster-parser-service')
-      parsedData = await parseRosterPdf(Buffer.from(fileBuffer))
+      parsedData = await parseRosterPdf(Buffer.from(fileBuffer), rosterPeriodCode)
     } catch (parseError) {
       const errorMsg = parseError instanceof Error ? parseError.message : 'Unknown parsing error'
       return ServiceResponse.error(`PDF parsing failed: ${errorMsg}`)
