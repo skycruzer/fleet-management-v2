@@ -460,7 +460,7 @@ export default function CertificationsPage() {
   }
 
   if (loading) {
-    return <TableSkeleton rows={8} columns={6} />
+    return <TableSkeleton rows={pageSize} columns={6} />
   }
 
   if (error) {
@@ -656,8 +656,12 @@ export default function CertificationsPage() {
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center">
-                    <p className="text-muted-foreground">No certifications found</p>
+                  <TableCell colSpan={6} className="py-12 text-center">
+                    <p className="text-muted-foreground mb-4 text-sm">No certifications found</p>
+                    <Button variant="outline" size="sm" onClick={handleCreateClick}>
+                      <Plus className="h-4 w-4" aria-hidden="true" />
+                      Add the first certification
+                    </Button>
                   </TableCell>
                 </TableRow>
               ) : (
@@ -697,10 +701,9 @@ export default function CertificationsPage() {
                           Edit
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="destructive"
                           size="sm"
                           onClick={() => handleDeleteClick(cert)}
-                          className="text-[var(--color-danger-400)] hover:text-[var(--color-danger-300)]"
                           aria-label={`Delete certification for ${cert.pilot.first_name} ${cert.pilot.last_name}`}
                         >
                           <Trash2 className="h-4 w-4" aria-hidden="true" />
