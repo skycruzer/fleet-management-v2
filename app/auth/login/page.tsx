@@ -13,14 +13,8 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function AdminLoginPage() {
   return (
-    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Minimal Background Pattern — pointer-events-none prevents blocking form clicks */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle,var(--color-border)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-20" />
-      </div>
-
-      {/* Main Card */}
-      <div className="relative w-full max-w-sm">
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-sm">
         <Card className="bg-card border-border p-8 shadow-lg">
           {/* Logo and Title */}
           <div className="mb-8 text-center">

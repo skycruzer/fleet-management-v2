@@ -52,9 +52,6 @@ export default function LoginPage() {
       <Card className="w-full max-w-md space-y-6 p-8">
         {/* Header */}
         <div className="space-y-2 text-center">
-          <div className="mb-4 flex items-center justify-center">
-            <span className="text-4xl">✈️</span>
-          </div>
           <h1 className="text-foreground text-2xl font-bold">Fleet Management V2</h1>
           <p className="text-muted-foreground">Sign in to your account</p>
         </div>
@@ -104,16 +101,18 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        {/* Test Credentials Helper */}
-        <div className="border-border border-t pt-4">
-          <p className="text-muted-foreground mb-2 text-center text-xs">Test Credentials:</p>
-          <div className="bg-muted/50 space-y-1 rounded-md p-3">
-            <p className="text-muted-foreground font-mono text-xs">
-              Email: mrondeau@airniugini.com.pg
-            </p>
-            <p className="text-muted-foreground font-mono text-xs">Password: test123</p>
+        {/* Test Credentials Helper — only rendered in development to avoid leaking creds in production */}
+        {process.env.NODE_ENV !== 'production' && (
+          <div className="border-border border-t pt-4">
+            <p className="text-muted-foreground mb-2 text-center text-xs">Test Credentials:</p>
+            <div className="bg-muted/50 space-y-1 rounded-md p-3">
+              <p className="text-muted-foreground font-mono text-xs">
+                Email: mrondeau@airniugini.com.pg
+              </p>
+              <p className="text-muted-foreground font-mono text-xs">Password: test123</p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Back to Home Link */}
         <div className="text-center">

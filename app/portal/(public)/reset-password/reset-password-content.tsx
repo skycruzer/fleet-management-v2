@@ -157,18 +157,12 @@ export function ResetPasswordContent() {
   const passwordStrength = getPasswordStrength(password)
 
   return (
-    <div className="bg-background relative flex min-h-screen items-center justify-center overflow-hidden px-4">
-      {/* Subtle background dot pattern */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="bg-muted/30 absolute inset-0 bg-[radial-gradient(circle,var(--color-border)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
-      </div>
-
-      {/* Main Card */}
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
+        className="w-full max-w-md"
       >
         <Card className="bg-card border-border p-8 shadow-lg">
           {/* Header */}
